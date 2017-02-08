@@ -140,7 +140,7 @@
                                     <Implementation-Title>${project.artifactId}</Implementation-Title>
                                     <Implementation-Version>${project.version}</Implementation-Version>
                                     <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
-                                    <Implementation-URL>https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Client</Implementation-URL>
+                                    <Implementation-URL>https://spaces.internet2.edu/display/Grouper/Grouper+Client</Implementation-URL>
                                 </manifestEntries>
                             </manifestSection>
                         </manifestSections>

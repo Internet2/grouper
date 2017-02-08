@@ -202,7 +202,7 @@ This will build the javadoc(1) document.
 ## 8. Getting Grouper
 
 Grouper releases are available from Grouper's Internet2 Wiki:
-  <https://wiki.internet2.edu/confluence/display/GrouperWG/Software+Download>
+  <https://spaces.internet2.edu/display/Grouper/Software+Download>
 
 Grouper source code repository is hosted at Github: 
   <https://github.com/Internet2/grouper>
