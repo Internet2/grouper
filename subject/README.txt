@@ -24,7 +24,7 @@ represented. Those details form the configuration of the Subject API.
 
 The Grouper Wiki has additional information on *Subject*:
 
-    <https://wiki.internet2.edu/confluence/display/GrouperWG/Subject+API>
+    <https://spaces.internet2.edu/display/Grouper/Subject+API>
 
 ---
 

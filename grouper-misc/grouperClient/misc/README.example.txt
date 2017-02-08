@@ -18,7 +18,7 @@ Grouper client institution distribution:
 
 - Here is information on grouperClient:
 
-https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Client
+https://spaces.internet2.edu/display/Grouper/Grouper+Client
 
 - Generally:
 

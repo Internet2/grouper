@@ -39,6 +39,6 @@ https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
 3. start gsh: [windows]: bin\gsh
                  [unix]: bin/gsh
 
-https://wiki.internet2.edu/confluence/display/GrouperWG/GrouperShell+(gsh)
+https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859
 
 4. install the ui quickstart, or web services

@@ -309,7 +309,7 @@ public class help {
   public static void invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
     i.println("Visit the wiki for more GSH documentation:");
-    i.println("  https://wiki.internet2.edu/confluence/display/GrouperWG/GrouperShell+(gsh)");
+    i.println("  https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859");
     i.println("Also see the Java BeanShell docs: http://www.beanshell.org/manual/contents.html");
     i.println("# COMMANDS"                                            );
     i.println("* var = method(args)    Invoke any Grouper API method" );

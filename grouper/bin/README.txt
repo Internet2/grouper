@@ -7,4 +7,4 @@ Windows type: gsh -h
 
 Note the -initEnv option for adding gsh to the path so you can run it from anywhere.
 
-gsh provides an interactive shell. See https://wiki.internet2.edu/confluence/display/GrouperWG/v1.4.0+GrouperShell+(gsh) for details.
+gsh provides an interactive shell. See https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859 for details.
