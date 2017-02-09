@@ -28,6 +28,28 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 public class GrouperRequestContainer {
 
   /**
+   * grouper loader container
+   */
+  private GrouperLoaderContainer grouperLoaderContainer;
+  
+  /**
+   * @return the grouperLoaderContainer
+   */
+  public GrouperLoaderContainer getGrouperLoaderContainer() {
+    if (this.grouperLoaderContainer == null) {
+      this.grouperLoaderContainer = new GrouperLoaderContainer();
+    }
+    return this.grouperLoaderContainer;
+  }
+  
+  /**
+   * @param grouperLoaderContainer1 the grouperLoaderContainer to set
+   */
+  public void setGrouperLoaderContainer(GrouperLoaderContainer grouperLoaderContainer1) {
+    this.grouperLoaderContainer = grouperLoaderContainer1;
+  }
+
+  /**
    * provisioning container
    */
   private ProvisioningContainer provisioningContainer;

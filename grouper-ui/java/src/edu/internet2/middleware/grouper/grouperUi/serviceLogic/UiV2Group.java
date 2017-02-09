@@ -367,6 +367,7 @@ public class UiV2Group {
     }
   }
 
+
   /**
    * the remove from groups button was pressed
    * @param request
