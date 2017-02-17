@@ -2,7 +2,7 @@ Grouper installer:
 
 - Here is information on grouperInstaller:
 
-https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Installer
+https://spaces.internet2.edu/display/Grouper/Grouper+Installer
 
 - Generally:
 
