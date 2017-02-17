@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.subject.Subject;
 
@@ -116,27 +116,59 @@ public class ProvisioningWorkItem {
     return work;
   }
   
-  private void setStatus(String status, String statusMessageFormat, Object... statusMessageArgs)
+  /**
+   * Update the status of a work item.
+   * 
+   * @param logLevel A java.util.logging Level (INFO, WARNING, SEVERE (aka error)). This is 
+   * used because slf4j 1.6.1 does not define such constants
+   * @param status
+   * @param statusMessageFormat
+   * @param statusMessageArgs
+   */
+  private void setStatus(Level logLevel, String status, String statusMessageFormat, Object... statusMessageArgs)
   {
     this.status=status;
     this.statusMessage = String.format(statusMessageFormat, statusMessageArgs);
     
-    if ( success )
-      LOG.info("Work item done: {}", this);
-    else
-      LOG.error("Work item failed: {}", this);
+    String msg;
+    if ( success ) {
+      msg = "Work item handled: {}";
+    }
+    else {
+      msg = "Work item not handled; {}";
+    }
+      
+    // Convert the j.u.logging constants into slf4j log methods
+    if ( logLevel == Level.INFO ) {
+      LOG.info(msg, this);
+    }
+    else if ( logLevel == Level.WARNING ) {
+      LOG.warn(msg, this);
+    }
+    else if ( logLevel == Level.SEVERE ) {
+      LOG.error(msg, this);
+    }
+    else {
+      LOG.debug(msg, this);
+    }
+  }
+  
+  public void markAsSkippedAndWarn(String statusMessageFormat, Object... statusMessageArgs)
+  {
+    success = true;
+    setStatus(Level.WARNING, "done", statusMessageFormat, statusMessageArgs);
   }
   
   public void markAsSuccess(String statusMessageFormat, Object... statusMessageArgs)
   {
     success = true;
-    setStatus("done", statusMessageFormat, statusMessageArgs);
+    setStatus(Level.INFO, "done", statusMessageFormat, statusMessageArgs);
   }
   
   public void markAsFailure(String statusMessageFormat, Object... statusMessageArgs)
   {
     success = false;
-    setStatus("failed", statusMessageFormat, statusMessageArgs);
+    setStatus(Level.SEVERE, "failed", statusMessageFormat, statusMessageArgs);
   }
   
   /** 
@@ -150,6 +182,11 @@ public class ProvisioningWorkItem {
   
   
   public String getGroupName() {
+    return getGroupName(true);
+  }
+
+
+  private String getGroupName(boolean logIfWrongEventType) {
     if ( groupName != null )
       return groupName;
     else if ( getChangelogEntry() == null )
@@ -165,7 +202,14 @@ public class ProvisioningWorkItem {
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
       groupNameKey = ChangeLogLabels.MEMBERSHIP_DELETE.groupName;
     else {
-      LOG.debug("Not a supported change for finding group (not GROUP_ADD, GROUP_DELETE, MEMBERSHIP_ADD, nor MEMBERSHIP_DELETE): {}",  this.getChangelogEntry().getChangeLogType());
+      if ( logIfWrongEventType ) {
+        LOG.debug("Not a supported change for finding group ({} is not {}, {}, {}, nor {}): {}",  
+          new Object[] {
+          getChangelogEntry().getChangeLogType(),
+          ChangeLogTypeBuiltin.GROUP_ADD, ChangeLogTypeBuiltin.GROUP_DELETE, 
+          ChangeLogTypeBuiltin.MEMBERSHIP_ADD, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+          work != null ? work.getSequenceNumber() : "action="+action});
+      }
       return null;
     }
 
@@ -174,7 +218,7 @@ public class ProvisioningWorkItem {
   }
   
   public GrouperGroupInfo getGroupInfo(Provisioner provisioner) {
-	  String groupName = getGroupName();
+	  String groupName = getGroupName(true);
 	  if ( groupName == null )
 		  return null;
 	  
@@ -184,6 +228,11 @@ public class ProvisioningWorkItem {
   
   
   public String getSubjectId() {
+    return getSubjectId(true);
+  }
+
+
+  private String getSubjectId(boolean logIfWrongEventType) {
     if ( getChangelogEntry() == null )
       return null;
     
@@ -198,7 +247,14 @@ public class ProvisioningWorkItem {
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
       subjectIdKey = ChangeLogLabels.MEMBER_DELETE.subjectId;
     else {
-      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this.getChangelogEntry().getChangeLogType());
+      if ( logIfWrongEventType ) {
+        LOG.debug("Not a supported change for finding subject id ({} is not {}, {}, {}, nor {}): {}",  
+          new Object[] {
+          getChangelogEntry().getChangeLogType(),
+          ChangeLogTypeBuiltin.MEMBER_ADD, ChangeLogTypeBuiltin.MEMBER_DELETE, 
+          ChangeLogTypeBuiltin.MEMBERSHIP_ADD, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+          work != null ? work.getSequenceNumber() : "action="+action});
+      }
       return null;
     }
     
@@ -208,6 +264,11 @@ public class ProvisioningWorkItem {
   }
   
   public String getSubjectSourceId() {
+    return getSubjectSourceId(true);
+  }
+
+
+  private String getSubjectSourceId(boolean logIfWrongEventType) {
     if ( getChangelogEntry() == null )
       return null;
     
@@ -222,7 +283,14 @@ public class ProvisioningWorkItem {
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
       subjectSourceIdKey = ChangeLogLabels.MEMBER_DELETE.subjectSourceId;
     else {
-      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this.getChangelogEntry().getChangeLogType());
+      if ( logIfWrongEventType ) {
+        LOG.debug("Not a supported change for finding subject source id ({} is not {}, {}, {}, nor {}): {}",  
+          new Object[] {
+          getChangelogEntry().getChangeLogType(),
+          ChangeLogTypeBuiltin.MEMBER_ADD, ChangeLogTypeBuiltin.MEMBER_DELETE, 
+          ChangeLogTypeBuiltin.MEMBERSHIP_ADD, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+          work != null ? work.getSequenceNumber() : "action="+action});
+      }
       return null;
     }
     
@@ -235,8 +303,8 @@ public class ProvisioningWorkItem {
     if ( getChangelogEntry() == null )
       return null;
     
-    final String subjectId = getSubjectId();
-    final String sourceId = getSubjectSourceId();
+    final String subjectId = getSubjectId(true);
+    final String sourceId = getSubjectSourceId(true);
 
     if ( subjectId == null || sourceId == null )
       return null;
@@ -300,11 +368,15 @@ public class ProvisioningWorkItem {
     if ( work == null )
       tsb.append("action", action);
     else {
+      String groupName = getGroupName(false);
+      String subjectId = getSubjectId(false);
+      String subjectSourceId = getSubjectSourceId(false);
+      
       tsb.append("clog", String.format("clog #%d / %s", work.getSequenceNumber(), work.getChangeLogType()));
-      if ( getGroupName() != null )
-        tsb.append("group", getGroupName());
-      if ( getSubjectId() != null )
-        tsb.append("subject", String.format("%s@%s", getSubjectId(), getSubjectSourceId()));
+      if ( groupName != null )
+        tsb.append("group", groupName);
+      if ( subjectId != null )
+        tsb.append("subject", String.format("%s@%s", subjectId, subjectSourceId));
     }
     return tsb.toString();
   }
