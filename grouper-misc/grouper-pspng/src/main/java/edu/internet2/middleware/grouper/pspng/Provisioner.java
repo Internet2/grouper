@@ -56,7 +56,6 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
@@ -429,8 +428,7 @@ public abstract class Provisioner
       }
       else {
         // Not going to process this item, so mark it as a success and don't add it to result
-        workItem.markAsSuccess("Ignoring work item %s because group %s is not provisioned", 
-            workItem, g.name);
+        workItem.markAsSuccess("Ignoring work item because group is not provisioned");
       }
     }
     
@@ -880,8 +878,7 @@ public abstract class Provisioner
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
         if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-          LOG.info("Ignoring GROUP_ADD event because group {} has been since deleted from grouper", grouperGroupInfo);
-          workItem.markAsSuccess("Ignored: group does not exist any more: %s", workItem.getGroupName());
+          workItem.markAsSkippedAndWarn("Ignored: group does not exist any more");
           return;
         }
         
@@ -897,7 +894,7 @@ public abstract class Provisioner
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
         if ( grouperGroupInfo == null ) {
-          workItem.markAsSuccess("Ignoring group-deletion event because information was not found in grouper");
+          workItem.markAsSkippedAndWarn("Ignoring group-deletion event because group information was not found in grouper");
           return;
         }
         
@@ -910,14 +907,18 @@ public abstract class Provisioner
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
         if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-          workItem.markAsSuccess("Ignoring membership-add event for group that was deleted: %s", grouperGroupInfo);
+          workItem.markAsSkippedAndWarn("Ignoring membership-add event for group that was deleted");
           return;
         }
         TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
         
+        if ( subject == null ) {
+          workItem.markAsSkippedAndWarn("Ignoring membership-add event because subject is no longer in grouper"); 
+          return;
+        }
+        
         if ( subject.getTypeName().equalsIgnoreCase("group") ) {
-          LOG.info("{}: Skipping nested-group membership. Individual subjects will be processed ({})", getName(), subject.getName());
           workItem.markAsSuccess("Nested-group membership skipped");
           return;
         }
@@ -925,9 +926,7 @@ public abstract class Provisioner
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
         
         if ( config.needsTargetSystemUsers() && tsUser==null ) {
-          LOG.warn("{}: Skipping adding membership to {} for subject that doesn't exist in target system: {}", 
-              new Object[]{getName(), grouperGroupInfo.getName(), subject.getName()});
-          workItem.markAsSuccess("Skipped: subject '%s' doesn't exist in target system", subject.getName());
+          workItem.markAsSkippedAndWarn("Skipped: subject doesn't exist in target system");
           return;
         }
         
@@ -937,24 +936,28 @@ public abstract class Provisioner
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         if ( grouperGroupInfo==null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-          workItem.markAsSuccess("Ignoring membership-delete event for group that was deleted: %s", grouperGroupInfo);
+          workItem.markAsSkippedAndWarn("Ignoring membership-delete event for group that was deleted");
           return;
         }
         TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
+        
+        if ( subject == null ) {
+          workItem.markAsSkippedAndWarn("Ignoring membership-delete event because subject is no longer in grouper");
+          LOG.warn("Work item ignored: {}", workItem);
+          return;
+        }
+        
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
   
         if ( config.needsTargetSystemUsers() && tsUser==null ) {
-          LOG.warn("{}: Skipping removing membership of subject from {}: Subject doesn't already exist in target system: {}",
-              new Object[]{getName(), grouperGroupInfo.getName(), subject.getName()});
-          workItem.markAsSuccess("Skipped: subject '%s' doesn't exist in target system", subject.getName());
+          workItem.markAsSkippedAndWarn("Skipped: subject doesn't exist in target system");
           return;
         }
         deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
       }
       else
       {
-        LOG.info("Not a supported change: {}", workItem);
         workItem.markAsSuccess("Nothing to do (not a supported change)");
       }
     } catch (PspException e) {
@@ -1258,9 +1261,8 @@ public abstract class Provisioner
 	// Additionally, if you just don't want to process events, then you can remove
 	// this provisioner from the configuration.
 	if ( ! config.isEnabled() ) {
-		LOG.warn("{} is disabled. Provisioning not being done, and marking requested items as complete.", getName());
 		for ( ProvisioningWorkItem workItem : allWorkItems ) 
-			workItem.markAsSuccess("Provisioner %s is not enabled", getName());
+			workItem.markAsSkippedAndWarn("Provisioner %s is not enabled", getName());
 		return;
 	}
 	
