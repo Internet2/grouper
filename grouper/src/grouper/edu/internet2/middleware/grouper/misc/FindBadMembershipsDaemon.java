@@ -30,6 +30,7 @@ import org.quartz.JobExecutionException;
 import bsh.Interpreter;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
@@ -59,6 +60,11 @@ public class FindBadMembershipsDaemon implements Job {
 
       String jobName = context.getJobDetail().getKey().getName();
 
+      if (GrouperLoader.isJobRunning(jobName)) {
+        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+        return;
+      }
+      
       hib3GrouploaderLog.setJobName(jobName);
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
       hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));
