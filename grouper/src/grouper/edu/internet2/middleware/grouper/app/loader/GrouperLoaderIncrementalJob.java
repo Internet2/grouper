@@ -79,6 +79,11 @@ public class GrouperLoaderIncrementalJob implements Job {
       grouperSession = GrouperSession.startRootSession();
       GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
       
+      if (GrouperLoader.isJobRunning(jobName)) {
+        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+        return;
+      }
+      
       runJob(grouperSession, jobName);
     } finally {
       GrouperSession.stopQuietly(grouperSession);

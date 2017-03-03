@@ -2116,4 +2116,20 @@ public class GrouperLoader {
     
     return false;
   }
+  
+  /**
+   * @param jobName
+   * @return true if the job appears to currently be running
+   */
+  public static boolean isJobRunning(String jobName) {
+    
+    long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSeconds", 300);
+    Long count = HibernateSession.byHqlStatic()
+        .createQuery("select count(*) from Hib3GrouperLoaderLog where jobName = :jobName and status = 'STARTED' and lastUpdated > :lastUpdated")
+        .setString("jobName", jobName)
+        .setTimestamp("lastUpdated", new Date(System.currentTimeMillis() - assumeJobKilledIfNoUpdateInMillis))
+        .uniqueResult(Long.class);
+    
+    return count > 0;
+  }
 }

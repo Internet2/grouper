@@ -86,6 +86,11 @@ public class GrouperLoaderJob implements Job {
       grouperSession = GrouperSession.startRootSession();
       String jobName = context.getJobDetail().getKey().getName();
   
+      if (GrouperLoader.isJobRunning(jobName)) {
+        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+        return;
+      }
+      
       hib3GrouploaderLog.setJobName(jobName);
       
       String grouperLoaderQuartzCronFromOwner = null;

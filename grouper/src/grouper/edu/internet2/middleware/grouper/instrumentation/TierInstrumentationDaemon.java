@@ -44,6 +44,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -81,6 +82,11 @@ public class TierInstrumentationDaemon implements Job {
 
       String jobName = context.getJobDetail().getKey().getName();
 
+      if (GrouperLoader.isJobRunning(jobName)) {
+        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+        return;
+      }
+      
       hib3GrouploaderLog.setJobName(jobName);
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
       hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));
