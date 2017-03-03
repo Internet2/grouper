@@ -19,7 +19,7 @@ Grouper client binary distribution:
 - There is no build.xml, everything is built
 - Here is information on grouperClient:
 
-https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Client
+https://spaces.internet2.edu/display/Grouper/Grouper+Client
 
 - Generally:
 

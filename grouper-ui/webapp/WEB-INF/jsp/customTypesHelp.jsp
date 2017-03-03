@@ -8,7 +8,7 @@
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <h2>Custom group types</h2>
 <p>It is possible for sites to define custom attributes for groups 
-(Grouper administrators can see <a target="_blank" href="https://wiki.internet2.edu/confluence/display/GrouperWG/Custom+Group+Types%2C+Fields%2C+Attributes%2C+Lists">wiki</a> for more info). 
+(Grouper administrators can see <a target="_blank" href="https://spaces.internet2.edu/x/QIbd">wiki</a> for more info). 
 A special 
   kind of attribute, a list, is a collection of entities, similar to a group's 
   membership list. If a group has list attributes, and you have READ or WRITE 
