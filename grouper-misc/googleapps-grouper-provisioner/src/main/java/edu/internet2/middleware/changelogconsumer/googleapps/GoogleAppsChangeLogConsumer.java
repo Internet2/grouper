@@ -141,7 +141,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         public abstract void process(GoogleAppsChangeLogConsumer consumer, ChangeLogEntry changeLogEntry) throws Exception;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(GoogleAppsFullSync.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GoogleAppsChangeLogConsumer.class);
 
     /** The change log consumer name from the processor metadata. */
     private String consumerName;
