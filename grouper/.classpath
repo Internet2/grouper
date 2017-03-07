@@ -33,7 +33,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/morphString.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/odmg.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/p6spy.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz.jar" sourcepath="lib/grouper/cron-parser-core-2.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/smtp.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/subject.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/hsqldb.jar"/>
@@ -73,5 +73,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/c3p0-oracle-thin-extras-0.9.5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/mchange-commons-java-0.2.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-c3p0-5.0.4.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/cron-parser-core-2.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang3-3.5.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/joda-time-2.9.7.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

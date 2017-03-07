@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,6 +96,45 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GrouperUiUtils {
 
+  /**
+   * convert seconds to string
+   * @param seconds
+   * @return seconds in string (e.g. 4 hours, 32 minutes, 56 seconds
+   */
+  public static String convertSecondsToString(int seconds) {
+    
+    if (seconds < 0) {
+      return "";
+    }
+
+    if (seconds < 60) {
+      return seconds + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalSeconds");
+    }
+    
+    // http://stackoverflow.com/questions/11357945/java-convert-seconds-into-day-hour-minute-and-seconds-using-timeunit
+    int days = (int)TimeUnit.SECONDS.toDays(seconds);
+    int hours = (int)(TimeUnit.SECONDS.toHours(seconds) - (TimeUnit.SECONDS.toDays(seconds) *24));
+    int minutes = (int)(TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds)* 60));
+    int secondsRemainder = (int)(TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60));
+    
+    if (seconds < 3600) {
+      return minutes + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalMinutes")
+          + " " + secondsRemainder + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalSeconds");
+    }
+    
+    if (seconds < 86400) {
+      return hours + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalHours")
+          + " " + minutes + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalMinutes")
+          + " " + secondsRemainder + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalSeconds");
+    }
+    
+    return days + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalDays")
+        + " " + hours + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalHours")
+        + " " + minutes + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalMinutes")
+        + " " + secondsRemainder + " " + TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalSeconds");
+    
+  }
+  
   /**
    * handle a veto, maybe put a message on screen if this is a veto
    * @param guiResponseJs
