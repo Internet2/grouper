@@ -465,7 +465,7 @@ public class SimpleMembershipUpdateImportExport {
               + fileName + "</pre>"));
           return;
         }
-        
+        //TODO should this be closed???
         reader = new InputStreamReader(importCsvFile.getInputStream());
         
       } else {

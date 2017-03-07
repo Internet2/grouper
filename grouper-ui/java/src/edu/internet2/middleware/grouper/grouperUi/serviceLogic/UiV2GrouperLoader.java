@@ -47,7 +47,7 @@ public class UiV2GrouperLoader {
 
       boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
       
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
 
       if (group == null || !canSeeLoader) {
         return;
@@ -66,4 +66,41 @@ public class UiV2GrouperLoader {
     }
   }
 
+  /**
+   * edit the grouper loader
+   * @param request
+   * @param response
+   */
+  public void editGrouperLoader(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+
+      if (group == null || !canSeeLoader) {
+        return;
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
 }
