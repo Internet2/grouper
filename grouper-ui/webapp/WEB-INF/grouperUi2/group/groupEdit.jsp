@@ -95,7 +95,7 @@
                         </label><span class="help-block">${textContainer.text['groupCreateTypeDescription'] }</span>
                       </div>
                     </div>
-                    <c:if test="${grouperRequestContainer.groupContainer.canAdmin && }">
+                    <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                       <div class="control-group">
                         <label for="group-type" class="control-label">${textContainer.text['groupCreateTypeLabel'] }</label>
                         <div class="controls">
