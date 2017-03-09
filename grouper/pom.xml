@@ -146,6 +146,14 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>net.redhogs.cronparser</groupId>
+          <artifactId>cron-parser-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
@@ -288,7 +296,12 @@
             <artifactId>jamon</artifactId>
             <scope>test</scope>
         </dependency>
-		
+
+        <dependency>
+          <groupId>joda-time</groupId>
+          <artifactId>joda-time</artifactId>
+        </dependency>
+
     	<dependency>
           <groupId>org.wso2.charon</groupId>
           <artifactId>org.wso2.charon.core</artifactId>
