@@ -32,8 +32,10 @@
                     <table class="table table-condensed table-striped">
                       <tbody>
                         <tr>
-                          <td><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>
-                          <td>${textContainer.text['grouperLoaderSql'] }</td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>
+                          <td>${textContainer.text['grouperLoaderSql'] }<br />
+                            <span class="description">${textContainer.text['grouperLoaderSourceType__SQL']}</span>
+                          </td>
                         </tr>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlLoaderType']}</strong></td>
@@ -48,12 +50,15 @@
                               <span class="description">${textContainer.text['grouperLoaderDatabaseNameDescription'] }</span></td>
                         </tr>
                         <tr>
-                          <td><strong>${textContainer.text['grouperLoaderSqlQuery']}</strong></td>
-                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}</td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlQuery']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderSqlQueryDescription__'.concat(grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)]}</span>
+                          </td>
                         </tr>
                         <tr>
-                          <td><strong>${textContainer.text['grouperLoaderSqlScheduleType']}</strong></td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlScheduleType']}</strong></td>
                           <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlScheduleType)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderSqlScheduleType__'.concat(grouperRequestContainer.grouperLoaderContainer.sqlScheduleType)]}</span>
                           </td>
                         </tr>
                         <c:choose>
@@ -94,11 +99,10 @@
                               </c:when>
                               
                             </c:choose>
-                          <br />
                           </td>
                         </tr>
                         <tr>
-                          <td><strong>${textContainer.text['grouperLoaderSqlAndGroups']}</strong></td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlAndGroups']}</strong></td>
                           <td style="vertical-align: top;">
                           
                             ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlAndGroups)}<br />
@@ -115,28 +119,32 @@
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType == 'SQL_GROUP_LIST' }">
                         
                           <tr>
-                            <td><strong>${textContainer.text['grouperLoaderSqlGroupQuery']}</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlGroupQuery']}</strong></td>
                             <td style="vertical-align: top;">
                             
                               ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlGroupQuery)}
-                            
+                              <br />
+                              <span class="description">${textContainer.text['grouperLoaderSqlGroupQueryDescription']}</span>
+                              
                             </td>
                           </tr>
                           
                           <tr>
-                            <td><strong>${textContainer.text['grouperLoaderSqlGroupsLike']}</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlGroupsLike']}</strong></td>
                             <td style="vertical-align: top;">
                             
                               ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlGroupsLike)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderSqlGroupsLikeDescription']}</span>
                             
                             </td>
                           </tr>
                           
                           <tr>
-                            <td><strong>${textContainer.text['grouperLoaderSqlGroupTypes']}</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlGroupTypes']}</strong></td>
                             <td style="vertical-align: top;">
                             
-                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlGroupTypes)}<br />
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlGroupTypes)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderSqlGroupTypesDescription']}</span>
                             
                             </td>
                           </tr>
@@ -153,7 +161,8 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>
                           <td>
-                            ${textContainer.text['grouperLoaderLdap'] }
+                            ${textContainer.text['grouperLoaderLdap'] }<br />
+                            <span class="description">${textContainer.text['grouperLoaderSourceType__LDAP']}
                           </td>
                         </tr>
                         <tr>
@@ -188,15 +197,6 @@
                         </tr>
                         
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderLdapGroupAttributeName']}</strong></td>
-                          <td style="vertical-align: top;">
-                          
-                            ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupAttributeName)}<br />
-                            <span class="description">${textContainer.text['grouperLoaderLdapGroupAttributeNameDescription']}</span>
-                          </td>
-                        </tr>
-                          
-                        <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderLdapSearchDn']}</strong></td>
                           <td style="vertical-align: top;">
                           
@@ -204,111 +204,202 @@
                             <span class="description">${textContainer.text['grouperLoaderLdapSearchDnDescription']}</span>
                           </td>
                         </tr>     
+
+                        <tr>
+                          <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapQuartzCron']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapCron)}
+                          <br /><span class="description">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapCronDescription)}</span>
+                          </td>
+                        </tr>
                         
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderLdapQuartzCron']}</strong></td>
-                          <td style="vertical-align: top;">
-                          
-                            ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapSearchDn)}<br />
-                            <span class="description">${textContainer.text['grouperLoaderLdapSearchDnDescription']}</span>
+                          <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapSourceId']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapSourceId)}
+                          <br /><span class="description">${textContainer.text['grouperLoaderLdapSourceIdDescription']}</span>
                           </td>
-                        </tr>     
+                        </tr>
 
-                        <c:choose>
-                          <c:when test="${grouperRequestContainer.grouperLoaderContainer.sqlScheduleType == 'CRON'}">
-                            <tr>
-                              <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderSqlCron']}</strong></td>
-                              <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlCron)}
-                              <br /><span class="description">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlCronDescription)}</span>
-                              </td>
-                            </tr>
-                          </c:when>
-                          <c:when test="${grouperRequestContainer.grouperLoaderContainer.sqlScheduleType == 'START_TO_START_INTERVAL'}">
-                            <tr>
-                              <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderSqlScheduleInterval']}</strong></td>
-                              <td>
-                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlScheduleInterval)}<br />
-                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlScheduleIntervalHumanReadable)}
-                              </td>
-                            </tr>
-                          </c:when>
-                        </c:choose>
+                        <tr>
+                          <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapSubjectLookupType']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapSubjectLookupType)}
+                          <br /><span class="description">${textContainer.text['grouperLoaderLdapSubjectLookupTypeDescription']}</span>
+                          </td>
+                        </tr>
+                        
+                        <tr>
+                          <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapSearchScope']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapSearchScope)}
+                          <br /><span class="description">${textContainer.text['grouperLoaderLdapSearchScopeDescription']}</span>
+                          </td>
+                        </tr>
+                        
+                        <tr>
+                          <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapPriority']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapPriority)}<br />
+                          
+                            <c:choose>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.ldapPriorityInt == -200}">
+                                ${textContainer.text['grouperLoaderSqlPriorityInvalid']}
+                              </c:when>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.ldapPriorityInt < 5}">
+                                ${textContainer.text['grouperLoaderSqlPriorityLow']}
+                              </c:when>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.ldapPriorityInt == 5}">
+                                ${textContainer.text['grouperLoaderSqlPriorityAverage']}
+                              </c:when>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.ldapPriorityInt > 5}">
+                                ${textContainer.text['grouperLoaderSqlPriorityHigh']}
+                              </c:when>
+                              
+                            </c:choose>
+                          </td>
+                        </tr>
+                        
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapAttributeFilterExpression']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapAttributeFilterExpression)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapAttributeFilterExpressionDescription']}</span>
+                            </td>
+                          </tr>
+                        </c:if>
+                                                
+                        <tr>
+                          <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapSubjectExpression']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapSubjectExpression)}
+                          <br /><span class="description">${textContainer.text['grouperLoaderLdapSubjectExpressionDescription']}</span>
+                          </td>
+                        </tr>
+                        
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUP_LIST'
+                            || grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+                        
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapExtraAttributes']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapExtraAttributes)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapExtraAttributesDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderLdapGroupAttributeName']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupAttributeName)}<br />
+                              <span class="description">${textContainer.text['grouperLoaderLdapGroupAttributeNameDescription']}</span>
+                            </td>
+                          </tr>
+                            
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapAndGroups']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapAndGroups)}
+                            <br />
+                              <c:forEach var="guiGroup" items="${grouperRequestContainer.grouperLoaderContainer.ldapAndGuiGroups}">
+                              
+                                ${guiGroup.shortLinkWithIcon} &nbsp; 
+                              
+                              </c:forEach>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapGroupsLike']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupsLike)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupsLikeDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapGroupNameExpression']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupNameExpression)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupNameExpressionDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapGroupDisplayNameExpression']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupDisplayNameExpression)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupDisplayNameExpressionDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapGroupDescriptionExpression']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupDescriptionExpression)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupDescriptionExpressionDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapGroupTypes']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapGroupTypes)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupTypesDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapReaders']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapReaders)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapReadersDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapViewers']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapViewers)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapViewersDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapAdmins']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapAdmins)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapAdminsDescription']}</span>
+                            </td>
+                          </tr>
+                        
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapUpdaters']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapUpdaters)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapUpdatersDescription']}</span>
+                            </td>
+                          </tr>
+                        
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapOptins']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapOptins)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapOptinsDescription']}</span>
+                            </td>
+                          </tr>
+                        
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapOptouts']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapOptouts)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapOptoutsDescription']}</span>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapAttrReaders']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapAttrReaders)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapAttrReadersDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapAttrUpdaters']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapAttrUpdaters)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapAttrUpdatersDescription']}</span>
+                            </td>
+                          </tr>
+                        
+                        </c:if>
                         
 <%--                         
-                        # schedule string
- = Schedule
-# quartz cron schedule
-grouperLoaderLdapCronDescriptionError = Error: could not parse quartz cron string
 
-# source id
-grouperLoaderLdapSourceId = Subject source ID
-grouperLoaderLdapSourceIdDescription = source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
 
-# subject id type
-grouperLoaderLdapSubjectLookupType = Subject lookup type
-grouperLoaderLdapSubjectLookupTypeDescription = can be either: subjectId (most efficient, default), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier
-
-# search scope in ldap
-grouperLoaderLdapSearchScope = Search scope
-grouperLoaderLdapSearchScopeDescription = how deep to search in LDAP.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default)
-
-# require groups
-grouperLoaderLdapAndGroups = Require members in other group(s)
-
-# ldap priority
-grouperLoaderLdapPriority = Priority
-
-# describe the priority
-grouperLoaderSqlPriorityInvalid = This priority is invalid
-grouperLoaderSqlPriorityAverage = This job has the default and middle priority of 5
-grouperLoaderSqlPriorityLow = This job has lower than the default and middle priority of 5
-grouperLoaderSqlPriorityHigh = This job has higher than the default and middle priority of 5
-
-# groups like
-grouperLoaderLdapGroupsLike =
-grouperLoaderLdapGroupsLikeDescription = sql like string (e.g. school:orgs:%org%_systemOfRecord), and the loader should be able to query group names to see which names are managed by this loader job. So if a group falls off the loader resultset (or is moved), this will help the loader remove the members from this group. Note, if the group is used anywhere as a member or composite member, it wont be removed.
-
-# extra attributes
-grouperLoaderLdapExtraAttributes = Extra attributes
-grouperLoaderLdapExtraAttributesDescription = attribute names (comma separated) to get LDAP data for expressions in group name, displayExtension, description
-
-# filter expression: LDAP_GROUPS_FROM_ATTRIBUTES
-grouperLoaderLdapAttributeFilterExpression = Attribute filter expression
-grouperLoaderLdapAttributeFilterExpressionDescription = e.g. ${attributeValue == 'a' || attributeValue == 'b'} &nbsp; ${attributeValue != 'a' && attributeValue != 'b'} &nbsp; ${attributeName.toLowerCase().startsWith('st')} &nbsp; ${attributeName =~ '^fa.*$' }
-
-# group name expression: LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES
-grouperLoaderLdapGroupNameExpression = Group name expression
-grouperLoaderLdapGroupNameExpressionDescription = JEXL expression language fragment that evaluates to the group name (relative to the stem of the group which has the loader definition).  groupAttributes['dn'] is a variable in scope as is groupAttributes['cn'] etc 
-
-# group display name expression: LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES
-grouperLoaderLdapGroupDisplayNameExpression = Group display name expression
-grouperLoaderLdapGroupDisplayNameExpressionDescription = JEXL expression language fragment that evaluates to the group display name.  groupAttributes['dn'] is a variable in scope as is groupAttributes['cn'] etc 
-
-# group description: LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES
-grouperLoaderLdapGroupDescriptionExpression = Group description expression
-grouperLoaderLdapGroupDescriptionExpressionDescription = JEXL expression language fragment that evaluates to the group description.  groupAttributes['dn'] is a variable in scope as is groupAttributes['cn'] etc
-
-# subject expression
-grouperLoaderLdapSubjectExpression = Subject expression
-grouperLoaderLdapSubjectExpressionDescription = JEXL expression language fragment that processes the subject string before passing it to the subject API.  e.g. ${loaderLdapElUtils.convertDnToSpecificValue(subjectId)}
-
-# group types for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
-grouperLoaderLdapGroupTypes = Grouper types applied to groups
-grouperLoaderLdapGroupTypesDescription = comma separated GroupTypes which will be applied to the loaded groups.  e.g. addIncludeExclude
-
-# readers for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
-grouperLoaderLdapReaders = Readers
-grouperLoaderLdapReadersDescription = comma separated subjectIds or subjectIdentifiers who will be allowed to READ the group memberships
-grouperLoaderLdapViewers = Viewers
-grouperLoaderLdapViewersDescription = comma separated subjectIds or subjectIdentifiers who will be allowed to VIEW the groups
-grouperLoaderLdapAdmins = Admins
-grouperLoaderLdapAdminsDescription = comma separated subjectIds or subjectIdentifiers who will be allowed to ADMIN the groups
-grouperLoaderLdapUpdaters = Updaters
-grouperLoaderLdapUpdatersDescription = comma separated subjectIds or subjectIdentifiers who will be allowed to UPDATE the group memberships
-grouperLoaderLdapOptins = Opt ins
-grouperLoaderLdapOptinsDescription = comma separated subjectIds or subjectIdentifiers who will be allowed to OPTIN to the group
-grouperLoaderLdapOptouts = Opt outs
-grouperLoaderLdapOptinsDescription = comma separated subjectIds or subjectIdentifiers who will be allowed to OPTOUT from the group
+ = Opt outs
+ = comma separated subjectIds or subjectIdentifiers who will be allowed to OPTOUT from the group
                         
                         --%>
                                            

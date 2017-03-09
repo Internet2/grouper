@@ -180,6 +180,203 @@ public class GrouperLoaderContainer {
   
   /**
    * 
+   * @return scheduling priority
+   */
+  public String getLdapPriority() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapPriorityName());
+
+  }
+  
+  /**
+   * 
+   * @return groups like
+   */
+  public String getLdapGroupsLike() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName());
+
+  }
+  
+  /**
+   * 
+   * @return extra attributes
+   */
+  public String getLdapExtraAttributes() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
+
+  }
+
+  
+  /**
+   * 
+   * @return extra attributes
+   */
+  public String getLdapAttributeFilterExpression() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
+
+  }
+
+  /**
+   * 
+   * @return ldap group description expression
+   */
+  public String getLdapGroupDescriptionExpression() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName());
+
+  }
+
+  /**
+   * 
+   * @return ldap group display name expression
+   */
+  public String getLdapGroupDisplayNameExpression() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap group name expression
+   */
+  public String getLdapGroupNameExpression() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap subject expression
+   */
+  public String getLdapSubjectExpression() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap group types
+   */
+  public String getLdapGroupTypes() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupTypesName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap readers
+   */
+  public String getLdapReaders() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapReadersName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap readers
+   */
+  public String getLdapAttrReaders() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap viewers
+   */
+  public String getLdapViewers() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapViewersName());
+
+  }
+  
+  
+  /**
+   * 
+   * @return ldap viewers
+   */
+  public String getLdapAdmins() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapAdminsName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap updaters
+   */
+  public String getLdapUpdaters() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapUpdatersName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap attr updaters
+   */
+  public String getLdapAttrUpdaters() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap optins
+   */
+  public String getLdapOptins() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapOptinsName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap optouts
+   */
+  public String getLdapOptouts() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapOptoutsName());
+
+  }
+  
+  /**
+   * 
+   * @return database name
+   */
+  public int getLdapPriorityInt() {
+    
+    String priority = this.getLdapPriority();
+    
+    if (!StringUtils.isBlank(priority)) {
+      
+      try {
+        
+        return GrouperUtil.intValue(priority);
+        
+      } catch (Exception e) {
+        LOG.error("Cant parse priority: '" + priority + "'", e);
+        return -200;
+      }
+      
+    }
+    
+    return 5;
+    
+  }
+  
+  /**
+   * 
    * @return sql query
    */
   public String getSqlQuery() {
@@ -213,22 +410,24 @@ public class GrouperLoaderContainer {
     
     final List<GuiGroup> guiGroups = new ArrayList<GuiGroup>();
     
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-      
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    if (GrouperUtil.length(andGroupsStringList) > 0) {
+
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
         
-        for (String andGroupString : andGroupsStringList) {
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
-          group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
-          guiGroups.add(new GuiGroup(group));
+          for (String andGroupString : andGroupsStringList) {
+            
+            Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
+            group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
+            guiGroups.add(new GuiGroup(group));
+            
+          }
           
+          return null;
         }
-        
-        return null;
-      }
-    });
-    
+      });
+    }    
     return guiGroups;
   }
 
@@ -249,6 +448,64 @@ public class GrouperLoaderContainer {
 
   /**
    * 
+   * @return sql query
+   */
+  public String getLdapAndGroups() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+
+  }
+
+  /**
+   * 
+   * @return list of gui groups
+   */
+  public List<GuiGroup> getLdapAndGuiGroups() {
+
+    final List<String> andGroupsStringList = getLdapAndGroupsStringList();
+
+    final List<GuiGroup> guiGroups = new ArrayList<GuiGroup>();
+
+    if (GrouperUtil.length(andGroupsStringList) > 0) {
+
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          for (String andGroupString : andGroupsStringList) {
+            
+            Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
+            group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
+            guiGroups.add(new GuiGroup(group));
+            
+          }
+          
+          return null;
+        }
+      });
+    }
+    
+    return guiGroups;
+  }
+
+  /**
+   * convert and groups to string
+   * @return the list of strings
+   */
+  private List<String> getLdapAndGroupsStringList() {
+    String andGroupsString = this.getLdapAndGroups();
+    
+    if (StringUtils.isBlank(andGroupsString)) {
+      return null;
+    }
+    
+    final List<String> andGroupsStringList = GrouperUtil.splitTrimToList(andGroupsString, ",");
+    return andGroupsStringList;
+  }
+
+
+  /**
+   * 
    * @return sql cron
    */
   public String getSqlCron() {
@@ -257,6 +514,16 @@ public class GrouperLoaderContainer {
     String grouperLoaderQuartzCron = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
     
     return grouperLoaderQuartzCron;
+
+  }
+
+  /**
+   * 
+   * @return ldap cron
+   */
+  public String getLdapCron() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
 
   }
 
@@ -273,6 +540,7 @@ public class GrouperLoaderContainer {
 
   }
 
+  
   /**
    * 
    * @return sql loader type
@@ -481,6 +749,56 @@ public class GrouperLoaderContainer {
       }
     }
     return "";
+  }
+  
+  /**
+   * 
+   * @return the sql cron description
+   */
+  public String getLdapCronDescription() {
+    String grouperLoaderQuartzCron = this.getLdapCron();
+    
+    if (!StringUtils.isBlank(grouperLoaderQuartzCron)) {
+      try {
+        return CronExpressionDescriptor.getDescription(grouperLoaderQuartzCron);
+      } catch (Exception e) {
+        
+        LOG.error("Cant parse cron string:" + grouperLoaderQuartzCron, e);
+        
+        return TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError");
+      }
+    }
+    return "";
+  }
+  
+  /**
+   * 
+   * @return source ID
+   */
+  public String getLdapSourceId() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName());
+
+  }
+  
+  /**
+   * 
+   * @return subject lookup type
+   */
+  public String getLdapSubjectLookupType() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap search scope
+   */
+  public String getLdapSearchScope() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+
   }
   
   /**
