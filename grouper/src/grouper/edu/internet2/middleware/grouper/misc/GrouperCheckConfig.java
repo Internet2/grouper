@@ -1297,7 +1297,7 @@ public class GrouperCheckConfig {
     checkJar("commons-lang3-3.5.jar", 479881, "org.apache.commons.lang3.builder.ToStringExclude", "3.5");
     checkJar("commons-logging.jar", 131078, "org.apache.commons.logging.impl.AvalonLogger", "1.1.1");
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
-    checkJar("cron-parser-core-2.9.jar", 44489, "net.redhogs.cronparser.builder.AbstractDescriptionBuilder", "null");
+    checkJar("cron-parser-core-2.9.jar", 29961, "net.redhogs.cronparser.builder.AbstractDescriptionBuilder", "null");
     checkJar("ddlUtils.jar", 713153, "org.apache.ddlutils.alteration.AddColumnChange", "1.0");
     checkJar("dom4j-1.6.1.jar", 313898, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache-core-2.4.3.jar", 1006424, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
@@ -1314,7 +1314,7 @@ public class GrouperCheckConfig {
     checkJar("jandex-2.0.0.CR1.jar", 187746, "org.jboss.jandex.AnnotationInstance", "2.0.0.CR1");
     checkJar("javassist-3.18.1-GA.jar", 714194, "javassist.ByteArrayClassPath", "null");
     checkJar("jboss-logging-3.3.0.Final.jar", 66802, "org.jboss.logging.LogMessage", "3.3.0.Final");
-    checkJar("joda-time-2.9.7.jar", 1405837, "org.joda.time.base.AbstractDateTime", "2.9.7");
+    checkJar("joda-time-2.9.7.jar", 633290, "org.joda.time.base.AbstractDateTime", "2.9.7");
     checkJar("json-lib.jar", 255813, "net.sf.json.filters.AndPropertyFilter", "2.3");
     checkJar("jsr107cache.jar", 8302, "net.sf.jsr107cache.Cache", "1.0");
     checkJar("jta.jar", 8374, "javax.transaction.HeuristicCommitException", "1.0.1B");
@@ -1330,8 +1330,7 @@ public class GrouperCheckConfig {
     checkJar("slf4j-log4j12.jar", 9752, "org.slf4j.impl.Log4jLoggerAdapter", "1.6.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
-    checkJar("subject.jar", 266056, "edu.internet2.middleware.subject.InvalidQueryException", "2.2.0");
-    //checkJar("subject.jar", 271917, "edu.internet2.middleware.subject.InvalidQueryException", "2.3.0");
+    checkJar("subject.jar", GrouperUtil.toSet(271917L, 266056L), "edu.internet2.middleware.subject.InvalidQueryException", "2.2.0");
     checkJar("vt-ldap.jar", 472910, "edu.vt.middleware.ldap.AbstractCli", "3.3.5");
     checkJar("xpp3_min.jar", 24979, "org.xmlpull.mxp1.MXParser", "1.1.4c");
     checkJar("xstream.jar", 692061, "com.thoughtworks.xstream.alias.CannotResolveClassException", "1.3");
