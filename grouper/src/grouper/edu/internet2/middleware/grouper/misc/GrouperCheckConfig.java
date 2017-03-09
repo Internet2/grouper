@@ -1297,7 +1297,7 @@ public class GrouperCheckConfig {
     checkJar("commons-lang3-3.5.jar", 479881, "org.apache.commons.lang3.builder.ToStringExclude", "3.5");
     checkJar("commons-logging.jar", 131078, "org.apache.commons.logging.impl.AvalonLogger", "1.1.1");
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
-    checkJar("cron-parser-core-2.9.jar", 44489, "net.redhogs.cronparser.builder.AbstractDescriptionBuilder", "null");
+    checkJar("cron-parser-core-2.9.jar", 29961, "net.redhogs.cronparser.builder.AbstractDescriptionBuilder", "null");
     checkJar("ddlUtils.jar", 713153, "org.apache.ddlutils.alteration.AddColumnChange", "1.0");
     checkJar("dom4j-1.6.1.jar", 313898, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache-core-2.4.3.jar", 1006424, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
@@ -1314,7 +1314,7 @@ public class GrouperCheckConfig {
     checkJar("jandex-2.0.0.CR1.jar", 187746, "org.jboss.jandex.AnnotationInstance", "2.0.0.CR1");
     checkJar("javassist-3.18.1-GA.jar", 714194, "javassist.ByteArrayClassPath", "null");
     checkJar("jboss-logging-3.3.0.Final.jar", 66802, "org.jboss.logging.LogMessage", "3.3.0.Final");
-    checkJar("joda-time-2.9.7.jar", 1405837, "org.joda.time.base.AbstractDateTime", "2.9.7");
+    checkJar("joda-time-2.9.7.jar", 633290, "org.joda.time.base.AbstractDateTime", "2.9.7");
     checkJar("json-lib.jar", 255813, "net.sf.json.filters.AndPropertyFilter", "2.3");
     checkJar("jsr107cache.jar", 8302, "net.sf.jsr107cache.Cache", "1.0");
     checkJar("jta.jar", 8374, "javax.transaction.HeuristicCommitException", "1.0.1B");
