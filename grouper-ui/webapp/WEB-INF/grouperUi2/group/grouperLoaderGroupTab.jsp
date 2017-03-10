@@ -40,7 +40,7 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlLoaderType']}</strong></td>
                           <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)}<br />
-                            <span class="description">${textContainer.text['grouperLoaderSqlLoaderType__'.concat(grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)]}</span>
+                            <span class="description">${textContainer.text[grouper:concat2('grouperLoaderSqlLoaderType__',grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)]}</span>
                           </td>
                         </tr>
                         <tr>
@@ -52,13 +52,13 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlQuery']}</strong></td>
                           <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}
-                            <br /><span class="description">${textContainer.text['grouperLoaderSqlQueryDescription__'.concat(grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)]}</span>
+                            <br /><span class="description">${textContainer.text[grouper:concat2('grouperLoaderSqlQueryDescription__',grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)]}</span>
                           </td>
                         </tr>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlScheduleType']}</strong></td>
                           <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlScheduleType)}
-                            <br /><span class="description">${textContainer.text['grouperLoaderSqlScheduleType__'.concat(grouperRequestContainer.grouperLoaderContainer.sqlScheduleType)]}</span>
+                            <br /><span class="description">${textContainer.text[grouper:concat2('grouperLoaderSqlScheduleType__',grouperRequestContainer.grouperLoaderContainer.sqlScheduleType)]}</span>
                           </td>
                         </tr>
                         <c:choose>
@@ -168,7 +168,7 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderLdapLoaderType']}</strong></td>
                           <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)}<br />
-                            <span class="description">${textContainer.text['grouperLoaderLdapLoaderType__'.concat(grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)]}</span>
+                            <span class="description">${textContainer.text[grouper:concat2('grouperLoaderLdapLoaderType__',grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)]}</span>
                           </td>
                         </tr>
                         <tr>
@@ -183,7 +183,7 @@
                           <td style="vertical-align: top;">
                           
                             ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter)}<br />
-                            <span class="description">${textContainer.text['grouperLoaderLdapFilterDescription__'.concat(grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)]}</span>
+                            <span class="description">${textContainer.text[grouper:concat2('grouperLoaderLdapFilterDescription__',grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)]}</span>
                           </td>
                         </tr>
                           
@@ -192,7 +192,7 @@
                           <td style="vertical-align: top;">
                           
                             ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapSubjectAttributeName)}<br />
-                            <span class="description">${textContainer.text['grouperLoaderLdapSubjectAttributeNameDescription__'.concat(grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)]}</span>
+                            <span class="description">${textContainer.text[grouper:concat2('grouperLoaderLdapSubjectAttributeNameDescription__',grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)]}</span>
                           </td>
                         </tr>
                         
