@@ -717,6 +717,19 @@
   </function>
   <function>
     <description>
+      Capitalize fully a string, split by whitespace
+    </description>
+    <name>capitalizeFully</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String capitalizeFully(java.lang.String)
+    </function-signature>
+    <example>
+      &lt;img alt="${grouper:capitalizeFully('some string')}" ...
+    </example>
+  </function>
+  <function>
+    <description>
       Prints out a message from the nav bundle. String is the key, then boolean
       for if escape HTML,
       and then boolean for if escaping HTML, if single quotes should be
