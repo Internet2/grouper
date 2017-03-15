@@ -25,6 +25,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -104,6 +105,15 @@ public class GrouperUiFunctions {
       b = "";
     }
     return GrouperUtil.stringValue(a) + GrouperUtil.stringValue(b);
+  }
+
+  /**
+   * WordUtils.capitalizeFully
+   * @param string
+   * @return the concatenated strings
+   */
+  public static String capitalizeFully(String string) {
+    return WordUtils.capitalizeFully(string);
   }
 
   /**
