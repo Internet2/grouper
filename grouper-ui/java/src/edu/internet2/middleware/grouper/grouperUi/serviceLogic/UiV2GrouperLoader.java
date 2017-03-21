@@ -11,8 +11,10 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +38,10 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
@@ -277,7 +282,7 @@ public class UiV2GrouperLoader {
         
       }
       
-      queryOptions = QueryOptions.create("startedTime", false, 1, maxLogs);
+      queryOptions = QueryOptions.create("lastUpdated", false, 1, maxLogs);
       
       
     }
@@ -773,6 +778,7 @@ public class UiV2GrouperLoader {
    * @param request
    * @param response
    */
+  @SuppressWarnings("deprecation")
   public void loaderDiagnosticsRun(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -968,6 +974,9 @@ public class UiV2GrouperLoader {
           if (StringUtils.isBlank(grouperLoaderContainer.getLdapAndGroups())) {
             loaderReport.append("<font color='green'>SUCCESS:</font> 'and groups' is not set\n");
           } else {
+            if (grouperLoaderType == GrouperLoaderType.LDAP_SIMPLE) {
+              loaderReport.append("<font color='red'>ERROR:</font> 'and groups' is not valid for " + grouperLoaderType + "\n");
+            }
             int count = 1;
             for (GuiGroup guiGroup : grouperLoaderContainer.getLdapAndGuiGroups()) {
               if (guiGroup.getGroup() == null) {
@@ -1005,8 +1014,9 @@ public class UiV2GrouperLoader {
               fatal = true;
 
             } else {
-              loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' SQL config is set for " + grouperLoaderType + "\n");
-              
+              loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' SQL config is set to '" 
+                  + grouperLoaderContainer.getLdapGroupsLike() + "' for " + grouperLoaderType + "\n");
+
               groupsLikeCount = HibernateSession.byHqlStatic()
                   .createQuery("select count(*) from Group g where g.nameDb like :thePattern")
                   .setString("thePattern", grouperLoaderContainer.getLdapGroupsLike())
@@ -1134,7 +1144,7 @@ public class UiV2GrouperLoader {
                 } catch (Exception e) {
                   if (StringUtils.contains(subjectIdOrIdentifier, ':')) {
 
-                    loaderReport.append("<font color='green'>SUCCESS:</font> Subject not found for privilege: " + privilegeName + ", but has a colon so its a group\n");
+                    loaderReport.append("<font color='green'>SUCCESS:</font> Subject not found for privilege: " + privilegeName + ", but has a colon so its a new group\n");
 
                   } else {
 
@@ -1172,11 +1182,13 @@ public class UiV2GrouperLoader {
               break;
             case LDAP_SIMPLE:
               List<String> results = null;
+              long startNanos = System.nanoTime();
               try {
                 results = LdapSession.list(String.class, grouperLoaderContainer.getLdapServerId(), grouperLoaderContainer.getLdapSearchDn(),
                     ldapSearchScopeEnum, grouperLoaderContainer.getLdapLoaderFilter(), grouperLoaderContainer.getLdapSubjectAttributeName());
                 if (GrouperUtil.length(results) > 0) {
-                  loaderReport.append("<font color='green'>SUCCESS:</font> Ran filter, got " + GrouperUtil.length(results) + " results\n");
+                  loaderReport.append("<font color='green'>SUCCESS:</font> Ran filter, got " + GrouperUtil.length(results) 
+                      + " results in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms \n");
                 } else {
                   loaderReport.append("<font color='red'>ERROR:</font> Ran filter, got 0 results.  Generally this should not happen\n");
                   fatal = true;
@@ -1205,6 +1217,548 @@ public class UiV2GrouperLoader {
       } else if (!fatal && isSql) {
         loaderReport.append("<font color='green'>SUCCESS:</font> This is a SQL job\n");
         
+        if (grouperLoaderType == GrouperLoaderType.SQL_SIMPLE 
+            || grouperLoaderType == GrouperLoaderType.SQL_GROUP_LIST) {
+          loaderReport.append("<font color='green'>SUCCESS:</font> grouperLoaderType " + grouperLoaderType + " is a SQL type\n");
+        } else {
+          loaderReport.append("<font color='red'>ERROR:</font> grouperLoaderType is not valid for SQL: '" + grouperLoaderType + "'\n");
+          fatal = true;
+        }
+
+        if (!fatal) {
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlDatabaseName())) {
+            loaderReport.append("<font color='red'>ERROR:</font> SQL database name is not set!\n");
+            fatal = true;
+          } else {
+            if (StringUtils.equals("grouper", grouperLoaderContainer.getSqlDatabaseName())) {
+              loaderReport.append("<font color='green'>SUCCESS:</font> SQL database name is 'grouper' which uses the Grouper database connection: "
+                  + grouperLoaderContainer.getSqlDatabaseNameUrl() + "\n");
+            } else if (!StringUtils.isBlank(grouperLoaderContainer.getSqlDatabaseNameUrl())) {
+              loaderReport.append("<font color='green'>SUCCESS:</font> SQL database name: " 
+                  + grouperLoaderContainer.getSqlDatabaseName() + " was found in grouper-loader.properties\n");
+              loaderReport.append("<font color='green'>SUCCESS:</font> SQL database name points to connect string: " + 
+                  grouperLoaderContainer.getSqlDatabaseNameUrl() + "\n");
+            } else {
+              loaderReport.append("<font color='red'>ERROR:</font> SQL database name: '" + 
+                  grouperLoaderContainer.getSqlDatabaseName() + "' is not found in grouper-loader.properties\n");
+              fatal = true;
+            }
+          }
+        }
+        
+        if (!fatal) {
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlQuery())) {
+            loaderReport.append("<font color='red'>ERROR:</font> SQL query is not set!\n");
+            fatal = true;
+          } else {
+            loaderReport.append("<font color='blue'>NOTE:</font> SQL query is set to '" + grouperLoaderContainer.getSqlQuery() + "'\n");
+          }
+        } 
+        
+        if (!fatal) {
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlAndGroups())) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> 'and groups' is not set\n");
+          } else {
+            if (grouperLoaderType == GrouperLoaderType.SQL_SIMPLE) {
+              loaderReport.append("<font color='red'>ERROR:</font> 'and groups' is not valid for " + grouperLoaderType + "\n");
+            }
+            int count = 1;
+            for (GuiGroup guiGroup : grouperLoaderContainer.getSqlAndGuiGroups()) {
+              if (guiGroup.getGroup() == null) {
+                loaderReport.append("<font color='red'>ERROR:</font> 'and group' number " 
+                    + count + " was not found: '" + grouperLoaderContainer.getSqlAndGroups() + "'\n");
+  
+              } else {
+                loaderReport.append("<font color='green'>SUCCESS:</font> 'and group' " 
+                    + guiGroup.getGroup().getName() + " found\n");
+              }
+              count++;
+            }
+          }
+        }
+        
+        if (!fatal) {
+          GrouperLoaderScheduleType grouperLoaderScheduleType = null;
+          
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlScheduleType())) {
+            loaderReport.append("<font color='red'>ERROR:</font> Schedule type is not set!\n");
+          } else {
+            
+            String scheduleType = grouperLoaderContainer.getSqlScheduleType();
+            try {
+              grouperLoaderScheduleType = GrouperLoaderScheduleType.valueOfIgnoreCase(scheduleType, true);
+  
+              loaderReport.append("<font color='green'>SUCCESS:</font> Schedule type correctly set to: " + grouperLoaderScheduleType.name() + "\n");
+              
+            } catch (Exception e) {
+  
+              loaderReport.append("<font color='red'>ERROR:</font> Invalid schedule type: " + scheduleType + ", should be CRON or START_TO_START_INTERVAL\n");
+              
+            }
+          }
+          
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlCron())) {
+            if (grouperLoaderScheduleType == GrouperLoaderScheduleType.CRON) {
+              loaderReport.append("<font color='red'>ERROR:</font> Cron schedule is not set and schedule type is CRON!\n");
+            } else {
+              loaderReport.append("<font color='green'>SUCCESS:</font> Cron schedule is not set and schedule type is " + grouperLoaderScheduleType + "\n");
+            }
+          } else {
+            
+            if (grouperLoaderScheduleType != GrouperLoaderScheduleType.CRON) {
+              loaderReport.append("<font color='red'>ERROR:</font> Cron schedule is set and schedule type is not CRON! " + grouperLoaderScheduleType + "\n");
+            }
+  
+            String grouperLoaderQuartzCron = grouperLoaderContainer.getSqlCron();
+            
+            try {
+              String descripton = CronExpressionDescriptor.getDescription(grouperLoaderQuartzCron);
+              loaderReport.append("<font color='green'>SUCCESS:</font> Cron '" + grouperLoaderQuartzCron 
+                  + "' is set to: '" + descripton + "'\n");
+  
+            } catch (Exception e) {
+              
+              loaderReport.append("<font color='red'>ERROR:</font> cron is invalid!\n");
+              loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+            }
+          }
+  
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlScheduleInterval())) {
+            if (grouperLoaderScheduleType == GrouperLoaderScheduleType.START_TO_START_INTERVAL) {
+              loaderReport.append("<font color='red'>ERROR:</font> Schedule interval is not set and schedule type is START_TO_START_INTERVAL!\n");
+            } else {
+              loaderReport.append("<font color='green'>SUCCESS:</font> Schedule interval is not set and schedule type is " + grouperLoaderScheduleType + "\n");
+            }
+          } else {
+            
+            if (grouperLoaderScheduleType != GrouperLoaderScheduleType.START_TO_START_INTERVAL) {
+              loaderReport.append("<font color='red'>ERROR:</font> Cron schedule is set and schedule type is not START_TO_START_INTERVAL! " + grouperLoaderScheduleType + "\n");
+            }
+            
+            if (grouperLoaderContainer.getSqlScheduleIntervalSecondsTotal() > 0) {
+              loaderReport.append("<font color='green'>SUCCESS:</font> Schedule interval is set to a valid integer '" 
+                  + grouperLoaderContainer.getSqlScheduleIntervalSecondsTotal() + "', " + grouperLoaderContainer.getSqlScheduleIntervalHumanReadable() + "\n");
+            } else {
+              loaderReport.append("<font color='red'>ERROR:</font> Schedule interval is not set to a valid integer '" + grouperLoaderContainer.getSqlScheduleInterval() + "'\n");
+            }
+            
+          }
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlGroupQuery())) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> SQL group query is not set!\n");
+          } else {
+            if (grouperLoaderType == GrouperLoaderType.SQL_SIMPLE) {
+              loaderReport.append("<font color='red'>ERROR:</font> SQL group query should not be set for " + grouperLoaderType + "\n");
+            } else {
+              loaderReport.append("<font color='blue'>NOTE:</font> SQL group query is set to '" + grouperLoaderContainer.getSqlGroupQuery() + "'\n");
+            }
+          }
+
+          if (StringUtils.isBlank(grouperLoaderContainer.getSqlGroupsLike())) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' SQL config is not set\n");
+          } else {
+            if (grouperLoaderType == GrouperLoaderType.SQL_SIMPLE) {
+              loaderReport.append("<font color='red'>ERROR:</font> 'groups like' SQL config is set but shouldnt be for " + grouperLoaderType + "\n");
+
+            } else {
+              loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' SQL config is set to '" 
+                  + grouperLoaderContainer.getSqlGroupsLike() + "' for " + grouperLoaderType + "\n");
+              
+              groupsLikeCount = HibernateSession.byHqlStatic()
+                  .createQuery("select count(*) from Group g where g.nameDb like :thePattern")
+                  .setString("thePattern", grouperLoaderContainer.getSqlGroupsLike())
+                  .uniqueResult(Long.class);
+              if (groupsLikeCount == 0L) {
+                loaderReport.append("<font color='red'>ERROR:</font> 'groups like' returned no records '" 
+                    + grouperLoaderContainer.getSqlGroupsLike() + "'.  Either this job has never run or maybe its misconfigured?  Is that where groups are for this job????\n");
+              } else {
+                loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' returned " + groupsLikeCount + " groups for '" 
+                    + grouperLoaderContainer.getSqlGroupsLike() + "'\n");
+              }
+            }
+          }
+        }
+
+        if (StringUtils.isBlank(grouperLoaderContainer.getSqlGroupTypes())) {
+          loaderReport.append("<font color='green'>SUCCESS:</font> Group types are not set\n");
+        } else {
+          
+          if (grouperLoaderType != GrouperLoaderType.SQL_GROUP_LIST ) {
+            loaderReport.append("<font color='red'>ERROR:</font> Group types are set but shouldnt be for " + grouperLoaderType + "\n");
+          }
+          
+          String groupTypesString = grouperLoaderContainer.getSqlGroupTypes();
+          List<String> groupTypesList = GrouperUtil.splitTrimToList(groupTypesString, ",");
+          
+          for (String groupTypeString : groupTypesList) {
+            try {
+              GroupTypeFinder.find(groupTypeString, true);
+              
+              loaderReport.append("<font color='green'>SUCCESS:</font> Group type found: " + groupTypeString + "\n");
+
+            } catch (Exception e) {
+
+              loaderReport.append("<font color='red'>ERROR:</font> Group type not found: " + groupTypeString + "\n");
+
+            }
+          }
+        }
+        
+        if (StringUtils.isBlank(grouperLoaderContainer.getSqlPriority())) {
+          loaderReport.append("<font color='green'>SUCCESS:</font> Scheduling priority is not set and defaults to medium: 5\n");
+        } else {
+          int priority = grouperLoaderContainer.getSqlPriorityInt();
+          
+          if (priority >=0) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> Scheduling priority is a valid integer: " + priority + "\n");
+          } else {
+            loaderReport.append("<font color='red'>ERROR:</font> Scheduling priority is not a valid integer: '" 
+                + grouperLoaderContainer.getSqlPriority() + "'\n");
+          }
+        }
+        
+        //check filter
+        GrouperLoaderDb grouperLoaderDb = null;
+        
+        if (!fatal) {
+        
+          loaderReport.append("\n######## CHECKING QUERIES ########\n\n");
+
+          try {
+            grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderContainer.getSqlDatabaseName());
+            if (grouperLoaderDb == null) {
+              throw new NullPointerException();
+            }
+            loaderReport.append("<font color='green'>SUCCESS:</font> Found DB profile for: '" 
+                + grouperLoaderContainer.getSqlDatabaseName() + "'\n");
+          } catch (Exception e) {
+            loaderReport.append("<font color='red'>ERROR:</font> Cannot retrieve DB profile for: '" 
+                + grouperLoaderContainer.getSqlDatabaseName() + "'\n");
+            loaderReport.append(ExceptionUtils.getFullStackTrace(e));
+            fatal = true;
+          }
+        }
+
+        GrouperLoaderResultset grouperLoaderResultset = null;
+        if (!fatal) {
+          long startNanos = System.nanoTime();
+  
+          try {
+            grouperLoaderResultset = new GrouperLoaderResultset(
+                grouperLoaderDb, grouperLoaderContainer.getSqlQuery() + (grouperLoaderType == GrouperLoaderType.SQL_GROUP_LIST ? " order by group_name" : ""), 
+                grouperLoaderContainer.getJobName(), 
+                new Hib3GrouperLoaderLog());
+            loaderReport.append("<font color='green'>SUCCESS:</font> Ran query, got " + grouperLoaderResultset.numberOfRows()
+                + " results in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
+          } catch (Exception e) {
+            loaderReport.append("<font color='red'>ERROR:</font> Error running query in " 
+                + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
+            loaderReport.append(ExceptionUtils.getFullStackTrace(e));
+            fatal=true;
+          }
+  
+        }
+
+        Set<String> columnNames = new LinkedHashSet<String>();
+        String subjectCol = null;
+        if (!fatal) {
+          if (grouperLoaderResultset.numberOfRows() == 0) {
+            loaderReport.append("<font color='red'>ERROR:</font> Query returned 0 records, which might be ok, but generally there should be results\n");
+          }
+          
+          
+          boolean foundSubjectIdCol = false;
+          for (String columnName : GrouperUtil.nonNull(grouperLoaderResultset.getColumnNames())) {
+            columnName = columnName.toUpperCase();
+            columnNames.add(columnName);
+            
+            if (StringUtils.equalsIgnoreCase(columnName, "SUBJECT_ID")) {
+              if (!foundSubjectIdCol) {
+
+                loaderReport.append("<font color='green'>SUCCESS:</font> Found SUBJECT_ID col\n");
+                subjectCol = "SUBJECT_ID";
+              } else {
+                loaderReport.append("<font color='red'>ERROR:</font> Found SUBJECT_ID col, but already found a subject col!\n");
+                fatal = true;
+                
+              }
+              foundSubjectIdCol = true;
+            } else if (StringUtils.equalsIgnoreCase(columnName, "SUBJECT_IDENTIFIER")) {
+              if (!foundSubjectIdCol) {
+
+                loaderReport.append("<font color='orange'>WARNING:</font> Found SUBJECT_IDENTIFIER col, which is fine, but SUBJECT_ID col is has better performance if possible to use\n");
+                subjectCol = "SUBJECT_IDENTIFIER";
+
+              } else {
+                loaderReport.append("<font color='red'>ERROR:</font> Found SUBJECT_IDENTIFIER col, but already found a subject col!\n");
+                fatal = true;
+                
+              }
+              foundSubjectIdCol = true;
+            } else if (StringUtils.equalsIgnoreCase(columnName, "SUBJECT_ID_OR_IDENTIFIER")) {
+              if (!foundSubjectIdCol) {
+
+                loaderReport.append("<font color='orange'>WARNING:</font> Found SUBJECT_ID_OR_IDENTIFIER col, which is fine, but SUBJECT_ID col is has better performance if possible to use\n");
+                subjectCol = "SUBJECT_IDENTIFIER";
+
+              } else {
+                loaderReport.append("<font color='red'>ERROR:</font> Found SUBJECT_ID_OR_IDENTIFIER col, but already found a subject col!\n");
+                fatal = true;
+                
+              }
+              foundSubjectIdCol = true;              
+            } else if (!StringUtils.equals("GROUP_NAME", columnName) && !StringUtils.equals("SUBJECT_SOURCE_ID", columnName)) {
+              loaderReport.append("<font color='orange'>WANING:</font> Found " + columnName + " col, which is not used by grouper\n");
+              
+            }
+          }
+
+          if (!foundSubjectIdCol) {
+            loaderReport.append("<font color='red'>ERROR:</font> Did not find subject column!  Should have a column SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER\n");
+            fatal = true;
+          }
+
+          if (!columnNames.contains("SUBJECT_SOURCE_ID")) {
+            loaderReport.append("<font color='orange'>WARNING:</font> Did not find col: SUBJECT_SOURCE_ID, this column improves performance\n");
+            
+          }
+          
+        }
+        
+        if (!fatal && grouperLoaderResultset.numberOfRows() > 0) {
+          String subjectId = (String)grouperLoaderResultset.getCell(0, subjectCol, true);
+          String sourceId = null;
+          if (columnNames.contains("SUBJECT_SOURCE_ID")) {
+            sourceId = (String)grouperLoaderResultset.getCell(0, "SUBJECT_SOURCE_ID", true);
+          }
+          grouperLoaderFindSubject(loaderReport, subjectId, null, 
+              sourceId, subjectCol);
+        }
+        
+        
+        if (!fatal) {
+          switch (grouperLoaderType) {
+            case SQL_SIMPLE:
+              
+              if (columnNames.contains("GROUP_NAME")) {
+                loaderReport.append("<font color='red'>ERROR:</font> A SQL_SIMPLE job should not have a GROUP_NAME column\n");
+                
+              } else {
+                loaderReport.append("<font color='green'>SUCCESS:</font> This SQL_SIMPLE job does not have a GROUP_NAME column\n");
+                
+              }
+              break;
+            case SQL_GROUP_LIST:
+              if (!columnNames.contains("GROUP_NAME")) {
+                loaderReport.append("<font color='red'>ERROR:</font> A SQL_GROUP_LIST job must have a GROUP_NAME column\n");
+                fatal = true;
+                
+              } else {
+                loaderReport.append("<font color='green'>SUCCESS:</font> This SQL_GROUP_LIST job does have a GROUP_NAME column\n");
+                
+              }
+              
+              GrouperLoaderResultset grouperLoaderResultsetForGroups = null;
+              if (!fatal) {
+                if (StringUtils.isBlank(grouperLoaderContainer.getSqlGroupQuery())) {
+
+                  loaderReport.append("<font color='blue'>NOTE:</font> Not running group query since its not configured\n");
+
+                } else {
+                  long startNanos = System.nanoTime();
+
+                  try {
+                    grouperLoaderResultsetForGroups = new GrouperLoaderResultset(
+                        grouperLoaderDb, grouperLoaderContainer.getSqlGroupQuery() + " order by group_name", 
+                        grouperLoaderContainer.getJobName(), 
+                        new Hib3GrouperLoaderLog());
+                    loaderReport.append("<font color='green'>SUCCESS:</font> Ran group query, got " + grouperLoaderResultset.numberOfRows()
+                        + " results in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
+                  } catch (Exception e) {
+                    loaderReport.append("<font color='red'>ERROR:</font> Error running group query in " 
+                        + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
+                    loaderReport.append(ExceptionUtils.getFullStackTrace(e));
+                    fatal=true;
+                  }
+                  
+                  Set<String> columnNamesForGroups = new LinkedHashSet<String>();
+                  
+                  if (!fatal) {
+                    if (grouperLoaderResultsetForGroups.numberOfRows() == 0) {
+                      loaderReport.append("<font color='red'>ERROR:</font> Group query returned 0 records, which might be ok, but generally there should be results\n");
+                    }
+                  }
+                  
+                  if (!fatal) {
+                    
+                    for (String columnNameForGroup : GrouperUtil.nonNull(grouperLoaderResultsetForGroups.getColumnNames())) {
+                      columnNameForGroup = columnNameForGroup.toUpperCase();
+                      columnNamesForGroups.add(columnNameForGroup);
+
+                      if (!StringUtils.equals("GROUP_NAME", columnNameForGroup) && !StringUtils.equals("GROUP_DISPLAY_NAME", columnNameForGroup)
+                          && !StringUtils.equals("GROUP_DESCRIPTION", columnNameForGroup) && !StringUtils.equals("VIEWERS", columnNameForGroup)
+                          && !StringUtils.equals("ADMINS", columnNameForGroup) && !StringUtils.equals("UPDATERS", columnNameForGroup)
+                          && !StringUtils.equals("READERS", columnNameForGroup)
+                          && !StringUtils.equals("OPTINS", columnNameForGroup) && !StringUtils.equals("OPTOUTS", columnNameForGroup)
+                          && !StringUtils.equals("GROUP_ATTR_READERS", columnNameForGroup) && !StringUtils.equals("GROUP_ATTR_UPDATERS", columnNameForGroup)
+                          
+                          ) {
+                        loaderReport.append("<font color='orange'>WARNING:</font> Found " + columnNameForGroup + " group query col, which is not used by grouper\n");
+                      }                      
+                    }
+                    String groupName = null;
+                    if (columnNamesForGroups.contains("GROUP_NAME")) {
+
+                      loaderReport.append("<font color='green'>SUCCESS:</font> Found GROUP_NAME col in group query\n");
+                      
+                      if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
+                       
+                        groupName = (String)grouperLoaderResultsetForGroups.getCell(0, "GROUP_NAME", true);
+                        
+                        if (StringUtils.isBlank(groupName)) {
+                          loaderReport.append("<font color='red'>ERROR:</font> GROUP_NAME is blank in group query!\n");
+                        } else {
+                          if (groupName.contains(":")) {
+                            loaderReport.append("<font color='green'>SUCCESS:</font> GROUP_NAME exists and contains a colon: '" + groupName + "'\n");
+                          } else {
+                            loaderReport.append("<font color='red'>ERROR:</font> GROUP_NAME should contain at least one colon in group query! (for folders)\n");
+                          }
+                        }
+                      }
+                      
+                    } else {
+                      loaderReport.append("<font color='red'>ERROR:</font> Didn't find GROUP_NAME col in group query!\n");
+                      fatal = true;
+                      
+                    }
+                    if (!fatal) {
+                      if (columnNamesForGroups.contains("GROUP_DISPLAY_NAME")) {
+
+                        loaderReport.append("<font color='green'>SUCCESS:</font> Found GROUP_DISPLAY_NAME col in group query\n");
+                        
+                        if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
+
+                          String groupDisplayName = (String)grouperLoaderResultsetForGroups.getCell(0, "GROUP_DISPLAY_NAME", true);
+
+                          if (StringUtils.isBlank(groupDisplayName)) {
+                            loaderReport.append("<font color='red'>ERROR:</font> GROUP_DISPLAY_NAME is blank in group query!\n");
+                          } else {
+                            if (groupDisplayName.contains(":")) {
+                              loaderReport.append("<font color='green'>SUCCESS:</font> GROUP_DISPLAY_NAME exists and contains a colon: '" + groupDisplayName + "'\n");
+                              int groupNameNumberOfColons = StringUtils.countMatches(groupName, ":");
+                              int groupDisplayNameNumberOfColons = StringUtils.countMatches(groupDisplayName, ":");
+                              if (groupNameNumberOfColons != groupDisplayNameNumberOfColons) {
+                                loaderReport.append("<font color='red'>ERROR:</font> GROUP_DISPLAY_NAME has " + groupDisplayNameNumberOfColons 
+                                    + ", and GROUP_NAME has " + groupNameNumberOfColons + " colons\n");
+                              } else {
+                                loaderReport.append("<font color='green'>SUCCESS:</font> GROUP_DISPLAY_NAME has " + groupDisplayNameNumberOfColons 
+                                    + ", and GROUP_NAME also has " + groupNameNumberOfColons + " colons\n");
+                              }
+                            } else {
+                              loaderReport.append("<font color='red'>ERROR:</font> GROUP_DISPLAY_NAME should contain at least one colon in group query! (for folders)\n");
+                            }
+                          }
+                        }
+                      } else {
+                        loaderReport.append("<font color='blue'>NOTE:</font> Didn't find GROUP_DISPLAY_NAME col in group query, will set the display name to be the same as the group name: '" + groupName + "'\n");
+                      }
+
+                      if (columnNamesForGroups.contains("GROUP_DESCRIPTION")) {
+
+                        loaderReport.append("<font color='green'>SUCCESS:</font> Found GROUP_DESCRIPTION col in group query\n");
+                        
+                        if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
+
+                          String groupDescription = (String)grouperLoaderResultsetForGroups.getCell(0, "GROUP_DESCRIPTION", true);
+
+                          loaderReport.append("<font color='green'>SUCCESS:</font> GROUP_DESCRIPTION exists '" + groupDescription + "'\n");
+                        }
+                      } else {
+                        loaderReport.append("<font color='blue'>NOTE:</font> Didn't find GROUP_DESCRIPTION col in group query");
+                      }
+
+                      for (String privilegeColumn : new String[]{"VIEWERS", "READERS", "ADMINS", "UPDATERS", "OPTINS", "OPTOUTS", "GROUP_ATTR_READERS", "GROUP_ATTR_UPDATERS"}) {
+                        if (columnNamesForGroups.contains(privilegeColumn)) {
+
+                          loaderReport.append("<font color='green'>SUCCESS:</font> Found " + privilegeColumn + " col in group query\n");
+                          
+                          if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
+
+                            String privilegeData = (String)grouperLoaderResultsetForGroups.getCell(0, privilegeColumn, true);
+
+                            if (!StringUtils.isBlank(privilegeData)) {
+                              
+                              loaderReport.append("<font color='green'>SUCCESS:</font> " + privilegeColumn + " data exists '" + privilegeData + "'\n");
+
+                              
+                              for (String subjectIdOrIdentifier : GrouperUtil.splitTrim(privilegeData, ",")) {
+                                try {
+                                  Subject subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, true);
+
+                                  loaderReport.append("<font color='green'>SUCCESS:</font> Subject found for privilege: " + privilegeColumn + ", " + GrouperUtil.subjectToString(subject) + "\n");
+
+                                } catch (Exception e) {
+                                  if (StringUtils.contains(subjectIdOrIdentifier, ':')) {
+
+                                    loaderReport.append("<font color='green'>SUCCESS:</font> Subject not found for privilege: " + privilegeColumn + ", but has a colon so its a new group\n");
+
+                                  } else {
+
+                                    //ignore stack I guess
+                                    loaderReport.append("<font color='red'>Error:</font> Subject not found for privilege: " + privilegeColumn + ", '" + subjectIdOrIdentifier + "'!\n");
+                                    
+                                  }
+                                }
+                              }
+                              
+                            } else {
+
+                              loaderReport.append("<font color='gren'>SUCCESS:</font> " + privilegeColumn + " data doesnt exist in first row\n");
+
+                            }
+                          }
+                        } else {
+                          loaderReport.append("<font color='blue'>NOTE:</font> Didn't find " + privilegeColumn + " col in group query\n");
+                        }
+                        
+                      }
+                      
+                    }
+                  }
+                  if (groupsLikeCount == 0) {
+                    
+                    if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
+                      // see if the groups like count is similar to the number of groups returned
+                      loaderReport.append("<font color='red'>ERROR:</font> 0 groups in 'groups like' and " + grouperLoaderResultsetForGroups.numberOfRows() 
+                          + " groups in SQL group query, maybe job hasnt been run yet?  Or groupsLike '" 
+                          + grouperLoaderContainer.getSqlGroupsLike() + "' is misconfigured?\n");
+                    }
+                    
+                  } else if (groupsLikeCount == grouperLoaderResultsetForGroups.numberOfRows()) {
+                    loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " 
+                        + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query are the same number!\n");
+                    
+                  } else if (groupsLikeCount > 0) {
+
+                    double percentOff = Math.abs(groupsLikeCount - grouperLoaderResultsetForGroups.numberOfRows()) / groupsLikeCount;
+                    if (percentOff > 0.1) {
+                      loaderReport.append("<font color='red'>ERROR:</font> " + groupsLikeCount + " groups in 'groups like' and " 
+                          + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query more than 10% away from each other.  Maybe job needs to be run?  Or groupsLike '" 
+                          + grouperLoaderContainer.getSqlGroupsLike() + "' is misconfigured?\n");
+                    } else {
+                      loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " 
+                          + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query are within 10%\n");
+                    }
+                  }
+                }
+              }
+                
+              break;
+            default: 
+              throw new RuntimeException("Cant find grouperLoaderType: " + grouperLoaderType);
+          }
+          
+        }
+
       }
       
       if (!fatal) {
@@ -1219,7 +1773,7 @@ public class UiV2GrouperLoader {
           criterionList.add(Restrictions.eq("status", "SUCCESS"));
     
           int maxRows = 1000;
-          QueryOptions queryOptions = QueryOptions.create("startedTime", false, 1, maxRows);
+          QueryOptions queryOptions = QueryOptions.create("lastUpdated", false, 1, maxRows);
           
           Criterion allCriteria = HibUtils.listCrit(criterionList);
           
@@ -1289,7 +1843,7 @@ public class UiV2GrouperLoader {
         criterionList.add(Restrictions.in("status", new String[]{"ERROR", "CONFIG_ERROR", "SUBJECT_PROBLEMS", "WARNING"}));
 
         int maxRows = 1000;
-        QueryOptions queryOptions = QueryOptions.create("startedTime", false, 1, maxRows);
+        QueryOptions queryOptions = QueryOptions.create("lastUpdated", false, 1, maxRows);
         
         Criterion allCriteria = HibUtils.listCrit(criterionList);
         
@@ -1302,7 +1856,7 @@ public class UiV2GrouperLoader {
           loaderReport.append("<font color='orange'>WARNING:</font> Found " + GrouperUtil.length(loaderLogs) 
               + " errors in grouper_loader_log for job name: " + jobName + "\n");
           Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderLogs.get(0);
-          if (hib3GrouperLoaderLog.getStartedTime().getTime() > System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 3)) {
+          if (hib3GrouperLoaderLog.getLastUpdated() == null || hib3GrouperLoaderLog.getLastUpdated().getTime() > System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 3)) {
             loaderReport.append("<font color='red'>ERROR:</font> Found an error in grouper_loader_log for job name: " + jobName + " within the last 3 days\n");
             if (!StringUtils.isBlank(hib3GrouperLoaderLog.getJobMessage())) {
               loaderReport.append(hib3GrouperLoaderLog.getJobMessage() + "\n");
@@ -1323,7 +1877,7 @@ public class UiV2GrouperLoader {
         criterionList.add(Restrictions.in("status", new String[]{"ERROR", "CONFIG_ERROR", "SUBJECT_PROBLEMS", "WARNING"}));
 
         int maxRows = 1000;
-        QueryOptions queryOptions = QueryOptions.create("startedTime", false, 1, maxRows);
+        QueryOptions queryOptions = QueryOptions.create("lastUpdated", false, 1, maxRows);
         
         Criterion allCriteria = HibUtils.listCrit(criterionList);
         
@@ -1336,7 +1890,7 @@ public class UiV2GrouperLoader {
           loaderReport.append("<font color='orange'>WARNING:</font> Found " + GrouperUtil.length(loaderLogs) 
               + " errors in grouper_loader_log for subjobs of job name: " + jobName + "\n");
           Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderLogs.get(0);
-          if (hib3GrouperLoaderLog.getStartedTime().getTime() > System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 3)) {
+          if (hib3GrouperLoaderLog.getLastUpdated() == null || hib3GrouperLoaderLog.getLastUpdated().getTime() > System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 3)) {
             loaderReport.append("<font color='red'>ERROR:</font> Found an error in grouper_loader_log for subjob of job name: " + jobName + " within the last 3 days\n");
             if (!StringUtils.isBlank(hib3GrouperLoaderLog.getJobMessage())) {
               loaderReport.append(hib3GrouperLoaderLog.getJobMessage() + "\n");
@@ -1384,6 +1938,7 @@ public class UiV2GrouperLoader {
   
     final String[] firstValueObject = new String[]{null};
   
+    @SuppressWarnings("unused")
     Map<String, List<String>> resultMap = null;
     try {
   
@@ -1422,6 +1977,8 @@ public class UiV2GrouperLoader {
                 searchControls.setSearchScope(ldapSearchScopeEnum.getSeachControlsConstant());
               }
               try {
+                long startNanos = System.nanoTime();
+
                 if (StringUtils.isBlank(grouperLoaderContainer.getLdapSearchDn())) {
                   searchResultIterator = ldap.search(
                       searchFilterObject, searchControls);
@@ -1430,7 +1987,7 @@ public class UiV2GrouperLoader {
                   searchResultIterator = ldap.search(grouperLoaderContainer.getLdapSearchDn(),
                       searchFilterObject, searchControls);
                 }
-                loaderReport.append("<font color='green'>SUCCESS:</font> Filter ran and did not throw an error\n");
+                loaderReport.append("<font color='green'>SUCCESS:</font> Filter ran and did not throw an error in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
               } catch (Exception e) {
                 loaderReport.append("<font color='red'>ERROR:</font> Filter threw an error\n");
                 loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
@@ -1611,6 +2168,9 @@ public class UiV2GrouperLoader {
                   loaderReport.append("<font color='red'>ERROR:</font> " + groupsLikeCount + " groups in 'groups like' and " 
                       + result.size() + " groups in ldap more than 10% away from each other.  Maybe job needs to be run?  Or groupsLike '" 
                       + grouperLoaderContainer.getLdapGroupsLike() + "' is misconfigured?\n");
+                } else {
+                  loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " + result.size() + " groups in ldap are within 10%\n");
+                  
                 }
               }
               
@@ -1658,10 +2218,13 @@ public class UiV2GrouperLoader {
         + ("".equals(groupParentFolderName) ? "Root" : groupParentFolderName) 
         + "\n");
 
+    @SuppressWarnings("unused")
     final int[] subObjectOverallCount = new int[]{0};
     
+    @SuppressWarnings("unused")
     final String[] firstValueObject = new String[]{null};
 
+    @SuppressWarnings("unused")
     Map<String, List<String>> resultMap = null;
     try {
 
@@ -1716,6 +2279,8 @@ public class UiV2GrouperLoader {
                     .getSeachControlsConstant());
               }
               try {
+                long startNanos = System.nanoTime();
+
                 if (StringUtils.isBlank(grouperLoaderContainer.getLdapSearchDn())) {
                   searchResultIterator = ldap.search(
                       searchFilterObject, searchControls);
@@ -1724,7 +2289,7 @@ public class UiV2GrouperLoader {
                   searchResultIterator = ldap.search(grouperLoaderContainer.getLdapSearchDn(),
                       searchFilterObject, searchControls);
                 }
-                loaderReport.append("<font color='green'>SUCCESS:</font> Filter ran and did not throw an error\n");
+                loaderReport.append("<font color='green'>SUCCESS:</font> Filter ran and did not throw an error in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
               } catch (Exception e) {
                 loaderReport.append("<font color='red'>ERROR:</font> Filter threw an error\n");
                 loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
@@ -1735,6 +2300,7 @@ public class UiV2GrouperLoader {
               
               Map<String, List<String>> result = new HashMap<String, List<String>>();
               int subObjectCount = 0;
+              @SuppressWarnings("unused")
               int subObjectValidCount = 0;
               
               //if filtering attributes by a jexl, then this is the cached result true or false, for if it is a valid attribute
@@ -1993,7 +2559,7 @@ public class UiV2GrouperLoader {
                         //get the "row" for the group
                         List<String> valueResults = result.get(groupName);
                         //add the subject
-                        valueResults.add((String) subjectId);
+                        valueResults.add(subjectId);
                         
                         if (firstObject) {
                           grouperLoaderFindSubject(loaderReport, subjectId, grouperLoaderContainer.getLdapSubjectExpression(), 
