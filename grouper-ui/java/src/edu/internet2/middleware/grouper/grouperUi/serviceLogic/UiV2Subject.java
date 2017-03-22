@@ -805,7 +805,7 @@ public class UiV2Subject {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              if (group.hasUpdate(loggedInSubject)) {
+              if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false)) {
                 return true;
               }
               return false;
@@ -816,9 +816,9 @@ public class UiV2Subject {
             failures++;
           } else {
             group.deleteMember(membership.getMember(), false);
+            successes++;
           }
           
-          successes++;
         } catch (Exception e) {
           LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
           failures++;
