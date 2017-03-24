@@ -329,7 +329,10 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
       } else {
         this.screenLabelShort2 = StringUtils.abbreviate(screenLabel, maxWidth);
       }
-      boolean hasTooltip = this.subject != null 
+
+      this.screenSubjectIcon2Html = GrouperUiUtils.convertSubjectToIconHtmlConfigured2(this.subject);
+
+      boolean hasTooltip = this.subject != null
         && !StringUtils.isBlank(this.subject.getDescription()) && !StringUtils.equals(this.subject.getName(), this.subject.getDescription());
       
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(hasTooltip);
@@ -419,6 +422,15 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   }
 
   /**
+   * span for subject-specific icon for ui v2; e.g. '&lt;i class="fa fa-group"&gt;&lt;/i&gt; '
+   * @return label
+   */
+  public String getScreenSubjectIcon2Html() {
+    this.initScreenLabels();
+    return this.screenSubjectIcon2Html;
+  }
+
+  /**
    * construct with subject
    * @param subject1
    */
@@ -478,7 +490,12 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * new short label in v2 with html tooltip and link
    */
   private String screenLabelShort2html = null;
-  
+
+  /**
+   * new subject icon in v2
+   */
+  private String screenSubjectIcon2Html = null;
+
   /**
    * new short label in v2 with html tooltip and link and icon
    */
