@@ -970,11 +970,11 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           }
         } 
         
+        //we can delete the overall group
+        group.delete();
+        count++;
+        
       }
-      
-      //we can delete the overall group
-      group.delete();
-      count++;
       
       //now lets pick apart the composites and such
       for (int i=1;i<10;i++) {

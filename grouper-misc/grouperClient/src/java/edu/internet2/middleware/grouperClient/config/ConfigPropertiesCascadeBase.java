@@ -1247,6 +1247,8 @@ public abstract class ConfigPropertiesCascadeBase {
       //why exception at this point?  not good
       throw new RuntimeException("Problem loading config file: " + resourceName, e);
       
+    } finally {
+      ConfigPropertiesCascadeUtils.closeQuietly(inputStream);
     }
     return properties;
   }

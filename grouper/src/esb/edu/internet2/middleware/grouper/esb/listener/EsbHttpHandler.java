@@ -64,8 +64,11 @@ public class EsbHttpHandler extends AbstractHandler {
     } else {
       byte[] data = new byte[content_length];
       DataInputStream in = new DataInputStream(request.getInputStream());
-      in.readFully(data);
-      in.close();
+      try {
+        in.readFully(data);
+      } finally {
+        GrouperUtil.closeQuietly(in);
+      }
       String jsonString = new String(data);
 
       if (LOG.isDebugEnabled()) {

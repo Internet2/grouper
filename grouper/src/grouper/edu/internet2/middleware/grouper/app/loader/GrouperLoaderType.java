@@ -83,13 +83,11 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
-import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -1190,13 +1188,76 @@ public enum GrouperLoaderType {
       }
 
       /** {@inheritDoc} */
-      public void runJob(LoaderJobBean loaderJobBean) {        
-        LOG.info("Running " + PSP_FULL_SYNC.name());
-        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
-        String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class");
-        Class<?> theClass = GrouperUtil.forName(theClassName);
-        Object theClassInstance = GrouperUtil.newInstance(theClass);
-        GrouperUtil.callMethod(theClassInstance, "fullSync");
+      public void runJob(LoaderJobBean loaderJobBean) {  
+        final long startTime = System.currentTimeMillis();
+        final RuntimeException[] runtimeException = new RuntimeException[1];
+        final boolean done[] = new boolean[]{false};
+        Thread thread = new Thread(new Runnable() {
+
+          public void run() {
+            try {
+              LOG.info("Running " + PSP_FULL_SYNC.name());
+              GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
+              String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class");
+              Class<?> theClass = GrouperUtil.forName(theClassName);
+              Object theClassInstance = GrouperUtil.newInstance(theClass);
+              GrouperUtil.callMethod(theClassInstance, "fullSync");
+            } catch (RuntimeException re) {
+              runtimeException[0] = re;
+            } finally {
+              done[0] = true;
+            }
+          }
+          
+        });
+        
+        //run job
+        thread.start();
+        
+        //wait for job and update status
+        while(true) {
+          try {
+            //either wait for thread to end or 10 seconds to go by
+            thread.join(10000);
+            if (done[0]) {
+              break;
+            }
+            
+            //update the status
+            Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
+            if (StringUtils.isBlank(hib3GrouperLoaderLog.getStatus()) || StringUtils.equals(GrouperLoaderStatus.STARTED.toString(), hib3GrouperLoaderLog.getStatus())) {
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+            }
+            hib3GrouperLoaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));
+            hib3GrouperLoaderLog.setMillis((int)(System.currentTimeMillis()-startTime));
+
+            hib3GrouperLoaderLog.store();
+
+          } catch (Exception e) {
+            throw new RuntimeException("interrupted", e);
+          }
+        }
+
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
+        hib3GrouperLoaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));
+        hib3GrouperLoaderLog.setMillis((int)(System.currentTimeMillis()-startTime));
+
+        //if done, then throw exception
+        if (runtimeException[0] != null) {
+          try {
+            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+            hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(runtimeException[0]));
+            hib3GrouperLoaderLog.store();
+          } catch (Exception e) {
+            //swallow this
+            LOG.error("Error storing loader log", e);
+          }
+          throw runtimeException[0];
+        }
+
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        hib3GrouperLoaderLog.store();
+
       }
     };
   

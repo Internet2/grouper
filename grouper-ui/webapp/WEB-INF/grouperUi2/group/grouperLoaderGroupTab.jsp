@@ -16,7 +16,13 @@
                   </c:if>
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
-                <p class="lead">${textContainer.text['grouperLoaderGroupDecription'] }</p>
+                <div class="row-fluid">
+                  <div class="lead span10">${textContainer.text['grouperLoaderGroupDecription'] }</div>
+                  <div class="span2" id="grouperLoaderMoreActionsButtonContentsDivId">
+                    <%@ include file="grouperLoaderMoreActionsButtonContents.jsp"%>
+                  </div>
+                </div>
+                
                 <c:choose>
                   <c:when test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
                     <p>${textContainer.text['grouperLoaderIsGrouperLoader'] }</p>
@@ -149,9 +155,17 @@
                             </td>
                           </tr>
                           
-                          
-                          
                         </c:if>
+
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderJobName']}</strong></td>
+                          <td style="vertical-align: top;">
+                          
+                            ${grouperRequestContainer.grouperLoaderContainer.jobName}
+                            <br /><span class="description">${textContainer.text['grouperLoaderJobNameDescription']}</span>
+                          
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </c:when>
@@ -394,6 +408,16 @@
                           </tr>
                         
                         </c:if>
+                        
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderJobName']}</strong></td>
+                          <td style="vertical-align: top;">
+                          
+                            ${grouperRequestContainer.grouperLoaderContainer.jobName}
+                            <br /><span class="description">${textContainer.text['grouperLoaderJobNameDescription']}</span>
+                          
+                          </td>
+                        </tr>
                         
 <%--                         
 

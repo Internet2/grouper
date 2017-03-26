@@ -5,11 +5,22 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -18,6 +29,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -26,6 +39,11 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.ldap.LdapHandler;
+import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
+import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
+import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -33,6 +51,8 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.SearchFilter;
 
 
 /**
@@ -49,6 +69,94 @@ public class GrouperLoaderContainer {
    * 
    */
   public GrouperLoaderContainer() {
+  }
+
+  /**
+   * 
+   * @return number of rows
+   */
+  public int getNumberOfRows() {
+    return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxSize", 400);
+  }
+  
+  /**
+   * 
+   * @return true if this job has subjobs
+   */
+  public boolean isHasSubjobs() {
+    
+    GrouperLoaderType grouperLoaderType = this.getGrouperLoaderType();
+    
+    if (grouperLoaderType != null && 
+        (grouperLoaderType == GrouperLoaderType.LDAP_GROUP_LIST 
+          || grouperLoaderType == GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES 
+          || grouperLoaderType == GrouperLoaderType.SQL_GROUP_LIST)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * 
+   */
+  private List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs;
+
+  //private static Pattern groupIdFromJobNamePattern = Pattern.compile(".*__([^_]+)$");
+  /**
+   * pattern to get group id from job name
+   * SQL_GROUP_LIST__penn:community:emplo__yee:affiliationPrimaryConfig__fa9dca910f9a4accb8529dd040dc1198
+   */
+  private static Pattern groupNameFromJobNamePattern = Pattern.compile("^.*?__(.*)__.*$");
+  
+  /**
+   * group name from subjob name
+   */
+  private static Pattern groupNameFromSubjobNamePattern = Pattern.compile("^subjobFor_(.*)$");
+  
+  /**
+   * retrieve group name from job name
+   * @param jobName
+   * @return group id
+   */
+  public static String retrieveGroupNameFromJobName(String jobName) {
+    
+    if (StringUtils.isBlank(jobName)) {
+      return null;
+    }
+    
+    //try normal job
+    Matcher matcher = groupNameFromJobNamePattern.matcher(jobName);
+    
+    if (matcher.matches()) {
+      return matcher.group(1);
+    }
+
+    //try subjob
+    matcher = groupNameFromSubjobNamePattern.matcher(jobName);
+      
+    if (matcher.matches()) {
+      return matcher.group(1);
+    }
+    return null;
+    
+  }
+  
+  /**
+   * hib3 loader logs
+   * @return the list of logs
+   */
+  public List<GuiHib3GrouperLoaderLog> getGuiHib3GrouperLoaderLogs() {
+
+    return this.guiHib3GrouperLoaderLogs;
+
+  }
+
+  /**
+   * @param guiHib3GrouperLoaderLogs1 the guiHib3GrouperLoaderLogs to set
+   */
+  public void setGuiHib3GrouperLoaderLogs(List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs1) {
+    this.guiHib3GrouperLoaderLogs = guiHib3GrouperLoaderLogs1;
   }
 
   /**
@@ -298,6 +406,7 @@ public class GrouperLoaderContainer {
     return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapViewersName());
 
   }
+  
   
   
   /**
@@ -558,6 +667,62 @@ public class GrouperLoaderContainer {
    * 
    */
   private AttributeAssign attributeAssign = null;
+  
+  /**
+   * 
+   * @return the grouper loader type
+   */
+  public GrouperLoaderType getGrouperLoaderType() {
+    String grouperLoaderTypeString = null;
+    
+    if (this.isGrouperSqlLoader()) {
+      grouperLoaderTypeString = this.getSqlLoaderType();
+    } else if (this.isGrouperLdapLoader()) {
+      grouperLoaderTypeString = this.getLdapLoaderType();
+    }
+    
+    if (StringUtils.isBlank(grouperLoaderTypeString)) {
+      return null;
+    }
+    
+    GrouperLoaderType grouperLoaderType = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeString, true);
+    
+    return grouperLoaderType;
+
+  }
+
+  /**
+   * 
+   * @return job name
+   */
+  public String getJobName() {
+    GrouperLoaderType grouperLoaderType = this.getGrouperLoaderType();
+    
+    if (grouperLoaderType == null) {
+      return null;
+    }
+
+    Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+
+    return grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid();
+
+  }
+  
+  /**
+   * 
+   * @return is SQL loader
+   */
+  public boolean isGrouperSqlLoader() {
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().isHasAttrDefNameGrouperLoader();
+  }
+  
+  /**
+   * 
+   * @return is LDAP loader
+   */
+  public boolean isGrouperLdapLoader() {
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().isHasAttrDefNameGrouperLoaderLdap();
+  }
   
   /**
    * get the ldap attribute assign for this group
