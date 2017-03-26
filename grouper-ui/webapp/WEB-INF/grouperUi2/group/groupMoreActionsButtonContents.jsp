@@ -72,6 +72,10 @@
                               >${textContainer.text['groupViewRemoveAllMembersButton'] }</a></li>
                         </c:if>
                         <li class="divider"></li>
+                        <c:if test="${isWheelGroupMember || grouperRequestContainer.groupContainer.canUpdate || grouperRequestContainer.groupContainer.canRead || grouperRequestContainer.groupContainer.canAdmin}">
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['attestationButton'] }</a></li>
+                        </c:if>                
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewAuditButton'] }</a></li>
