@@ -35,6 +35,7 @@ import net.sf.ehcache.Element;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -65,10 +66,12 @@ public class WheelCache {
    * @since 2.1.0
    */
   public static Boolean getFromIsWheelMemberCache(Subject subj) {
-    Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
-      .get(new MultiKey(subj.getSourceId(), subj.getId()));
-    if (el != null) {
-      return (Boolean) el.getObjectValue();
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+        .get(new MultiKey(subj.getSourceId(), subj.getId()));
+      if (el != null) {
+        return (Boolean) el.getObjectValue();
+      }
     }
     return null;
   }
@@ -80,8 +83,10 @@ public class WheelCache {
    * @since 2.1.0
    */
   public static void putInHasPrivilegeCache(Subject subj, Boolean rv) {
-    EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
-      .put(new Element(new MultiKey(subj.getSourceId(), subj.getId()), rv));
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+        .put(new Element(new MultiKey(subj.getSourceId(), subj.getId()), rv));
+    }
   }
 
   /**
@@ -91,10 +96,12 @@ public class WheelCache {
    * @since 2.1.0
    */
   public static Boolean getFromIsWheelReadonlyMemberCache(Subject subj) {
-    Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
-      .get(new MultiKey("readonlyCache", subj.getSourceId(), subj.getId()));
-    if (el != null) {
-      return (Boolean) el.getObjectValue();
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+        .get(new MultiKey("readonlyCache", subj.getSourceId(), subj.getId()));
+      if (el != null) {
+        return (Boolean) el.getObjectValue();
+      }
     }
     return null;
   }
@@ -106,8 +113,10 @@ public class WheelCache {
    * @since 2.1.0
    */
   public static void putInReadonlyHasPrivilegeCache(Subject subj, Boolean rv) {
-    EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
-      .put(new Element(new MultiKey("readonlyCache", subj.getSourceId(), subj.getId()), rv));
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+        .put(new Element(new MultiKey("readonlyCache", subj.getSourceId(), subj.getId()), rv));
+    }
   }
 
 
@@ -118,10 +127,12 @@ public class WheelCache {
    * @since 2.1.0
    */
   public static Boolean getFromIsWheelViewonlyMemberCache(Subject subj) {
-    Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
-      .get(new MultiKey("viewonlyCache", subj.getSourceId(), subj.getId()));
-    if (el != null) {
-      return (Boolean) el.getObjectValue();
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+        .get(new MultiKey("viewonlyCache", subj.getSourceId(), subj.getId()));
+      if (el != null) {
+        return (Boolean) el.getObjectValue();
+      }
     }
     return null;
   }
@@ -133,7 +144,9 @@ public class WheelCache {
    * @since 2.1.0
    */
   public static void putInViewonlyHasPrivilegeCache(Subject subj, Boolean rv) {
-    EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
-      .put(new Element(new MultiKey("viewonlyCache", subj.getSourceId(), subj.getId()), rv));
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+        .put(new Element(new MultiKey("viewonlyCache", subj.getSourceId(), subj.getId()), rv));
+    }
   }
 }

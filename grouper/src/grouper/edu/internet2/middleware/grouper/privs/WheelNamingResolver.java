@@ -255,7 +255,8 @@ public class WheelNamingResolver extends NamingResolverDecorator {
 
             public Object callback(GrouperSession grouperSession)
                 throws GrouperSessionException {
-              return WheelNamingResolver.this.wheelGroup.hasMember(subj);
+              return WheelNamingResolver.this.wheelGroup != null 
+                  && WheelNamingResolver.this.wheelGroup.hasMember(subj);
             }
                     });
 
