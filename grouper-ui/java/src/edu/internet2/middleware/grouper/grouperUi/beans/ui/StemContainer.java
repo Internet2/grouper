@@ -619,6 +619,14 @@ public class StemContainer {
     this.successCount = successCount1;
   }
 
-  
+  private GuiAttestation guiAttestation;
+
+  public GuiAttestation getGuiAttestation() {
+    return guiAttestation;
+  }
+
+  public void setGuiAttestation(GuiAttestation guiAttestation) {
+    this.guiAttestation = guiAttestation;
+  }
   
 }
