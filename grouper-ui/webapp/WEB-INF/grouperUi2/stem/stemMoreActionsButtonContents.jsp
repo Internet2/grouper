@@ -75,6 +75,10 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewMoveStemButton'] }</a></li>
                           <li class="divider"></li>
+                          <c:if test="${isWheelGroupMember || grouperRequestContainer.stemContainer.canAdminPrivileges}">
+                            <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Stem.stemAttestation&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >${textContainer.text['attestationButton'] }</a></li>
+                          </c:if>         
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewAudits&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewAuditButton'] }</a></li>
                         </c:if>
