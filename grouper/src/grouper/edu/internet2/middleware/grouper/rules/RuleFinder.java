@@ -195,6 +195,9 @@ public class RuleFinder {
     boolean wheelOrRoot = PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject());
 
     for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+      if (ruleDefinition.getThen() == null || ruleDefinition.getThen().thenEnum() == null) {
+        continue;
+      }
       switch (ruleDefinition.getCheck().checkTypeEnum()) {
         case attributeDefCreate:
         case groupCreate:
