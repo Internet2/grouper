@@ -2371,7 +2371,6 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupAttestation", 
             "/WEB-INF/grouperUi2/group/groupEditAttestation.jsp"));
       }
-      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
