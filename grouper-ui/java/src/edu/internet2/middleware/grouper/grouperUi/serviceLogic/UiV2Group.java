@@ -15,8 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -2286,9 +2285,9 @@ public class UiV2Group {
       group.getAttributeDelegate().assignAttribute(attributeDefName);
     } 
     AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-    LocalDateTime dateTime = LocalDateTime.now();
-    String asCustomPattern = dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-    attributeAssign.getAttributeValueDelegate().assignValue("etc:attribute:attestation:attestationDateCertified", asCustomPattern);
+    
+    String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+    attributeAssign.getAttributeValueDelegate().assignValue("etc:attribute:attestation:attestationDateCertified", date);
     
     // add/update the directAssignment attribute
     String attestationDirectAssignment = attributeAssign.getAttributeValueDelegate().retrieveValueString("etc:attribute:attestation:attestationDirectAssignment");
@@ -2458,9 +2457,8 @@ public class UiV2Group {
     attributeAssign.getAttributeValueDelegate().assignValue("etc:attribute:attestation:attestationDaysUntilRecertify", daysUntilRectify);
     attributeAssign.getAttributeValueDelegate().assignValue("etc:attribute:attestation:attestationDaysBeforeToRemind", daysBeforeReminder);
     if (updateLastCertifiedDate) {
-      LocalDateTime dateTime = LocalDateTime.now();
-      String asCustomPattern = dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-      attributeAssign.getAttributeValueDelegate().assignValue("etc:attribute:attestation:attestationDateCertified", asCustomPattern);
+      String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+      attributeAssign.getAttributeValueDelegate().assignValue("etc:attribute:attestation:attestationDateCertified", date);
     }
     attributeAssign.saveOrUpdate(false);
   }
