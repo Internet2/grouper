@@ -13,19 +13,27 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['grouperLoaderMoreActionsViewLoader'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.viewLogs&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                            >${textContainer.text['grouperLoaderMoreActionsViewLoaderLogs'] }</a></li>
-
-                        <c:if test="${mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true' }" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                            >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.viewLogs&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['grouperLoaderMoreActionsViewLoaderLogs'] }</a></li>
+  
+                          <c:if test="${mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true' }" >
+                            <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
+                          </c:if>
+  
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['grouperLoaderDiagnosticsButton'] }</a></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
                         </c:if>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                            >${textContainer.text['grouperLoaderDiagnosticsButton'] }</a></li>
-
-                        <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                          >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
+                        </c:if>
                       </ul>
                     </div>
 

@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -62,6 +63,7 @@ import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -702,6 +704,171 @@ public class UiV2GrouperLoader {
    * @param request
    * @param response
    */
+  public void editGrouperLoaderSave(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+
+      if (!canEditLoader) {
+        return;
+      }
+
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      editGrouperLoaderHelper(request, grouperLoaderContainer);
+
+      boolean hasError = false;
+      
+      if (!grouperLoaderContainer.isEditLoaderIsLoader()) {
+        if (grouperLoaderContainer.isGrouperLdapLoader()) {
+          
+          //first, get the attribute def name
+          AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
+              .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+          group.getAttributeDelegate().removeAttribute(grouperLoaderLdapName);
+
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRemoved")));
+
+        }
+        if (grouperLoaderContainer.isGrouperSqlLoader()) {
+          //first, get the attribute def name
+          AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
+              .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+          group.getAttributeDelegate().removeAttribute(grouperLoader);
+
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRemoved")));
+
+        }
+      } else {
+        if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderType())) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditTypeRequired")));
+          hasError = true;
+        }
+        
+        if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlType())) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditSqlTypeRequired")));
+          hasError = true;
+        }
+        
+        if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlDatabaseName())) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditServerIdRequired")));
+          hasError = true;
+        }
+        
+        if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlQuery())) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditSqlQueryRequired")));
+          hasError = true;
+        }
+        
+        if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlQuery())) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditSqlQueryRequired")));
+          hasError = true;
+        }
+        
+        if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderScheduleType())) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleTypeRequired")));
+          hasError = true;
+        }
+        
+        if (!hasError && StringUtils.equals(grouperLoaderContainer.getEditLoaderScheduleType(), GrouperLoaderScheduleType.START_TO_START_INTERVAL.name())) {
+
+          if (!StringUtils.isBlank(grouperLoaderContainer.getEditLoaderScheduleInterval())) {
+            try {
+              GrouperUtil.intValue(grouperLoaderContainer.getEditLoaderScheduleInterval());
+            } catch (Exception e) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleIntervalInvalid")));
+              hasError = true;
+            }
+            
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleIntervalRequired")));
+            hasError = true;
+            
+          }
+
+        }
+
+        if (!hasError && StringUtils.equals(grouperLoaderContainer.getEditLoaderScheduleType(), GrouperLoaderScheduleType.CRON.name())) {
+
+          if (!StringUtils.isBlank(grouperLoaderContainer.getEditLoaderCron())) {
+            if (!StringUtils.equals(TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError"),
+                grouperLoaderContainer.getEditLoaderCronDescription())) {
+              
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleCronInvalid")));
+              hasError = true;
+            }
+            
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleCronRequired")));
+            hasError = true;
+            
+          }
+        }
+      }
+
+      if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderPriority())) {
+        try {
+          GrouperUtil.intValue(grouperLoaderContainer.getEditLoaderPriority());
+        } catch (Exception e) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditPriorityInvalid")));
+          hasError = true;
+        }
+      }
+
+      if (!hasError) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=" + group.getId() + "')"));
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditSaveSuccess")));
+
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
+      }
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * edit the grouper loader
+   * @param request
+   * @param response
+   */
   public void editGrouperLoader(HttpServletRequest request, HttpServletResponse response) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
@@ -712,14 +879,18 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
       final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
 
-      if (group == null || !canSeeLoader) {
+      if (!canEditLoader || group == null) {
         return;
       }
 
+      editGrouperLoaderHelper(request, grouperLoaderContainer);
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
 
@@ -733,6 +904,120 @@ public class UiV2GrouperLoader {
     }
     
   }
+
+  /**
+   * @param request
+   * @param grouperLoaderContainer
+   */
+  private void editGrouperLoaderHelper(HttpServletRequest request,
+      GrouperLoaderContainer grouperLoaderContainer) {
+    boolean isLoaderFromForm = false;
+    {
+      Boolean isLoaderFromFormBoolean = GrouperUtil.booleanObjectValue(request.getParameter("grouperLoaderHasLoaderName"));
+      
+      if (isLoaderFromFormBoolean == null) {
+        isLoaderFromFormBoolean = grouperLoaderContainer.isLoaderGroup();
+      }
+ 
+      isLoaderFromForm = isLoaderFromFormBoolean;
+    }
+    grouperLoaderContainer.setEditLoaderIsLoader(isLoaderFromForm);
+    
+    //dont show anything at first
+    //by default it doesnt
+
+    boolean error = false;
+    
+    if (isLoaderFromForm) {
+      grouperLoaderContainer.setEditLoaderShowLoaderType(true);
+    }
+
+    {
+      String grouperLoaderTypeString = request.getParameter("grouperLoaderTypeName");
+      if (!error && !StringUtils.isBlank(grouperLoaderTypeString)) {
+        grouperLoaderContainer.setEditLoaderType(grouperLoaderTypeString);
+
+        if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
+          grouperLoaderContainer.setEditLoaderShowSqlLoaderType(true);
+        }
+      } else {
+        error = true;
+      }
+    }
+    GrouperLoaderType grouperLoaderType = null;
+    {
+      String grouperLoaderSqlTypeString = request.getParameter("grouperLoaderSqlTypeName");
+      if (!error && !StringUtils.isBlank(grouperLoaderSqlTypeString)) {
+        grouperLoaderContainer.setEditLoaderSqlType(grouperLoaderSqlTypeString);
+        grouperLoaderType = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderSqlTypeString, true);
+        grouperLoaderContainer.setEditLoaderShowSqlDatabaseName(true);
+      } else {
+        error = true;
+      }
+    }
+    {
+      String grouperLoaderSqlDatabaseNameString = request.getParameter("grouperLoaderSqlDatabaseNameName");
+      if (!error && !StringUtils.isBlank(grouperLoaderSqlDatabaseNameString)) {
+        grouperLoaderContainer.setEditLoaderSqlDatabaseName(grouperLoaderSqlDatabaseNameString);
+        grouperLoaderContainer.setEditLoaderShowSqlQuery(true);
+        grouperLoaderContainer.setEditLoaderShowFields(true);
+      } else {
+        error = true;
+      }
+    }
+    {
+      String grouperLoaderSqlQuery = request.getParameter("grouperLoaderSqlQueryName");
+      if (!error && !StringUtils.isBlank(grouperLoaderSqlQuery)) {
+        grouperLoaderContainer.setEditLoaderSqlQuery(grouperLoaderSqlQuery);
+      } else {
+        error = true;
+      }
+    }
+    String grouperLoaderScheduleType = null;
+    {
+      grouperLoaderScheduleType = request.getParameter("editLoaderScheduleTypeName");
+      if (!error && !StringUtils.isBlank(grouperLoaderScheduleType)) {
+        grouperLoaderContainer.setEditLoaderScheduleType(grouperLoaderScheduleType);
+      } else {
+        error = true;
+      }
+    }
+    {
+      String grouperLoaderScheduleInterval = StringUtils.trimToNull(request.getParameter("editLoaderScheduleIntervalName"));
+      if (!error && StringUtils.equals(grouperLoaderScheduleInterval, GrouperLoaderScheduleType.START_TO_START_INTERVAL.name())) {
+        
+        grouperLoaderContainer.setEditLoaderScheduleInterval(grouperLoaderScheduleInterval);
+        
+      } else {
+        error = true;
+      }
+    }
+
+    {
+      String grouperLoaderCron = StringUtils.trimToNull(request.getParameter("editLoaderCronName"));
+      if (!error && StringUtils.equals(grouperLoaderCron, GrouperLoaderScheduleType.CRON.name())) {
+        
+        grouperLoaderContainer.setEditLoaderCron(grouperLoaderCron);
+        
+      } else {
+        error = true;
+      }
+    }
+
+    {
+      String grouperLoaderPriority = StringUtils.trimToNull(request.getParameter("editLoaderPriorityName"));
+      if (!error) {
+        
+        grouperLoaderContainer.setEditLoaderPriority(grouperLoaderPriority);
+        
+      } else {
+        error = true;
+      }
+    }
+    
+
+  }
+
 
   /**
    * run diagnostics

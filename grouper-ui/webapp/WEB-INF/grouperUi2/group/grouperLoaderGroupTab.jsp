@@ -418,23 +418,11 @@
                           
                           </td>
                         </tr>
-                        
-<%--                         
-
-
- = Opt outs
- = comma separated subjectIds or subjectIdentifiers who will be allowed to OPTOUT from the group
-                        
-                        --%>
-                                           
+         
                       </tbody>
                     </table>
                   </c:when>
                 </c:choose>
-
-<%--
-                <a class="btn" role="button" onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false; return false;">${textContainer.text['grouperLoaderEditConfiguration'] }</a>
---%>
 
               </div>
             </div>
