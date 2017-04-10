@@ -513,7 +513,33 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * register or edit an external subject
    */
   EXTERNAL_SUBJECT_INVITE_IDENTIFIER(new AuditType("externalSubjectInvite", "createInviteByIdentifier", null, "identifiers", "inviterMemberId", 
-      "groupIdsAssigned", "groupNamesAssigned"));
+      "groupIdsAssigned", "groupNamesAssigned")),
+  
+  /**
+   * add attestation for group
+   */
+  GROUP_ADD_ATTESTATION(new AuditType("group attestation", "add", null, "groupId", "displayName")),
+  
+  /** 
+   * update attestation for group
+   */
+  GROUP_UPDATE_ATTESTATION(new AuditType("group attestation", "update", null, "groupId", "displayName")),
+  
+  /**
+   * update last certified date for group
+   */
+  GROUP_UPDATE_LAST_CERTIFIED_DATE(new AuditType("group attestation", "updateLastCertifiedDate", null, "groupId", "displayName")),
+  
+  /**
+   * add attestation for stem
+   */
+  STEM_ADD_ATTESTATION(new AuditType("stem attestation", "add", null, "stemId", "displayName")),
+  
+  /** 
+   * update attestation for stem
+   */
+  STEM_UPDATE_ATTESTATION(new AuditType("stem attestation", "update", null, "stemId", "displayName"));
+  
   
   /**
    * defaults for audit type, though doesnt hold the id

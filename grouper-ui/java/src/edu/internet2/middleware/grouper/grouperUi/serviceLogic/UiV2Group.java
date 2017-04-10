@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
@@ -2270,6 +2271,10 @@ public class UiV2Group {
       updateAttestationLastCertifiedDate(group);
       groupAttestationHelper(request, response, group);
       
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE_LAST_CERTIFIED_DATE, "groupId", group.getId(), "displayName", group.getDisplayName());
+      auditEntry.setDescription("Updated last certified date attribute of group: "+group.getDisplayName());
+      auditEntry.saveOrUpdate(false);
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2426,11 +2431,19 @@ public class UiV2Group {
         return;
       }
       
+      AuditEntry auditEntry = null;
       if (!group.getAttributeDelegate().hasAttributeByName("etc:attribute:attestation:attestation")) {
         group.getAttributeDelegate().assignAttribute(attributeDefName); // we are adding attribute here
+        auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD_ATTESTATION, "groupId", group.getId(), "displayName", group.getDisplayName());
+        auditEntry.setDescription("Add group attestation: "+group.getDisplayName());
+      } else {
+        auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE_ATTESTATION, "groupId", group.getId(), "displayName", group.getDisplayName());
+        auditEntry.setDescription("Update group attestation: "+group.getDisplayName());
       }
       updateAttestationAttributes(group, attributeDefName, directAssignment, sendEmail, emailAddresses, daysUntilRectify, daysBeforeReminder, updateLastCertifiedDate);
       groupAttestationHelper(request, response, group);
+      
+      auditEntry.saveOrUpdate(false);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
