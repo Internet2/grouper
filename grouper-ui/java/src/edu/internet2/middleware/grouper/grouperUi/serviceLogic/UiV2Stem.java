@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
@@ -1823,12 +1824,18 @@ public class UiV2Stem {
         return;
       }
       
+      AuditEntry auditEntry = null;
       if (!stem.getAttributeDelegate().hasAttributeByName("etc:attribute:attestation:attestation")) {
         stem.getAttributeDelegate().assignAttribute(attributeDefName); // we are adding attribute here
+        auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD_ATTESTATION, "stemId", stem.getId(), "displayName", stem.getDisplayName());
+        auditEntry.setDescription("Add stem attestation: "+stem.getDisplayName());
+      } else {
+        auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_UPDATE_ATTESTATION, "stemId", stem.getId(), "displayName", stem.getDisplayName());
+        auditEntry.setDescription("Update stem attestation: "+stem.getDisplayName());
       }
       updateAttestationAttributes(stem, attributeDefName, sendEmail, emailAddresses, daysUntilRectify, daysBeforeReminder, updateLastCertifiedDate, scope);
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.stemAttestation&stemId=" + stem.getId() + "')"));
-      //stemAttestationHelper(request, response, stem);
+      auditEntry.saveOrUpdate(false);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
