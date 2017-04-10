@@ -15,9 +15,16 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * request container for grouper in the j2ee request object, under 
@@ -28,10 +35,19 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 public class GrouperRequestContainer {
 
   /**
+   * sources
+   * @return sources
+   */
+  public List<GuiSource> getGuiSources() {
+    return new ArrayList<GuiSource>(GuiSource.convertFromSources(
+        new LinkedHashSet<Source>(SourceManager.getInstance().getSources())));
+  }
+
+  /**
    * grouper loader container
    */
   private GrouperLoaderContainer grouperLoaderContainer;
-  
+
   /**
    * @return the grouperLoaderContainer
    */
@@ -41,7 +57,7 @@ public class GrouperRequestContainer {
     }
     return this.grouperLoaderContainer;
   }
-  
+
   /**
    * @param grouperLoaderContainer1 the grouperLoaderContainer to set
    */
