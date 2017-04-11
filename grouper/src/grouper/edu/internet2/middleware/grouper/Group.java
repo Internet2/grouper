@@ -126,6 +126,8 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -5869,7 +5871,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    
+        
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
@@ -5878,7 +5880,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
         this, Group.class);
-
+    
+    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_ADD.name());
   }
 
   /**
@@ -6118,7 +6121,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE, false, true);
-
+    
+    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_DELETE.name());
   }
 
   /**

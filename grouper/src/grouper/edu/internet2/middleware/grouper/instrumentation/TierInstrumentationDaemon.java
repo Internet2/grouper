@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -48,6 +51,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -96,12 +100,27 @@ public class TierInstrumentationDaemon implements Job {
       
       LOG.info("Running TIER instrumentation daemon.");
       
+      AttributeAssign parentAssignment = InstrumentationDataUtils.grouperInstrumentationCollectorParentAttributeAssignment(jobName);
+
+      String lastCollectorUpdateString = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR);
+      long lastCollectorUpdate = 0;
+      if (!StringUtils.isEmpty(lastCollectorUpdateString)) {
+        lastCollectorUpdate = Long.parseLong(lastCollectorUpdateString);
+      }
+      
+      String collectorUuid = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR);
+            
       Map<String, Object> data = new LinkedHashMap<String, Object>();
       data.put("reportFormat", 1);
+      data.put("uuid", collectorUuid);
       data.put("component", "grouper");
       data.put("institution", getInstitution());
       data.put("environment", GrouperConfig.retrieveConfig().getProperty("grouper.env.name", ""));
-      data.put("version", GrouperVersion.GROUPER_VERSION);
+      
+      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.version", false)) {
+        data.put("version", GrouperVersion.GROUPER_VERSION);
+      }
+      
       data.put("platformWindows", SystemUtils.IS_OS_WINDOWS);
       data.put("platformLinux", SystemUtils.IS_OS_LINUX);
       data.put("platformMac", SystemUtils.IS_OS_MAC);
@@ -150,8 +169,16 @@ public class TierInstrumentationDaemon implements Job {
         data.put("patchesInstalled", getPatchesInstalled());
       }
       
+      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.instanceData", false)) {
+        data.put("instances", getInstances(lastCollectorUpdate, startTime));
+      }
+      
+      //System.out.println(GrouperUtil.jsonConvertTo(data, false));
       sendToTier(data);
-            
+
+      // set new last updated
+      parentAssignment.getAttributeValueDelegate().assignValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, "" + startTime);
+      
       LOG.info("Finished running TIER instrumentation daemon.");
       hib3GrouploaderLog.appendJobMessage("Finished running TIER instrumentation daemon.");
       
@@ -196,6 +223,45 @@ public class TierInstrumentationDaemon implements Job {
         throw e;
       }
     }
+  }
+  
+  private static List<JSONObject> getInstances(long lastCollectorUpdate, long currentCollectorStart) {
+    
+    List<JSONObject> list = new LinkedList<JSONObject>();
+    
+    List<InstrumentationDataInstance> instances = InstrumentationDataInstanceFinder.findAll(true);
+    for (InstrumentationDataInstance instance : instances) {
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("uuid", instance.getUuid());
+      jsonObject.put("engineName", instance.getEngineName());
+      jsonObject.put("serverLabel", instance.getServerLabel());
+      
+      if (instance.getLastUpdate() != null) {
+        jsonObject.put("lastUpdate", instance.getLastUpdate().getTime());
+      }
+      
+      Set<String> newCounts = new LinkedHashSet<String>();
+
+      List<InstrumentationDataInstanceCounts> instanceCountsList = instance.getCounts();
+      for (InstrumentationDataInstanceCounts instanceCounts : instanceCountsList) {
+        if (instanceCounts.getCreatedOn().getTime() >= lastCollectorUpdate && instanceCounts.getCreatedOn().getTime() < currentCollectorStart) {
+          Map<String, Long> currentNewCounts = new LinkedHashMap<String, Long>();
+          currentNewCounts.put("startTime", instanceCounts.getStartTime().getTime());
+          currentNewCounts.put("duration", instanceCounts.getDuration());
+          for (String key : instanceCounts.getCounts().keySet()) {
+            currentNewCounts.put(key, instanceCounts.getCounts().get(key));
+          }
+          
+          newCounts.add(GrouperUtil.jsonConvertTo(currentNewCounts, false));
+        }
+      }
+      
+      jsonObject.put("newCounts", newCounts);
+      
+      list.add(jsonObject);
+    }
+    
+    return list;
   }
   
   private static String getInstitution() {

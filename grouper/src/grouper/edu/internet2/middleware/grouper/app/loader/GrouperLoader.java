@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -133,6 +134,8 @@ public class GrouperLoader {
     
     schedulePspFullSyncJob();
     schedulePspFullSyncRunAtStartupJob();
+    
+    InstrumentationThread.startThread(GrouperContext.retrieveDefaultContext().getGrouperEngine(), null);
     
     // delay starting the scheduler until the end to make sure things that need to be unscheduled are taken care of first?
     try {

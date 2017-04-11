@@ -80,6 +80,7 @@ import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
@@ -2368,6 +2369,191 @@ public class GrouperCheckConfig {
                 "Comma separated subjectIds or subjectIdentifiers who will be allowed to GROUP_ATTR_UPDATE on the group.  " +
                 "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
+          }
+        }
+      }
+      
+      {
+        String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+        
+        Stem instrumentationDataRootStem = StemFinder.findByName(grouperSession, instrumentationDataRootStemName, false);
+        if (instrumentationDataRootStem == null) {
+          instrumentationDataRootStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper instrumentation data attributes").assignName(instrumentationDataRootStemName)
+            .save();
+        }
+        
+        {
+          // check instances folder
+                    
+          String instancesStemName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_FOLDER;
+          Stem instancesStem = StemFinder.findByName(grouperSession, instancesStemName, false);
+          if (instancesStem == null) {
+            new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignDescription("folder for Grouper instances").assignName(instancesStemName)
+              .save();
+          }
+        }
+        
+        {
+          // check collectors folder
+                    
+          String collectorsStemName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_FOLDER;
+          Stem collectorsStem = StemFinder.findByName(grouperSession, collectorsStemName, false);
+          if (collectorsStem == null) {
+            new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignDescription("folder for Grouper collectors").assignName(collectorsStemName)
+              .save();
+          }
+        }
+
+        {
+          // check instances def
+          String instancesDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_DEF;
+          AttributeDef instancesDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              instancesDefName, false, new QueryOptions().secondLevelCache(false));
+          if (instancesDef == null) {
+            instancesDef = instrumentationDataRootStem.addChildAttributeDef(InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_DEF, AttributeDefType.attr);
+            instancesDef.setAssignToGroup(true);
+            instancesDef.setValueType(AttributeDefValueType.marker);
+            instancesDef.store();
+          }
+        }
+        
+        {
+          // check collectors def
+          String collectorsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_DEF;
+          AttributeDef collectorsDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              collectorsDefName, false, new QueryOptions().secondLevelCache(false));
+          if (collectorsDef == null) {
+            collectorsDef = instrumentationDataRootStem.addChildAttributeDef(InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_DEF, AttributeDefType.attr);
+            collectorsDef.setAssignToGroup(true);
+            collectorsDef.setValueType(AttributeDefValueType.marker);
+            collectorsDef.store();
+          }
+        }
+        
+        {
+          // check counts def and attr
+          String countsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF;
+          AttributeDef countsDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              countsDefName, false, new QueryOptions().secondLevelCache(false));
+          if (countsDef == null) {
+            countsDef = instrumentationDataRootStem.addChildAttributeDef(InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF, AttributeDefType.attr);
+            countsDef.setAssignToGroupAssn(true);
+            countsDef.setValueType(AttributeDefValueType.string);
+            countsDef.setMultiValued(true);
+            countsDef.store();
+          }
+          
+          String countsDefNameName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR;
+          
+          AttributeDefName countsAttrDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+              countsDefNameName, false, new QueryOptions().secondLevelCache(false));
+          
+          if (countsAttrDefName == null) {
+            countsAttrDefName = instrumentationDataRootStem.addChildAttributeDefName(countsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR);
+          }
+        }
+        
+        {
+          // check instance details def and attrs
+          String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF;
+          AttributeDef detailsDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              detailsDefName, false, new QueryOptions().secondLevelCache(false));
+          if (detailsDef == null) {
+            detailsDef = instrumentationDataRootStem.addChildAttributeDef(InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF, AttributeDefType.attr);
+            detailsDef.setAssignToGroupAssn(true);
+            detailsDef.setValueType(AttributeDefValueType.string);
+            detailsDef.store();
+          }
+          
+          {
+            String lastUpdateName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR;
+            
+            AttributeDefName lastUpdate = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                lastUpdateName, false, new QueryOptions().secondLevelCache(false));
+            
+            if (lastUpdate == null) {
+              lastUpdate = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR);
+            }
+          }
+          
+          {
+            String engineNameName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR;
+            
+            AttributeDefName engineName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                engineNameName, false, new QueryOptions().secondLevelCache(false));
+            
+            if (engineName == null) {
+              engineName = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR);
+            }
+          }
+          
+          {
+            String serverLabelName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR;
+            
+            AttributeDefName serverLabel = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                serverLabelName, false, new QueryOptions().secondLevelCache(false));
+            
+            if (serverLabel == null) {
+              serverLabel = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR);
+            }
+          }
+        }
+        
+        {
+          // check collector details def and attrs
+          String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF;
+          AttributeDef detailsDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              detailsDefName, false, new QueryOptions().secondLevelCache(false));
+          if (detailsDef == null) {
+            detailsDef = instrumentationDataRootStem.addChildAttributeDef(InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF, AttributeDefType.attr);
+            detailsDef.setAssignToGroupAssn(true);
+            detailsDef.setValueType(AttributeDefValueType.string);
+            detailsDef.store();
+          }
+          
+          {
+            String lastUpdateName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR;
+            
+            AttributeDefName lastUpdate = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                lastUpdateName, false, new QueryOptions().secondLevelCache(false));
+            
+            if (lastUpdate == null) {
+              lastUpdate = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR);
+            }
+          }
+          
+          {
+            String uuidName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR;
+            
+            AttributeDefName uuid = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                uuidName, false, new QueryOptions().secondLevelCache(false));
+            
+            if (uuid == null) {
+              uuid = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR);
+            }
+          }
+        }
+        
+        {
+          // check instances group
+          String groupName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP;
+          Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+              groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+          if (group == null) {
+            instrumentationDataRootStem.addChildGroup(InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP);
+          }
+        }
+        
+        {
+          // check collectors group
+          String groupName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP;
+          Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+              groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+          if (group == null) {
+            instrumentationDataRootStem.addChildGroup(InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP);
           }
         }
       }
