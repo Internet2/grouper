@@ -11,6 +11,8 @@
 <link href="../../grouperExternal/public/assets/css/grouperUi2.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/bootstrap-datepicker.min.css" rel="stylesheet">
 
+<link href="../../grouperExternal/public/assets/css/c3.min.css" rel="stylesheet" type="text/css">
+
 <c:if test="${!empty mediaNullMap['css.additional']}">
   <c:forTokens var="cssRef" items="${mediaNullMap['css.additional']}" delims=" ">
     <link href="${grouper:escapeHtml(cssRef)}" rel="stylesheet" type="text/css" />
@@ -19,6 +21,9 @@
 
 <script src="../../grouperExternal/public/assets/js/URI.js"></script>
 <script src="../../grouperExternal/public/OwaspJavaScriptServlet"></script>
+
+<script src="../../grouperExternal/public/assets/js/d3.min.js" charset="utf-8"></script>
+<script src="../../grouperExternal/public/assets/js/c3.min.js"></script>
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>

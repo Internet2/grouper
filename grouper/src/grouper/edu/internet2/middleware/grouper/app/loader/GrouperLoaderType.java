@@ -90,6 +90,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
@@ -263,6 +264,27 @@ public enum GrouperLoaderType {
               jobMessage.append("Configured to not delete records from grouper_change_log_entry table.  ");
             }
             
+          }
+          {
+            int daysToKeepLogs = GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.retainData.days", 30);
+            if (daysToKeepLogs != -1) {
+              Calendar calendar = GregorianCalendar.getInstance();
+              calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+
+              String attributeDefNameName = InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR;
+
+              long records = HibernateSession.byHqlStatic().createQuery(
+                    "select aav.id from AttributeAssignValue aav, AttributeAssign aa, AttributeDefName adn where aav.attributeAssignId = aa.id and adn.id = aa.attributeDefNameId and adn.nameDb = :attributeDefNameName and aav.createdOnDb < :createdOn ")
+                    .setLong("createdOn", calendar.getTimeInMillis())
+                    .setString("attributeDefNameName", attributeDefNameName)
+                    .deleteInBatches(long.class, "AttributeAssignValue", "id");
+
+
+              jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ")  ");
+            } else {
+              jobMessage.append("Configured to not delete old instrumentation data.  ");
+            }
+
           }
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
           hib3GrouploaderLog.setJobMessage(jobMessage.toString());

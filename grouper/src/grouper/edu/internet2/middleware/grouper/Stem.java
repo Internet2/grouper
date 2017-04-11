@@ -103,6 +103,8 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -3482,6 +3484,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_DELETE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_POST_DELETE, false, true);
+    
+    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_STEM_DELETE.name());
   }
 
   /**
@@ -3501,6 +3505,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         StemHooks.METHOD_STEM_POST_COMMIT_INSERT, HooksStemBean.class, 
         this, Stem.class);
 
+    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_STEM_ADD.name());
   }
 
   /**

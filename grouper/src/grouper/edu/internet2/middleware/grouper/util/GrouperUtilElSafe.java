@@ -6364,4 +6364,11 @@ public class GrouperUtilElSafe {
     return a+b+c+d+e;
   }
   
+  /**
+   * Hostname of server
+   * @return hostname of server
+   */
+  public static String hostname() {
+    return GrouperUtil.hostname();
+  }
 }
