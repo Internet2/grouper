@@ -1047,7 +1047,7 @@ public class IndexContainer {
     boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", true);
     if (result) {
       Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.adminui.forGroup", loggedInSubject);
+      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.adminui.forGroup", loggedInSubject, true);
       //null error means allow
       if (error == null) {
         return true;
@@ -1064,7 +1064,7 @@ public class IndexContainer {
     boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.liteui", true);
     if (result) {
       Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.liteui.forGroup", loggedInSubject);
+      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.liteui.forGroup", loggedInSubject, true);
       //null error means allow
       if (error == null) {
         return true;

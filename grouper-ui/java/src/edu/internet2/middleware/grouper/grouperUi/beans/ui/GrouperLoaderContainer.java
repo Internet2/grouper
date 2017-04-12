@@ -1077,10 +1077,10 @@ public class GrouperLoaderContainer {
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
-    String error = GrouperUiFilter.requireUiGroup("uiV2.loader.edit.if.in.group", loggedInSubject);
-    //null error means allow
-    if (error == null) {
-      return true;
+    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"))) {
+      String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);
+      //null error means allow
+      return error == null;
     }
     
     return false;
@@ -1532,13 +1532,13 @@ public class GrouperLoaderContainer {
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
-    String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject);
-    //null error means allow
-    if (error == null) {
-      return true;
+    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"))) {
+      String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);
+      //null error means allow
+      return error == null;
     }
     
-    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loaderTab.view.by.group.admins", true)) {
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loader.view.by.group.admins", true)) {
       if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
         return true;
       }

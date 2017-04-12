@@ -47,7 +47,7 @@ public class AdminContainer {
       return false;
     }
     
-    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.subjectApiDiagnostics.must.be.in.group", loggedInSubject);
+    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.subjectApiDiagnostics.must.be.in.group", loggedInSubject, true);
 
     if (!StringUtils.isBlank(error)) {
       return false;
@@ -71,7 +71,7 @@ public class AdminContainer {
       return false;
     }
     
-    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.instrumentation.must.be.in.group", loggedInSubject);
+    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.instrumentation.must.be.in.group", loggedInSubject, true);
 
     if (!StringUtils.isBlank(error)) {
       return false;
