@@ -426,7 +426,7 @@ public class GrouperUiFilter implements Filter {
           throw new ControllerDone();
         }
         
-        String thisError = requireUiGroup(mediaKey, subjectLoggedIn);
+        String thisError = requireUiGroup(mediaKey, subjectLoggedIn, true);
         if (!StringUtils.isBlank(thisError)) {
           groups.append(thisError).append(", ");
         } else {
@@ -466,9 +466,11 @@ public class GrouperUiFilter implements Filter {
    * use the media properties key to see if a group is required, then make sure the user is in that group
    * @param mediaKeyOfGroup
    * @param subjectLoggedIn
+   * @param allowUserIfGroupNotConfigured is true if user is allowed if group is not configured, default to true
+   * for previous behavior
    * @return the error message group name
    */
-  public static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
+  public static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn, boolean allowUserIfGroupNotConfigured) {
     
     //see if member of login group
     String groupToRequire = GrouperUiConfig.retrieveConfig().propertyValueString(mediaKeyOfGroup);
@@ -504,6 +506,9 @@ public class GrouperUiFilter implements Filter {
           GrouperSession.stopQuietly(grouperSession);
         }
       }
+    }
+    if (!allowUserIfGroupNotConfigured) {
+      return mediaKeyOfGroup;
     }
     return null;
   }

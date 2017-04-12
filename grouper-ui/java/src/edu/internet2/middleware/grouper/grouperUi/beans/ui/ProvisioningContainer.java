@@ -31,7 +31,7 @@ public class ProvisioningContainer {
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
-    String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject);
+    String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject, false);
     //null error means allow
     if (error == null) {
       return true;
