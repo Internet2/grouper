@@ -8163,7 +8163,8 @@ public class GrouperInstaller {
 
     //#####################################
     //add driver to classpath
-    this.addDriverJarToClasspath();
+    //note, we are note really doing this now, we are using drivers already on classpath since this doesnt work
+    //this.addDriverJarToClasspath();
 
     //####################################
     //start database if needed (check on port?  ask to change port?)
