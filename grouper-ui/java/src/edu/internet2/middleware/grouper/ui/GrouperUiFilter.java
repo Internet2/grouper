@@ -92,8 +92,8 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSub
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
+//import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
+//import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
@@ -835,7 +835,7 @@ public class GrouperUiFilter implements Filter {
   public void init(FilterConfig config) throws ServletException {
     GrouperStartup.startup();
     
-    InstrumentationThread.startThread(GrouperEngineBuiltin.UI, null);
+//    InstrumentationThread.startThread(GrouperEngineBuiltin.UI, null);
   }
 
   /**
@@ -934,7 +934,7 @@ public class GrouperUiFilter implements Filter {
         }); 
       }
   
-      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.UI_REQUESTS.name());
+//      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.UI_REQUESTS.name());
       
       return httpServletRequest;
     } catch (RuntimeException re) {
@@ -1229,7 +1229,7 @@ public class GrouperUiFilter implements Filter {
    * @see javax.servlet.Filter#destroy()
    */
   public void destroy() {
-    InstrumentationThread.shutdownThread();
+//    InstrumentationThread.shutdownThread();
   }
 
   

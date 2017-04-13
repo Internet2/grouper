@@ -54,9 +54,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstance;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceCounts;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
+//import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstance;
+//import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceCounts;
+//import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -138,33 +138,33 @@ public class UiV2Admin extends UiServiceLogicBase {
       List<GuiInstrumentationDataInstance> guiInstances = new ArrayList<GuiInstrumentationDataInstance>();
       
       if (StringUtils.isEmpty(request.getParameter("instanceId"))) {
-        List<InstrumentationDataInstance> instances = InstrumentationDataInstanceFinder.findAll(true);
-        for (InstrumentationDataInstance instance : GrouperUtil.nonNull(instances)) {
-          GuiInstrumentationDataInstance guiInstance = new GuiInstrumentationDataInstance(instance);
-          guiInstances.add(guiInstance);
-        }
-        
-        String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
-        long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
-        
-        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
-        adminContainer.setGuiInstrumentationFilterDate(filterDate);
-        instrumentationGraphResultsHelper(instances, increment, filterDate);
-
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminInstrumentation.jsp"));
+//        List<InstrumentationDataInstance> instances = InstrumentationDataInstanceFinder.findAll(true);
+//        for (InstrumentationDataInstance instance : GrouperUtil.nonNull(instances)) {
+//          GuiInstrumentationDataInstance guiInstance = new GuiInstrumentationDataInstance(instance);
+//          guiInstances.add(guiInstance);
+//        }
+//        
+//        String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
+//        long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
+//        
+//        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
+//        adminContainer.setGuiInstrumentationFilterDate(filterDate);
+//        instrumentationGraphResultsHelper(instances, increment, filterDate);
+//
+//        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminInstrumentation.jsp"));
       } else {
-        InstrumentationDataInstance instance = InstrumentationDataInstanceFinder.findById(request.getParameter("instanceId"), true, true);
-        GuiInstrumentationDataInstance guiInstance = new GuiInstrumentationDataInstance(instance);
-        guiInstances.add(guiInstance);
-
-        String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
-        long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
-        
-        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
-        adminContainer.setGuiInstrumentationFilterDate(filterDate);
-        instrumentationGraphResultsHelper(GrouperUtil.toList(instance), increment, filterDate);
-
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminInstrumentationInstance.jsp"));
+//        InstrumentationDataInstance instance = InstrumentationDataInstanceFinder.findById(request.getParameter("instanceId"), true, true);
+//        GuiInstrumentationDataInstance guiInstance = new GuiInstrumentationDataInstance(instance);
+//        guiInstances.add(guiInstance);
+//
+//        String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
+//        long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
+//        
+//        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
+//        adminContainer.setGuiInstrumentationFilterDate(filterDate);
+//        instrumentationGraphResultsHelper(GrouperUtil.toList(instance), increment, filterDate);
+//
+//        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminInstrumentationInstance.jsp"));
       }            
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -174,68 +174,68 @@ public class UiV2Admin extends UiServiceLogicBase {
   /**
    * 
    */
-  private void instrumentationGraphResultsHelper(List<InstrumentationDataInstance> instances, long displayIncrement, String filterDate) {
-    
-    Map<String, Map<String, Long>> formattedData = new TreeMap<String, Map<String, Long>>();
-    Set<String> daysWithData = new TreeSet<String>();
-      
-    long firstTime = 9999999999999L;
-    long lastTime = 0L;
-    
-    SimpleDateFormat sdfDateTimeUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    sdfDateTimeUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    SimpleDateFormat sdfDateUTC = new SimpleDateFormat("yyyy-MM-dd");
-    sdfDateUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    
-    Map<String, Set<Long>> allStartTimesByType = new HashMap<String, Set<Long>>();
-
-    for (InstrumentationDataInstance instance : instances) {
-      List<InstrumentationDataInstanceCounts> instanceCountsList = instance.getCounts();
-        
-      for (InstrumentationDataInstanceCounts instanceCounts : instanceCountsList) {
-        for (String type : instanceCounts.getCounts().keySet()) {
-          Long count = instanceCounts.getCounts().get(type);
-          
-          long startTime = (instanceCounts.getStartTime().getTime() / displayIncrement) * displayIncrement;
-          
-          String formattedDateTimeUTC = sdfDateTimeUTC.format(new Date(startTime));
-          String formattedDateUTC = sdfDateUTC.format(new Date(startTime));
-          daysWithData.add(formattedDateUTC);
-          
-          if (StringUtils.isEmpty(filterDate) || filterDate.equals(formattedDateUTC)) {
-            if (formattedData.get(type) == null) {
-              formattedData.put(type, new TreeMap<String, Long>());
-              allStartTimesByType.put(type, new HashSet<Long>());
-            }
-            
-            if (formattedData.get(type).get(formattedDateTimeUTC) == null) {
-              formattedData.get(type).put(formattedDateTimeUTC, 0L);
-              
-              firstTime = Math.min(startTime, firstTime);
-              lastTime = Math.max(startTime, lastTime);
-              allStartTimesByType.get(type).add(startTime);
-            }
-            
-            formattedData.get(type).put(formattedDateTimeUTC, formattedData.get(type).get(formattedDateTimeUTC) + count);
-          }
-        }
-      }
-    }
-    
-    // fill in any gaps with 0s
-    for (String type : formattedData.keySet()) {
-      for (long i = firstTime; i <= lastTime; i = i + displayIncrement) {
-        if (!allStartTimesByType.get(type).contains(i)) {
-          String formattedDateUTC = sdfDateTimeUTC.format(new Date(i));
-          formattedData.get(type).put(formattedDateUTC, 0L);
-        }
-      }
-    }
-    
-    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
-    adminContainer.setGuiInstrumentationGraphResults(formattedData);
-    adminContainer.setGuiInstrumentationDaysWithData(daysWithData);
-  }
+//  private void instrumentationGraphResultsHelper(List<InstrumentationDataInstance> instances, long displayIncrement, String filterDate) {
+//    
+//    Map<String, Map<String, Long>> formattedData = new TreeMap<String, Map<String, Long>>();
+//    Set<String> daysWithData = new TreeSet<String>();
+//      
+//    long firstTime = 9999999999999L;
+//    long lastTime = 0L;
+//    
+//    SimpleDateFormat sdfDateTimeUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//    sdfDateTimeUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//    SimpleDateFormat sdfDateUTC = new SimpleDateFormat("yyyy-MM-dd");
+//    sdfDateUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//    
+//    Map<String, Set<Long>> allStartTimesByType = new HashMap<String, Set<Long>>();
+//
+//    for (InstrumentationDataInstance instance : instances) {
+//      List<InstrumentationDataInstanceCounts> instanceCountsList = instance.getCounts();
+//        
+//      for (InstrumentationDataInstanceCounts instanceCounts : instanceCountsList) {
+//        for (String type : instanceCounts.getCounts().keySet()) {
+//          Long count = instanceCounts.getCounts().get(type);
+//          
+//          long startTime = (instanceCounts.getStartTime().getTime() / displayIncrement) * displayIncrement;
+//          
+//          String formattedDateTimeUTC = sdfDateTimeUTC.format(new Date(startTime));
+//          String formattedDateUTC = sdfDateUTC.format(new Date(startTime));
+//          daysWithData.add(formattedDateUTC);
+//          
+//          if (StringUtils.isEmpty(filterDate) || filterDate.equals(formattedDateUTC)) {
+//            if (formattedData.get(type) == null) {
+//              formattedData.put(type, new TreeMap<String, Long>());
+//              allStartTimesByType.put(type, new HashSet<Long>());
+//            }
+//            
+//            if (formattedData.get(type).get(formattedDateTimeUTC) == null) {
+//              formattedData.get(type).put(formattedDateTimeUTC, 0L);
+//              
+//              firstTime = Math.min(startTime, firstTime);
+//              lastTime = Math.max(startTime, lastTime);
+//              allStartTimesByType.get(type).add(startTime);
+//            }
+//            
+//            formattedData.get(type).put(formattedDateTimeUTC, formattedData.get(type).get(formattedDateTimeUTC) + count);
+//          }
+//        }
+//      }
+//    }
+//    
+//    // fill in any gaps with 0s
+//    for (String type : formattedData.keySet()) {
+//      for (long i = firstTime; i <= lastTime; i = i + displayIncrement) {
+//        if (!allStartTimesByType.get(type).contains(i)) {
+//          String formattedDateUTC = sdfDateTimeUTC.format(new Date(i));
+//          formattedData.get(type).put(formattedDateUTC, 0L);
+//        }
+//      }
+//    }
+//    
+//    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+//    adminContainer.setGuiInstrumentationGraphResults(formattedData);
+//    adminContainer.setGuiInstrumentationDaysWithData(daysWithData);
+//  }
 
   /**
    * when the source id changes fill in subject ids etc
