@@ -397,7 +397,7 @@ public class GiDbUtils {
 //      GrouperInstallerUtils.forName(driverClass);
       
       Connection conn = DriverManager.getConnection(this.url, this.user, this.pass);
-      
+      conn.setAutoCommit(false);
       return conn;
     } catch (Exception e) {
       throw new RuntimeException("Error connecting to: " + oracleUrl, e);
