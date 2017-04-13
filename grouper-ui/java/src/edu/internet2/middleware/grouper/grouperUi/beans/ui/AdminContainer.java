@@ -44,16 +44,16 @@ public class AdminContainer {
     
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return false;
+      return true;
     }
     
-    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.subjectApiDiagnostics.must.be.in.group", loggedInSubject, true);
+    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.subjectApiDiagnostics.must.be.in.group", loggedInSubject, false);
 
-    if (!StringUtils.isBlank(error)) {
-      return false;
+    if (StringUtils.isBlank(error)) {
+      return true;
     }
     
-    return true;
+    return false;
   }
   
   /**
@@ -67,17 +67,17 @@ public class AdminContainer {
     }
     
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return false;
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
     }
     
-    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.instrumentation.must.be.in.group", loggedInSubject, true);
+    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.instrumentation.must.be.in.group", loggedInSubject, false);
 
-    if (!StringUtils.isBlank(error)) {
-      return false;
+    if (StringUtils.isBlank(error)) {
+      return true;
     }
     
-    return true;
+    return false;
   }
 
   
