@@ -147,7 +147,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
         long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
         
-        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
+//        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
         adminContainer.setGuiInstrumentationFilterDate(filterDate);
         instrumentationGraphResultsHelper(instances, increment, filterDate);
 
@@ -160,7 +160,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
         long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
         
-        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
+//        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
         adminContainer.setGuiInstrumentationFilterDate(filterDate);
         instrumentationGraphResultsHelper(GrouperUtil.toList(instance), increment, filterDate);
 
