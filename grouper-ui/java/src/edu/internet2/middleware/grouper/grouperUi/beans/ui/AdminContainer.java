@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-//import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -23,7 +23,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AdminContainer {
 
-//  private List<GuiInstrumentationDataInstance> guiInstrumentationDataInstances;
+  private List<GuiInstrumentationDataInstance> guiInstrumentationDataInstances;
   
   private Map<String, Map<String, Long>> guiInstrumentationGraphResults;
   
@@ -81,21 +81,21 @@ public class AdminContainer {
   }
 
   
-//  /**
-//   * @return the guiInstrumentationDataInstances
-//   */
-//  public List<GuiInstrumentationDataInstance> getGuiInstrumentationDataInstances() {
-//    return guiInstrumentationDataInstances;
-//  }
-//
-//  
-//  /**
-//   * @param guiInstrumentationDataInstances the guiInstrumentationDataInstances to set
-//   */
-//  public void setGuiInstrumentationDataInstances(
-//      List<GuiInstrumentationDataInstance> guiInstrumentationDataInstances) {
-//    this.guiInstrumentationDataInstances = guiInstrumentationDataInstances;
-//  }
+  /**
+   * @return the guiInstrumentationDataInstances
+   */
+  public List<GuiInstrumentationDataInstance> getGuiInstrumentationDataInstances() {
+    return guiInstrumentationDataInstances;
+  }
+
+  
+  /**
+   * @param guiInstrumentationDataInstances the guiInstrumentationDataInstances to set
+   */
+  public void setGuiInstrumentationDataInstances(
+      List<GuiInstrumentationDataInstance> guiInstrumentationDataInstances) {
+    this.guiInstrumentationDataInstances = guiInstrumentationDataInstances;
+  }
 
   
   /**
