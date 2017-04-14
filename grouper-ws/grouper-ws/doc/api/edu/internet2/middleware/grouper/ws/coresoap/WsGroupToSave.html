@@ -139,6 +139,20 @@ Class WsGroupToSave</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;Group</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupToSave.html?view=co#copy(GrouperSession, Stem, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean)">copy</A></B>(GrouperSession&nbsp;grouperSession,
+     Stem&nbsp;toStem,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyPrivilegesOfGroup,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyGroupAsPrivilege,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyListMembersOfGroup,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyListGroupAsMember,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyAttributes)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copy this group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupToSave.html?view=co#getCreateParentStemsIfNotExist()">getCreateParentStemsIfNotExist</A></B>()</CODE>
 
@@ -168,6 +182,16 @@ Class WsGroupToSave</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;Group</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGroupToSave.html?view=co#move(GrouperSession, Stem, java.lang.Boolean)">move</A></B>(GrouperSession&nbsp;grouperSession,
+     Stem&nbsp;toStem,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;moveAssignAlternateName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;move this group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -364,6 +388,42 @@ public Group <B>save</B>(GrouperSession&nbsp;grouperSession)</PRE>
 <DD><CODE>GroupAddException</CODE>
 <DD><CODE>AttributeNotFoundException</CODE>
 <DD><CODE>MemberDeleteException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="move(GrouperSession, Stem, java.lang.Boolean)"><!-- --></A><H3>
+move</H3>
+<PRE>
+public Group <B>move</B>(GrouperSession&nbsp;grouperSession,
+                  Stem&nbsp;toStem,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;moveAssignAlternateName)</PRE>
+<DL>
+<DD>move this group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - to save<DD><CODE>toStem</CODE> - <DD><CODE>moveAssignAlternateName</CODE> - 
+<DT><B>Returns:</B><DD>the group that was moved</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="copy(GrouperSession, Stem, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean)"><!-- --></A><H3>
+copy</H3>
+<PRE>
+public Group <B>copy</B>(GrouperSession&nbsp;grouperSession,
+                  Stem&nbsp;toStem,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyPrivilegesOfGroup,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyGroupAsPrivilege,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyListMembersOfGroup,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyListGroupAsMember,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;copyAttributes)</PRE>
+<DL>
+<DD>copy this group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - to save<DD><CODE>toStem</CODE> - <DD><CODE>copyPrivilegesOfGroup</CODE> - <DD><CODE>copyGroupAsPrivilege</CODE> - <DD><CODE>copyListMembersOfGroup</CODE> - <DD><CODE>copyListGroupAsMember</CODE> - <DD><CODE>copyAttributes</CODE> - <DD><CODE>moveAssignAlternateName</CODE> - 
+<DT><B>Returns:</B><DD>the group that was moved</DL>
 </DD>
 </DL>
 <HR>
