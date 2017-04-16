@@ -992,7 +992,7 @@ public class GrouperInstaller {
     //commands.add("-Djava.util.logging.config.file=" + this.untarredTomcatDir.getAbsolutePath() + File.separator + "conf" + File.separator + "logging.properties");
     
     commands.add("-cp");
-    commands.add(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "bootstrap.jar:" 
+    commands.add(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "bootstrap.jar" + File.pathSeparator
         + this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "tomcat-juli.jar");
     commands.add("org.apache.catalina.startup.Bootstrap");
     
@@ -1142,8 +1142,18 @@ public class GrouperInstaller {
     commands.add("-Dcatalina.home=" + this.untarredTomcatDir.getAbsolutePath());
     //commands.add("-Djava.util.logging.config.file=" + this.untarredTomcatDir.getAbsolutePath() + File.separator + "conf" + File.separator + "logging.properties");
     
-    commands.add("-jar");
-    commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "bootstrap.jar");
+    //later versions of tomcat need the juli jar...
+    if (new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "tomcat-juli.jar").exists()) {
+      
+      commands.add("-cp");
+      commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "bootstrap.jar" + File.pathSeparator
+          + this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "tomcat-juli.jar");
+      commands.add("org.apache.catalina.startup.Bootstrap");
+    } else {
+
+      commands.add("-jar");
+      commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "bootstrap.jar");
+    }
     
     if (GrouperInstallerUtils.equals("stop", arg)) {
       commands.add("stop");
@@ -2931,7 +2941,6 @@ public class GrouperInstaller {
   
   /**
    * build ws scim
-   * @param wsScimDir
    */
   private void buildWsScim() {
     
@@ -3316,7 +3325,7 @@ public class GrouperInstaller {
     //normal installer dir
     if (!catalinaServerXmlFile.exists()) {
       catalinaServerXmlFile = new File(this.grouperInstallDirectoryString + File.separator 
-          + "apache-tomcat-6.0.35" + File.separator + "conf" + File.separator + "server.xml");
+          + "apache-tomcat-" + this.tomcatVersion() + "" + File.separator + "conf" + File.separator + "server.xml");
     }
 
     this.untarredTomcatDir = catalinaServerXmlFile.getParentFile().getParentFile();       
@@ -3819,7 +3828,7 @@ public class GrouperInstaller {
         }
         if (!catalinaLogFile.exists()) {
           catalinaLogFile = new File(this.grouperInstallDirectoryString + File.separator 
-              + "apache-tomcat-6.0.35" + File.separator + "logs");
+              + "apache-tomcat-" + this.tomcatVersion() + "" + File.separator + "logs");
         }
         
         System.out.println("Tomcat logs STDOUT and STDERR to the catalinaErr.log "
@@ -8395,7 +8404,8 @@ public class GrouperInstaller {
 
     //#####################################
     //add driver to classpath
-    this.addDriverJarToClasspath();
+    //note, we are note really doing this now, we are using drivers already on classpath since this doesnt work
+    //this.addDriverJarToClasspath();
 
     //####################################
     //start database if needed (check on port?  ask to change port?)
@@ -10152,6 +10162,38 @@ public class GrouperInstaller {
   }
 
   /**
+   * tomcat version
+   */
+  private String tomcatVersion = null;
+  
+  /**
+   * 
+   * @return tomcat version
+   */
+  private String tomcatVersion() {
+    
+    if (this.tomcatVersion == null) {
+      
+      String defaultTomcatVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomcat.version", false);
+      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.12");
+      
+      System.out.print("Enter the tomcat version (8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
+      this.tomcatVersion = readFromStdIn("grouperInstaller.autorun.tomcat.version");
+      
+      this.tomcatVersion = GrouperInstallerUtils.defaultIfBlank(this.tomcatVersion, defaultTomcatVersion);
+      
+      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.12") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
+        System.out.print("Warning: this *should* be 8.5.12 or 6.0.35, hit <Enter> to continue: ");
+        readFromStdIn("grouperInstaller.autorun.tomcat.version.mismatch");
+      }
+      
+    }
+    
+    return this.tomcatVersion;
+
+  }
+  
+  /**
    * 
    * @return the file of the directory of tomcat
    */
@@ -10162,9 +10204,9 @@ public class GrouperInstaller {
       urlToDownload += "/";
     }
 
-    urlToDownload += "downloads/tools/apache-tomcat-6.0.35.tar.gz";
+    urlToDownload += "downloads/tools/apache-tomcat-" + this.tomcatVersion() + ".tar.gz";
     
-    File tomcatFile = new File(this.grouperTarballDirectoryString + "apache-tomcat-6.0.35.tar.gz");
+    File tomcatFile = new File(this.grouperTarballDirectoryString + "apache-tomcat-" + this.tomcatVersion() + ".tar.gz");
     
     downloadFile(urlToDownload, tomcatFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
 

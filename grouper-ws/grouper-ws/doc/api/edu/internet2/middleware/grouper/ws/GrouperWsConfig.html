@@ -162,6 +162,17 @@ config constants for WS
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#WS_ATTRIBUTE_DEF_DELETE_MAX">WS_ATTRIBUTE_DEF_DELETE_MAX</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param for attributedef delete, max attributedefs to be able to delete at once,
+ default is 1000000
+  # Max number of attributedefs to be able to pass to attributedefDelete service,
+ default is 1000000 ws.attributedef.delete.max = 20000</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#WS_ATTRIBUTE_DEF_NAME_DELETE_MAX">WS_ATTRIBUTE_DEF_NAME_DELETE_MAX</A></B></CODE>
 
 <BR>
@@ -180,6 +191,17 @@ config constants for WS
  default is 1000000
   # Max number of attributeDefNames to be able to pass to attributeDefNameSave service,
  default is 1000000 ws.attributeDefName.save.max = 20000</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#WS_ATTRIBUTE_DEF_SAVE_MAX">WS_ATTRIBUTE_DEF_SAVE_MAX</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param for attributeDef save, max attributeDef to be able to save at once,
+ default is 1000000
+  # Max number of attributeDefs to be able to pass to attributeDefSave service,
+ default is 1000000 ws.attributeDef.save.max = 20000</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -538,6 +560,21 @@ public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/l
 </DL>
 <HR>
 
+<A NAME="WS_ATTRIBUTE_DEF_DELETE_MAX"><!-- --></A><H3>
+WS_ATTRIBUTE_DEF_DELETE_MAX</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>WS_ATTRIBUTE_DEF_DELETE_MAX</B></PRE>
+<DL>
+<DD>name of param for attributedef delete, max attributedefs to be able to delete at once,
+ default is 1000000
+  # Max number of attributedefs to be able to pass to attributedefDelete service,
+ default is 1000000 ws.attributedef.delete.max = 20000
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_ATTRIBUTE_DEF_DELETE_MAX">Constant Field Values</A></DL>
+</DL>
+<HR>
+
 <A NAME="WS_GROUP_SAVE_MAX"><!-- --></A><H3>
 WS_GROUP_SAVE_MAX</H3>
 <PRE>
@@ -565,6 +602,21 @@ public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/l
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_ATTRIBUTE_DEF_NAME_SAVE_MAX">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WS_ATTRIBUTE_DEF_SAVE_MAX"><!-- --></A><H3>
+WS_ATTRIBUTE_DEF_SAVE_MAX</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>WS_ATTRIBUTE_DEF_SAVE_MAX</B></PRE>
+<DL>
+<DD>name of param for attributeDef save, max attributeDef to be able to save at once,
+ default is 1000000
+  # Max number of attributeDefs to be able to pass to attributeDefSave service,
+ default is 1000000 ws.attributeDef.save.max = 20000
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_ATTRIBUTE_DEF_SAVE_MAX">Constant Field Values</A></DL>
 </DL>
 <HR>
 

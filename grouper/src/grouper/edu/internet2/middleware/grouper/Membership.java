@@ -91,6 +91,8 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -2875,6 +2877,8 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName(),
           ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0.name(), this.getMember().getSubjectIdentifier0()).save();
+      
+      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_MEMBERSHIP_ADD.name());
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
           ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getImmediateMembershipId(),
@@ -2953,6 +2957,8 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectName.name(), subjectName,
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName(),
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0.name(), this.getMember().getSubjectIdentifier0()).save();
+      
+      InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_MEMBERSHIP_DELETE.name());
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
           ChangeLogLabels.PRIVILEGE_DELETE.id.name(), this.getImmediateMembershipId(),

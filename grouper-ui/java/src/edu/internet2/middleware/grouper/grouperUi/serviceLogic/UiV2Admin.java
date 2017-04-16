@@ -16,9 +16,18 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +44,7 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -44,6 +54,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstance;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceCounts;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -63,6 +76,7 @@ public class UiV2Admin extends UiServiceLogicBase {
 
   
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(UiV2Admin.class);
   
   /**
@@ -94,6 +108,133 @@ public class UiV2Admin extends UiServiceLogicBase {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * show instrumentation screen
+   * @param request
+   * @param response
+   */
+  public void instrumentation(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      //if the user is allowed
+      if (!instrumentationAllowed()) {
+        return;
+      }
+
+      AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+      
+      List<GuiInstrumentationDataInstance> guiInstances = new ArrayList<GuiInstrumentationDataInstance>();
+      
+      if (StringUtils.isEmpty(request.getParameter("instanceId"))) {
+        List<InstrumentationDataInstance> instances = InstrumentationDataInstanceFinder.findAll(true);
+        for (InstrumentationDataInstance instance : GrouperUtil.nonNull(instances)) {
+          GuiInstrumentationDataInstance guiInstance = new GuiInstrumentationDataInstance(instance);
+          guiInstances.add(guiInstance);
+        }
+        
+        String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
+        long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
+        
+        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
+        adminContainer.setGuiInstrumentationFilterDate(filterDate);
+        instrumentationGraphResultsHelper(instances, increment, filterDate);
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminInstrumentation.jsp"));
+      } else {
+        InstrumentationDataInstance instance = InstrumentationDataInstanceFinder.findById(request.getParameter("instanceId"), true, true);
+        GuiInstrumentationDataInstance guiInstance = new GuiInstrumentationDataInstance(instance);
+        guiInstances.add(guiInstance);
+
+        String filterDate = !StringUtils.isEmpty(request.getParameter("filterDate")) ? request.getParameter("filterDate") : null;
+        long increment = StringUtils.isEmpty(filterDate) ? 86400000 : 3600000;
+        
+        adminContainer.setGuiInstrumentationDataInstances(guiInstances);
+        adminContainer.setGuiInstrumentationFilterDate(filterDate);
+        instrumentationGraphResultsHelper(GrouperUtil.toList(instance), increment, filterDate);
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminInstrumentationInstance.jsp"));
+      }            
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * 
+   */
+  private void instrumentationGraphResultsHelper(List<InstrumentationDataInstance> instances, long displayIncrement, String filterDate) {
+    
+    Map<String, Map<String, Long>> formattedData = new TreeMap<String, Map<String, Long>>();
+    Set<String> daysWithData = new TreeSet<String>();
+      
+    long firstTime = 9999999999999L;
+    long lastTime = 0L;
+    
+    SimpleDateFormat sdfDateTimeUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdfDateTimeUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+    SimpleDateFormat sdfDateUTC = new SimpleDateFormat("yyyy-MM-dd");
+    sdfDateUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+    
+    Map<String, Set<Long>> allStartTimesByType = new HashMap<String, Set<Long>>();
+
+    for (InstrumentationDataInstance instance : instances) {
+      List<InstrumentationDataInstanceCounts> instanceCountsList = instance.getCounts();
+        
+      for (InstrumentationDataInstanceCounts instanceCounts : instanceCountsList) {
+        for (String type : instanceCounts.getCounts().keySet()) {
+          Long count = instanceCounts.getCounts().get(type);
+          
+          long startTime = (instanceCounts.getStartTime().getTime() / displayIncrement) * displayIncrement;
+          
+          String formattedDateTimeUTC = sdfDateTimeUTC.format(new Date(startTime));
+          String formattedDateUTC = sdfDateUTC.format(new Date(startTime));
+          daysWithData.add(formattedDateUTC);
+          
+          if (StringUtils.isEmpty(filterDate) || filterDate.equals(formattedDateUTC)) {
+            if (formattedData.get(type) == null) {
+              formattedData.put(type, new TreeMap<String, Long>());
+              allStartTimesByType.put(type, new HashSet<Long>());
+            }
+            
+            if (formattedData.get(type).get(formattedDateTimeUTC) == null) {
+              formattedData.get(type).put(formattedDateTimeUTC, 0L);
+              
+              firstTime = Math.min(startTime, firstTime);
+              lastTime = Math.max(startTime, lastTime);
+              allStartTimesByType.get(type).add(startTime);
+            }
+            
+            formattedData.get(type).put(formattedDateTimeUTC, formattedData.get(type).get(formattedDateTimeUTC) + count);
+          }
+        }
+      }
+    }
+    
+    // fill in any gaps with 0s
+    for (String type : formattedData.keySet()) {
+      for (long i = firstTime; i <= lastTime; i = i + displayIncrement) {
+        if (!allStartTimesByType.get(type).contains(i)) {
+          String formattedDateUTC = sdfDateTimeUTC.format(new Date(i));
+          formattedData.get(type).put(formattedDateUTC, 0L);
+        }
+      }
+    }
+    
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    adminContainer.setGuiInstrumentationGraphResults(formattedData);
+    adminContainer.setGuiInstrumentationDaysWithData(daysWithData);
   }
 
   /**
@@ -193,6 +334,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       /**
        * 
        */
+      @SuppressWarnings("unchecked")
       @Override
       public Collection<Subject> search(final HttpServletRequest localRequest, 
           final GrouperSession grouperSessionPrevious, final String query) {
@@ -270,6 +412,28 @@ public class UiV2Admin extends UiServiceLogicBase {
     if (!adminContainer.isSubjectApiDiagnosticsShow()) {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
           TextContainer.retrieveFromRequest().getText().get("adminSubjectApiDiagnosticsErrorNotAllowed")));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/indexMain.jsp"));
+      return false;
+    }
+    return true;
+
+  }
+  
+  /**
+   * 
+   * @return true if ok, false if not allowed
+   */
+  private boolean instrumentationAllowed() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    
+    //if the user allowed
+    if (!adminContainer.isInstrumentationShow()) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("adminInstrumentationErrorNotAllowed")));
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/indexMain.jsp"));
       return false;

@@ -5,22 +5,13 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -29,8 +20,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
-import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
-import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -40,10 +29,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.ldap.LdapHandler;
-import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
-import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
-import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -51,8 +36,6 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.vt.middleware.ldap.Ldap;
-import edu.vt.middleware.ldap.SearchFilter;
 
 
 /**
@@ -210,6 +193,88 @@ public class GrouperLoaderContainer {
     
   }
 
+  /**
+   * config name e.g. for databases
+   */
+  public static class ConfigName {
+    
+    /** id of config name */
+    private String id;
+    
+    /** name of config name */
+    private String name;
+
+    /**
+     * 
+     * @param theId
+     * @param theName
+     */
+    public ConfigName(String theId, String theName) {
+      this.id = theId;
+      this.name = theName;
+    }
+    
+    /**
+     * id of config name
+     * @return the id
+     */
+    public String getId() {
+      return this.id;
+    }
+
+    
+    /**
+     * id of config name
+     * @param id1 the id to set
+     */
+    public void setId(String id1) {
+      this.id = id1;
+    }
+
+    
+    /**
+     * name of config name
+     * @return the name
+     */
+    public String getName() {
+      return this.name;
+    }
+
+    
+    /**
+     * name of config name
+     * @param name1 the name to set
+     */
+    public void setName(String name1) {
+      this.name = name1;
+    }
+    
+  }
+  
+  /**
+   * sql database names
+   * @return the database names
+   */
+  public List<ConfigName> getSqlDatabaseNames() {
+    List<ConfigName> result = new ArrayList<ConfigName>();
+    result.add(new ConfigName("grouper", "grouper - " + GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url")));
+
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+
+    Pattern pattern = Pattern.compile("^db.([^.]+).url$");
+
+    for (String propertyName : grouperLoaderConfig.propertyNames()) {
+      Matcher matcher = pattern.matcher(propertyName);
+      if (!matcher.matches()) {
+        continue;
+      }
+      String configUrlName = matcher.group(1);
+      String configUrl = grouperLoaderConfig.propertyValueString(propertyName);
+      result.add(new ConfigName(configUrlName, configUrlName + " - " + configUrl));
+    }
+    return result;
+  }
+  
   /**
    * 
    * @return database name
@@ -871,8 +936,6 @@ public class GrouperLoaderContainer {
     return GrouperUiUtils.convertSecondsToString(this.getSqlScheduleIntervalSecondsTotal());
 
   }
-
-  
   
   /**
    * 
@@ -983,6 +1046,483 @@ public class GrouperLoaderContainer {
   }
   
   /**
+   * if should show the sql query
+   */
+  private boolean editLoaderShowSqlQuery;
+  
+  /**
+   * if should show the sql query
+   * @return the editLoaderShowSqlQuery
+   */
+  public boolean isEditLoaderShowSqlQuery() {
+    return this.editLoaderShowSqlQuery;
+  }
+
+  
+  /**
+   * if should show the sql query
+   * @param editLoaderShowSqlQuery1 the editLoaderShowSqlQuery to set
+   */
+  public void setEditLoaderShowSqlQuery(boolean editLoaderShowSqlQuery1) {
+    this.editLoaderShowSqlQuery = editLoaderShowSqlQuery1;
+  }
+
+  /**
+   * show if grouper admin or edit loader group
+   * @return true if should show the edit loader menu item
+   */
+  public boolean isCanEditLoader() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"))) {
+      String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);
+      //null error means allow
+      return error == null;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * if on edit screen this is a loader group
+   */
+  private boolean editLoaderIsLoader;
+  
+  /**
+   * 
+   * @return if on the loader screen this is a loader job
+   */
+  public boolean isEditLoaderIsLoader() {
+    return this.editLoaderIsLoader;
+  }
+  
+  /**
+   * @param theEditLoaderIsLoader
+   */
+  public void setEditLoaderIsLoader(boolean theEditLoaderIsLoader) {
+    this.editLoaderIsLoader = theEditLoaderIsLoader;
+  }
+  
+  /**
+   * 
+   * @return the text of the selected option
+   */
+  public String getEditLoaderSqlDatabaseNameText() {
+    if (StringUtils.isBlank(this.editLoaderSqlDatabaseName)) {
+      return null;
+    }
+    if (StringUtils.equals("grouper", this.editLoaderSqlDatabaseName)) {
+      
+      return GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
+      
+    }
+    
+    String databaseUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + this.editLoaderSqlDatabaseName + ".url");
+    return databaseUrl;
+  }
+
+  /**
+   * sql database name that the user selected
+   */
+  private String editLoaderSqlDatabaseName;
+
+  /**
+   * CRON (recommended) or START_TO_START_INTERVAL
+   */
+  private String editLoaderScheduleType;
+  
+  /**
+   * CRON (recommended) or START_TO_START_INTERVAL
+   * @return the editLoaderScheduleType
+   */
+  public String getEditLoaderScheduleType() {
+    return this.editLoaderScheduleType;
+  }
+  
+  /**
+   * "and" groups that members need to be in to be in the loaded group
+   */
+  private String editLoaderAndGroups;
+
+  /**
+   * "and" groups that members need to be in to be in the loaded group
+   * @return the editLoaderAndGroups
+   */
+  public String getEditLoaderAndGroups() {
+    return this.editLoaderAndGroups;
+  }
+  
+  /**
+   * "and" groups that members need to be in to be in the loaded group
+   * @param editLoaderAndGroups1 the editLoaderAndGroups to set
+   */
+  public void setEditLoaderAndGroups(String editLoaderAndGroups1) {
+    this.editLoaderAndGroups = editLoaderAndGroups1;
+  }
+
+  /**
+   * 
+   * @return list of gui groups
+   */
+  public List<GuiGroup> getEditLoaderAndGuiGroups() {
+
+    final List<String> andGroupsStringList = getEditLoaderAndGroupsStringList();
+    
+    final List<GuiGroup> guiGroups = new ArrayList<GuiGroup>();
+    
+    if (GrouperUtil.length(andGroupsStringList) > 0) {
+
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          for (String andGroupString : andGroupsStringList) {
+            
+            Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
+            group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
+            guiGroups.add(new GuiGroup(group));
+            
+          }
+          
+          return null;
+        }
+      });
+    }    
+    return guiGroups;
+  }
+
+  /**
+   * convert and groups to string, edit screen
+   * @return the list of strings
+   */
+  private List<String> getEditLoaderAndGroupsStringList() {
+    String andGroupsString = this.getEditLoaderAndGroups();
+    
+    if (StringUtils.isBlank(andGroupsString)) {
+      return null;
+    }
+    
+    final List<String> andGroupsStringList = GrouperUtil.splitTrimToList(andGroupsString, ",");
+    return andGroupsStringList;
+  }
+
+
+  
+  /**
+   * CRON (recommended) or START_TO_START_INTERVAL
+   * @param editLoaderScheduleType1 the editLoaderScheduleType to set
+   */
+  public void setEditLoaderScheduleType(String editLoaderScheduleType1) {
+    this.editLoaderScheduleType = editLoaderScheduleType1;
+  }
+
+  /**
+   * sql schedule interval on edit screen
+   * @return the editLoaderSqlScheduleInterval
+   */
+  public int getEditLoaderScheduleIntervalSecondsTotal() {
+    
+    String interval = this.getEditLoaderScheduleInterval();
+    
+    if (StringUtils.isBlank(interval)) {
+      return -1;
+    }
+
+    try {
+      int intervalInt = GrouperUtil.intValue(interval);
+      return intervalInt;
+    } catch (Exception e) {
+      LOG.error("Cant parse interval: '" + interval + "'", e);
+      return -2;
+    }
+  }
+  
+  /**
+   * 
+   * @return sql schedule interval on edit screen
+   */
+  public String getEditLoaderScheduleIntervalHumanReadable() {
+
+    return GrouperUiUtils.convertSecondsToString(this.getEditLoaderScheduleIntervalSecondsTotal());
+
+  }
+  
+  /**
+   * priority of this job defaults to 5
+   */
+  private String editLoaderPriority;
+  
+  /**
+   * priority of this job defaults to 5
+   * @return the editLoaderPriority
+   */
+  public String getEditLoaderPriority() {
+    return this.editLoaderPriority;
+  }
+  
+  /**
+   * priority of this job defaults to 5
+   * @param editLoaderPriority1 the editLoaderPriority to set
+   */
+  public void setEditLoaderPriority(String editLoaderPriority1) {
+    this.editLoaderPriority = editLoaderPriority1;
+  }
+
+  /**
+   * priority of this job defaults to 5
+   * @return the editLoaderPriority
+   */
+  public int getEditLoaderPriorityInt() {
+    String priority = this.getEditLoaderPriority();
+    
+    if (!StringUtils.isBlank(priority)) {
+      
+      try {
+        
+        return GrouperUtil.intValue(priority);
+        
+      } catch (Exception e) {
+        LOG.error("Cant parse priority: '" + priority + "'", e);
+        return -200;
+      }
+      
+    }
+    
+    return 5;
+
+  }
+  
+  
+  
+  /**
+   * sql schedule interval on edit screen
+   */
+  private String editLoaderScheduleInterval;
+    
+  /**
+   * sql schedule interval on edit screen
+   * @return the editLoaderSqlScheduleInterval
+   */
+  public String getEditLoaderScheduleInterval() {
+    return this.editLoaderScheduleInterval;
+  }
+  
+  /**
+   * sql schedule interval on edit screen
+   * @param editLoaderSqlScheduleInterval1 the editLoaderSqlScheduleInterval to set
+   */
+  public void setEditLoaderScheduleInterval(String editLoaderSqlScheduleInterval1) {
+    this.editLoaderScheduleInterval = editLoaderSqlScheduleInterval1;
+  }
+
+  /**
+   * sql cron on edit screen
+   */
+  private String editLoaderCron;
+  
+  /**
+   * sql cron on edit screen
+   * @return the editLoaderSqlCron
+   */
+  public String getEditLoaderCron() {
+    return this.editLoaderCron;
+  }
+  
+  /**
+   * 
+   * @return the sql cron description on edit screen
+   */
+  public String getEditLoaderCronDescription() {
+    
+    if (!StringUtils.isBlank(this.editLoaderCron)) {
+      try {
+        return CronExpressionDescriptor.getDescription(this.editLoaderCron);
+      } catch (Exception e) {
+        
+        LOG.error("Cant parse cron string:" + this.editLoaderCron, e);
+        
+        return TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError");
+      }
+    }
+    return "";
+  }
+  
+
+  /**
+   * sql cron on edit screen
+   * @param editLoaderSqlCron1 the editLoaderSqlCron to set
+   */
+  public void setEditLoaderCron(String editLoaderSqlCron1) {
+    this.editLoaderCron = editLoaderSqlCron1;
+  }
+
+  /**
+   * if should show CRON (recommended) or START_TO_START_INTERVAL
+   */
+  private boolean editLoaderShowFields;
+  
+  /**
+   * if should show CRON (recommended) or START_TO_START_INTERVAL
+   * @return the editLoaderShowScheduleType
+   */
+  public boolean isEditLoaderShowFields() {
+    return this.editLoaderShowFields;
+  }
+  
+  /**
+   * if should show CRON (recommended) or START_TO_START_INTERVAL
+   * @param editLoaderShowScheduleType1 the editLoaderShowScheduleType to set
+   */
+  public void setEditLoaderShowFields(boolean editLoaderShowScheduleType1) {
+    this.editLoaderShowFields = editLoaderShowScheduleType1;
+  }
+
+  /**
+   * sql database query
+   */
+  private String editLoaderSqlQuery;
+  
+  /**
+   * sql database query
+   * @return the editLoaderSqlQuery
+   */
+  public String getEditLoaderSqlQuery() {
+    return this.editLoaderSqlQuery;
+  }
+  
+  /**
+   * sql database query
+   * @param editLoaderSqlQuery1 the editLoaderSqlQuery to set
+   */
+  public void setEditLoaderSqlQuery(String editLoaderSqlQuery1) {
+    this.editLoaderSqlQuery = editLoaderSqlQuery1;
+  }
+
+  /**
+   * sql database name that the user selected
+   * @return the editLoaderSqlDatabaseName
+   */
+  public String getEditLoaderSqlDatabaseName() {
+    return this.editLoaderSqlDatabaseName;
+  }
+
+  /**
+   * sql database name that the user selected
+   * @param editLoaderSqlDatabaseName1 the editLoaderSqlDatabaseName to set
+   */
+  public void setEditLoaderSqlDatabaseName(String editLoaderSqlDatabaseName1) {
+    this.editLoaderSqlDatabaseName = editLoaderSqlDatabaseName1;
+  }
+
+  /**
+   * if loder type should be shown
+   */
+  private boolean editLoaderShowLoaderType;
+  
+  /**
+   * if loder type should be shown
+   * @return the editLoaderShowLoaderType
+   */
+  public boolean isEditLoaderShowLoaderType() {
+    return this.editLoaderShowLoaderType;
+  }
+  
+  /**
+   * if loder type should be shown
+   * @param editLoaderShowLoaderType1 the editLoaderShowLoaderType to set
+   */
+  public void setEditLoaderShowLoaderType(boolean editLoaderShowLoaderType1) {
+    this.editLoaderShowLoaderType = editLoaderShowLoaderType1;
+  }
+
+  /**
+   * if the loader should show the sql database name
+   */
+  private boolean editLoaderShowSqlDatabaseName;
+
+  /**
+   * if the loader should show the sql database name
+   * @return the editLoaderShowSqlDatabaseName
+   */
+  public boolean isEditLoaderShowSqlDatabaseName() {
+    return this.editLoaderShowSqlDatabaseName;
+  }
+  
+  /**
+   * if the loader should show the sql database name
+   * @param editLoaderShowSqlDatabaseName1 the editLoaderShowSqlDatabaseName to set
+   */
+  public void setEditLoaderShowSqlDatabaseName(boolean editLoaderShowSqlDatabaseName1) {
+    this.editLoaderShowSqlDatabaseName = editLoaderShowSqlDatabaseName1;
+  }
+
+  /**
+   * if the loader show sql loader type should be seen
+   */
+  private boolean editLoaderShowSqlLoaderType;
+
+  /**
+   * if the loader show sql loader type should be seen
+   * @return the editLoaderShowSqlLoaderType
+   */
+  public boolean isEditLoaderShowSqlLoaderType() {
+    return this.editLoaderShowSqlLoaderType;
+  }
+
+  /**
+   * if the loader show sql loader type should be seen
+   * @param editLoaderShowSqlLoaderType1 the editLoaderShowSqlLoaderType to set
+   */
+  public void setEditLoaderShowSqlLoaderType(boolean editLoaderShowSqlLoaderType1) {
+    this.editLoaderShowSqlLoaderType = editLoaderShowSqlLoaderType1;
+  }
+
+  /**
+   * SQL_SIMPLE or SQL_GROUP_LIST
+   */
+  private String editLoaderSqlType;
+  
+  /**
+   * SQL_SIMPLE or SQL_GROUP_LIST
+   * @return the editLoaderSqlType
+   */
+  public String getEditLoaderSqlType() {
+    return this.editLoaderSqlType;
+  }
+
+  /**
+   * SQL_SIMPLE or SQL_GROUP_LIST
+   * @param editLoaderSqlType1 the editLoaderSqlType to set
+   */
+  public void setEditLoaderSqlType(String editLoaderSqlType1) {
+    this.editLoaderSqlType = editLoaderSqlType1;
+  }
+
+  /**
+   * SQL or LDAP, GrouperLoaderType
+   */
+  private String editLoaderType;
+  
+  /**
+   * SQL or LDAP, GrouperLoaderType
+   * @return the editLoaderType
+   */
+  public String getEditLoaderType() {
+    return this.editLoaderType;
+  }
+  
+  /**
+   * SQL or LDAP, GrouperLoaderType
+   * @param editLoaderType1 the editLoaderType to set
+   */
+  public void setEditLoaderType(String editLoaderType1) {
+    this.editLoaderType = editLoaderType1;
+  }
+
+  /**
    * show if grouper admin or loader group
    * @return true if shouldl show the loader menu item
    */
@@ -992,13 +1532,13 @@ public class GrouperLoaderContainer {
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
-    String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject);
-    //null error means allow
-    if (error == null) {
-      return true;
+    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"))) {
+      String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);
+      //null error means allow
+      return error == null;
     }
     
-    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loaderTab.view.by.group.admins", true)) {
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loader.view.by.group.admins", true)) {
       if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
         return true;
       }
