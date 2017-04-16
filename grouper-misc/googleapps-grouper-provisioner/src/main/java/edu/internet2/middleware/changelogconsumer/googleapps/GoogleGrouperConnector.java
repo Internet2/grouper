@@ -45,14 +45,17 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Contains methods used by both the ChangeLogConsumer and the FullSync classes.
@@ -285,11 +288,13 @@ public class GoogleGrouperConnector {
             recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
             final Groups groupSettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
             final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
-            groupSettings.setWhoCanViewMembership(defaultGroupSettings.getWhoCanViewMembership())
+            groupSettings.setWhoCanJoin(defaultGroupSettings.getWhoCanJoin())
+                    .setWhoCanViewMembership(defaultGroupSettings.getWhoCanViewMembership())
+                    .setWhoCanViewGroup(defaultGroupSettings.getWhoCanViewGroup())
                     .setWhoCanInvite(defaultGroupSettings.getWhoCanInvite())
+                    .setWhoCanAdd(defaultGroupSettings.getWhoCanAdd())
                     .setAllowExternalMembers(defaultGroupSettings.getAllowExternalMembers())
                     .setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage())
-                    .setWhoCanJoin(defaultGroupSettings.getWhoCanJoin())
                     .setAllowWebPosting(defaultGroupSettings.getAllowWebPosting())
                     .setPrimaryLanguage(defaultGroupSettings.getPrimaryLanguage())
                     .setMaxMessageBytes(defaultGroupSettings.getMaxMessageBytes())
@@ -298,16 +303,19 @@ public class GoogleGrouperConnector {
                     .setSpamModerationLevel(defaultGroupSettings.getSpamModerationLevel())
                     .setReplyTo(defaultGroupSettings.getReplyTo())
                     .setCustomReplyTo(defaultGroupSettings.getCustomReplyTo())
+                    .setIncludeCustomFooter(defaultGroupSettings.getIncludeCustomFooter())
+                    .setCustomFooterText(defaultGroupSettings.getCustomFooterText())
                     .setSendMessageDenyNotification(defaultGroupSettings.getSendMessageDenyNotification())
                     .setDefaultMessageDenyNotificationText(defaultGroupSettings.getDefaultMessageDenyNotificationText())
                     .setShowInGroupDirectory(defaultGroupSettings.getShowInGroupDirectory())
                     .setAllowGoogleCommunication(defaultGroupSettings.getAllowGoogleCommunication())
                     .setMembersCanPostAsTheGroup(defaultGroupSettings.getMembersCanPostAsTheGroup())
                     .setMessageDisplayFont(defaultGroupSettings.getMessageDisplayFont())
-                    .setIncludeInGlobalAddressList(defaultGroupSettings.getIncludeInGlobalAddressList());
+                    .setIncludeInGlobalAddressList(defaultGroupSettings.getIncludeInGlobalAddressList())
+                    .setWhoCanLeaveGroup(defaultGroupSettings.getWhoCanLeaveGroup())
+                    .setWhoCanContactOwner(defaultGroupSettings.getWhoCanContactOwner());
             GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupSettings);
             recentlyManipulatedObjectsList.add(groupKey);
-
 
         } else {
           unarchiveGooGroupIfNecessary(googleGroup);
