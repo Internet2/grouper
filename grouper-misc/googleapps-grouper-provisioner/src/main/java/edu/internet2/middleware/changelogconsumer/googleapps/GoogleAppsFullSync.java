@@ -103,7 +103,7 @@ public class GoogleAppsFullSync {
 
         //Start with a clean cache
         GoogleCacheManager.googleGroups().clear();
-        GoogleCacheManager.googleGroups().clear();
+        GoogleCacheManager.googleUsers().clear();
 
         properties = new GoogleAppsSyncProperties(consumerName);
 
