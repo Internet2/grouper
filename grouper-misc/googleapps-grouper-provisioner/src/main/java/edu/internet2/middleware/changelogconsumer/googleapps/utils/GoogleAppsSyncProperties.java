@@ -170,13 +170,26 @@ public class GoogleAppsSyncProperties {
         LOG.debug("Google Apps Consumer - Setting recentlyManipulatedQueueDelay to {}", recentlyManipulatedQueueDelay);
 
 
+
+        defaultGroupSettings.setWhoCanJoin(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanJoin", "CAN_REQUEST_TO_JOIN"));
+        LOG.debug("Google Apps Consumer - Setting whoCanJoin to {}", defaultGroupSettings.getWhoCanJoin());
+
         defaultGroupSettings.setWhoCanViewMembership(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanViewMembership", "ALL_IN_DOMAIN_CAN_VIEW"));
         LOG.debug("Google Apps Consumer - Setting whoCanViewMembership to {}", defaultGroupSettings.getWhoCanViewMembership());
 
+        defaultGroupSettings.setWhoCanViewGroup(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanViewGroup", "ALL_MEMBERS_CAN_VIEW"));
+        LOG.debug("Google Apps Consumer - Setting whoCanViewGroup to {}", defaultGroupSettings.getWhoCanViewGroup());
+
         defaultGroupSettings.setWhoCanInvite(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanInvite", "ALL_MANAGERS_CAN_INVITE"));
         LOG.debug("Google Apps Consumer - Setting whoCanInvite to {}", defaultGroupSettings.getWhoCanInvite());
+
+        defaultGroupSettings.setWhoCanAdd(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanAdd", "NONE_CAN_ADD"));
+        LOG.debug("Google Apps Consumer - Setting whoCanAdd to {}", defaultGroupSettings.getWhoCanAdd());
 
         defaultGroupSettings.setAllowExternalMembers(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allowExternalMembers", "false"));
@@ -185,10 +198,6 @@ public class GoogleAppsSyncProperties {
         defaultGroupSettings.setWhoCanPostMessage(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanPostMessage", "ALL_IN_DOMAIN_CAN_POST"));
         LOG.debug("Google Apps Consumer - Setting whoCanPostMessage to {}", defaultGroupSettings.getWhoCanPostMessage());
-
-        defaultGroupSettings.setWhoCanJoin(
-                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanJoin", "CAN_REQUEST_TO_JOIN"));
-        LOG.debug("Google Apps Consumer - Setting whoCanJoin to {}", defaultGroupSettings.getWhoCanJoin());
 
         defaultGroupSettings.setAllowWebPosting(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allowWebPosting", "true"));
@@ -222,6 +231,14 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "customReplyTo", ""));
         LOG.debug("Google Apps Consumer - Setting customReplyTo to {}", defaultGroupSettings.getCustomReplyTo());
 
+        defaultGroupSettings.setIncludeCustomFooter(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "includeCustomFooter", "false"));
+        LOG.debug("Google Apps Consumer - Setting includeCustomFooter to {}", defaultGroupSettings.getIncludeCustomFooter());
+
+        defaultGroupSettings.setCustomFooterText(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "customFooterText", ""));
+        LOG.debug("Google Apps Consumer - Setting customFooterText to {}", defaultGroupSettings.getCustomFooterText());
+
         defaultGroupSettings.setSendMessageDenyNotification(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "sendMessageDenyNotification", "true"));
         LOG.debug("Google Apps Consumer - Setting sendMessageDenyNotification to {}", defaultGroupSettings.getSendMessageDenyNotification());
@@ -249,6 +266,15 @@ public class GoogleAppsSyncProperties {
         defaultGroupSettings.setIncludeInGlobalAddressList(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "includeInGlobalAddressList", "true"));
         LOG.debug("Google Apps Consumer - Setting includeInGlobalAddressList to {}", defaultGroupSettings.getIncludeInGlobalAddressList());
+
+        defaultGroupSettings.setWhoCanLeaveGroup(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanLeaveGroup", "NONE_CAN_LEAVE"));
+        LOG.debug("Google Apps Consumer - Setting whoCanLeaveGroup to {}", defaultGroupSettings.getWhoCanLeaveGroup());
+
+        defaultGroupSettings.setWhoCanContactOwner(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanContactOwner", "ALL_MEMBERS_CAN_CONTACT"));
+        LOG.debug("Google Apps Consumer - Setting whoCanContactOwner to {}", defaultGroupSettings.getWhoCanContactOwner());
+
 
         retryOnError = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "retryOnError", false);
         LOG.debug("Google Apps Consumer - Setting retryOnError to {}", retryOnError);
