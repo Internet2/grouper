@@ -6,17 +6,20 @@
 
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>google-apps-provisioner</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0</version>
 
     <properties>
         <commons-collections.version>3.2.1</commons-collections.version>
         <google-api-services-admin-directory.version>directory_v1-rev42-1.19.0</google-api-services-admin-directory.version>
-        <google-api-services-groupssettings.version>v1-rev51-1.19.0</google-api-services-groupssettings.version>
+        <google-api-services-groupssettings.version>v1-rev64-1.21.0</google-api-services-groupssettings.version>
         <grouper.version>2.3.0</grouper.version>
         <hibernate-core.version>3.6.7.Final</hibernate-core.version>
         <mockito.version>1.8.5</mockito.version>
         <powermock.version>1.4.9</powermock.version>
         <slf4j.version>1.6.1</slf4j.version>
+
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
     <build>
@@ -85,6 +88,12 @@
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate-core.version}</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.7</version>
         </dependency>
 
 

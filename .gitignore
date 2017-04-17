@@ -44,3 +44,4 @@ build/
 **/*.ipr
 **/*.iws
 /grouper.*.tar.gz
+grouper-misc/googleapps-grouper-provisioner/docker-test/grouper/temp

@@ -20,22 +20,25 @@ import com.google.api.services.admin.directory.model.User;
 import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.GoogleAppsSyncProperties;
 import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.changeLog.*;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
-import java.io.IOException;
-import java.util.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -200,6 +203,8 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
             LOG.debug("Google Apps Consumer '{}' - Processing change log entry list size '{}'", consumerName, changeLogEntryList.size());
 
+            boolean first = true;
+
             // process each change log entry
             for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
 
@@ -216,7 +221,8 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 }
 
                 // if first run, start the stop watch and store the last sequence number
-                if (lastContextId == null) {
+                if (first) {
+                    first = false;
                     stopWatch.start();
                     lastContextId = changeLogEntry.getContextId();
                 }
@@ -240,7 +246,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 }
 
                 // if the change log context id has changed, log and restart stop watch
-                if (!lastContextId.equals(changeLogEntry.getContextId())) {
+                if (lastContextId == null || changeLogEntry.getContextId() == null || !StringUtils.equals(lastContextId, changeLogEntry.getContextId())) {
                     stopWatch.stop();
                     LOG.debug("Google Apps Consumer '{}' - Processed change log context '{}' Elapsed time {}", new Object[] {consumerName,
                             lastContextId, stopWatch,});
