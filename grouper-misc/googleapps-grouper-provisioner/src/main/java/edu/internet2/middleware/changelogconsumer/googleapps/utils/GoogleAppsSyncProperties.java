@@ -76,6 +76,9 @@ public class GoogleAppsSyncProperties {
     /** Which type of privilege becomes an owner: none (default), admin, update, both */
     private String whoCanManage;
 
+    /** A Java Expression Language (JExl) that returns 'MEMBER' or 'MANAGER' */
+    private String whoCanManageJexl;
+
     private String googleGroupFilter;
 
     private boolean ignoreExtraGoogleMembers;
@@ -160,6 +163,10 @@ public class GoogleAppsSyncProperties {
         whoCanManage =
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanManage", "none");
         LOG.debug("Google Apps Consumer - Setting whoCanManage to {}", whoCanManage);
+
+        whoCanManageJexl =
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanManageJexl", "");
+        LOG.debug("Google Apps Consumer - Setting whoCanManageJexl to {}", whoCanManage);
 
         recentlyManipulatedQueueSize =
                 GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "recentlyManipulatedQueueSize", 5);
@@ -363,6 +370,10 @@ public class GoogleAppsSyncProperties {
 
     public String getServiceAccountPKCS12FilePath() {
         return serviceAccountPKCS12FilePath;
+    }
+
+    public String getWhoCanManageJexl() {
+        return whoCanManageJexl;
     }
 
     public String getWhoCanManage() {

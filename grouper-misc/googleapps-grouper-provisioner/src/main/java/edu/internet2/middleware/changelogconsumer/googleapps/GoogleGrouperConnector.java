@@ -43,8 +43,10 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,6 +262,11 @@ public class GoogleGrouperConnector {
     }
 
     public void createGooMember(Group group, User user, String role) throws IOException {
+        if (StringUtils.isEmpty(role)) {
+            LOG.debug("skipping {}; no role assigned", user);
+            return;
+        }
+
         final Member gMember = new Member();
         gMember.setEmail(user.getPrimaryEmail())
                 .setRole(role);
@@ -343,7 +350,18 @@ public class GoogleGrouperConnector {
     }
 
     public String determineRole(edu.internet2.middleware.grouper.Member member, edu.internet2.middleware.grouper.Group group) {
-        if ((properties.getWhoCanManage().equalsIgnoreCase("BOTH") && member.canUpdate(group))
+        if (properties.getWhoCanManage().equalsIgnoreCase("SCRIPTED")) {
+            final HashMap<String, Object> variableMap = new HashMap<String, Object>();
+            variableMap.put("group", group);
+            variableMap.put("member", member);
+
+            final String role = ConfigPropertiesCascadeUtils.substituteExpressionLanguage(
+                    properties.getWhoCanManageJexl(),
+                    variableMap, true, false, true, false);
+
+            return role != null ? role : "MEMBER";
+
+        } else if ((properties.getWhoCanManage().equalsIgnoreCase("BOTH") && member.canUpdate(group))
                 || (properties.getWhoCanManage().equalsIgnoreCase("ADMIN") && member.canAdmin(group))
                 || (properties.getWhoCanManage().equalsIgnoreCase("UPDATE") && member.canUpdate(group) && !member.canAdmin(group))
            ) {
@@ -575,7 +593,7 @@ public class GoogleGrouperConnector {
         }
 
         Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));
-        if (user != null && gooGroup != null) {
+        if (user != null && gooGroup != null && StringUtils.isEmpty(role)) {
             createGooMember(gooGroup, user, role);
         }
     }
@@ -600,14 +618,20 @@ public class GoogleGrouperConnector {
         Member member = GoogleAppsSdkUtils.retrieveGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail());
 
         if (member == null) {
-            createGooMember(gooGroup, user, role);
+            if (StringUtils.isNotEmpty(role)){
+                createGooMember(gooGroup, user, role);
+            }
             return;
         }
 
         if (member.getRole() != role) {
-            member.setRole(role);
-            GoogleAppsSdkUtils.updateGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail(), member);
-            recentlyManipulatedObjectsList.add(user.getPrimaryEmail());
+            if (StringUtils.isEmpty(role)) {
+                GoogleAppsSdkUtils.removeGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail());
+            } else {
+                member.setRole(role);
+                GoogleAppsSdkUtils.updateGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail(), member);
+                recentlyManipulatedObjectsList.add(user.getPrimaryEmail());
+            }
         }
     }
 }
