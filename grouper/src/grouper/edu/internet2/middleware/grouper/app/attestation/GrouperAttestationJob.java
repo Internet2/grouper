@@ -266,7 +266,7 @@ public class GrouperAttestationJob implements Job {
        // set the cc if any
        if (emailObject.getCcEmails() != null && emailObject.getCcEmails().size() > 0) {
          emailBody.append("(cc'd ");
-         emailBody.append(String.join(",", emailObject.getCcEmails()));
+         emailBody.append(StringUtils.join(emailObject.getCcEmails(), ","));
          emailBody.append(")");
        }
        emailBody.append("\n");
