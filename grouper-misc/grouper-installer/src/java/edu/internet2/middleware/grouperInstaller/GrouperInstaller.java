@@ -8628,51 +8628,8 @@ public class GrouperInstaller {
     //start the loader
     startLoader(true);
     
-    //#####################################
-    // Install Grouper WS Scim Tier API
-    //####################################
-    System.out.print("Do you want to install the grouper ws scim (t|f)? [t]: ");
-    boolean installWsScim = readFromStdInBoolean(true, "grouperInstaller.autorun.installGrouperWsScim");
-    if (installWsScim) {
-      downloadAndUntarWs();
-      
-      //####################################
-      //get maven
-      downloadAndUnzipMaven();
-      
-      //####################################
-      //look for or ask or download apache tomee
-      File tomeeDir = downloadTomee();
-      File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-      this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", 
-          new File(this.grouperInstallDirectoryString));
-
-      //####################################
-      //ask for tomee port
-      configureTomee();
-
-      //####################################
-      //build grouper ws scim
-      buildWsScim();
-
-      //####################################
-      //configureTomeeGrouperWsScimWebapp
-      configureTomeeGrouperWsScimWebapp();
-      
-      //####################################
-      //set the GrouperSystem password
-      tomeeConfigureGrouperSystem();
-
-      //####################################
-      //bounce tomcat
-      tomeeBounce("restart");
-      
-      //####################################
-      //tell user to go to url
-      System.out.println("##################################\n");
-      System.out.println("Go here for the Grouper WS Scim (change hostname if on different host): http://localhost:" + this.tomeeHttpPort + "/" + "grouper-ws-scim" + "/");
-      System.out.println("\n##################################\n");
-    }
+    //prompt and install ws scim
+    installWsScim();
     
 
     //#####################################
@@ -8693,6 +8650,59 @@ public class GrouperInstaller {
     }
     System.out.println("\n##################################\n");
 
+  }
+
+  /**
+   * 
+   */
+  private void installWsScim() {
+    //#####################################
+    // Install Grouper WS Scim Tier API
+    //####################################
+    System.out.print("Do you want to install the grouper ws scim (t|f)? [t]: ");
+    boolean installWsScim = readFromStdInBoolean(true, "grouperInstaller.autorun.installGrouperWsScim");
+    if (installWsScim) {
+      downloadAndUntarWs();
+      
+      //####################################
+      //get maven
+      // NOTE: we dont need maven, ship the binary
+      //downloadAndUnzipMaven();
+      
+      //####################################
+      //look for or ask or download apache tomee
+      File tomeeDir = downloadTomee();
+      File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+      this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", 
+          new File(this.grouperInstallDirectoryString));
+
+      //####################################
+      //ask for tomee port
+      configureTomee();
+
+      //####################################
+      //build grouper ws scim
+      // NOTE: we dont need to build it, ship the binary
+      //buildWsScim();
+
+      //####################################
+      //configureTomeeGrouperWsScimWebapp
+      configureTomeeGrouperWsScimWebapp();
+      
+      //####################################
+      //set the GrouperSystem password
+      tomeeConfigureGrouperSystem();
+
+      //####################################
+      //bounce tomcat
+      tomeeBounce("restart");
+      
+      //####################################
+      //tell user to go to url
+      System.out.println("##################################\n");
+      System.out.println("Go here for the Grouper WS Scim (change hostname if on different host): http://localhost:" + this.tomeeHttpPort + "/" + "grouper-ws-scim" + "/");
+      System.out.println("\n##################################\n");
+    }
   }
 
   /**
@@ -10644,7 +10654,7 @@ public class GrouperInstaller {
     String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
         "Server/Service/Engine/Host/Context[@path='/" + this.tomeeWsScimPath + "']", "docBase");
 
-    String shouldBeDocBase = this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws-scim" + File.separator + "target" + File.separator + "grouper-ws-scim";
+    String shouldBeDocBase = this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws-scim" + File.separator + "targetBuiltin" + File.separator + "grouper-ws-scim";
 
     System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
     
@@ -10686,7 +10696,7 @@ public class GrouperInstaller {
       
       @Override
       public boolean accept(File file, String name) {
-        return name.endsWith(".properties") || name.endsWith(".xml");
+        return name.endsWith(".properties") || name.endsWith(".xml") || name.endsWith(".txt");
       }
     });
     
@@ -10694,9 +10704,10 @@ public class GrouperInstaller {
     for (File fileToCopyFrom : allFiles) {
       if (fileToCopyFrom.isFile()) {
         File destFile = new File(shouldBeDocBase + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + fileToCopyFrom.getName());
-        if (destFile.exists() && destFile.isFile()) {
-          GrouperInstallerUtils.copyFile(fileToCopyFrom, destFile, false);
+        if (!destFile.exists()) {
+          GrouperInstallerUtils.fileCreate(destFile);
         }
+        GrouperInstallerUtils.copyFile(fileToCopyFrom, destFile, false);
       }
     }
     
