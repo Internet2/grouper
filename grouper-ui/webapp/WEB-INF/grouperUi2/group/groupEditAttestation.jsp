@@ -2,7 +2,7 @@
 <form id="editGroupAttestationForm" class="form-horizontal">
     
 	<div style="margin-bottom: 20px;">
-	  <button class="btn" onclick="return guiV2link('operation=UiV2Group.updateGroupAttestationLastCertifiedDate&groupId=${grouperRequestContainer.groupContainer.guiAttestation.attributeAssignable.id}'); return false;">${textContainer.text['updateAttestationDateCertifiedGroupButton'] }</button>
+	  <button class="btn" onclick="return guiV2link('operation=UiV2Attestation.updateGroupAttestationLastCertifiedDate&groupId=${grouperRequestContainer.groupContainer.guiAttestation.attributeAssignable.id}'); return false;">${textContainer.text['updateAttestationDateCertifiedGroupButton'] }</button>
 	</div>
 	<div class="control-group">
 	  <label for="attestationDirectAssignment" class="control-label">${textContainer.text['attestationDirectAssignmentLabel'] }</label>
@@ -66,6 +66,6 @@
      </div>
    </div>
    <div class="form-actions">
-     <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Group.editAttestationSubmit', {formIds: 'editGroupAttestationForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
+     <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Attestation.editGroupAttestationSubmit', {formIds: 'editGroupAttestationForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
    </div>
    </form>

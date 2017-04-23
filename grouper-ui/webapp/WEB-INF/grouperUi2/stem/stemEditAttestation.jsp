@@ -2,8 +2,8 @@
 <form id="editStemAttestationForm" class="form-horizontal">
     
 	<div style="margin-bottom: 20px;">
-	  <button class="btn" onclick="return guiV2link('operation=UiV2Stem.updateAllGroupAttestationLastCertifiedDate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['updateAttestationCertifyAllGroupsUnderThisFolderButton'] }</button>
-       <button class="btn" onclick="return guiV2link('operation=UiV2Stem.updateUncertifiedGroupAttestationLastCertifiedDate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['updateAttestationCertifyUncertifiedGroupsUnderThisFolderButton'] }</button>
+	  <button class="btn" onclick="return guiV2link('operation=UiV2Attestation.updateAllGroupAttestationLastCertifiedDate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['updateAttestationCertifyAllGroupsUnderThisFolderButton'] }</button>
+       <button class="btn" onclick="return guiV2link('operation=UiV2Attestation.updateUncertifiedGroupAttestationLastCertifiedDate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['updateAttestationCertifyUncertifiedGroupsUnderThisFolderButton'] }</button>
 	</div>
 	
 	<div class="control-group">
@@ -66,6 +66,6 @@
    </div>
   
    <div class="form-actions">
-     <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Stem.editAttestationSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
+     <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Attestation.editStemAttestationSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
    </div>
    </form>
