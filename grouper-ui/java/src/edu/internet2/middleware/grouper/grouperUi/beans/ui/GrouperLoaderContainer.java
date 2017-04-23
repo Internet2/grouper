@@ -252,6 +252,30 @@ public class GrouperLoaderContainer {
   }
   
   /**
+   * ldap server ids
+   * @return ldap server ids
+   */
+  public List<ConfigName> getLdapServerIds() {
+    List<ConfigName> result = new ArrayList<ConfigName>();
+
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+
+    Pattern pattern = Pattern.compile("^ldap.([^.]+).url$");
+
+    for (String propertyName : grouperLoaderConfig.propertyNames()) {
+      Matcher matcher = pattern.matcher(propertyName);
+      if (!matcher.matches()) {
+        continue;
+      }
+      String configUrlName = matcher.group(1);
+      String configUrl = grouperLoaderConfig.propertyValueString(propertyName);
+      result.add(new ConfigName(configUrlName, configUrlName + " - " + configUrl));
+    }
+    return result;
+    
+  }
+  
+  /**
    * sql database names
    * @return the database names
    */
@@ -381,10 +405,58 @@ public class GrouperLoaderContainer {
 
   }
 
+  /**
+   * extra attributes
+   */
+  private String editLoaderLdapExtraAttributes;
+
+  /**
+   * extra attributes
+   * @return the editLoaderLdapExtraAttributes
+   */
+  public String getEditLoaderLdapExtraAttributes() {
+    return this.editLoaderLdapExtraAttributes;
+  }
+
+  /**
+   * @param editLoaderLdapExtraAttributes1 the editLoaderLdapExtraAttributes to set
+   */
+  public void setEditLoaderLdapExtraAttributes(String editLoaderLdapExtraAttributes1) {
+    this.editLoaderLdapExtraAttributes = editLoaderLdapExtraAttributes1;
+  }
+
+  /**
+   * <pre>
+   * attribute filter expression e.g. ${attributeValue == 'a' || attributeValue == 'b'}
+   * </pre>
+   */
+  private String editLoaderLdapAttributeFilterExpression;
   
   /**
+   * <pre>
+   * attribute filter expression e.g. ${attributeValue == 'a' || attributeValue == 'b'}
+   * </pre>
+   * @return the editLoaderLdapAttributeFilterExpression
+   */
+  public String getEditLoaderLdapAttributeFilterExpression() {
+    return this.editLoaderLdapAttributeFilterExpression;
+  }
+
+  
+  /**
+   * <pre>
+   * attribute filter expression e.g. ${attributeValue == 'a' || attributeValue == 'b'}
+   * </pre>
+   * @param editLoaderLdapAttributeFilterExpression1 the editLoaderLdapAttributeFilterExpression to set
+   */
+  public void setEditLoaderLdapAttributeFilterExpression(
+      String editLoaderLdapAttributeFilterExpression1) {
+    this.editLoaderLdapAttributeFilterExpression = editLoaderLdapAttributeFilterExpression1;
+  }
+
+  /**
    * 
-   * @return extra attributes
+   * @return attribute filter expression
    */
   public String getLdapAttributeFilterExpression() {
     
@@ -823,13 +895,36 @@ public class GrouperLoaderContainer {
   }
   
   /**
-   * 
+   * LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES
    * @return ldap loader type
    */
   public String getLdapLoaderType() {
     
     return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapTypeName());
 
+  }
+  
+  /**
+   * LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES
+   */
+  private String editLoaderLdapType;
+
+  
+  /**
+   * LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES
+   * @return the editLoaderLdapType
+   */
+  public String getEditLoaderLdapType() {
+    return this.editLoaderLdapType;
+  }
+
+  
+  /**
+   * LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES
+   * @param editLoaderLdapType1 the editLoaderLdapType to set
+   */
+  public void setEditLoaderLdapType(String editLoaderLdapType1) {
+    this.editLoaderLdapType = editLoaderLdapType1;
   }
 
   /**
@@ -980,6 +1075,408 @@ public class GrouperLoaderContainer {
   }
   
   /**
+   * ldap filter for the ldap loader
+   */
+  private String editLoaderLdapFilter;
+  
+  /**
+   * ldap filter for the ldap loader
+   * @return the editLoaderLdapFilter
+   */
+  public String getEditLoaderLdapFilter() {
+    return this.editLoaderLdapFilter;
+  }
+
+  /**
+   * ldap filter for the ldap loader
+   * @param editLoaderLdapFilter1 the editLoaderLdapFilter to set
+   */
+  public void setEditLoaderLdapFilter(String editLoaderLdapFilter1) {
+    this.editLoaderLdapFilter = editLoaderLdapFilter1;
+  }
+
+  /**
+   * edit loader group attribute name
+   */
+  private String editLoaderLdapGroupAttributeName;
+  
+  /**
+   * edit loader group attribute name
+   * @return the editLoaderLdapGroupAttributeName
+   */
+  public String getEditLoaderLdapGroupAttributeName() {
+    return this.editLoaderLdapGroupAttributeName;
+  }
+  
+  /**
+   * edit loader group attribute name
+   * @param editLoaderLdapGroupAttributeName1 the editLoaderLdapGroupAttributeName to set
+   */
+  public void setEditLoaderLdapGroupAttributeName(String editLoaderLdapGroupAttributeName1) {
+    this.editLoaderLdapGroupAttributeName = editLoaderLdapGroupAttributeName1;
+  }
+  
+  /**
+   * edit loader group description
+   */
+  private String editLoaderLdapGroupDescriptionExpression;
+
+  /**
+   * edit loader group description
+   * @return the editLoaderLdapGroupDescriptionExpression
+   */
+  public String getEditLoaderLdapGroupDescriptionExpression() {
+    return this.editLoaderLdapGroupDescriptionExpression;
+  }
+
+  
+  /**
+   * edit loader group description
+   * @param editLoaderLdapGroupDescriptionExpression1 the editLoaderLdapGroupDescriptionExpression to set
+   */
+  public void setEditLoaderLdapGroupDescriptionExpression(
+      String editLoaderLdapGroupDescriptionExpression1) {
+    this.editLoaderLdapGroupDescriptionExpression = editLoaderLdapGroupDescriptionExpression1;
+  }
+
+  /**
+   * edit loader group display name
+   */
+  private String editLoaderLdapGroupDisplayNameExpression;
+  
+  /**
+   * edit loader group display name
+   * @return the editLoaderLdapGroupDisplayNameExpression
+   */
+  public String getEditLoaderLdapGroupDisplayNameExpression() {
+    return this.editLoaderLdapGroupDisplayNameExpression;
+  }
+
+  /**
+   * @param editLoaderLdapGroupDisplayNameExpression1 the editLoaderLdapGroupDisplayNameExpression to set
+   */
+  public void setEditLoaderLdapGroupDisplayNameExpression(
+      String editLoaderLdapGroupDisplayNameExpression1) {
+    this.editLoaderLdapGroupDisplayNameExpression = editLoaderLdapGroupDisplayNameExpression1;
+  }
+
+  /**
+   * edit loader group name expression
+   */
+  private String editLoaderLdapGroupNameExpression;
+  
+  /**
+   * edit loader group name expression
+   * @return the editLoaderLdapGroupNameExpression
+   */
+  public String getEditLoaderLdapGroupNameExpression() {
+    return this.editLoaderLdapGroupNameExpression;
+  }
+  
+  /**
+   * edit loader group name expression
+   * @param editLoaderLdapGroupNameExpression1 the editLoaderLdapGroupNameExpression to set
+   */
+  public void setEditLoaderLdapGroupNameExpression(String editLoaderLdapGroupNameExpression1) {
+    this.editLoaderLdapGroupNameExpression = editLoaderLdapGroupNameExpression1;
+  }
+
+  /**
+   * edit loader search dn
+   */
+  private String editLoaderLdapSearchDn;
+  
+  /**
+   * edit loader search dn
+   * @return the editLoaderLdapSearchDn
+   */
+  public String getEditLoaderLdapSearchDn() {
+    return this.editLoaderLdapSearchDn;
+  }
+  
+  /**
+   * edit loader search dn
+   * @param editLoaderLdapSearchDn1 the editLoaderLdapSearchDn to set
+   */
+  public void setEditLoaderLdapSearchDn(String editLoaderLdapSearchDn1) {
+    this.editLoaderLdapSearchDn = editLoaderLdapSearchDn1;
+  }
+
+  /**
+   * edit loader ldap search scope
+   */
+  private String editLoaderLdapSearchScope;
+  
+  /**
+   * edit loader ldap search scope
+   * @return the editLoaderLdapSearchScope
+   */
+  public String getEditLoaderLdapSearchScope() {
+    return this.editLoaderLdapSearchScope;
+  }
+
+  
+  /**
+   * edit loader ldap search scope
+   * @param editLoaderLdapSearchScope1 the editLoaderLdapSearchScope to set
+   */
+  public void setEditLoaderLdapSearchScope(String editLoaderLdapSearchScope1) {
+    this.editLoaderLdapSearchScope = editLoaderLdapSearchScope1;
+  }
+
+  /**
+   * edit loader ldap source id
+   */
+  private String editLoaderLdapSourceId;
+  
+  /**
+   * edit loader ldap source id
+   * @return the editLoaderLdapSourceId
+   */
+  public String getEditLoaderLdapSourceId() {
+    return this.editLoaderLdapSourceId;
+  }
+  
+  /**
+   * edit loader ldap source id
+   * @param editLoaderLdapSourceId1 the editLoaderLdapSourceId to set
+   */
+  public void setEditLoaderLdapSourceId(String editLoaderLdapSourceId1) {
+    this.editLoaderLdapSourceId = editLoaderLdapSourceId1;
+  }
+
+  /**
+   * edit loader subject attribute name
+   */
+  private String editLoaderLdapSubjectAttributeName;
+  
+  /**
+   * edit loader subject attribute name
+   * @return the editLoaderLdapSubjectAttributeName
+   */
+  public String getEditLoaderLdapSubjectAttributeName() {
+    return this.editLoaderLdapSubjectAttributeName;
+  }
+
+  /**
+   * edit loader subject attribute name
+   * @param editLoaderLdapSubjectAttributeName1 the editLoaderLdapSubjectAttributeName to set
+   */
+  public void setEditLoaderLdapSubjectAttributeName(String editLoaderLdapSubjectAttributeName1) {
+    this.editLoaderLdapSubjectAttributeName = editLoaderLdapSubjectAttributeName1;
+  }
+
+  /**
+   * edit loader subject expression
+   */
+  private String editLoaderLdapSubjectExpression;
+    
+  /**
+   * edit loader subject expression
+   * @return the editLoaderLdapSubjectExpression
+   */
+  public String getEditLoaderLdapSubjectExpression() {
+    return this.editLoaderLdapSubjectExpression;
+  }
+  
+  /**
+   * edit loader subject expression
+   * @param editLoaderLdapSubjectExpression1 the editLoaderLdapSubjectExpression to set
+   */
+  public void setEditLoaderLdapSubjectExpression(String editLoaderLdapSubjectExpression1) {
+    this.editLoaderLdapSubjectExpression = editLoaderLdapSubjectExpression1;
+  }
+
+  /**
+   * edit loader subject lookup type
+   */
+  private String editLoaderLdapSubjectLookupType;
+  
+  /**
+   * edit loader subject lookup type
+   * @return the editLoaderLdapSubjectLookupType
+   */
+  public String getEditLoaderLdapSubjectLookupType() {
+    return this.editLoaderLdapSubjectLookupType;
+  }
+  
+  /**
+   * edit loader subject lookup type
+   * @param editLoaderLdapSubjectLookupType1 the editLoaderLdapSubjectLookupType to set
+   */
+  public void setEditLoaderLdapSubjectLookupType(String editLoaderLdapSubjectLookupType1) {
+    this.editLoaderLdapSubjectLookupType = editLoaderLdapSubjectLookupType1;
+  }
+
+  /**
+   * edit loader ldap admins
+   */
+  private String editLoaderLdapAdmins;
+  
+  /**
+   * edit loader ldap admins
+   * @return the editLoaderLdapAdmins
+   */
+  public String getEditLoaderLdapAdmins() {
+    return this.editLoaderLdapAdmins;
+  }
+  
+  /**
+   * edit loader ldap admins
+   * @param editLoaderLdapAdmins1 the editLoaderLdapAdmins to set
+   */
+  public void setEditLoaderLdapAdmins(String editLoaderLdapAdmins1) {
+    this.editLoaderLdapAdmins = editLoaderLdapAdmins1;
+  }
+
+  /**
+   * edit loader ldap attr readers
+   */
+  private String editLoaderLdapAttrReaders;
+  
+  /**
+   * edit loader ldap attr readers
+   * @return the editLoaderLdapAttrReaders
+   */
+  public String getEditLoaderLdapAttrReaders() {
+    return this.editLoaderLdapAttrReaders;
+  }
+  
+  /**
+   * edit loader ldap attr readers
+   * @param editLoaderLdapAttrReaders1 the editLoaderLdapAttrReaders to set
+   */
+  public void setEditLoaderLdapAttrReaders(String editLoaderLdapAttrReaders1) {
+    this.editLoaderLdapAttrReaders = editLoaderLdapAttrReaders1;
+  }
+
+  /**
+   * edit loader ldap attr updaters
+   */
+  private String editLoaderLdapAttrUpdaters;
+  
+  /**
+   * edit loader ldap attr updaters
+   * @return the editLoaderLdapUpdaters
+   */
+  public String getEditLoaderLdapUpdaters() {
+    return this.editLoaderLdapUpdaters;
+  }
+
+  
+  /**
+   * edit loader ldap attr updaters
+   * @param editLoaderLdapUpdaters1 the editLoaderLdapUpdaters to set
+   */
+  public void setEditLoaderLdapUpdaters(String editLoaderLdapUpdaters1) {
+    this.editLoaderLdapUpdaters = editLoaderLdapUpdaters1;
+  }
+
+  /**
+   * edit loader ldap optins
+   */
+  private String editLoaderLdapOptins;
+  
+  /**
+   * edit loader ldap optins
+   * @return the editLoaderLdapOptins
+   */
+  public String getEditLoaderLdapOptins() {
+    return this.editLoaderLdapOptins;
+  }
+  
+  /**
+   * @param editLoaderLdapOptins1 the editLoaderLdapOptins to set
+   */
+  public void setEditLoaderLdapOptins(String editLoaderLdapOptins1) {
+    this.editLoaderLdapOptins = editLoaderLdapOptins1;
+  }
+
+  /**
+   * edit loader ldap optouts
+   */
+  private String editLoaderLdapOptouts;
+  
+  /**
+   * edit loader ldap optouts
+   * @return the editLoaderLdapOptouts
+   */
+  public String getEditLoaderLdapOptouts() {
+    return this.editLoaderLdapOptouts;
+  }
+  
+  /**
+   * edit loader ldap optouts
+   * @param editLoaderLdapOptouts1 the editLoaderLdapOptouts to set
+   */
+  public void setEditLoaderLdapOptouts(String editLoaderLdapOptouts1) {
+    this.editLoaderLdapOptouts = editLoaderLdapOptouts1;
+  }
+
+  /**
+   * edit loader ldap readers
+   */
+  private String editLoaderLdapReaders;
+  
+  /**
+   * edit loader ldap readers
+   * @return the editLoaderLdapReaders
+   */
+  public String getEditLoaderLdapReaders() {
+    return this.editLoaderLdapReaders;
+  }
+  
+  /**
+   * edit loader ldap readers
+   * @param editLoaderLdapReaders1 the editLoaderLdapReaders to set
+   */
+  public void setEditLoaderLdapReaders(String editLoaderLdapReaders1) {
+    this.editLoaderLdapReaders = editLoaderLdapReaders1;
+  }
+
+  /**
+   * edit loader ldap updaters
+   */
+  private String editLoaderLdapUpdaters;
+  
+  /**
+   * edit loader ldap updaters
+   * @return the editLoaderLdapAttrUpdaters
+   */
+  public String getEditLoaderLdapAttrUpdaters() {
+    return this.editLoaderLdapAttrUpdaters;
+  }
+  
+  /**
+   * edit loader ldap updaters
+   * @param editLoaderLdapAttrUpdaters1 the editLoaderLdapAttrUpdaters to set
+   */
+  public void setEditLoaderLdapAttrUpdaters(String editLoaderLdapAttrUpdaters1) {
+    this.editLoaderLdapAttrUpdaters = editLoaderLdapAttrUpdaters1;
+  }
+
+  /**
+   * edit loader ldap viewers
+   */
+  private String editLoaderLdapViewers;
+  
+  /**
+   * edit loader ldap viewers
+   * @return the editLoaderLdapViewers
+   */
+  public String getEditLoaderLdapViewers() {
+    return this.editLoaderLdapViewers;
+  }
+  
+  /**
+   * edit loader ldap viewers
+   * @param editLoaderLdapViewers1 the editLoaderLdapViewers to set
+   */
+  public void setEditLoaderLdapViewers(String editLoaderLdapViewers1) {
+    this.editLoaderLdapViewers = editLoaderLdapViewers1;
+  }
+
+  /**
    * 
    * @return the sql cron description
    */
@@ -1044,7 +1541,28 @@ public class GrouperLoaderContainer {
     return false;
     
   }
+
+  /**
+   * if edit screen should show the ldap filter
+   */
+  private boolean editLoaderShowLdapFilter;
   
+  /**
+   * if edit screen should show the ldap filter
+   * @return the editLoaderShowLdapFilter
+   */
+  public boolean isEditLoaderShowLdapFilter() {
+    return this.editLoaderShowLdapFilter;
+  }
+  
+  /**
+   * if edit screen should show the ldap filter
+   * @param editLoaderShowLdapFilter1 the editLoaderShowLdapFilter to set
+   */
+  public void setEditLoaderShowLdapFilter(boolean editLoaderShowLdapFilter1) {
+    this.editLoaderShowLdapFilter = editLoaderShowLdapFilter1;
+  }
+
   /**
    * if should show the sql query
    */
@@ -1065,6 +1583,68 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderShowSqlQuery(boolean editLoaderShowSqlQuery1) {
     this.editLoaderShowSqlQuery = editLoaderShowSqlQuery1;
+  }
+
+  /**
+   * group query for list of groups
+   */
+  private String editLoaderSqlGroupQuery;
+
+  /**
+   * group query for list of groups
+   * @return the editLoaderSqlGroupQuery
+   */
+  public String getEditLoaderSqlGroupQuery() {
+    return this.editLoaderSqlGroupQuery;
+  }
+
+  /**
+   * @param editLoaderSqlGroupQuery1 the editLoaderSqlGroupQuery to set
+   */
+  public void setEditLoaderSqlGroupQuery(String editLoaderSqlGroupQuery1) {
+    this.editLoaderSqlGroupQuery = editLoaderSqlGroupQuery1;
+  }
+
+  /**
+   * group types to add to list of groups
+   */
+  private String editLoaderGroupTypes;
+  
+  /**
+   * group types to add to list of groups
+   * @return the editLoaderGroupTypes
+   */
+  public String getEditLoaderGroupTypes() {
+    return this.editLoaderGroupTypes;
+  }
+  
+  /**
+   * group types to add to list of groups
+   * @param editLoaderGroupTypes1 the editLoaderGroupTypes to set
+   */
+  public void setEditLoaderGroupTypes(String editLoaderGroupTypes1) {
+    this.editLoaderGroupTypes = editLoaderGroupTypes1;
+  }
+
+  /**
+   * groups like string in database to remove groups not managed by loader anymore
+   */
+  private String editLoaderGroupsLike;
+  
+  /**
+   * groups like string in database to remove groups not managed by loader anymore
+   * @return the editLoaderSqlGroupsLike
+   */
+  public String getEditLoaderGroupsLike() {
+    return this.editLoaderGroupsLike;
+  }
+  
+  /**
+   * groups like string in database to remove groups not managed by loader anymore
+   * @param editLoaderSqlGroupsLike1 the editLoaderSqlGroupsLike to set
+   */
+  public void setEditLoaderGroupsLike(String editLoaderSqlGroupsLike1) {
+    this.editLoaderGroupsLike = editLoaderSqlGroupsLike1;
   }
 
   /**
@@ -1122,6 +1702,39 @@ public class GrouperLoaderContainer {
     
     String databaseUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + this.editLoaderSqlDatabaseName + ".url");
     return databaseUrl;
+  }
+
+  /**
+   * 
+   * @return the text of the selected option
+   */
+  public String getEditLoaderLdapServerIdUrlText() {
+    if (StringUtils.isBlank(this.editLoaderLdapServerId)) {
+      return null;
+    }
+    String ldapServerIdUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.editLoaderLdapServerId + ".url");
+    return ldapServerIdUrl;
+  }
+
+  /**
+   * ldap server id that the user selected
+   */
+  private String editLoaderLdapServerId;
+
+  /**
+   * ldap server id that the user selected
+   * @return the editLoaderLdapServerId
+   */
+  public String getEditLoaderLdapServerId() {
+    return this.editLoaderLdapServerId;
+  }
+
+  /**
+   * ldap server id that the user selected
+   * @param editLoaderLdapServerId1 the editLoaderLdapServerId to set
+   */
+  public void setEditLoaderLdapServerId(String editLoaderLdapServerId1) {
+    this.editLoaderLdapServerId = editLoaderLdapServerId1;
   }
 
   /**
@@ -1429,13 +2042,34 @@ public class GrouperLoaderContainer {
   public boolean isEditLoaderShowLoaderType() {
     return this.editLoaderShowLoaderType;
   }
-  
+
   /**
    * if loder type should be shown
    * @param editLoaderShowLoaderType1 the editLoaderShowLoaderType to set
    */
   public void setEditLoaderShowLoaderType(boolean editLoaderShowLoaderType1) {
     this.editLoaderShowLoaderType = editLoaderShowLoaderType1;
+  }
+
+  /**
+   * if the loader edit screen should show the ldap server id
+   */
+  private boolean editLoaderShowLdapServerId;
+
+  /**
+   * if the loader edit screen should show the ldap server id
+   * @return the editLoaderShowLdapServerId
+   */
+  public boolean isEditLoaderShowLdapServerId() {
+    return this.editLoaderShowLdapServerId;
+  }
+
+  /**
+   * if the loader edit screen should show the ldap server id
+   * @param editLoaderShowLdapServerId1 the editLoaderShowLdapServerId to set
+   */
+  public void setEditLoaderShowLdapServerId(boolean editLoaderShowLdapServerId1) {
+    this.editLoaderShowLdapServerId = editLoaderShowLdapServerId1;
   }
 
   /**
@@ -1478,6 +2112,26 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderShowSqlLoaderType(boolean editLoaderShowSqlLoaderType1) {
     this.editLoaderShowSqlLoaderType = editLoaderShowSqlLoaderType1;
+  }
+
+  /**
+   * if show ldap loader type should be seen
+   */
+  private boolean editLoaderShowLdapLoaderType;
+  
+  /**
+   * if show ldap loader type should be seen
+   * @return the editLoaderShowLdapLoaderType
+   */
+  public boolean isEditLoaderShowLdapLoaderType() {
+    return this.editLoaderShowLdapLoaderType;
+  }
+  
+  /**
+   * @param editLoaderShowLdapLoaderType1 the editLoaderShowLdapLoaderType to set
+   */
+  public void setEditLoaderShowLdapLoaderType(boolean editLoaderShowLdapLoaderType1) {
+    this.editLoaderShowLdapLoaderType = editLoaderShowLdapLoaderType1;
   }
 
   /**
