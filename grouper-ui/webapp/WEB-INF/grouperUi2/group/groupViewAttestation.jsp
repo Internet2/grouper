@@ -2,15 +2,15 @@
 
 <div id="groupDetailsId">
    	 <div class="span8" style="margin-bottom: 10px;">
-       <button class="btn" onclick="return guiV2link('operation=UiV2Group.updateGroupAttestationLastCertifiedDate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['updateAttestationDateCertifiedGroupButton'] }</button>
+       <button class="btn" onclick="return guiV2link('operation=UiV2Attestation.updateGroupAttestationLastCertifiedDate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['updateAttestationDateCertifiedGroupButton'] }</button>
    	 </div>
    	 <div class="span4" style="margin-bottom: 10px;">
        <c:if test="${ (isWheelGroupMember || grouperRequestContainer.groupContainer.canAdmin) && grouperRequestContainer.groupContainer.guiAttestation.type == 'DIRECT'}">
-         <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.editAttestation&groupId=${grouperRequestContainer.groupContainer.guiAttestation.attributeAssignable.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['editAttestationGroupButton'] }</a>
+         <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiAttestation.attributeAssignable.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['editAttestationGroupButton'] }</a>
        </c:if>
        <c:if test="${ (isWheelGroupMember || grouperRequestContainer.groupContainer.canAdmin) && grouperRequestContainer.groupContainer.guiAttestation.type == 'INDIRECT'}">
        	 <a href="javascript:void(0)"
-           onclick="return guiV2link('operation=UiV2Group.addAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+           onclick="return guiV2link('operation=UiV2Attestation.addGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
            class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['configureAttestationGroupButton'] }
      	 </a>
        </c:if> 

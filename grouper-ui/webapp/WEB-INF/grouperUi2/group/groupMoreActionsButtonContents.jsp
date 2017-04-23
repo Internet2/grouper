@@ -73,7 +73,7 @@
                         </c:if>
                         <li class="divider"></li>
                         <c:if test="${isWheelGroupMember || grouperRequestContainer.groupContainer.canUpdate || grouperRequestContainer.groupContainer.canRead || grouperRequestContainer.groupContainer.canAdmin}">
-                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['attestationButton'] }</a></li>
                         </c:if>                
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
