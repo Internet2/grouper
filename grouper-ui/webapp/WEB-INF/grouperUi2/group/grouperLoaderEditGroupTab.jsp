@@ -319,6 +319,40 @@
                           </tr>
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowFields}">
+
+	                        <tr>
+	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSubjectAttributeId">${textContainer.text['grouperLoaderLdapSubjectAttributeName']}</label></strong></td>
+	                          <td>
+	                            <span style="white-space: nowrap">
+		                          <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectAttributeName)}"
+		                              name="editLoaderLdapSubjectAttributeName" id="editLoaderLdapSubjectAttributeId" />
+	                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES'
+	                                    || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_SIMPLE'}">
+	                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+	                                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+	                                </c:if>
+	                            </span>
+	                               
+	                            <br />
+	                            <span class="description">${textContainer.text[grouper:concat2('grouperLoaderLdapSubjectAttributeNameDescription__',grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType)]}</span>
+	                            
+	                          </td>
+	                        </tr>
+
+	                        <tr>
+	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSearchDnId">${textContainer.text['grouperLoaderLdapSearchDn']}</label></strong></td>
+	                          <td>
+	                            <span style="white-space: nowrap">
+		                          <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchDn)}"
+		                              name="editLoaderLdapSearchDnName" id="editLoaderLdapSearchDnId" />
+	                            </span>
+	                               
+	                            <br />
+	                            <span class="description">${textContainer.text['grouperLoaderLdapSearchDnDescription']}</span>
+	                            
+	                          </td>
+	                        </tr>
+
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderCronId">${textContainer.text['grouperLoaderLdapQuartzCron']}</label></strong></td>
                             <td>
@@ -334,6 +368,75 @@
                               <br /><span class="description">${textContainer.text['grouperLoaderSqlCronDescription']}</span>
                             </td>
                           </tr>
+	                        <tr>
+	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSourceId">${textContainer.text['grouperLoaderLdapSourceId']}</label></strong></td>
+	                          <td>
+	                            <span style="white-space: nowrap">
+                                <select name="editLoaderLdapSourceName" id="editLoaderLdapSourceId" style="width: 40em">
+                                  <option value="" ></option>
+                                  <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.sources}" var="source">
+                                    <option value="${grouper:escapeJavascript(source.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSourceId == source.id ? 'selected="selected"' : '' } 
+                                      >${grouper:escapeJavascript(source.name)}</option>
+                                  </c:forEach>
+                                </select>
+	                            </span>
+	                               
+	                            <br />
+	                            <span class="description">${textContainer.text['grouperLoaderLdapSourceIdDescription']}</span>
+	                            
+	                          </td>
+	                        </tr>
+
+	                        <tr>
+	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSubjectLookupTypeId">${textContainer.text['grouperLoaderLdapSubjectLookupType']}</label></strong></td>
+	                          <td>
+	                            <span style="white-space: nowrap">
+
+                                <select name="editLoaderLdapSubjectLookupTypeName" id="editLoaderLdapSubjectLookupTypeId" style="width: 20em">
+                                  <option value="subjectId" 
+	                                  ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectLookupType == 'subjectId' ? 'selected="selected"' : '' }
+                                  >subjectId</option>
+                                  <option value="subjectIdentifier" 
+	                                  ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectLookupType == 'subjectIdentifier' ? 'selected="selected"' : '' }
+                                  >subjectIdentifier</option>
+                                  <option value="subjectIdOrIdentifier" 
+	                                  ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectLookupType == 'subjectIdOrIdentifier' ? 'selected="selected"' : '' }
+                                  >subjectIdOrIdentifier</option>
+                                </select>
+			                              
+	                            </span>
+	                               
+	                            <br />
+	                            <span class="description">${textContainer.text['grouperLoaderLdapSubjectLookupTypeDescription']}</span>
+	                            
+	                          </td>
+	                        </tr>
+
+	                        <tr>
+	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSearchScopeId">${textContainer.text['grouperLoaderLdapSearchScope']}</label></strong></td>
+	                          <td>
+	                            <span style="white-space: nowrap">
+	                               
+	                              <select name="editLoaderLdapSearchScopeName" id="editLoaderLdapSearchScopeId" style="width: 20em">
+	                                <option value="OBJECT_SCOPE" 
+	                                 ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchScope == 'OBJECT_SCOPE' ? 'selected="selected"' : '' }
+	                                >OBJECT_SCOPE</option>
+	                                <option value="ONELEVEL_SCOPE" 
+	                                 ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchScope == 'ONELEVEL_SCOPE' ? 'selected="selected"' : '' }
+	                                >ONELEVEL_SCOPE</option>
+	                                <option value="SUBTREE_SCOPE" 
+	                                 ${(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchScope == 'SUBTREE_SCOPE' 
+	                                   || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchScope == null) ? 'selected="selected"' : '' }
+	                                >SUBTREE_SCOPE</option>
+	                              </select>
+	                            </span>
+	                              
+	                            <br />
+	                            <span class="description">${textContainer.text['grouperLoaderLdapSearchScopeDescription']}</span>
+	                            
+	                          </td>
+	                        </tr>
+
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderPriorityId">${textContainer.text['grouperLoaderSqlPriority']}</label></strong></td>
                             <td>
@@ -361,6 +464,50 @@
                               </span>
                             </td>
                           </tr>
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES'}">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapAttributeFilterExpressionId">${textContainer.text['grouperLoaderLdapAttributeFilterExpression']}</label></strong></td>
+                              <td>
+                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttributeFilterExpression)}"
+                                   name="editLoaderLdapAttributeFilterExpressionName" id="editLoaderLdapAttributeFilterExpressionId" />
+                                <br /><span class="description">${textContainer.text['grouperLoaderLdapAttributeFilterExpressionDescription']}</span>
+                                
+                              </td>
+                            </tr>
+                          
+                          </c:if>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSubjectExpressionId">${textContainer.text['grouperLoaderLdapSubjectExpression']}</label></strong></td>
+                            <td>
+                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
+                                 name="editLoaderLdapSubjectExpressionName" id="editLoaderLdapSubjectExpressionId" />
+                              <br /><span class="description">${textContainer.text['grouperLoaderLdapSubjectExpressionDescription']}</span>
+                            </td>
+                          </tr>
+	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'}">
+
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapExtraAttributesId">${textContainer.text['grouperLoaderLdapExtraAttributes']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
+	                                 name="editLoaderLdapExtraAttributesName" id="editLoaderLdapExtraAttributesId" />
+	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapExtraAttributesDescription']}</span>
+	                            </td>
+	                          </tr>
+
+	                        </c:if>
+	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'
+	                            || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+	                            
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapGroupAttributeId">${textContainer.text['grouperLoaderLdapGroupAttributeName']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
+	                                 name="editLoaderLdapGroupAttributeName" id="editLoaderLdapGroupAttributeId" />
+	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupAttributeNameDescription']}</span>
+	                            </td>
+	                          </tr>
+	                        </c:if>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderAndGroupsId">${textContainer.text['grouperLoaderSqlAndGroups']}</label></strong></td>
                             <td>
@@ -375,109 +522,152 @@
                               
                             </td>
                           </tr>
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES'}">
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapAttributeFilterExpressionId">${textContainer.text['grouperLoaderLdapAttributeFilterExpression']}</label></strong></td>
-                              <td>
-                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttributeFilterExpression)}"
-                                   name="editLoaderLdapAttributeFilterExpressionName" id="editLoaderLdapAttributeFilterExpressionId" />
-                                <br /><span class="description">${textContainer.text['grouperLoaderLdapAttributeFilterExpressionDescription']}</span>
-                                
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderAndGroupsId">${textContainer.text['']}</label></strong></td>
-                              <td>
-                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderAndGroups)}"
-                                   name="editLoaderAndGroupsName" id="editLoaderAndGroupsId" />
-                                <br />
-                                <c:forEach var="guiGroup" items="${grouperRequestContainer.grouperLoaderContainer.editLoaderAndGuiGroups}">
-                                
-                                  ${guiGroup.shortLinkWithIcon} &nbsp; 
-                                
-                                </c:forEach>
-                                
-                              </td>
-                            </tr>
+
+	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'
+	                            || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderLdapGroupsLike']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
+	                                 name="grouperLoaderSqlGroupsLikeName" id="grouperLoaderSqlGroupsLikeId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapGroupsLikeDescription']}</span>
+	                            </td>
+	                          </tr>
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderGroupNameExpressionId">${textContainer.text['grouperLoaderLdapGroupNameExpression']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupNameExpression)}"
+	                                 name="grouperLoaderGroupNameExpressionName" id="grouperLoaderGroupNameExpressionId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapGroupNameExpressionDescription']}</span>
+	                            </td>
+	                          </tr>
+	                          
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapGroupDisplayNameId">${textContainer.text['grouperLoaderLdapGroupDisplayNameExpression']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupDisplayNameExpression)}"
+	                                 name="grouperLoaderLdapGroupDisplayNameName" id="grouperLoaderLdapGroupDisplayNameId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapGroupDisplayNameExpressionDescription']}</span>
+	                            </td>
+	                          </tr>
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapGroupDescriptionId">${textContainer.text['grouperLoaderLdapGroupDescriptionExpression']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupDescriptionExpression)}"
+	                                 name="grouperLoaderLdapGroupDescriptionName" id="grouperLoaderLdapGroupDescriptionId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapGroupDescriptionExpressionDescription']}</span>
+	                            </td>
+	                          </tr>
                           
-                          </c:if>
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupTypesId">${textContainer.text['grouperLoaderLdapGroupTypes']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"
+	                                 name="grouperLoaderSqlGroupTypesName" id="grouperLoaderSqlGroupTypesId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapGroupTypesDescription']}</span>
+	                            </td>
+	                          </tr>
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapReadersId">${textContainer.text['grouperLoaderLdapReaders']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapReaders)}"
+	                                 name="grouperLoaderLdapReadersName" id="grouperLoaderLdapReadersId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapReadersDescription']}</span>
+	                            </td>
+	                          </tr>
+                          
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapViewersId">${textContainer.text['grouperLoaderLdapViewers']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapViewers)}"
+	                                 name="grouperLoaderLdapViewersName" id="grouperLoaderLdapViewersId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapViewersDescription']}</span>
+	                            </td>
+	                          </tr>
+                          
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapAdminsId">${textContainer.text['grouperLoaderLdapAdmins']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAdmins)}"
+	                                 name="grouperLoaderLdapAdminsName" id="grouperLoaderLdapAdminsId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapAdminsDescription']}</span>
+	                            </td>
+	                          </tr>
+                        
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapUpdatersId">${textContainer.text['grouperLoaderLdapUpdaters']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapUpdaters)}"
+	                                 name="grouperLoaderLdapUpdatersName" id="grouperLoaderLdapUpdatersId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapUpdatersDescription']}</span>
+	                            </td>
+	                          </tr>
+                        
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapOptinsId">${textContainer.text['grouperLoaderLdapOptins']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapOptins)}"
+	                                 name="grouperLoaderLdapOptinsName" id="grouperLoaderLdapOptinsId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapOptinsDescription']}</span>
+	                            </td>
+	                          </tr>
+                        
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapOptoutsId">${textContainer.text['grouperLoaderLdapOptouts']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapOptouts)}"
+	                                 name="grouperLoaderLdapOptoutsName" id="grouperLoaderLdapOptoutsId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapOptoutsDescription']}</span>
+	                            </td>
+	                          </tr>
+
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapAttrReadersId">${textContainer.text['grouperLoaderLdapAttrReaders']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrReaders)}"
+	                                 name="grouperLoaderLdapAttrReadersName" id="grouperLoaderLdapAttrReadersId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapAttrReadersDescription']}</span>
+	                            </td>
+	                          </tr>
+                          
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapUpdatersId">${textContainer.text['grouperLoaderLdapAttrUpdaters']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrUpdaters)}"
+	                                 name="grouperLoaderLdapUpdaters" id="grouperLoaderLdapUpdatersId" />
+	                              <br />
+	                              <span class="description">
+	                              ${textContainer.text['grouperLoaderLdapAttrUpdatersDescription']}</span>
+	                            </td>
+	                          </tr>
+	                          
+	                        </c:if>
 
                         </c:if>
-                        <%--
-                        
-                        
-    //    grouperLoaderContainer.setEditLoaderLdapAttributeFilterExpression(grouperLoaderContainer.getLdapAttributeFilterExpression());
-    //    grouperLoaderContainer.setEditLoaderLdapGroupAttributeName(grouperLoaderContainer.getLdapGroupAttributeName());
-    //  }
-    //  grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
-    //  if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType())) {
-    //    grouperLoaderContainer.setEditLoaderLdapExtraAttributes(grouperLoaderContainer.getLdapExtraAttributes());
-    //  }
-    //  if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType()) 
-    //      || StringUtils.equals("LDAP_GROUPS_FROM_ATTRIBUTES", grouperLoaderContainer.getEditLoaderLdapType())) {
-    //    grouperLoaderContainer.setEditLoaderLdapGroupDescriptionExpression(grouperLoaderContainer.getLdapGroupDescriptionExpression());
-    //    grouperLoaderContainer.setEditLoaderLdapGroupDisplayNameExpression(grouperLoaderContainer.getLdapGroupDisplayNameExpression());
-    //    grouperLoaderContainer.setEditLoaderLdapGroupNameExpression(grouperLoaderContainer.getLdapGroupNameExpression());
-    //    grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderContainer.getLdapGroupsLike());
-    //    grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderContainer.getLdapGroupTypes());
-    //    grouperLoaderContainer.setEditLoaderLdapAdmins(grouperLoaderContainer.getLdapAdmins());
-    //    grouperLoaderContainer.setEditLoaderLdapAttrReaders(grouperLoaderContainer.getLdapAttrReaders());
-    //    grouperLoaderContainer.setEditLoaderLdapAttrUpdaters(grouperLoaderContainer.getLdapAttrUpdaters());
-    //    grouperLoaderContainer.setEditLoaderLdapOptins(grouperLoaderContainer.getLdapOptins());
-    //    grouperLoaderContainer.setEditLoaderLdapOptouts(grouperLoaderContainer.getLdapOptouts());
-    //    grouperLoaderContainer.setEditLoaderLdapReaders(grouperLoaderContainer.getLdapReaders());
-    //    grouperLoaderContainer.setEditLoaderLdapUpdaters(grouperLoaderContainer.getLdapUpdaters());
-    //    grouperLoaderContainer.setEditLoaderLdapViewers(grouperLoaderContainer.getLdapViewers());
-    //  }
-    //  grouperLoaderContainer.setEditLoaderLdapServerId(grouperLoaderContainer.getLdapServerId());
-    //  grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
-    //  grouperLoaderContainer.setEditLoaderLdapFilter(grouperLoaderContainer.getLdapLoaderFilter());
-    //  grouperLoaderContainer.setEditLoaderPriority(grouperLoaderContainer.getLdapPriority());
-    //  grouperLoaderContainer.setEditLoaderLdapSearchDn(grouperLoaderContainer.getLdapSearchDn());
-    //  grouperLoaderContainer.setEditLoaderLdapSearchScope(grouperLoaderContainer.getLdapSearchScope());
-    //  grouperLoaderContainer.setEditLoaderLdapSourceId(grouperLoaderContainer.getLdapSourceId());
-    //  grouperLoaderContainer.setEditLoaderLdapSubjectAttributeName(grouperLoaderContainer.getLdapSubjectAttributeName());
-    //
-    //  grouperLoaderContainer.setEditLoaderLdapSubjectExpression(grouperLoaderContainer.getLdapSubjectExpression());
-    //  grouperLoaderContainer.setEditLoaderLdapSubjectLookupType(grouperLoaderContainer.getLdapSubjectLookupType());
-                        
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_GROUP_LIST'}">
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupQueryId">${textContainer.text['grouperLoaderSqlGroupQuery']}</label></strong></td>
-                              <td>
-                                <input type="text" style="width: 60em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlGroupQuery)}"
-                                   name="grouperLoaderSqlGroupQueryName" id="grouperLoaderSqlGroupQueryId" />
-                                <br />
-                                <span class="description">
-                                ${textContainer.text['grouperLoaderSqlGroupQueryDescription']}</span>
-                              </td>
-                            </tr>
-                            
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderSqlGroupsLike']}</label></strong></td>
-                              <td>
-                                <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
-                                   name="grouperLoaderSqlGroupsLikeName" id="grouperLoaderSqlGroupsLikeId" />
-                                <br />
-                                <span class="description">
-                                ${textContainer.text['grouperLoaderSqlGroupsLikeDescription']}</span>
-                              </td>
-                            </tr>
-                            
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupTypesId">${textContainer.text['grouperLoaderSqlGroupTypes']}</label></strong></td>
-                              <td>
-                                <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"
-                                   name="grouperLoaderSqlGroupTypesName" id="grouperLoaderSqlGroupTypesId" />
-                                <br />
-                                <span class="description">
-                                ${textContainer.text['grouperLoaderSqlGroupTypesDescription']}</span>
-                              </td>
-                            </tr>
-                                                      
-                          </c:if>
-                        </c:if>
-                        --%>
                       </c:if>
 
                       

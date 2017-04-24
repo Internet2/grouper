@@ -285,8 +285,7 @@
                           </td>
                         </tr>
                         
-                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUP_LIST'
-                            || grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUP_LIST'}">
                         
                           <tr>
                             <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapExtraAttributes']}</strong></td>
@@ -295,6 +294,10 @@
                             </td>
                           </tr>
                           
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUP_LIST'
+                            || grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+                        
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderLdapGroupAttributeName']}</strong></td>
                             <td style="vertical-align: top;">
