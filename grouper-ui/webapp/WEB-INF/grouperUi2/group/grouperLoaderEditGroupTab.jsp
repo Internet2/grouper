@@ -496,8 +496,7 @@
 	                          </tr>
 
 	                        </c:if>
-	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'
-	                            || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
 	                            
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapGroupAttributeId">${textContainer.text['grouperLoaderLdapGroupAttributeName']}</label></strong></td>
