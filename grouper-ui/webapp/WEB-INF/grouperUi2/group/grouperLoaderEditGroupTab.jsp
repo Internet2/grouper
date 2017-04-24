@@ -502,8 +502,13 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapGroupAttributeId">${textContainer.text['grouperLoaderLdapGroupAttributeName']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
-	                                 name="editLoaderLdapGroupAttributeName" id="editLoaderLdapGroupAttributeId" />
+                                <span style="white-space: nowrap">
+  	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupAttributeName)}"
+  	                                 name="editLoaderLdapGroupAttributeName" id="editLoaderLdapGroupAttributeId" />
+                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                                 </span>
+                                   
 	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapGroupAttributeNameDescription']}</span>
 	                            </td>
 	                          </tr>

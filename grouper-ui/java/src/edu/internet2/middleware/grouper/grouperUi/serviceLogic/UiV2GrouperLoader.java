@@ -936,7 +936,7 @@ public class UiV2GrouperLoader {
 
           if (!hasError 
               && (grouperLoaderType == GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)
-              && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderLdapSubjectAttributeName())) {
+              && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderLdapGroupAttributeName())) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditLdapGroupAttributeNameRequired")));
             hasError = true;
