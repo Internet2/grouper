@@ -489,7 +489,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapExtraAttributesId">${textContainer.text['grouperLoaderLdapExtraAttributes']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
+	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapExtraAttributes)}"
 	                                 name="editLoaderLdapExtraAttributesName" id="editLoaderLdapExtraAttributesId" />
 	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapExtraAttributesDescription']}</span>
 	                            </td>
