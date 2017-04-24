@@ -927,7 +927,7 @@ public class UiV2GrouperLoader {
           }
 
           if (!hasError 
-              && (grouperLoaderType == GrouperLoaderType.LDAP_GROUP_LIST || grouperLoaderType == GrouperLoaderType.SQL_SIMPLE)
+              && (grouperLoaderType == GrouperLoaderType.LDAP_GROUP_LIST || grouperLoaderType == GrouperLoaderType.LDAP_SIMPLE)
               && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderLdapSubjectAttributeName())) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditLdapSubjectAttributeNameRequired")));
@@ -1435,7 +1435,52 @@ public class UiV2GrouperLoader {
         }
       }
 
+      {
+        String editLoaderLdapSubjectAttributeName = StringUtils.trimToNull(request.getParameter("editLoaderLdapSubjectAttributeName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapSubjectAttributeName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapSubjectAttributeName(editLoaderLdapSubjectAttributeName);
+          
+        }
+      }
 
+      {
+        String editLoaderLdapSearchDnName = StringUtils.trimToNull(request.getParameter("editLoaderLdapSearchDnName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapSearchDnName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapSearchDn(editLoaderLdapSearchDnName);
+          
+        }
+      }
+
+      {
+        String editLoaderLdapSourceName = StringUtils.trimToNull(request.getParameter("editLoaderLdapSourceName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapSourceName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapSourceId(editLoaderLdapSourceName);
+          
+        }
+      }
+
+      {
+        String editLoaderLdapSubjectLookupTypeName = StringUtils.trimToNull(request.getParameter("editLoaderLdapSubjectLookupTypeName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapSubjectLookupTypeName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapSubjectLookupType(editLoaderLdapSubjectLookupTypeName);
+          
+        }
+      }
+
+
+      {
+        String editLoaderLdapSearchScopeName = StringUtils.trimToNull(request.getParameter("editLoaderLdapSearchScopeName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapSearchScopeName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapSearchScope(editLoaderLdapSearchScopeName);
+          
+        }
+      }
+      
       {
         String editLoaderLdapAttributeFilterExpressionName = StringUtils.trimToNull(request.getParameter("editLoaderLdapAttributeFilterExpressionName"));
         if (!error && !StringUtils.isBlank(editLoaderLdapAttributeFilterExpressionName)) {
@@ -1445,63 +1490,139 @@ public class UiV2GrouperLoader {
         }
       }
 
+      {
+        String editLoaderLdapSubjectExpressionName = StringUtils.trimToNull(request.getParameter("editLoaderLdapSubjectExpressionName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapSubjectExpressionName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapSubjectExpression(editLoaderLdapSubjectExpressionName);
+          
+        }
+      }
+
+      {
+        String editLoaderLdapExtraAttributesName = StringUtils.trimToNull(request.getParameter("editLoaderLdapExtraAttributesName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapExtraAttributesName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapExtraAttributes(editLoaderLdapExtraAttributesName);
+          
+        }
+      }
+
+      {
+        String editLoaderLdapGroupAttributeName = StringUtils.trimToNull(request.getParameter("editLoaderLdapGroupAttributeName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapGroupAttributeName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapGroupAttributeName(editLoaderLdapGroupAttributeName);
+          
+        }
+      }
+
+      {
+        String grouperLoaderGroupsLike = StringUtils.trimToNull(request.getParameter("grouperLoaderSqlGroupsLikeName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderGroupsLike)) {
+          
+          grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderGroupsLike);
+          
+        }
+      }
       
+      {
+        String editLoaderLdapGroupNameExpression = StringUtils.trimToNull(request.getParameter("grouperLoaderGroupNameExpressionName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapGroupNameExpression)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapGroupNameExpression(editLoaderLdapGroupNameExpression);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapGroupDisplayNameName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapGroupDisplayNameName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapGroupDisplayNameName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapGroupDisplayNameExpression(grouperLoaderLdapGroupDisplayNameName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapGroupDescriptionName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapGroupDescriptionName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapGroupDescriptionName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapGroupDescriptionExpression(grouperLoaderLdapGroupDescriptionName);
+          
+        }
+      }
       
-    //    grouperLoaderContainer.setEditLoaderLdapGroupAttributeName(grouperLoaderContainer.getLdapGroupAttributeName());
-    //  }
-    //  grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
-    //  if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType())) {
-    //    grouperLoaderContainer.setEditLoaderLdapExtraAttributes(grouperLoaderContainer.getLdapExtraAttributes());
-    //  }
-    //  if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType()) 
-    //      || StringUtils.equals("LDAP_GROUPS_FROM_ATTRIBUTES", grouperLoaderContainer.getEditLoaderLdapType())) {
-    //    grouperLoaderContainer.setEditLoaderLdapGroupDescriptionExpression(grouperLoaderContainer.getLdapGroupDescriptionExpression());
-    //    grouperLoaderContainer.setEditLoaderLdapGroupDisplayNameExpression(grouperLoaderContainer.getLdapGroupDisplayNameExpression());
-    //    grouperLoaderContainer.setEditLoaderLdapGroupNameExpression(grouperLoaderContainer.getLdapGroupNameExpression());
-    //    grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderContainer.getLdapGroupsLike());
-    //    grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderContainer.getLdapGroupTypes());
-    //    grouperLoaderContainer.setEditLoaderLdapAdmins(grouperLoaderContainer.getLdapAdmins());
-    //    grouperLoaderContainer.setEditLoaderLdapAttrReaders(grouperLoaderContainer.getLdapAttrReaders());
-    //    grouperLoaderContainer.setEditLoaderLdapAttrUpdaters(grouperLoaderContainer.getLdapAttrUpdaters());
-    //    grouperLoaderContainer.setEditLoaderLdapOptins(grouperLoaderContainer.getLdapOptins());
-    //    grouperLoaderContainer.setEditLoaderLdapOptouts(grouperLoaderContainer.getLdapOptouts());
-    //    grouperLoaderContainer.setEditLoaderLdapReaders(grouperLoaderContainer.getLdapReaders());
-    //    grouperLoaderContainer.setEditLoaderLdapUpdaters(grouperLoaderContainer.getLdapUpdaters());
-    //    grouperLoaderContainer.setEditLoaderLdapViewers(grouperLoaderContainer.getLdapViewers());
-    //  }
-    //  grouperLoaderContainer.setEditLoaderLdapServerId(grouperLoaderContainer.getLdapServerId());
-    //  grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
-    //  grouperLoaderContainer.setEditLoaderLdapFilter(grouperLoaderContainer.getLdapLoaderFilter());
-    //  grouperLoaderContainer.setEditLoaderPriority(grouperLoaderContainer.getLdapPriority());
-    //  grouperLoaderContainer.setEditLoaderLdapSearchDn(grouperLoaderContainer.getLdapSearchDn());
-    //  grouperLoaderContainer.setEditLoaderLdapSearchScope(grouperLoaderContainer.getLdapSearchScope());
-    //  grouperLoaderContainer.setEditLoaderLdapSourceId(grouperLoaderContainer.getLdapSourceId());
-    //  grouperLoaderContainer.setEditLoaderLdapSubjectAttributeName(grouperLoaderContainer.getLdapSubjectAttributeName());
-    //
-    //  grouperLoaderContainer.setEditLoaderLdapSubjectExpression(grouperLoaderContainer.getLdapSubjectExpression());
-    //  grouperLoaderContainer.setEditLoaderLdapSubjectLookupType(grouperLoaderContainer.getLdapSubjectLookupType());
-
-
-
-
-//      {
-//        String grouperLoaderGroupsLike = StringUtils.trimToNull(request.getParameter("grouperLoaderSqlGroupsLikeName"));
-//        if (!error && !StringUtils.isBlank(grouperLoaderGroupsLike)) {
-//          
-//          grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderGroupsLike);
-//          
-//        }
-//      }
-//      
-//      {
-//        String grouperLoaderGroupTypes = StringUtils.trimToNull(request.getParameter("grouperLoaderSqlGroupTypesName"));
-//        if (!error && !StringUtils.isBlank(grouperLoaderGroupTypes)) {
-//          
-//          grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderGroupTypes);
-//          
-//        }
-//      }
-
+      {
+        String grouperLoaderSqlGroupTypesName = StringUtils.trimToNull(request.getParameter("grouperLoaderSqlGroupTypesName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderSqlGroupTypesName)) {
+          
+          grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderSqlGroupTypesName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapReadersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapReadersName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapReadersName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapReaders(grouperLoaderLdapReadersName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapViewersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapViewersName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapViewersName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapViewers(grouperLoaderLdapViewersName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapAdminsName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapAdminsName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapAdminsName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapAdmins(grouperLoaderLdapAdminsName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapUpdatersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapUpdatersName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapUpdatersName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapUpdaters(grouperLoaderLdapUpdatersName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapOptinsName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapOptinsName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapOptinsName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapOptins(grouperLoaderLdapOptinsName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapOptoutsName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapOptoutsName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapOptoutsName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapOptouts(grouperLoaderLdapOptoutsName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapAttrReadersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapAttrReadersName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapAttrReadersName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapAttrReaders(grouperLoaderLdapAttrReadersName);
+          
+        }
+      }
+      {
+        String grouperLoaderLdapUpdatersName = StringUtils.trimToNull(request.getParameter("grouperLoaderLdapUpdatersName"));
+        if (!error && !StringUtils.isBlank(grouperLoaderLdapUpdatersName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapAttrUpdaters(grouperLoaderLdapUpdatersName);
+          
+        }
+      }
       
     }
 

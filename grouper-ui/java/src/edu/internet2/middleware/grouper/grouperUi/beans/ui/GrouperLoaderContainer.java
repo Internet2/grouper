@@ -5,11 +5,12 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.redhogs.cronparser.CronExpressionDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -35,7 +36,10 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
+import net.redhogs.cronparser.CronExpressionDescriptor;
 
 
 /**
@@ -196,7 +200,7 @@ public class GrouperLoaderContainer {
   /**
    * config name e.g. for databases
    */
-  public static class ConfigName {
+  public static class ConfigName implements Comparable<ConfigName> {
     
     /** id of config name */
     private String id;
@@ -248,6 +252,24 @@ public class GrouperLoaderContainer {
     public void setName(String name1) {
       this.name = name1;
     }
+
+    @Override
+    public int compareTo(ConfigName o) {
+      if (o == null) {
+        return -1;
+      }
+      if (this.name == o.name) {
+        return 0;
+      }
+      if (this.name == null) {
+        return 1;
+      }
+      if (o.name == null) {
+        return -1;
+      }
+      return this.name.compareTo(o.name);
+      
+    }
     
   }
   
@@ -297,6 +319,22 @@ public class GrouperLoaderContainer {
       result.add(new ConfigName(configUrlName, configUrlName + " - " + configUrl));
     }
     return result;
+  }
+  
+  /**
+   * subject sources
+   * @return the sources
+   */
+  public List<ConfigName> getSources() {
+    Set<ConfigName> result = new TreeSet<ConfigName>();
+
+    Collection<Source> sources = SourceManager.getInstance().getSources();
+
+    for (Source source : sources) {
+      result.add(new ConfigName(source.getId(), source.getId() + " - " + source.getName()));
+    }
+    //turn the sorted set into a list
+    return new ArrayList<ConfigName>(result);
   }
   
   /**
