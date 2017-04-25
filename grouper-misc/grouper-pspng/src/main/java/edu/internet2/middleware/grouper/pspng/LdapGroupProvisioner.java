@@ -21,6 +21,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * This class is the workhorse for provisioning LDAP groups from
- * grouper.
+ * grouper. 
  *  
  * @author bert
  *
@@ -67,9 +68,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   @Override
   protected void addMembership(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
       Subject subject, LdapUser ldapUser) throws PspException {
-    if ( ldapGroup == null )
-      ldapGroup = createGroup(grouperGroupInfo);
-
+    
     // TODO: Look in memory cache to see if change is necessary: 
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
@@ -79,10 +78,21 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
           new Object[]{getName(), grouperGroupInfo, subject});
       return;
     }
-    
-    String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
-    if ( membershipAttributeValue != null ) {
-      scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+
+    if ( ldapGroup == null ) {
+      // Create the group if it hasn't been created yet. List the user so that creation can be combined
+      // with membership addition 
+      
+      // This will normally occur when the schema requires members and group-creation is delayed until
+      // the this method is being called to add the first member
+      ldapGroup = createGroup(grouperGroupInfo, Arrays.asList(subject));
+      cacheGroup(grouperGroupInfo, ldapGroup);
+    }
+    else {
+      String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
+      if ( membershipAttributeValue != null ) {
+        scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+      }
     }
   }
 
@@ -164,8 +174,28 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup , 
       Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap,
       Set<LdapUser> correctTSUsers) throws PspException {
-    if ( ldapGroup  == null )
-      ldapGroup  = createGroup(grouperGroupInfo);
+    
+    // If the group does not exist yet, then create it with all the correct members
+    if ( ldapGroup  == null ) {
+      
+      // If the schema requires member attribute, then don't do anything if there aren't any members
+      if ( config.areEmptyGroupsSupported() ) {
+        if ( correctSubjects.size() == 0 ) {
+          LOG.info("{}: Nothing to do because empty group already not present in ldap system", getName() );
+          return;
+        }
+      }
+
+      ldapGroup  = createGroup(grouperGroupInfo, correctSubjects);
+      cacheGroup(grouperGroupInfo, ldapGroup);
+      return;
+    }
+    
+    // Delete an empty group if the schema requires a membership
+    if ( !config.areEmptyGroupsSupported() && correctSubjects.size() == 0 ) {
+      LOG.info("{}: Deleting empty group because schema requires its member attribute", getName());
+      deleteGroup(grouperGroupInfo, ldapGroup);
+    }
     
     Set<String> correctMembershipValues = getStringSet();
     
@@ -247,11 +277,39 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   
   
   @Override
-  protected LdapGroup createGroup(GrouperGroupInfo grouperGroup) throws PspException {
+  protected LdapGroup createGroup(GrouperGroupInfo grouperGroup, Collection<Subject> initialMembers) throws PspException {
+    if ( !config.areEmptyGroupsSupported() && initialMembers.size() == 0 ) {
+      LOG.warn("Not Creating LDAP group because empty groups are not supported: {}", grouperGroup);
+      return null;
+    }
+    
     LOG.info("Creating LDAP group for GrouperGroup: {} ", grouperGroup);
     String ldif = config.getGroupCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression(ldif, null, null, grouperGroup, null);
+    
+    // If initialMembers were specified, then add the ldif necessary to include them
+    if ( initialMembers != null && initialMembers.size() > 0 ) {
+      
+      // Find all the values for the membership attribute
+      Collection<String> membershipValues = new HashSet<>(initialMembers.size());
+      for ( Subject subject : initialMembers ) {
+        LdapUser ldapUser = getTargetSystemUser(subject);
+        if ( ldapUser != null ) {
+          String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroup, null);
+          if ( membershipAttributeValue != null ) {
+            membershipValues.add(membershipAttributeValue);
+          }
+        }
+      }
+      
+      StringBuilder ldifForMemberships = new StringBuilder();
+      for ( String attributeValue : membershipValues ) {
+        ldifForMemberships.append(String.format("%s: %s\n", config.getMemberAttributeName(), attributeValue));
+      }
+      ldif = ldif.concat("\n");
+      ldif = ldif.concat(ldifForMemberships.toString());
+    }
     
     Connection conn = getLdapSystem().getLdapConnection();
     try {
@@ -259,7 +317,6 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       LdifReader ldifReader = new LdifReader(reader);
       SearchResult ldifResult = ldifReader.read();
       LdapEntry ldifEntry = ldifResult.getEntry();
-      
       // Update DN to be relative to groupCreationBaseDn
       String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getGroupCreationBaseDn());
       ldifEntry.setDn(actualDn);

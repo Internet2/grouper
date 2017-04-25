@@ -110,7 +110,7 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
     // Should comparisons of the memberAttributeName be case sensitive?
     private boolean memberAttributeIsCaseSensitive;
     protected boolean memberAttributeIsCaseSensitive_defaultValue = false;
-
+    
     public LdapGroupProvisionerConfiguration(String provisionerName) {
       super(provisionerName);
       

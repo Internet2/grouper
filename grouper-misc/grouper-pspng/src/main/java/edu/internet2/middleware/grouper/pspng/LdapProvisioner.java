@@ -19,14 +19,7 @@ package edu.internet2.middleware.grouper.pspng;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
@@ -72,6 +65,18 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
   private Set<String> existingOUs = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
   protected LdapSystem ldapSystem;
+  
+  /**
+   * LDAP ResultCodes that might occur from a schema-related violation, for example when
+   * the last member is removed from an LdapGroup that requires a member
+   */
+  public static Set<ResultCode> schemaRelatedLdapErrors = new HashSet<>();
+  static {
+    schemaRelatedLdapErrors.add(ResultCode.CONSTRAINT_VIOLATION);
+    schemaRelatedLdapErrors.add(ResultCode.LDAP_NOT_SUPPORTED);
+    schemaRelatedLdapErrors.add(ResultCode.UNWILLING_TO_PERFORM);
+    schemaRelatedLdapErrors.add(ResultCode.OBJECT_CLASS_VIOLATION);
+  }
   
   public LdapProvisioner(String provisionerName, ConfigurationClass config) 
   {
@@ -248,7 +253,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
    * These are not done right away so that multiple modifications can be implemented together
    * in batches. For example, LDAP servers can generally process a single ldap modification that
    * adds 10 values to an attribute MUCH faster than processing 10 single-value Modify-Add operations.
-   * @param workItem
    * @param operation
    */
   protected void scheduleLdapModification(ModifyRequest operation) {
@@ -281,7 +285,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         workItem.markAsSuccess("Modification complete");
       
     } catch (PspException e1) {
-      LOG.warn("Optimized, coalesced ldap provisioning failed:  {}", e1);
+      LOG.warn("Optimized, coalesced ldap provisioning failed", e1);
       LOG.warn("RETRYING: Performing much slower, unoptimized ldap provisioning after optimized provisioning failed");
       
         for ( ProvisioningWorkItem workItem : workItems ) {
@@ -399,6 +403,40 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       
       // TODO: Figure out what workItems conflict and make sure those groups are full-sync'ed
       // first
+
+      for ( String attributeName : (Collection<String>) attribute2ValuesToDel.keySet() ) {
+        Collection<String> valuesToRemove = (Collection<String>) attribute2ValuesToDel.get(attributeName);
+        if (valuesToRemove == null ) {
+          valuesToRemove = Collections.EMPTY_LIST;
+        }
+
+        Collection<String> valuesToAdd = (Collection<String>) attribute2ValuesToAdd.get(attributeName);
+        if ( valuesToAdd == null ) {
+          valuesToAdd = Collections.EMPTY_LIST;
+        }
+        
+        // Find the intersection between the values to add and remove
+        Set<String> valuesWithConflictingOperations = new HashSet<String>(valuesToRemove);
+        valuesWithConflictingOperations.retainAll(valuesToAdd);
+        
+        if ( valuesWithConflictingOperations.size() > 0 ) {
+          LOG.warn("Found {} conflicting ldap operations in event batch. Scheduling a full sync on affected groups", valuesWithConflictingOperations.size());
+
+          Set<GrouperGroupInfo> groupsNeedingFullSync = new HashSet<>();
+          
+          // Go through all the conflicting values and find the groups involved in the conflicts
+          for ( String conflictingProvisioningAttributeValue : valuesWithConflictingOperations ) {
+            // Look for the workItem that needed these values to be provisioned
+            for ( ProvisioningWorkItem workItem : workItems ) {
+              if ( isWorkItemMakingChange(workItem, dn, attributeName, conflictingProvisioningAttributeValue) ) {
+                groupsNeedingFullSync.add(workItem.getGroupInfo(this));
+              }
+            }
+          }
+        }
+      }
+        
+
       for ( String attributeName : (Collection<String>) attribute2ValuesToDel.keySet() ) {
         Collection<String> values = (Collection<String>) attribute2ValuesToDel.get(attributeName);
         List<List<String>> valueChunks = PspUtils.chopped(values, maxValues);
@@ -451,7 +489,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
           } catch (LdapException e) {
             LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}",
                 new Object[]{dn, mod, e});
-            throw new PspException("Coalesced LDAP Modification failed: {}",e.getMessage());
+            throw new PspException("Coalesced LDAP Modification failed: %s",e.getMessage());
           } 
         }
       } finally {
@@ -460,23 +498,55 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
+
+  protected boolean isWorkItemMakingChange(
+      ProvisioningWorkItem workItem,
+      String dn, String attributeName, String provisioningAttributeValue) {
+    
+    @SuppressWarnings("unchecked")
+    List<ModifyRequest> modRequests = (List) workItem.getProvisioningDataValues(LDAP_MOD_LIST);
+    
+    // This is complicated and nested because of the data structures involved, but it boils down to looking 
+    // through all the ldap changes and compare the following: DN, AttributeName, AttributeValue
+    for ( ModifyRequest modRequest : modRequests ) {
+      // Does the DN match?
+      if ( dn.equalsIgnoreCase(modRequest.getDn()) ) {
+        // Go through the attribute changes within the modRequest...
+        for ( AttributeModification attributeMod : modRequest.getAttributeModifications()) {
+          if ( attributeMod.getAttribute().getName().equalsIgnoreCase(attributeName) ) {
+            for ( String modValue : attributeMod.getAttribute().getStringValues() ) {
+              if ( modValue.equalsIgnoreCase(provisioningAttributeValue) ) {
+                
+                // Everything matches, so this is a match
+                
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return false;
+  }
+
   
   /**
    * This method is a backup plan to makeCoalescedLdapChanges and takes a simple approach 
    * to ldap provisioning. This is useful for two reasons: 1) It might work around a bug
    * buried in the complexity of coalescing changes; 2) It tells us which workItems 
    * have a problem because each workItem is done separately. 
-   * @param workItems
+   * @param workItem
    */
   private void makeIndividualLdapChanges(ProvisioningWorkItem workItem) throws PspException {
     List<ModifyRequest> mods = (List) workItem.getProvisioningDataValues(LDAP_MOD_LIST);
     
     if ( mods == null ) {
-      LOG.debug("No ldap changes are necessary for work item {}", workItem);
+      LOG.debug("{}: No ldap changes are necessary for work item {}", getName(), workItem);
       return;
     }
     
-    LOG.debug("Implementing changes for work item {}", workItem);
+    LOG.debug("{}: Implementing changes for work item {}", getName(), workItem);
     for ( ModifyRequest mod : mods ) {
       Connection conn = getLdapSystem().getLdapConnection();
       try {
@@ -494,15 +564,29 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
              mod.getAttributeModifications()[0].getAttributeModificationType() == AttributeModificationType.REMOVE &&
              (e.getResultCode() == ResultCode.NO_SUCH_ATTRIBUTE || 
               e.getResultCode() == ResultCode.NO_SUCH_OBJECT) )
-          LOG.info("Ignoring NO_SUCH_ATTRIBUTE/NO_SUCH_OBJECT error on an attribute removal operation: {}", mod);
+          LOG.info("{}: Ignoring NO_SUCH_ATTRIBUTE/NO_SUCH_OBJECT error on an attribute removal operation: {}", 
+              getName(), mod);
         
         else if ( mod.getAttributeModifications().length == 1 &&
             mod.getAttributeModifications()[0].getAttributeModificationType() == AttributeModificationType.ADD &&
             e.getResultCode() == ResultCode.ATTRIBUTE_OR_VALUE_EXISTS )
-         LOG.info("Ignoring ATTRIBUTE_OR_VALUE_EXISTS error on an attribute add operation: {}", mod);
+         LOG.info("{}: Ignoring ATTRIBUTE_OR_VALUE_EXISTS error on an attribute add operation: {}", getName(), mod);
         
+        else if ( schemaRelatedLdapErrors.contains(e.getResultCode()) ) {
+          // Is this possibly a problem with empty groups not being supported?
+          if ( !config.areEmptyGroupsSupported() ) {
+            LOG.warn("{}: Scheduling full sync due to possibly-schema-related error for {} / {} [error: {}]",
+                new Object[]{getName(), workItem, mod, e.getMessage()});
+            scheduleFullSync(workItem.getGroupInfo(this), "sync-after-possible-schema-violation");
+          }
+          else {
+            LOG.error("{}: LDAP Error that might be schema related. Perhaps you need to set emptyGroupsSupported=no?. {}/{}",
+                new Object[]{getName(), workItem, mod, e});
+            throw new PspException("LDAP Provisioning failed. %s", e.getMessage());
+          }
+        }
         else {
-          LOG.error("Ldap provisioning failed for {} / {}", new Object[]{workItem, mod, e});
+          LOG.error("{}: Ldap provisioning failed for {} / {}", new Object[]{getName(), workItem, mod, e});
           throw new PspException("LDAP Provisioning failed: %s", e.getMessage());
         }
       } finally {

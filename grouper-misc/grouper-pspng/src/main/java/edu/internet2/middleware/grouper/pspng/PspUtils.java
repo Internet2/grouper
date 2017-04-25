@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
@@ -32,9 +33,36 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import org.apache.log4j.MDC;
 
 
 public class PspUtils {
+  public static final String THREAD_ID_MDC = "pspng.threadid";
+
+  private static final ThreadLocal<String> threadId = new ThreadLocal<>();
+  private static final AtomicInteger threadCounter = new AtomicInteger(0);
+
+  /**
+   * Return a (unique) id for the current thread. This is both useful for logging because it is
+   * short and differentiates between two threads that might have the same name.
+   *
+   * @return
+   */
+  public static String getThreadId() {
+    if ( threadId.get() == null )
+      threadId.set("t-" + threadCounter.incrementAndGet());
+
+    return threadId.get();
+  }
+
+  /**
+   * A method that does PSPNG's standard thread setup. Presently, this is assigning a short
+   * threadId to the thread and putting that id into log4j's MDC. All new threads created by
+   * PSPNG should call this.
+   */
+  public static void setupNewThread() {
+    MDC.put(THREAD_ID_MDC, getThreadId());
+  }
 
   /**
    * chops a list into sublists of length L
