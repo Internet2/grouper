@@ -52,12 +52,17 @@ public class FullSyncStarter extends ChangeLogConsumerBase {
     Collection<String> provisionerJobNames = getProvisioningJobNames();
     
     LOG.info("Found {} provisioner jobs. Starting full-sync threads for them.: {}", provisionerJobNames.size(), provisionerJobNames);
-    
+
+    Boolean runFullSyncAtStartup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.psp.fullSync.runAtStartup");
     for ( String name : provisionerJobNames ) {
       FullSyncProvisioner fsProvisioner;
       try {
         fsProvisioner = FullSyncProvisionerFactory.getFullSyncer(name);
-        fsProvisioner.queueAllGroupsForFullSync();
+
+
+        if ( runFullSyncAtStartup != null && runFullSyncAtStartup ) {
+          fsProvisioner.queueAllGroupsForFullSync("full-sync-at-startup");
+        }
       } catch (PspException e) {
         LOG.error("Problem setting up full sync provisioner {}", name, e);
       }
@@ -67,7 +72,6 @@ public class FullSyncStarter extends ChangeLogConsumerBase {
   /**
    * This looks through the loader properties and pulls out the jobs that are Provisioning jobs
    * by looking at the class referred to in 'type' to see if it is a Provisioner subclass.
-   * @param provisionerJobs
    */
   protected Collection<String> getProvisioningJobNames() {
     List<String> provisionerJobNames = new ArrayList<String>();

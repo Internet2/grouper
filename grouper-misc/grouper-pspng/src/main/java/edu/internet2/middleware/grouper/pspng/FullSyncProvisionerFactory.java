@@ -16,6 +16,8 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,9 +41,12 @@ public class FullSyncProvisionerFactory {
       fullSyncers.put(name, fullSyncer);
       
       fullSyncer.start();
-      fullSyncer.queueAllGroupsForFullSync();
     }
     
     return fullSyncers.get(name);
+  }
+
+  public static synchronized FullSyncProvisioner getFullSyncer(Provisioner provisioner) throws PspException {
+    return getFullSyncer(provisioner.getName());
   }
 }

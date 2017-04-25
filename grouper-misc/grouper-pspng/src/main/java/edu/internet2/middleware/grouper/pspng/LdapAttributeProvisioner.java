@@ -207,7 +207,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
 
 
   @Override
-  protected LdapGroup createGroup(GrouperGroupInfo grouperGroup)
+  protected LdapGroup createGroup(GrouperGroupInfo grouperGroup, Collection<Subject> initialMembers)
       throws PspException {
     // We don't use LdapGroups, so there is nothing to do
     return null;

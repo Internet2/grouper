@@ -1,10 +1,6 @@
 package edu.internet2.middleware.grouper.pspng;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
@@ -86,7 +82,12 @@ public class GrouperGroupInfo {
   }
 
   public Set<Member> getMembers() {
-    return group.getMembers();
+    if ( group != null ) {
+      return group.getMembers();
+    }
+    else {
+      return new HashSet<>();
+    }
   }
 
   public Map<String, Object> getJexlMap() {
