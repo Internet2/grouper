@@ -90,8 +90,8 @@
                                   onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
                                   <option value="" ></option>
                                   <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.sqlDatabaseNames}" var="sqlDatabaseName">
-                                    <option value="${grouper:escapeJavascript(sqlDatabaseName.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderSqlDatabaseName == sqlDatabaseName.id ? 'selected="selected"' : '' } 
-                                      >${grouper:escapeJavascript(sqlDatabaseName.name)}</option>
+                                    <option value="${grouper:escapeHtml(sqlDatabaseName.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderSqlDatabaseName == sqlDatabaseName.id ? 'selected="selected"' : '' } 
+                                      >${grouper:escapeHtml(sqlDatabaseName.name)}</option>
                                   </c:forEach>
                                 </select>
                                 <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
@@ -109,7 +109,7 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlQueryId">${textContainer.text['grouperLoaderSqlQuery']}</label></strong></td>
                             <td>
                               <span style="white-space: nowrap">
-                                <input type="text" style="width: 60em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlQuery)}"
+                                <input type="text" style="width: 60em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlQuery)}"
                                    name="grouperLoaderSqlQueryName" id="grouperLoaderSqlQueryId" />
                                 <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                   data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -146,7 +146,7 @@
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderCronId">${textContainer.text['grouperLoaderSqlCron']}</label></strong></td>
                                 <td>
                                   <span style="white-space: nowrap">
-                                    <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderCron)}"
+                                    <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderCron)}"
                                        name="editLoaderCronName" id="editLoaderCronId" />
                                     <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                       data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -164,7 +164,7 @@
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderScheduleIntervalId">${textContainer.text['grouperLoaderSqlScheduleInterval']}</label></strong></td>
                                 <td>
                                   <span style="white-space: nowrap">
-                                    <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderScheduleInterval)}"
+                                    <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderScheduleInterval)}"
                                        name="editLoaderScheduleIntervalName" id="editLoaderScheduleIntervalId" />
                                     <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                       data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -178,7 +178,7 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderPriorityId">${textContainer.text['grouperLoaderSqlPriority']}</label></strong></td>
                             <td>
                               <span style="white-space: nowrap">
-                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderPriority)}"
+                                <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderPriority)}"
                                    name="editLoaderPriorityName" id="editLoaderPriorityId" />
                                 <br />
                                 <span class="description">
@@ -205,7 +205,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderAndGroupsId">${textContainer.text['grouperLoaderSqlAndGroups']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderAndGroups)}"
+                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderAndGroups)}"
                                  name="editLoaderAndGroupsName" id="editLoaderAndGroupsId" />
                               <br />
                               <c:forEach var="guiGroup" items="${grouperRequestContainer.grouperLoaderContainer.editLoaderAndGuiGroups}">
@@ -221,7 +221,7 @@
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupQueryId">${textContainer.text['grouperLoaderSqlGroupQuery']}</label></strong></td>
                               <td>
-                                <input type="text" style="width: 60em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlGroupQuery)}"
+                                <input type="text" style="width: 60em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlGroupQuery)}"
                                    name="grouperLoaderSqlGroupQueryName" id="grouperLoaderSqlGroupQueryId" />
                                 <br />
                                 <span class="description">
@@ -232,7 +232,7 @@
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderSqlGroupsLike']}</label></strong></td>
                               <td>
-                                <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
+                                <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
                                    name="grouperLoaderSqlGroupsLikeName" id="grouperLoaderSqlGroupsLikeId" />
                                 <br />
                                 <span class="description">
@@ -243,7 +243,7 @@
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupTypesId">${textContainer.text['grouperLoaderSqlGroupTypes']}</label></strong></td>
                               <td>
-                                <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"
+                                <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"
                                    name="grouperLoaderSqlGroupTypesName" id="grouperLoaderSqlGroupTypesId" />
                                 <br />
                                 <span class="description">
@@ -288,8 +288,8 @@
                                   onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
                                   <option value="" ></option>
                                   <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.ldapServerIds}" var="ldapServerId">
-                                    <option value="${grouper:escapeJavascript(ldapServerId.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapServerId == ldapServerId.id ? 'selected="selected"' : '' } 
-                                      >${grouper:escapeJavascript(ldapServerId.name)}</option>
+                                    <option value="${grouper:escapeHtml(ldapServerId.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapServerId == ldapServerId.id ? 'selected="selected"' : '' } 
+                                      >${grouper:escapeHtml(ldapServerId.name)}</option>
                                   </c:forEach>
                                 </select>
                                 <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
@@ -307,7 +307,7 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapFilterId">${textContainer.text['grouperLoaderLdapFilter']}</label></strong></td>
                             <td>
                               <span style="white-space: nowrap">
-                                <input type="text" style="width: 60em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapFilter)}"
+                                <input type="text" style="width: 60em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapFilter)}"
                                    name="grouperLoaderLdapFilterName" id="grouperLoaderLdapFilterId" />
                                 <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                   data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -324,7 +324,7 @@
 	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSubjectAttributeId">${textContainer.text['grouperLoaderLdapSubjectAttributeName']}</label></strong></td>
 	                          <td>
 	                            <span style="white-space: nowrap">
-		                          <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectAttributeName)}"
+		                          <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectAttributeName)}"
 		                              name="editLoaderLdapSubjectAttributeName" id="editLoaderLdapSubjectAttributeId" />
 	                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES'
 	                                    || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_SIMPLE'}">
@@ -343,7 +343,7 @@
 	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSearchDnId">${textContainer.text['grouperLoaderLdapSearchDn']}</label></strong></td>
 	                          <td>
 	                            <span style="white-space: nowrap">
-		                          <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchDn)}"
+		                          <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSearchDn)}"
 		                              name="editLoaderLdapSearchDnName" id="editLoaderLdapSearchDnId" />
 	                            </span>
 	                               
@@ -357,7 +357,7 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderCronId">${textContainer.text['grouperLoaderLdapQuartzCron']}</label></strong></td>
                             <td>
                               <span style="white-space: nowrap">
-                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderCron)}"
+                                <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderCron)}"
                                    name="editLoaderCronName" id="editLoaderCronId" />
                                 <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                   data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -375,8 +375,8 @@
                                 <select name="editLoaderLdapSourceName" id="editLoaderLdapSourceId" style="width: 40em">
                                   <option value="" ></option>
                                   <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.sources}" var="source">
-                                    <option value="${grouper:escapeJavascript(source.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSourceId == source.id ? 'selected="selected"' : '' } 
-                                      >${grouper:escapeJavascript(source.name)}</option>
+                                    <option value="${grouper:escapeHtml(source.id)}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSourceId == source.id ? 'selected="selected"' : '' } 
+                                      >${grouper:escapeHtml(source.name)}</option>
                                   </c:forEach>
                                 </select>
 	                            </span>
@@ -441,7 +441,7 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderPriorityId">${textContainer.text['grouperLoaderSqlPriority']}</label></strong></td>
                             <td>
                               <span style="white-space: nowrap">
-                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderPriority)}"
+                                <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderPriority)}"
                                    name="editLoaderPriorityName" id="editLoaderPriorityId" />
                                 <br />
                                 <span class="description">
@@ -468,7 +468,7 @@
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapAttributeFilterExpressionId">${textContainer.text['grouperLoaderLdapAttributeFilterExpression']}</label></strong></td>
                               <td>
-                                <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttributeFilterExpression)}"
+                                <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttributeFilterExpression)}"
                                    name="editLoaderLdapAttributeFilterExpressionName" id="editLoaderLdapAttributeFilterExpressionId" />
                                 <br /><span class="description">${textContainer.text['grouperLoaderLdapAttributeFilterExpressionDescription']}</span>
                                 
@@ -479,7 +479,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapSubjectExpressionId">${textContainer.text['grouperLoaderLdapSubjectExpression']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
+                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapSubjectExpression)}"
                                  name="editLoaderLdapSubjectExpressionName" id="editLoaderLdapSubjectExpressionId" />
                               <br /><span class="description">${textContainer.text['grouperLoaderLdapSubjectExpressionDescription']}</span>
                             </td>
@@ -489,7 +489,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapExtraAttributesId">${textContainer.text['grouperLoaderLdapExtraAttributes']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapExtraAttributes)}"
+	                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapExtraAttributes)}"
 	                                 name="editLoaderLdapExtraAttributesName" id="editLoaderLdapExtraAttributesId" />
 	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapExtraAttributesDescription']}</span>
 	                            </td>
@@ -502,7 +502,7 @@
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapGroupAttributeId">${textContainer.text['grouperLoaderLdapGroupAttributeName']}</label></strong></td>
 	                            <td>
                                 <span style="white-space: nowrap">
-  	                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupAttributeName)}"
+  	                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupAttributeName)}"
   	                                 name="editLoaderLdapGroupAttributeName" id="editLoaderLdapGroupAttributeId" />
                                   <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                     data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -515,7 +515,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderAndGroupsId">${textContainer.text['grouperLoaderSqlAndGroups']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 20em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderAndGroups)}"
+                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderAndGroups)}"
                                  name="editLoaderAndGroupsName" id="editLoaderAndGroupsId" />
                               <br />
                               <c:forEach var="guiGroup" items="${grouperRequestContainer.grouperLoaderContainer.editLoaderAndGuiGroups}">
@@ -532,7 +532,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderLdapGroupsLike']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
 	                                 name="grouperLoaderSqlGroupsLikeName" id="grouperLoaderSqlGroupsLikeId" />
 	                              <br />
 	                              <span class="description">
@@ -542,7 +542,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderGroupNameExpressionId">${textContainer.text['grouperLoaderLdapGroupNameExpression']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupNameExpression)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupNameExpression)}"
 	                                 name="grouperLoaderGroupNameExpressionName" id="grouperLoaderGroupNameExpressionId" />
 	                              <br />
 	                              <span class="description">
@@ -553,7 +553,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapGroupDisplayNameId">${textContainer.text['grouperLoaderLdapGroupDisplayNameExpression']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupDisplayNameExpression)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupDisplayNameExpression)}"
 	                                 name="grouperLoaderLdapGroupDisplayNameName" id="grouperLoaderLdapGroupDisplayNameId" />
 	                              <br />
 	                              <span class="description">
@@ -563,7 +563,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapGroupDescriptionId">${textContainer.text['grouperLoaderLdapGroupDescriptionExpression']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupDescriptionExpression)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapGroupDescriptionExpression)}"
 	                                 name="grouperLoaderLdapGroupDescriptionName" id="grouperLoaderLdapGroupDescriptionId" />
 	                              <br />
 	                              <span class="description">
@@ -574,7 +574,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupTypesId">${textContainer.text['grouperLoaderLdapGroupTypes']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"
 	                                 name="grouperLoaderSqlGroupTypesName" id="grouperLoaderSqlGroupTypesId" />
 	                              <br />
 	                              <span class="description">
@@ -584,7 +584,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapReadersId">${textContainer.text['grouperLoaderLdapReaders']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapReaders)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapReaders)}"
 	                                 name="grouperLoaderLdapReadersName" id="grouperLoaderLdapReadersId" />
 	                              <br />
 	                              <span class="description">
@@ -595,7 +595,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapViewersId">${textContainer.text['grouperLoaderLdapViewers']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapViewers)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapViewers)}"
 	                                 name="grouperLoaderLdapViewersName" id="grouperLoaderLdapViewersId" />
 	                              <br />
 	                              <span class="description">
@@ -606,7 +606,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapAdminsId">${textContainer.text['grouperLoaderLdapAdmins']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAdmins)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAdmins)}"
 	                                 name="grouperLoaderLdapAdminsName" id="grouperLoaderLdapAdminsId" />
 	                              <br />
 	                              <span class="description">
@@ -617,7 +617,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapUpdatersId">${textContainer.text['grouperLoaderLdapUpdaters']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapUpdaters)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapUpdaters)}"
 	                                 name="grouperLoaderLdapUpdatersName" id="grouperLoaderLdapUpdatersId" />
 	                              <br />
 	                              <span class="description">
@@ -628,7 +628,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapOptinsId">${textContainer.text['grouperLoaderLdapOptins']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapOptins)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapOptins)}"
 	                                 name="grouperLoaderLdapOptinsName" id="grouperLoaderLdapOptinsId" />
 	                              <br />
 	                              <span class="description">
@@ -639,7 +639,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapOptoutsId">${textContainer.text['grouperLoaderLdapOptouts']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapOptouts)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapOptouts)}"
 	                                 name="grouperLoaderLdapOptoutsName" id="grouperLoaderLdapOptoutsId" />
 	                              <br />
 	                              <span class="description">
@@ -650,7 +650,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapAttrReadersId">${textContainer.text['grouperLoaderLdapAttrReaders']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrReaders)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrReaders)}"
 	                                 name="grouperLoaderLdapAttrReadersName" id="grouperLoaderLdapAttrReadersId" />
 	                              <br />
 	                              <span class="description">
@@ -661,7 +661,7 @@
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapUpdatersId">${textContainer.text['grouperLoaderLdapAttrUpdaters']}</label></strong></td>
 	                            <td>
-	                              <input type="text" style="width: 40em" value="${grouper:escapeJavascript(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrUpdaters)}"
+	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapAttrUpdaters)}"
 	                                 name="grouperLoaderLdapUpdaters" id="grouperLoaderLdapUpdatersId" />
 	                              <br />
 	                              <span class="description">
