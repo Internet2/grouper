@@ -2,7 +2,9 @@ package edu.internet2.middleware.grouper.app.attestation;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -81,6 +83,13 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_STEM_SCOPE = "attestationStemScope";
 
+  /**
+   * 
+   * @return the stem name
+   */
+  public static String attestationStemName() {
+    return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation";
+  }
   
   /**
    * logger 
@@ -99,17 +108,39 @@ public class GrouperAttestationJob extends OtherJobBase {
     
     for (AttributeAssign attributeAssign: groupAttributeAssigns) {
       
-      String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DATE_CERTIFIED);
-      String attestationDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_UNTIL_RECERTIFY);
-      String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_SEND_EMAIL);
-      String attestationDaysBeforeToRemind = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_BEFORE_TO_REMIND);
+      String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DATE_CERTIFIED);
+      String attestationDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY);
+      String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_SEND_EMAIL);
+      String attestationDaysBeforeToRemind = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND);
       
       boolean sendEmailAttributeValue = GrouperUtil.booleanValue(attestationSendEmail, true);
       // skip sending email for this attribute assign
       if (!sendEmailAttributeValue) {
-        LOG.info("For "+attributeAssign.getOwnerGroup().getDisplayName()+" attestationSendEmail attribute is set to true so skipping sending email.");
+        LOG.debug("For "+attributeAssign.getOwnerGroup().getDisplayName()+" attestationSendEmail attribute is set to true so skipping sending email.");
         continue;
       }
+
+      
+      try {
+        String attestationLastEmailedDate = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_LAST_EMAILED_DATE);
+        if (!StringUtils.isBlank(attestationLastEmailedDate)) {
+          Date lastEmailedDate = new SimpleDateFormat("yyyy/MM/dd").parse(attestationLastEmailedDate);
+          //must not be today
+          Calendar calendar = new GregorianCalendar();
+          calendar.set(Calendar.HOUR_OF_DAY, 0);
+          calendar.set(Calendar.MINUTE, 0);
+          calendar.set(Calendar.SECOND, 0);
+          calendar.set(Calendar.MILLISECOND, 0);
+          if (lastEmailedDate.getTime() == calendar.getTimeInMillis()) {
+            LOG.debug("For "+attributeAssign.getOwnerGroup().getDisplayName()+" attestationLastEmailedDate attribute is set to today so skipping sending email.");
+            continue;
+          }
+        }
+      } catch (ParseException e) {
+        LOG.error("Could not convert "+attestationDateCertified+" to date. Attribute assign id is: "+attributeAssign.getId(), e);
+        continue;
+      }
+
       
       int daysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
       if (! StringUtils.isBlank(attestationDaysUntilRecertify)) {
@@ -135,7 +166,7 @@ public class GrouperAttestationJob extends OtherJobBase {
             sendEmail = true;
           }
         } catch (ParseException e) {
-          LOG.error("Could not convert "+attestationDateCertified+" to date. Attribute assign id is: "+attributeAssign.getId());
+          LOG.error("Could not convert "+attestationDateCertified+" to date. Attribute assign id is: "+attributeAssign.getId(), e);
           continue;
         }
       }
@@ -160,7 +191,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   private String[] getEmailAddresses(AttributeAssign attributeAssign, Group group) {
     
-    String attestationEmailAddresses = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_EMAIL_ADDRESSES);
+    String attestationEmailAddresses = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES);
     String[] emailAddresses = null;
     if (StringUtils.isBlank(attestationEmailAddresses)) {
       
@@ -229,9 +260,9 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
-    AttributeDef attributeDef = AttributeDefFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DEF, false);
+    AttributeDef attributeDef = AttributeDefFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DEF, false);
     if (attributeDef == null) {
-      LOG.error(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + "attestationDef attribute def doesn't exist. Job will not proceed.");
+      LOG.error(GrouperAttestationJob.attestationStemName() + ":" + "attestationDef attribute def doesn't exist. Job will not proceed.");
       return null;
     }
     
@@ -244,23 +275,38 @@ public class GrouperAttestationJob extends OtherJobBase {
     
     Map<String, Set<EmailObject>> emails = buildAttestationGroupEmails(groupAttributeAssigns);
     
-    LOG.info("got "+emails.size()+" from group attributes.");
-    
-    LOG.info("Starting building map from stem attributes.");
+    LOG.info("got "+emails.size()+" from group attributes, starting building map from stem attributes.");
+
+    otherJobInput.getHib3GrouperLoaderLog().store();
     
     Map<String, Set<EmailObject>> stemEmails = buildAttestationStemEmails(attributeDef);
     
-    LOG.info("got "+stemEmails.size()+" from stem attributes.");
+    LOG.info("got "+stemEmails.size()+" from stem attributes, start merging group and stem attributes.");
+    otherJobInput.getHib3GrouperLoaderLog().store();
 
-    LOG.info("start merging group and stem attributes.");
     mergeEmailObjects(emails, stemEmails);
     
-    LOG.info("start sending emails to "+emails.size()+" email addresses.");
-    sendEmail(emails);
+    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(emails.size());
+    otherJobInput.getHib3GrouperLoaderLog().store();
     
+    LOG.info("start sending emails to "+emails.size()+" email addresses.");
+
+    sendEmail(emails);
+
+    otherJobInput.getHib3GrouperLoaderLog().store();
+
     LOG.info("Set attestationLastEmailedDate attribute to each of the groups.");
     setLastEmailedDate(emails, otherJobInput.getGrouperSession());
+
+    //count line items
+    int lineItems = 0;
+    for (String email : GrouperUtil.nonNull(emails).keySet()) {
+      lineItems += GrouperUtil.length(emails.get(email));
+    }
     
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Sent " + emails.size() + " emails with " 
+        + lineItems + " line items about " + GrouperUtil.length(groupAttributeAssigns) + " attestation assignments");
+
     LOG.info("GrouperAttestationJob finished successfully.");
     return null;
     
@@ -274,16 +320,16 @@ public class GrouperAttestationJob extends OtherJobBase {
   private void sendEmail(Map<String, Set<EmailObject>> emailObjects) {
     String uiUrl = GrouperConfig.getGrouperUiUrl(false);
     if (StringUtils.isBlank(uiUrl)) {
-      LOG.error("uiUrl is blank/null. Please fix that first. GrouperAttestationJob will not proceed. No emails have been sent.");
+      LOG.error("grouper.properties grouper.ui.url is blank/null. Please fix that first. GrouperAttestationJob will not proceed. No emails have been sent.");
     }
     
     String subject = GrouperConfig.retrieveConfig().propertyValueString("attestation.reminder.email.subject");
     String body = GrouperConfig.retrieveConfig().propertyValueString("attestation.reminder.email.body");
     if (StringUtils.isBlank(subject)) {
-      subject = "You have $groupCount$ grouper groups that require attestation.";
+      subject = "You have $groupCount$ groups that require attestation";
     }
     if (StringUtils.isBlank(body)) {
-      body = "You need to attest the memberships of the following groups:";
+      body = "You need to attest the memberships of the following groups.  Review the memberships of each group and click: More actions -> Attestation -> Members of this group have been reviewed";
     }
     
     for (Map.Entry<String, Set<EmailObject>> entry: emailObjects.entrySet()) {
@@ -335,14 +381,14 @@ public class GrouperAttestationJob extends OtherJobBase {
       for (EmailObject emailObject: entry.getValue()) { 
         Group group = GroupFinder.findByUuid(session, emailObject.getGroupId(), false);
         if (group != null) {
-          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_VALUE_DEF, false);
-          if (!group.getAttributeDelegate().hasAttributeByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_VALUE_DEF)) {
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF, false);
+          if (!group.getAttributeDelegate().hasAttributeByName(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF)) {
             group.getAttributeDelegate().assignAttribute(attributeDefName);
           } 
           AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
           
           String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-          attributeAssign.getAttributeValueDelegate().assignValue(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_LAST_EMAILED_DATE, date);
+          attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_LAST_EMAILED_DATE, date);
          
           attributeAssign.saveOrUpdate(false);
         }
@@ -383,22 +429,22 @@ public class GrouperAttestationJob extends OtherJobBase {
         null, 
         Boolean.TRUE, false);
     
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_VALUE_DEF, false);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF, false);
     
     Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
     
     for (AttributeAssign attributeAssign: attributeAssigns) {
       
-      String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_SEND_EMAIL);
+      String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_SEND_EMAIL);
       
       boolean sendEmailAttributeValue = GrouperUtil.booleanValue(attestationSendEmail, true);
       // skip sending email for this attribute assign
       if (!sendEmailAttributeValue) {
-        LOG.info("For "+attributeAssign.getOwnerStem().getDisplayName()+" attestationSendEmail attribute is set to true so skipping sending email.");
+        LOG.debug("For "+attributeAssign.getOwnerStem().getDisplayName()+" attestationSendEmail attribute is not set to true so skipping sending email.");
         continue;
       }
       
-      String attestationStemScope = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_STEM_SCOPE);
+      String attestationStemScope = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_STEM_SCOPE);
       
       // go through each group and check if they have their own attestation attribute and use them if they are present.
       // if not, then use the stem attributes.
@@ -409,9 +455,9 @@ public class GrouperAttestationJob extends OtherJobBase {
         
         if (group.getAttributeDelegate().hasAttribute(attributeDefName)) { // group has attestation
           
-          AttributeAssignable attributeAssignable = group.getAttributeDelegate().getAttributeOrAncestorAttribute(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_VALUE_DEF, false);
+          AttributeAssignable attributeAssignable = group.getAttributeDelegate().getAttributeOrAncestorAttribute(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF, false);
           AttributeAssign groupAttributeAssign = attributeAssignable.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-          String attestationDirectAssignment = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DIRECT_ASSIGNMENT);
+          String attestationDirectAssignment = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DIRECT_ASSIGNMENT);
           if (GrouperUtil.booleanValue(attestationDirectAssignment, false)) { // group has direct attestation, don't use stem attributes at all.
             Set<AttributeAssign> singleGroupAttributeAssign = new HashSet<AttributeAssign>();
             singleGroupAttributeAssign.add(groupAttributeAssign);
@@ -422,19 +468,19 @@ public class GrouperAttestationJob extends OtherJobBase {
             AttributeAssign clonedGroupAttributeAssign = groupAttributeAssign.clone();
             
             // we need to overwrite the null/blank group attestation attributes with stem attestation attributes.
-            if (StringUtils.isBlank(clonedGroupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_EMAIL_ADDRESSES))) {
-              clonedGroupAttributeAssign.getAttributeValueDelegate().assignValue(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_EMAIL_ADDRESSES,
-                  attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_EMAIL_ADDRESSES));
+            if (StringUtils.isBlank(clonedGroupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES))) {
+              clonedGroupAttributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES,
+                  attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES));
             }
             
-            if (StringUtils.isBlank(clonedGroupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_BEFORE_TO_REMIND))) {
-              clonedGroupAttributeAssign.getAttributeValueDelegate().assignValue(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_BEFORE_TO_REMIND,
-                  attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_BEFORE_TO_REMIND));
+            if (StringUtils.isBlank(clonedGroupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND))) {
+              clonedGroupAttributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND,
+                  attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND));
             }
             
-            if (StringUtils.isBlank(clonedGroupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_UNTIL_RECERTIFY))) {
-              clonedGroupAttributeAssign.getAttributeValueDelegate().assignValue(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_UNTIL_RECERTIFY,
-                  attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:attestation:" + ATTESTATION_DAYS_UNTIL_RECERTIFY));
+            if (StringUtils.isBlank(clonedGroupAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY))) {
+              clonedGroupAttributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY,
+                  attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY));
             }
             
             Set<AttributeAssign> singleGroupAttributeAssign = new HashSet<AttributeAssign>();

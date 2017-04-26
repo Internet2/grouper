@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -1904,7 +1905,66 @@ public class GrouperCheckConfig {
         }        
 
       }
+      {
+        
+        String attestationRootStemName = GrouperAttestationJob.attestationStemName();
+        
+        Stem attestationStem = StemFinder.findByName(grouperSession, attestationRootStemName, false);
+        if (attestationStem == null) {
+          attestationStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper attestation attributes").assignName(attestationRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String attestationTypeDefName = attestationRootStemName + ":attestationDef";
+        AttributeDef attestationType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            attestationTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (attestationType == null) {
+          attestationType = attestationStem.addChildAttributeDef("attestationDef", AttributeDefType.type);
+          attestationType.setAssignToGroup(true);
+          attestationType.setAssignToStem(true);
+          attestationType.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(attestationStem, attestationType, "attestation", "has attestation attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String attestationAttrDefName = attestationRootStemName + ":attestationValueDef";
+        AttributeDef attestationAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            attestationAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (attestationAttrType == null) {
+          attestationAttrType = attestationStem.addChildAttributeDef("attestationValueDef", AttributeDefType.attr);
+          attestationAttrType.setAssignToGroupAssn(true);
+          attestationAttrType.setAssignToStemAssn(true);
+          attestationAttrType.setValueType(AttributeDefValueType.string);
+          attestationAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        attestationAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+
+        //add some names
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_DATE_CERTIFIED, 
+            "Last certified date for this group", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_DAYS_BEFORE_TO_REMIND,
+            "Number of days before attestation deadline to start sending emails about it to owners", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_DAYS_UNTIL_RECERTIFY,
+            "Number of days until need to recertify from last certification", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_DIRECT_ASSIGNMENT,
+            "If this group has attestation settings and not inheriting from ancestor folders (group only)", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_EMAIL_ADDRESSES,
+            "Comma separated email addresses to send reminders to, if blank then send to group admins", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_LAST_EMAILED_DATE,
+            "yyyy/mm/dd date that this was last emailed so multiple emails don't go out on same day (group only)", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_SEND_EMAIL,
+            "true or false if emails should be sent", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_STEM_SCOPE,
+            "one or sub for if attestation settings inherit to just this folder or also to subfolders (folder only)", wasInCheckConfig);
       
+      }
       {
         String rulesRootStemName = RuleUtils.attributeRuleStemName();
         
