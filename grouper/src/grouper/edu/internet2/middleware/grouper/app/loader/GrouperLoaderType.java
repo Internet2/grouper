@@ -40,6 +40,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -170,6 +171,50 @@ public enum GrouperLoaderType {
       
     }
   }, 
+  
+  /**
+   * other job
+   */
+  OTHER_JOB {
+
+    @Override
+    public boolean attributeRequired(String attributeName) {
+      return false;
+    }
+
+    @Override
+    public void runJob(LoaderJobBean loaderJobBean) {
+      
+      // OTHER_JOB_attestationDaemon
+      String jobName = loaderJobBean.getHib3GrouploaderLogOverall().getJobName();
+      
+      String otherJobConfigName = null;
+      
+      if (jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX)) {
+        otherJobConfigName = jobName.substring(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX.length());
+      }
+      
+      String classKey = "otherJob." + otherJobConfigName + ".class";
+
+      String jobClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString(classKey);
+      Class<Job> jobClass = GrouperUtil.forName(jobClassName);
+      Job job = GrouperUtil.newInstance(jobClass);
+      
+      if (job instanceof OtherJobBase) {
+        ((OtherJobBase)job).execute(jobName, loaderJobBean.getHib3GrouploaderLogOverall());
+      } else {
+        throw new RuntimeException("The OtherJob should extend " + OtherJobBase.class.getName() 
+            + ", but it is: " + job.getClass().getName());
+      }
+      
+    }
+
+    @Override
+    public boolean attributeOptional(String attributeName) {
+      return false;
+    }
+    
+  },
   
   /** 
    * various maintenance jobs on the system
