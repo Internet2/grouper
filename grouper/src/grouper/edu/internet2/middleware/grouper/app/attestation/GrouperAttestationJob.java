@@ -101,7 +101,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    * @param groupAttributeAssigns
    * @return
    */
-  private Map<String, Set<EmailObject>> buildAttestationGroupEmails(Set<AttributeAssign> groupAttributeAssigns) {
+  protected Map<String, Set<EmailObject>> buildAttestationGroupEmails(Set<AttributeAssign> groupAttributeAssigns) {
     
     // map of email address to email object (group id, group name, ccList)
     Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
