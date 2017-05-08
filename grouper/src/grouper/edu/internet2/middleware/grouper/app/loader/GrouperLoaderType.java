@@ -1262,6 +1262,7 @@ public enum GrouperLoaderType {
         Thread thread = new Thread(new Runnable() {
 
           public void run() {
+            GrouperSession grouperSession = GrouperSession.startRootSession();
             try {
               LOG.info("Running " + PSP_FULL_SYNC.name());
               GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
@@ -1273,6 +1274,7 @@ public enum GrouperLoaderType {
               runtimeException[0] = re;
             } finally {
               done[0] = true;
+              GrouperSession.stopQuietly(grouperSession);
             }
           }
           
