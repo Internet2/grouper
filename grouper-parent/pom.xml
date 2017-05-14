@@ -40,6 +40,7 @@
         <module>../grouper-misc/grouper-installer</module>
         <module>../grouper-misc/grouper-voot</module>
         <module>../grouper-misc/grouperActivemq</module>
+        <module>../grouper-misc/grouper-messaging-rabbitmq</module>
         <module>../grouper-misc/grouper-pspng</module>
     </modules>
 
