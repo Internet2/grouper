@@ -40,8 +40,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -84,7 +82,6 @@ public class GrouperStatusServlet extends HttpServlet {
    */
   public static synchronized void incrementNumberOfRequest() {
     numberOfRequests++;
-    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.WS_REQUESTS.name());
   }
   
   /** count the number of errors since server start */
