@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -630,8 +631,7 @@ public class GrouperServiceJ2ee implements Filter {
    * filter method
    */
   public void destroy() {
-    // not needed
-
+    InstrumentationThread.shutdownThread();
   }
 
   public void doFilter(ServletRequest request, ServletResponse response,
@@ -689,7 +689,7 @@ public class GrouperServiceJ2ee implements Filter {
    * filter method
    */
   public void init(FilterConfig arg0) throws ServletException {
-    // not needed
+    InstrumentationThread.startThread(GrouperEngineBuiltin.WS, null);
   }
 
 }
