@@ -35,6 +35,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -103,7 +105,8 @@ public class GrouperRestServlet extends HttpServlet {
     GrouperStartup.startup();
 
     GrouperStatusServlet.incrementNumberOfRequest();
-    
+    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.WS_REQUESTS.name());
+
     GrouperServiceJ2ee.assignHttpServlet(this);
     restRequest.set(true);
     List<String> urlStrings = null;
