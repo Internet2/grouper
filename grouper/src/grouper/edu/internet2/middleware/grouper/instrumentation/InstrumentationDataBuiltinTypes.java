@@ -26,6 +26,11 @@ public enum InstrumentationDataBuiltinTypes {
   UI_REQUESTS,
   
   /**
+   * Hits to servlet
+   */
+  WS_REQUESTS,
+  
+  /**
    * folder add
    */
   API_STEM_ADD,
