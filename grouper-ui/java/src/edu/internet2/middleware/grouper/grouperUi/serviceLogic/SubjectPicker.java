@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -424,7 +425,12 @@ public class SubjectPicker {
           }
         }
       } else {
-        Subject subject = SubjectFinder.findByIdOrIdentifier(searchField, false);
+        Subject subject = null;
+        try {
+          subject = SubjectFinder.findByIdOrIdentifier(searchField, false);
+        } catch (SubjectNotUniqueException snue) {
+          //ignore
+        }
         if (subject != null) {
           idOrIdentifierSubjects.add(subject);
         }

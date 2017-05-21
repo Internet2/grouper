@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * operations in the group screen
@@ -250,7 +251,11 @@ public class UiV2ExternalEntities {
                   //is it an externalSubject?
                   Subject subjectToAssign = SubjectFinder.findByIdOrIdentifierAndSource(loginId, ExternalSubject.sourceId(), false);
                   if (subjectToAssign == null) {
-                    subjectToAssign = SubjectFinder.findByIdOrIdentifier(loginId, false);
+                    try {
+                      subjectToAssign = SubjectFinder.findByIdOrIdentifier(loginId, false);
+                    } catch (SubjectNotUniqueException snue) {
+                      //ignore
+                    }
                   }
                   if (subjectToAssign == null) {
                     //if it is still null, then it doesnt exist... lets validate it

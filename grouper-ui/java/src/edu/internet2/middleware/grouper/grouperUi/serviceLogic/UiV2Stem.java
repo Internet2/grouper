@@ -99,6 +99,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * operations in the stem screen
@@ -2415,7 +2416,11 @@ public class UiV2Stem {
         subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
   
       } else {
-        subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+        try {
+          subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+        } catch (SubjectNotUniqueException snue) {
+          //ignore
+        }
       }
   
       if (subject == null) {
@@ -2700,7 +2705,11 @@ public class UiV2Stem {
         subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
   
       } else {
-        subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+        try {
+          subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+        } catch (SubjectNotUniqueException snue) {
+          //ignore
+        }
       }
   
       if (subject == null) {
