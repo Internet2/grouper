@@ -849,42 +849,51 @@ function ajax(theUrl, options) {
       //what happens is there is an XSRF problem, and ajax will auto-redirect
       //the result of that redirect, to: https://server/grouperAppName/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=csrf&OWASP_CSRFTOKEN=abc123
       //that redirect will have an HTTP header of X-Grouper-path, and we should redirect the browser to it
-      var grouperPath = jqXHR.getResponseHeader("X-Grouper-path");
-      if (!guiIsEmpty(grouperPath)) {
-        grouperPath = decodeURIComponent(grouperPath);
-        
-        //if this path is for XSRF, then lets just refresh the browser and alert an error message
-        //../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=csrf&OWASP_CSRFTOKEN=OOEE-4GAC-VUIS-YI7V-9BTD-X7MD-NO7E-AM8F
-        //TODO in Grouper 2.3+ the indexOf UiV2 can be taken out
-        if (grouperPath.indexOf('code=csrf') >= 0 && location.href.indexOf('UiV2') >= 0) {
+      
+      //if we are already on an error page, then stay there...
+      if (location.href.indexOf('function=UiV2Public.error') == -1) {
+      
+        var grouperPath = jqXHR.getResponseHeader("X-Grouper-path");
+        if (!guiIsEmpty(grouperPath)) {
+          grouperPath = decodeURIComponent(grouperPath);
           
-          //there are two cases, if it was a get, or if it is a post...
-          //well both are posts, but the "gets" are the ones that go into the URL for the back button, thats how we can tell
-          //so look in the ajax url, and see what the operation is, and compare to the browser url
-          var grouperOriginalAjaxOperation = guiGetOperationFromUrl(grouperOriginalAjaxUrl);
-          var locationOperation = guiGetOperationFromUrl(location.href);
-
-          //lets add something bogus to the request so the request is actually sent and not retrieved from cache
-          var newLocation=location.href;
-          if (newLocation.indexOf('?') == -1) {
-            newLocation += '?csrfExtraParam=xyz';
-          } else {
-            newLocation += '&csrfExtraParam=xyz';
-          }
-
-          //this means its a post
-          if (grouperOriginalAjaxOperation != null && grouperOriginalAjaxOperation != locationOperation) {
-            alert(grouperCsrfText);            
-          }
-          
-          location.href=newLocation;
+          //if this path is for XSRF, then lets just refresh the browser and alert an error message
+          //../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=csrf&OWASP_CSRFTOKEN=OOEE-4GAC-VUIS-YI7V-9BTD-X7MD-NO7E-AM8F
+          //TODO in Grouper 2.3+ the indexOf UiV2 can be taken out
+          if (grouperPath.indexOf('code=csrf') >= 0 && location.href.indexOf('UiV2') >= 0) {
+            
+            //there are two cases, if it was a get, or if it is a post...
+            //well both are posts, but the "gets" are the ones that go into the URL for the back button, thats how we can tell
+            //so look in the ajax url, and see what the operation is, and compare to the browser url
+            var grouperOriginalAjaxOperation = guiGetOperationFromUrl(grouperOriginalAjaxUrl);
+            var locationOperation = guiGetOperationFromUrl(location.href);
+  
+            //lets add something bogus to the request so the request is actually sent and not retrieved from cache
+            var newLocation=location.href;
+            
+            if (newLocation.indexOf('csrfExtraParam') == -1) {
+            
+              if (newLocation.indexOf('?') == -1) {
+                newLocation += '?csrfExtraParam=xyz';
+              } else {
+                newLocation += '&csrfExtraParam=xyz';
+              }
+    
+              //this means its a post
+              if (grouperOriginalAjaxOperation != null && grouperOriginalAjaxOperation != locationOperation) {
+                alert(grouperCsrfText);            
+              }
+              
+              location.href=newLocation;
+              return;
+            }
+          }      
+          location.href=grouperPath;
           return;
-        }      
-        location.href=grouperPath;
-        return;
+        }
+  
+        location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError";
       }
-
-      location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError";
       
     },
     //TODO process the response object
