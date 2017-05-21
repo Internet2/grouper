@@ -30,6 +30,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.axis2.transport.http.AxisServlet;
 
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication;
@@ -56,6 +58,7 @@ public class GrouperServiceAxisServlet extends AxisServlet {
     GrouperStartup.startup();
     
     GrouperStatusServlet.incrementNumberOfRequest();
+    InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.WS_REQUESTS.name());
 
     //stash in threadlocal, make sure this is first in this method!
     GrouperServiceJ2ee.assignHttpServlet(this);
