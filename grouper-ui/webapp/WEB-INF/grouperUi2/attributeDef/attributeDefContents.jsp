@@ -20,7 +20,7 @@
                       <th class="sorted">${textContainer.text['attributeDefHeaderStem'] }</th>
                       <th class="sorted">${textContainer.text['attributeDefHeaderName'] }</th>
                       <c:if test="${isAdmin}" >
-                        <th style="width:100px;"></th>
+                        <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                       </c:if>
                     </tr>
                   </thead>
@@ -31,7 +31,8 @@
                         <c:if test="${isAdmin}" >
                           <td>
                             <label class="checkbox checkbox-no-padding">
-                              <input type="checkbox" name="attributeDefName_${i}" value="${guiAttributeDefName.attributeDefName.id}" class="attributeDefNameCheckbox" />
+                              <input type="checkbox" name="attributeDefName_${i}" aria-label="${textContainer.text['attributeDefDetailsCheckboxAriaLabel']}"
+                               value="${guiAttributeDefName.attributeDefName.id}" class="attributeDefNameCheckbox" />
                             </label>
                           </td>
                         </c:if>

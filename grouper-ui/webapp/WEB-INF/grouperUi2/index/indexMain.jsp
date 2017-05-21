@@ -16,7 +16,7 @@
   
                   <table class="table table-bottom-borders">
                     <thead>
-                    	<tr class="hidden">
+                    	<tr>
                     		<th>${textContainer.text['indexRecentActivityTableHeader']}</th>
                     		<th>${textContainer.text['indexRecentActivityDateTableHeader']}</th>
                     	</tr>

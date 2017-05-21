@@ -20,7 +20,7 @@
                       <th data-hide="phone,medium">${textContainer.text['thisGroupsMembershipsFolderColumn'] }</th>
                       <th>${textContainer.text['thisGroupsMembershipsGroupColumn'] }</th>
                       <th data-hide="phone,medium">${textContainer.text['thisGroupsMembershipsMembershipColumn'] }</th>
-                      <th style="width:100px;"></th>
+                      <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -34,7 +34,8 @@
                               <c:choose>
                                 <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate
                                     && grouper:canHavePrivilege(guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner, 'update') }">
-                                  <input type="checkbox" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
+                                  <input type="checkbox" name="membershipRow_${i}" aria-label="${textContainer.text['groupMembershipsInOtherGropusCheckboxAriaLabel'] }"
+                                  value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
                                 </c:when>
                                 <c:otherwise>
                                   <input type="checkbox" disabled="disabled"/>
