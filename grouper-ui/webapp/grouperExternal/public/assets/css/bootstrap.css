@@ -2868,6 +2868,7 @@ input[type="submit"].btn.btn-mini {
 }
 .nav-list > li > a {
   padding: 3px 15px;
+  color: #1c6070;
 }
 .nav-list > .active > a,
 .nav-list > .active > a:hover {
@@ -4750,12 +4751,12 @@ p {
 .btn-create {
   color: #ffffff;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #6fa9be;
-  background-image: -moz-linear-gradient(top, #7db1c4, #5a9cb4);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#7db1c4), to(#5a9cb4));
-  background-image: -webkit-linear-gradient(top, #7db1c4, #5a9cb4);
-  background-image: -o-linear-gradient(top, #7db1c4, #5a9cb4);
-  background-image: linear-gradient(to bottom, #7db1c4, #5a9cb4);
+  background-color: #1c6070;
+  background-image: -moz-linear-gradient(top, #7db1c4, #1c6070);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#7db1c4), to(#1c6070));
+  background-image: -webkit-linear-gradient(top, #7db1c4, #1c6070);
+  background-image: -o-linear-gradient(top, #7db1c4, #1c6070);
+  background-image: linear-gradient(to bottom, #7db1c4, #1c6070);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff7db1c4', endColorstr='#ff5a9cb4', GradientType=0);
   border-color: #5a9cb4 #5a9cb4 #3c7285;
@@ -4772,7 +4773,7 @@ p {
 .btn-create.disabled,
 .btn-create[disabled] {
   color: #ffffff;
-  background-color: #5a9cb4;
+  background-color: #1c6070;
   *background-color: #4c90a8;
 }
 .btn-create:active,

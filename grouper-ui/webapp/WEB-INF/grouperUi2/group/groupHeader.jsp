@@ -5,7 +5,10 @@
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
-                  <div class="span10">
+                  <div class="span2 pull-right" id="groupMoreActionsButtonContentsDivId">
+                    <%@ include file="groupMoreActionsButtonContents.jsp"%>
+                  </div>
+                  <div class="span10 pull-left">
                     <h1><i class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</h1>
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
@@ -203,9 +206,6 @@
                     </div>
                     <p id="groupDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}" id="moreButtonId" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
                     <p id="groupDetailsLessId" style="display: none"><a href="#" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
-                  </div>
-                  <div class="span2" id="groupMoreActionsButtonContentsDivId">
-                    <%@ include file="groupMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
               </div>

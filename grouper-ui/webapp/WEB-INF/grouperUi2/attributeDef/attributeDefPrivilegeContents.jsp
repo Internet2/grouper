@@ -62,7 +62,7 @@
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrDefAttributeRead'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrDefAttributeUpdate'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrView'] }</th>
-                      <th style="width:100px;"></th>
+                      <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -72,7 +72,8 @@
                       <tr>
                         <td>
                           <label class="checkbox checkbox-no-padding">
-                            <input type="checkbox" name="privilegeSubjectRow_${i}[]" value="${guiMembershipSubjectContainer.guiMember.member.uuid}" class="privilegeCheckbox" />
+                            <input type="checkbox" name="privilegeSubjectRow_${i}[]" aria-label="${textContainer.text['attributeDefPrivilegesCheckboxAriaLabel']}" 
+                            value="${guiMembershipSubjectContainer.guiMember.member.uuid}" class="privilegeCheckbox" />
                           </label>
                         </td>
                         <td class="expand foo-clicker" style="white-space: nowrap">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}

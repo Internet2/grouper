@@ -20,7 +20,7 @@
                         </th>
                         <th class="sorted">${textContainer.text['groupViewDetailsHeaderEntityName']}</th>
                         <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
-                        <th style="width:100px;">${textContainer.text['groupViewDetailsHeaderChooseAction']}</th>
+                        <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                       </tr>
                     </thead>
                     <tbody>

@@ -51,7 +51,8 @@
                     <tr>
                       <th>
                         <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" aria-label="${textContainer.text['subjectPrivilegesInGroupCheckboxAriaLabel']}"
+                           onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                         </label>
                       </th>
                       <th>
@@ -65,7 +66,7 @@
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttributeRead'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttributeUpdate'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colView'] }</th>
-                      <th style="width:100px;"></th>
+                      <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                     </tr>
                   </thead>
                   <tbody>
