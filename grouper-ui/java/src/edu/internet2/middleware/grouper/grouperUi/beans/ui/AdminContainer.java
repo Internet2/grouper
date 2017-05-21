@@ -43,7 +43,7 @@ public class AdminContainer {
     }
     
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
     
