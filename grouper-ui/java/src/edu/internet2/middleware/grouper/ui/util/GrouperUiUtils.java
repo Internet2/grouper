@@ -1121,7 +1121,18 @@ public class GrouperUiUtils {
     }
     
     //if not, then try to get by subjectId or identifier
-    return SubjectFinder.findByIdOrIdentifier(searchString, exceptionIfNotFound);
+    try {
+      return SubjectFinder.findByIdOrIdentifier(searchString, exceptionIfNotFound);
+    } catch (SubjectNotUniqueException snue) {
+      if (exceptionIfNotFound) {
+        throw snue;
+      }
+      //ignore
+    }
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find subject: '" + searchString + "'");
+    }
+    return null;
   }
 
 

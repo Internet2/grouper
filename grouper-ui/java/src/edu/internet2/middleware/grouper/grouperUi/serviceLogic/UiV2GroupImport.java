@@ -79,6 +79,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * operations in the group screen
@@ -1146,7 +1147,11 @@ public class UiV2GroupImport {
           String subjectId = GrouperUtil.prefixOrSuffix(comboValue, "||", false);
           theSubject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
         } else {
-          theSubject = StringUtils.isBlank(comboValue) ? null : SubjectFinder.findByIdOrIdentifier(comboValue, false);
+          try {
+            theSubject = StringUtils.isBlank(comboValue) ? null : SubjectFinder.findByIdOrIdentifier(comboValue, false);
+          } catch (SubjectNotUniqueException snue) {
+            //ignore
+          }
         }
       } finally {
         GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();

@@ -108,6 +108,7 @@ import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -596,7 +597,14 @@ public class UiV2Group {
             String subjectId = GrouperUtil.prefixOrSuffix(query, "||", false);
             subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
           } else {
-            subject = SubjectFinder.findByIdOrIdentifier(query, false);
+            try { 
+              subject = SubjectFinder.findByIdOrIdentifier(query, false);
+            } catch (SubjectNotUniqueException snue) {
+              //ignore this...
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Find by id or identifier not unique: '" + query + "'");
+              }
+            }
           }
         } finally {
           GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
@@ -742,7 +750,11 @@ public class UiV2Group {
         } else {
           Subject subject = null;
           if (StringUtils.equals("all", sourceId)) {
-            subject = SubjectFinder.findByIdOrIdentifier(searchString, false);
+            try {
+              subject = SubjectFinder.findByIdOrIdentifier(searchString, false);
+            } catch (SubjectNotUniqueException snue) {
+              //ignore
+            }
           } else {
             subject = SubjectFinder.findByIdOrIdentifierAndSource(searchString, sourceId, false);
           }
@@ -820,7 +832,12 @@ public class UiV2Group {
         subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
 
       } else {
-        subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+        try {
+          subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+        } catch (SubjectNotUniqueException snue) {
+          //ignore
+        }
+          
       }
 
       if (subject == null) {
