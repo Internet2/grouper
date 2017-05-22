@@ -104,15 +104,14 @@ public class GrouperHooksUtils {
           //might have wrong version of testing jar...
         }
         if (testing) {
-        addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
-          GroupAttributeNameValidationHook.registerHookIfNecessary(true);
+          addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
         }
         
         
       } catch (ClassNotFoundException cnfe) {
         //just ignore, probably not running unit tests
-        GroupAttributeNameValidationHook.registerHookIfNecessary(false);
       }
+      GroupAttributeNameValidationHook.registerHookIfNecessary(true);
       
       GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
 
