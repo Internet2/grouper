@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperMessagingRabbitmq;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.rabbitmq.client.AMQP;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
@@ -53,20 +55,21 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     //TODO check if the member has permission to send message
     Member fromMember = grouperSession.getMember();
 
+    if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
+      throw new RuntimeException("For rabbitmq only queue type is allowed."); 
+    }
+    
     String queueOrTopicName = grouperMessageSendParam.getGrouperMessageQueueParam().getQueueOrTopicName();
     
-    //TODO check if allowing queue is allowed.
     GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageSendParam.getGrouperMessageSystemParam();
-    
     try {
       
-      ConnectionFactory factory = new ConnectionFactory();
-      
-      String host = GrouperConfig.retrieveConfig().propertyValueString("grouper.rabbitmq.messsaging.host", "localhost");
-      factory.setHost(host);
-      Connection connection = factory.newConnection();
+      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection();
       Channel channel = connection.createChannel();
-      channel.queueDeclare(queueOrTopicName, false, false, false, null);
+      if (grouperMessageSystemParam != null && grouperMessageSystemParam.isAutocreateObjects()) {
+        channel.queueDeclare(queueOrTopicName, false, false, false, null);
+      }
+      
       for (GrouperMessage grouperMessage : GrouperUtil.nonNull(grouperMessageSendParam.getGrouperMessages())) {
 
         String message = grouperMessage.getMessageBody();
@@ -74,7 +77,6 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
         channel.basicPublish("", queueOrTopicName, null, message.getBytes("UTF-8"));
         LOG.info("Send message: "+message);
         channel.close();
-        connection.close();
       }
       
     } catch(Exception e) {
@@ -128,6 +130,28 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    */
   public GrouperMessageAcknowledgeResult acknowledge(
       GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
+    try {
+
+      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection();
+      final Channel channel = connection.createChannel();
+
+      String queueOrTopicName = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+      channel.queueDeclare(queueOrTopicName, false, false, false, null);
+
+      Consumer consumer = new DefaultConsumer(channel) {
+        @Override
+        public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
+            throws IOException {
+          String message = new String(body, "UTF-8");
+          LOG.info("Acknowledging: "+message);
+          channel.basicAck(envelope.getDeliveryTag(), false);
+        }
+      };
+      boolean autoAck = false;
+      channel.basicConsume(queueOrTopicName, autoAck, consumer);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }    
     return null;
   }
 
@@ -138,10 +162,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     
     try {
 
-      ConnectionFactory factory = new ConnectionFactory();
-      String host = GrouperConfig.retrieveConfig().propertyValueString("grouper.rabbitmq.messsaging.host", "localhost");
-      factory.setHost(host);
-      Connection connection = factory.newConnection();
+      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection();
       Channel channel = connection.createChannel();
 
       String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
@@ -155,11 +176,55 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           LOG.info("Received: "+message);
         }
       };
-      channel.basicConsume(queueOrTopicName, true, consumer);
+      boolean autoAck = true;
+      channel.basicConsume(queueOrTopicName, autoAck, consumer);
     } catch(Exception e) {
       e.printStackTrace();
     }    
     return null;
+  }
+  
+  
+  public enum RabbitMQConnectionFactory {
+    
+    INSTANCE;
+    
+    public Connection getConnection() {
+      
+      String host = GrouperConfig.retrieveConfig().propertyValueString("grouper.rabbitmq.messsaging.host", "localhost");
+      String virtualHost = GrouperConfig.retrieveConfig().propertyValueString("grouper.rabbitmq.messsaging.virtualhost");
+      String username = GrouperConfig.retrieveConfig().propertyValueString("grouper.rabbitmq.messsaging.username");
+      String password = GrouperConfig.retrieveConfig().propertyValueString("grouper.rabbitmq.messsaging.password");
+      Integer port = GrouperConfig.retrieveConfig().propertyValueInt("grouper.rabbitmq.messsaging.port");
+      
+      try {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(host);
+        
+        if (!StringUtils.isEmpty(virtualHost)) {
+          factory.setVirtualHost(virtualHost);
+        }
+        
+        if (!StringUtils.isEmpty(username)) {
+          factory.setUsername(username);
+        }
+        
+        if (!StringUtils.isEmpty(password)) {
+          factory.setPassword(password);
+        }
+        
+        if (port != null) {
+          factory.setPort(port);
+        }
+        
+        Connection connection = factory.newConnection();
+        return connection;
+      } catch (Exception e) {
+        throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host);
+      }
+      
+    }
+    
   }
 
 }
