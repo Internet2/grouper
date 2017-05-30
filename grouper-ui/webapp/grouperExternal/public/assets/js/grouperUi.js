@@ -2337,9 +2337,9 @@ function hideCustomPrivilege(elementId) {
  */
 function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
   var jqueryElement = $(jqueryHandleOfFormElement);
-  if (!jqueryElement.is('form')) {
-    jqueryElement = jqueryElement.closest('form');
-  }
+  //if (!jqueryElement.is('form')) {
+  //  jqueryElement = jqueryElement.closest('form');
+  //}
   if (jqueryElement.length !== 0) {
     jqueryElement.on('keyup keypress', function(e) {
       var keyCode = e.keyCode || e.which;
