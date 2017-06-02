@@ -21,6 +21,7 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -224,12 +226,17 @@ private static boolean handleSpecialCase(String[] args) {
    * @throws GrouperShellException
    */
   static void grouperShellHelper(String args[], InputStream inputStreamParam) throws GrouperShellException {
-    
+
     System.out.println("Type help() for instructions");
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
-    new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", true)) {
+      new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
+    } else {
+      String[] newArgs = ArrayUtils.add(args, 0, GrouperUtil.getGrouperHome() + File.separator + "conf" + File.separator + "groovysh.profile");
+      org.codehaus.groovy.tools.shell.Main.main(newArgs);
+    }
   }
   
 
