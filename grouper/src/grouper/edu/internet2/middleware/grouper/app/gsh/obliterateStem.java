@@ -59,46 +59,13 @@ public class obliterateStem {
    * @since   0.0.1
    */
   public static boolean invoke(Interpreter i, CallStack stack, String name, boolean testOnly, boolean deleteFromPointInTime) 
-    throws  GrouperShellException
-  {
+    throws  GrouperShellException {
+    
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
       
-      Stem ns = StemFinder.findByName(s, name, false);
-      
-      if (ns == null) {
-        System.out.println("Stem " + name + " does not exist.");
-      } else {
-        ns.obliterate(true, testOnly);
-      }
-      
-      if (!testOnly && deleteFromPointInTime) {
-        while (true) {
-          if (ns != null) {
-            PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(ns.getUuid(), false);
-            if (pitStem != null && !pitStem.isActive()) {
-              break;
-            }
-          } else {
-            Set<PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByName(name, false);
-            if (pitStems.size() > 0 && !pitStems.iterator().next().isActive()) {
-              break;
-            } 
-          }
-          
-          System.out.println("Waiting for Grouper Daemon to process before obliterating from point in time data.  This is expected to take a few minutes.  Be sure the Grouper Daemon is running.");
-          try {
-            Thread.sleep(15000);
-          } catch (InterruptedException e) {
-            // ignore
-          }
-        }
-        
-        PITUtils.deleteInactiveStem(name, true);
-      }
-      
-      return true;
+      return invoke(s, name, testOnly, deleteFromPointInTime);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -110,7 +77,52 @@ public class obliterateStem {
       GrouperShell.error(i, eNSNF);
     }
     return false;
-  } // public static boolean invoke(i, stack, name)
-
+  }
+  
+  /**
+   * Obliterate a stem.
+   * @param session 
+   * @param name 
+   * @param testOnly 
+   * @param deleteFromPointInTime 
+   * @return True if {@link Stem} was deleted.
+   */
+  public static boolean invoke(GrouperSession session, String name, boolean testOnly, boolean deleteFromPointInTime) {
+    Stem ns = StemFinder.findByName(session, name, false);
+    
+    if (ns == null) {
+      System.out.println("Stem " + name + " does not exist.");
+    } else {
+      ns.obliterate(true, testOnly);
+    }
+    
+    if (!testOnly && deleteFromPointInTime) {
+      while (true) {
+        if (ns != null) {
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(ns.getUuid(), false);
+          if (pitStem != null && !pitStem.isActive()) {
+            break;
+          }
+        } else {
+          Set<PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByName(name, false);
+          if (pitStems.size() > 0 && !pitStems.iterator().next().isActive()) {
+            break;
+          } 
+        }
+        
+        System.out.println("Waiting for Grouper Daemon to process before obliterating from point in time data.  This is expected to take a few minutes.  Be sure the Grouper Daemon is running.");
+        try {
+          Thread.sleep(15000);
+        } catch (InterruptedException e) {
+          // ignore
+        }
+      }
+      
+      PITUtils.deleteInactiveStem(name, true);
+    }
+    
+    return true;    
+  }
+  
 } // public class delStem
 

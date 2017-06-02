@@ -11936,4 +11936,10 @@ public class GrouperUtil {
     return result;
   }
   
+  /**
+   * @return grouper home
+   */
+  public static String getGrouperHome() {
+    return grouperHome;
+  }
 }
