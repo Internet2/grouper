@@ -19,15 +19,7 @@ package edu.internet2.middleware.grouper.pspng;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.AttributeModification;
@@ -173,8 +165,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   protected void doFullSync(
       GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup , 
       Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap,
-      Set<LdapUser> correctTSUsers) throws PspException {
-    
+      Set<LdapUser> correctTSUsers,
+      JobStatistics stats) throws PspException {
+
+    stats.totalCount.set(correctSubjects.size());
+
     // If the group does not exist yet, then create it with all the correct members
     if ( ldapGroup  == null ) {
       
@@ -187,6 +182,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
 
       ldapGroup  = createGroup(grouperGroupInfo, correctSubjects);
+      stats.insertCount.set(correctSubjects.size());
+
       cacheGroup(grouperGroupInfo, ldapGroup);
       return;
     }
@@ -195,6 +192,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     if ( !config.areEmptyGroupsSupported() && correctSubjects.size() == 0 ) {
       LOG.info("{}: Deleting empty group because schema requires its member attribute", getName());
       deleteGroup(grouperGroupInfo, ldapGroup);
+
+      // Update stats with the number of values removed by group deletion
+      Collection<String> membershipValues = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
+      stats.deleteCount.set(membershipValues.size());
     }
     
     Set<String> correctMembershipValues = getStringSet();
@@ -213,8 +214,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     {
       Collection<String> extraValues = getStringSet(currentMembershipValues);
       extraValues.removeAll(correctMembershipValues);
-      
-      LOG.info("{}: Group {} has {} extra values", 
+
+      stats.deleteCount.set(extraValues.size());
+
+      LOG.info("{}: Group {} has {} extra values",
           new Object[] {getName(), grouperGroupInfo, extraValues.size()});
       if ( extraValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, extraValues);
@@ -224,18 +227,21 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     {
       Collection<String> missingValues = getStringSet(correctMembershipValues);
       missingValues.removeAll(currentMembershipValues);
-      
+
+      stats.insertCount.set(missingValues.size());
+
       LOG.info("{}: Group {} has {} missing values", 
           new Object[]{getName(), grouperGroupInfo, missingValues.size()});
       if ( missingValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, missingValues);
     }
   }
-  
+
   @Override
 	protected void doFullSync_cleanupExtraGroups(
 			Set<GrouperGroupInfo> groupsForThisProvisioner,
-			Map<GrouperGroupInfo, LdapGroup> ldapGroups) throws PspException {
+			Map<GrouperGroupInfo, LdapGroup> ldapGroups,
+            JobStatistics stats) throws PspException {
     
     // Grab all the DNs that match the groupsForThisProvisioner
     Set<String> desiredGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
@@ -257,25 +263,32 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
       
     // Get all the LDAP Groups that match the filter
-    List<LdapObject> searchResult = getLdapSystem().performLdapSearchRequest(new SearchRequest(baseDn, filterString, config.getGroupSearchAttributes()));
-    
-    Set<String> existingGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    for ( LdapObject existingGroup : searchResult )
-      existingGroupDns.add(existingGroup.getDn());
-        
-    
-    // EXTRA GROUPS: EXISTING - DESIRED
-    Set<String> extraGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    extraGroupDns.addAll(existingGroupDns);
-    extraGroupDns.removeAll(desiredGroupDns);
-    
-    LOG.info("{}: There are {} groups that we should delete", getName(), extraGroupDns.size());
-    
-    for ( String dnToRemove : extraGroupDns )
-      getLdapSystem().performLdapDelete(dnToRemove);
+    List<LdapObject> searchResult
+            = getLdapSystem().performLdapSearchRequest(new SearchRequest(baseDn, filterString,
+            getLdapAttributesToFetch()));
+
+    List<LdapObject> groupsToDelete = new ArrayList<LdapObject>();
+
+    for ( LdapObject existingGroup : searchResult ) {
+      String existingGroupDn = existingGroup.getDn();
+      if ( !desiredGroupDns.contains(existingGroupDn) ) {
+        groupsToDelete.add(existingGroup);
+      }
+    }
+
+    LOG.info("{}: There are {} groups that we should delete", getName(), groupsToDelete.size());
+
+    int numMembershipsBeingDeleted = 0;
+
+    for ( LdapObject groupToRemove : groupsToDelete ) {
+      numMembershipsBeingDeleted += groupToRemove.getStringValues(config.getMemberAttributeName()).size();
+      getLdapSystem().performLdapDelete(groupToRemove.getDn());
+    }
+
+    stats.deleteCount.addAndGet(numMembershipsBeingDeleted);
   }
-  
-  
+
+
   @Override
   protected LdapGroup createGroup(GrouperGroupInfo grouperGroup, Collection<Subject> initialMembers) throws PspException {
     if ( !config.areEmptyGroupsSupported() && initialMembers.size() == 0 ) {
@@ -292,7 +305,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     if ( initialMembers != null && initialMembers.size() > 0 ) {
       
       // Find all the values for the membership attribute
-      Collection<String> membershipValues = new HashSet<>(initialMembers.size());
+      Collection<String> membershipValues = new HashSet<String>(initialMembers.size());
       for ( Subject subject : initialMembers ) {
         LdapUser ldapUser = getTargetSystemUser(subject);
         if ( ldapUser != null ) {
@@ -348,11 +361,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     
     // If this is a full-sync provisioner, then we want to make sure we get the member attribute of the
     // group so we see all members.
-    String returnAttributes[] = config.getGroupSearchAttributes();
-    if ( fullSyncMode ) {
-      returnAttributes = Arrays.copyOf(returnAttributes, returnAttributes.length + 1);
-      returnAttributes[returnAttributes.length-1] = config.getMemberAttributeName();
-    }
+    String[] returnAttributes = getLdapAttributesToFetch();
     
     StringBuilder combinedLdapFilter = new StringBuilder();
     
@@ -422,6 +431,15 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     
     return result;
 }
+
+  private String[] getLdapAttributesToFetch() {
+    String returnAttributes[] = config.getGroupSearchAttributes();
+    if ( fullSyncMode ) {
+      returnAttributes = Arrays.copyOf(returnAttributes, returnAttributes.length + 1);
+      returnAttributes[returnAttributes.length-1] = config.getMemberAttributeName();
+    }
+    return returnAttributes;
+  }
 
 
   private SearchFilter getGroupLdapFilter(GrouperGroupInfo grouperGroup) {
