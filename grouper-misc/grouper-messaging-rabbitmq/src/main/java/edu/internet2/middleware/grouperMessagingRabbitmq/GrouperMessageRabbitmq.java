@@ -2,11 +2,13 @@ package edu.internet2.middleware.grouperMessagingRabbitmq;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 
-public class GrouperMesasgeRabbitmq implements GrouperMessage {
+public class GrouperMessageRabbitmq implements GrouperMessage {
   
   String messageBody;
   
-  public GrouperMesasgeRabbitmq(String messageBody) {
+  String id;
+  
+  public GrouperMessageRabbitmq(String messageBody) {
     this.messageBody = messageBody;
   }
 
@@ -21,11 +23,12 @@ public class GrouperMesasgeRabbitmq implements GrouperMessage {
 
   @Override
   public String getId() {
-    return null;
+    return this.id;
   }
 
   @Override
   public void setId(String id1) {
+    this.id = id1;
   }
 
   @Override
@@ -37,7 +40,5 @@ public class GrouperMesasgeRabbitmq implements GrouperMessage {
   public void setMessageBody(String messageBody) {
     this.messageBody = messageBody;
   }
-  
-  
 
 }
