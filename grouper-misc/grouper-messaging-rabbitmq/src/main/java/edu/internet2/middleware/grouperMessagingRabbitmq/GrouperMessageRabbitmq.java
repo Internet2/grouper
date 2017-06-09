@@ -8,8 +8,9 @@ public class GrouperMessageRabbitmq implements GrouperMessage {
   
   String id;
   
-  public GrouperMessageRabbitmq(String messageBody) {
+  public GrouperMessageRabbitmq(String messageBody, String id) {
     this.messageBody = messageBody;
+    this.id = id;
   }
 
   @Override
