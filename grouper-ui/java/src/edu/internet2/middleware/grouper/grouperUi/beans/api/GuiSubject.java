@@ -577,6 +577,20 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
       }
       
       if (!GrouperUtil.isBlank(orderCommaSeparated)) {
+
+        // GRP-1558: default subject display shows "email" attribute, which source might not have
+        if (orderCommaSeparated.contains(",email,")) {
+
+          if (!this.getAttributes().containsKey("email")) {
+            String emailAttribute = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
+            if (!StringUtils.isBlank(emailAttribute)) {
+              orderCommaSeparated = GrouperUtil.replace(orderCommaSeparated, ",email,", "," + emailAttribute + ",");
+            } else {
+              orderCommaSeparated = GrouperUtil.replace(orderCommaSeparated, ",email,", ",");
+            }
+          }
+        }
+        
         attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, ","));
       }
     }

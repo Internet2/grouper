@@ -16,12 +16,25 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +51,142 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
  * @author bert
  *
  */
-public class FullSyncStarter extends ChangeLogConsumerBase {
-  protected final Logger LOG = LoggerFactory.getLogger(getClass());
+public class FullSyncStarter
+        extends ChangeLogConsumerBase
+        implements Job {
+  protected final static Logger LOG = LoggerFactory.getLogger(FullSyncStarter.class);
 
+  /**
+   * Called directly by quartz from a loader property like: otherJob.key-related-to-provisioner-name.class=...FullSyncStarter
+   *
+   * @param context
+   * @throws JobExecutionException
+   */
   @Override
+  public void execute(JobExecutionContext context) throws JobExecutionException {
+    long startTime = System.currentTimeMillis();
+
+    GrouperSession grouperSession = null;
+
+    Hib3GrouperLoaderLog hib3GrouploaderLog=null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
+      // grouper-loader property: otherJob.provisioner_full.class= and otherJob.provisioner_full.quartzCron=
+      // jobName is OTHER_JOB_provisioner_full
+      String jobName = context.getJobDetail().getKey().getName();
+
+      // otherJobConfigName will be provisioner_full
+      String otherJobConfigName;
+
+      LOG.info("FullSyncStarter being run via quartz job: {}", jobName);
+
+      if (jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX)) {
+        otherJobConfigName = jobName.substring(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX.length());
+      }
+      else
+        throw new JobExecutionException("PSPNG full-syncs have to be run via otherJob properties, not via " + jobName);
+
+      if (GrouperLoader.isJobRunning(jobName)) {
+        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+        return;
+      }
+
+      hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouploaderLog.setJobName(jobName);
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));
+      hib3GrouploaderLog.setJobType("OTHER_JOB");
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+      hib3GrouploaderLog.store();
+
+      // Find the name of the provisioner
+      FullSyncProvisioner fullSyncProvisioner = getProvisionerFromOtherJobKey(otherJobConfigName);
+      if ( fullSyncProvisioner == null ) {
+        throw new Exception("No provisioner found for job: " + otherJobConfigName);
+      }
+
+      JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion();
+
+      LOG.info("Finished running full-sync job: {}", jobName);
+      hib3GrouploaderLog.appendJobMessage("Finished running full-sync job.");
+
+      stats.updateLoaderLog(hib3GrouploaderLog);
+
+
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+      storeLogInDb(hib3GrouploaderLog, true, startTime);
+    } catch (Exception e) {
+      LOG.error("Error running full-sync job", e);
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
+
+      if (!(e instanceof JobExecutionException)) {
+        e = new JobExecutionException(e);
+      }
+      JobExecutionException jobExecutionException = (JobExecutionException)e;
+      storeLogInDb(hib3GrouploaderLog, false, startTime);
+      throw jobExecutionException;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   *
+   * @param otherJobConfigName If the job is being run with otherJob.provisioner_full.quartzCron=, then
+   *                           otherJobConfigName will be provisioner_full
+   * @return
+   */
+  private FullSyncProvisioner getProvisionerFromOtherJobKey(String otherJobConfigName) throws PspException {
+    // Remove both full_ prefix and _full suffix
+    String provisionerName = otherJobConfigName.replaceAll("_full$", "");
+    provisionerName = provisionerName.replaceAll("^full_", "");
+
+    return FullSyncProvisionerFactory.getFullSyncer(provisionerName);
+  }
+
+
+  /**
+   * This has been copied from {@link edu.internet2.middleware.grouper.instrumentation.TierInstrumentationDaemon}
+   * @param hib3GrouploaderLog
+   * @param throwException
+   * @param startTime
+   */
+  private static void storeLogInDb(Hib3GrouperLoaderLog hib3GrouploaderLog,
+                                   boolean throwException, long startTime) {
+    //store this safely
+    try {
+
+      long endTime = System.currentTimeMillis();
+      hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+      hib3GrouploaderLog.setMillis((int) (endTime - startTime));
+
+      hib3GrouploaderLog.store();
+
+    } catch (RuntimeException e) {
+      LOG.error("Problem storing final log", e);
+      //dont preempt an existing exception
+      if (throwException) {
+        throw e;
+      }
+    }
+  }
+
+    @Override
+  /**
+   * This is needed as part of old (psp) way of starting the full-syncs.
+   */
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
-      ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+                                      ChangeLogProcessorMetadata changeLogProcessorMetadata) {
     return 0;
   }
-  
+
+
+  /**
+   * Old way of starting full-syncs with changeLog.psp.fullSync.* properties. New way is otherJob.<provisioner>* which invokes execute( )
+   */
   public void fullSync() {
     
     Collection<String> provisionerJobNames = getProvisioningJobNames();

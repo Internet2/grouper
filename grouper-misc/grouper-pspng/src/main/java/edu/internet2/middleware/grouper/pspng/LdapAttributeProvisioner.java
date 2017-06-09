@@ -111,9 +111,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
 
   @Override
   protected void doFullSync(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
-      Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap, Set<LdapUser> correctTSUsers)
+      Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap, Set<LdapUser> correctTSUsers,
+      JobStatistics stats)
       throws PspException {
-  
+
+    stats.totalCount.set(correctTSUsers.size());
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
@@ -129,6 +131,8 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     // EXTRA MATCHES = CURRENT_MATCHES - CORRECT_MATCHES
     Set<LdapUser> extraMatches = new HashSet<LdapUser>(currentMatches);
     extraMatches.removeAll(correctTSUsers);
+
+    stats.deleteCount.set(extraMatches.size());
     
     for (LdapUser extraMatch : extraMatches)
       scheduleUserModification(extraMatch, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
@@ -136,7 +140,9 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     // MISSING MATCHES = CORRECT_MATCHES - CURRENT_MATCHES
     Set<LdapUser> missingMatches = new HashSet<LdapUser>((Set<LdapUser>)correctTSUsers);
     missingMatches.removeAll(currentMatches);
-    
+
+    stats.insertCount.set(missingMatches.size());
+
     for (LdapUser missingMatch : missingMatches)
       scheduleUserModification(missingMatch, AttributeModificationType.ADD, Arrays.asList(attributeValue));
 
@@ -154,7 +160,8 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   @Override
 	protected void doFullSync_cleanupExtraGroups(
 			Set<GrouperGroupInfo> groupsForThisProvisioner,
-			Map<GrouperGroupInfo, LdapGroup> ldapGroups) throws PspException {
+			Map<GrouperGroupInfo, LdapGroup> ldapGroups,
+            JobStatistics stats) throws PspException {
       String allValuesPrefix = config.getAllProvisionedValuesPrefix();
       if ( StringUtils.isEmpty(allValuesPrefix) ) {
         LOG.error("{}: Unable to cleanup extra groups without allProvisionedValuesPrefix being defined", getName());
@@ -200,7 +207,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       
       for (String extraValue : extraValues ) {
         LOG.info("{}: Purging attribute value {}", getName(), extraValue);
-        purgeAttributeValue(attribute, extraValue);
+        purgeAttributeValue(attribute, extraValue, stats);
       }
 	}
 
@@ -220,12 +227,12 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       throws PspException {
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
-    
-    purgeAttributeValue(attributeName, attributeValue);
+
+    purgeAttributeValue(attributeName, attributeValue, new JobStatistics());
   }
   
 
-  protected void purgeAttributeValue(String attributeName, String valueToPurge) throws PspException {
+  protected void purgeAttributeValue(String attributeName, String valueToPurge, JobStatistics stats) throws PspException {
     SearchFilter filter = new SearchFilter(attributeName + "={0}");
     filter.setParameter(0, valueToPurge);
     
@@ -234,7 +241,9 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     
     LOG.info("{}: There are {} ldap objects with attribute value={}", 
         new Object[] {getName(), objectsWithAttribute.size(), valueToPurge});
-    
+
+    stats.deleteCount.addAndGet(objectsWithAttribute.size());
+
     for ( LdapObject objectWithAttribute : objectsWithAttribute )
       scheduleUserModification(new LdapUser(objectWithAttribute), AttributeModificationType.REMOVE, Arrays.asList(valueToPurge));
   }

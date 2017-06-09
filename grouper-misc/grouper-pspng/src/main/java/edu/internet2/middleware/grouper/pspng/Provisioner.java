@@ -345,10 +345,12 @@ public abstract class Provisioner
    * for provisioners that do not use TargetSystemUsers.
    * @param correctTSUsers A list of the TSUsers that correspond to correctSubjects. This might be a subset
    * of the TSUsers in the tsUserMap.
+   * @param stats A holder of the number of changes the fullSync performs
    */
   protected abstract void doFullSync(
       GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup, 
-      Set<Subject> correctSubjects, Map<Subject, TSUserClass> tsUserMap, Set<TSUserClass> correctTSUsers) 
+      Set<Subject> correctSubjects, Map<Subject, TSUserClass> tsUserMap, Set<TSUserClass> correctTSUsers,
+      JobStatistics stats)
           throws PspException;
 
   /**
@@ -365,7 +367,8 @@ public abstract class Provisioner
    */
   protected abstract void doFullSync_cleanupExtraGroups(
           Set<GrouperGroupInfo> groupsForThisProvisioner, 
-          Map<GrouperGroupInfo, TSGroupClass> tsGroups) throws PspException;
+          Map<GrouperGroupInfo, TSGroupClass> tsGroups,
+          JobStatistics stats) throws PspException;
   
 
   /**
@@ -980,7 +983,8 @@ public abstract class Provisioner
     }
   }
   
-  final void doFullSync_cleanupExtraGroups() throws PspException {
+  final void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
+
 	  if ( !config.isGrouperAuthoritative() ) {
 		  LOG.warn("{}: Not doing group cleanup because grouper is not marked as authoritative in provisioner configuration", getName());
 		  return;
@@ -1006,7 +1010,7 @@ public abstract class Provisioner
 	      tsGroups = fetchTargetSystemGroups(groupsForThisProvisioner);
 	    
 	    MDC.put("step", "clean/");
-	    doFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups);
+	    doFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups, stats);
 	  }
 	  catch (PspException e) {
 		  LOG.error("Problem while looking for and removing extra groups: {}", e);
@@ -1022,15 +1026,17 @@ public abstract class Provisioner
    * This is called by the FullSync thread, and is responsible for getting the
    * list of correct subjects together and cached. 
    * 
-   * This then calls (abstract) doFullSync(group, tsGroup, correctSubjects, correctTSUsers).
+   * This then calls (abstract) doFullSync(group, tsGroup, correctSubjects, correctTSUsers, stats).
    * 
    * This method is final to make it clear that the abstract signature should be
    * overridden and to prevent subclasses from overriding this one by mistake.
    * 
    * @param grouperGroupInfo
-   * @throws PspException
+ * @param stats
+ @throws PspException
    */
-  final void doFullSync(GrouperGroupInfo grouperGroupInfo) throws PspException {
+  final void doFullSync(GrouperGroupInfo grouperGroupInfo, JobStatistics stats)
+        throws PspException {
     TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
 
     // If there is a target-system group, then check to see if it should be deleted
@@ -1087,7 +1093,7 @@ public abstract class Provisioner
 
     try {
       MDC.put("step", "prov/");
-      doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers);
+      doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers, stats);
     }
     finally {
       MDC.remove("step");
@@ -1216,8 +1222,8 @@ public abstract class Provisioner
         groupsReferencingAttribute = new GroupFinder().assignNameOfAttributeDefName(attribute).findGroups();
       }
     
-      LOG.info("{}: There are {} folders that match {} attribute", new Object[]{getName(), foldersReferencingAttribute.size(), attribute});
-      LOG.info("{}: There are {} groups that match {} attribute", new Object[]{getName(), groupsReferencingAttribute.size(), attribute});
+      LOG.debug("{}: There are {} folders that match {} attribute", new Object[]{getName(), foldersReferencingAttribute.size(), attribute});
+      LOG.debug("{}: There are {} groups that match {} attribute", new Object[]{getName(), groupsReferencingAttribute.size(), attribute});
       
       interestingGroups.addAll(groupsReferencingAttribute);
       for ( Stem folder : foldersReferencingAttribute ) {
@@ -1225,7 +1231,7 @@ public abstract class Provisioner
         
         groupsUnderFolder = new GroupFinder().assignParentStemId(folder.getId()).assignStemScope(Scope.SUB).findGroups();
         
-        LOG.info("{}: There are {} groups underneath folder {}", new Object[]{getName(), groupsUnderFolder.size(), folder.getName()});
+        LOG.debug("{}: There are {} groups underneath folder {}", new Object[]{getName(), groupsUnderFolder.size(), folder.getName()});
         interestingGroups.addAll(groupsUnderFolder);
       }
     }
