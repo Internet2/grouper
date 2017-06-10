@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -22,8 +22,6 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
@@ -34,6 +32,8 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
@@ -83,7 +83,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
         channel.queueDeclare(queueOrTopicName, false, false, false, null);
       }
       
-      for (GrouperMessage grouperMessage: GrouperUtil.nonNull(grouperMessageSendParam.getGrouperMessages())) {
+      for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
 
         String message = grouperMessage.getMessageBody();
         channel.basicPublish("", queueOrTopicName, null, message.getBytes("UTF-8"));
@@ -113,7 +113,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
 
       String queueOrTopicName = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
       channel.queueDeclare(queueOrTopicName, false, false, false, null);
-      for (GrouperMessage message: GrouperUtil.nonNull(grouperMessageAcknowledgeParam.getGrouperMessages())) {
+      for (GrouperMessage message: GrouperClientUtils.nonNull(grouperMessageAcknowledgeParam.getGrouperMessages())) {
         channel.basicAck(Long.valueOf(message.getId()), false);
       }
     } catch(Exception e) {
@@ -136,8 +136,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
     }
         
-    int defaultPageSize = GrouperConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", grouperMessageSystemParam.getMessageSystemName()), 5);
-    int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", grouperMessageSystemParam.getMessageSystemName()), 50);
+    int defaultPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", grouperMessageSystemParam.getMessageSystemName()), 5);
+    int maxPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", grouperMessageSystemParam.getMessageSystemName()), 50);
     
     Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
     
@@ -265,15 +265,18 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
         
         if (connection == null || !connection.isOpen()) {
           
-          String host = GrouperConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.host", messagingSystemName), "localhost");
-          String virtualHost = GrouperConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.virtualhost", messagingSystemName));
-          String username = GrouperConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.username", messagingSystemName));
-          String password = GrouperConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.password", messagingSystemName));
-          Integer port = GrouperConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messsaging.port", messagingSystemName));
+          String host = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.host", messagingSystemName));
+          String virtualHost = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.virtualhost", messagingSystemName));
+          String username = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.username", messagingSystemName));
+          String password = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.password", messagingSystemName));
+          Integer port = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messsaging.port", messagingSystemName));
           
           try {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost(host);
+           
+            if (!StringUtils.isEmpty(host)) {
+              factory.setHost(host);
+            }
             
             if (!StringUtils.isEmpty(virtualHost)) {
               factory.setVirtualHost(virtualHost);
