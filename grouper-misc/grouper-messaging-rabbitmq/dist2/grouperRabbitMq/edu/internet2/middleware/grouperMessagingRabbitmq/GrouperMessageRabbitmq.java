@@ -19,7 +19,7 @@ public class GrouperMessageRabbitmq implements GrouperMessage {
   }
 
   @Override
-  public void setFromMemberId(String fromMemberId1) {
+  public void setFromMemberId(String fromMemberId1) {    
   }
 
   @Override
