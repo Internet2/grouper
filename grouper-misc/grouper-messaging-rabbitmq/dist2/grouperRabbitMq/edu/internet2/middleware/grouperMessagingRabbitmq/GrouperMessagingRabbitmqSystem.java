@@ -84,6 +84,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       }
       
       for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
+
         String message = grouperMessage.getMessageBody();
         channel.basicPublish("", queueOrTopicName, null, message.getBytes("UTF-8"));
         LOG.info("Sent message: "+message);
@@ -202,18 +203,20 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       channel.basicConsume(queueOrTopicName, true, consumer);
  
       new Timer().schedule(
-        new java.util.TimerTask() {
-          @Override
-          public void run() {
-            try {
-              if (channel.isOpen()) {
-                channel.close();
-              }
-            } catch (Exception e) {
-              throw new RuntimeException("Error occurred while closing channel", e); 
-            }
-          }
-        }, longPollMillis);
+            new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                      if (channel.isOpen()) {
+                          channel.close();
+                      }
+                    } catch (Exception e) {
+                      throw new RuntimeException("Error occurred while closing channel", e); 
+                    }
+                }
+            }, 
+            longPollMillis);
+      
     } catch(Exception e) {
       throw new RuntimeException("Error occurred while trying to receive messages for "+grouperMessageSystemParam.getMessageSystemName(), e);
     }    
@@ -296,7 +299,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           } catch (Exception e) {
             throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host+" for "+messagingSystemName);
           }
-        }
+      }
       
       }
       return connection;

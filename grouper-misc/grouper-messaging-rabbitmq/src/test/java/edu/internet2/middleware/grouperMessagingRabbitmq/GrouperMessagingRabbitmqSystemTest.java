@@ -13,7 +13,6 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
    */
   public GrouperMessagingRabbitmqSystemTest(String name) {
     super(name);
-    
   }
   
   public void testSend() throws Exception {
@@ -45,7 +44,6 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
       }
     });
     system.receive(receiveParam);
-    
   }
 
 }
