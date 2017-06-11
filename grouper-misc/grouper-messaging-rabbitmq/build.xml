@@ -94,6 +94,13 @@
       </manifest>
      </jar>
      <echo message="Output is: ${main.jarFile}" />
+  	
+  	<tar destfile="dist2/${main.appName}.tar.gz" compression="gzip">
+      <tarfileset dir="${main.bin}" >
+      </tarfileset>
+    </tar>          
+  	<echo message="Output is: dist/${main.jarFile}" />
+    <echo message="Output is: dist/${main.appName}.tar.gz" />     	
    </target>
   
   
