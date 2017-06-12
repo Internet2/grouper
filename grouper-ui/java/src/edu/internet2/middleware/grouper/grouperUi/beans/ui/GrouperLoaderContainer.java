@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -345,6 +346,16 @@ public class GrouperLoaderContainer {
     
     String databaseName = this.getSqlDatabaseName();
 
+    return convertDatabaseNameToUrl(databaseName);
+
+  }
+
+  /**
+   * convert a loader database name to a url
+   * @param databaseName
+   * @return the url
+   */
+  public static String convertDatabaseNameToUrl(String databaseName) {
     if (StringUtils.isBlank(databaseName)) {
       return null;
     }
@@ -357,7 +368,6 @@ public class GrouperLoaderContainer {
     
     String databaseUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + databaseName + ".url");
     return databaseUrl;
-
   }
 
   /**
@@ -366,12 +376,21 @@ public class GrouperLoaderContainer {
   public String getSqlDatabaseNameUrlText() {
     
     String databaseNameUrl = this.getSqlDatabaseNameUrl();
+    return convertDatabaseUrlToText(databaseNameUrl);
+
+  }
+
+  /**
+   * convert database url to text
+   * @param databaseNameUrl
+   * @return text
+   */
+  public static String convertDatabaseUrlToText(String databaseNameUrl) {
     if (!StringUtils.isBlank(databaseNameUrl)) {
       return databaseNameUrl;
     }
     
     return TextContainer.retrieveFromRequest().getText().get("grouperLoaderDatabaseNameNotFound");
-
   }
 
 
@@ -1023,6 +1042,15 @@ public class GrouperLoaderContainer {
     
     String ldapServerId = this.getLdapServerId();
 
+    return convertLdapServerIdToUrl(ldapServerId);
+  }
+  
+  /**
+   * convert ldap server id to url
+   * @param ldapServerId
+   * @return the url
+   */
+  public static String convertLdapServerIdToUrl(String ldapServerId) {
     if (StringUtils.isBlank(ldapServerId)) {
       return null;
     }
@@ -1036,12 +1064,21 @@ public class GrouperLoaderContainer {
   public String getLdapServerIdUrlText() {
     
     String ldapUrl = this.getLdapServerIdUrl();
+    return convertLdapUrlToDescription(ldapUrl);
+
+  }
+
+  /**
+   * convert ldap url to description
+   * @param ldapUrl
+   * @return description
+   */
+  public static String convertLdapUrlToDescription(String ldapUrl) {
     if (!StringUtils.isBlank(ldapUrl)) {
       return ldapUrl;
     }
     
     return TextContainer.retrieveFromRequest().getText().get("grouperLoaderLdapServerIdNotFound");
-
   }
 
   
@@ -2194,6 +2231,27 @@ public class GrouperLoaderContainer {
   }
 
   /**
+   * set of jobs to show on screen
+   */
+  private List<GuiGrouperLoaderJob> guiGrouperLoaderJobs;
+  
+  /**
+   * set of jobs to show on screen
+   * @return set of jobs
+   */
+  public List<GuiGrouperLoaderJob> getGuiGrouperLoaderJobs() {
+    return this.guiGrouperLoaderJobs;
+  }
+
+  /**
+   * set of jobs to show on screen
+   * @param guiGrouperLoaderJobs1
+   */
+  public void setGuiGrouperLoaderJobs(List<GuiGrouperLoaderJob> guiGrouperLoaderJobs1) {
+    this.guiGrouperLoaderJobs = guiGrouperLoaderJobs1;
+  }
+
+  /**
    * SQL or LDAP, GrouperLoaderType
    */
   private String editLoaderType;
@@ -2215,10 +2273,28 @@ public class GrouperLoaderContainer {
   }
 
   /**
-   * show if grouper admin or loader group
+   * show if grouper admin or loader group or group admin
    * @return true if shouldl show the loader menu item
    */
   public boolean isCanSeeLoader() {
+    
+    if (isCanSeeLoaderOverall()) {
+      return true;
+    }
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loader.view.by.group.admins", true)) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
+   * show if grouper admin or loader group
+   * @return true if should show the loader menu item
+   */
+  public boolean isCanSeeLoaderOverall() {
     
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
@@ -2228,12 +2304,6 @@ public class GrouperLoaderContainer {
       String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);
       //null error means allow
       return error == null;
-    }
-    
-    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loader.view.by.group.admins", true)) {
-      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-        return true;
-      }
     }
     
     return false;
