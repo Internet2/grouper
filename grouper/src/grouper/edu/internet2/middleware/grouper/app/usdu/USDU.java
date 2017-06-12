@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
@@ -52,6 +53,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -362,8 +364,12 @@ public class USDU {
 
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     for (Field field : fields) {
-      for (Object m : member.getImmediateMemberships(field)) {
-        memberships.add((Membership) m);
+      
+      Set<Object[]> rows = new MembershipFinder()
+        .addMemberId(member.getId()).addField(field).assignEnabled(null).assignMembershipType(MembershipType.IMMEDIATE)
+        .findMembershipsMembers();
+      for (Object[] row : GrouperUtil.nonNull(rows)) {
+        memberships.add((Membership) row[0]);
       }
     }
     return memberships;
