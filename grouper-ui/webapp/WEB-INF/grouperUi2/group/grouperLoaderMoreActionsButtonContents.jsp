@@ -1,6 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
                     <!-- start group/grouperLoaderMoreActionsButtonContents.jsp -->
+                    <%-- NOTE, THIS IS DUPLICATED IN grouperLoaderOverall.jsp --%>
 
                     <div class="btn-group btn-block">
                     
