@@ -390,9 +390,9 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     GroupType requireGroupsType = null;
     try {
       
-      includesExcludesType = GroupTypeFinder.find(includeExcludeName, true);
+      includesExcludesType = GroupTypeFinder.find(includeExcludeName, false);
       
-      includeExclude = typedGroup.hasType(includesExcludesType, false);
+      includeExclude = includesExcludesType != null && typedGroup.hasType(includesExcludesType, false);
       
       //if other groups are there, then this is include/exclude.  we dont remove when the checkbox is
       //unchecked
