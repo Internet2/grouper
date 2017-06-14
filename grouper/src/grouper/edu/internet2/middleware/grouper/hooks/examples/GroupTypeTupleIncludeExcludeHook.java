@@ -390,9 +390,9 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     GroupType requireGroupsType = null;
     try {
       
-      includesExcludesType = GroupTypeFinder.find(includeExcludeName, true);
+      includesExcludesType = GroupTypeFinder.find(includeExcludeName, false);
       
-      includeExclude = typedGroup.hasType(includesExcludesType, false);
+      includeExclude = includesExcludesType != null && typedGroup.hasType(includesExcludesType, false);
       
       //if other groups are there, then this is include/exclude.  we dont remove when the checkbox is
       //unchecked
@@ -408,9 +408,9 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       includeExclude = includeExclude || GroupFinder.findByName(grouperSession, 
           overallName + excludeExtensionSuffix(), false) != null;
       
-      requireGroupsType = GroupTypeFinder.find(groupTypeName, true);
+      requireGroupsType = GroupTypeFinder.find(groupTypeName, false);
   
-      boolean hasRequireGroupsType = typedGroup.hasType(requireGroupsType, false);
+      boolean hasRequireGroupsType = requireGroupsType != null && typedGroup.hasType(requireGroupsType, false);
       
       String andGroupsAttributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
       boolean hasAndGroupsAttributeName = StringUtils.isNotBlank(andGroupsAttributeName);

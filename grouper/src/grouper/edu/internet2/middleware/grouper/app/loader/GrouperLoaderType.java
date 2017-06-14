@@ -4029,23 +4029,12 @@ public enum GrouperLoaderType {
     try {
       grouperSession = GrouperSession.startRootSession();
 
-      //lets see if there is configuration
-      String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
-      if (StringUtils.isBlank(attrRootStem)) {
-        return;
-      }
-      
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
-      
-      //see if attributeDef
-      if (attributeDefName == null) {
-        return;
-      }
-      
-      //lets get the attribute assignments of load type
-      Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
-        .findGroupAttributeAssignments(null, null, GrouperUtil.toSet(attributeDefName.getId()), null, null, true, false);
+      Set<AttributeAssign> attributeAssigns = retrieveLdapAttributeAssigns();
 
+      if (GrouperUtil.isBlank(attributeAssigns)) {
+        return;
+      }
+      
       for (AttributeAssign attributeAssign : attributeAssigns) {
         validateAndScheduleLdapLoad(attributeAssign, jobNames, true);
       }
@@ -4105,6 +4094,26 @@ public enum GrouperLoaderType {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+  }
+
+  public static Set<AttributeAssign> retrieveLdapAttributeAssigns() {
+    //lets see if there is configuration
+    String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
+    if (StringUtils.isBlank(attrRootStem)) {
+      return new HashSet<AttributeAssign>();
+    }
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+    
+    //see if attributeDef
+    if (attributeDefName == null) {
+      return new HashSet<AttributeAssign>();
+    }
+    
+    //lets get the attribute assignments of load type
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+      .findGroupAttributeAssignments(null, null, GrouperUtil.toSet(attributeDefName.getId()), null, null, true, false);
+    return attributeAssigns;
   }
 
 
@@ -4173,7 +4182,7 @@ public enum GrouperLoaderType {
    * @param grouperSession
    */
   @SuppressWarnings("unchecked")
-  private static Set<Group> retrieveGroups(GrouperSession grouperSession) {
+  public static Set<Group> retrieveGroups(GrouperSession grouperSession) {
     try {
       //find all groups with the attribute with this type
 //      Set<Group> groupSet = new GroupAttributeExactFilter(GrouperLoader.GROUPER_LOADER_TYPE, this.name(), 

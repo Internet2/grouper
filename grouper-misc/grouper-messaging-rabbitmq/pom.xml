@@ -32,16 +32,19 @@
   </parent>
  
   <dependencies>
-    <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>subject</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>grouper</artifactId>
-        <version>${project.version}</version>
-    </dependency>
+  
+	<dependency>
+	    <groupId>xerces</groupId>
+	    <artifactId>xercesImpl</artifactId>
+	    <version>2.10.0</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-lang3</artifactId>
+	</dependency>
+	
+  	
     <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>grouperClient</artifactId>
@@ -53,37 +56,13 @@
             </exclusion>
         </exclusions>
     </dependency>
+    
 	<dependency>
 	    <groupId>com.rabbitmq</groupId>
 	    <artifactId>amqp-client</artifactId>
 	    <version>4.0.2</version>
 	</dependency>
-
-
+	
   </dependencies>
     
-  <build>
-	<sourceDirectory>source</sourceDirectory>
-	<testSourceDirectory>test</testSourceDirectory>
-	<resources>
-    <resource>
-      <directory>conf</directory>
-      <includes>
-        <include>**/*</include>
-      </includes>
-    </resource>
-    <resource>
-      <directory>misc</directory>
-      <includes>
-          <include>**/*</include>
-      </includes>
-    </resource>
-	</resources>
-	<plugins>
-	    <plugin>
-	        <groupId>org.apache.maven.plugins</groupId>
-	        <artifactId>maven-compiler-plugin</artifactId>
-	    </plugin>
-	</plugins>
-  </build>
 </project>

@@ -1,33 +1,18 @@
 package edu.internet2.middleware.grouperMessagingRabbitmq;
 
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import junit.textui.TestRunner;
+import junit.framework.TestCase;
 
-public class GrouperMessagingRabbitmqSystemTest extends GrouperTest {
+public class GrouperMessagingRabbitmqSystemTest extends TestCase {
   
-  /**
-   * log
-   */
-  private static final Log LOG = GrouperUtil.getLog(GrouperMessagingRabbitmqSystemTest.class);
-  
-  public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperMessagingRabbitmqSystemTest("testSend"));
-  }
-  
-
   /**
    * @param name
    */
   public GrouperMessagingRabbitmqSystemTest(String name) {
     super(name);
-    
   }
   
   public void testSend() throws Exception {
@@ -43,11 +28,9 @@ public class GrouperMessagingRabbitmqSystemTest extends GrouperTest {
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
     sendParam.addMessageBody(testMessageBody);
-    sendParam.assignAutocreateObjects(true); 
+    sendParam.assignAutocreateObjects(true);
          
     system.send(sendParam);
-    
-    LOG.info("message sent.. now going to receive the same message.");
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
@@ -61,7 +44,6 @@ public class GrouperMessagingRabbitmqSystemTest extends GrouperTest {
       }
     });
     system.receive(receiveParam);
-    
   }
 
 }

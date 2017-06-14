@@ -25,14 +25,13 @@ import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.redhogs.cronparser.CronExpressionDescriptor;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -52,6 +51,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -77,6 +77,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.SearchFilter;
+import net.redhogs.cronparser.CronExpressionDescriptor;
 
 
 /**
@@ -2688,43 +2689,7 @@ public class UiV2GrouperLoader {
             Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderLogs.get(0);
             
                       
-            //default of last success is usually 25 hours, but can be less for change log jobs
-            int minutesSinceLastSuccess = -1;
-  
-            //for these, also accept with no uuid
-          
-            int underscoreIndex = jobName.lastIndexOf("__");
-            
-            if (underscoreIndex != -1) {
-              
-              String jobNameWithoutUuid = jobName.substring(0, underscoreIndex);
-              jobNameWithoutUuid = jobNameWithoutUuid.replaceAll(INVALID_PROPERTIES_REGEX, "_");
-              minutesSinceLastSuccess = GrouperConfig.retrieveConfig().propertyValueInt("ws.diagnostic.minutesSinceLastSuccess." + jobNameWithoutUuid, -1);
-              
-            }
-            
-            //try with full job name
-            if (minutesSinceLastSuccess == -1) {
-              String configName = jobName.replaceAll(INVALID_PROPERTIES_REGEX, "_");
-  
-              //we will give it 52 hours... 48 (two days), plus 4 hours to run...
-              int defaultMinutesSinceLastSuccess = GrouperConfig.retrieveConfig().propertyValueInt("ws.diagnostic.defaultMinutesSinceLastSuccess", 60*52);
-
-              minutesSinceLastSuccess = GrouperConfig.retrieveConfig().propertyValueInt("ws.diagnostic.minutesSinceLastSuccess." + configName, defaultMinutesSinceLastSuccess);
-            }
-
-            Timestamp timestamp = hib3GrouperLoaderLog.getEndedTime();
-
-            Long lastSuccess = timestamp == null ? null : timestamp.getTime();
-
-            boolean isSuccess = lastSuccess != null && (System.currentTimeMillis() - lastSuccess) / (1000 * 60) < minutesSinceLastSuccess;
-            if (isSuccess) {
-              loaderReport.append("<font color='green'>SUCCESS:</font> Found a success on " + timestamp + " in grouper_loader_log for job name: " + jobName 
-                  + " which is within the threshold of " + minutesSinceLastSuccess + " minutes \n");
-            } else {
-              loaderReport.append("<font color='red'>ERROR:</font> Found most recent success on " + timestamp + " in grouper_loader_log for job name: " + jobName 
-                  + " which is NOT within the threshold of " + minutesSinceLastSuccess + " minutes \n");
-            }
+            loaderSuccessFromLogs(loaderReport, jobName, hib3GrouperLoaderLog, true);
           }
         }
         
@@ -2804,6 +2769,64 @@ public class UiV2GrouperLoader {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * 
+   * @param loaderReport
+   * @param jobName
+   * @param hib3GrouperLoaderLog
+   * @param runningFromDiagnostics
+   * @return if success
+   */
+  private static boolean loaderSuccessFromLogs(StringBuilder loaderReport, String jobName,
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog, boolean runningFromDiagnostics) {
+    
+    if (hib3GrouperLoaderLog == null) {
+      loaderReport.append((runningFromDiagnostics ? "<font color='red'>ERROR:</font> " : "") + "Can't find a success in grouper_loader_log for job name: " + jobName);
+      return false;
+    }
+    
+    //default of last success is usually 25 hours, but can be less for change log jobs
+    int minutesSinceLastSuccess = -1;
+ 
+    //for these, also accept with no uuid
+     
+    int underscoreIndex = jobName.lastIndexOf("__");
+    
+    if (underscoreIndex != -1) {
+      
+      String jobNameWithoutUuid = jobName.substring(0, underscoreIndex);
+      jobNameWithoutUuid = jobNameWithoutUuid.replaceAll(INVALID_PROPERTIES_REGEX, "_");
+      minutesSinceLastSuccess = GrouperConfig.retrieveConfig().propertyValueInt("ws.diagnostic.minutesSinceLastSuccess." + jobNameWithoutUuid, -1);
+      
+    }
+    
+    //try with full job name
+    if (minutesSinceLastSuccess == -1) {
+      String configName = jobName.replaceAll(INVALID_PROPERTIES_REGEX, "_");
+ 
+      //we will give it 52 hours... 48 (two days), plus 4 hours to run...
+      int defaultMinutesSinceLastSuccess = GrouperConfig.retrieveConfig().propertyValueInt("ws.diagnostic.defaultMinutesSinceLastSuccess", 60*52);
+
+      minutesSinceLastSuccess = GrouperConfig.retrieveConfig().propertyValueInt("ws.diagnostic.minutesSinceLastSuccess." + configName, defaultMinutesSinceLastSuccess);
+    }
+
+    Timestamp timestamp = hib3GrouperLoaderLog.getEndedTime();
+
+    Long lastSuccess = timestamp == null ? null : timestamp.getTime();
+
+    boolean isSuccess = lastSuccess != null && (System.currentTimeMillis() - lastSuccess) / (1000 * 60) < minutesSinceLastSuccess;
+    
+    if (isSuccess) {
+      loaderReport.append((runningFromDiagnostics ? "<font color='green'>SUCCESS:</font> " : "") + "Found a success on " + timestamp + " in grouper_loader_log for job name: " + jobName 
+          + " which is within the threshold of " + minutesSinceLastSuccess + " minutes \n");
+    } else {
+      loaderReport.append((runningFromDiagnostics ? "<font color='red'>ERROR:</font> " : "") + "Found most recent success on " + timestamp + " in grouper_loader_log for job name: " + jobName 
+          + " which is NOT within the threshold of " + minutesSinceLastSuccess + " minutes \n");
+    }
+    
+    return isSuccess;
   }
 
   /**
@@ -3630,4 +3653,190 @@ public class UiV2GrouperLoader {
     
   }
       
+  /**
+   * the loader overall button was pressed from misc page
+   * @param request
+   * @param response
+   */
+  @SuppressWarnings("deprecation")
+  public void loaderOverall(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      boolean canSeeLoaderOverall = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoaderOverall();
+      
+      if (!canSeeLoaderOverall) {
+        return;
+      }
+      
+      //not sure who can see attributes etc, just go root
+      GrouperSession.stopQuietly(grouperSession);
+      grouperSession = GrouperSession.startRootSession();
+      
+      List<GuiGrouperLoaderJob> guiGrouperLoaderJobs = new ArrayList<GuiGrouperLoaderJob>();
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().setGuiGrouperLoaderJobs(guiGrouperLoaderJobs);
+      
+      {
+        Set<Group> groups = GrouperLoaderType.retrieveGroups(grouperSession);
+        
+        for (Group group : GrouperUtil.nonNull(groups)) {
+          
+          GuiGrouperLoaderJob guiGrouperLoaderJob = new GuiGrouperLoaderJob();
+          guiGrouperLoaderJobs.add(guiGrouperLoaderJob);
+          
+          guiGrouperLoaderJob.setGuiGroup(new GuiGroup(group));
+          
+          String grouperLoaderType = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_TYPE, false, false);
+
+          if (!StringUtils.isBlank(grouperLoaderType)) {
+
+            guiGrouperLoaderJob.setType(grouperLoaderType);
+
+            GrouperLoaderType grouperLoaderTypeEnum = null;
+            
+            try {
+              grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+              String jobName = grouperLoaderTypeEnum.name() + "__" + group.getName() + "__" + group.getUuid();
+              guiGrouperLoaderJob.setJobName(jobName);
+            } catch (Exception e) {
+              //ignore
+            }
+
+          }
+          
+          {
+            String query = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_QUERY, false, false);
+
+            guiGrouperLoaderJob.setQuery(query);
+          }
+          
+          {
+            String source = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_DB_NAME, false, false);
+
+            guiGrouperLoaderJob.setSource(source);
+            
+            String url = GrouperLoaderContainer.convertDatabaseNameToUrl(source);
+            String description = GrouperLoaderContainer.convertDatabaseUrlToText(url);
+            
+            guiGrouperLoaderJob.setSourceDescription(description);
+            
+          }
+          
+        }
+        
+      }
+      Set<AttributeAssign> ldapAttributeAssigns = GrouperLoaderType.retrieveLdapAttributeAssigns();
+      
+      for (AttributeAssign ldapAttributeAssign : GrouperUtil.nonNull(ldapAttributeAssigns)) {
+        
+        GuiGrouperLoaderJob guiGrouperLoaderJob = new GuiGrouperLoaderJob();
+        guiGrouperLoaderJobs.add(guiGrouperLoaderJob);
+        
+        Group group = ldapAttributeAssign.getOwnerGroup();
+        if (group == null) {
+          continue;
+        }
+        guiGrouperLoaderJob.setGuiGroup(new GuiGroup(group));
+
+        String grouperLoaderType = ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+
+        if (!StringUtils.isBlank(grouperLoaderType)) {
+
+          guiGrouperLoaderJob.setType(grouperLoaderType);
+
+          GrouperLoaderType grouperLoaderTypeEnum = null;
+          
+          try {
+            grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+            String jobName = grouperLoaderTypeEnum.name() + "__" + group.getName() + "__" + group.getUuid();
+            guiGrouperLoaderJob.setJobName(jobName);
+          } catch (Exception e) {
+            //ignore
+          }
+
+        }
+
+        {
+          String query = ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapFilterName());
+              
+          guiGrouperLoaderJob.setQuery(query);
+        }
+        
+        {
+          String source = ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapServerIdName());
+              
+          guiGrouperLoaderJob.setSource(source);
+          
+          String url = GrouperLoaderContainer.convertLdapServerIdToUrl(source);
+          String description = GrouperLoaderContainer.convertLdapUrlToDescription(url);
+          
+          guiGrouperLoaderJob.setSourceDescription(description);
+          
+        }
+
+        
+      }
+      
+      for (GuiGrouperLoaderJob guiGrouperLoaderJob : guiGrouperLoaderJobs) {
+        List<Criterion> criterionList = new ArrayList<Criterion>();
+        
+        String jobName = guiGrouperLoaderJob.getJobName();
+        
+        criterionList.add(Restrictions.eq("jobName", jobName));
+        criterionList.add(Restrictions.eq("status", "SUCCESS"));
+  
+        int maxRows = 1;
+        QueryOptions queryOptions = QueryOptions.create("lastUpdated", false, 1, maxRows);
+        
+        Criterion allCriteria = HibUtils.listCrit(criterionList);
+        
+        List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byCriteriaStatic()
+          .options(queryOptions).list(Hib3GrouperLoaderLog.class, allCriteria);
+
+        StringBuilder message = new StringBuilder();
+        
+        boolean success = loaderSuccessFromLogs(message, jobName, GrouperUtil.length(loaderLogs) > 0 ? loaderLogs.get(0) : null, false);
+        
+        if (success) {
+          guiGrouperLoaderJob.setStatus("SUCCESS");
+        } else {
+          guiGrouperLoaderJob.setStatus("ERROR");
+        }
+        
+        if (GrouperUtil.length(loaderLogs) > 0) {
+          Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderLogs.get(0);
+          guiGrouperLoaderJob.setChanges(GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), 0) 
+              + GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), 0) 
+              + GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), 0));
+          guiGrouperLoaderJob.setCount(GrouperUtil.intValue(hib3GrouperLoaderLog.getTotalCount(), 0));
+        }
+        
+        guiGrouperLoaderJob.setStatusDescription(message.toString());
+        
+      }
+      
+      Collections.sort(guiGrouperLoaderJobs);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/grouperLoaderOverall.jsp"));
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  
+  
 }
