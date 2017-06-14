@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import edu.internet2.middleware.morphString.Morph;
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.AddRequest;
 import org.ldaptive.BindConnectionInitializer;
@@ -57,6 +58,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LdapSystem {
   private static final Logger LOG = LoggerFactory.getLogger(LdapSystem.class);
+
+  // What ldaptive properties will be decrypted if their values are Morph files?
+  // (We don't decrypt all properties because that would prevent the use of slashes in the property values)
+  public static final String ENCRYPTABLE_LDAPTIVE_PROPERTIES[]
+          = new String[]{"org.ldaptive.bindCredential"};
 
   public final String ldapSystemName;
   protected Properties _ldaptiveProperties = new Properties();
@@ -263,7 +269,13 @@ public class LdapSystem {
         }
       }
     }
-    
+
+    // Go through the properties that can be encrypted and decrypt them if they're Morph files
+    for (String encryptablePropertyKey : ENCRYPTABLE_LDAPTIVE_PROPERTIES) {
+      String value = _ldaptiveProperties.getProperty(encryptablePropertyKey);
+      value = Morph.decryptIfFile(value);
+      _ldaptiveProperties.put(encryptablePropertyKey, value);
+    }
     return _ldaptiveProperties;
   }
 
@@ -396,10 +408,7 @@ public class LdapSystem {
   /**
    * 
    * @param request
-   * @param requestedAttributes A case-insensitive TreeSet. This is a copy of request.getReturnAttributes
-   * but is it broken out as a separate parameter so the exact same Set can be used across 1000s of 
-   * LdapObjects.
-   * 
+   *
    * @return
    * @throws LdapException
    */

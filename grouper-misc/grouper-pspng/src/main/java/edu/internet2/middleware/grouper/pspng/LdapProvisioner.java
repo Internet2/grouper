@@ -91,6 +91,16 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
           config.getLdapUserCacheTime_secs(),
           config.getLdapUserCacheTime_secs(),
           false);
+
+    // Make sure we can connect
+    try {
+      if (!getLdapSystem().test()) {
+        throw new RuntimeException("Unable to make ldap connection");
+      }
+    } catch (PspException e) {
+      LOG.error("{}: Unable to make ldap connection", getName(), e);
+      throw new RuntimeException("Unable to make ldap connection");
+    }
   }
 
   
