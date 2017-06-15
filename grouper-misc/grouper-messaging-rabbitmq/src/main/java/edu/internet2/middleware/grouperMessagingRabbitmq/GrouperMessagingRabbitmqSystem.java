@@ -15,12 +15,15 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.AMQP.Queue.DeclareOk;
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.MessageProperties;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
@@ -61,10 +64,6 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       throw new IllegalArgumentException("grouperMessageQueueParam is required.");
     }
     
-    if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
-      throw new IllegalArgumentException("For rabbitmq only queue type is allowed."); 
-    }
-    
     String queueOrTopicName = grouperMessageSendParam.getGrouperMessageQueueParam().getQueueOrTopicName();
     
     if (StringUtils.isBlank(queueOrTopicName)) {
@@ -75,23 +74,34 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
       throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is a required field.");
     }
+    
     try {
       
       Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection(grouperMessageSystemParam.getMessageSystemName());
       Channel channel = connection.createChannel();
-      if (grouperMessageSystemParam.isAutocreateObjects()) {
-        channel.queueDeclare(queueOrTopicName, false, false, false, null);
+      
+      String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
+          grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType());
+      
+      if (error != null) {
+        throw new IllegalArgumentException(error);
       }
       
       for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
         String message = grouperMessage.getMessageBody();
-        channel.basicPublish("", queueOrTopicName, null, message.getBytes("UTF-8"));
+        if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
+          channel.basicPublish(queueOrTopicName, "", MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
+        } else {
+          channel.basicPublish("", queueOrTopicName, MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
+        }
         LOG.info("Sent message: "+message);
         channel.close();
       }
       
-    } catch(Exception e) {
+    } catch(IOException e) {
       throw new RuntimeException("Error occurred while sending message to messaging system: "+grouperMessageSystemParam.getMessageSystemName(), e);
+    } catch(TimeoutException e) {
+      throw new RuntimeException("Error occurred while closing channel for messaging system: "+grouperMessageSystemParam.getMessageSystemName(), e);
     }
     return new GrouperMessageSendResult();
   }
@@ -150,10 +160,6 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     
     final Integer pageSize = maxMessagesToReceiveAtOnce;
     
-    if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
-      throw new IllegalArgumentException("For rabbitmq only queue type is allowed."); 
-    }
-    
     String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
     
     if (StringUtils.isBlank(queueOrTopicName)) {
@@ -174,11 +180,6 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
 
       Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection(grouperMessageSystemParam.getMessageSystemName());
       final Channel channel = connection.createChannel();
-      
-      if (grouperMessageSystemParam.isAutocreateObjects()) {
-        channel.queueDeclare(queueOrTopicName, false, false, false, null);
-      }
-      
       Consumer consumer = new DefaultConsumer(channel) {
         @Override
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
@@ -199,8 +200,22 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           LOG.info("Received: "+message);
         }
       };
-      channel.basicConsume(queueOrTopicName, true, consumer);
- 
+      
+      String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
+          grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType());
+      
+      if (error != null) {
+        throw new IllegalArgumentException(error);
+      }
+      
+      if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
+        DeclareOk declareOk = channel.queueDeclare();
+        channel.queueBind(declareOk.getQueue(), queueOrTopicName, "");
+        channel.basicConsume(declareOk.getQueue(), true, consumer);
+      } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
+        channel.basicConsume(queueOrTopicName, true, consumer);
+      }
+      
       new Timer().schedule(
         new java.util.TimerTask() {
           @Override
@@ -214,10 +229,48 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
             }
           }
         }, longPollMillis);
-    } catch(Exception e) {
+    } catch(IOException e) {
       throw new RuntimeException("Error occurred while trying to receive messages for "+grouperMessageSystemParam.getMessageSystemName(), e);
     }    
     return result;
+  }
+  
+  
+  /**
+   * @param grouperMessageSystemParam
+   * @param channel
+   * @param queueOrTopicName
+   * @param queueType
+   * @return
+   * @throws IOException
+   */
+  private String createQueueOrExchange(GrouperMessageSystemParam grouperMessageSystemParam,
+      Channel channel, String queueOrTopicName, GrouperMessageQueueType queueType) throws IOException {
+    
+    String error = null;
+    
+    if (queueType == GrouperMessageQueueType.topic) {
+      if (grouperMessageSystemParam.isAutocreateObjects()) {
+        channel.exchangeDeclare(queueOrTopicName, BuiltinExchangeType.FANOUT, true);
+      } else {
+        try {
+          channel.exchangeDeclarePassive(queueOrTopicName);
+        } catch (IOException e) {
+          error = "exchange "+queueOrTopicName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true.";
+        }
+      }
+    } else if (queueType == GrouperMessageQueueType.queue) {
+        if (grouperMessageSystemParam.isAutocreateObjects()) {
+          channel.queueDeclare(queueOrTopicName, true, false, false, null);
+        } else {
+          try {
+            channel.queueDeclarePassive(queueOrTopicName);
+          } catch (IOException e) {
+            error = "queue "+queueOrTopicName+" doesn't exist. Either create the queue or set the autoCreateObjects to true.";
+          }
+        }
+    }
+    return error;
   }
   
   public void closeConnection(String messagingSystemName) {
