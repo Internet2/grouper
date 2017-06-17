@@ -110,24 +110,6 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#acknowledge(edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam)
    */
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
-    
-    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageAcknowledgeParam.getGrouperMessageSystemParam();
-    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
-      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is a required field.");
-    }
-    
-    try {
-      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection(grouperMessageSystemParam.getMessageSystemName());
-      final Channel channel = connection.createChannel();
-
-      String queueOrTopicName = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
-      channel.queueDeclare(queueOrTopicName, false, false, false, null);
-      for (GrouperMessage message: GrouperClientUtils.nonNull(grouperMessageAcknowledgeParam.getGrouperMessages())) {
-        channel.basicAck(Long.valueOf(message.getId()), false);
-      }
-    } catch(Exception e) {
-      throw new RuntimeException("Error occurred while trying to acknowledge messages for "+grouperMessageSystemParam.getMessageSystemName(), e);
-    }    
     return new GrouperMessageAcknowledgeResult();
   }
   
@@ -187,6 +169,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           String message = new String(body, "UTF-8");
           GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId());
           messages.add(rabbitmqMessage);
+          channel.basicAck(envelope.getDeliveryTag(), false);
           if (messages.size() >= pageSize) {
             try {
               channel.close();
@@ -211,9 +194,9 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
         DeclareOk declareOk = channel.queueDeclare();
         channel.queueBind(declareOk.getQueue(), queueOrTopicName, "");
-        channel.basicConsume(declareOk.getQueue(), true, consumer);
+        channel.basicConsume(declareOk.getQueue(), false, consumer);
       } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
-        channel.basicConsume(queueOrTopicName, true, consumer);
+        channel.basicConsume(queueOrTopicName, false, consumer);
       }
       
       new Timer().schedule(
@@ -225,13 +208,14 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
                 channel.close();
               }
             } catch (Exception e) {
-              throw new RuntimeException("Error occurred while closing channel", e); 
+              LOG.error("Error occurred while closing channel", e); 
             }
           }
         }, longPollMillis);
     } catch(IOException e) {
       throw new RuntimeException("Error occurred while trying to receive messages for "+grouperMessageSystemParam.getMessageSystemName(), e);
-    }    
+    }
+    
     return result;
   }
   
