@@ -13,6 +13,7 @@
   <packaging>war</packaging>
   <name>grouper-ws-scim Maven Webapp</name>
   <url>http://maven.apache.org</url>
+  <version>2.3.0-SNAPSHOT</version>
   
  <!--  <properties>
   	<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXmlPath>
