@@ -184,7 +184,7 @@ public class GrouperLoaderJob implements Job {
           
           grouperLoaderTypeFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
           grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(attributeAssign.getAttributeValueDelegate()
-              .retrieveValueInteger(LoaderLdapUtils.grouperLoaderLdapPriorityName()), true);
+              .retrieveValueString(LoaderLdapUtils.grouperLoaderLdapPriorityName()), true);
           
           //lets reset the job name in case the name has changed
           jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getId();
