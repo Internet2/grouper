@@ -16,16 +16,54 @@
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.AddressFormatter;
+import edu.internet2.middleware.subject.Subject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
+
 
 /**
  *
  */
+@RunWith(PowerMockRunner.class)
 public class AddressFormatterTest {
 
     @Test
-    public void testQualifyAddressSimple() {
+    public void testQualifyAddressUserSimple() {
+        AddressFormatter addressFormatter = new AddressFormatter();
+        addressFormatter
+                .setSubjectIdentifierExpression("${subjectId}")
+                .setDomain("test.edu");
+
+        Subject subject = mock(Subject.class);
+        when(subject.getId()).thenReturn("jgasper");
+
+        String expected = "jgasper@test.edu";
+        String result = addressFormatter.qualifySubjectAddress(subject);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testQualifyAddressUserComplex() {
+        AddressFormatter addressFormatter = new AddressFormatter();
+        addressFormatter
+                .setSubjectIdentifierExpression("${subject.getId() == 'jgasper' ? 'jgasp@blah.edu' : 'jgasper@test.edu' }")
+                .setDomain("test.edu");
+
+        Subject subject = mock(Subject.class);
+        when(subject.getId()).thenReturn("jgasper");
+
+        String expected = "jgasp@blah.edu";
+        String result = addressFormatter.qualifySubjectAddress(subject);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testQualifyAddressGroupSimple() {
         AddressFormatter addressFormatter = new AddressFormatter();
         addressFormatter
                 .setGroupIdentifierExpression("crs-${groupPath}-test")
@@ -37,7 +75,7 @@ public class AddressFormatterTest {
     }
 
     @Test
-    public void testQualifyAddressComplex() {
+    public void testQualifyAddressGroupComplex() {
         AddressFormatter addressFormatter = new AddressFormatter();
             addressFormatter
                     .setGroupIdentifierExpression("crs-${groupPath.replace(\"abc1:\", \"\")}-test")

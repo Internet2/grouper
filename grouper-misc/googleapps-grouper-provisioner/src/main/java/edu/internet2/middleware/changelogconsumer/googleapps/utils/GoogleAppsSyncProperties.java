@@ -100,7 +100,7 @@ public class GoogleAppsSyncProperties {
 
         serviceAccountEmail =
                 GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + "serviceAccountEmail");
-        LOG.debug("Google Apps Consumer - Setting Google serviceAccountEmail on error to {}", serviceAccountEmail);
+        LOG.debug("Google Apps Consumer - Setting Google serviceAccountEmail to {}", serviceAccountEmail);
 
         serviceImpersonationUser =
                 GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + "serviceImpersonationUser");

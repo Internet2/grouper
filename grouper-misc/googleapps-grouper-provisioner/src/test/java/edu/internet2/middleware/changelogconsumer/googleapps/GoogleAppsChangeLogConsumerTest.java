@@ -15,12 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mock;
-
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -33,21 +27,36 @@ import com.google.api.services.admin.directory.model.User;
 import com.google.api.services.admin.directory.model.UserName;
 import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.AddressFormatter;
-import edu.internet2.middleware.grouper.changeLog.*;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
-import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.net.ssl.*", "org.apache.log4j.*"})
@@ -85,8 +94,9 @@ public class GoogleAppsChangeLogConsumerTest {
         try {
             props.load(is);
 
+            googleDomain = props.getProperty("DOMAIN");
             addressFormatter
-                    .setDomain(props.getProperty("DOMAIN"))
+                    .setDomain(googleDomain)
                     .setGroupIdentifierExpression(props.getProperty("GROUP_IDENTIFIER_EXPRESSION"))
                     .setSubjectIdentifierExpression(props.getProperty("SUBJECT_IDENTIFIER_EXPRESSION"));
 
@@ -182,7 +192,7 @@ public class GoogleAppsChangeLogConsumerTest {
     public void testProcessGroupMemberAddExistingUser() throws GeneralSecurityException, IOException {
         //User already exists in Google
         createTestGroup(groupDisplayName, groupName);
-        createTestUser(addressFormatter.qualifySubjectAddress(subjectId), "Fiona", "Windsor");
+        createTestUser(buildSubjectAddress(subjectId), "Fiona", "Windsor");
 
         ChangeLogEntry addEntry = mock(ChangeLogEntry.class);
         when(addEntry.getChangeLogType()).thenReturn(new ChangeLogType("membership", "addMembership", ""));
@@ -198,7 +208,7 @@ public class GoogleAppsChangeLogConsumerTest {
         List<Member> members = GoogleAppsSdkUtils.retrieveGroupMembers(directory, addressFormatter.qualifyGroupAddress(groupName));
         assertNotNull(members);
         assertTrue(members.size() == 1);
-        assertTrue(members.get(0).getEmail().equalsIgnoreCase(addressFormatter.qualifySubjectAddress(subjectId)));
+        assertTrue(members.get(0).getEmail().equalsIgnoreCase(buildSubjectAddress(subjectId)));
     }
 
 /* This only works if the grouper-load.properties is marked with .provisionUsers=false
@@ -244,17 +254,17 @@ public class GoogleAppsChangeLogConsumerTest {
         List<Member> members = GoogleAppsSdkUtils.retrieveGroupMembers(directory, addressFormatter.qualifyGroupAddress(groupName));
         assertNotNull(members);
         assertTrue(members.size() == 1);
-        assertTrue(members.get(0).getEmail().equalsIgnoreCase(addressFormatter.qualifySubjectAddress(subjectId)));
+        assertTrue(members.get(0).getEmail().equalsIgnoreCase(buildSubjectAddress(subjectId)));
     }
 
     @Test
     public void testProcessGroupMemberRemove() throws GeneralSecurityException, IOException {
         //User already exists in Google
         Group group = createTestGroup(groupDisplayName, groupName);
-        createTestUser(addressFormatter.qualifySubjectAddress(subjectId), "Fiona", "Windsor");
+        createTestUser(buildSubjectAddress(subjectId), "Fiona", "Windsor");
 
         Member member = new Member()
-                .setEmail(addressFormatter.qualifySubjectAddress(subjectId))
+                .setEmail(buildSubjectAddress(subjectId))
                 .setRole("MEMBER");
         GoogleAppsSdkUtils.addGroupMember(directory, group.getEmail(), member);
 
@@ -375,7 +385,7 @@ public class GoogleAppsChangeLogConsumerTest {
         when(subject.getAttributeValue("givenName")).thenReturn("testgn2");
         when(subject.getAttributeValue("sn")).thenReturn("testfn2");
         when(subject.getAttributeValue("displayName")).thenReturn("testgn2, testfn2");
-        when(subject.getAttributeValue("mail")).thenReturn(addressFormatter.qualifySubjectAddress(subjectId));
+        when(subject.getAttributeValue("mail")).thenReturn(buildSubjectAddress(subjectId));
         when(subject.getType()).thenReturn(SubjectTypeEnum.PERSON);
         return subject;
     }
@@ -385,7 +395,7 @@ public class GoogleAppsChangeLogConsumerTest {
         when(subject.getAttributeValue("givenName")).thenReturn("testgn2");
         when(subject.getAttributeValue("sn")).thenReturn("testfn2");
         when(subject.getAttributeValue("displayName")).thenReturn("testgn2, testfn2");
-        when(subject.getAttributeValue("mail")).thenReturn(addressFormatter.qualifySubjectAddress(subjectId));
+        when(subject.getAttributeValue("mail")).thenReturn(buildSubjectAddress(subjectId));
         when(subject.getType()).thenReturn(SubjectTypeEnum.GROUP);
         return subject;
     }
@@ -396,6 +406,10 @@ public class GoogleAppsChangeLogConsumerTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private String buildSubjectAddress(String subjectId) {
+        return String.format("%s@%s", subjectId, googleDomain);
     }
 
 }

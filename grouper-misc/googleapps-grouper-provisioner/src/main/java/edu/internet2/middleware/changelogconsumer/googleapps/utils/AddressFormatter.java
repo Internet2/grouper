@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps.utils;
 
+import edu.internet2.middleware.subject.Subject;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
@@ -32,13 +33,18 @@ public class AddressFormatter {
     private UnifiedJEXL.Expression subjectIdentifierExp = null;
     private String domain;
 
-    public String qualifySubjectAddress(String subjectId) {
+    public String qualifySubjectAddress(final Subject subject) {
         final JexlContext context = new MapContext();
-        context.set("subjectId", subjectId);
+        context.set("subject", subject);
+        context.set("subjectId", subject.getId());
 
-        final String address = subjectIdentifierExp.evaluate(context).toString();
+        String address = subjectIdentifierExp.evaluate(context).toString();
 
-        return String.format("%s@%s", address.replace(":", "-"), this.domain);
+        if (!address.contains("@")) {
+            address = String.format("%s@%s", address, this.domain);
+        }
+
+        return address.replace(":", "-");
     }
 
     public String qualifyGroupAddress(String group) {
