@@ -53,7 +53,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PermissionEntryDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MessageDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="MembershipDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -213,6 +213,34 @@ Basic <code>Membership</code> DAO interface.
                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled,
                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;shouldCheckSecurity,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptionsForAttributeDef,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scopeForAttributeDef,
+                                  boolean&nbsp;splitScopeForAttributeDef,
+                                  boolean&nbsp;hasFieldForAttributeDef,
+                                  boolean&nbsp;hasMembershipTypeForAttributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find memberships by stem owner and other options.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>[]&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MembershipDAO.html?view=co#findAllByAttributeDefOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean)">findAllByAttributeDefOwnerOptions</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;attributeDefIds,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;memberIds,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;membershipIds,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html?view=co" title="enum in edu.internet2.middleware.grouper.membership">MembershipType</A>&nbsp;membershipType,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;field,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Source&gt;&nbsp;sources,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;shouldCheckSecurity,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptionsForMember,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;filterForMember,
+                                  boolean&nbsp;splitScopeForMember,
+                                  boolean&nbsp;hasFieldForMember,
+                                  boolean&nbsp;hasMembershipTypeForMember,
                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptionsForAttributeDef,
                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scopeForAttributeDef,
                                   boolean&nbsp;splitScopeForAttributeDef,
@@ -3233,6 +3261,46 @@ findAllByAttributeDefOwnerOptions</H3>
 </DL>
 <HR>
 
+<A NAME="findAllByAttributeDefOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean)"><!-- --></A><H3>
+findAllByAttributeDefOwnerOptions</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>[]&gt; <B>findAllByAttributeDefOwnerOptions</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;attributeDefIds,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;memberIds,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;membershipIds,
+                                                <A HREF="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html?view=co" title="enum in edu.internet2.middleware.grouper.membership">MembershipType</A>&nbsp;membershipType,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;field,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Source&gt;&nbsp;sources,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                                                <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                                <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;shouldCheckSecurity,
+                                                <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptionsForMember,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;filterForMember,
+                                                boolean&nbsp;splitScopeForMember,
+                                                boolean&nbsp;hasFieldForMember,
+                                                boolean&nbsp;hasMembershipTypeForMember,
+                                                <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptionsForAttributeDef,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scopeForAttributeDef,
+                                                boolean&nbsp;splitScopeForAttributeDef,
+                                                boolean&nbsp;hasFieldForAttributeDef,
+                                                boolean&nbsp;hasMembershipTypeForAttributeDef)</PRE>
+<DL>
+<DD>find memberships by stem owner and other options.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefIds</CODE> - to limit memberships to<DD><CODE>memberIds</CODE> - to limit memberships to<DD><CODE>membershipIds</CODE> - to limit memberships to<DD><CODE>membershipType</CODE> - Immediate, NonImmediate, etc<DD><CODE>field</CODE> - if finding one field, list here, otherwise all list fields will be returned<DD><CODE>sources</CODE> - if limiting memberships of members in certain sources, list here<DD><CODE>scope</CODE> - sql like string which will have a % appended to it<DD><CODE>stem</CODE> - if looking in a certain stem<DD><CODE>stemScope</CODE> - if looking only in this stem, or all substems<DD><CODE>enabled</CODE> - null for all, true for enabled only, false for disabled only<DD><CODE>shouldCheckSecurity</CODE> - if we should check security, default to true<DD><CODE>queryOptionsForMember</CODE> - if getting a list of members who have privileges, this is the paging/sorting<DD><CODE>filterForMember</CODE> - if filtering by member search string<DD><CODE>splitScopeForMember</CODE> - if splitting scope (by spaces and all terms must be in there)<DD><CODE>hasFieldForMember</CODE> - if the member has a privilege<DD><CODE>hasMembershipTypeForMember</CODE> - if the membership type is for member list<DD><CODE>queryOptionsForAttributeDef</CODE> - if paging for attribute defs, then these are the query options for the overall page<DD><CODE>scopeForAttributeDef</CODE> - if paging for attribute defs, this is the scope to search for on the attribute defs<DD><CODE>splitScopeForAttributeDef</CODE> - if scoping and paging for attribute defs, this will split the scope by whitespace<DD><CODE>hasFieldForAttributeDef</CODE> - if paging by attribute def you can look for a specific field for the attribute defs
+ and then all fields for the resulting attribute defs<DD><CODE>hasMembershipTypeForAttributeDef</CODE> - if paging for attribute defs, this is the membership type
+<DT><B>Returns:</B><DD>a set of membership, stem, and member objects<DT><B>Since:</B></DT>
+  <DD>v2.2</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="findAllByAttributeDefOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean)"><!-- --></A><H3>
 findAllByAttributeDefOwnerOptions</H3>
 <PRE>
@@ -3297,7 +3365,7 @@ findAllByAttributeDefOwnerOptions</H3>
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PermissionEntryDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MessageDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="MembershipDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;

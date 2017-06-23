@@ -52,7 +52,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderIncrementalJob.Row.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -93,11 +93,13 @@ Class GrouperLoaderJob</H2>
   <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD>org.quartz.Job, org.quartz.StatefulJob</DD>
+<DT><B>All Implemented Interfaces:</B> <DD>org.quartz.Job</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>GrouperLoaderJob</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A><DT>implements org.quartz.Job, org.quartz.StatefulJob</DL>
+<DT><PRE><FONT SIZE="-1">@PersistJobDataAfterExecution
+@DisallowConcurrentExecution
+</FONT>public class <B>GrouperLoaderJob</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A><DT>implements org.quartz.Job</DL>
 </PRE>
 
 <P>
@@ -311,7 +313,7 @@ public static void <B>runJobAttrDef</B>(<A HREF="../../../../../../edu/internet2
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderIncrementalJob.Row.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;

@@ -248,6 +248,15 @@ Class HibUtils</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co#convertToInClauseAnyType(java.util.Collection, edu.internet2.middleware.grouper.hibernate.HqlQuery)">convertToInClauseAnyType</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;?&gt;&nbsp;collection,
+                         <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;scalarable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a collection of strings (no parens) to an in clause</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co#convertToInClauseForSqlStatic(java.util.Collection)">convertToInClauseForSqlStatic</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;collection)</CODE>
 
 <BR>
@@ -383,6 +392,24 @@ Class HibUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co#paramsToString(java.lang.Object, java.lang.Object)">paramsToString</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;params,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;types)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convert the params to friendly strings</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co#parseAlias(java.lang.String, boolean)">parseAlias</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;text,
+           boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses an alias out of a sql query.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co#propertyIndex(java.lang.String[], java.lang.String)">propertyIndex</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;propertyNames,
               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;propertyName)</CODE>
@@ -473,6 +500,36 @@ public <B>HibUtils</B>()</PRE>
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="paramsToString(java.lang.Object, java.lang.Object)"><!-- --></A><H3>
+paramsToString</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>paramsToString</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;params,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;types)</PRE>
+<DL>
+<DD>Convert the params to friendly strings
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>params</CODE> - <DD><CODE>types</CODE> - 
+<DT><B>Returns:</B><DD>the string of the params (for logging)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="parseAlias(java.lang.String, boolean)"><!-- --></A><H3>
+parseAlias</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>parseAlias</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;text,
+                                boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD>Parses an alias out of a sql query.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>text</CODE> - is the text to find the alias in.<DD><CODE>exceptionIfNotFound</CODE> - if true, when an alias is not found, and exception will be thrown.
+<DT><B>Returns:</B><DD>the alias.</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="equalsOrIs(java.lang.Object, java.lang.String)"><!-- --></A><H3>
 equalsOrIs</H3>
@@ -876,6 +933,21 @@ convertToInClause</H3>
 <PRE>
 public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>convertToInClause</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;collection,
                                        <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;scalarable)</PRE>
+<DL>
+<DD>convert a collection of strings (no parens) to an in clause
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>collection</CODE> - <DD><CODE>scalarable</CODE> - to set the string
+<DT><B>Returns:</B><DD>the string of in clause (without parens)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToInClauseAnyType(java.util.Collection, edu.internet2.middleware.grouper.hibernate.HqlQuery)"><!-- --></A><H3>
+convertToInClauseAnyType</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>convertToInClauseAnyType</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;?&gt;&nbsp;collection,
+                                              <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;scalarable)</PRE>
 <DL>
 <DD>convert a collection of strings (no parens) to an in clause
 <P>

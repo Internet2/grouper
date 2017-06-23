@@ -52,7 +52,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMemberships.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMembershipsDaemon.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.CheckGroupResult.html?view=co" title="enum in edu.internet2.middleware.grouper.misc"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -149,6 +149,14 @@ check the configuration of grouper to make sure things are configured right, and
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/regex/Pattern.html?view=co" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#grouperLoaderOtherJobPattern">grouperLoaderOtherJobPattern</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;match something like this: otherJob.duo.class, otherJob.duo.quartzCron, otherJob.duo.priority</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#inCheckConfig">inCheckConfig</A></B></CODE>
 
@@ -167,6 +175,14 @@ check the configuration of grouper to make sure things are configured right, and
  match: security.member.sort.string[0-4].wheelOnly
  match: security.member.search.string[0-4].allowOnlyGroup
  match: security.member.search.string[0-4].wheelOnly</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/regex/Pattern.html?view=co" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#messagingListenerConsumerPattern">messagingListenerConsumerPattern</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;match something like this: changeLog.consumer.ldappc.class, changeLog.consumer.ldappc.quartzCron</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -230,6 +246,19 @@ check the configuration of grouper to make sure things are configured right, and
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root stem where attributes live</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#checkAttribute(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.attr.AttributeDef, java.lang.String, java.lang.String, java.lang.String, boolean)">checkAttribute</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+               <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayExtension,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description,
+               boolean&nbsp;logAutocreate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure an attribute is there or add it if not</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -311,6 +340,14 @@ check the configuration of grouper to make sure things are configured right, and
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#checkGrouperLoaderOtherJobs()">checkGrouperLoaderOtherJobs</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;check the grouper loader other jobs configs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#checkGroups()">checkGroups</A></B>()</CODE>
 
 <BR>
@@ -329,8 +366,28 @@ check the configuration of grouper to make sure things are configured right, and
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#checkJar(java.lang.String, java.util.Set, java.lang.String, java.lang.String)">checkJar</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&gt;&nbsp;sizes,
+         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sampleClassName,
+         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;manifestVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;check a jar</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#checkResource(java.lang.String)">checkResource</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;resourcePath)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure a resource is on the resource path</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co#checkResource(java.lang.String, boolean)">checkResource</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;resourcePath,
+              boolean&nbsp;required)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure a resource is on the resource path</TD>
@@ -459,6 +516,30 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/re
 </DL>
 <HR>
 
+<A NAME="messagingListenerConsumerPattern"><!-- --></A><H3>
+messagingListenerConsumerPattern</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/regex/Pattern.html?view=co" title="class or interface in java.util.regex">Pattern</A> <B>messagingListenerConsumerPattern</B></PRE>
+<DL>
+<DD>match something like this: changeLog.consumer.ldappc.class, changeLog.consumer.ldappc.quartzCron
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="grouperLoaderOtherJobPattern"><!-- --></A><H3>
+grouperLoaderOtherJobPattern</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/regex/Pattern.html?view=co" title="class or interface in java.util.regex">Pattern</A> <B>grouperLoaderOtherJobPattern</B></PRE>
+<DL>
+<DD>match something like this: otherJob.duo.class, otherJob.duo.quartzCron, otherJob.duo.priority
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="typeSecurityPattern"><!-- --></A><H3>
 typeSecurityPattern</H3>
 <PRE>
@@ -557,6 +638,22 @@ public static void <B>checkJar</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/
 </DL>
 <HR>
 
+<A NAME="checkJar(java.lang.String, java.util.Set, java.lang.String, java.lang.String)"><!-- --></A><H3>
+checkJar</H3>
+<PRE>
+public static void <B>checkJar</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&gt;&nbsp;sizes,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sampleClassName,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;manifestVersion)</PRE>
+<DL>
+<DD>check a jar
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - name of the jar from grouper<DD><CODE>sizes</CODE> - that the jar should be<DD><CODE>sampleClassName</CODE> - inside the jar<DD><CODE>manifestVersion</CODE> - in the manifest file, which version we are expecting</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="checkResource(java.lang.String)"><!-- --></A><H3>
 checkResource</H3>
 <PRE>
@@ -566,6 +663,21 @@ public static boolean <B>checkResource</B>(<A HREF="http://docs.oracle.com/javas
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>resourcePath</CODE> - 
+<DT><B>Returns:</B><DD>false if problem or if not checking configs</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="checkResource(java.lang.String, boolean)"><!-- --></A><H3>
+checkResource</H3>
+<PRE>
+public static boolean <B>checkResource</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;resourcePath,
+                                    boolean&nbsp;required)</PRE>
+<DL>
+<DD>make sure a resource is on the resource path
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>resourcePath</CODE> - <DD><CODE>required</CODE> - 
 <DT><B>Returns:</B><DD>false if problem or if not checking configs</DL>
 </DD>
 </DL>
@@ -672,6 +784,19 @@ checkGrouperLoaderConfigDbs</H3>
 public static void <B>checkGrouperLoaderConfigDbs</B>()</PRE>
 <DL>
 <DD>check the grouper loader db configs
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="checkGrouperLoaderOtherJobs()"><!-- --></A><H3>
+checkGrouperLoaderOtherJobs</H3>
+<PRE>
+public static void <B>checkGrouperLoaderOtherJobs</B>()</PRE>
+<DL>
+<DD>check the grouper loader other jobs configs
 <P>
 <DD><DL>
 </DL>
@@ -790,6 +915,25 @@ public static void <B>checkConfigProperties</B>(<A HREF="http://docs.oracle.com/
 </DL>
 <HR>
 
+<A NAME="checkAttribute(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.attr.AttributeDef, java.lang.String, java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+checkAttribute</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>checkAttribute</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                              <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayExtension,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description,
+                                              boolean&nbsp;logAutocreate)</PRE>
+<DL>
+<DD>make sure an attribute is there or add it if not
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>stem</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>extension</CODE> - <DD><CODE>description</CODE> - <DD><CODE>displayExtension</CODE> - <DD><CODE>logAutocreate</CODE> - 
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="attributeLoaderStemName()"><!-- --></A><H3>
 attributeLoaderStemName</H3>
 <PRE>
@@ -873,7 +1017,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMemberships.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMembershipsDaemon.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.CheckGroupResult.html?view=co" title="enum in edu.internet2.middleware.grouper.misc"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;

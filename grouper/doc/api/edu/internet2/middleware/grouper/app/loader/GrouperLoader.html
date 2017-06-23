@@ -53,7 +53,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperLoader.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -73,7 +73,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -105,7 +105,24 @@ main class to start the grouper loader
 <HR>
 
 <P>
-<!-- =========== FIELD SUMMARY =========== -->
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">GrouperLoader.GrouperLoaderDryRunBean</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bean holds where the logging goes, and if there, then it means we are in dry run mode</TD>
+</TR>
+</TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
 
 <A NAME="field_summary"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -345,8 +362,32 @@ main class to start the grouper loader
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#internal_assignThreadLocalGrouperLoaderDryRun(edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean)">internal_assignThreadLocalGrouperLoaderDryRun</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">GrouperLoader.GrouperLoaderDryRunBean</A>&nbsp;theThreadLocalGrouperLoaderDryRun)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">GrouperLoader.GrouperLoaderDryRunBean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#internal_retrieveThreadLocalGrouperLoaderDryRun()">internal_retrieveThreadLocalGrouperLoaderDryRun</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#isDryRun()">isDryRun</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#isJobRunning(java.lang.String)">isJobRunning</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -393,6 +434,14 @@ main class to start the grouper loader
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#scheduleBuiltinMessagingDaemonJob()">scheduleBuiltinMessagingDaemonJob</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schedule enabled/disabled job</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -460,6 +509,15 @@ main class to start the grouper loader
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#scheduleJobIfNeeded(org.quartz.JobDetail, org.quartz.Trigger)">scheduleJobIfNeeded</A></B>(org.quartz.JobDetail&nbsp;jobDetail,
+                    org.quartz.Trigger&nbsp;trigger)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Schedule job if new or something has changed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#scheduleLogCleanerJob()">scheduleLogCleanerJob</A></B>()</CODE>
 
@@ -473,6 +531,22 @@ main class to start the grouper loader
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schedule maintenance jobs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#scheduleMessagingListeners()">scheduleMessagingListeners</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schedule messaging listener jobs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.html?view=co#scheduleOtherJobs()">scheduleOtherJobs</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schedule other jobs</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -919,6 +993,32 @@ public static void <B>scheduleChangeLogConsumers</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="scheduleMessagingListeners()"><!-- --></A><H3>
+scheduleMessagingListeners</H3>
+<PRE>
+public static void <B>scheduleMessagingListeners</B>()</PRE>
+<DL>
+<DD>schedule messaging listener jobs
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="scheduleOtherJobs()"><!-- --></A><H3>
+scheduleOtherJobs</H3>
+<PRE>
+public static void <B>scheduleOtherJobs</B>()</PRE>
+<DL>
+<DD>schedule other jobs
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="scheduleDailyReportJob()"><!-- --></A><H3>
 scheduleDailyReportJob</H3>
 <PRE>
@@ -949,6 +1049,19 @@ public static void <B>scheduleRulesJob</B>()</PRE>
 scheduleEnabledDisabledJob</H3>
 <PRE>
 public static void <B>scheduleEnabledDisabledJob</B>()</PRE>
+<DL>
+<DD>schedule enabled/disabled job
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="scheduleBuiltinMessagingDaemonJob()"><!-- --></A><H3>
+scheduleBuiltinMessagingDaemonJob</H3>
+<PRE>
+public static void <B>scheduleBuiltinMessagingDaemonJob</B>()</PRE>
 <DL>
 <DD>schedule enabled/disabled job
 <P>
@@ -1086,6 +1199,29 @@ public static void <B>schedulePspFullSyncRunAtStartupJob</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="internal_retrieveThreadLocalGrouperLoaderDryRun()"><!-- --></A><H3>
+internal_retrieveThreadLocalGrouperLoaderDryRun</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">GrouperLoader.GrouperLoaderDryRunBean</A> <B>internal_retrieveThreadLocalGrouperLoaderDryRun</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the threadLocalGrouperLoaderDryRun</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_assignThreadLocalGrouperLoaderDryRun(edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean)"><!-- --></A><H3>
+internal_assignThreadLocalGrouperLoaderDryRun</H3>
+<PRE>
+public static void <B>internal_assignThreadLocalGrouperLoaderDryRun</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">GrouperLoader.GrouperLoaderDryRunBean</A>&nbsp;theThreadLocalGrouperLoaderDryRun)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theThreadLocalGrouperLoaderDryRun</CODE> - the threadLocalGrouperLoaderDryRun to set</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="dryRunJobOnceForGroup(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, java.lang.String)"><!-- --></A><H3>
 dryRunJobOnceForGroup</H3>
 <PRE>
@@ -1121,6 +1257,36 @@ public static void <B>dryRunWriteLine</B>(<A HREF="http://docs.oracle.com/javase
 <DT><B>Parameters:</B><DD><CODE>line</CODE> - </DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="scheduleJobIfNeeded(org.quartz.JobDetail, org.quartz.Trigger)"><!-- --></A><H3>
+scheduleJobIfNeeded</H3>
+<PRE>
+public static boolean <B>scheduleJobIfNeeded</B>(org.quartz.JobDetail&nbsp;jobDetail,
+                                          org.quartz.Trigger&nbsp;trigger)
+                                   throws org.quartz.SchedulerException</PRE>
+<DL>
+<DD>Schedule job if new or something has changed
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>jobDetail</CODE> - <DD><CODE>trigger</CODE> - 
+<DT><B>Returns:</B><DD>true if needed an update
+<DT><B>Throws:</B>
+<DD><CODE>org.quartz.SchedulerException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isJobRunning(java.lang.String)"><!-- --></A><H3>
+isJobRunning</H3>
+<PRE>
+public static boolean <B>isJobRunning</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>jobName</CODE> - 
+<DT><B>Returns:</B><DD>true if the job appears to currently be running</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -1152,7 +1318,7 @@ public static void <B>dryRunWriteLine</B>(<A HREF="http://docs.oracle.com/javase
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoader.GrouperLoaderDryRunBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperLoader.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -1172,7 +1338,7 @@ public static void <B>dryRunWriteLine</B>(<A HREF="http://docs.oracle.com/javase
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

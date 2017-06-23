@@ -52,7 +52,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LdapGroupUserConverter.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapUtils.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -196,6 +196,19 @@ loaded in EL context for loader el's
  searchDn is myschool
  to people:someapp</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtils.html?view=co#convertLDAPMemberDnToSubjectIdOrGroup(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean)">convertLDAPMemberDnToSubjectIdOrGroup</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dn,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;baseOu,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperBaseStem,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;serverId,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uniqueAttribute,
+                                      boolean&nbsp;idOrIdentifier)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a subject dn to a user RDN value, and a group dn to a group ID or Uuid</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -263,7 +276,7 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/St
 <DD>convert from uid=someapp,ou=people,dc=myschool,dc=edu to someapp and allow groups
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>dn</CODE> - full dn<DD><CODE>allowGroups</CODE> - if groups are allowed<DD><CODE>groupSuffix</CODE> - group suffix e.g. ,OU=Groups,DC=dev,DC=umontreal,DC=ca<DD><CODE>groupPrefix</CODE> - group prefix e.g. umontreal:adgroups: 
+<DT><B>Parameters:</B><DD><CODE>dn</CODE> - full dn<DD><CODE>groupSuffix</CODE> - group suffix e.g. ,OU=Groups,DC=dev,DC=umontreal,DC=ca<DD><CODE>groupPrefix</CODE> - group prefix e.g. umontreal:adgroups: 
  if null then no prefix<DD><CODE>createGroupIfNotThere</CODE> - if we should see if group exists and if not, create<DD><CODE>idOrIdentifier</CODE> - true for Id (uuid), false for Identifier of group (name)
 <DT><B>Returns:</B><DD>the subjectId or Identifier</DL>
 </DD>
@@ -337,6 +350,25 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/St
 <DT><B>Returns:</B><DD>the subject identifier (group name)</DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="convertLDAPMemberDnToSubjectIdOrGroup(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+convertLDAPMemberDnToSubjectIdOrGroup</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>convertLDAPMemberDnToSubjectIdOrGroup</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dn,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;baseOu,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperBaseStem,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;serverId,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uniqueAttribute,
+                                                           boolean&nbsp;idOrIdentifier)</PRE>
+<DL>
+<DD>convert a subject dn to a user RDN value, and a group dn to a group ID or Uuid
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>dn</CODE> - of group member . Normally this will be as subjectId<DD><CODE>baseOu</CODE> - This is the full DN of the OU to load from LDAP e.g. OU=Some Example,DC=test,DC=school,DC=edu<DD><CODE>grouperBaseStem</CODE> - is the base stem where the groups are loaded into.  e.g. my:groups:Loaded_from_LDAP<DD><CODE>serverId</CODE> - is the connection or server ID specified in grouper-loader.properties file. e.g: personLdap<DD><CODE>uniqueAttribute</CODE> - attribute value to return from LDAP query, preferably the one storing the subjectId<DD><CODE>idOrIdentifier</CODE> - true for id (group id), false for identifier (group name)
+<DT><B>Returns:</B><DD>RDN value for subject (user object), Uuid or Group name for a group</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -367,7 +399,7 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/St
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LdapGroupUserConverter.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapUtils.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;

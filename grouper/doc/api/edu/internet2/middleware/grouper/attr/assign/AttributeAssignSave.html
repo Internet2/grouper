@@ -1,0 +1,1282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+AttributeAssignSave
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="AttributeAssignSave";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignStemDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeAssignSave.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.attr.assign</FONT>
+<BR>
+Class AttributeAssignSave</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>AttributeAssignSave</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Use this class to insert or update an attribute assign
+ e.g.
+ attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerStemName("test:testFolder").assignNameOfAttributeName("a:b"c).save();
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#AttributeAssignSave(edu.internet2.middleware.grouper.GrouperSession)">AttributeAssignSave</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;theGrouperSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;create a new attribute assign save</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#addAttributeAssignOnThisAssignment(edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave)">addAttributeAssignOnThisAssignment</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A>&nbsp;theAttributeAssignSave)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if including assignments on this assignment, put them here, put in null to remove assignments</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#addAttributeAssignValue(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)">addAttributeAssignValue</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&nbsp;attributeAssignValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a value to assign to this assignment.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#addValue(java.lang.Object)">addValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a value to an attribute assignment</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAction(java.lang.String)">assignAction</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAction)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign the action</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAttributeAssignActionId(java.lang.String)">assignAttributeAssignActionId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeAssignActionId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign the action id for the action on this assignment</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAttributeAssignDelegatable(edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable)">assignAttributeAssignDelegatable</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegatable</A>&nbsp;theAttributeAssignDelegatable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if the subjects assigned to the attribute can delegate to someone else, or delegate as delegatable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAttributeAssignIdsToNotUse(java.util.Set)">assignAttributeAssignIdsToNotUse</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theAttributeAssignIdsToNotUse)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if doing an import, these are id's which should not be used.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAttributeAssignType(edu.internet2.middleware.grouper.attr.assign.AttributeAssignType)">assignAttributeAssignType</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;theAttributeAssignType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type of assignment</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)">assignAttributeDefName</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;theAttributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attribute name in this assignment as opposed to nameOfAttributeDefName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignAttributeDefNameId(java.lang.String)">assignAttributeDefNameId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attribute name in this assignment as opposed to nameOfAttributeDefName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignDisabledTime(java.lang.Long)">assignDisabledTime</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;theDisabledTime)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a date here, and it is in the past, this assignment is disabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignDisabledTime(java.sql.Timestamp)">assignDisabledTime</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;theDisabledTimestamp)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a date here, and it is in the past, this assignment is disabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignDisallowed(boolean)">assignDisallowed</A></B>(boolean&nbsp;theDisallowed)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a permission, then if this permission assignment is allowed or not</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignEnabledTime(java.lang.Long)">assignEnabledTime</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;theEnabledTimeDb)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a date here, and it is in the future, this assignment is disabled
+ until that time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignEnabledTimestamp(java.sql.Timestamp)">assignEnabledTimestamp</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;theEnabledTimestamp)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a date here, and it is in the future, this assignment is disabled
+ until that time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignId(java.lang.String)">assignId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id of this attribute assign</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignNameOfAttributeDefName(java.lang.String)">assignNameOfAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theNameOfAttributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attribute name in this assignment as opposed to attributeDefNameId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignNotes(java.lang.String)">assignNotes</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theNotes)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notes about this assignment, free-form text</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerAttributeAssign(edu.internet2.middleware.grouper.attr.assign.AttributeAssign)">assignOwnerAttributeAssign</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;theOwnerAttributeAssign)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is an attribute assign attribute, this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerAttributeAssignId(java.lang.String)">assignOwnerAttributeAssignId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerAttributeAssignId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is an attribute assign attribute, this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)">assignOwnerAttributeDef</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;theOwnerAttributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is an attribute def attribute, this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerAttributeDefId(java.lang.String)">assignOwnerAttributeDefId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerAttributeDefId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is an attribute def attribute, this is the foreign key, mutually exclusive with ownerNameOfAttributeDef</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerGroup(edu.internet2.middleware.grouper.Group)">assignOwnerGroup</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theOwnerGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a group attribute, this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerGroupId(java.lang.String)">assignOwnerGroupId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a group attribute, this is the foreign key mutually exclusive with ownerGroupName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerGroupName(java.lang.String)">assignOwnerGroupName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a group attribute, this is the foreign key mutually exclusive with ownerGroupId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMember(edu.internet2.middleware.grouper.Member)">assignOwnerMember</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;theOwnerMember)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a member attribute, this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMemberId(java.lang.String)">assignOwnerMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberSubjectId(entifier) and ownerMemberSourceId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMembership(edu.internet2.middleware.grouper.Membership)">assignOwnerMembership</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&nbsp;theOwnerMembership)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a membership attribute, this is the foreign key.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMembershipId(java.lang.String)">assignOwnerMembershipId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMembershipId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a membership attribute, this is the foreign key.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMemberSourceId(java.lang.String)">assignOwnerMemberSourceId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberSourceId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberId, also need to pass in ownerMemberSubjectId or ownerMemberSubjectIdentifier</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMemberSubjectId(java.lang.String)">assignOwnerMemberSubjectId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberSubjectId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberId, also need to pass in ownerMemberSourceId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerMemberSubjectIdentifier(java.lang.String)">assignOwnerMemberSubjectIdentifier</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberSubjectIdentifier)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberId, also need to pass in ownerMemberSourceId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerNameOfAttributeDef(java.lang.String)">assignOwnerNameOfAttributeDef</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerNameOfAttributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is an attribute def attribute, this is the foreign key mutually exclusive with ownerAttributeDefId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerStem(edu.internet2.middleware.grouper.Stem)">assignOwnerStem</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;theOwnerStem)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a stem attribute, this is the foreign key, mutually exclusive with ownerStemName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerStemId(java.lang.String)">assignOwnerStemId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerStemId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a stem attribute, this is the foreign key, mutually exclusive with ownerStemName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignOwnerStemName(java.lang.String)">assignOwnerStemName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerStemName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a stem attribute, this is the foreign key, mutually exclusive with ownerStemId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignPrintChangesToSystemOut(boolean)">assignPrintChangesToSystemOut</A></B>(boolean&nbsp;thePrintChangesToSystemOut)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if changes should be printed as system out</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignPutAttributeAssignIdsToNotUseSet(boolean)">assignPutAttributeAssignIdsToNotUseSet</A></B>(boolean&nbsp;thePutAttributeAssignIdsToNotUseSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if the attribute assign ids should be added to the set to not use</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#assignSaveMode(edu.internet2.middleware.grouper.misc.SaveMode)">assignSaveMode</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveMode</A>&nbsp;theSaveMode)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign save mode</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#findExistingAttributeAssignment()">findExistingAttributeAssignment</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find an existing assignment that is similar this request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#getAttributeAssignValues()">getAttributeAssignValues</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;migrate values to attribute assign values if needed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#getChangesCount()">getChangesCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count how many things were changed (attributes values etc)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveResultType</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#getSaveResultType()">getSaveResultType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the save type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#inSaveThreadlocal()">inSaveThreadlocal</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we are in the middle of saving (then maybe ignore some rules)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#printChangesToSystemOutThreadlocal()">printChangesToSystemOutThreadlocal</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if should print changes to standard out</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co#save()">save</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ create or update an attribute assignment
+ 
+ Steps:
+ 
+ 1.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="AttributeAssignSave(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+AttributeAssignSave</H3>
+<PRE>
+public <B>AttributeAssignSave</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;theGrouperSession)</PRE>
+<DL>
+<DD>create a new attribute assign save
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>theGrouperSession</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="assignPrintChangesToSystemOut(boolean)"><!-- --></A><H3>
+assignPrintChangesToSystemOut</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignPrintChangesToSystemOut</B>(boolean&nbsp;thePrintChangesToSystemOut)</PRE>
+<DL>
+<DD>if changes should be printed as system out
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>thePrintChangesToSystemOut</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="printChangesToSystemOutThreadlocal()"><!-- --></A><H3>
+printChangesToSystemOutThreadlocal</H3>
+<PRE>
+public static boolean <B>printChangesToSystemOutThreadlocal</B>()</PRE>
+<DL>
+<DD>if should print changes to standard out
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if should print</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="inSaveThreadlocal()"><!-- --></A><H3>
+inSaveThreadlocal</H3>
+<PRE>
+public static boolean <B>inSaveThreadlocal</B>()</PRE>
+<DL>
+<DD>if we are in the middle of saving (then maybe ignore some rules)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if in the middle of saving</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignSaveMode(edu.internet2.middleware.grouper.misc.SaveMode)"><!-- --></A><H3>
+assignSaveMode</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignSaveMode</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveMode</A>&nbsp;theSaveMode)</PRE>
+<DL>
+<DD>assign save mode
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSaveMode</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeAssignDelegatable(edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable)"><!-- --></A><H3>
+assignAttributeAssignDelegatable</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAttributeAssignDelegatable</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegatable</A>&nbsp;theAttributeAssignDelegatable)</PRE>
+<DL>
+<DD>if the subjects assigned to the attribute can delegate to someone else, or delegate as delegatable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeAssignDelegatable</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeAssignType(edu.internet2.middleware.grouper.attr.assign.AttributeAssignType)"><!-- --></A><H3>
+assignAttributeAssignType</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAttributeAssignType</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;theAttributeAssignType)</PRE>
+<DL>
+<DD>type of assignment
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeAssignType</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeDefNameId(java.lang.String)"><!-- --></A><H3>
+assignAttributeDefNameId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAttributeDefNameId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeDefNameId)</PRE>
+<DL>
+<DD>attribute name in this assignment as opposed to nameOfAttributeDefName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assignAttributeDefName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAttributeDefName</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;theAttributeDefName)</PRE>
+<DL>
+<DD>attribute name in this assignment as opposed to nameOfAttributeDefName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignNameOfAttributeDefName(java.lang.String)"><!-- --></A><H3>
+assignNameOfAttributeDefName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignNameOfAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theNameOfAttributeDefName)</PRE>
+<DL>
+<DD>attribute name in this assignment as opposed to attributeDefNameId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theNameOfAttributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignDisabledTime(java.lang.Long)"><!-- --></A><H3>
+assignDisabledTime</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignDisabledTime</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;theDisabledTime)</PRE>
+<DL>
+<DD>if there is a date here, and it is in the past, this assignment is disabled
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theDisabledTime</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignDisabledTime(java.sql.Timestamp)"><!-- --></A><H3>
+assignDisabledTime</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignDisabledTime</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;theDisabledTimestamp)</PRE>
+<DL>
+<DD>if there is a date here, and it is in the past, this assignment is disabled
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theDisabledTimestamp</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignDisallowed(boolean)"><!-- --></A><H3>
+assignDisallowed</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignDisallowed</B>(boolean&nbsp;theDisallowed)</PRE>
+<DL>
+<DD>if this is a permission, then if this permission assignment is allowed or not
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theDisallowed</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignEnabledTime(java.lang.Long)"><!-- --></A><H3>
+assignEnabledTime</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignEnabledTime</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;theEnabledTimeDb)</PRE>
+<DL>
+<DD>if there is a date here, and it is in the future, this assignment is disabled
+ until that time
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theEnabledTimeDb</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignEnabledTimestamp(java.sql.Timestamp)"><!-- --></A><H3>
+assignEnabledTimestamp</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignEnabledTimestamp</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;theEnabledTimestamp)</PRE>
+<DL>
+<DD>if there is a date here, and it is in the future, this assignment is disabled
+ until that time
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theEnabledTimestamp</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignId(java.lang.String)"><!-- --></A><H3>
+assignId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</PRE>
+<DL>
+<DD>id of this attribute assign
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignNotes(java.lang.String)"><!-- --></A><H3>
+assignNotes</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignNotes</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theNotes)</PRE>
+<DL>
+<DD>notes about this assignment, free-form text
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theNotes</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerAttributeAssignId(java.lang.String)"><!-- --></A><H3>
+assignOwnerAttributeAssignId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerAttributeAssignId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerAttributeAssignId)</PRE>
+<DL>
+<DD>if this is an attribute assign attribute, this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerAttributeAssignId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerAttributeAssign(edu.internet2.middleware.grouper.attr.assign.AttributeAssign)"><!-- --></A><H3>
+assignOwnerAttributeAssign</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerAttributeAssign</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;theOwnerAttributeAssign)</PRE>
+<DL>
+<DD>if this is an attribute assign attribute, this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerAttributeAssign</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerAttributeDefId(java.lang.String)"><!-- --></A><H3>
+assignOwnerAttributeDefId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerAttributeDefId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerAttributeDefId)</PRE>
+<DL>
+<DD>if this is an attribute def attribute, this is the foreign key, mutually exclusive with ownerNameOfAttributeDef
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerAttributeDefId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+assignOwnerAttributeDef</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerAttributeDef</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;theOwnerAttributeDef)</PRE>
+<DL>
+<DD>if this is an attribute def attribute, this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerAttributeDef</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerNameOfAttributeDef(java.lang.String)"><!-- --></A><H3>
+assignOwnerNameOfAttributeDef</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerNameOfAttributeDef</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerNameOfAttributeDef)</PRE>
+<DL>
+<DD>if this is an attribute def attribute, this is the foreign key mutually exclusive with ownerAttributeDefId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerNameOfAttributeDef</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerGroupId(java.lang.String)"><!-- --></A><H3>
+assignOwnerGroupId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerGroupId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupId)</PRE>
+<DL>
+<DD>if this is a group attribute, this is the foreign key mutually exclusive with ownerGroupName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerGroupId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerGroupName(java.lang.String)"><!-- --></A><H3>
+assignOwnerGroupName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerGroupName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupName)</PRE>
+<DL>
+<DD>if this is a group attribute, this is the foreign key mutually exclusive with ownerGroupId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerGroupName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerGroup(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+assignOwnerGroup</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerGroup</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theOwnerGroup)</PRE>
+<DL>
+<DD>if this is a group attribute, this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerGroup</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMemberId(java.lang.String)"><!-- --></A><H3>
+assignOwnerMemberId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberId)</PRE>
+<DL>
+<DD>if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberSubjectId(entifier) and ownerMemberSourceId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMemberId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMember(edu.internet2.middleware.grouper.Member)"><!-- --></A><H3>
+assignOwnerMember</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMember</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;theOwnerMember)</PRE>
+<DL>
+<DD>if this is a member attribute, this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMember</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMemberSubjectId(java.lang.String)"><!-- --></A><H3>
+assignOwnerMemberSubjectId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMemberSubjectId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberSubjectId)</PRE>
+<DL>
+<DD>if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberId, also need to pass in ownerMemberSourceId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMemberSubjectId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMemberSubjectIdentifier(java.lang.String)"><!-- --></A><H3>
+assignOwnerMemberSubjectIdentifier</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMemberSubjectIdentifier</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberSubjectIdentifier)</PRE>
+<DL>
+<DD>if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberId, also need to pass in ownerMemberSourceId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMemberSubjectIdentifier</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMemberSourceId(java.lang.String)"><!-- --></A><H3>
+assignOwnerMemberSourceId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMemberSourceId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMemberSourceId)</PRE>
+<DL>
+<DD>if this is a member attribute, this is the foreign key, mutually exclusive with ownerMemberId, also need to pass in ownerMemberSubjectId or ownerMemberSubjectIdentifier
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMemberSourceId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMembershipId(java.lang.String)"><!-- --></A><H3>
+assignOwnerMembershipId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMembershipId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerMembershipId)</PRE>
+<DL>
+<DD>if this is a membership attribute, this is the foreign key.  mutually exclusive with group and member foreign keys
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMembershipId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerMembership(edu.internet2.middleware.grouper.Membership)"><!-- --></A><H3>
+assignOwnerMembership</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerMembership</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&nbsp;theOwnerMembership)</PRE>
+<DL>
+<DD>if this is a membership attribute, this is the foreign key.  mutually exclusive with group and member foreign keys
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerMembership</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerStemId(java.lang.String)"><!-- --></A><H3>
+assignOwnerStemId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerStemId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerStemId)</PRE>
+<DL>
+<DD>if this is a stem attribute, this is the foreign key, mutually exclusive with ownerStemName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerStemId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerStem(edu.internet2.middleware.grouper.Stem)"><!-- --></A><H3>
+assignOwnerStem</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerStem</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;theOwnerStem)</PRE>
+<DL>
+<DD>if this is a stem attribute, this is the foreign key, mutually exclusive with ownerStemName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerStem</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerStemName(java.lang.String)"><!-- --></A><H3>
+assignOwnerStemName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignOwnerStemName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerStemName)</PRE>
+<DL>
+<DD>if this is a stem attribute, this is the foreign key, mutually exclusive with ownerStemId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerStemName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSaveResultType()"><!-- --></A><H3>
+getSaveResultType</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveResultType</A> <B>getSaveResultType</B>()</PRE>
+<DL>
+<DD>get the save type
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>save type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeAssignActionId(java.lang.String)"><!-- --></A><H3>
+assignAttributeAssignActionId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAttributeAssignActionId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeAssignActionId)</PRE>
+<DL>
+<DD>assign the action id for the action on this assignment
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeAssignActionId</CODE> - 
+<DT><B>Returns:</B><DD>the id of the action on this assignment</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAction(java.lang.String)"><!-- --></A><H3>
+assignAction</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAction</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAction)</PRE>
+<DL>
+<DD>assign the action
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAction</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPutAttributeAssignIdsToNotUseSet(boolean)"><!-- --></A><H3>
+assignPutAttributeAssignIdsToNotUseSet</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignPutAttributeAssignIdsToNotUseSet</B>(boolean&nbsp;thePutAttributeAssignIdsToNotUseSet)</PRE>
+<DL>
+<DD>if the attribute assign ids should be added to the set to not use
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>thePutAttributeAssignIdsToNotUseSet</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeAssignIdsToNotUse(java.util.Set)"><!-- --></A><H3>
+assignAttributeAssignIdsToNotUse</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>assignAttributeAssignIdsToNotUse</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theAttributeAssignIdsToNotUse)</PRE>
+<DL>
+<DD>if doing an import, these are id's which should not be used.  The current assignment will be added to this list
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeAssignIdsToNotUse</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttributeAssignValue(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)"><!-- --></A><H3>
+addAttributeAssignValue</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>addAttributeAssignValue</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&nbsp;attributeAssignValue)</PRE>
+<DL>
+<DD>add a value to assign to this assignment.  add null if remove all
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignValue</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addValue(java.lang.Object)"><!-- --></A><H3>
+addValue</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>addValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue)</PRE>
+<DL>
+<DD>add a value to an attribute assignment
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theValue</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttributeAssignOnThisAssignment(edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave)"><!-- --></A><H3>
+addAttributeAssignOnThisAssignment</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A> <B>addAttributeAssignOnThisAssignment</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignSave.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignSave</A>&nbsp;theAttributeAssignSave)</PRE>
+<DL>
+<DD>if including assignments on this assignment, put them here, put in null to remove assignments
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeAssignSave</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="save()"><!-- --></A><H3>
+save</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>save</B>()
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeDefNameNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeDefNameNotFoundException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD><pre>
+ create or update an attribute assignment
+ 
+ Steps:
+ 
+ 1. Find an existing attribute assignment
+ 2. Internally set all the fields of the assignment
+ 3. Store the assignment (insert or update) if needed
+ 4. Manage assignments on assignments and values
+ 5. Return the assignment object
+ 
+ This runs in a tx so that if part of it fails the whole thing fails, and potentially the outer
+ transaction too
+ 
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the assignment
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeDefNameNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeDefNameNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getChangesCount()"><!-- --></A><H3>
+getChangesCount</H3>
+<PRE>
+public int <B>getChangesCount</B>()</PRE>
+<DL>
+<DD>count how many things were changed (attributes values etc)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>change count</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeAssignValues()"><!-- --></A><H3>
+getAttributeAssignValues</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt; <B>getAttributeAssignValues</B>()</PRE>
+<DL>
+<DD>migrate values to attribute assign values if needed
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute assign values</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findExistingAttributeAssignment()"><!-- --></A><H3>
+findExistingAttributeAssignment</H3>
+<PRE>
+public void <B>findExistingAttributeAssignment</B>()</PRE>
+<DL>
+<DD>find an existing assignment that is similar this request
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignStemDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeAssignSave.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

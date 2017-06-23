@@ -129,7 +129,8 @@ Class XmlExportAttributeAssign</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;long</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssign.html?view=co#dbCount(edu.internet2.middleware.grouper.xml.export.XmlExportMain)">dbCount</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssign.html?view=co#dbCount(edu.internet2.middleware.grouper.xml.export.XmlExportMain, boolean)">dbCount</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain,
+        boolean&nbsp;includeAttributesInThisStemOnly)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get db count</TD>
@@ -146,11 +147,32 @@ Class XmlExportAttributeAssign</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssign.html?view=co#exportAttributeAssignsGsh(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)">exportAttributeAssignsGsh</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                          <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssign.html?view=co#exportAttributeAssignsSecondPhase(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)">exportAttributeAssignsSecondPhase</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssign.html?view=co#exportFromOnQuery(edu.internet2.middleware.grouper.xml.export.XmlExportMain, boolean, boolean, boolean, boolean)">exportFromOnQuery</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain,
+                  boolean&nbsp;includeOrderBy,
+                  boolean&nbsp;valuesOrAssigns,
+                  boolean&nbsp;includeAssignsOnAssigns,
+                  boolean&nbsp;includeAttributesInThisStemOnly)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the query from the FROM clause on to the end for export</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -1149,6 +1171,18 @@ public void <B>toXml</B>(<A HREF="../../../../../../edu/internet2/middleware/gro
 </DL>
 <HR>
 
+<A NAME="exportAttributeAssigns(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+exportAttributeAssigns</H3>
+<PRE>
+public static void <B>exportAttributeAssigns</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                                          <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>xmlExportMain</CODE> - <DD><CODE>writer</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="processXmlSecondPass(edu.internet2.middleware.grouper.xml.importXml.XmlImportMain)"><!-- --></A><H3>
 processXmlSecondPass</H3>
 <PRE>
@@ -1162,25 +1196,44 @@ public static void <B>processXmlSecondPass</B>(<A HREF="../../../../../../edu/in
 </DL>
 <HR>
 
-<A NAME="dbCount(edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+<A NAME="dbCount(edu.internet2.middleware.grouper.xml.export.XmlExportMain, boolean)"><!-- --></A><H3>
 dbCount</H3>
 <PRE>
-public static long <B>dbCount</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
+public static long <B>dbCount</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain,
+                           boolean&nbsp;includeAttributesInThisStemOnly)</PRE>
 <DL>
 <DD>get db count
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>xmlExportMain</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>xmlExportMain</CODE> - <DD><CODE>includeAttributesInThisStemOnly</CODE> - 
 <DT><B>Returns:</B><DD>db count</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="exportAttributeAssigns(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
-exportAttributeAssigns</H3>
+<A NAME="exportFromOnQuery(edu.internet2.middleware.grouper.xml.export.XmlExportMain, boolean, boolean, boolean, boolean)"><!-- --></A><H3>
+exportFromOnQuery</H3>
 <PRE>
-public static void <B>exportAttributeAssigns</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
-                                          <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>exportFromOnQuery</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain,
+                                       boolean&nbsp;includeOrderBy,
+                                       boolean&nbsp;valuesOrAssigns,
+                                       boolean&nbsp;includeAssignsOnAssigns,
+                                       boolean&nbsp;includeAttributesInThisStemOnly)</PRE>
+<DL>
+<DD>get the query from the FROM clause on to the end for export
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>xmlExportMain</CODE> - <DD><CODE>includeOrderBy</CODE> - <DD><CODE>valuesOrAssigns</CODE> - <DD><CODE>includeAssignsOnAssigns</CODE> - <DD><CODE>includeAttributesInThisStemOnly</CODE> - 
+<DT><B>Returns:</B><DD>the export query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="exportAttributeAssignsGsh(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+exportAttributeAssignsGsh</H3>
+<PRE>
+public static void <B>exportAttributeAssignsGsh</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
 <DL>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>xmlExportMain</CODE> - <DD><CODE>writer</CODE> - </DL>

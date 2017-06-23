@@ -89,6 +89,9 @@ edu.internet2.middleware.grouper.misc</FONT>
 <BR>
 Interface GrouperObject</H2>
 <DL>
+<DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperId</A></DD>
+</DL>
+<DL>
 <DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/entity/Entity.html?view=co" title="interface in edu.internet2.middleware.grouper.entity">Entity</A></DD>
 </DL>
 <DL>
@@ -96,7 +99,7 @@ Interface GrouperObject</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public interface <B>GrouperObject</B></DL>
+<DT><PRE>public interface <B>GrouperObject</B><DT>extends <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperId</A></DL>
 </PRE>
 
 <P>
@@ -139,14 +142,6 @@ grouper objects extend this, e.g. groups, stems, attribute def names
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html?view=co#getId()">getId</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id of object</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html?view=co#getName()">getName</A></B>()</CODE>
 
 <BR>
@@ -159,6 +154,15 @@ grouper objects extend this, e.g. groups, stems, attribute def names
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this object matches the filter strings</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.misc.GrouperId"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface edu.internet2.middleware.grouper.misc.<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperId</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co#getId()">getId</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -174,20 +178,6 @@ grouper objects extend this, e.g. groups, stems, attribute def names
 </TR>
 </TABLE>
 
-<A NAME="getId()"><!-- --></A><H3>
-getId</H3>
-<PRE>
-<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getId</B>()</PRE>
-<DL>
-<DD>id of object
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>id</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="matchesLowerSearchStrings(java.util.Set)"><!-- --></A><H3>
 matchesLowerSearchStrings</H3>
 <PRE>
@@ -195,6 +185,9 @@ boolean <B>matchesLowerSearchStrings</B>(<A HREF="http://docs.oracle.com/javase/
 <DL>
 <DD>see if this object matches the filter strings
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>filterStrings</CODE> - 
 <DT><B>Returns:</B><DD>true if matches</DL>
@@ -210,6 +203,9 @@ getName</H3>
 <DD>name of object, e.g. a:b:c
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the name of this object</DL>
 </DD>
@@ -224,6 +220,9 @@ getDescription</H3>
 <DD>description of object
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>description</DL>
 </DD>
@@ -237,6 +236,9 @@ getDisplayName</H3>
 <DL>
 <DD>display name of object
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>display name</DL>

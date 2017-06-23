@@ -345,7 +345,16 @@ value of an attribute assignment (could be multi-valued based on the attributeDe
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co#assignValue(java.lang.String)">assignValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;value)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co#assignValue(java.lang.Object)">assignValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;value)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign a value to any type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co#assignValue(java.lang.Object, edu.internet2.middleware.grouper.attr.AttributeDef)">assignValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;value,
+            <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign a value to any type</TD>
@@ -479,6 +488,14 @@ value of an attribute assignment (could be multi-valued based on the attributeDe
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co#getValue()">getValue</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the value whatever it is or null if none</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -1129,10 +1146,10 @@ public void <B>setValueFloating</B>(<A HREF="http://docs.oracle.com/javase/1.5.0
 </DL>
 <HR>
 
-<A NAME="assignValue(java.lang.String)"><!-- --></A><H3>
+<A NAME="assignValue(java.lang.Object)"><!-- --></A><H3>
 assignValue</H3>
 <PRE>
-public void <B>assignValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;value)</PRE>
+public void <B>assignValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;value)</PRE>
 <DL>
 <DD>assign a value to any type
 <P>
@@ -1141,6 +1158,23 @@ public void <B>assignValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>value</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignValue(java.lang.Object, edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+assignValue</H3>
+<PRE>
+public void <B>assignValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;value,
+                        <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</PRE>
+<DL>
+<DD>assign a value to any type
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>value</CODE> - <DD><CODE>attributeDef</CODE> - </DL>
 </DD>
 </DL>
 <HR>
@@ -1850,6 +1884,23 @@ public boolean <B>sameValue</B>(<A HREF="../../../../../../edu/internet2/middlew
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>attributeAssignValue</CODE> - 
 <DT><B>Returns:</B><DD>if the argument has the same value as this</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getValue()"><!-- --></A><H3>
+getValue</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A> <B>getValue</B>()</PRE>
+<DL>
+<DD>get the value whatever it is or null if none
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value</DL>
 </DD>
 </DL>
 <HR>

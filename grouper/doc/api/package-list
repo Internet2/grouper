@@ -1,5 +1,6 @@
 edu.internet2.middleware.grouper
 edu.internet2.middleware.grouper.annotations
+edu.internet2.middleware.grouper.app.attestation
 edu.internet2.middleware.grouper.app.gsh
 edu.internet2.middleware.grouper.app.loader
 edu.internet2.middleware.grouper.app.loader.db
@@ -14,8 +15,10 @@ edu.internet2.middleware.grouper.bench
 edu.internet2.middleware.grouper.cache
 edu.internet2.middleware.grouper.cfg
 edu.internet2.middleware.grouper.changeLog
+edu.internet2.middleware.grouper.changeLog.consumer
 edu.internet2.middleware.grouper.client
 edu.internet2.middleware.grouper.ddl
+edu.internet2.middleware.grouper.ddl.ddlutils
 edu.internet2.middleware.grouper.eg
 edu.internet2.middleware.grouper.entity
 edu.internet2.middleware.grouper.exception
@@ -28,14 +31,18 @@ edu.internet2.middleware.grouper.hooks
 edu.internet2.middleware.grouper.hooks.beans
 edu.internet2.middleware.grouper.hooks.examples
 edu.internet2.middleware.grouper.hooks.logic
+edu.internet2.middleware.grouper.instrumentation
 edu.internet2.middleware.grouper.internal.dao
 edu.internet2.middleware.grouper.internal.dao.hib3
 edu.internet2.middleware.grouper.internal.util
+edu.internet2.middleware.grouper.j2ee
 edu.internet2.middleware.grouper.j2ee.status
 edu.internet2.middleware.grouper.ldap
+edu.internet2.middleware.grouper.ldap.handler
 edu.internet2.middleware.grouper.log
 edu.internet2.middleware.grouper.member
 edu.internet2.middleware.grouper.membership
+edu.internet2.middleware.grouper.messaging
 edu.internet2.middleware.grouper.misc
 edu.internet2.middleware.grouper.permissions
 edu.internet2.middleware.grouper.permissions.limits
@@ -48,6 +55,7 @@ edu.internet2.middleware.grouper.registry
 edu.internet2.middleware.grouper.rules
 edu.internet2.middleware.grouper.rules.beans
 edu.internet2.middleware.grouper.service
+edu.internet2.middleware.grouper.session
 edu.internet2.middleware.grouper.stem
 edu.internet2.middleware.grouper.subj
 edu.internet2.middleware.grouper.subj.decoratorExamples

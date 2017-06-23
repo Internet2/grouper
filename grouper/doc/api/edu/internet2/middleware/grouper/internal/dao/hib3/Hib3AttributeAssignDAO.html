@@ -1040,6 +1040,18 @@ Data Access Object for attribute def
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AttributeAssignDAO.html?view=co#queryByValueAddTablesWhereClause(edu.internet2.middleware.grouper.hibernate.ByHqlStatic, java.lang.StringBuilder, java.lang.StringBuilder, edu.internet2.middleware.grouper.attr.AttributeDefValueType, java.lang.Object)">queryByValueAddTablesWhereClause</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">ByHqlStatic</A>&nbsp;byHqlStatic,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;sqlTables,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;sqlWhereClause,
+                                 <A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefValueType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefValueType</A>&nbsp;attributeDefValueType,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure if sending a value you are sending a value type, and add table if necessary</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AttributeAssignDAO.html?view=co#saveOrUpdate(edu.internet2.middleware.grouper.attr.assign.AttributeAssign)">saveOrUpdate</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;attributeAssign)</CODE>
 
@@ -1061,7 +1073,7 @@ Data Access Object for attribute def
 <TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.internal.dao.hib3.<A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3DAO</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getSessionFactory()">getSessionFactory</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -1801,6 +1813,26 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <DD><DL>
 <DD><CODE>attributeDefIds</CODE> - optional<DD><CODE>attributeDefNameIds</CODE> - mutually exclusive with attributeDefIds<DD><CODE>groupIds</CODE> - optional<DD><CODE>actions</CODE> - (null means all actions)<DD><CODE>enabled</CODE> - (null means all, true means enabled, false means disabled)<DD><CODE>includeAssignmentsOnAssignments</CODE> - if assignments on assignments should also be included<DD><CODE>attributeDefType</CODE> - null for all, or specify a type e.g. AttributeDefType.limit
 <DT><B>Returns:</B><DD>the assignments<DT><B>See Also:</B><DD><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignDAO.html?view=co#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, edu.internet2.middleware.grouper.attr.AttributeDefType)"><CODE>AttributeAssignDAO.findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="queryByValueAddTablesWhereClause(edu.internet2.middleware.grouper.hibernate.ByHqlStatic, java.lang.StringBuilder, java.lang.StringBuilder, edu.internet2.middleware.grouper.attr.AttributeDefValueType, java.lang.Object)"><!-- --></A><H3>
+queryByValueAddTablesWhereClause</H3>
+<PRE>
+public static void <B>queryByValueAddTablesWhereClause</B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">ByHqlStatic</A>&nbsp;byHqlStatic,
+                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;sqlTables,
+                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;sqlWhereClause,
+                                                    <A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefValueType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefValueType</A>&nbsp;attributeDefValueType,
+                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue)</PRE>
+<DL>
+<DD>make sure if sending a value you are sending a value type, and add table if necessary
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>byHqlStatic</CODE> - <DD><CODE>sqlTables</CODE> - <DD><CODE>sqlWhereClause</CODE> - should not be empty<DD><CODE>attributeDefValueType</CODE> - <DD><CODE>theValue</CODE> - </DL>
 </DD>
 </DL>
 <HR>

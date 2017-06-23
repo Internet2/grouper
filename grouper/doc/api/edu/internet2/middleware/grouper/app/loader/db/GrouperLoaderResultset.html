@@ -348,7 +348,7 @@ encapsulate a resultset into this resultset to be case-insensitive and
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a resultset on another resultset and a group name</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#GrouperLoaderResultset(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, boolean)">GrouperLoaderResultset</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#GrouperLoaderResultset(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String)">GrouperLoaderResultset</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;filter,
                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchDn,
                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectAttribute,
@@ -357,8 +357,7 @@ encapsulate a resultset into this resultset to be case-insensitive and
                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchScope,
                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName,
                        <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouperLoaderLog,
-                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression,
-                       boolean&nbsp;errorUnresolvable)</CODE>
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a resultset based on an ldap server and filter</TD>
@@ -383,6 +382,14 @@ encapsulate a resultset into this resultset to be case-insensitive and
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#bulkLookupSubjects()">bulkLookupSubjects</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should bulk lookup subjects to add/remove</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#columnIndex(java.lang.String)">columnIndex</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnNameInput)</CODE>
 
@@ -401,8 +408,9 @@ encapsulate a resultset into this resultset to be case-insensitive and
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.Row.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderResultset.Row</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#find(java.lang.String, java.lang.String)">find</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
-     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId)</CODE>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#find(java.lang.String, java.lang.String, java.lang.String)">find</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier0)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a row and return</TD>
@@ -444,7 +452,7 @@ encapsulate a resultset into this resultset to be case-insensitive and
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#initForLdapGroupsFromAttributes(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.lang.String)">initForLdapGroupsFromAttributes</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#initForLdapGroupsFromAttributes(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.lang.String)">initForLdapGroupsFromAttributes</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;filter,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchDn,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeName,
@@ -455,7 +463,6 @@ encapsulate a resultset into this resultset to be case-insensitive and
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName,
                                 <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouperLoaderLog,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectExpression,
-                                boolean&nbsp;errorUnresolvable,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extraAttributes,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameExpression,
                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupDisplayNameExpression,
@@ -470,7 +477,7 @@ encapsulate a resultset into this resultset to be case-insensitive and
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#initForLdapListOfGroups(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.Set)">initForLdapListOfGroups</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.html?view=co#initForLdapListOfGroups(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.Set)">initForLdapListOfGroups</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;filter,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchDn,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeName,
@@ -480,7 +487,6 @@ encapsulate a resultset into this resultset to be case-insensitive and
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName,
                         <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouperLoaderLog,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectExpression,
-                        boolean&nbsp;errorUnresolvable,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extraAttributes,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameExpression,
                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupDisplayNameExpression,
@@ -814,7 +820,7 @@ public <B>GrouperLoaderResultset</B>(<A HREF="../../../../../../../edu/internet2
 </DL>
 <HR>
 
-<A NAME="GrouperLoaderResultset(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, boolean)"><!-- --></A><H3>
+<A NAME="GrouperLoaderResultset(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String)"><!-- --></A><H3>
 GrouperLoaderResultset</H3>
 <PRE>
 public <B>GrouperLoaderResultset</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
@@ -826,13 +832,12 @@ public <B>GrouperLoaderResultset</B>(<A HREF="http://docs.oracle.com/javase/1.5.
                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchScope,
                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName,
                               <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouperLoaderLog,
-                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression,
-                              boolean&nbsp;errorUnresolvable)</PRE>
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression)</PRE>
 <DL>
 <DD>get a resultset based on an ldap server and filter
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>ldapServerId</CODE> - server id in grouper-loader.properties<DD><CODE>filter</CODE> - ldap filter query<DD><CODE>searchDn</CODE> - place in ldap where search starts from<DD><CODE>subjectAttribute</CODE> - attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is<DD><CODE>sourceId</CODE> - if all subjects come from one source, put the sourceId here<DD><CODE>subjectIdType</CODE> - the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier<DD><CODE>ldapSearchScope</CODE> - either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE<DD><CODE>jobName</CODE> - for logging if problem<DD><CODE>hib3GrouperLoaderLog</CODE> - <DD><CODE>ldapSubjectExpression</CODE> - <DD><CODE>errorUnresolvable</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>ldapServerId</CODE> - server id in grouper-loader.properties<DD><CODE>filter</CODE> - ldap filter query<DD><CODE>searchDn</CODE> - place in ldap where search starts from<DD><CODE>subjectAttribute</CODE> - attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is<DD><CODE>sourceId</CODE> - if all subjects come from one source, put the sourceId here<DD><CODE>subjectIdType</CODE> - the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier<DD><CODE>ldapSearchScope</CODE> - either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE<DD><CODE>jobName</CODE> - for logging if problem<DD><CODE>hib3GrouperLoaderLog</CODE> - <DD><CODE>ldapSubjectExpression</CODE> - </DL>
 </DL>
 <HR>
 
@@ -853,6 +858,19 @@ public <B>GrouperLoaderResultset</B>()</PRE>
 </TR>
 </TABLE>
 
+<A NAME="bulkLookupSubjects()"><!-- --></A><H3>
+bulkLookupSubjects</H3>
+<PRE>
+public void <B>bulkLookupSubjects</B>()</PRE>
+<DL>
+<DD>if we should bulk lookup subjects to add/remove
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="groupNames()"><!-- --></A><H3>
 groupNames</H3>
 <PRE>
@@ -867,7 +885,7 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 </DL>
 <HR>
 
-<A NAME="initForLdapListOfGroups(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.Set)"><!-- --></A><H3>
+<A NAME="initForLdapListOfGroups(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.Set)"><!-- --></A><H3>
 initForLdapListOfGroups</H3>
 <PRE>
 public void <B>initForLdapListOfGroups</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
@@ -880,7 +898,6 @@ public void <B>initForLdapListOfGroups</B>(<A HREF="http://docs.oracle.com/javas
                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName,
                                     <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouperLoaderLog,
                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectExpression,
-                                    boolean&nbsp;errorUnresolvable,
                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extraAttributes,
                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameExpression,
                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupDisplayNameExpression,
@@ -892,12 +909,12 @@ public void <B>initForLdapListOfGroups</B>(<A HREF="http://docs.oracle.com/javas
 <DD>get a resultset based on an ldap server and filter for ldap list of groups
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>ldapServerId</CODE> - server id in grouper-loader.properties<DD><CODE>filter</CODE> - ldap filter query<DD><CODE>searchDn</CODE> - place in ldap where search starts from<DD><CODE>subjectAttributeName</CODE> - attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is<DD><CODE>sourceId</CODE> - if all subjects come from one source, put the sourceId here<DD><CODE>subjectIdType</CODE> - the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier<DD><CODE>ldapSearchScope</CODE> - either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE<DD><CODE>jobName</CODE> - for logging if problem<DD><CODE>hib3GrouperLoaderLog</CODE> - <DD><CODE>subjectExpression</CODE> - <DD><CODE>errorUnresolvable</CODE> - <DD><CODE>extraAttributes</CODE> - <DD><CODE>groupNameExpression</CODE> - <DD><CODE>groupDisplayNameExpression</CODE> - <DD><CODE>groupDescriptionExpression</CODE> - <DD><CODE>groupNameToDisplayName</CODE> - map to translate group name to display name<DD><CODE>groupNameToDescription</CODE> - map to translate group name to description<DD><CODE>groupNames</CODE> - keep track of which group names there are</DL>
+<DT><B>Parameters:</B><DD><CODE>ldapServerId</CODE> - server id in grouper-loader.properties<DD><CODE>filter</CODE> - ldap filter query<DD><CODE>searchDn</CODE> - place in ldap where search starts from<DD><CODE>subjectAttributeName</CODE> - attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is<DD><CODE>sourceId</CODE> - if all subjects come from one source, put the sourceId here<DD><CODE>subjectIdType</CODE> - the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier<DD><CODE>ldapSearchScope</CODE> - either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE<DD><CODE>jobName</CODE> - for logging if problem<DD><CODE>hib3GrouperLoaderLog</CODE> - <DD><CODE>subjectExpression</CODE> - <DD><CODE>extraAttributes</CODE> - <DD><CODE>groupNameExpression</CODE> - <DD><CODE>groupDisplayNameExpression</CODE> - <DD><CODE>groupDescriptionExpression</CODE> - <DD><CODE>groupNameToDisplayName</CODE> - map to translate group name to display name<DD><CODE>groupNameToDescription</CODE> - map to translate group name to description<DD><CODE>groupNames</CODE> - keep track of which group names there are</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="initForLdapGroupsFromAttributes(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.lang.String)"><!-- --></A><H3>
+<A NAME="initForLdapGroupsFromAttributes(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.lang.String)"><!-- --></A><H3>
 initForLdapGroupsFromAttributes</H3>
 <PRE>
 public void <B>initForLdapGroupsFromAttributes</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId,
@@ -911,7 +928,6 @@ public void <B>initForLdapGroupsFromAttributes</B>(<A HREF="http://docs.oracle.c
                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName,
                                             <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouperLoaderLog,
                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectExpression,
-                                            boolean&nbsp;errorUnresolvable,
                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extraAttributes,
                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameExpression,
                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupDisplayNameExpression,
@@ -923,7 +939,7 @@ public void <B>initForLdapGroupsFromAttributes</B>(<A HREF="http://docs.oracle.c
 <DD>get a resultset based on an ldap server and filter for ldap list of groups
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>ldapServerId</CODE> - server id in grouper-loader.properties<DD><CODE>filter</CODE> - ldap filter query<DD><CODE>searchDn</CODE> - place in ldap where search starts from<DD><CODE>subjectAttributeName</CODE> - attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is<DD><CODE>groupAttributeName</CODE> - attribute (e.g. affiliation) of subject which holds link to group<DD><CODE>sourceId</CODE> - if all subjects come from one source, put the sourceId here<DD><CODE>subjectIdType</CODE> - the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier<DD><CODE>ldapSearchScope</CODE> - either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE<DD><CODE>jobName</CODE> - for logging if problem<DD><CODE>hib3GrouperLoaderLog</CODE> - <DD><CODE>subjectExpression</CODE> - <DD><CODE>errorUnresolvable</CODE> - <DD><CODE>extraAttributes</CODE> - <DD><CODE>groupNameExpression</CODE> - <DD><CODE>groupDisplayNameExpression</CODE> - <DD><CODE>groupDescriptionExpression</CODE> - <DD><CODE>groupNameToDisplayName</CODE> - map to translate group name to display name<DD><CODE>groupNameToDescription</CODE> - map to translate group name to description<DD><CODE>ldapAttributeFilterExpression</CODE> - if specified, this will filter the attributes that are turned into 
+<DT><B>Parameters:</B><DD><CODE>ldapServerId</CODE> - server id in grouper-loader.properties<DD><CODE>filter</CODE> - ldap filter query<DD><CODE>searchDn</CODE> - place in ldap where search starts from<DD><CODE>subjectAttributeName</CODE> - attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is<DD><CODE>groupAttributeName</CODE> - attribute (e.g. affiliation) of subject which holds link to group<DD><CODE>sourceId</CODE> - if all subjects come from one source, put the sourceId here<DD><CODE>subjectIdType</CODE> - the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier<DD><CODE>ldapSearchScope</CODE> - either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE<DD><CODE>jobName</CODE> - for logging if problem<DD><CODE>hib3GrouperLoaderLog</CODE> - <DD><CODE>subjectExpression</CODE> - <DD><CODE>extraAttributes</CODE> - <DD><CODE>groupNameExpression</CODE> - <DD><CODE>groupDisplayNameExpression</CODE> - <DD><CODE>groupDescriptionExpression</CODE> - <DD><CODE>groupNameToDisplayName</CODE> - map to translate group name to display name<DD><CODE>groupNameToDescription</CODE> - map to translate group name to description<DD><CODE>ldapAttributeFilterExpression</CODE> - if specified, this will filter the attributes that are turned into 
  groups, should return true or false</DL>
 </DD>
 </DL>
@@ -1069,16 +1085,17 @@ public void <B>remove</B>(int&nbsp;i)</PRE>
 </DL>
 <HR>
 
-<A NAME="find(java.lang.String, java.lang.String)"><!-- --></A><H3>
+<A NAME="find(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 find</H3>
 <PRE>
 public <A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderResultset.Row.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderResultset.Row</A> <B>find</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
-                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId)</PRE>
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier0)</PRE>
 <DL>
 <DD>find a row and return
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>subjectSourceId</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>subjectSourceId</CODE> - <DD><CODE>subjectIdentifier0</CODE> - 
 <DT><B>Returns:</B><DD>row if found, else null</DL>
 </DD>
 </DL>

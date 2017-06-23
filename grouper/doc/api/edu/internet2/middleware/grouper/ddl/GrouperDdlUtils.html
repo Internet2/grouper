@@ -198,7 +198,8 @@ Class GrouperDdlUtils</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertTablesThere(boolean, boolean)">assertTablesThere</A></B>(boolean&nbsp;expectRecords,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertTablesThere(edu.internet2.middleware.grouper.ddl.DdlVersionBean, boolean, boolean)">assertTablesThere</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                  boolean&nbsp;expectRecords,
                   boolean&nbsp;expectTrue)</CODE>
 
 <BR>
@@ -207,7 +208,8 @@ Class GrouperDdlUtils</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertTablesThere(boolean, boolean, java.lang.String, boolean)">assertTablesThere</A></B>(boolean&nbsp;expectRecords,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertTablesThere(edu.internet2.middleware.grouper.ddl.DdlVersionBean, boolean, boolean, java.lang.String, boolean)">assertTablesThere</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                  boolean&nbsp;expectRecords,
                   boolean&nbsp;expectTrue,
                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
                   boolean&nbsp;falseIfDropBeforeCreate)</CODE>
@@ -291,6 +293,15 @@ Class GrouperDdlUtils</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no driver class specified, then try to derive it from the URL</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#convertUrlToQuartzDriverDelegateClassIfNeeded(java.lang.String, java.lang.String)">convertUrlToQuartzDriverDelegateClassIfNeeded</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;driverClassName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no quartz driver class specified, then try to derive it from the URL</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -548,6 +559,22 @@ Class GrouperDdlUtils</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#deleteDdlById(java.lang.String)">deleteDdlById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#deleteUtfDdls()">deleteUtfDdls</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete all utf ddls</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#dropAllForeignKeys(org.apache.ddlutils.model.Database)">dropAllForeignKeys</A></B>(org.apache.ddlutils.model.Database&nbsp;database)</CODE>
 
 <BR>
@@ -726,6 +753,22 @@ Class GrouperDdlUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlByIdFromDatabase(java.lang.String)">retrieveDdlByIdFromDatabase</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlByNameFromDatabase(java.lang.String)">retrieveDdlByNameFromDatabase</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve a DDL by name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlDbVersion(java.lang.String)">retrieveDdlDbVersion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
 
@@ -830,6 +873,27 @@ Class GrouperDdlUtils</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run some sql</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#storeAndReadUtfString(java.lang.String, java.lang.String, java.lang.String)">storeAndReadUtfString</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;someUtfString,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store and read a utf string, but dont commit it so its doesnt stay in the database</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#storeDdl(edu.internet2.middleware.grouper.hibernate.HibernateSession, java.lang.String, java.lang.String, java.lang.String)">storeDdl</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession,
+         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;someUtfString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -1229,6 +1293,21 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/St
 </DL>
 <HR>
 
+<A NAME="convertUrlToQuartzDriverDelegateClassIfNeeded(java.lang.String, java.lang.String)"><!-- --></A><H3>
+convertUrlToQuartzDriverDelegateClassIfNeeded</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>convertUrlToQuartzDriverDelegateClassIfNeeded</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl,
+                                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;driverClassName)</PRE>
+<DL>
+<DD>if there is no quartz driver class specified, then try to derive it from the URL
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - <DD><CODE>driverClassName</CODE> - 
+<DT><B>Returns:</B><DD>the driver class</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="convertUrlToHibernateDialectIfNeeded(java.lang.String, java.lang.String)"><!-- --></A><H3>
 convertUrlToHibernateDialectIfNeeded</H3>
 <PRE>
@@ -1512,6 +1591,87 @@ public static int <B>retrieveDdlDbVersion</B>(<A HREF="http://docs.oracle.com/ja
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>objectName</CODE> - 
 <DT><B>Returns:</B><DD>the version or -1 if not in the DB</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveDdlByIdFromDatabase(java.lang.String)"><!-- --></A><H3>
+retrieveDdlByIdFromDatabase</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A> <B>retrieveDdlByIdFromDatabase</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - 
+<DT><B>Returns:</B><DD>the ddl</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deleteDdlById(java.lang.String)"><!-- --></A><H3>
+deleteDdlById</H3>
+<PRE>
+public static void <B>deleteDdlById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deleteUtfDdls()"><!-- --></A><H3>
+deleteUtfDdls</H3>
+<PRE>
+public static void <B>deleteUtfDdls</B>()</PRE>
+<DL>
+<DD>delete all utf ddls
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveDdlByNameFromDatabase(java.lang.String)"><!-- --></A><H3>
+retrieveDdlByNameFromDatabase</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A> <B>retrieveDdlByNameFromDatabase</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</PRE>
+<DL>
+<DD>retrieve a DDL by name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - 
+<DT><B>Returns:</B><DD>the ddl or null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="storeAndReadUtfString(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+storeAndReadUtfString</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A> <B>storeAndReadUtfString</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;someUtfString,
+                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+<DL>
+<DD>store and read a utf string, but dont commit it so its doesnt stay in the database
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>someUtfString</CODE> - <DD><CODE>id</CODE> - <DD><CODE>name</CODE> - 
+<DT><B>Returns:</B><DD>the ddl if it is found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="storeDdl(edu.internet2.middleware.grouper.hibernate.HibernateSession, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+storeDdl</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A> <B>storeDdl</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;someUtfString)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>someUtfString</CODE> - <DD><CODE>id</CODE> - <DD><CODE>name</CODE> - <DD><CODE>hibernateSession</CODE> - 
+<DT><B>Returns:</B><DD>the object</DL>
 </DD>
 </DL>
 <HR>
@@ -1921,26 +2081,28 @@ public static void <B>ddlutilsDropIndexes</B>(org.apache.ddlutils.model.Table&nb
 </DL>
 <HR>
 
-<A NAME="assertTablesThere(boolean, boolean)"><!-- --></A><H3>
+<A NAME="assertTablesThere(edu.internet2.middleware.grouper.ddl.DdlVersionBean, boolean, boolean)"><!-- --></A><H3>
 assertTablesThere</H3>
 <PRE>
-public static boolean <B>assertTablesThere</B>(boolean&nbsp;expectRecords,
+public static boolean <B>assertTablesThere</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                        boolean&nbsp;expectRecords,
                                         boolean&nbsp;expectTrue)</PRE>
 <DL>
 <DD>see if tables are there (at least the grouper groups one)
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>expectRecords</CODE> - <DD><CODE>expectTrue</CODE> - pritn exception if expecting true
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>expectRecords</CODE> - <DD><CODE>expectTrue</CODE> - pritn exception if expecting true
 <DT><B>Returns:</B><DD>true if expect records, and records there.  false if records not there.  exception
  if exception is thrown and expect true.false if exception and not expect true</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="assertTablesThere(boolean, boolean, java.lang.String, boolean)"><!-- --></A><H3>
+<A NAME="assertTablesThere(edu.internet2.middleware.grouper.ddl.DdlVersionBean, boolean, boolean, java.lang.String, boolean)"><!-- --></A><H3>
 assertTablesThere</H3>
 <PRE>
-public static boolean <B>assertTablesThere</B>(boolean&nbsp;expectRecords,
+public static boolean <B>assertTablesThere</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                        boolean&nbsp;expectRecords,
                                         boolean&nbsp;expectTrue,
                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
                                         boolean&nbsp;falseIfDropBeforeCreate)</PRE>
@@ -1948,7 +2110,7 @@ public static boolean <B>assertTablesThere</B>(boolean&nbsp;expectRecords,
 <DD>see if tables are there (at least the grouper groups one)
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>expectRecords</CODE> - <DD><CODE>expectTrue</CODE> - pritn exception if expecting true<DD><CODE>tableName</CODE> - <DD><CODE>falseIfDropBeforeCreate</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>expectRecords</CODE> - <DD><CODE>expectTrue</CODE> - pritn exception if expecting true<DD><CODE>tableName</CODE> - <DD><CODE>falseIfDropBeforeCreate</CODE> - 
 <DT><B>Returns:</B><DD>true if expect records, and records there.  false if records not there.  exception
  if exception is thrown and expect true.false if exception and not expect true</DL>
 </DD>

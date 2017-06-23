@@ -448,6 +448,16 @@ Find I2MI subjects.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;edu.internet2.middleware.subject.Subject</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/SubjectFinder.html?view=co#findByIdOrIdentifierAndSource(java.lang.String, java.util.Set, boolean)">findByIdOrIdentifierAndSource</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idOrIdentifier,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Source&gt;&nbsp;sources,
+                              boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by id or identifier in certain sources</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;edu.internet2.middleware.subject.Subject</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/SubjectFinder.html?view=co#findByIdOrIdentifierAndSource(java.lang.String, java.lang.String, boolean)">findByIdOrIdentifierAndSource</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idOrIdentifier,
                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;source,
                               boolean&nbsp;exceptionIfNull)</CODE>
@@ -919,6 +929,27 @@ public static edu.internet2.middleware.subject.Subject <B>findByIdOrIdentifierAn
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>idOrIdentifier</CODE> - <DD><CODE>source</CODE> - <DD><CODE>exceptionIfNull</CODE> - if SubjectNotFoundException or null
+<DT><B>Returns:</B><DD>the subject
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotUniqueException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByIdOrIdentifierAndSource(java.lang.String, java.util.Set, boolean)"><!-- --></A><H3>
+findByIdOrIdentifierAndSource</H3>
+<PRE>
+public static edu.internet2.middleware.subject.Subject <B>findByIdOrIdentifierAndSource</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idOrIdentifier,
+                                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Source&gt;&nbsp;sources,
+                                                                                     boolean&nbsp;exceptionIfNull)
+                                                                              throws edu.internet2.middleware.subject.SubjectNotFoundException,
+                                                                                     edu.internet2.middleware.subject.SubjectNotUniqueException</PRE>
+<DL>
+<DD>find by id or identifier in certain sources
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>idOrIdentifier</CODE> - <DD><CODE>sources</CODE> - <DD><CODE>exceptionIfNull</CODE> - if SubjectNotFoundException or null
 <DT><B>Returns:</B><DD>the subject
 <DT><B>Throws:</B>
 <DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE>

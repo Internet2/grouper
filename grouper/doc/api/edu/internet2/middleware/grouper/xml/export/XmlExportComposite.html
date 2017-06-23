@@ -145,6 +145,15 @@ Class XmlExportComposite</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportComposite.html?view=co#exportCompositesGsh(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)">exportCompositesGsh</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                    <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportComposite.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportComposite</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportComposite.html?view=co#fromXml(edu.internet2.middleware.grouper.misc.GrouperVersion, com.thoughtworks.xstream.io.HierarchicalStreamReader)">fromXml</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;exportVersion,
         com.thoughtworks.xstream.io.HierarchicalStreamReader&nbsp;hierarchicalStreamReader)</CODE>
@@ -328,6 +337,19 @@ Class XmlExportComposite</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to composite</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportComposite.html?view=co#toGsh(edu.internet2.middleware.grouper.misc.GrouperVersion, java.io.Writer, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">toGsh</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ownerGroupName,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;leftFactorName,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;rightFactorName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert this to GSH that is failsafe</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -690,6 +712,39 @@ public static long <B>dbCount</B>(<A HREF="../../../../../../edu/internet2/middl
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>xmlExportMain</CODE> - 
 <DT><B>Returns:</B><DD>db count</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="exportCompositesGsh(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+exportCompositesGsh</H3>
+<PRE>
+public static void <B>exportCompositesGsh</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                                       <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - <DD><CODE>xmlExportMain</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toGsh(edu.internet2.middleware.grouper.misc.GrouperVersion, java.io.Writer, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+toGsh</H3>
+<PRE>
+public static void <B>toGsh</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ownerGroupName,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;leftFactorName,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;rightFactorName)
+                  throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD>convert this to GSH that is failsafe
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperVersion</CODE> - <DD><CODE>writer</CODE> - <DD><CODE>ownerGroupName</CODE> - <DD><CODE>type</CODE> - <DD><CODE>leftFactorName</CODE> - <DD><CODE>rightFactorName</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></CODE></DL>
 </DD>
 </DL>
 <HR>

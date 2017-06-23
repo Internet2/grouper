@@ -165,7 +165,7 @@ delegate the action management to this class
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
+<CODE>&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeDefActionDelegate.html?view=co#configureActionList(java.util.Collection)">configureActionList</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;collection)</CODE>
 
 <BR>
@@ -173,7 +173,7 @@ delegate the action management to this class
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
+<CODE>&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeDefActionDelegate.html?view=co#configureActionList(java.lang.String)">configureActionList</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;list)</CODE>
 
 <BR>
@@ -204,6 +204,14 @@ delegate the action management to this class
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove an action if necessary</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeDefActionDelegate.html?view=co#replaceAllActionsWith(java.util.Collection)">replaceAllActionsWith</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&nbsp;newActions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replace existing all actions with newActions</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -250,12 +258,13 @@ public <B>AttributeDefActionDelegate</B>(<A HREF="../../../../../../edu/internet
 <A NAME="configureActionList(java.lang.String)"><!-- --></A><H3>
 configureActionList</H3>
 <PRE>
-public void <B>configureActionList</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;list)</PRE>
+public int <B>configureActionList</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;list)</PRE>
 <DL>
 <DD>configure the action list based on comma separated list of actions
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>list</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>list</CODE> - 
+<DT><B>Returns:</B><DD>number of changes</DL>
 </DD>
 </DL>
 <HR>
@@ -319,12 +328,13 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <A NAME="configureActionList(java.util.Collection)"><!-- --></A><H3>
 configureActionList</H3>
 <PRE>
-public void <B>configureActionList</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;collection)</PRE>
+public int <B>configureActionList</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;collection)</PRE>
 <DL>
 <DD>configure the action list based on collection of actions
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>collection</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>collection</CODE> - 
+<DT><B>Returns:</B><DD>the number of changed</DL>
 </DD>
 </DL>
 <HR>
@@ -367,6 +377,19 @@ public void <B>removeAction</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/doc
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>action</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="replaceAllActionsWith(java.util.Collection)"><!-- --></A><H3>
+replaceAllActionsWith</H3>
+<PRE>
+public void <B>replaceAllActionsWith</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&nbsp;newActions)</PRE>
+<DL>
+<DD>replace existing all actions with newActions
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>newActions</CODE> - </DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

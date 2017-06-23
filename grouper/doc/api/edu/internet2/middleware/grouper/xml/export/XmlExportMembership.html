@@ -73,9 +73,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -101,7 +101,24 @@ Class XmlExportMembership</H2>
 <HR>
 
 <P>
+<!-- =========== FIELD SUMMARY =========== -->
 
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMembership.html?view=co#membershipFieldsAlreadyErrored">membershipFieldsAlreadyErrored</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dont error twice</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -139,6 +156,15 @@ Class XmlExportMembership</H2>
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMembership.html?view=co#exportMemberships(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)">exportMemberships</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
                   <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMembership.html?view=co#exportMembershipsGsh(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)">exportMembershipsGsh</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -419,6 +445,24 @@ Class XmlExportMembership</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMembership.html?view=co#toGsh(edu.internet2.middleware.grouper.misc.GrouperVersion, java.io.Writer, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.xml.export.XmlExportMain)">toGsh</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fieldName,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemName,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;nameOfAttributeDef,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;enabledTimestamp,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;disabledTimestamp,
+      <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert this to GSH that is failsafe</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMembership.html?view=co#toMembership()">toMembership</A></B>()</CODE>
 
@@ -454,6 +498,27 @@ Class XmlExportMembership</H2>
 </TABLE>
 &nbsp;
 <P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="membershipFieldsAlreadyErrored"><!-- --></A><H3>
+membershipFieldsAlreadyErrored</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>membershipFieldsAlreadyErrored</B></PRE>
+<DL>
+<DD>dont error twice
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -925,6 +990,44 @@ public void <B>toXml</B>(<A HREF="../../../../../../edu/internet2/middleware/gro
 </DL>
 <HR>
 
+<A NAME="toGsh(edu.internet2.middleware.grouper.misc.GrouperVersion, java.io.Writer, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+toGsh</H3>
+<PRE>
+public static void <B>toGsh</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fieldName,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemName,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;nameOfAttributeDef,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;enabledTimestamp,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;disabledTimestamp,
+                         <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)
+                  throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD>convert this to GSH that is failsafe
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperVersion</CODE> - <DD><CODE>writer</CODE> - <DD><CODE>subjectId</CODE> - <DD><CODE>sourceId</CODE> - <DD><CODE>fieldName</CODE> - <DD><CODE>groupName</CODE> - <DD><CODE>stemName</CODE> - <DD><CODE>nameOfAttributeDef</CODE> - <DD><CODE>enabledTimestamp</CODE> - <DD><CODE>disabledTimestamp</CODE> - <DD><CODE>xmlExportMain</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="exportMemberships(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+exportMemberships</H3>
+<PRE>
+public static void <B>exportMemberships</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                                     <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - <DD><CODE>xmlExportMain</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="processXmlSecondPass(edu.internet2.middleware.grouper.xml.importXml.XmlImportMain)"><!-- --></A><H3>
 processXmlSecondPass</H3>
 <PRE>
@@ -952,11 +1055,11 @@ public static long <B>dbCount</B>(<A HREF="../../../../../../edu/internet2/middl
 </DL>
 <HR>
 
-<A NAME="exportMemberships(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
-exportMemberships</H3>
+<A NAME="exportMembershipsGsh(java.io.Writer, edu.internet2.middleware.grouper.xml.export.XmlExportMain)"><!-- --></A><H3>
+exportMembershipsGsh</H3>
 <PRE>
-public static void <B>exportMemberships</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
-                                     <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
+public static void <B>exportMembershipsGsh</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                                        <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportMain</A>&nbsp;xmlExportMain)</PRE>
 <DL>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>writer</CODE> - <DD><CODE>xmlExportMain</CODE> - </DL>
@@ -1054,9 +1157,9 @@ public static void <B>processXmlFirstPass</B>(<A HREF="../../../../../../edu/int
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

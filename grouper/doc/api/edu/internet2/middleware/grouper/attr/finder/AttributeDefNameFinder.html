@@ -134,6 +134,14 @@ finder methods for attribute def name.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/finder/AttributeDefNameFinder.html?view=co" title="class in edu.internet2.middleware.grouper.attr.finder">AttributeDefNameFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/finder/AttributeDefNameFinder.html?view=co#addIdOfAttributeDefName(java.lang.String)">addIdOfAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theIdsOfAttributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id of attribute def name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/finder/AttributeDefNameFinder.html?view=co" title="class in edu.internet2.middleware.grouper.attr.finder">AttributeDefNameFinder</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/finder/AttributeDefNameFinder.html?view=co#addPrivilege(edu.internet2.middleware.grouper.privs.Privilege)">addPrivilege</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
 
 <BR>
@@ -289,6 +297,15 @@ finder methods for attribute def name.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find an attributeDefName by name.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/finder/AttributeDefNameFinder.html?view=co#findByNameCache(java.lang.String, boolean)">findByNameCache</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find an attributeDefName by name.</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -328,6 +345,20 @@ public <B>AttributeDefNameFinder</B>()</PRE>
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="addIdOfAttributeDefName(java.lang.String)"><!-- --></A><H3>
+addIdOfAttributeDefName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/finder/AttributeDefNameFinder.html?view=co" title="class in edu.internet2.middleware.grouper.attr.finder">AttributeDefNameFinder</A> <B>addIdOfAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theIdsOfAttributeDefName)</PRE>
+<DL>
+<DD>id of attribute def name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theIdsOfAttributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="assignParentStemId(java.lang.String)"><!-- --></A><H3>
 assignParentStemId</H3>
@@ -582,6 +613,23 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/A
                                           boolean&nbsp;exceptionIfNull)</PRE>
 <DL>
 <DD>find an attributeDefName by name.  This is a secure method, a GrouperSession must be open
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - of attributeDefName<DD><CODE>exceptionIfNull</CODE> - true if exception should be thrown if null
+<DT><B>Returns:</B><DD>the attribute def name or null
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeDefNameNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeDefNameNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByNameCache(java.lang.String, boolean)"><!-- --></A><H3>
+findByNameCache</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>findByNameCache</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                               boolean&nbsp;exceptionIfNull)</PRE>
+<DL>
+<DD>find an attributeDefName by name.  This is a secure method, a GrouperSession must be open.  This will cache the result
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>name</CODE> - of attributeDefName<DD><CODE>exceptionIfNull</CODE> - true if exception should be thrown if null

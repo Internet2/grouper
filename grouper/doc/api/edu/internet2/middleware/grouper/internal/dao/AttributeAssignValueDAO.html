@@ -207,6 +207,17 @@ attribute assign value data access methods
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)">findValuesOnAssignments</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;attributeAssignIds,
+                        <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;attributeAssignType,
+                        <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefType</A>&nbsp;attributeDefType,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find values on this assignment and values on assignments on this assignment</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#saveOrUpdate(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)">saveOrUpdate</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&nbsp;attributeAssignValue)</CODE>
 
@@ -399,6 +410,26 @@ findByValueString</H3>
 </DL>
 <HR>
 
+<A NAME="findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)"><!-- --></A><H3>
+findValuesOnAssignments</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt; <B>findValuesOnAssignments</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;attributeAssignIds,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;attributeAssignType,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefType</A>&nbsp;attributeDefType,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled)</PRE>
+<DL>
+<DD>find values on this assignment and values on assignments on this assignment
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignIds</CODE> - <DD><CODE>attributeAssignType</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>enabled</CODE> - 
+<DT><B>Returns:</B><DD>the set of values</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="findMemberAttributeAssignmentValues(java.util.Collection, java.lang.Boolean)"><!-- --></A><H3>
 findMemberAttributeAssignmentValues</H3>
 <PRE>
@@ -412,7 +443,7 @@ findMemberAttributeAssignmentValues</H3>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>memberIds</CODE> - optional<DD><CODE>enabled</CODE> - (null means all, true means enabled, false means disabled)<DD><CODE>includeAssignmentsOnAssignments</CODE> - if assignments on assignments should also be included
+<DT><B>Parameters:</B><DD><CODE>memberIds</CODE> - optional<DD><CODE>enabled</CODE> - (null means all, true means enabled, false means disabled)
 <DT><B>Returns:</B><DD>the assignments</DL>
 </DD>
 </DL>
@@ -448,7 +479,7 @@ findLegacyAttributesByGroupIds</H3>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>groupIds</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>groupId</CODE> - 
 <DT><B>Returns:</B><DD>the map of maps of values by group id</DL>
 </DD>
 </DL>

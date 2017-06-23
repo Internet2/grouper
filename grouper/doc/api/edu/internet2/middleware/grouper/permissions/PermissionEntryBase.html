@@ -108,7 +108,7 @@ Class PermissionEntryBase</H2>
 <DL>
 <DT><B>Author:</B></DT>
   <DD>shilen
- $Id: PermissionEntryBase.java 8245 2012-04-24 13:45:50Z mchyzer $</DD>
+ $Id$</DD>
 <DT><B>See Also:</B><DD><A HREF="../../../../../serialized-form.html?view=co#edu.internet2.middleware.grouper.permissions.PermissionEntryBase">Serialized Form</A></DL>
 <HR>
 
@@ -263,6 +263,14 @@ Class PermissionEntryBase</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id of the attribute assign row, either to the role, or to the role member pair</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryBase.html?view=co#getAttributeAssignTypeDb()">getAttributeAssignTypeDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -641,6 +649,14 @@ Class PermissionEntryBase</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id of the attribute assign row, either to the role, or to the role member pair</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryBase.html?view=co#setAttributeAssignTypeDb(java.lang.String)">setAttributeAssignTypeDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeAssignTypeDb)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -1855,23 +1871,6 @@ public int <B>getRoleSetDepth</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="setRoleSetDepth(int)"><!-- --></A><H3>
-setRoleSetDepth</H3>
-<PRE>
-public void <B>setRoleSetDepth</B>(int&nbsp;roleSetDepth1)</PRE>
-<DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#setRoleSetDepth(int)">PermissionEntry</A></CODE></B></DD>
-<DD>depth of role hierarchy, 0 means immediate, -1 means no role set involved
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#setRoleSetDepth(int)">setRoleSetDepth</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A></CODE></DL>
-</DD>
-<DD><DL>
-<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#setRoleSetDepth(int)"><CODE>PermissionEntry.setRoleSetDepth(int)</CODE></A></DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="getAttributeDefNameSetDepth()"><!-- --></A><H3>
 getAttributeDefNameSetDepth</H3>
 <PRE>
@@ -2411,6 +2410,52 @@ public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/Perm
 <DD><DL>
 
 <DT><B>Returns:</B><DD>permission type<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#getPermissionType()"><CODE>PermissionEntry.getPermissionType()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeAssignTypeDb(java.lang.String)"><!-- --></A><H3>
+setAttributeAssignTypeDb</H3>
+<PRE>
+public void <B>setAttributeAssignTypeDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeAssignTypeDb)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeAssignTypeDb</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeAssignTypeDb()"><!-- --></A><H3>
+getAttributeAssignTypeDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeAssignTypeDb</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>attribute assign type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setRoleSetDepth(int)"><!-- --></A><H3>
+setRoleSetDepth</H3>
+<PRE>
+public void <B>setRoleSetDepth</B>(int&nbsp;roleSetDepth1)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#setRoleSetDepth(int)">PermissionEntry</A></CODE></B></DD>
+<DD>depth of role hierarchy, 0 means immediate, -1 means no role set involved
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#setRoleSetDepth(int)">setRoleSetDepth</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co#setRoleSetDepth(int)"><CODE>PermissionEntry.setRoleSetDepth(int)</CODE></A></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

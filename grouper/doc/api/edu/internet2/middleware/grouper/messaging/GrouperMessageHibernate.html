@@ -1,0 +1,1211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+GrouperMessageHibernate
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GrouperMessageHibernate";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperBuiltinMessagingSystem.GrouperBuiltinMessageState.html?view=co" title="enum in edu.internet2.middleware.grouper.messaging"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/messaging/MessagingListenerBase.html?view=co" title="class in edu.internet2.middleware.grouper.messaging"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperMessageHibernate.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.messaging</FONT>
+<BR>
+Class GrouperMessageHibernate</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">edu.internet2.middleware.grouper.GrouperAPI</A>
+      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.FieldValuable.html?view=co" title="interface in edu.internet2.middleware.grouper.util">GrouperUtil.FieldValuable</A>, edu.internet2.middleware.grouperClient.messaging.GrouperMessage, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Serializable.html?view=co" title="class or interface in java.io">Serializable</A>, org.hibernate.classic.Lifecycle</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>GrouperMessageHibernate</B><DT>extends <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A><DT>implements edu.internet2.middleware.grouperClient.messaging.GrouperMessage, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A></DL>
+</PRE>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../serialized-form.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate">Serialized Form</A></DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS">COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;milliseconds since 1970 that the message was attempted to be received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_FROM_MEMBER_ID">COLUMN_FROM_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member id of user who sent the message</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_GET_ATTEMPT_COUNT">COLUMN_GET_ATTEMPT_COUNT</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;how many times this message has been attempted to be retrieved</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_GET_ATTEMPT_TIME_MILLIS">COLUMN_GET_ATTEMPT_TIME_MILLIS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;milliseconds since 1970 that the message was attempted to be received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_GET_TIME_MILLIS">COLUMN_GET_TIME_MILLIS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message was successfully received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_HIBERNATE_VERSION_NUMBER">COLUMN_HIBERNATE_VERSION_NUMBER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hibernate version</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_ID">COLUMN_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db uuid for this row</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_MESSAGE_BODY">COLUMN_MESSAGE_BODY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message body</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_QUEUE_NAME">COLUMN_QUEUE_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queue name for the message</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_SENT_TIME_MICROS">COLUMN_SENT_TIME_MICROS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;microseconds since 1970 this message was sent (note this is probably unique, but not necessarily)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#COLUMN_STATE">COLUMN_STATE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#FIELD_CONTEXT_ID">FIELD_CONTEXT_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: contextId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#FIELD_ID">FIELD_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#TABLE_GROUPER_MESSAGE">TABLE_GROUPER_MESSAGE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the table in the database.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_DB_VERSION">FIELD_DB_VERSION</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_HIBERNATE_VERSION_NUMBER">FIELD_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#INITIAL_VERSION_NUMBER">INITIAL_VERSION_NUMBER</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_org.hibernate.classic.Lifecycle"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from interface org.hibernate.classic.Lifecycle</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>NO_VETO, VETO</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#GrouperMessageHibernate()">GrouperMessageHibernate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#clone()">clone</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deep clone the fields in this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#delete()">delete</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getAttemptTimeExpiresMillis()">getAttemptTimeExpiresMillis</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message attempt expires if not sent successfully
+ note this will be reset to null when message sent successfully</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getContextId()">getContextId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getFromMemberId()">getFromMemberId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getGetAttemptCount()">getGetAttemptCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;how many times this message has been attempted to be retrieved</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getGetAttemptTimeMillis()">getGetAttemptTimeMillis</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;milliseconds since 1970 that the message was attempted to be received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getGetTimeMillis()">getGetTimeMillis</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message was successfully received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getId()">getId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getMessageBody()">getMessageBody</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body of message (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getQueueName()">getQueueName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queue name for the message</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getQueueOrTopic()">getQueueOrTopic</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getSentTimeMicros()">getSentTimeMicros</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message was sent</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#getState()">getState</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#saveOrUpdate()">saveOrUpdate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save or update this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setAttemptTimeExpiresMillis(java.lang.Long)">setAttemptTimeExpiresMillis</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;attemptTimeExpiresMillis1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message attempt expires if not sent successfully
+ note this will be reset to null when message sent successfully</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setContextId(java.lang.String)">setContextId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set context id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setFromMemberId(java.lang.String)">setFromMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fromMemberId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setGetAttemptCount(java.lang.Integer)">setGetAttemptCount</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;getAttemptCount1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setGetAttemptTimeMillis(java.lang.Long)">setGetAttemptTimeMillis</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;getAttemptTimeMillis1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;milliseconds since 1970 that the message was attempted to be received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setGetTimeMillis(java.lang.Long)">setGetTimeMillis</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;getTimeMillis1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message was successfully received</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setId(java.lang.String)">setId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setMessageBody(java.lang.String)">setMessageBody</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;messageBody1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body of message (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setQueueName(java.lang.String)">setQueueName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;queueName1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queue name for the message</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setQueueOrTopic(java.lang.String)">setQueueOrTopic</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theQueueOrTopic1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setSentTimeMicros(java.lang.Long)">setSentTimeMicros</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;sentTimeMicros1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;millis since 1970 that this message was sent</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperMessageHibernate.html?view=co#setState(java.lang.String)">setState</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;state1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersion()">dbVersion</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionClear()">dbVersionClear</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionDifferentFields()">dbVersionDifferentFields</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionIsDifferent()">dbVersionIsDifferent</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionReset()">dbVersionReset</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#fieldValue(java.lang.String)">fieldValue</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#getHibernateVersionNumber()">getHibernateVersionNumber</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onDelete(org.hibernate.Session)">onDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onLoad(org.hibernate.Session, java.io.Serializable)">onLoad</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onSave(org.hibernate.Session)">onSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onUpdate(org.hibernate.Session)">onUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#setHibernateVersionNumber(java.lang.Long)">setHibernateVersionNumber</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="COLUMN_ID"><!-- --></A><H3>
+COLUMN_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_ID</B></PRE>
+<DL>
+<DD>db uuid for this row
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_HIBERNATE_VERSION_NUMBER"><!-- --></A><H3>
+COLUMN_HIBERNATE_VERSION_NUMBER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_HIBERNATE_VERSION_NUMBER</B></PRE>
+<DL>
+<DD>hibernate version
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CONTEXT_ID"><!-- --></A><H3>
+FIELD_CONTEXT_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CONTEXT_ID</B></PRE>
+<DL>
+<DD>constant for field name for: contextId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.FIELD_CONTEXT_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ID"><!-- --></A><H3>
+FIELD_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ID</B></PRE>
+<DL>
+<DD>constant for field name for: id
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.FIELD_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_SENT_TIME_MICROS"><!-- --></A><H3>
+COLUMN_SENT_TIME_MICROS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_SENT_TIME_MICROS</B></PRE>
+<DL>
+<DD>microseconds since 1970 this message was sent (note this is probably unique, but not necessarily)
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_GET_ATTEMPT_TIME_MILLIS"><!-- --></A><H3>
+COLUMN_GET_ATTEMPT_TIME_MILLIS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_GET_ATTEMPT_TIME_MILLIS</B></PRE>
+<DL>
+<DD>milliseconds since 1970 that the message was attempted to be received
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS"><!-- --></A><H3>
+COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS</B></PRE>
+<DL>
+<DD>milliseconds since 1970 that the message was attempted to be received
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_GET_ATTEMPT_COUNT"><!-- --></A><H3>
+COLUMN_GET_ATTEMPT_COUNT</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_GET_ATTEMPT_COUNT</B></PRE>
+<DL>
+<DD>how many times this message has been attempted to be retrieved
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_STATE"><!-- --></A><H3>
+COLUMN_STATE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_STATE</B></PRE>
+<DL>
+<DD>state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_STATE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_GET_TIME_MILLIS"><!-- --></A><H3>
+COLUMN_GET_TIME_MILLIS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_GET_TIME_MILLIS</B></PRE>
+<DL>
+<DD>millis since 1970 that this message was successfully received
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_FROM_MEMBER_ID"><!-- --></A><H3>
+COLUMN_FROM_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_FROM_MEMBER_ID</B></PRE>
+<DL>
+<DD>member id of user who sent the message
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_QUEUE_NAME"><!-- --></A><H3>
+COLUMN_QUEUE_NAME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_QUEUE_NAME</B></PRE>
+<DL>
+<DD>queue name for the message
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_QUEUE_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_MESSAGE_BODY"><!-- --></A><H3>
+COLUMN_MESSAGE_BODY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_MESSAGE_BODY</B></PRE>
+<DL>
+<DD>message body
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.COLUMN_MESSAGE_BODY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="TABLE_GROUPER_MESSAGE"><!-- --></A><H3>
+TABLE_GROUPER_MESSAGE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>TABLE_GROUPER_MESSAGE</B></PRE>
+<DL>
+<DD>name of the table in the database.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate.TABLE_GROUPER_MESSAGE">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="GrouperMessageHibernate()"><!-- --></A><H3>
+GrouperMessageHibernate</H3>
+<PRE>
+public <B>GrouperMessageHibernate</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getAttemptTimeExpiresMillis()"><!-- --></A><H3>
+getAttemptTimeExpiresMillis</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getAttemptTimeExpiresMillis</B>()</PRE>
+<DL>
+<DD>millis since 1970 that this message attempt expires if not sent successfully
+ note this will be reset to null when message sent successfully
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attemptTimeExpiresMillis</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttemptTimeExpiresMillis(java.lang.Long)"><!-- --></A><H3>
+setAttemptTimeExpiresMillis</H3>
+<PRE>
+public void <B>setAttemptTimeExpiresMillis</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;attemptTimeExpiresMillis1)</PRE>
+<DL>
+<DD>millis since 1970 that this message attempt expires if not sent successfully
+ note this will be reset to null when message sent successfully
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attemptTimeExpiresMillis1</CODE> - the attemptTimeExpiresMillis to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getState()"><!-- --></A><H3>
+getState</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getState</B>()</PRE>
+<DL>
+<DD>state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the state</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setState(java.lang.String)"><!-- --></A><H3>
+setState</H3>
+<PRE>
+public void <B>setState</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;state1)</PRE>
+<DL>
+<DD>state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>state1</CODE> - the state to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setId(java.lang.String)"><!-- --></A><H3>
+setId</H3>
+<PRE>
+public void <B>setId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>setId</CODE> in interface <CODE>edu.internet2.middleware.grouperClient.messaging.GrouperMessage</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id1</CODE> - the id to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFromMemberId()"><!-- --></A><H3>
+getFromMemberId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getFromMemberId</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getFromMemberId</CODE> in interface <CODE>edu.internet2.middleware.grouperClient.messaging.GrouperMessage</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>GrouperMessage.getFromMemberId()</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getId()"><!-- --></A><H3>
+getId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getId</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getId</CODE> in interface <CODE>edu.internet2.middleware.grouperClient.messaging.GrouperMessage</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getMessageBody()"><!-- --></A><H3>
+getMessageBody</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getMessageBody</B>()</PRE>
+<DL>
+<DD>body of message (e.g. the json or encrypted message)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getMessageBody</CODE> in interface <CODE>edu.internet2.middleware.grouperClient.messaging.GrouperMessage</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the messageBody</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setFromMemberId(java.lang.String)"><!-- --></A><H3>
+setFromMemberId</H3>
+<PRE>
+public void <B>setFromMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fromMemberId1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>setFromMemberId</CODE> in interface <CODE>edu.internet2.middleware.grouperClient.messaging.GrouperMessage</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>GrouperMessage.setFromMemberId(java.lang.String)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setMessageBody(java.lang.String)"><!-- --></A><H3>
+setMessageBody</H3>
+<PRE>
+public void <B>setMessageBody</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;messageBody1)</PRE>
+<DL>
+<DD>body of message (e.g. the json or encrypted message)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>setMessageBody</CODE> in interface <CODE>edu.internet2.middleware.grouperClient.messaging.GrouperMessage</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>messageBody1</CODE> - the messageBody to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSentTimeMicros()"><!-- --></A><H3>
+getSentTimeMicros</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getSentTimeMicros</B>()</PRE>
+<DL>
+<DD>millis since 1970 that this message was sent
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the sentTimeMicros</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSentTimeMicros(java.lang.Long)"><!-- --></A><H3>
+setSentTimeMicros</H3>
+<PRE>
+public void <B>setSentTimeMicros</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;sentTimeMicros1)</PRE>
+<DL>
+<DD>millis since 1970 that this message was sent
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sentTimeMicros1</CODE> - the sentTimeMicros to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getQueueName()"><!-- --></A><H3>
+getQueueName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getQueueName</B>()</PRE>
+<DL>
+<DD>queue name for the message
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the queueName</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setQueueName(java.lang.String)"><!-- --></A><H3>
+setQueueName</H3>
+<PRE>
+public void <B>setQueueName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;queueName1)</PRE>
+<DL>
+<DD>queue name for the message
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>queueName1</CODE> - the queueName to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGetTimeMillis()"><!-- --></A><H3>
+getGetTimeMillis</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getGetTimeMillis</B>()</PRE>
+<DL>
+<DD>millis since 1970 that this message was successfully received
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the getTimeMillis</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGetTimeMillis(java.lang.Long)"><!-- --></A><H3>
+setGetTimeMillis</H3>
+<PRE>
+public void <B>setGetTimeMillis</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;getTimeMillis1)</PRE>
+<DL>
+<DD>millis since 1970 that this message was successfully received
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>getTimeMillis1</CODE> - the getTimeMillis to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGetAttemptTimeMillis()"><!-- --></A><H3>
+getGetAttemptTimeMillis</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getGetAttemptTimeMillis</B>()</PRE>
+<DL>
+<DD>milliseconds since 1970 that the message was attempted to be received
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the getAttemptTimeMillis</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGetAttemptTimeMillis(java.lang.Long)"><!-- --></A><H3>
+setGetAttemptTimeMillis</H3>
+<PRE>
+public void <B>setGetAttemptTimeMillis</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;getAttemptTimeMillis1)</PRE>
+<DL>
+<DD>milliseconds since 1970 that the message was attempted to be received
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>getAttemptTimeMillis1</CODE> - the getAttemptTimeMillis to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGetAttemptCount()"><!-- --></A><H3>
+getGetAttemptCount</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A> <B>getGetAttemptCount</B>()</PRE>
+<DL>
+<DD>how many times this message has been attempted to be retrieved
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the getAttemptCount</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGetAttemptCount(java.lang.Integer)"><!-- --></A><H3>
+setGetAttemptCount</H3>
+<PRE>
+public void <B>setGetAttemptCount</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;getAttemptCount1)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>getAttemptCount1</CODE> - the getAttemptCount to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clone()"><!-- --></A><H3>
+clone</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A> <B>clone</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">GrouperAPI</A></CODE></B></DD>
+<DD>deep clone the fields in this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co#clone()">clone</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">clone</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the clone of the object<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()"><CODE>GrouperAPI.clone()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getContextId()"><!-- --></A><H3>
+getContextId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getContextId</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>context id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setContextId(java.lang.String)"><!-- --></A><H3>
+setContextId</H3>
+<PRE>
+public void <B>setContextId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId1)</PRE>
+<DL>
+<DD>set context id
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>contextId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="saveOrUpdate()"><!-- --></A><H3>
+saveOrUpdate</H3>
+<PRE>
+public void <B>saveOrUpdate</B>()</PRE>
+<DL>
+<DD>save or update this object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delete()"><!-- --></A><H3>
+delete</H3>
+<PRE>
+public void <B>delete</B>()</PRE>
+<DL>
+<DD>delete this object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getQueueOrTopic()"><!-- --></A><H3>
+getQueueOrTopic</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getQueueOrTopic</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>queue or topic</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setQueueOrTopic(java.lang.String)"><!-- --></A><H3>
+setQueueOrTopic</H3>
+<PRE>
+public void <B>setQueueOrTopic</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theQueueOrTopic1)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theQueueOrTopic1</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/messaging/GrouperBuiltinMessagingSystem.GrouperBuiltinMessageState.html?view=co" title="enum in edu.internet2.middleware.grouper.messaging"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/messaging/MessagingListenerBase.html?view=co" title="class in edu.internet2.middleware.grouper.messaging"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperMessageHibernate.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

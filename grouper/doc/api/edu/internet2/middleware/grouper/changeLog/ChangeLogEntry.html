@@ -52,7 +52,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBase.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerToMessage.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogHelper.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -485,6 +485,14 @@ Class ChangeLogEntry</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co#clearNextSequenceNumberCache()">clearNextSequenceNumberCache</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clear the sequence number so the next call to nextSequenceNumber() will requery the max.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co#clone()">clone</A></B>()</CODE>
 
@@ -514,6 +522,22 @@ Class ChangeLogEntry</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this identifier matches the change log type by category and action</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co#fromJsonHelper(net.sf.json.JSONObject)">fromJsonHelper</A></B>(net.sf.json.JSONObject&nbsp;jsonObject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to one json object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogEntry</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co#fromJsonToCollection(java.lang.String)">fromJsonToCollection</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;json)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert json to a collection (generally of size one) of change log entries</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -896,6 +920,14 @@ Class ChangeLogEntry</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a temp object headed for the temp table</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co#toJson(boolean)">toJson</A></B>(boolean&nbsp;includeContainer)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -2019,6 +2051,19 @@ public void <B>onPreSave</B>(<A HREF="../../../../../edu/internet2/middleware/gr
 </DL>
 <HR>
 
+<A NAME="clearNextSequenceNumberCache()"><!-- --></A><H3>
+clearNextSequenceNumberCache</H3>
+<PRE>
+public static void <B>clearNextSequenceNumberCache</B>()</PRE>
+<DL>
+<DD>clear the sequence number so the next call to nextSequenceNumber() will requery the max.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="maxSequenceNumber(boolean)"><!-- --></A><H3>
 maxSequenceNumber</H3>
 <PRE>
@@ -2220,6 +2265,45 @@ public boolean <B>equalsCategoryAndAction</B>(<A HREF="../../../../../edu/intern
 <DT><B>Returns:</B><DD>true if matches</DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="fromJsonToCollection(java.lang.String)"><!-- --></A><H3>
+fromJsonToCollection</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogEntry</A>&gt; <B>fromJsonToCollection</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;json)</PRE>
+<DL>
+<DD>convert json to a collection (generally of size one) of change log entries
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>json</CODE> - 
+<DT><B>Returns:</B><DD>the change log entry</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="fromJsonHelper(net.sf.json.JSONObject)"><!-- --></A><H3>
+fromJsonHelper</H3>
+<PRE>
+public void <B>fromJsonHelper</B>(net.sf.json.JSONObject&nbsp;jsonObject)</PRE>
+<DL>
+<DD>convert to one json object
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>jsonObject</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toJson(boolean)"><!-- --></A><H3>
+toJson</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toJson</B>(boolean&nbsp;includeContainer)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>includeContainer</CODE> - true will include a container and an array of events
+<DT><B>Returns:</B><DD>json</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -2250,7 +2334,7 @@ public boolean <B>equalsCategoryAndAction</B>(<A HREF="../../../../../edu/intern
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBase.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerToMessage.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogHelper.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;

@@ -335,6 +335,25 @@ Privilege helper class.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStemAdmin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStemAdmin</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+             edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStemAdmin(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStemAdmin</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+             edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStemAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStemAttrRead</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
                 <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
                 edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
@@ -492,6 +511,14 @@ Privilege helper class.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#fieldIdsFromPrivileges(java.util.Collection)">fieldIdsFromPrivileges</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a collection of privileges to a collection of fieldIds</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#flushCache()">flushCache</A></B>()</CODE>
 
@@ -619,6 +646,22 @@ Privilege helper class.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#isWheelOrRootOrReadonlyRoot(edu.internet2.middleware.subject.Subject)">isWheelOrRootOrReadonlyRoot</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a subject is wheel or root or readonly root</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#isWheelOrRootOrViewonlyRoot(edu.internet2.middleware.subject.Subject)">isWheelOrRootOrViewonlyRoot</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a subject is wheel or root or viewonly root (or readonly)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#resolveSubjects(java.util.Collection, boolean)">resolveSubjects</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/GrouperPrivilege.html?view=co" title="interface in edu.internet2.middleware.grouper.privs">GrouperPrivilege</A>&gt;&nbsp;grouperPrivileges,
                 boolean&nbsp;resolveAllAlways)</CODE>
@@ -665,6 +708,20 @@ public <B>PrivilegeHelper</B>()</PRE>
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="fieldIdsFromPrivileges(java.util.Collection)"><!-- --></A><H3>
+fieldIdsFromPrivileges</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>fieldIdsFromPrivileges</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</PRE>
+<DL>
+<DD>convert a collection of privileges to a collection of fieldIds
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privileges</CODE> - 
+<DT><B>Returns:</B><DD>the field</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="hasImmediatePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
 hasImmediatePrivilege</H3>
@@ -1013,6 +1070,19 @@ public static boolean <B>canStem</B>(<A HREF="../../../../../edu/internet2/middl
 </DL>
 <HR>
 
+<A NAME="canStemAdmin(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canStemAdmin</H3>
+<PRE>
+public static boolean <B>canStemAdmin</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ns</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can stem admin</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="canStem(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
 canStem</H3>
 <PRE>
@@ -1027,6 +1097,20 @@ public static boolean <B>canStem</B>(<A HREF="../../../../../edu/internet2/middl
 <DT><B>Returns:</B><DD>can stem<DT><B>Since:</B></DT>
   <DD>1.2.1</DD>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canStemAdmin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canStemAdmin</H3>
+<PRE>
+public static boolean <B>canStemAdmin</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>ns</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can stem admin</DL>
 </DD>
 </DL>
 <HR>
@@ -1273,6 +1357,34 @@ public static boolean <B>isWheel</B>(<A HREF="../../../../../edu/internet2/middl
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>s</CODE> - 
 <DT><B>Returns:</B><DD>is wheel</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isWheelOrRootOrViewonlyRoot(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+isWheelOrRootOrViewonlyRoot</H3>
+<PRE>
+public static boolean <B>isWheelOrRootOrViewonlyRoot</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>see if a subject is wheel or root or viewonly root (or readonly)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>true or false</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isWheelOrRootOrReadonlyRoot(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+isWheelOrRootOrReadonlyRoot</H3>
+<PRE>
+public static boolean <B>isWheelOrRootOrReadonlyRoot</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>see if a subject is wheel or root or readonly root
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>true or false</DL>
 </DD>
 </DL>
 <HR>

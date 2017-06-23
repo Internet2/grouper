@@ -98,7 +98,7 @@ Class GrouperStartup</H2>
 </PRE>
 
 <P>
-this should be called when grouper starts up
+this should be called when grouper starts up.  this file needs to be utf-8
 <P>
 
 <P>
@@ -242,6 +242,22 @@ this should be called when grouper starts up
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;verify that table id indexes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperStartup.html?view=co#verifyUtf8andTransactions()">verifyUtf8andTransactions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure grouper can handle utf8</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperStartup.html?view=co#verifyUtf8andTransactionsHelper()">verifyUtf8andTransactionsHelper</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure grouper can handle utf8</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -396,6 +412,32 @@ public static boolean <B>startup</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>false if already started, true if this started it</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="verifyUtf8andTransactions()"><!-- --></A><H3>
+verifyUtf8andTransactions</H3>
+<PRE>
+public static void <B>verifyUtf8andTransactions</B>()</PRE>
+<DL>
+<DD>make sure grouper can handle utf8
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="verifyUtf8andTransactionsHelper()"><!-- --></A><H3>
+verifyUtf8andTransactionsHelper</H3>
+<PRE>
+public static void <B>verifyUtf8andTransactionsHelper</B>()</PRE>
+<DL>
+<DD>make sure grouper can handle utf8
+<P>
+<DD><DL>
+</DL>
 </DD>
 </DL>
 <HR>
