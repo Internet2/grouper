@@ -579,7 +579,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
             //For nested groups, ChangeLogEvents fire when the group is added, and also for each indirect user added,
             //so we only need to handle PERSON events.
             if (subjectType == SubjectTypeEnum.PERSON) {
-                User user = connector.fetchGooUser(connector.getAddressFormatter().qualifySubjectAddress(subjectId));
+                User user = connector.fetchGooUser(connector.getAddressFormatter().qualifySubjectAddress(lookupSubject));
                 if (user == null) {
                     user = connector.createGooUser(lookupSubject);
                 }

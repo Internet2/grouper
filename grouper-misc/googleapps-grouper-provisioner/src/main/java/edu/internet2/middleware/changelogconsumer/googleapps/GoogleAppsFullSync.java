@@ -26,20 +26,15 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Initiates a GoogleAppsFullSync from command-line
@@ -238,7 +233,7 @@ public class GoogleAppsFullSync {
                     if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
                       String role = connector.determineRole(member, item.getGrouperGroup());
                       if (role != null) {
-                        grouperMembers.add(new ComparableMemberItem(connector.getAddressFormatter().qualifySubjectAddress(member.getSubjectId()), member));
+                        grouperMembers.add(new ComparableMemberItem(connector.getAddressFormatter().qualifySubjectAddress(member.getSubject()), member));
                       }
                     }
                 }
