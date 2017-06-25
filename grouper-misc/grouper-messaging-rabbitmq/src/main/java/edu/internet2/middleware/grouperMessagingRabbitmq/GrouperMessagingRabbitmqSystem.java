@@ -95,8 +95,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           channel.basicPublish("", queueOrTopicName, MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         }
         LOG.info("Sent message: "+message);
-        channel.close();
       }
+      channel.close();
       
     } catch(IOException e) {
       throw new RuntimeException("Error occurred while sending message to messaging system: "+grouperMessageSystemParam.getMessageSystemName(), e);
