@@ -19,6 +19,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
@@ -90,7 +92,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
       entries.add(new SendMessageBatchRequestEntry(grouperMessage.getId(), grouperMessage.getMessageBody()));
     }
     if (entries.size() > 0) {
-      SendMessageBatchRequest batchRequest = new SendMessageBatchRequest().withQueueUrl(queueUrl).withEntries(entries);
+      SendMessageBatchRequest batchRequest = new SendMessageBatchRequest(queueUrl).withEntries(entries);
       sqs.sendMessageBatch(batchRequest);
       LOG.info("Sent "+entries.size()+" messages to SQS.");
     }
@@ -164,10 +166,19 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     ReceiveMessageRequest messageRequest = new ReceiveMessageRequest(queueUrl).withMaxNumberOfMessages(pageSize).withWaitTimeSeconds(waitTimeSeconds);
     List<Message> sqsMessages = sqs.receiveMessage(messageRequest).getMessages();
     
+    Collection<DeleteMessageBatchRequestEntry> deleteEntries = new ArrayList<DeleteMessageBatchRequestEntry>();
+    
     for (Message message: sqsMessages) {
       GrouperMessageSqs sqsMessage = new GrouperMessageSqs(message.getBody(), message.getMessageId());
       messages.add(sqsMessage);
+      
+      DeleteMessageBatchRequestEntry deleteMessageBatchRequestEntry = 
+          new DeleteMessageBatchRequestEntry(message.getMessageId(), message.getReceiptHandle());
+      deleteEntries.add(deleteMessageBatchRequestEntry);
     }
+    
+    DeleteMessageBatchRequest deleteMessageBatchRequest = new DeleteMessageBatchRequest(queueUrl).withEntries(deleteEntries);
+    sqs.deleteMessageBatch(deleteMessageBatchRequest);
     
     LOG.info("Received "+sqsMessages.size()+" messages.");
     

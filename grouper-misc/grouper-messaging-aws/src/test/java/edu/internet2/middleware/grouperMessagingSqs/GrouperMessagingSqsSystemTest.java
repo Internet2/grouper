@@ -46,6 +46,8 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
     receiveParam.assignGrouperMessageQueueParam(queueParam);
     receiveParam.assignAutocreateObjects(true);
+    receiveParam.assignMaxMessagesToReceiveAtOnce(10);
+    receiveParam.assignLongPollMillis(3000);
     
     Collection<GrouperMessage> grouperMessages = system.receive(receiveParam).getGrouperMessages();
     Set<String> messageBodies = new HashSet<String>();
