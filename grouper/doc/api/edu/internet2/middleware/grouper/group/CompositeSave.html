@@ -1,0 +1,591 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+CompositeSave
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="CompositeSave";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/GroupMember.html?view=co" title="class in edu.internet2.middleware.grouper.group"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="CompositeSave.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.group</FONT>
+<BR>
+Class CompositeSave</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.group.CompositeSave</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>CompositeSave</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Use this class to insert or update a composite
+ e.g.
+ composite = new CompositeSave(grouperSession).assignOwnerGroupName("test:testGroup").assignLeftFactorGroupName("a:b"c).assignRightFactorGroupName("a:b:d").assignCompsiteType(CompositeType.COMPLEMENT).save();
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#CompositeSave(edu.internet2.middleware.grouper.GrouperSession)">CompositeSave</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;theGrouperSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;create a new composite save</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignCompositeType(edu.internet2.middleware.grouper.misc.CompositeType)">assignCompositeType</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">CompositeType</A>&nbsp;theCompositeType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign the composite type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignId(java.lang.String)">assignId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id of this composite</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignLeftFactorGroup(edu.internet2.middleware.grouper.Group)">assignLeftFactorGroup</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theLeftFactorGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a group attribute, this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignLeftFactorGroupId(java.lang.String)">assignLeftFactorGroupId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theLeftFactorGroupId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a group attribute, this is the foreign key mutually exclusive with ownerGroupName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignLeftFactorGroupName(java.lang.String)">assignLeftFactorGroupName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theLeftFactorGroupName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left factor group name, this is the foreign key mutually exclusive with leftFactorGroupId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignOwnerGroup(edu.internet2.middleware.grouper.Group)">assignOwnerGroup</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theOwnerGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;owner group foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignOwnerGroupId(java.lang.String)">assignOwnerGroupId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this is the foreign key mutually exclusive with ownerGroupName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignOwnerGroupName(java.lang.String)">assignOwnerGroupName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;owner group name, this is the foreign key mutually exclusive with ownerGroupId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignRightFactorGroup(edu.internet2.middleware.grouper.Group)">assignRightFactorGroup</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theRightFactorGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right factor group this is the foreign key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignRightFactorGroupId(java.lang.String)">assignRightFactorGroupId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theRightFactorGroupId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right factor group id, this is the foreign key mutually exclusive with rightFactorGroupName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignRightFactorGroupName(java.lang.String)">assignRightFactorGroupName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theRightFactorGroupName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right factor group name, this is the foreign key mutually exclusive with rightFactorGroupId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#assignSaveMode(edu.internet2.middleware.grouper.misc.SaveMode)">assignSaveMode</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveMode</A>&nbsp;theSaveMode)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign save mode</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/Composite.html?view=co" title="class in edu.internet2.middleware.grouper">Composite</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#getComposite()">getComposite</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveResultType</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#getSaveResultType()">getSaveResultType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the save type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/Composite.html?view=co" title="class in edu.internet2.middleware.grouper">Composite</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co#save()">save</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ create or update a group.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="CompositeSave(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+CompositeSave</H3>
+<PRE>
+public <B>CompositeSave</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;theGrouperSession)</PRE>
+<DL>
+<DD>create a new composite save
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>theGrouperSession</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="assignSaveMode(edu.internet2.middleware.grouper.misc.SaveMode)"><!-- --></A><H3>
+assignSaveMode</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignSaveMode</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveMode</A>&nbsp;theSaveMode)</PRE>
+<DL>
+<DD>assign save mode
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSaveMode</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignId(java.lang.String)"><!-- --></A><H3>
+assignId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</PRE>
+<DL>
+<DD>id of this composite
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerGroupId(java.lang.String)"><!-- --></A><H3>
+assignOwnerGroupId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignOwnerGroupId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupId)</PRE>
+<DL>
+<DD>this is the foreign key mutually exclusive with ownerGroupName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerGroupId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignLeftFactorGroupName(java.lang.String)"><!-- --></A><H3>
+assignLeftFactorGroupName</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignLeftFactorGroupName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theLeftFactorGroupName)</PRE>
+<DL>
+<DD>left factor group name, this is the foreign key mutually exclusive with leftFactorGroupId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theLeftFactorGroupName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerGroup(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+assignOwnerGroup</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignOwnerGroup</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theOwnerGroup)</PRE>
+<DL>
+<DD>owner group foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerGroup</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSaveResultType()"><!-- --></A><H3>
+getSaveResultType</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/misc/SaveResultType.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">SaveResultType</A> <B>getSaveResultType</B>()</PRE>
+<DL>
+<DD>get the save type
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>save type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignCompositeType(edu.internet2.middleware.grouper.misc.CompositeType)"><!-- --></A><H3>
+assignCompositeType</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignCompositeType</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/misc/CompositeType.html?view=co" title="enum in edu.internet2.middleware.grouper.misc">CompositeType</A>&nbsp;theCompositeType)</PRE>
+<DL>
+<DD>assign the composite type
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theCompositeType</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getComposite()"><!-- --></A><H3>
+getComposite</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/Composite.html?view=co" title="class in edu.internet2.middleware.grouper">Composite</A> <B>getComposite</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the composite</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="save()"><!-- --></A><H3>
+save</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/Composite.html?view=co" title="class in edu.internet2.middleware.grouper">Composite</A> <B>save</B>()
+               throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/AttributeDefNameNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeDefNameNotFoundException</A>,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A>,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A>,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD><pre>
+ create or update a group.  Note this will not rename a group at this time (might in future)
+ 
+ This is a static method since setters to Group objects persist to the DB
+ 
+ Steps:
+ 
+ 1. Find the group by groupNameToEdit
+ 2. Internally set all the fields of the stem (no need to reset if already the same)
+ 3. Store the group (insert or update) if needed
+ 4. Return the group object
+ 
+ This runs in a tx so that if part of it fails the whole thing fails, and potentially the outer
+ transaction too
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the group
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/AttributeDefNameNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeDefNameNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignLeftFactorGroup(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+assignLeftFactorGroup</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignLeftFactorGroup</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theLeftFactorGroup)</PRE>
+<DL>
+<DD>if this is a group attribute, this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theLeftFactorGroup</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignLeftFactorGroupId(java.lang.String)"><!-- --></A><H3>
+assignLeftFactorGroupId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignLeftFactorGroupId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theLeftFactorGroupId)</PRE>
+<DL>
+<DD>if this is a group attribute, this is the foreign key mutually exclusive with ownerGroupName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theLeftFactorGroupId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignRightFactorGroupName(java.lang.String)"><!-- --></A><H3>
+assignRightFactorGroupName</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignRightFactorGroupName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theRightFactorGroupName)</PRE>
+<DL>
+<DD>right factor group name, this is the foreign key mutually exclusive with rightFactorGroupId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theRightFactorGroupName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignRightFactorGroup(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+assignRightFactorGroup</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignRightFactorGroup</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;theRightFactorGroup)</PRE>
+<DL>
+<DD>right factor group this is the foreign key
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theRightFactorGroup</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignRightFactorGroupId(java.lang.String)"><!-- --></A><H3>
+assignRightFactorGroupId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignRightFactorGroupId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theRightFactorGroupId)</PRE>
+<DL>
+<DD>right factor group id, this is the foreign key mutually exclusive with rightFactorGroupName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theRightFactorGroupId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignOwnerGroupName(java.lang.String)"><!-- --></A><H3>
+assignOwnerGroupName</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/group/CompositeSave.html?view=co" title="class in edu.internet2.middleware.grouper.group">CompositeSave</A> <B>assignOwnerGroupName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theOwnerGroupName)</PRE>
+<DL>
+<DD>owner group name, this is the foreign key mutually exclusive with ownerGroupId
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theOwnerGroupName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/group/GroupMember.html?view=co" title="class in edu.internet2.middleware.grouper.group"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="CompositeSave.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

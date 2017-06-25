@@ -182,6 +182,28 @@ attribute def name data access methods
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeDefNameDAO.html?view=co#findAllAttributeNamesSecure(java.lang.String, boolean, edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, edu.internet2.middleware.grouper.service.ServiceRole, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, boolean, java.util.Set)">findAllAttributeNamesSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                            boolean&nbsp;splitScope,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId,
+                            edu.internet2.middleware.subject.Subject&nbsp;subject,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;attributeAssignType,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefType</A>&nbsp;attributeDefType,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/service/ServiceRole.html?view=co" title="enum in edu.internet2.middleware.grouper.service">ServiceRole</A>&nbsp;serviceRole,
+                            boolean&nbsp;anyServiceRole,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentStemId,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                            boolean&nbsp;findByUuidOrName,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;idsOfAttributeDefNames)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all attribute names secure, split the scope by whitespace</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeDefNameDAO.html?view=co#findAllAttributeNamesSplitScopeSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType)">findAllAttributeNamesSplitScopeSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
                                       <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId,
@@ -771,9 +793,42 @@ findAllAttributeNamesSecure</H3>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>scope</CODE> - <DD><CODE>splitScope</CODE> - <DD><CODE>attributeDefId</CODE> - optional if filtering by names in a certain attribute definition<DD><CODE>grouperSession</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privileges</CODE> - <DD><CODE>queryOptions</CODE> - <DD><CODE>attributeAssignType</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>anyServiceRole</CODE> - will see if the user has any role in a service, and return those services<DD><CODE>parentStemId</CODE> - is the id of the parent or ancestor of the object returned<DD><CODE>stemScope</CODE> - is if the stem scope is ONE or SUB<DD><CODE>findByUuidOrName</CODE> - if looking for attribute def names by uuid or name
+<DT><B>Parameters:</B><DD><CODE>scope</CODE> - <DD><CODE>splitScope</CODE> - <DD><CODE>attributeDefId</CODE> - optional if filtering by names in a certain attribute definition<DD><CODE>grouperSession</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privileges</CODE> - <DD><CODE>queryOptions</CODE> - <DD><CODE>attributeAssignType</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>serviceRole</CODE> - <DD><CODE>anyServiceRole</CODE> - will see if the user has any role in a service, and return those services<DD><CODE>parentStemId</CODE> - is the id of the parent or ancestor of the object returned<DD><CODE>stemScope</CODE> - is if the stem scope is ONE or SUB<DD><CODE>findByUuidOrName</CODE> - if looking for attribute def names by uuid or name
 <DT><B>Returns:</B><DD>set of attribute defs<DT><B>Since:</B></DT>
   <DD>v2.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findAllAttributeNamesSecure(java.lang.String, boolean, edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, edu.internet2.middleware.grouper.service.ServiceRole, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, boolean, java.util.Set)"><!-- --></A><H3>
+findAllAttributeNamesSecure</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt; <B>findAllAttributeNamesSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                                                  boolean&nbsp;splitScope,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId,
+                                                  edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;attributeAssignType,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefType</A>&nbsp;attributeDefType,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/service/ServiceRole.html?view=co" title="enum in edu.internet2.middleware.grouper.service">ServiceRole</A>&nbsp;serviceRole,
+                                                  boolean&nbsp;anyServiceRole,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentStemId,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                  boolean&nbsp;findByUuidOrName,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;idsOfAttributeDefNames)</PRE>
+<DL>
+<DD>get all attribute names secure, split the scope by whitespace
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>scope</CODE> - <DD><CODE>splitScope</CODE> - <DD><CODE>attributeDefId</CODE> - optional if filtering by names in a certain attribute definition<DD><CODE>grouperSession</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privileges</CODE> - <DD><CODE>queryOptions</CODE> - <DD><CODE>attributeAssignType</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>serviceRole</CODE> - <DD><CODE>anyServiceRole</CODE> - will see if the user has any role in a service, and return those services<DD><CODE>parentStemId</CODE> - is the id of the parent or ancestor of the object returned<DD><CODE>stemScope</CODE> - is if the stem scope is ONE or SUB<DD><CODE>findByUuidOrName</CODE> - if looking for attribute def names by uuid or name<DD><CODE>idsOfAttributeDefNames</CODE> - ids of attribute def names to lookup
+<DT><B>Returns:</B><DD>set of attribute defs<DT><B>Since:</B></DT>
+  <DD>v2.2.1</DD>
 </DL>
 </DD>
 </DL>

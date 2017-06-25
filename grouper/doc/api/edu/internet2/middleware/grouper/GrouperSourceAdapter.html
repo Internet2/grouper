@@ -242,6 +242,14 @@ Source adapter for using Grouper groups as I2MI Subjects.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectIdentifierAttributes()">getSubjectIdentifierAttributes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,edu.internet2.middleware.subject.Subject&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectsByIdentifiers(java.util.Collection)">getSubjectsByIdentifiers</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;identifiers)</CODE>
 
@@ -343,7 +351,7 @@ Source adapter for using Grouper groups as I2MI Subjects.
 <TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.subject.provider.BaseSourceAdapter</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>addAttribute, addInitParam, addInternalAttribute, addSubjectType, equals, getId, getInitParam, getInitParams, getInternalAttributes, getName, getSearchAttributes, getSortAttributes, getSubject, getSubjectByIdentifier, getSubjectByIdOrIdentifier, getSubjectByIdOrIdentifier, getSubjectsByIdentifiers, getSubjectsByIds, getSubjectsByIdsOrIdentifiers, getSubjectsByIdsOrIdentifiers, getSubjectStatusConfig, getSubjectType, hashCode, loadSearch, removeInitParam, resultSetLimit, search, searchPage, setId, setName, setSearchAttributes, setSortAttributes</CODE></TD>
+<TD><CODE>addAttribute, addInitParam, addInternalAttribute, addSubjectType, equals, getId, getInitParam, getInternalAttributes, getName, getSearchAttributes, getSortAttributes, getSubject, getSubjectByIdentifier, getSubjectByIdOrIdentifier, getSubjectByIdOrIdentifier, getSubjectsByIdentifiers, getSubjectsByIds, getSubjectsByIdsOrIdentifiers, getSubjectsByIdsOrIdentifiers, getSubjectStatusConfig, getSubjectType, hashCode, initParams, loadSearch, removeInitParam, resultSetLimit, search, searchPage, setId, setName, setSearchAttributes, setSortAttributes, setSubjectIdentifierAttributes</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -795,6 +803,20 @@ public edu.internet2.middleware.subject.SearchPageResult <B>searchPage</B>(<A HR
 </DD>
 <DD><DL>
 <DT><B>See Also:</B><DD><CODE>BaseSourceAdapter.searchPage(java.lang.String)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectIdentifierAttributes()"><!-- --></A><H3>
+getSubjectIdentifierAttributes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>getSubjectIdentifierAttributes</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubjectIdentifierAttributes</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>getSubjectIdentifierAttributes</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>Source.getSubjectIdentifierAttributes()</CODE></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

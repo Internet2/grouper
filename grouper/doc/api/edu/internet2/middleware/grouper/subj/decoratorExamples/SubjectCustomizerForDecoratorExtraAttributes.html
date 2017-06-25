@@ -132,14 +132,6 @@ add attributes securely to the subject
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/subj/decoratorExamples/SubjectCustomizerForDecoratorExtraAttributes.html?view=co#PRIVILEGED_ADMIN_GROUP_NAME">PRIVILEGED_ADMIN_GROUP_NAME</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;privileged employee group name</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/subj/decoratorExamples/SubjectCustomizerForDecoratorExtraAttributes.html?view=co#SUBJECT_ATTRIBUTES_PERMISSIONS_ATTRIBUTE_DEF">SUBJECT_ATTRIBUTES_PERMISSIONS_ATTRIBUTE_DEF</A></B></CODE>
 
 <BR>
@@ -180,6 +172,14 @@ add attributes securely to the subject
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decorate subjects based on attributes requested</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/subj/decoratorExamples/SubjectCustomizerForDecoratorExtraAttributes.html?view=co#PRIVILEGED_ADMIN_GROUP_NAME()">PRIVILEGED_ADMIN_GROUP_NAME</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;privileged employee group name</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.subj.SubjectCustomizerBase"><!-- --></A>
@@ -225,18 +225,6 @@ public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/l
 </DL>
 <HR>
 
-<A NAME="PRIVILEGED_ADMIN_GROUP_NAME"><!-- --></A><H3>
-PRIVILEGED_ADMIN_GROUP_NAME</H3>
-<PRE>
-public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>PRIVILEGED_ADMIN_GROUP_NAME</B></PRE>
-<DL>
-<DD>privileged employee group name
-<P>
-<DL>
-<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.subj.decoratorExamples.SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME">Constant Field Values</A></DL>
-</DL>
-<HR>
-
 <A NAME="SUBJECT_ATTRIBUTES_PERMISSIONS_ATTRIBUTE_DEF"><!-- --></A><H3>
 SUBJECT_ATTRIBUTES_PERMISSIONS_ATTRIBUTE_DEF</H3>
 <PRE>
@@ -274,6 +262,20 @@ public <B>SubjectCustomizerForDecoratorExtraAttributes</B>()</PRE>
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="PRIVILEGED_ADMIN_GROUP_NAME()"><!-- --></A><H3>
+PRIVILEGED_ADMIN_GROUP_NAME</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>PRIVILEGED_ADMIN_GROUP_NAME</B>()</PRE>
+<DL>
+<DD>privileged employee group name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the group name</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="decorateSubjects(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, java.util.Collection)"><!-- --></A><H3>
 decorateSubjects</H3>

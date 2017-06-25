@@ -182,6 +182,23 @@ for simple HQL, use this instead of inverse of control.
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;T&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/BySqlStatic.html?view=co#listSelectHiberateMapped(java.lang.Class, java.lang.String, java.util.List)">listSelectHiberateMapped</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;returnClassType,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;query,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;params)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select one object from sql (one row, one col</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
 <CODE>&lt;T&gt; T</CODE></FONT></TD>
 </TR>
 </TABLE>
@@ -282,6 +299,22 @@ select</H3>
 public &lt;T&gt; T <B>select</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;returnClassType,
                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sql,
                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;params)</PRE>
+<DL>
+<DD>select one object from sql (one row, one col
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - the type<DT><B>Parameters:</B><DD><CODE>returnClassType</CODE> - type to be returned (currnetly supports string and int<DD><CODE>sql</CODE> - can be insert, update, delete, or ddl<DD><CODE>params</CODE> - prepared statement params
+<DT><B>Returns:</B><DD>the number of rows affected or 0 for ddl</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="listSelectHiberateMapped(java.lang.Class, java.lang.String, java.util.List)"><!-- --></A><H3>
+listSelectHiberateMapped</H3>
+<PRE>
+public &lt;T&gt; <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;T&gt; <B>listSelectHiberateMapped</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;returnClassType,
+                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;query,
+                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;params)</PRE>
 <DL>
 <DD>select one object from sql (one row, one col
 <P>

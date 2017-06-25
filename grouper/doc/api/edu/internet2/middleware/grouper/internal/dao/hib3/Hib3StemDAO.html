@@ -442,6 +442,17 @@ Basic Hibernate <code>Stem</code> DAO interface.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3StemDAO.html?view=co#findAllChildStems(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)">findAllChildStems</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                  <A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope,
+                  <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                  boolean&nbsp;checkSecurity)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find all child stems within specified scope.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3StemDAO.html?view=co#findAllChildStemsSecure(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findAllChildStemsSecure</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
                         <A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope,
                         <A HREF="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
@@ -660,6 +671,28 @@ Basic Hibernate <code>Stem</code> DAO interface.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3StemDAO.html?view=co#getAllStemsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, boolean, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.String, java.lang.Object, java.lang.Boolean)">getAllStemsSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                  <A HREF="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                  edu.internet2.middleware.subject.Subject&nbsp;subject,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;inPrivSet,
+                  <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                  boolean&nbsp;splitScope,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentStemId,
+                  <A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                  boolean&nbsp;findByUuidOrName,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;userHasInGroupFields,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;userHasInAttributeFields,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;totalStemIds,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idOfAttributeDefName,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;attributeValue,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;attributeCheckReadOnAttributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3StemDAO.html?view=co#getAllStemsSplitScopeSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">getAllStemsSplitScopeSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
                             <A HREF="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
                             edu.internet2.middleware.subject.Subject&nbsp;subject,
@@ -750,7 +783,7 @@ Basic Hibernate <code>Stem</code> DAO interface.
 <TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.internal.dao.hib3.<A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3DAO</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getSessionFactory()">getSessionFactory</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -1350,6 +1383,34 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 </DL>
 <HR>
 
+<A NAME="findAllChildStems(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)"><!-- --></A><H3>
+findAllChildStems</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt; <B>findAllChildStems</B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                                   <A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope,
+                                   <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                   boolean&nbsp;checkSecurity)
+                            throws <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalStateException.html?view=co" title="class or interface in java.lang">IllegalStateException</A></PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co#findAllChildStems(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)">StemDAO</A></CODE></B></DD>
+<DD>Find all child stems within specified scope.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co#findAllChildStems(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)">findAllChildStems</A></CODE> in interface <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">StemDAO</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ns</CODE> - <DD><CODE>scope</CODE> - <DD><CODE>queryOptions</CODE> - <DD><CODE>checkSecurity</CODE> - 
+<DT><B>Returns:</B><DD>set stem
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalStateException.html?view=co" title="class or interface in java.lang">IllegalStateException</A></CODE> - if unknown scope.<DT><B>Since:</B></DT>
+  <DD>@HEAD@</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co#findAllChildStems(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)"><CODE>StemDAO.findAllChildStems(Stem, Stem.Scope)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="findByName(java.lang.String)"><!-- --></A><H3>
 findByName</H3>
 <PRE>
@@ -1468,7 +1529,7 @@ public void <B>renameStemAndChildren</B>(<A HREF="http://docs.oracle.com/javase/
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co#renameStemAndChildren(java.util.Set)">renameStemAndChildren</A></CODE> in interface <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">StemDAO</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>_ns</CODE> - <DD><CODE>children</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>children</CODE> - 
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
   <DD>@HEAD@</DD>
@@ -2077,7 +2138,40 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
  There are some constants in NamingPrivilege of pre-canned sets<DD><CODE>splitScope</CODE> - true to split scopes by whitespace<DD><CODE>parentStemId</CODE> - true if filtering by parent of ancestor<DD><CODE>stemScope</CODE> - ONE or SUB<DD><CODE>findByUuidOrName</CODE> - if we are looking up a stem, only look by uuid or name<DD><CODE>userHasInGroupFields</CODE> - find stems where the user has these fields in a group<DD><CODE>userHasInAttributeFields</CODE> - find stems where the user has these fields in an attribute
 <DT><B>Returns:</B><DD>the stems
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>See Also:</B><DD><CODE>StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean, Collection, Collection)</CODE></DL>
+<DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>See Also:</B><DD><CODE>StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, Collection, Collection, Collection)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAllStemsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, boolean, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.String, java.lang.Object, java.lang.Boolean)"><!-- --></A><H3>
+getAllStemsSecure</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt; <B>getAllStemsSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                                   <A HREF="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;inPrivSet,
+                                   <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                   boolean&nbsp;splitScope,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentStemId,
+                                   <A HREF="../../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                   boolean&nbsp;findByUuidOrName,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;userHasInGroupFields,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;userHasInAttributeFields,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;totalStemIds,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idOfAttributeDefName,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;attributeValue,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;attributeCheckReadOnAttributeDef)
+                            throws <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co#getAllStemsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, boolean, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.String, java.lang.Object, java.lang.Boolean)">getAllStemsSecure</A></CODE> in interface <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/StemDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">StemDAO</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>scope</CODE> - is blank for no scope<DD><CODE>inPrivSet</CODE> - means that each row must have a matching priv in this set to user or GrouperAll.
+ There are some constants in NamingPrivilege of pre-canned sets<DD><CODE>splitScope</CODE> - true to split scopes by whitespace<DD><CODE>parentStemId</CODE> - true if filtering by parent of ancestor<DD><CODE>stemScope</CODE> - ONE or SUB<DD><CODE>findByUuidOrName</CODE> - if we are looking up a stem, only look by uuid or name<DD><CODE>userHasInGroupFields</CODE> - find stems where the user has these fields in a group<DD><CODE>userHasInAttributeFields</CODE> - find stems where the user has these fields in an attribute<DD><CODE>idOfAttributeDefName</CODE> - if looking for groups that have this attribute def name<DD><CODE>attributeValue</CODE> - if looking for groups that have this attribute value on the attribute def name<DD><CODE>attributeCheckReadOnAttributeDef</CODE> - if check read on attribute for attribute on stem
+<DT><B>Returns:</B><DD>the stems
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>See Also:</B><DD><CODE>StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, Collection, Collection, Collection, String, Object, Boolean)</CODE></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

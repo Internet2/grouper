@@ -172,6 +172,14 @@ Find groups within the Groups Registry.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignAttributeValue(java.lang.Object)">assignAttributeValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find objects with this value</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignCompositeOwner(java.lang.Boolean)">assignCompositeOwner</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theCompositeOwner)</CODE>
 
 <BR>
@@ -220,10 +228,26 @@ Find groups within the Groups Registry.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignIdOfAttributeDefName(java.lang.String)">assignIdOfAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find groups that have this attribute assigned</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignMembershipsForSubject(boolean)">assignMembershipsForSubject</A></B>(boolean&nbsp;membershipsForSubject1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is true, or there is a field assigned, then get memberships for a subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignNameOfAttributeDefName(java.lang.String)">assignNameOfAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theNameOfAttributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find groups that have this attribute assigned</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -328,6 +352,46 @@ Find groups within the Groups Registry.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByApproximateDescriptionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByApproximateDescriptionSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description,
+                                   <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByApproximateDisplayExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByApproximateDisplayExtensionSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                                        <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByApproximateDisplayNameSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByApproximateDisplayNameSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayName,
+                                   <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByApproximateExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByApproximateExtensionSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                                 <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String)">findByAttribute</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
@@ -356,6 +420,46 @@ Find groups within the Groups Registry.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by its current name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByDescriptionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByDescriptionSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description,
+                        <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByDisplayExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByDisplayExtensionSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayExtension,
+                             <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByDisplayNameSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByDisplayNameSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayName,
+                        <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)">findByExtensionSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                      <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -667,6 +771,110 @@ public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?v
 </DL>
 <HR>
 
+<A NAME="findByApproximateDescriptionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByApproximateDescriptionSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByApproximateDescriptionSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description,
+                                                            <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByDescriptionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByDescriptionSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByDescriptionSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description,
+                                                 <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByDisplayNameSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByDisplayNameSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByDisplayNameSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayName,
+                                                 <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByApproximateDisplayNameSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByApproximateDisplayNameSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByApproximateDisplayNameSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayName,
+                                                            <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByExtensionSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByExtensionSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                                               <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByApproximateExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByApproximateExtensionSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByApproximateExtensionSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                                                          <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByDisplayExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByDisplayExtensionSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByDisplayExtensionSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayExtension,
+                                                      <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByApproximateDisplayExtensionSecure(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set)"><!-- --></A><H3>
+findByApproximateDisplayExtensionSecure</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findByApproximateDisplayExtensionSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension,
+                                                                 <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="findByCurrentName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
 findByCurrentName</H3>
 <PRE>
@@ -881,6 +1089,48 @@ public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?vi
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>theQueryOptions</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeValue(java.lang.Object)"><!-- --></A><H3>
+assignAttributeValue</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignAttributeValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue)</PRE>
+<DL>
+<DD>find objects with this value
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theValue</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignIdOfAttributeDefName(java.lang.String)"><!-- --></A><H3>
+assignIdOfAttributeDefName</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignIdOfAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theAttributeDefNameId)</PRE>
+<DL>
+<DD>find groups that have this attribute assigned
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignNameOfAttributeDefName(java.lang.String)"><!-- --></A><H3>
+assignNameOfAttributeDefName</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignNameOfAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theNameOfAttributeDefName)</PRE>
+<DL>
+<DD>find groups that have this attribute assigned
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theNameOfAttributeDefName</CODE> - 
 <DT><B>Returns:</B><DD>this for chaining</DL>
 </DD>
 </DL>

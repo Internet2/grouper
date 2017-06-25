@@ -244,6 +244,54 @@ Class GrouperContext</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#internal_assignCurrentInnerContext(edu.internet2.middleware.grouper.hibernate.GrouperContext)">internal_assignCurrentInnerContext</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A>&nbsp;newCurrentInnerContext)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal use only, set current inner context</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#internal_assignCurrentOuterContext(edu.internet2.middleware.grouper.hibernate.GrouperContext)">internal_assignCurrentOuterContext</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A>&nbsp;newCurrentOuterContext)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal use only, set current outer context</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#internal_assignDefaultContext(edu.internet2.middleware.grouper.hibernate.GrouperContext)">internal_assignDefaultContext</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A>&nbsp;newDefaultContext)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal use only, set default context</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#internal_retrieveCurrentInnerContext()">internal_retrieveCurrentInnerContext</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal use only, current inner context</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#internal_retrieveCurrentOuterContext()">internal_retrieveCurrentOuterContext</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal use only, current outer context</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#internal_retrieveDefaultContext()">internal_retrieveDefaultContext</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal use only, default context</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co#retrieveContextId(boolean)">retrieveContextId</A></B>(boolean&nbsp;requireContext)</CODE>
 
@@ -403,6 +451,87 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the default context</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_retrieveCurrentInnerContext()"><!-- --></A><H3>
+internal_retrieveCurrentInnerContext</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A> <B>internal_retrieveCurrentInnerContext</B>()</PRE>
+<DL>
+<DD>internal use only, current inner context
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>current inner context</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_assignCurrentInnerContext(edu.internet2.middleware.grouper.hibernate.GrouperContext)"><!-- --></A><H3>
+internal_assignCurrentInnerContext</H3>
+<PRE>
+public static void <B>internal_assignCurrentInnerContext</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A>&nbsp;newCurrentInnerContext)</PRE>
+<DL>
+<DD>internal use only, set current inner context
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>newCurrentInnerContext</CODE> - current inner context</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_retrieveCurrentOuterContext()"><!-- --></A><H3>
+internal_retrieveCurrentOuterContext</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A> <B>internal_retrieveCurrentOuterContext</B>()</PRE>
+<DL>
+<DD>internal use only, current outer context
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>current outer context</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_assignCurrentOuterContext(edu.internet2.middleware.grouper.hibernate.GrouperContext)"><!-- --></A><H3>
+internal_assignCurrentOuterContext</H3>
+<PRE>
+public static void <B>internal_assignCurrentOuterContext</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A>&nbsp;newCurrentOuterContext)</PRE>
+<DL>
+<DD>internal use only, set current outer context
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>newCurrentOuterContext</CODE> - current outer context</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_retrieveDefaultContext()"><!-- --></A><H3>
+internal_retrieveDefaultContext</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A> <B>internal_retrieveDefaultContext</B>()</PRE>
+<DL>
+<DD>internal use only, default context
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>default context</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_assignDefaultContext(edu.internet2.middleware.grouper.hibernate.GrouperContext)"><!-- --></A><H3>
+internal_assignDefaultContext</H3>
+<PRE>
+public static void <B>internal_assignDefaultContext</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperContext.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">GrouperContext</A>&nbsp;newDefaultContext)</PRE>
+<DL>
+<DD>internal use only, set default context
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>newDefaultContext</CODE> - default context</DL>
 </DD>
 </DL>
 <HR>

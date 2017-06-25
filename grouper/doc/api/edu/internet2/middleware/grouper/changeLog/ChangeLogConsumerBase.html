@@ -53,7 +53,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumer.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImpl.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="ChangeLogConsumerBase.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -93,7 +93,7 @@ Class ChangeLogConsumerBase</H2>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase</B>
 </PRE>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/client/GroupSyncConsumer.html?view=co" title="class in edu.internet2.middleware.grouper.client">GroupSyncConsumer</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImpl.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogConsumerBaseImpl</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerToMessage.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogConsumerToMessage</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/client/GroupSyncConsumer.html?view=co" title="class in edu.internet2.middleware.grouper.client">GroupSyncConsumer</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/consumer/PrintTest.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog.consumer">PrintTest</A></DD>
 </DL>
 <HR>
 <DL>
@@ -196,7 +196,7 @@ public abstract long <B>processChangeLogEntries</B>(<A HREF="http://docs.oracle.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>changeLogEntryList</CODE> - NOTE, DO NOT CHANGE OR EDIT THE OBJECTS IN THIS LIST, THEY MIGHT BE SHARED!<DD><CODE>changeLogProcessorMetadata</CODE> - 
-<DT><B>Returns:</B><DD>which sequence number it got up to (which sequence number was the last one processed)</DL>
+<DT><B>Returns:</B><DD>which sequence number it got up to (which sequence number was the last one processed).  or -1 if none processed</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -230,7 +230,7 @@ public abstract long <B>processChangeLogEntries</B>(<A HREF="http://docs.oracle.
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumer.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImpl.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="ChangeLogConsumerBase.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;

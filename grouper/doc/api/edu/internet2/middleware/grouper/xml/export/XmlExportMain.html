@@ -52,7 +52,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportGsh.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportGshScript.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMember.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -219,6 +219,14 @@ Class XmlExportMain</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co#incrementRecordCount(int)">incrementRecordCount</A></B>(int&nbsp;numberOfRecords)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;increment by an index</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co#isIncludeAudits()">isIncludeAudits</A></B>()</CODE>
 
@@ -273,6 +281,27 @@ Class XmlExportMain</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write the xml to a writer</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co#writeAllTablesGsh(java.io.Writer, java.lang.String)">writeAllTablesGsh</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fileName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write the xml to a writer</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMain.html?view=co#writeGshScriptForSubject(java.lang.String, java.lang.String, java.lang.String, java.io.Writer, java.lang.String)">writeGshScriptForSubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectVariableName,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;errorVariable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write gsh script for subject, include error handling</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -463,6 +492,19 @@ public void <B>incrementRecordCount</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="incrementRecordCount(int)"><!-- --></A><H3>
+incrementRecordCount</H3>
+<PRE>
+public void <B>incrementRecordCount</B>(int&nbsp;numberOfRecords)</PRE>
+<DL>
+<DD>increment by an index
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>numberOfRecords</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="writeAllTables(java.io.File)"><!-- --></A><H3>
 writeAllTables</H3>
 <PRE>
@@ -470,6 +512,40 @@ public void <B>writeAllTables</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/d
 <DL>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>file</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="writeAllTablesGsh(java.io.Writer, java.lang.String)"><!-- --></A><H3>
+writeAllTablesGsh</H3>
+<PRE>
+public void <B>writeAllTablesGsh</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fileName)</PRE>
+<DL>
+<DD>write the xml to a writer
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - <DD><CODE>fileName</CODE> - for logging</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="writeGshScriptForSubject(java.lang.String, java.lang.String, java.lang.String, java.io.Writer, java.lang.String)"><!-- --></A><H3>
+writeGshScriptForSubject</H3>
+<PRE>
+public void <B>writeGshScriptForSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectVariableName,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;errorVariable)
+                              throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD>write gsh script for subject, include error handling
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>sourceId</CODE> - <DD><CODE>subjectVariableName</CODE> - <DD><CODE>writer</CODE> - <DD><CODE>errorVariable</CODE> - set to true if error if applicable
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></CODE></DL>
 </DD>
 </DL>
 <HR>
@@ -545,7 +621,7 @@ public void <B>appendHqlStemLikeOrObjectEquals</B>(<A HREF="http://docs.oracle.c
                                             boolean&nbsp;forStemsOnly)</PRE>
 <DL>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>queryBuilder</CODE> - <DD><CODE>aliasName</CODE> - <DD><CODE>fieldName</CODE> - <DD><CODE>forStemsOnly</CODE> - true to export stems, false to do other objects</DL>
+<DT><B>Parameters:</B><DD><CODE>queryBuilder</CODE> - <DD><CODE>aliasName</CODE> - <DD><CODE>fieldName</CODE> - <DD><CODE>forStemsOnly</CODE> - this param doesnt matter right now.  used to let you specify an exact folder, but might as well specify any exact object</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -578,7 +654,7 @@ public void <B>appendHqlStemLikeOrObjectEquals</B>(<A HREF="http://docs.oracle.c
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportGsh.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportGshScript.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportMember.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;

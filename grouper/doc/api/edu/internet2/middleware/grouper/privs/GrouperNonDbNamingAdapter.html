@@ -332,7 +332,7 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/privs/NamingAdapter.html?view=co#getSubjectsWithPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.privs.Privilege)">NamingAdapter</A></CODE></B></DD>
 <DD>Get all subjects with this privilege on this stem.
  <pre class="eg">
- Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
+ Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM_ADMIN);
  </pre>
 <P>
 <DD><DL>
@@ -355,8 +355,8 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <DD>Get all stems where this subject has this privilege.
  <pre class="eg">
  try {
-   Set isStemmer = np.getStemsWhereSubjectHasPriv(
-     s, subj, NamingPrivilege.STEM
+   Set isStemAdmin = np.getStemsWhereSubjectHasPriv(
+     s, subj, NamingPrivilege.STEM_ADMIN
    );
  }
  catch (SchemaException e0) {
@@ -409,7 +409,7 @@ public void <B>grantPriv</B>(<A HREF="../../../../../edu/internet2/middleware/gr
 <DD>Grant the privilege to the subject on this stem.
  <pre class="eg">
  try {
-   np.grantPriv(s, ns, subj, NamingPrivilege.STEM);
+   np.grantPriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
  }
  catch (GrantPrivilegeException e0) {
    // Unable to grant the privilege
@@ -441,7 +441,7 @@ public boolean <B>hasPriv</B>(<A HREF="../../../../../edu/internet2/middleware/g
 <DD>Check whether the subject has this privilege on this stem.
  <pre class="eg">
  try {
-   np.hasPriv(s, ns, subj, NamingPrivilege.STEM);
+   np.hasPriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
  }
  catch (SchemaException e) {
    // Invalid privilege
@@ -518,7 +518,7 @@ public void <B>revokePriv</B>(<A HREF="../../../../../edu/internet2/middleware/g
 <DD>Revoke this privilege from everyone on this stem.
  <pre class="eg">
  try {
-   np.revokePriv(s, ns, NamingPrivilege.STEM);
+   np.revokePriv(s, ns, NamingPrivilege.STEM_ADMIN);
  }
  catch (InsufficientPrivilegeException eIP) {
    // Not privileged to revoke the privilege
@@ -552,7 +552,7 @@ public void <B>revokePriv</B>(<A HREF="../../../../../edu/internet2/middleware/g
 <DD>Revoke the privilege from the subject on this stem.
  <pre class="eg">
  try {
-   np.revokePriv(s, ns, subj, NamingPrivilege.STEM);
+   np.revokePriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
  }
  catch (InsufficientPrivilegeException e0) {
    // Not privileged to grant the privilege

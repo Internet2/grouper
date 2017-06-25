@@ -306,6 +306,14 @@ delegate privilege calls from attribute defs
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#clearObjectHasAttributeCache()">clearObjectHasAttributeCache</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clear the cache if we are assigning attributes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
                   boolean&nbsp;assign,
@@ -386,6 +394,15 @@ delegate privilege calls from attribute defs
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#getAttributeOrAncestorAttribute(java.lang.String, boolean)">getAttributeOrAncestorAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeFlagName,
+                                boolean&nbsp;checkSecurity)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a group or parent or ancestor folder has an attribute.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)">hasAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
 
@@ -434,6 +451,15 @@ delegate privilege calls from attribute defs
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttributeOrAncestorHasAttribute(java.lang.String, boolean)">hasAttributeOrAncestorHasAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeFlagName,
+                                   boolean&nbsp;checkSecurity)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a group or parent or ancestor folder has an attribute.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -1396,6 +1422,49 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the set of assignments or the empty set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clearObjectHasAttributeCache()"><!-- --></A><H3>
+clearObjectHasAttributeCache</H3>
+<PRE>
+public static void <B>clearObjectHasAttributeCache</B>()</PRE>
+<DL>
+<DD>clear the cache if we are assigning attributes
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttributeOrAncestorHasAttribute(java.lang.String, boolean)"><!-- --></A><H3>
+hasAttributeOrAncestorHasAttribute</H3>
+<PRE>
+public boolean <B>hasAttributeOrAncestorHasAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeFlagName,
+                                                  boolean&nbsp;checkSecurity)</PRE>
+<DL>
+<DD>see if a group or parent or ancestor folder has an attribute.  this can run securely.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeFlagName</CODE> - <DD><CODE>checkSecurity</CODE> - 
+<DT><B>Returns:</B><DD>true if group or stem has attribute</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeOrAncestorAttribute(java.lang.String, boolean)"><!-- --></A><H3>
+getAttributeOrAncestorAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A> <B>getAttributeOrAncestorAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeFlagName,
+                                                           boolean&nbsp;checkSecurity)</PRE>
+<DL>
+<DD>see if a group or parent or ancestor folder has an attribute.  this can run securely.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeFlagName</CODE> - <DD><CODE>checkSecurity</CODE> - 
+<DT><B>Returns:</B><DD>true if group or stem has attribute</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

@@ -400,6 +400,14 @@ Context for interacting with the Grouper API and Groups Registry.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/session/GrouperSessionResult.html?view=co" title="class in edu.internet2.middleware.grouper.session">GrouperSessionResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co#startIfNotStarted(edu.internet2.middleware.subject.Subject)">startIfNotStarted</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start a session for interacting with the Grouper API.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co#startRootSession()">startRootSession</A></B>()</CODE>
 
@@ -413,6 +421,14 @@ Context for interacting with the Grouper API and Groups Registry.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start a session for interacting with the Grouper API.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/session/GrouperSessionResult.html?view=co" title="class in edu.internet2.middleware.grouper.session">GrouperSessionResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co#startRootSessionIfNotStarted()">startRootSessionIfNotStarted</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start a root session for interacting with the Grouper API.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -658,6 +674,37 @@ public static <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSessi
  This adds the session to the threadlocal.    This has 
  threadlocal implications, so start and stop these hierarchically,
  do not alternate.  If you need to, use the callback inverse of control.
+ <pre class="eg">
+ // Start a Grouper API session.
+ GrouperSession s = GrouperSession.subject);
+ </pre>
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - Start session as this <CODE>Subject</CODE>.
+<DT><B>Returns:</B><DD>A Grouper API session.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/SessionException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SessionException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="startIfNotStarted(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+startIfNotStarted</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/session/GrouperSessionResult.html?view=co" title="class in edu.internet2.middleware.grouper.session">GrouperSessionResult</A> <B>startIfNotStarted</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)
+                                              throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/SessionException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SessionException</A></PRE>
+<DL>
+<DD>Start a session for interacting with the Grouper API.
+ This adds the session to the threadlocal.    This has 
+ threadlocal implications, so start and stop these hierarchically,
+ do not alternate.  If you need to, use the callback inverse of control.
+ 
+ This will not start a session if it is already started.
+ If it is started as a different user, it will start
+ 
  <pre class="eg">
  // Start a Grouper API session.
  GrouperSession s = GrouperSession.subject);
@@ -1205,6 +1252,32 @@ public <A HREF="../../../../edu/internet2/middleware/grouper/privs/AttributeDefR
 <DT><B>Returns:</B><DD><code>AttributeDefResolver</code> used by this session.<DT><B>Since:</B></DT>
   <DD>1.2.1</DD>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="startRootSessionIfNotStarted()"><!-- --></A><H3>
+startRootSessionIfNotStarted</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/session/GrouperSessionResult.html?view=co" title="class in edu.internet2.middleware.grouper.session">GrouperSessionResult</A> <B>startRootSessionIfNotStarted</B>()
+                                                         throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/SessionException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SessionException</A></PRE>
+<DL>
+<DD>Start a root session for interacting with the Grouper API.
+ This adds the session to the threadlocal.    This has 
+ threadlocal implications, so start and stop these hierarchically,
+ do not alternate.  If you need to, use the callback inverse of control.
+ 
+ This will not start a session if it is already started.
+ If it is started as a different user, it will start
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>A Grouper API session result.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/SessionException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SessionException</A></CODE></DL>
 </DD>
 </DL>
 <HR>

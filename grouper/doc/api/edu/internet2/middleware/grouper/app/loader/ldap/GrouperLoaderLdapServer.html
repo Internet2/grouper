@@ -53,7 +53,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtils.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LdapGroupUserConverter.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperLoaderLdapServer.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -244,6 +244,14 @@ db profile from grouper.properties (or possibly grouper.hibernate.properties)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.vt.middleware.ldap.handler.SearchResultHandler[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co#getSearchResultHandlers()">getSearchResultHandlers</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co#getTimeLimit()">getTimeLimit</A></B>()</CODE>
 
@@ -281,6 +289,14 @@ db profile from grouper.properties (or possibly grouper.hibernate.properties)
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if validating periodically, this is the period in millis</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.vt.middleware.ldap.pool.LdapValidator&lt;edu.vt.middleware.ldap.Ldap&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co#getValidator()">getValidator</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if validating, the LDAPFactory validator</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -421,6 +437,14 @@ db profile from grouper.properties (or possibly grouper.hibernate.properties)
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co#setSearchResultHandlers(java.lang.String)">setSearchResultHandlers</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;handlerNames)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comma-separated list of classes to handle search results</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co#setTimeLimit(int)">setTimeLimit</A></B>(int&nbsp;timeLimit1)</CODE>
 
 <BR>
@@ -489,6 +513,14 @@ db profile from grouper.properties (or possibly grouper.hibernate.properties)
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if validating periodically, this is the period in millis</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/GrouperLoaderLdapServer.html?view=co#setValidator(edu.vt.middleware.ldap.pool.LdapValidator)">setValidator</A></B>(edu.vt.middleware.ldap.pool.LdapValidator&lt;edu.vt.middleware.ldap.Ldap&gt;&nbsp;validator)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if validating, the LDAPFactory validator</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -658,6 +690,30 @@ public void <B>setPagedResultsSize</B>(int&nbsp;pagedResultsSize1)</PRE>
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>pagedResultsSize1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSearchResultHandlers(java.lang.String)"><!-- --></A><H3>
+setSearchResultHandlers</H3>
+<PRE>
+public void <B>setSearchResultHandlers</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;handlerNames)</PRE>
+<DL>
+<DD>comma-separated list of classes to handle search results
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>handlerNames</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSearchResultHandlers()"><!-- --></A><H3>
+getSearchResultHandlers</H3>
+<PRE>
+public edu.vt.middleware.ldap.handler.SearchResultHandler[] <B>getSearchResultHandlers</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
 </DD>
 </DL>
 <HR>
@@ -986,6 +1042,33 @@ public void <B>setValidateTimerPeriod</B>(int&nbsp;validateTimerPeriod1)</PRE>
 </DL>
 <HR>
 
+<A NAME="setValidator(edu.vt.middleware.ldap.pool.LdapValidator)"><!-- --></A><H3>
+setValidator</H3>
+<PRE>
+public void <B>setValidator</B>(edu.vt.middleware.ldap.pool.LdapValidator&lt;edu.vt.middleware.ldap.Ldap&gt;&nbsp;validator)</PRE>
+<DL>
+<DD>if validating, the LDAPFactory validator
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>validator</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getValidator()"><!-- --></A><H3>
+getValidator</H3>
+<PRE>
+public edu.vt.middleware.ldap.pool.LdapValidator&lt;edu.vt.middleware.ldap.Ldap&gt; <B>getValidator</B>()</PRE>
+<DL>
+<DD>if validating, the LDAPFactory validator
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the LDAPFactory validator</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="getPruneTimerPeriod()"><!-- --></A><H3>
 getPruneTimerPeriod</H3>
 <PRE>
@@ -1197,7 +1280,7 @@ public void <B>setDriver</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/a
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtils.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/app/loader/ldap/LdapGroupUserConverter.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.ldap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperLoaderLdapServer.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;

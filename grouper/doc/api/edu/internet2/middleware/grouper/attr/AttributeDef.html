@@ -94,7 +94,7 @@ Class AttributeDef</H2>
       <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.attr.AttributeDef</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperObject</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/Owner.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">Owner</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.FieldValuable.html?view=co" title="interface in edu.internet2.middleware.grouper.util">GrouperUtil.FieldValuable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Serializable.html?view=co" title="class or interface in java.io">Serializable</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang">Comparable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;, org.hibernate.classic.Lifecycle</DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperId</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperObject</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/Owner.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">Owner</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.FieldValuable.html?view=co" title="interface in edu.internet2.middleware.grouper.util">GrouperUtil.FieldValuable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Serializable.html?view=co" title="class or interface in java.io">Serializable</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang">Comparable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;, org.hibernate.classic.Lifecycle</DD>
 </DL>
 <HR>
 <DL>
@@ -696,6 +696,14 @@ definition of an attribute
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co#deleteOccuring()">deleteOccuring</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if we are in the middle of a delete (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co#equals(java.lang.Object)">equals</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;obj)</CODE>
 
@@ -1007,6 +1015,22 @@ definition of an attribute
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get parent stem.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co#getParentStemName()">getParentStemName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the name of the parent stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co#getParentUuid()">getParentUuid</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this method makes this class more compatible with Group and Stem</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -2498,6 +2522,23 @@ public <B>AttributeDef</B>()</PRE>
 </TR>
 </TABLE>
 
+<A NAME="getParentStemName()"><!-- --></A><H3>
+getParentStemName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getParentStemName</B>()</PRE>
+<DL>
+<DD>get the name of the parent stem
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the name of the parent stem</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="massageSortField(java.lang.String)"><!-- --></A><H3>
 massageSortField</H3>
 <PRE>
@@ -3616,6 +3657,23 @@ public void <B>setAttributeDefTypeDb</B>(<A HREF="http://docs.oracle.com/javase/
 </DL>
 <HR>
 
+<A NAME="getParentUuid()"><!-- --></A><H3>
+getParentUuid</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getParentUuid</B>()</PRE>
+<DL>
+<DD>this method makes this class more compatible with Group and Stem
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the parent stem id</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="getStemId()"><!-- --></A><H3>
 getStemId</H3>
 <PRE>
@@ -3909,7 +3967,7 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.ht
 <DD>id of this attribute def
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html?view=co#getId()">getId</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperObject.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperObject</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co#getId()">getId</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperId.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperId</A></CODE></DL>
 </DD>
 <DD><DL>
 
@@ -4285,6 +4343,23 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.ht
 </DD>
 <DD><DL>
 <DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deleteOccuring()"><!-- --></A><H3>
+deleteOccuring</H3>
+<PRE>
+public static boolean <B>deleteOccuring</B>()</PRE>
+<DL>
+<DD>see if we are in the middle of a delete (e.g. for hook)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if delete is occurring</DL>
 </DD>
 </DL>
 <HR>

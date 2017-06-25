@@ -249,6 +249,17 @@ Data Access Object for attribute def
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AttributeAssignValueDAO.html?view=co#findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)">findValuesOnAssignments</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;attributeAssignIds,
+                        <A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;attributeAssignType,
+                        <A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefType</A>&nbsp;attributeDefType,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find values on this assignment and values on assignments on this assignment</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AttributeAssignValueDAO.html?view=co#saveOrUpdate(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)">saveOrUpdate</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&nbsp;attributeAssignValue)</CODE>
 
@@ -270,7 +281,7 @@ Data Access Object for attribute def
 <TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.internal.dao.hib3.<A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3DAO</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getSessionFactory()">getSessionFactory</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -452,8 +463,8 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#findMemberAttributeAssignmentValues(java.util.Collection, java.lang.Boolean)">findMemberAttributeAssignmentValues</A></CODE> in interface <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">AttributeAssignValueDAO</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>memberIds</CODE> - optional<DD><CODE>enabled</CODE> - (null means all, true means enabled, false means disabled)
-<DT><B>Returns:</B><DD>the assignments</DL>
+<DT><B>Parameters:</B><DD><CODE>memberIds</CODE> - <DD><CODE>enabled</CODE> - 
+<DT><B>Returns:</B><DD>the map</DL>
 </DD>
 </DL>
 <HR>
@@ -530,6 +541,27 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the map of maps of values by group id<DT><B>See Also:</B><DD><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#findLegacyAttributesByGroupIds(java.util.Collection)"><CODE>AttributeAssignValueDAO.findLegacyAttributesByGroupIds(Collection)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)"><!-- --></A><H3>
+findValuesOnAssignments</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt; <B>findValuesOnAssignments</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;attributeAssignIds,
+                                                         <A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign">AttributeAssignType</A>&nbsp;attributeAssignType,
+                                                         <A HREF="../../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html?view=co" title="enum in edu.internet2.middleware.grouper.attr">AttributeDefType</A>&nbsp;attributeDefType,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;enabled)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)">AttributeAssignValueDAO</A></CODE></B></DD>
+<DD>find values on this assignment and values on assignments on this assignment
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)">findValuesOnAssignments</A></CODE> in interface <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">AttributeAssignValueDAO</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignType</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>enabled</CODE> - <DD><CODE>attributeAssignIds</CODE> - 
+<DT><B>Returns:</B><DD>assigns<DT><B>See Also:</B><DD><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignValueDAO.html?view=co#findValuesOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, edu.internet2.middleware.grouper.attr.AttributeDefType, java.lang.Boolean)"><CODE>AttributeAssignValueDAO.findValuesOnAssignments(Collection, AttributeAssignType, AttributeDefType, Boolean)</CODE></A></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

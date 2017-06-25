@@ -525,6 +525,15 @@ attribute on an external subject, configured in the grouper.properties
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co#validAttribute(java.lang.String, boolean)">validAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName,
+               boolean&nbsp;errorOnNotfound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert that the attribute name is valid</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -956,7 +965,7 @@ public <A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects
 </DD>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the clone of the object<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.clone()</CODE></A></DL>
+<DT><B>Returns:</B><DD>the clone of the object<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()"><CODE>GrouperAPI.clone()</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -1198,6 +1207,24 @@ public static void <B>assertValidAttribute</B>(<A HREF="http://docs.oracle.com/j
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="validAttribute(java.lang.String, boolean)"><!-- --></A><H3>
+validAttribute</H3>
+<PRE>
+public static boolean <B>validAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName,
+                                     boolean&nbsp;errorOnNotfound)</PRE>
+<DL>
+<DD>assert that the attribute name is valid
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - <DD><CODE>errorOnNotfound</CODE> - 
+<DT><B>Returns:</B><DD>if found</DL>
 </DD>
 </DL>
 <HR>

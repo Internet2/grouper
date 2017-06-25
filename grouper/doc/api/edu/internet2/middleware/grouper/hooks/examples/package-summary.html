@@ -92,6 +92,93 @@ This package contains working hooks examples which can be cloned and tweaked
 <B>Class Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AssignReadonlyAdminPrivilegeGroupHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">AssignReadonlyAdminPrivilegeGroupHook</A></B></TD>
+<TD>AssignReadOnlyAdminPrivilege adds the read privileges for the newly created groups to self (this group's subject)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AssignReadonlyAdminPrivilegeVetoMembershipHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">AssignReadonlyAdminPrivilegeVetoMembershipHook</A></B></TD>
+<TD>
+ assign READ to an admins group based on attribute assignment to a parent folder
+ 
+ configure in grouper.properties:
+ 
+ hooks.group.class=edu.internet2.middleware.grouper.hooks.examples.AssignReadonlyAdminPrivilegeGroupHook
+ hooks.membership.class=edu.internet2.middleware.grouper.hooks.examples.AssignReadonlyAdminPrivilegeVetoMembershipHook
+ 
+ grouper.readonlyAdminEnforced.attributeDefName = a:b:c:reaodnlyAdmin
+ grouper.readonlyAdminEnforced.groupName = c:d:readonlyAdmins
+ 
+ setup objects in GSH:
+ 
+ grouperSession = GrouperSession.startRootSession();
+ String attributeFolderName = "a:b:c";
+ attributeDef = new AttributeDefSave(grouperSession).assignName(attributeFolderName + ":readonlyAdminDef").assignToStem(true).assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.marker).save();
+ attributeDef.getAttributeDefActionDelegate().configureActionList("assign");
+ attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef).assignName(attributeFolderName + ":readonlyAdmin").assignCreateParentStemsIfNotExist(true).save();
+ groupAdmin = new GroupSave(grouperSession).assignName("c:d:readonlyAdmins").assignCreateParentStemsIfNotExist(true).save();
+ 
+ make a group to test:
+ 
+ stem = new StemSave(grouperSession).assignName("l:m").assignCreateParentStemsIfNotExist(true).save();
+ stem.getAttributeDelegate().assignAttribute(attributeDefName);
+ groupSub = new GroupSave(grouperSession).assignName("l:m:n:o").assignCreateParentStemsIfNotExist(true).save();
+ groupNotSub = new GroupSave(grouperSession).assignName("l:p").assignCreateParentStemsIfNotExist(true).save();</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AssignSelfOptOutGroupPrivilegeHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">AssignSelfOptOutGroupPrivilegeHook</A></B></TD>
+<TD>
+ If you want the group or groups in a folder to allow opt out to anyone in group, 
+ then configure this hook in grouper.properties:
+ 
+ hooks.group.class=edu.internet2.middleware.grouper.hooks.examples.AssignSelfOptOutGroupPrivilegeHook
+ hooks.membership.class=edu.internet2.middleware.grouper.hooks.examples.AssignSelfOptOutMembershipPrivilegeRevocationVetoHook
+ 
+ configure an attribute to assign to groups or folders in grouper.properties
+ 
+ grouper.optOutRequired.attributeDefName = a:b:c:assignOptOut
+ 
+ https://bugs.internet2.edu/jira/browse/GRP-1197
+ 
+ grouperSession = GrouperSession.startRootSession(); 
+ String attributeFolderName = "a:b:c"; 
+ attributeDef = new AttributeDefSave(grouperSession).assignName(attributeFolderName + ":assignOptOutDef").assignToStem(true).assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.marker).save();
+ attributeDef.getAttributeDefActionDelegate().configureActionList("assign"); 
+ attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef).assignName(attributeFolderName + ":assignOptOut").assignCreateParentStemsIfNotExist(true).save(); 
+ 
+ Test it out
+ 
+ stem = new StemSave(grouperSession).assignName("j:k").assignCreateParentStemsIfNotExist(true).save();
+ stem.getAttributeDelegate().assignAttribute(attributeDefName);
+ groupSub = new GroupSave(grouperSession).assignName("j:k:l:m").assignCreateParentStemsIfNotExist(true).save();</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AssignSelfOptOutMembershipPrivilegeRevocationVetoHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">AssignSelfOptOutMembershipPrivilegeRevocationVetoHook</A></B></TD>
+<TD>
+ If you want the group or groups in a folder to allow opt out to anyone in group, 
+ then configure this hook in grouper.properties:
+ 
+ hooks.group.class=edu.internet2.middleware.grouper.hooks.examples.AssignSelfOptOutGroupPrivilegeHook
+ hooks.membership.class=edu.internet2.middleware.grouper.hooks.examples.AssignSelfOptOutMembershipPrivilegeRevocationVetoHook
+ 
+ configure an attribute to assign to groups or folders in grouper.properties
+ 
+ grouper.optOutRequired.attributeDefName = a:b:c:assignOptOut
+ 
+ https://bugs.internet2.edu/jira/browse/GRP-1197
+ 
+ grouperSession = GrouperSession.startRootSession(); 
+ String attributeFolderName = "a:b:c"; 
+ attributeDef = new AttributeDefSave(grouperSession).assignName(attributeFolderName + ":assignOptOutDef").assignToStem(true).assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.marker).save();
+ attributeDef.getAttributeDefActionDelegate().configureActionList("assign"); 
+ attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef).assignName(attributeFolderName + ":assignOptOut").assignCreateParentStemsIfNotExist(true).save(); 
+ 
+ Test it out
+ 
+ stem = new StemSave(grouperSession).assignName("j:k").assignCreateParentStemsIfNotExist(true).save();
+ stem.getAttributeDelegate().assignAttribute(attributeDefName);
+ groupSub = new GroupSave(grouperSession).assignName("j:k:l:m").assignCreateParentStemsIfNotExist(true).save();</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/AttributeHooksImplExampleEmail.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">AttributeHooksImplExampleEmail</A></B></TD>
 <TD>test implementation of group hooks for test.</TD>
 </TR>
@@ -140,12 +227,46 @@ This package contains working hooks examples which can be cloned and tweaked
  built in hook to grouper, which is turned on when it is configured in the grouper.properties.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/GroupUniqueNameCaseInsensitiveHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">GroupUniqueNameCaseInsensitiveHook</A></B></TD>
+<TD>
+ built in hook to grouper, which is turned on when it is configured in the grouper.properties.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/HierarchicalOrgLoaderHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">HierarchicalOrgLoaderHook</A></B></TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/LDAPProvisioningHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">LDAPProvisioningHook</A></B></TD>
+<TD>hook to prevent ldap provisioning by setting an attribute on the group.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/MembershipHooksImplExample.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">MembershipHooksImplExample</A></B></TD>
 <TD>test implementation of group hooks for test</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/MembershipOneInFolderMaxHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">MembershipOneInFolderMaxHook</A></B></TD>
+<TD>Hook allows only one membership in a folder at a time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/StemUniqueNameCaseInsensitiveHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">StemUniqueNameCaseInsensitiveHook</A></B></TD>
+<TD>
+ built in hook to grouper, which is turned on when it is configured in the grouper.properties.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/UniqueObjectAttributeDefHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">UniqueObjectAttributeDefHook</A></B></TD>
+<TD>When attribute defs are created or saved, make sure there are no name conflicts with other object types</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/UniqueObjectAttributeDefNameHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">UniqueObjectAttributeDefNameHook</A></B></TD>
+<TD>When attribute def names are created or saved, make sure there are no name conflicts with other object types</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/UniqueObjectGroupHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">UniqueObjectGroupHook</A></B></TD>
+<TD>When groups are created or saved, make sure there are no name conflicts with other object types</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/hooks/examples/UniqueObjectStemHook.html?view=co" title="class in edu.internet2.middleware.grouper.hooks.examples">UniqueObjectStemHook</A></B></TD>
+<TD>When folders are created or saved, make sure there are no name conflicts with other object types</TD>
 </TR>
 </TABLE>
 &nbsp;

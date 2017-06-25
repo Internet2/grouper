@@ -155,12 +155,46 @@ Cache for if wheel member
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/WheelCache.html?view=co#getFromIsWheelReadonlyMemberCache(edu.internet2.middleware.subject.Subject)">getFromIsWheelReadonlyMemberCache</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieve boolean from cache for readonly <code>isWheelMember(...)</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/WheelCache.html?view=co#getFromIsWheelViewonlyMemberCache(edu.internet2.middleware.subject.Subject)">getFromIsWheelViewonlyMemberCache</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieve boolean from cache for viewonly <code>isWheelMember(...)</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/WheelCache.html?view=co#putInHasPrivilegeCache(edu.internet2.middleware.subject.Subject, java.lang.Boolean)">putInHasPrivilegeCache</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;rv)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Put boolean into cache for <code>isWheelMember(...)</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/WheelCache.html?view=co#putInReadonlyHasPrivilegeCache(edu.internet2.middleware.subject.Subject, java.lang.Boolean)">putInReadonlyHasPrivilegeCache</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;rv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Put boolean into cache for readonly <code>isWheelMember(...)</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/WheelCache.html?view=co#putInViewonlyHasPrivilegeCache(edu.internet2.middleware.subject.Subject, java.lang.Boolean)">putInViewonlyHasPrivilegeCache</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;rv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Put boolean into cache for viewonly <code>isWheelMember(...)</code>.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -238,6 +272,70 @@ public static void <B>putInHasPrivilegeCache</B>(edu.internet2.middleware.subjec
                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;rv)</PRE>
 <DL>
 <DD>Put boolean into cache for <code>isWheelMember(...)</code>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subj</CODE> - <DD><CODE>rv</CODE> - <DT><B>Since:</B></DT>
+  <DD>2.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFromIsWheelReadonlyMemberCache(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+getFromIsWheelReadonlyMemberCache</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A> <B>getFromIsWheelReadonlyMemberCache</B>(edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>Retrieve boolean from cache for readonly <code>isWheelMember(...)</code>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>Cached return value or null.<DT><B>Since:</B></DT>
+  <DD>2.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="putInReadonlyHasPrivilegeCache(edu.internet2.middleware.subject.Subject, java.lang.Boolean)"><!-- --></A><H3>
+putInReadonlyHasPrivilegeCache</H3>
+<PRE>
+public static void <B>putInReadonlyHasPrivilegeCache</B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;rv)</PRE>
+<DL>
+<DD>Put boolean into cache for readonly <code>isWheelMember(...)</code>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subj</CODE> - <DD><CODE>rv</CODE> - <DT><B>Since:</B></DT>
+  <DD>2.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFromIsWheelViewonlyMemberCache(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+getFromIsWheelViewonlyMemberCache</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A> <B>getFromIsWheelViewonlyMemberCache</B>(edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>Retrieve boolean from cache for viewonly <code>isWheelMember(...)</code>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>Cached return value or null.<DT><B>Since:</B></DT>
+  <DD>2.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="putInViewonlyHasPrivilegeCache(edu.internet2.middleware.subject.Subject, java.lang.Boolean)"><!-- --></A><H3>
+putInViewonlyHasPrivilegeCache</H3>
+<PRE>
+public static void <B>putInViewonlyHasPrivilegeCache</B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;rv)</PRE>
+<DL>
+<DD>Put boolean into cache for viewonly <code>isWheelMember(...)</code>.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>subj</CODE> - <DD><CODE>rv</CODE> - <DT><B>Since:</B></DT>

@@ -169,6 +169,17 @@ Data Access Object for audit entry
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AuditEntryDAO.html?view=co#findByActingUser(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.Long, java.lang.Long)">findByActingUser</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;actAsMemberId,
+                 <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;startTime,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;endTime)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find audit entries that a user did within a given time range.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AuditEntryDAO.html?view=co#findById(java.lang.String, boolean)">findById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
          boolean&nbsp;exceptionIfNotFound)</CODE>
@@ -199,7 +210,7 @@ Data Access Object for audit entry
 <TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.internal.dao.hib3.<A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3DAO</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evict(java.lang.Class)">evict</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictEntity(java.lang.String)">evictEntity</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#evictQueries(java.lang.String)">evictQueries</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getConfiguration()">getConfiguration</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#getSessionFactory()">getSessionFactory</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#initHibernateIfNotInitted()">initHibernateIfNotInitted</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#resourceNameFromClassName(java.lang.Class, java.lang.String)">resourceNameFromClassName</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3DAO.html?view=co#session()">session</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -305,6 +316,26 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the audits that that user performed<DT><B>See Also:</B><DD><CODE>AuditEntryDAO#findByActingUser(QueryOptions)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByActingUser(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.Long, java.lang.Long)"><!-- --></A><H3>
+findByActingUser</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt; <B>findByActingUser</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;actAsMemberId,
+                                        <A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;startTime,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;endTime)</PRE>
+<DL>
+<DD>find audit entries that a user did within a given time range.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AuditEntryDAO.html?view=co#findByActingUser(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.Long, java.lang.Long)">findByActingUser</A></CODE> in interface <CODE><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AuditEntryDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">AuditEntryDAO</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the audits that that user performed within a given time range<DT><B>See Also:</B><DD><A HREF="../../../../../../../edu/internet2/middleware/grouper/internal/dao/AuditEntryDAO.html?view=co#findByActingUser(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.Long, java.lang.Long)"><CODE>AuditEntryDAO.findByActingUser(String, QueryOptions, Long, Long)</CODE></A></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

@@ -155,6 +155,18 @@ type of loaders (e.g. sql simple)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;various maintenance jobs on the system</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#MESSAGE_LISTENER">MESSAGE_LISTENER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;various messaging jobs on the system</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#OTHER_JOB">OTHER_JOB</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;other job</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#PSP_FULL_SYNC">PSP_FULL_SYNC</A></B></CODE>
 
 <BR>
@@ -183,6 +195,14 @@ type of loaders (e.g. sql simple)
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#GROUPER_BUILTIN_MESSAGING_DAEMON">GROUPER_BUILTIN_MESSAGING_DAEMON</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maintenance builtinMessagingDaemon name</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -239,6 +259,22 @@ type of loaders (e.g. sql simple)
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group sync job name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#GROUPER_MESSAGING_LISTENER_PREFIX">GROUPER_MESSAGING_LISTENER_PREFIX</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;change log consumer prefix</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#GROUPER_OTHER_JOB_PREFIX">GROUPER_OTHER_JOB_PREFIX</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;other jobs prefix</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -357,6 +393,22 @@ type of loaders (e.g. sql simple)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#retrieveGroups(edu.internet2.middleware.grouper.GrouperSession)">retrieveGroups</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve all loader groups from the db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#retrieveLdapAttributeAssigns()">retrieveLdapAttributeAssigns</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>abstract &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#runJob(edu.internet2.middleware.grouper.app.loader.LoaderJobBean)">runJob</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">LoaderJobBean</A>&nbsp;loaderJobBean)</CODE>
 
@@ -416,6 +468,26 @@ type of loaders (e.g. sql simple)
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the type for this job name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#validateAndScheduleLdapLoad(edu.internet2.middleware.grouper.attr.assign.AttributeAssign, java.util.Set, boolean)">validateAndScheduleLdapLoad</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;attributeAssign,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;jobNames,
+                            boolean&nbsp;logErrorsToDb)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co#validateAndScheduleSqlLoad(edu.internet2.middleware.grouper.Group, java.util.Set, boolean)">validateAndScheduleSqlLoad</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;jobNames,
+                           boolean&nbsp;logErrorsToDb)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -488,6 +560,18 @@ public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/
 </DL>
 <HR>
 
+<A NAME="OTHER_JOB"><!-- --></A><H3>
+OTHER_JOB</H3>
+<PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A> <B>OTHER_JOB</B></PRE>
+<DL>
+<DD>other job
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="MAINTENANCE"><!-- --></A><H3>
 MAINTENANCE</H3>
 <PRE>
@@ -523,6 +607,18 @@ CHANGE_LOG</H3>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A> <B>CHANGE_LOG</B></PRE>
 <DL>
 <DD>various change log jobs on the system
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="MESSAGE_LISTENER"><!-- --></A><H3>
+MESSAGE_LISTENER</H3>
+<PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A> <B>MESSAGE_LISTENER</B></PRE>
+<DL>
+<DD>various messaging jobs on the system
 <P>
 <DL>
 </DL>
@@ -638,6 +734,18 @@ public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/l
 </DL>
 <HR>
 
+<A NAME="GROUPER_BUILTIN_MESSAGING_DAEMON"><!-- --></A><H3>
+GROUPER_BUILTIN_MESSAGING_DAEMON</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>GROUPER_BUILTIN_MESSAGING_DAEMON</B></PRE>
+<DL>
+<DD>maintenance builtinMessagingDaemon name
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.GrouperLoaderType.GROUPER_BUILTIN_MESSAGING_DAEMON">Constant Field Values</A></DL>
+</DL>
+<HR>
+
 <A NAME="GROUPER_EXTERNAL_SUBJ_CALC_FIELDS"><!-- --></A><H3>
 GROUPER_EXTERNAL_SUBJ_CALC_FIELDS</H3>
 <PRE>
@@ -695,6 +803,30 @@ public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/l
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="GROUPER_MESSAGING_LISTENER_PREFIX"><!-- --></A><H3>
+GROUPER_MESSAGING_LISTENER_PREFIX</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>GROUPER_MESSAGING_LISTENER_PREFIX</B></PRE>
+<DL>
+<DD>change log consumer prefix
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="GROUPER_OTHER_JOB_PREFIX"><!-- --></A><H3>
+GROUPER_OTHER_JOB_PREFIX</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>GROUPER_OTHER_JOB_PREFIX</B></PRE>
+<DL>
+<DD>other jobs prefix
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX">Constant Field Values</A></DL>
 </DL>
 <HR>
 
@@ -811,7 +943,7 @@ public static void <B>syncGroupList</B>(<A HREF="../../../../../../edu/internet2
 <DD>sync a group list
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperLoaderResultsetOverall</CODE> - <DD><CODE>startTime</CODE> - <DD><CODE>grouperSession</CODE> - <DD><CODE>andGroups</CODE> - <DD><CODE>groupTypes</CODE> - <DD><CODE>groupLikeString</CODE> - <DD><CODE>groupQuery</CODE> - <DD><CODE>groupNameOverall</CODE> - <DD><CODE>hib3GrouploaderLogOverall</CODE> - <DD><CODE>statusOverall</CODE> - <DD><CODE>grouperLoaderDb</CODE> - <DD><CODE>groupNameToDisplayName</CODE> - <DD><CODE>groupNameToDescription</CODE> - <DD><CODE>privsToAdd</CODE> - <DD><CODE>groupNamesFromGroupQuery</CODE> - if not null, this is the list of groups to sync</DL>
+<DT><B>Parameters:</B><DD><CODE>grouperLoaderResultsetOverall</CODE> - <DD><CODE>startTime</CODE> - <DD><CODE>grouperSession</CODE> - <DD><CODE>andGroups</CODE> - <DD><CODE>groupTypes</CODE> - <DD><CODE>groupLikeString</CODE> - <DD><CODE>groupNameOverall</CODE> - <DD><CODE>hib3GrouploaderLogOverall</CODE> - <DD><CODE>statusOverall</CODE> - <DD><CODE>grouperLoaderDb</CODE> - <DD><CODE>groupNameToDisplayName</CODE> - <DD><CODE>groupNameToDescription</CODE> - <DD><CODE>privsToAdd</CODE> - <DD><CODE>groupNamesFromGroupQuery</CODE> - if not null, this is the list of groups to sync</DL>
 </DD>
 </DL>
 <HR>
@@ -933,6 +1065,19 @@ public boolean <B>dayListContainsToday</B>(<A HREF="http://docs.oracle.com/javas
 </DL>
 <HR>
 
+<A NAME="validateAndScheduleSqlLoad(edu.internet2.middleware.grouper.Group, java.util.Set, boolean)"><!-- --></A><H3>
+validateAndScheduleSqlLoad</H3>
+<PRE>
+public static void <B>validateAndScheduleSqlLoad</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;jobNames,
+                                              boolean&nbsp;logErrorsToDb)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>jobNames</CODE> - <DD><CODE>logErrorsToDb</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="scheduleLoads()"><!-- --></A><H3>
 scheduleLoads</H3>
 <PRE>
@@ -989,6 +1134,19 @@ public static void <B>scheduleAttributeLoads</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="validateAndScheduleLdapLoad(edu.internet2.middleware.grouper.attr.assign.AttributeAssign, java.util.Set, boolean)"><!-- --></A><H3>
+validateAndScheduleLdapLoad</H3>
+<PRE>
+public static void <B>validateAndScheduleLdapLoad</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;attributeAssign,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;jobNames,
+                                               boolean&nbsp;logErrorsToDb)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssign</CODE> - <DD><CODE>jobNames</CODE> - <DD><CODE>logErrorsToDb</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="scheduleLdapLoads()"><!-- --></A><H3>
 scheduleLdapLoads</H3>
 <PRE>
@@ -998,6 +1156,31 @@ public static void <B>scheduleLdapLoads</B>()</PRE>
 <P>
 <DD><DL>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveLdapAttributeAssigns()"><!-- --></A><H3>
+retrieveLdapAttributeAssigns</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>retrieveLdapAttributeAssigns</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveGroups(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+retrieveGroups</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>retrieveGroups</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession)</PRE>
+<DL>
+<DD>retrieve all loader groups from the db
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - 
+<DT><B>Returns:</B><DD>the groups (will not return null, only the empty set if none)</DL>
 </DD>
 </DL>
 <HR>

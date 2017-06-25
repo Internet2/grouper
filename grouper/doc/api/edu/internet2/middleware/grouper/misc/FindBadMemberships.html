@@ -53,7 +53,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/E.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMembershipsDaemon.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="FindBadMemberships.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -180,6 +180,14 @@ Find bad memberships in the Grouper memberships table.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMemberships.html?view=co#checkAndFixGrouperAll()">checkAndFixGrouperAll</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GrouperAll shouldn't have manage privileges or be a member of a group.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;long</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMemberships.html?view=co#checkComposites()">checkComposites</A></B>()</CODE>
 
@@ -193,6 +201,14 @@ Find bad memberships in the Grouper memberships table.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMemberships.html?view=co#checkGrouperAll()">checkGrouperAll</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GrouperAll shouldn't have manage privileges or be a member of a group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -384,6 +400,33 @@ public static long <B>checkGroupSets</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="checkGrouperAll()"><!-- --></A><H3>
+checkGrouperAll</H3>
+<PRE>
+public static long <B>checkGrouperAll</B>()</PRE>
+<DL>
+<DD>GrouperAll shouldn't have manage privileges or be a member of a group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>count of bad memberships</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="checkAndFixGrouperAll()"><!-- --></A><H3>
+checkAndFixGrouperAll</H3>
+<PRE>
+public static void <B>checkAndFixGrouperAll</B>()</PRE>
+<DL>
+<DD>GrouperAll shouldn't have manage privileges or be a member of a group.  Use this to force a cleanup without outputting a GSH script.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="checkComposites()"><!-- --></A><H3>
 checkComposites</H3>
 <PRE>
@@ -450,7 +493,7 @@ public static void <B>writeGshScriptToFile</B>()</PRE>
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/E.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCheckConfig.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/misc/FindBadMembershipsDaemon.html?view=co" title="class in edu.internet2.middleware.grouper.misc"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="FindBadMemberships.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;

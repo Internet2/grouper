@@ -574,6 +574,36 @@ utility methods for grouper that are safe to use in expression language.  Genera
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#capitalize(java.lang.String, char...)">capitalize</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;str,
+           char...&nbsp;delimiters)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Capitalizes all the delimiter separated words in a String.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#capitalizeFully(java.lang.String)">capitalizeFully</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;str)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Converts all the whitespace separated words in a String into capitalized words, 
+ that is each word is made up of a titlecase character and then a series of 
+ lowercase characters.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#capitalizeFully(java.lang.String, char...)">capitalizeFully</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;str,
+                char...&nbsp;delimiters)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Converts all the delimiter separated words in a String into capitalized words, 
+ that is each word is made up of a titlecase character and then a series of 
+ lowercase characters.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Character.html?view=co" title="class or interface in java.lang">Character</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#charObjectValue(java.lang.Object)">charObjectValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;input)</CODE>
 
@@ -1050,6 +1080,14 @@ utility methods for grouper that are safe to use in expression language.  Genera
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the list of <code>Throwable</code> objects in the
  exception chain.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#hostname()">hostname</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hostname of server</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -5407,6 +5445,104 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/St
 </DL>
 <HR>
 
+<A NAME="capitalizeFully(java.lang.String)"><!-- --></A><H3>
+capitalizeFully</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>capitalizeFully</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;str)</PRE>
+<DL>
+<DD><p>Converts all the whitespace separated words in a String into capitalized words, 
+ that is each word is made up of a titlecase character and then a series of 
+ lowercase characters.  </p>
+
+ <p>Whitespace is defined by <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Character.html?view=co" title="class or interface in java.lang"><CODE>Character.isWhitespace(char)</CODE></A>.
+ A <code>null</code> input String returns <code>null</code>.
+ Capitalization uses the Unicode title case, normally equivalent to
+ upper case.</p>
+
+ <pre>
+ WordUtils.capitalizeFully(null)        = null
+ WordUtils.capitalizeFully("")          = ""
+ WordUtils.capitalizeFully("i am FINE") = "I Am Fine"
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to capitalize, may be null
+<DT><B>Returns:</B><DD>capitalized String, <code>null</code> if null String input</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="capitalizeFully(java.lang.String, char...)"><!-- --></A><H3>
+capitalizeFully</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>capitalizeFully</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;str,
+                                     char...&nbsp;delimiters)</PRE>
+<DL>
+<DD><p>Converts all the delimiter separated words in a String into capitalized words, 
+ that is each word is made up of a titlecase character and then a series of 
+ lowercase characters. </p>
+
+ <p>The delimiters represent a set of characters understood to separate words.
+ The first string character and the first non-delimiter character after a
+ delimiter will be capitalized. </p>
+
+ <p>A <code>null</code> input String returns <code>null</code>.
+ Capitalization uses the Unicode title case, normally equivalent to
+ upper case.</p>
+
+ <pre>
+ WordUtils.capitalizeFully(null, *)            = null
+ WordUtils.capitalizeFully("", *)              = ""
+ WordUtils.capitalizeFully(*, null)            = *
+ WordUtils.capitalizeFully(*, new char[0])     = *
+ WordUtils.capitalizeFully("i aM.fine", {'.'}) = "I am.Fine"
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to capitalize, may be null<DD><CODE>delimiters</CODE> - set of characters to determine capitalization, null means whitespace
+<DT><B>Returns:</B><DD>capitalized String, <code>null</code> if null String input<DT><B>Since:</B></DT>
+  <DD>2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="capitalize(java.lang.String, char...)"><!-- --></A><H3>
+capitalize</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>capitalize</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;str,
+                                char...&nbsp;delimiters)</PRE>
+<DL>
+<DD><p>Capitalizes all the delimiter separated words in a String.
+ Only the first letter of each word is changed. To convert the 
+ rest of each word to lowercase at the same time, 
+ use <A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#capitalizeFully(java.lang.String, char...)"><CODE>capitalizeFully(String, char[])</CODE></A>.</p>
+
+ <p>The delimiters represent a set of characters understood to separate words.
+ The first string character and the first non-delimiter character after a
+ delimiter will be capitalized. </p>
+
+ <p>A <code>null</code> input String returns <code>null</code>.
+ Capitalization uses the Unicode title case, normally equivalent to
+ upper case.</p>
+
+ <pre>
+ WordUtils.capitalize(null, *)            = null
+ WordUtils.capitalize("", *)              = ""
+ WordUtils.capitalize(*, new char[0])     = *
+ WordUtils.capitalize("i am fine", null)  = "I Am Fine"
+ WordUtils.capitalize("i aM.fine", {'.'}) = "I aM.Fine"
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to capitalize, may be null<DD><CODE>delimiters</CODE> - set of characters to determine capitalization, null means whitespace
+<DT><B>Returns:</B><DD>capitalized String, <code>null</code> if null String input<DT><B>Since:</B></DT>
+  <DD>2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtilElSafe.html?view=co#capitalizeFully(java.lang.String)"><CODE>capitalizeFully(String)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="contains(java.lang.String, char)"><!-- --></A><H3>
 contains</H3>
 <PRE>
@@ -6606,6 +6742,20 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/St
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>a</CODE> - <DD><CODE>b</CODE> - <DD><CODE>c</CODE> - <DD><CODE>d</CODE> - 
 <DT><B>Returns:</B><DD>the concatted string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hostname()"><!-- --></A><H3>
+hostname</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>hostname</B>()</PRE>
+<DL>
+<DD>Hostname of server
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>hostname of server</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

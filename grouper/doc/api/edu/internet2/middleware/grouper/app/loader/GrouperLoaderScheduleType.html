@@ -146,7 +146,9 @@ schedule types for loaders.  note that two jobs never run at the same time.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>abstract &nbsp;org.quartz.Trigger</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html?view=co#createTrigger(java.lang.String, java.lang.Integer)">createTrigger</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;quartzCronString,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderScheduleType.html?view=co#createTrigger(java.lang.String, int, java.lang.String, java.lang.Integer)">createTrigger</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+              int&nbsp;priority,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;quartzCronString,
               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;intervalSeconds)</CODE>
 
 <BR>
@@ -287,16 +289,18 @@ with the specified name
 </DL>
 <HR>
 
-<A NAME="createTrigger(java.lang.String, java.lang.Integer)"><!-- --></A><H3>
+<A NAME="createTrigger(java.lang.String, int, java.lang.String, java.lang.Integer)"><!-- --></A><H3>
 createTrigger</H3>
 <PRE>
-public abstract org.quartz.Trigger <B>createTrigger</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;quartzCronString,
+public abstract org.quartz.Trigger <B>createTrigger</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                                 int&nbsp;priority,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;quartzCronString,
                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;intervalSeconds)</PRE>
 <DL>
 <DD>create a trigger based on the type (this), and the params (e.g. cron string, interval seconds, etc)
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>quartzCronString</CODE> - <DD><CODE>intervalSeconds</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - <DD><CODE>priority</CODE> - <DD><CODE>quartzCronString</CODE> - <DD><CODE>intervalSeconds</CODE> - 
 <DT><B>Returns:</B><DD>the trigger</DL>
 </DD>
 </DL>

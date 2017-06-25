@@ -134,6 +134,15 @@ Class UnresolvableSubject</H2>
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/subj/UnresolvableSubject.html?view=co#UnresolvableSubject(java.lang.String, java.lang.String, java.lang.String, java.lang.String)">UnresolvableSubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectTypeId,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theUnresolvableString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
 </TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
@@ -162,6 +171,14 @@ Class UnresolvableSubject</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/subj/UnresolvableSubject.html?view=co#getUnresolvableString()">getUnresolvableString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string to label unresolvable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/subj/UnresolvableSubject.html?view=co#setSourceId(java.lang.String)">setSourceId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId1)</CODE>
 
@@ -175,7 +192,7 @@ Class UnresolvableSubject</H2>
 <TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.subject.provider.SubjectImpl</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>attributeValueOrCommaSeparated, attributeValueOrCommaSeparated, equals, equalsStatic, getAttributes, getAttributes, getAttributeValue, getAttributeValue, getAttributeValueOrCommaSeparated, getAttributeValueOrCommaSeparated, getAttributeValues, getAttributeValues, getAttributeValueSingleValued, getAttributeValueSingleValued, getDescription, getId, getName, getSourceId, getTypeName, hashCode, hashcodeStatic, initVirtualAttributes, setAttributes, setDescription, setId, setName, setTypeName, toAttributeMap, toString, toStringStatic, virtualAttributesForSource, virtualAttributeVariablesForSource</CODE></TD>
+<TD><CODE>attributeValueOrCommaSeparated, attributeValueOrCommaSeparated, equals, equalsStatic, getAttributes, getAttributes, getAttributeValue, getAttributeValue, getAttributeValueOrCommaSeparated, getAttributeValueOrCommaSeparated, getAttributeValues, getAttributeValues, getAttributeValueSingleValued, getAttributeValueSingleValued, getDescription, getDescriptionOverride, getId, getName, getNameOverride, getSourceId, getTypeName, hashCode, hashcodeStatic, initVirtualAttributes, setAttributes, setDescription, setId, setName, setTypeName, toAttributeMap, toString, toStringStatic, virtualAttributesForSource, virtualAttributeVariablesForSource</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -210,6 +227,19 @@ public <B>UnresolvableSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/d
 <DL>
 <DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>subjectTypeId</CODE> - <DD><CODE>sourceId</CODE> - </DL>
 </DL>
+<HR>
+
+<A NAME="UnresolvableSubject(java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+UnresolvableSubject</H3>
+<PRE>
+public <B>UnresolvableSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectTypeId,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theUnresolvableString)</PRE>
+<DL>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>subjectTypeId</CODE> - <DD><CODE>sourceId</CODE> - <DD><CODE>theUnresolvableString</CODE> - string to be before the subject id</DL>
+</DL>
 
 <!-- ============ METHOD DETAIL ========== -->
 
@@ -220,6 +250,20 @@ public <B>UnresolvableSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/d
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="getUnresolvableString()"><!-- --></A><H3>
+getUnresolvableString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getUnresolvableString</B>()</PRE>
+<DL>
+<DD>string to label unresolvable
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the unresolvableString</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="getSource()"><!-- --></A><H3>
 getSource</H3>

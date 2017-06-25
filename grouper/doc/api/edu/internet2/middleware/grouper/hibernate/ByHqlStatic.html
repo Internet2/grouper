@@ -129,10 +129,30 @@ for simple HQL, use this instead of inverse of control.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">ByHqlStatic</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co#assignConvertHqlColumnsToObject(boolean)">assignConvertHqlColumnsToObject</A></B>(boolean&nbsp;theConvert)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if use resulttransformer to change columns to object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">ByHqlStatic</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co#createQuery(java.lang.String)">createQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theHqlQuery)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set the query to run</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co#deleteInBatches(java.lang.Class, java.lang.String, java.lang.String)">deleteInBatches</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;idType,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;hqlClassNameToDelete,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnNameOfId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GRP-1439: remove records with a max number and loop so it doesnt fail
+ select ids in batches of 10k delete records in batches of 100
+ Note this should be setup to select a list of scalar String ids.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -341,6 +361,23 @@ for simple HQL, use this instead of inverse of control.
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="assignConvertHqlColumnsToObject(boolean)"><!-- --></A><H3>
+assignConvertHqlColumnsToObject</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">ByHqlStatic</A> <B>assignConvertHqlColumnsToObject</B>(boolean&nbsp;theConvert)</PRE>
+<DL>
+<DD>if use resulttransformer to change columns to object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theConvert</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="setGrouperTransactionType(edu.internet2.middleware.grouper.hibernate.GrouperTransactionType)"><!-- --></A><H3>
 setGrouperTransactionType</H3>
@@ -665,6 +702,27 @@ public &lt;K,V&gt; <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/ut
 <DT><B>Returns:</B><DD>the ordered set or the empty set if not found (never null)
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deleteInBatches(java.lang.Class, java.lang.String, java.lang.String)"><!-- --></A><H3>
+deleteInBatches</H3>
+<PRE>
+public long <B>deleteInBatches</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;idType,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;hqlClassNameToDelete,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnNameOfId)</PRE>
+<DL>
+<DD>GRP-1439: remove records with a max number and loop so it doesnt fail
+ select ids in batches of 10k delete records in batches of 100
+ Note this should be setup to select a list of scalar String ids.  It will page it
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>idType</CODE> - type of id which can be String or long<DD><CODE>hqlClassNameToDelete</CODE> - <DD><CODE>columnNameOfId</CODE> - 
+<DT><B>Returns:</B><DD>the total number of records deleted</DL>
 </DD>
 </DL>
 <HR>

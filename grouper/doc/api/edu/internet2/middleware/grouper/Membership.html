@@ -1166,11 +1166,13 @@ A list membership in the Groups Registry.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/Membership.html?view=co#internal_addImmediateMembership(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Field, java.lang.String)">internal_addImmediateMembership</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/Membership.html?view=co#internal_addImmediateMembership(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Field, java.lang.String, java.sql.Timestamp, java.sql.Timestamp)">internal_addImmediateMembership</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
                                 <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
                                 edu.internet2.middleware.subject.Subject&nbsp;subj,
                                 <A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;f,
-                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;startDate,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;endDate)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -3344,21 +3346,23 @@ public <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co"
 </DL>
 <HR>
 
-<A NAME="internal_addImmediateMembership(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Field, java.lang.String)"><!-- --></A><H3>
+<A NAME="internal_addImmediateMembership(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Field, java.lang.String, java.sql.Timestamp, java.sql.Timestamp)"><!-- --></A><H3>
 internal_addImmediateMembership</H3>
 <PRE>
 public static <A HREF="../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A> <B>internal_addImmediateMembership</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
                                                          <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
                                                          edu.internet2.middleware.subject.Subject&nbsp;subj,
                                                          <A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;f,
-                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;startDate,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;endDate)
                                                   throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/MemberAddException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberAddException</A></PRE>
 <DL>
 <DD><DL>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>f</CODE> - <DD><CODE>uuid</CODE> - is uuid or null
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>f</CODE> - <DD><CODE>uuid</CODE> - is uuid or null<DD><CODE>startDate</CODE> - <DD><CODE>endDate</CODE> - 
 <DT><B>Returns:</B><DD>the membership if available
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/MemberAddException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberAddException</A></CODE></DL>

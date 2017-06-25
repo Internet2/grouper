@@ -384,6 +384,12 @@ Enum AuditTypeBuiltin</H2>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#GROUP_ADD_ATTESTATION">GROUP_ADD_ATTESTATION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add attestation for group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#GROUP_ATTRIBUTE_ADD">GROUP_ATTRIBUTE_ADD</A></B></CODE>
 
 <BR>
@@ -492,6 +498,18 @@ Enum AuditTypeBuiltin</H2>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#GROUP_UPDATE_ATTESTATION">GROUP_UPDATE_ATTESTATION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update attestation for group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#GROUP_UPDATE_LAST_CERTIFIED_DATE">GROUP_UPDATE_LAST_CERTIFIED_DATE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update last certified date for group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#MEMBER_CHANGE_SUBJECT">MEMBER_CHANGE_SUBJECT</A></B></CODE>
 
 <BR>
@@ -508,6 +526,18 @@ Enum AuditTypeBuiltin</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete group membership</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#MEMBERSHIP_GROUP_EXPORT">MEMBERSHIP_GROUP_EXPORT</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;export group membership</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#MEMBERSHIP_GROUP_IMPORT">MEMBERSHIP_GROUP_IMPORT</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;import group membership</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#MEMBERSHIP_GROUP_UPDATE">MEMBERSHIP_GROUP_UPDATE</A></B></CODE>
@@ -558,6 +588,12 @@ Enum AuditTypeBuiltin</H2>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stem add</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#STEM_ADD_ATTESTATION">STEM_ADD_ATTESTATION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add attestation for stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#STEM_COPY">STEM_COPY</A></B></CODE>
 
 <BR>
@@ -580,6 +616,12 @@ Enum AuditTypeBuiltin</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stem update</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#STEM_UPDATE_ATTESTATION">STEM_UPDATE_ATTESTATION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update attestation for stem</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co#XML_IMPORT">XML_IMPORT</A></B></CODE>
@@ -894,6 +936,30 @@ MEMBERSHIP_GROUP_DELETE</H3>
 public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>MEMBERSHIP_GROUP_DELETE</B></PRE>
 <DL>
 <DD>delete group membership
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="MEMBERSHIP_GROUP_EXPORT"><!-- --></A><H3>
+MEMBERSHIP_GROUP_EXPORT</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>MEMBERSHIP_GROUP_EXPORT</B></PRE>
+<DL>
+<DD>export group membership
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="MEMBERSHIP_GROUP_IMPORT"><!-- --></A><H3>
+MEMBERSHIP_GROUP_IMPORT</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>MEMBERSHIP_GROUP_IMPORT</B></PRE>
+<DL>
+<DD>import group membership
 <P>
 <DL>
 </DL>
@@ -1624,6 +1690,66 @@ EXTERNAL_SUBJECT_INVITE_IDENTIFIER</H3>
 public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>EXTERNAL_SUBJECT_INVITE_IDENTIFIER</B></PRE>
 <DL>
 <DD>register or edit an external subject
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="GROUP_ADD_ATTESTATION"><!-- --></A><H3>
+GROUP_ADD_ATTESTATION</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>GROUP_ADD_ATTESTATION</B></PRE>
+<DL>
+<DD>add attestation for group
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="GROUP_UPDATE_ATTESTATION"><!-- --></A><H3>
+GROUP_UPDATE_ATTESTATION</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>GROUP_UPDATE_ATTESTATION</B></PRE>
+<DL>
+<DD>update attestation for group
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="GROUP_UPDATE_LAST_CERTIFIED_DATE"><!-- --></A><H3>
+GROUP_UPDATE_LAST_CERTIFIED_DATE</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>GROUP_UPDATE_LAST_CERTIFIED_DATE</B></PRE>
+<DL>
+<DD>update last certified date for group
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="STEM_ADD_ATTESTATION"><!-- --></A><H3>
+STEM_ADD_ATTESTATION</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>STEM_ADD_ATTESTATION</B></PRE>
+<DL>
+<DD>add attestation for stem
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="STEM_UPDATE_ATTESTATION"><!-- --></A><H3>
+STEM_UPDATE_ATTESTATION</H3>
+<PRE>
+public static final <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">AuditTypeBuiltin</A> <B>STEM_UPDATE_ATTESTATION</B></PRE>
+<DL>
+<DD>update attestation for stem
 <P>
 <DL>
 </DL>

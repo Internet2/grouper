@@ -203,6 +203,16 @@ built in grouper engines.  Note, if we prefix builtins with "grouper"
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">GrouperEngineBuiltin</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html?view=co#valueOfIgnoreCase(java.lang.String, boolean, boolean)">valueOfIgnoreCase</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string,
+                  boolean&nbsp;exceptionOnNull,
+                  boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do a case-insensitive matching</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">GrouperEngineBuiltin</A>[]</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html?view=co#values()">values</A></B>()</CODE>
 
@@ -427,6 +437,25 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/audit/Gro
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>string</CODE> - <DD><CODE>exceptionOnNull</CODE> - will not allow null or blank entries
+<DT><B>Returns:</B><DD>the enum or null or exception if not found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="valueOfIgnoreCase(java.lang.String, boolean, boolean)"><!-- --></A><H3>
+valueOfIgnoreCase</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineBuiltin.html?view=co" title="enum in edu.internet2.middleware.grouper.audit">GrouperEngineBuiltin</A> <B>valueOfIgnoreCase</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string,
+                                                     boolean&nbsp;exceptionOnNull,
+                                                     boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD>do a case-insensitive matching
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string</CODE> - <DD><CODE>exceptionOnNull</CODE> - will not allow null or blank entries<DD><CODE>exceptionIfNotFound</CODE> - if string isnt found should there be an exception
 <DT><B>Returns:</B><DD>the enum or null or exception if not found</DL>
 </DD>
 </DL>

@@ -165,6 +165,14 @@ enums which are ddl version need to implement this interface
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co#recreateViewsAndForeignKeys()">recreateViewsAndForeignKeys</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co#updateVersionFromPrevious(org.apache.ddlutils.model.Database, edu.internet2.middleware.grouper.ddl.DdlVersionBean)">updateVersionFromPrevious</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
                           <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</CODE>
@@ -286,6 +294,18 @@ void <B>updateVersionFromPrevious</B>(org.apache.ddlutils.model.Database&nbsp;da
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>database</CODE> - ddlutils database object<DD><CODE>ddlVersionBean</CODE> - has references to stuff you need</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="recreateViewsAndForeignKeys()"><!-- --></A><H3>
+recreateViewsAndForeignKeys</H3>
+<PRE>
+boolean <B>recreateViewsAndForeignKeys</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if the update requires views/keys to be recreated</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

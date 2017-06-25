@@ -1,0 +1,658 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+InstrumentationDataUtils
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="InstrumentationDataUtils";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataInstanceFinder.html?view=co" title="class in edu.internet2.middleware.grouper.instrumentation"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationThread.html?view=co" title="class in edu.internet2.middleware.grouper.instrumentation"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="InstrumentationDataUtils.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.instrumentation</FONT>
+<BR>
+Class InstrumentationDataUtils</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>InstrumentationDataUtils</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>shilen</DD>
+</DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF">INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;details def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR">INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last update attr extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR">INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid attr extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_COLLECTORS_DEF">INSTRUMENTATION_DATA_COLLECTORS_DEF</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;collectors def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_COLLECTORS_FOLDER">INSTRUMENTATION_DATA_COLLECTORS_FOLDER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;collectors folder extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_COLLECTORS_GROUP">INSTRUMENTATION_DATA_COLLECTORS_GROUP</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instrumentation data collector group extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR">INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counts attr extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF">INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counts def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF">INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;details def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR">INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;engine name attr extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR">INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last update attr extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR">INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;server label attr extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCES_DEF">INSTRUMENTATION_DATA_INSTANCES_DEF</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instances def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCES_FOLDER">INSTRUMENTATION_DATA_INSTANCES_FOLDER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instances folder extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#INSTRUMENTATION_DATA_INSTANCES_GROUP">INSTRUMENTATION_DATA_INSTANCES_GROUP</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instrumentation data instances group extension</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#InstrumentationDataUtils()">InstrumentationDataUtils</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#grouperInstrumentationCollectorParentAttributeAssignment(java.lang.String)">grouperInstrumentationCollectorParentAttributeAssignment</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return parent attribute assignment for the given collector</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#grouperInstrumentationDataStemName()">grouperInstrumentationDataStemName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stem name for instrumentation data attributes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#grouperInstrumentationInstanceParentAttributeAssignment(edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier, java.lang.String)">grouperInstrumentationInstanceParentAttributeAssignment</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineIdentifier.html?view=co" title="interface in edu.internet2.middleware.grouper.audit">GrouperEngineIdentifier</A>&nbsp;grouperEngineIdentifier,
+                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return parent attribute assignment for the given instance</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#isCollectingStats()">isCollectingStats</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataUtils.html?view=co#setCollectingStats(boolean)">setCollectingStats</A></B>(boolean&nbsp;theCollectingStats)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCES_DEF"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCES_DEF</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCES_DEF</B></PRE>
+<DL>
+<DD>instances def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_DEF">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF</B></PRE>
+<DL>
+<DD>counts def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF</B></PRE>
+<DL>
+<DD>details def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR</B></PRE>
+<DL>
+<DD>counts attr extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR</B></PRE>
+<DL>
+<DD>last update attr extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR</B></PRE>
+<DL>
+<DD>engine name attr extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR</B></PRE>
+<DL>
+<DD>server label attr extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCES_FOLDER"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCES_FOLDER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCES_FOLDER</B></PRE>
+<DL>
+<DD>instances folder extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_FOLDER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_INSTANCES_GROUP"><!-- --></A><H3>
+INSTRUMENTATION_DATA_INSTANCES_GROUP</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_INSTANCES_GROUP</B></PRE>
+<DL>
+<DD>instrumentation data instances group extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_COLLECTORS_DEF"><!-- --></A><H3>
+INSTRUMENTATION_DATA_COLLECTORS_DEF</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_COLLECTORS_DEF</B></PRE>
+<DL>
+<DD>collectors def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_DEF">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF"><!-- --></A><H3>
+INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF</B></PRE>
+<DL>
+<DD>details def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR"><!-- --></A><H3>
+INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR</B></PRE>
+<DL>
+<DD>last update attr extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR"><!-- --></A><H3>
+INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR</B></PRE>
+<DL>
+<DD>uuid attr extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_COLLECTORS_FOLDER"><!-- --></A><H3>
+INSTRUMENTATION_DATA_COLLECTORS_FOLDER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_COLLECTORS_FOLDER</B></PRE>
+<DL>
+<DD>collectors folder extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_FOLDER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="INSTRUMENTATION_DATA_COLLECTORS_GROUP"><!-- --></A><H3>
+INSTRUMENTATION_DATA_COLLECTORS_GROUP</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>INSTRUMENTATION_DATA_COLLECTORS_GROUP</B></PRE>
+<DL>
+<DD>instrumentation data collector group extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="InstrumentationDataUtils()"><!-- --></A><H3>
+InstrumentationDataUtils</H3>
+<PRE>
+public <B>InstrumentationDataUtils</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="isCollectingStats()"><!-- --></A><H3>
+isCollectingStats</H3>
+<PRE>
+public static boolean <B>isCollectingStats</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the collectingStats</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCollectingStats(boolean)"><!-- --></A><H3>
+setCollectingStats</H3>
+<PRE>
+public static void <B>setCollectingStats</B>(boolean&nbsp;theCollectingStats)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theCollectingStats</CODE> - the theCollectingStats to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="grouperInstrumentationDataStemName()"><!-- --></A><H3>
+grouperInstrumentationDataStemName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>grouperInstrumentationDataStemName</B>()</PRE>
+<DL>
+<DD>stem name for instrumentation data attributes
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>stem name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="grouperInstrumentationInstanceParentAttributeAssignment(edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier, java.lang.String)"><!-- --></A><H3>
+grouperInstrumentationInstanceParentAttributeAssignment</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>grouperInstrumentationInstanceParentAttributeAssignment</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/GrouperEngineIdentifier.html?view=co" title="interface in edu.internet2.middleware.grouper.audit">GrouperEngineIdentifier</A>&nbsp;grouperEngineIdentifier,
+                                                                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</PRE>
+<DL>
+<DD>return parent attribute assignment for the given instance
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperEngineIdentifier</CODE> - <DD><CODE>uuid</CODE> - 
+<DT><B>Returns:</B><DD>attribute assignment</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="grouperInstrumentationCollectorParentAttributeAssignment(java.lang.String)"><!-- --></A><H3>
+grouperInstrumentationCollectorParentAttributeAssignment</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>grouperInstrumentationCollectorParentAttributeAssignment</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;jobName)</PRE>
+<DL>
+<DD>return parent attribute assignment for the given collector
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>jobName</CODE> - 
+<DT><B>Returns:</B><DD>attribute assignment</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationDataInstanceFinder.html?view=co" title="class in edu.internet2.middleware.grouper.instrumentation"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/instrumentation/InstrumentationThread.html?view=co" title="class in edu.internet2.middleware.grouper.instrumentation"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="InstrumentationDataUtils.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
