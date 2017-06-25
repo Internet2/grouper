@@ -1,0 +1,8 @@
+/bin/
+build
+dist2
+logs
+.classpath
+.project
+.settings
+target

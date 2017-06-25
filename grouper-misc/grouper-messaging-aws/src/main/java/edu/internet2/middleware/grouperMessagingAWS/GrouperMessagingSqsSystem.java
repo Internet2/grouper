@@ -48,8 +48,6 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperMessagingSqsSystem.class);
   
-  //private MessageReceiveEventListener listener;
-  
   private static final Integer MAXIMUM_SQS_QUEUE_NAME_LENGTH = 80;
   
   public GrouperMessagingSqsSystem() {}
@@ -106,10 +104,6 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
     return new GrouperMessageAcknowledgeResult();
   }
-  
-//  public void addReceiveEventListener(MessageReceiveEventListener listener) {
-//    this.listener = listener;
-//  }
 
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
