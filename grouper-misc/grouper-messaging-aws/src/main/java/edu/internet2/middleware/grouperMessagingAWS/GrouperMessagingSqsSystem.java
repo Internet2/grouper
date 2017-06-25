@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouperMessagingAWS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,9 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
+import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 
@@ -113,101 +116,68 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    */
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
-//    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
-//    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
-//      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
-//    }
-//        
-//    int defaultPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", grouperMessageSystemParam.getMessageSystemName()), 5);
-//    int maxPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", grouperMessageSystemParam.getMessageSystemName()), 50);
-//    
-//    Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
-//    
-//    if (maxMessagesToReceiveAtOnce == null) {
-//      maxMessagesToReceiveAtOnce = defaultPageSize;
-//    }
-//    
-//    if (maxMessagesToReceiveAtOnce > maxPageSize) {
-//      maxMessagesToReceiveAtOnce = maxPageSize;
-//    }
-//    
-//    final Integer pageSize = maxMessagesToReceiveAtOnce;
-//    
-//    String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
-//    
-//    if (StringUtils.isBlank(queueOrTopicName)) {
-//      throw new IllegalArgumentException("queueOrTopicName is required.");
-//    }
-//    
-//    Integer longPollMillis = grouperMessageReceiveParam.getLongPollMilis();
-//    
-//    if (longPollMillis == null || longPollMillis < 0) {
-//      longPollMillis = 1000;
-//    }
-//    
-//    GrouperMessageReceiveResult result = new GrouperMessageReceiveResult();
-//    final Collection<GrouperMessage> messages = new ArrayList<GrouperMessage>();
-//    result.setGrouperMessages(messages);
-//    
-//    try {
-//
-//      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection(grouperMessageSystemParam.getMessageSystemName());
-//      final Channel channel = connection.createChannel();
-//      Consumer consumer = new DefaultConsumer(channel) {
-//        @Override
-//        public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
-//            throws IOException {
-//          String message = new String(body, "UTF-8");
-//          GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId());
-//          messages.add(rabbitmqMessage);
-//          channel.basicAck(envelope.getDeliveryTag(), false);
-//          if (messages.size() >= pageSize) {
-//            try {
-//              channel.close();
-//            } catch (TimeoutException e) {
-//              LOG.error("Error occurred while closing channel", e);
-//            }
-//          }
-//          if (listener != null) {
-//            listener.messageReceived(message);
-//          }
-//          LOG.info("Received: "+message);
-//        }
-//      };
-//      
-//      String error = createSqsQueue(grouperMessageSystemParam, channel, queueOrTopicName, 
-//          grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType());
-//      
-//      if (error != null) {
-//        throw new IllegalArgumentException(error);
-//      }
-//      
-//      if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
-//        DeclareOk declareOk = channel.queueDeclare();
-//        channel.queueBind(declareOk.getQueue(), queueOrTopicName, "");
-//        channel.basicConsume(declareOk.getQueue(), false, consumer);
-//      } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
-//        channel.basicConsume(queueOrTopicName, false, consumer);
-//      }
-//      
-//      new Timer().schedule(
-//        new java.util.TimerTask() {
-//          @Override
-//          public void run() {
-//            try {
-//              if (channel.isOpen()) {
-//                channel.close();
-//              }
-//            } catch (Exception e) {
-//              LOG.error("Error occurred while closing channel", e); 
-//            }
-//          }
-//        }, longPollMillis);
-//    } catch(IOException e) {
-//      throw new RuntimeException("Error occurred while trying to receive messages for "+grouperMessageSystemParam.getMessageSystemName(), e);
-//    }
+    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
     
-    return null;
+    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
+      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
+    }
+    
+    if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
+      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
+    }
+        
+    int defaultPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", grouperMessageSystemParam.getMessageSystemName()), 5);
+    int maxPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", grouperMessageSystemParam.getMessageSystemName()), 10);
+    
+    Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
+    
+    if (maxMessagesToReceiveAtOnce == null) {
+      maxMessagesToReceiveAtOnce = defaultPageSize;
+    }
+    
+    if (maxMessagesToReceiveAtOnce > maxPageSize) {
+      maxMessagesToReceiveAtOnce = maxPageSize;
+    }
+    
+    final Integer pageSize = maxMessagesToReceiveAtOnce;
+    
+    String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+    
+    if (StringUtils.isBlank(queueOrTopicName)) {
+      throw new IllegalArgumentException("queueOrTopicName is required.");
+    }
+    
+    Integer longPollMillis = grouperMessageReceiveParam.getLongPollMilis();
+    
+    if (longPollMillis == null || longPollMillis < 0) {
+      longPollMillis = 1000;
+    }
+    
+    GrouperMessageReceiveResult result = new GrouperMessageReceiveResult();
+    Collection<GrouperMessage> messages = new ArrayList<GrouperMessage>();
+    result.setGrouperMessages(messages);
+    
+    String error = createSqsQueue(grouperMessageSystemParam, queueOrTopicName);
+    
+    if (error != null) {
+      throw new IllegalArgumentException(error);
+    }
+    
+    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
+    
+    String queueUrl = sqs.getQueueUrl(queueOrTopicName).getQueueUrl();
+    Integer waitTimeSeconds = longPollMillis/1000;
+    ReceiveMessageRequest messageRequest = new ReceiveMessageRequest(queueUrl).withMaxNumberOfMessages(pageSize).withWaitTimeSeconds(waitTimeSeconds);
+    List<Message> sqsMessages = sqs.receiveMessage(messageRequest).getMessages();
+    
+    for (Message message: sqsMessages) {
+      GrouperMessageSqs sqsMessage = new GrouperMessageSqs(message.getBody(), message.getMessageId());
+      messages.add(sqsMessage);
+    }
+    
+    LOG.info("Received "+sqsMessages.size()+" messages.");
+    
+    return result;
   }
   
   
@@ -276,6 +246,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
       }
       return sqs;
     }
+    
   }
   
 }
