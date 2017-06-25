@@ -303,6 +303,9 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           String virtualHost = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.virtualhost", messagingSystemName));
           String username = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.username", messagingSystemName));
           String password = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.password", messagingSystemName));
+          if (StringUtils.isNotBlank(password)) {
+            password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
+          }
           Integer port = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messsaging.port", messagingSystemName));
           
           try {
