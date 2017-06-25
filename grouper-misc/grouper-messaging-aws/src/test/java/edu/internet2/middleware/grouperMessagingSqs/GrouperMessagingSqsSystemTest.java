@@ -11,7 +11,6 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import edu.internet2.middleware.grouperMessagingAWS.GrouperMessageSqs;
 import edu.internet2.middleware.grouperMessagingAWS.GrouperMessagingSqsSystem;
 import junit.framework.TestCase;
 
@@ -37,7 +36,8 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     queueParam.assignQueueOrTopicName("test_queue");
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
-    sendParam.addGrouperMessage(new GrouperMessageSqs(testMessageBody, messageId));
+    
+    sendParam.addMessageBody(testMessageBody);
     sendParam.assignAutocreateObjects(true);
          
     system.send(sendParam);

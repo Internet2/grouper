@@ -25,8 +25,7 @@ import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
@@ -88,15 +87,10 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
   
     AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
     String queueUrl = sqs.getQueueUrl(queueName).getQueueUrl();
-    //TODO since the id field is required.. should we generate one if client did not provide or throw an error?
-    Collection<SendMessageBatchRequestEntry> entries = new ArrayList<SendMessageBatchRequestEntry>();
+    
     for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
-      entries.add(new SendMessageBatchRequestEntry(grouperMessage.getId(), grouperMessage.getMessageBody()));
-    }
-    if (entries.size() > 0) {
-      SendMessageBatchRequest batchRequest = new SendMessageBatchRequest(queueUrl).withEntries(entries);
-      sqs.sendMessageBatch(batchRequest);
-      LOG.info("Sent "+entries.size()+" messages to SQS.");
+      sqs.sendMessage(new SendMessageRequest(queueUrl, grouperMessage.getMessageBody()));
+      LOG.info("Sent "+grouperMessage.getMessageBody()+" to SQS.");
     }
  
     return new GrouperMessageSendResult();
