@@ -60,7 +60,7 @@
     </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <version>${project.version}</version>
+          <version>2.3.0</version>
           <artifactId>morphString</artifactId>
       </dependency>
     <dependency>
