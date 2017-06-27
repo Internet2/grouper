@@ -1,16 +1,19 @@
 package edu.internet2.middleware.grouperMessagingSqs;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import static edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType.queue;
 
-import org.apache.commons.lang3.RandomUtils;
+import java.util.Collection;
+
+import org.apache.commons.lang3.RandomStringUtils;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemParam;
+import edu.internet2.middleware.grouperMessagingAWS.GrouperMessageSqs;
 import edu.internet2.middleware.grouperMessagingAWS.GrouperMessagingSqsSystem;
 import junit.framework.TestCase;
 
@@ -23,17 +26,19 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     super(name);
   }
   
-  public void testSendToQueue() throws Exception {
+  public void tesaSendReceiveDelete() throws Exception {
     
     final String messageSystemName = "sqs";
-    String messageId = String.valueOf(RandomUtils.nextLong());
+    final String messageId = RandomStringUtils.randomAlphanumeric(50);
     final String testMessageBody = "test message - "+messageId;
-    final GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
+    final String queueName = RandomStringUtils.randomAlphanumeric(50);
+    
+    GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
     
     GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
     GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-    queueParam.assignQueueType(GrouperMessageQueueType.queue);
-    queueParam.assignQueueOrTopicName("test_queue");
+    queueParam.assignQueueType(queue);
+    queueParam.assignQueueOrTopicName(queueName);
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
     
@@ -49,140 +54,105 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     receiveParam.assignMaxMessagesToReceiveAtOnce(10);
     receiveParam.assignLongPollMillis(3000);
     
-    Collection<GrouperMessage> grouperMessages = system.receive(receiveParam).getGrouperMessages();
-    Set<String> messageBodies = new HashSet<String>();
-    for (GrouperMessage grouperMessage: grouperMessages) {
-      messageBodies.add(grouperMessage.getMessageBody());
-    }
+    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
     
-    assertTrue(messageBodies.contains(testMessageBody));
+    assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
+    
+    GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
+    acknowledgeParam.assignGrouperMessageSystemName(messageSystemName);
+    acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
+    acknowledgeParam.addGrouperMessage(new GrouperMessageSqs(testMessageBody, grouperMessage.getId()));
+    acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed);
+    system.acknowledge(acknowledgeParam);
+    
+    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam).getGrouperMessages();
+    assertTrue(grouperMessagesAfterDeleting.isEmpty());
     
   }
   
-//  public void testErrorSendingWhenQueueNotThereAlready() {
-//    
-//    final String messageSystemName = "rabbitmq";
-//    final String testMessageBody = "this is test message body for queue";
-//    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-//    String queueName = String.valueOf(RandomUtils.nextLong());
-//    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
-//    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-//    queueParam.assignQueueType(GrouperMessageQueueType.queue);
-//    queueParam.assignQueueOrTopicName(queueName);
-//    sendParam.assignGrouperMessageQueueParam(queueParam);
-//    sendParam.assignGrouperMessageSystemName(messageSystemName);
-//    sendParam.addMessageBody(testMessageBody);
-//    try {
-//      system.send(sendParam);
-//    } catch (Exception e) {
-//      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
-//    }
-//  }
-//  
-//  public void testErrorSendingWhenExchangeNotThereAlready() {
-//    
-//    final String messageSystemName = "rabbitmq";
-//    final String testMessageBody = "this is test message body for queue";
-//    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-//    String exchangeName = String.valueOf(RandomUtils.nextLong());
-//    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
-//    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-//    queueParam.assignQueueType(GrouperMessageQueueType.topic);
-//    queueParam.assignQueueOrTopicName(exchangeName);
-//    sendParam.assignGrouperMessageQueueParam(queueParam);
-//    sendParam.assignGrouperMessageSystemName(messageSystemName);
-//    sendParam.addMessageBody(testMessageBody);
-//    try {
-//      system.send(sendParam);
-//    } catch (Exception e) {
-//      assertTrue(e.getMessage().equals("exchange "+exchangeName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true."));
-//    }
-//  }
-//  
-//  public void testErrorReceivingWhenQueueNotThereAlready() {
-//    
-//    final String messageSystemName = "rabbitmq";
-//    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-//    String queueName = String.valueOf(RandomUtils.nextLong());
-//    
-//    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-//    queueParam.assignQueueType(GrouperMessageQueueType.queue);
-//    queueParam.assignQueueOrTopicName(queueName);
-//    
-//    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-//    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-//    receiveParam.assignGrouperMessageQueueParam(queueParam);
-//    system.addReceiveEventListener(new MessageReceiveEventListener() {
-//      @Override
-//      public void messageReceived(String messageBody) {
-//        fail();
-//      }
-//    });
-//    
-//    try {
-//      system.receive(receiveParam);
-//    } catch (Exception e) {
-//      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
-//    }
-//  }
-//  
-//  public void testErrorReceivingWhenExchangeNotThereAlready() {
-//    
-//    final String messageSystemName = "rabbitmq";
-//    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-//    String exchangeName = String.valueOf(RandomUtils.nextLong());
-//    
-//    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-//    queueParam.assignQueueType(GrouperMessageQueueType.topic);
-//    queueParam.assignQueueOrTopicName(exchangeName);
-//    
-//    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-//    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-//    receiveParam.assignGrouperMessageQueueParam(queueParam);
-//    system.addReceiveEventListener(new MessageReceiveEventListener() {
-//      @Override
-//      public void messageReceived(String messageBody) {
-//        fail();
-//      }
-//    });
-//    
-//    try {
-//      system.receive(receiveParam);
-//    } catch (Exception e) {
-//      assertTrue(e.getMessage().equals("exchange "+exchangeName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true."));
-//    }
-//  }
-//  
-//  public void testSendToTopic() throws Exception {
-//    
-//    final String messageSystemName = "rabbitmq";
-//    final String testMessageBody = "this is test message body for topic";
-//    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-//    
-//    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
-//    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-//    queueParam.assignQueueType(GrouperMessageQueueType.topic);
-//    queueParam.assignQueueOrTopicName("test_topic4");
-//    sendParam.assignGrouperMessageQueueParam(queueParam);
-//    sendParam.assignGrouperMessageSystemName(messageSystemName);
-//    sendParam.addMessageBody(testMessageBody);
-//    sendParam.assignAutocreateObjects(true);
-//         
-//    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-//    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-//    receiveParam.assignGrouperMessageQueueParam(queueParam);
-//    receiveParam.assignAutocreateObjects(true);
-//    system.addReceiveEventListener(new MessageReceiveEventListener() {
-//      
-//      @Override
-//      public void messageReceived(String messageBody) {
-//        assertTrue(messageBody.equals(testMessageBody));
-//        system.closeConnection(messageSystemName);
-//      }
-//    });
-//    system.receive(receiveParam);
-//
-//    system.send(sendParam);
-//  }
+  public void testErrorSendingWhenQueueNotThereAlready() {
+    
+    final String messageSystemName = "sqs";
+    final String testMessageBody = "this is test message body for queue";
+    
+    GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
+    String queueName = RandomStringUtils.randomAlphanumeric(50);
+    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
+    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
+    queueParam.assignQueueType(queue);
+    queueParam.assignQueueOrTopicName(queueName);
+    sendParam.assignGrouperMessageQueueParam(queueParam);
+    sendParam.assignGrouperMessageSystemName(messageSystemName);
+    sendParam.addMessageBody(testMessageBody);
+    try {
+      system.send(sendParam);
+    } catch (Exception e) {
+      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
+    }
+  }
+  
+  public void testAcknowledgeSendToAnotherQueue() throws Exception {
+    
+    final String messageSystemName = "sqs";
+    final String messageId = RandomStringUtils.randomAlphanumeric(50);
+    final String testMessageBody = "test message - "+messageId;
+    final String queueName = RandomStringUtils.randomAlphanumeric(50);
+    
+    GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
+    
+    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
+    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
+    queueParam.assignQueueType(queue);
+    queueParam.assignQueueOrTopicName(queueName);
+    sendParam.assignGrouperMessageQueueParam(queueParam);
+    sendParam.assignGrouperMessageSystemName(messageSystemName);
+    
+    sendParam.addMessageBody(testMessageBody);
+    sendParam.assignAutocreateObjects(true);
+         
+    system.send(sendParam);
+    
+    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
+    receiveParam.assignGrouperMessageSystemName(messageSystemName);
+    receiveParam.assignGrouperMessageQueueParam(queueParam);
+    receiveParam.assignAutocreateObjects(true);
+    receiveParam.assignMaxMessagesToReceiveAtOnce(10);
+    receiveParam.assignLongPollMillis(3000);
+    
+    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    
+    assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
+    
+    String anotherQueueName = RandomStringUtils.randomAlphanumeric(50);
+    
+    GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
+    acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
+    GrouperMessageQueueParam anotherQueueParam = new GrouperMessageQueueParam();
+    anotherQueueParam.assignQueueType(queue);
+    anotherQueueParam.assignQueueOrTopicName(anotherQueueName);
+    acknowledgeParam.assignAnotherQueueParam(anotherQueueParam);
+    
+    GrouperMessageSystemParam anotherSystemParam = new GrouperMessageSystemParam();
+    anotherSystemParam.assignAutocreateObjects(true);
+    anotherSystemParam.assignMesssageSystemName(messageSystemName);
+    acknowledgeParam.assignGrouperMessageSystemParam(anotherSystemParam);
+    
+    acknowledgeParam.addGrouperMessage(new GrouperMessageSqs(testMessageBody, grouperMessage.getId()));
+    acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.send_to_another_queue);
+    system.acknowledge(acknowledgeParam);
+    
+    // sending to another queue means delete from current queue and add to antoher queue.
+    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam).getGrouperMessages();
+    assertTrue(grouperMessagesAfterDeleting.isEmpty());
+    
+    // check if another queue has the message
+    receiveParam = new GrouperMessageReceiveParam();
+    receiveParam.assignGrouperMessageSystemName(messageSystemName);
+    receiveParam.assignGrouperMessageQueueParam(anotherQueueParam);
+    
+    grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
+    
+  }
 
 }
