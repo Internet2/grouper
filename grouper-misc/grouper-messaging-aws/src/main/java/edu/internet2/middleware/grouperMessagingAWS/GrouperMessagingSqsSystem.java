@@ -19,8 +19,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
@@ -50,6 +48,8 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
   private static final Log LOG = LogFactory.getLog(GrouperMessagingSqsSystem.class);
   
   private static final Integer MAXIMUM_SQS_QUEUE_NAME_LENGTH = 80;
+  
+  private static final String ID_RECEIPT_HANDLE_SEPARATOR = "~~";
   
   public GrouperMessagingSqsSystem() {}
 
@@ -98,6 +98,73 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#acknowledge(edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam)
    */
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
+    
+    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageAcknowledgeParam.getGrouperMessageSystemParam();
+    
+    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
+      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
+    }
+    
+    if (grouperMessageAcknowledgeParam.getGrouperMessageQueueParam() == null) {
+      throw new IllegalArgumentException("grouperMessageQueueParam cannot be null.");
+    }
+    
+    if (grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
+      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
+    }
+    
+    String queueOrTopicName = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+    
+    if (StringUtils.isBlank(queueOrTopicName)) {
+      throw new IllegalArgumentException("queueOrTopicName is required.");
+    }
+    
+    if (grouperMessageAcknowledgeParam.getAcknowledgeType() == null) {
+      throw new IllegalArgumentException("acknowlegeType property cannot be null.");
+    }
+    
+    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
+    String queueUrl = null;
+    try {
+      GetQueueUrlResult getQueueUrlResult = sqs.getQueueUrl(queueOrTopicName);
+      queueUrl = getQueueUrlResult.getQueueUrl();
+    } catch (QueueDoesNotExistException e) {
+      throw new IllegalArgumentException("queue "+queueOrTopicName+" doesn't exist.");
+    }
+    
+    for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageAcknowledgeParam.getGrouperMessages())) {
+      String id = grouperMessage.getId();
+      if (StringUtils.isBlank(id)) {
+        throw new IllegalArgumentException("id cannot be null in a message");
+      }
+      if (id.contains(ID_RECEIPT_HANDLE_SEPARATOR)) {
+        String[] idReceiptHandle = id.split(ID_RECEIPT_HANDLE_SEPARATOR);
+        String receiptHandle = idReceiptHandle[1];
+        
+        switch(grouperMessageAcknowledgeParam.getAcknowledgeType()) {
+          
+          case mark_as_processed:
+            sqs.deleteMessage(queueUrl, receiptHandle);
+            break;
+          case return_to_end_of_queue:
+            //TODO: check if the queue is FIFO because for standard queues, ordering is not guaranteed.
+            break;
+          case return_to_queue:
+            // do nothing since we don't want two same messages.
+            //sqs.sendMessage(new SendMessageRequest(queueUrl, grouperMessage.getMessageBody()));
+            break;
+          case send_to_another_queue:
+            
+            send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
+                grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam())
+                .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
+                .addMessageBody(grouperMessage.getMessageBody()));
+            
+            sqs.deleteMessage(queueUrl, receiptHandle);
+            break;
+        }
+      }
+    }
     return new GrouperMessageAcknowledgeResult();
   }
 
@@ -160,19 +227,10 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     ReceiveMessageRequest messageRequest = new ReceiveMessageRequest(queueUrl).withMaxNumberOfMessages(pageSize).withWaitTimeSeconds(waitTimeSeconds);
     List<Message> sqsMessages = sqs.receiveMessage(messageRequest).getMessages();
     
-    Collection<DeleteMessageBatchRequestEntry> deleteEntries = new ArrayList<DeleteMessageBatchRequestEntry>();
-    
     for (Message message: sqsMessages) {
-      GrouperMessageSqs sqsMessage = new GrouperMessageSqs(message.getBody(), message.getMessageId());
+      GrouperMessageSqs sqsMessage = new GrouperMessageSqs(message.getBody(), message.getMessageId()+ID_RECEIPT_HANDLE_SEPARATOR+message.getReceiptHandle());
       messages.add(sqsMessage);
-      
-      DeleteMessageBatchRequestEntry deleteMessageBatchRequestEntry = 
-          new DeleteMessageBatchRequestEntry(message.getMessageId(), message.getReceiptHandle());
-      deleteEntries.add(deleteMessageBatchRequestEntry);
     }
-    
-    DeleteMessageBatchRequest deleteMessageBatchRequest = new DeleteMessageBatchRequest(queueUrl).withEntries(deleteEntries);
-    sqs.deleteMessageBatch(deleteMessageBatchRequest);
     
     LOG.info("Received "+sqsMessages.size()+" messages.");
     
