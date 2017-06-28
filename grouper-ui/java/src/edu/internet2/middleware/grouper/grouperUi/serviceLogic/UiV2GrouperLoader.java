@@ -715,6 +715,8 @@ public class UiV2GrouperLoader {
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+    String nameOfLoaderAttributeDefName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader";
+
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
@@ -747,7 +749,12 @@ public class UiV2GrouperLoader {
         if (grouperLoaderContainer.isGrouperSqlLoader()) {
           //first, get the attribute def name
           AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-              .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+              .findByNameSecure(nameOfLoaderAttributeDefName, false);
+          
+          if (grouperLoader == null) {
+            throw new RuntimeException("Cannot find attribute in registry: " + nameOfLoaderAttributeDefName);
+          }
+
           group.getAttributeDelegate().removeAttribute(grouperLoader);
 
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -952,30 +959,35 @@ public class UiV2GrouperLoader {
           
           //if sql is picked, and used to be LDAP, then remove LDAP
           if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperLdapLoader()) {
-            
-            //first, get the attribute def name
+                        
             AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
                 .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
-            group.getAttributeDelegate().removeAttribute(grouperLoaderLdapName);
-
+            if (grouperLoaderLdapName != null) {
+              group.getAttributeDelegate().removeAttribute(grouperLoaderLdapName);
+            }
 
           }
 
           //if ldap is picked, and used to be SQL, then remove LDAP
-          if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperLdapLoader()) {
+          if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperSqlLoader()) {
             //first, get the attribute def name
             AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-                .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
-            group.getAttributeDelegate().removeAttribute(grouperLoader);
+                .findByNameSecure(nameOfLoaderAttributeDefName, false);
+            
+            if (grouperLoader != null) {
+              group.getAttributeDelegate().removeAttribute(grouperLoader);
 
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRemoved")));
-
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRemoved")));
+            }
           }
           
           if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
             AttributeDefName grouperLoaderAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-                .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+                .findByNameSecure(nameOfLoaderAttributeDefName, false);
+            if (grouperLoaderAttributeDefName == null) {
+              throw new RuntimeException("Cannot find attribute in registry: " + nameOfLoaderAttributeDefName);
+            }
             AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, grouperLoaderAttributeDefName, false, false);
             if (attributeAssign == null) {
               attributeAssign = group.getAttributeDelegate().assignAttribute(grouperLoaderAttributeDefName).getAttributeAssign();
