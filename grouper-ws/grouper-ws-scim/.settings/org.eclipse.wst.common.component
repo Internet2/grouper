@@ -1,18 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="grouper-ws-scim">
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
-        <dependent-module archiveName="scim-server-common-2.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/scim-server-common/scim-server-common">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="scim-spec-protocol-2.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/scim-spec-protocol/scim-spec-protocol">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="scim-spec-schema-2.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/scim-spec-schema/scim-spec-schema">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <property name="context-root" value="grouper-ws-scim"/>
         <property name="java-output-path" value="/grouper-ws-scim/target/classes"/>
     </wb-module>
