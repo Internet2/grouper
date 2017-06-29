@@ -26,48 +26,38 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     super(name);
   }
   
-  public void tesaSendReceiveDelete() throws Exception {
-    
-    final String messageSystemName = "sqs";
-    final String messageId = RandomStringUtils.randomAlphanumeric(50);
-    final String testMessageBody = "test message - "+messageId;
-    final String queueName = RandomStringUtils.randomAlphanumeric(50);
-    
-    GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
-    
-    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
-    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-    queueParam.assignQueueType(queue);
-    queueParam.assignQueueOrTopicName(queueName);
-    sendParam.assignGrouperMessageQueueParam(queueParam);
-    sendParam.assignGrouperMessageSystemName(messageSystemName);
-    
-    sendParam.addMessageBody(testMessageBody);
-    sendParam.assignAutocreateObjects(true);
-         
-    system.send(sendParam);
-    
-    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-    receiveParam.assignGrouperMessageQueueParam(queueParam);
-    receiveParam.assignAutocreateObjects(true);
-    receiveParam.assignMaxMessagesToReceiveAtOnce(10);
-    receiveParam.assignLongPollMillis(3000);
-    
-    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
-    
-    assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
-    
-    GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
-    acknowledgeParam.assignGrouperMessageSystemName(messageSystemName);
-    acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
-    acknowledgeParam.addGrouperMessage(new GrouperMessageSqs(testMessageBody, grouperMessage.getId()));
-    acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed);
-    system.acknowledge(acknowledgeParam);
-    
-    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam).getGrouperMessages();
-    assertTrue(grouperMessagesAfterDeleting.isEmpty());
-    
+  /**
+   * To run the tests in this file, make sure that the following SQS queues
+   * exist and they all are empty.
+   */
+  
+  private static final String TEST_STANDARD_QUEUE = "test_queue";
+  private static final String TEST_FIFO_QUEUE = "test_queue.fifo";
+  private static final String TEST_ANOTHER_STANDARD_QUEUE = "test_another_queue";
+  private static final String TEST_ANOTHER_FIFO_QUEUE = "test_another_queue.fifo";
+  
+  public void testSendReceiveDeleteStandardQueue() throws Exception {
+    sendReceiveDelete(TEST_STANDARD_QUEUE);
+  }
+  
+  public void testSendReceiveDeleteFifoQueue() throws Exception {
+    sendReceiveDelete(TEST_FIFO_QUEUE);
+  }
+  
+  public void testAcknowledgeSendToAnotherQueueStandard() throws Exception {
+    acknowledgeSendToAnotherQueue(TEST_STANDARD_QUEUE, TEST_ANOTHER_STANDARD_QUEUE);
+  }
+  
+  public void testAcknowledgeSendToAnotherQueueFifo() throws Exception {
+    acknowledgeSendToAnotherQueue(TEST_FIFO_QUEUE, TEST_ANOTHER_FIFO_QUEUE);
+  }
+  
+  public void testAcknowledgeRetrunToQueueStandard() throws Exception {
+    acknowledgeReturnToQueue(TEST_STANDARD_QUEUE);
+  }
+  
+  public void testAcknowledgeRetrunToQueueFifo() throws Exception {
+    acknowledgeReturnToQueue(TEST_FIFO_QUEUE);
   }
   
   public void testErrorSendingWhenQueueNotThereAlready() {
@@ -87,16 +77,15 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     try {
       system.send(sendParam);
     } catch (Exception e) {
-      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
+      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist."));
     }
   }
   
-  public void testAcknowledgeSendToAnotherQueue() throws Exception {
+  private void sendReceiveDelete(String queueName) {
     
     final String messageSystemName = "sqs";
     final String messageId = RandomStringUtils.randomAlphanumeric(50);
     final String testMessageBody = "test message - "+messageId;
-    final String queueName = RandomStringUtils.randomAlphanumeric(50);
     
     GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
     
@@ -108,22 +97,56 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     sendParam.assignGrouperMessageSystemName(messageSystemName);
     
     sendParam.addMessageBody(testMessageBody);
-    sendParam.assignAutocreateObjects(true);
          
     system.send(sendParam);
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
     receiveParam.assignGrouperMessageQueueParam(queueParam);
-    receiveParam.assignAutocreateObjects(true);
     receiveParam.assignMaxMessagesToReceiveAtOnce(10);
-    receiveParam.assignLongPollMillis(3000);
     
     GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
     
     assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
     
-    String anotherQueueName = RandomStringUtils.randomAlphanumeric(50);
+    GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
+    acknowledgeParam.assignGrouperMessageSystemName(messageSystemName);
+    acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
+    acknowledgeParam.addGrouperMessage(new GrouperMessageSqs(testMessageBody, grouperMessage.getId()));
+    acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed);
+    system.acknowledge(acknowledgeParam);
+    
+    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam).getGrouperMessages();
+    assertTrue(grouperMessagesAfterDeleting.isEmpty());
+    
+  }
+  
+  private void acknowledgeSendToAnotherQueue(String queueName, String anotherQueueName) {
+    
+    final String messageSystemName = "sqs";
+    final String messageId = RandomStringUtils.randomAlphanumeric(50);
+    final String testMessageBody = "test message - "+messageId;
+    
+    GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
+    
+    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
+    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
+    queueParam.assignQueueType(queue);
+    queueParam.assignQueueOrTopicName(queueName);
+    sendParam.assignGrouperMessageQueueParam(queueParam);
+    sendParam.assignGrouperMessageSystemName(messageSystemName);
+    sendParam.addMessageBody(testMessageBody);
+         
+    system.send(sendParam);
+    
+    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
+    receiveParam.assignGrouperMessageSystemName(messageSystemName);
+    receiveParam.assignGrouperMessageQueueParam(queueParam);
+    receiveParam.assignMaxMessagesToReceiveAtOnce(10);
+    
+    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    
+    assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
     
     GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
     acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
@@ -133,7 +156,6 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     acknowledgeParam.assignAnotherQueueParam(anotherQueueParam);
     
     GrouperMessageSystemParam anotherSystemParam = new GrouperMessageSystemParam();
-    anotherSystemParam.assignAutocreateObjects(true);
     anotherSystemParam.assignMesssageSystemName(messageSystemName);
     acknowledgeParam.assignGrouperMessageSystemParam(anotherSystemParam);
     
@@ -152,7 +174,46 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     
     grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
     assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
+
+  }
+  
+  private void acknowledgeReturnToQueue(String queueName) {
     
+    final String messageSystemName = "sqs";
+    final String messageId = RandomStringUtils.randomAlphanumeric(50);
+    final String testMessageBody = "test message - "+messageId;
+    
+    GrouperMessagingSqsSystem system = new GrouperMessagingSqsSystem();
+    
+    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
+    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
+    queueParam.assignQueueType(queue);
+    queueParam.assignQueueOrTopicName(queueName);
+    sendParam.assignGrouperMessageQueueParam(queueParam);
+    sendParam.assignGrouperMessageSystemName(messageSystemName);
+    sendParam.addMessageBody(testMessageBody);
+         
+    system.send(sendParam);
+    
+    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
+    receiveParam.assignGrouperMessageSystemName(messageSystemName);
+    receiveParam.assignGrouperMessageQueueParam(queueParam);
+    receiveParam.assignMaxMessagesToReceiveAtOnce(10);
+    
+    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    
+    assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
+    
+    GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
+    acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
+    acknowledgeParam.assignGrouperMessageSystemName(messageSystemName);
+    acknowledgeParam.addGrouperMessage(new GrouperMessageSqs(testMessageBody, grouperMessage.getId()));
+    acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.return_to_queue);
+    system.acknowledge(acknowledgeParam);
+    
+    GrouperMessage message = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    
+    assertTrue(message.getMessageBody().equals(testMessageBody));
   }
 
 }
