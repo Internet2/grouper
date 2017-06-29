@@ -4,11 +4,14 @@
  */
 package edu.internet2.middleware.grouperMessagingAWS;
 
+import static edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType.queue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,7 +21,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
@@ -28,7 +30,7 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
@@ -43,51 +45,41 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 
 public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    
-  
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperMessagingSqsSystem.class);
   
-  private static final Integer MAXIMUM_SQS_QUEUE_NAME_LENGTH = 80;
+  private static final String FIFO_QUEUE_SUFFIX = ".fifo";
   
-  private static final String ID_RECEIPT_HANDLE_SEPARATOR = "~~";
+  private static final String DEFAULT_MESSAGE_GROUP_ID = "grouperMessageGroup";
   
   public GrouperMessagingSqsSystem() {}
+
 
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
   public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
         
-    if (grouperMessageSendParam.getGrouperMessageQueueParam() == null) {
-      throw new IllegalArgumentException("grouperMessageQueueParam is required.");
-    }
+    GrouperMessageSystemParam systemParam = grouperMessageSendParam.getGrouperMessageSystemParam();
+    GrouperMessageQueueParam queueParam = grouperMessageSendParam.getGrouperMessageQueueParam();
     
-    if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
-      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
-    }
+    validate(queueParam, systemParam);
     
-    String queueName = grouperMessageSendParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+    String queueName = queueParam.getQueueOrTopicName();
     
-    if (StringUtils.isBlank(queueName)) {
-      throw new IllegalArgumentException("queueOrTopicName is required.");
-    }
+    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(systemParam.getMessageSystemName());
     
-    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageSendParam.getGrouperMessageSystemParam();
-    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
-      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is a required field.");
-    }
-    
-    String error = createSqsQueue(grouperMessageSystemParam, queueName);
-    
-    if (error != null) {
-      throw new IllegalArgumentException(error);
-    }
-  
-    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
-    String queueUrl = sqs.getQueueUrl(queueName).getQueueUrl();
+    String queueUrl = getQueueUrl(systemParam.getMessageSystemName(), queueName);
     
     for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
-      sqs.sendMessage(new SendMessageRequest(queueUrl, grouperMessage.getMessageBody()));
+      
+      SendMessageRequest sendMessageRequest = new SendMessageRequest(queueUrl, grouperMessage.getMessageBody());
+      if (isQueueFIFO(queueName)) {
+        sendMessageRequest.setMessageGroupId(DEFAULT_MESSAGE_GROUP_ID);
+        sendMessageRequest.setMessageDeduplicationId(UUID.randomUUID().toString());
+      }
+      
+      sqs.sendMessage(sendMessageRequest);
       LOG.info("Sent "+grouperMessage.getMessageBody()+" to SQS.");
     }
  
@@ -99,73 +91,61 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    */
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
     
-    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageAcknowledgeParam.getGrouperMessageSystemParam();
+    GrouperMessageSystemParam systemParam = grouperMessageAcknowledgeParam.getGrouperMessageSystemParam();
+    GrouperMessageQueueParam queueParam = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam();
     
-    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
-      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
-    }
+    validate(queueParam, systemParam);
     
-    if (grouperMessageAcknowledgeParam.getGrouperMessageQueueParam() == null) {
-      throw new IllegalArgumentException("grouperMessageQueueParam cannot be null.");
-    }
-    
-    if (grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
-      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
-    }
-    
-    String queueOrTopicName = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
-    
-    if (StringUtils.isBlank(queueOrTopicName)) {
-      throw new IllegalArgumentException("queueOrTopicName is required.");
-    }
+    String queueOrTopicName = queueParam.getQueueOrTopicName();
     
     if (grouperMessageAcknowledgeParam.getAcknowledgeType() == null) {
       throw new IllegalArgumentException("acknowlegeType property cannot be null.");
     }
     
-    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
-    String queueUrl = null;
-    try {
-      GetQueueUrlResult getQueueUrlResult = sqs.getQueueUrl(queueOrTopicName);
-      queueUrl = getQueueUrlResult.getQueueUrl();
-    } catch (QueueDoesNotExistException e) {
-      throw new IllegalArgumentException("queue "+queueOrTopicName+" doesn't exist.");
-    }
+    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(systemParam.getMessageSystemName());
+    String queueUrl = getQueueUrl(systemParam.getMessageSystemName(), queueOrTopicName);
     
     for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageAcknowledgeParam.getGrouperMessages())) {
       String id = grouperMessage.getId();
       if (StringUtils.isBlank(id)) {
         throw new IllegalArgumentException("id cannot be null in a message");
       }
-      if (id.contains(ID_RECEIPT_HANDLE_SEPARATOR)) {
-        String[] idReceiptHandle = id.split(ID_RECEIPT_HANDLE_SEPARATOR);
-        String receiptHandle = idReceiptHandle[1];
         
-        switch(grouperMessageAcknowledgeParam.getAcknowledgeType()) {
-          
-          case mark_as_processed:
-            sqs.deleteMessage(queueUrl, receiptHandle);
-            break;
-          case return_to_end_of_queue:
-            //TODO: check if the queue is FIFO because for standard queues, ordering is not guaranteed.
-            break;
-          case return_to_queue:
-            // do nothing since we don't want two same messages.
-            //sqs.sendMessage(new SendMessageRequest(queueUrl, grouperMessage.getMessageBody()));
-            break;
-          case send_to_another_queue:
-            
+      switch(grouperMessageAcknowledgeParam.getAcknowledgeType()) {
+        
+        case mark_as_processed:
+          sqs.deleteMessage(queueUrl, id);
+          break;
+        case return_to_end_of_queue:
+          if (isQueueFIFO(queueOrTopicName)) {
+            sqs.deleteMessage(queueUrl, id);
             send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
-                grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam())
+                grouperMessageAcknowledgeParam.getGrouperMessageQueueParam())
                 .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
                 .addMessageBody(grouperMessage.getMessageBody()));
-            
-            sqs.deleteMessage(queueUrl, receiptHandle);
-            break;
-        }
+          } else {
+            LOG.warn("return_to_end_of_queue can only work with FIFO queues.");
+          }
+          break;
+        case return_to_queue:
+          sqs.changeMessageVisibility(queueUrl, id, 0);
+          break;
+        case send_to_another_queue:
+          
+          send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
+              grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam())
+              .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
+              .addMessageBody(grouperMessage.getMessageBody()));
+          
+          sqs.deleteMessage(queueUrl, id);
+          break;
       }
     }
     return new GrouperMessageAcknowledgeResult();
+  }
+  
+  private boolean isQueueFIFO(String queueName) {
+    return queueName.endsWith(FIFO_QUEUE_SUFFIX);
   }
 
   /**
@@ -173,18 +153,16 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    */
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
-    GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
+    GrouperMessageSystemParam systemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
+    GrouperMessageQueueParam queueParam = grouperMessageReceiveParam.getGrouperMessageQueueParam();
     
-    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
-      throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
-    }
-    
-    if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() != GrouperMessageQueueType.queue) {
-      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
-    }
+    validate(queueParam, systemParam);
+   
         
-    int defaultPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", grouperMessageSystemParam.getMessageSystemName()), 5);
-    int maxPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", grouperMessageSystemParam.getMessageSystemName()), 10);
+    int defaultPageSize = GrouperClientConfig.retrieveConfig()
+        .propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", systemParam.getMessageSystemName()), 5);
+    int maxPageSize = GrouperClientConfig.retrieveConfig()
+        .propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", systemParam.getMessageSystemName()), 10);
     
     Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
     
@@ -196,13 +174,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
       maxMessagesToReceiveAtOnce = maxPageSize;
     }
     
-    final Integer pageSize = maxMessagesToReceiveAtOnce;
-    
-    String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
-    
-    if (StringUtils.isBlank(queueOrTopicName)) {
-      throw new IllegalArgumentException("queueOrTopicName is required.");
-    }
+    String queueOrTopicName = queueParam.getQueueOrTopicName();
     
     Integer longPollMillis = grouperMessageReceiveParam.getLongPollMilis();
     
@@ -214,21 +186,18 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     Collection<GrouperMessage> messages = new ArrayList<GrouperMessage>();
     result.setGrouperMessages(messages);
     
-    String error = createSqsQueue(grouperMessageSystemParam, queueOrTopicName);
+    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(systemParam.getMessageSystemName());
     
-    if (error != null) {
-      throw new IllegalArgumentException(error);
-    }
+    String queueUrl = getQueueUrl(systemParam.getMessageSystemName(), queueOrTopicName);
     
-    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
-    
-    String queueUrl = sqs.getQueueUrl(queueOrTopicName).getQueueUrl();
     Integer waitTimeSeconds = longPollMillis/1000;
-    ReceiveMessageRequest messageRequest = new ReceiveMessageRequest(queueUrl).withMaxNumberOfMessages(pageSize).withWaitTimeSeconds(waitTimeSeconds);
+    ReceiveMessageRequest messageRequest = new ReceiveMessageRequest(queueUrl)
+        .withMaxNumberOfMessages(maxMessagesToReceiveAtOnce)
+        .withWaitTimeSeconds(waitTimeSeconds);
     List<Message> sqsMessages = sqs.receiveMessage(messageRequest).getMessages();
     
     for (Message message: sqsMessages) {
-      GrouperMessageSqs sqsMessage = new GrouperMessageSqs(message.getBody(), message.getMessageId()+ID_RECEIPT_HANDLE_SEPARATOR+message.getReceiptHandle());
+      GrouperMessageSqs sqsMessage = new GrouperMessageSqs(message.getBody(), message.getReceiptHandle());
       messages.add(sqsMessage);
     }
     
@@ -237,36 +206,53 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     return result;
   }
   
+  private void validate(GrouperMessageQueueParam queueParam, GrouperMessageSystemParam systemParam) {
+    
+    if (queueParam == null) {
+      throw new IllegalArgumentException("grouperMessageQueueParam cannot be null.");
+    }
+    
+    if (systemParam == null) {
+      throw new IllegalArgumentException("grouperMessageSystemParam cannot be null.");
+    }
+    
+    if (queueParam.getQueueType() != queue) {
+      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
+    }
+    
+    String queueName = queueParam.getQueueOrTopicName();
+    
+    if (StringUtils.isBlank(queueName)) {
+      throw new IllegalArgumentException("queueOrTopicName is a required field.");
+    }
+    
+    if (StringUtils.isBlank(systemParam.getMessageSystemName())) {
+      throw new IllegalArgumentException("messageSystemName is a required field.");
+    }
+    
+    if (systemParam.isAutocreateObjects()) {
+      LOG.warn("For AWS, setting autoCreateObjects to true does nothing. Queue needs to exist already.");
+    }
+    
+  }
+  
   
   /**
-   * @param grouperMessageSystemParam
+   * @param messageSystemName
    * @param queueName
-   * @return error if any
+   * @return queueUrl
+   * @throws IllegalArgumentException if queue doesn't exist already
    */
-  private String createSqsQueue(GrouperMessageSystemParam grouperMessageSystemParam,
-      String queueName) {
+  private String getQueueUrl(String messageSystemName, String queueName) {
     
-    if (queueName.length() > MAXIMUM_SQS_QUEUE_NAME_LENGTH) {
-      return "queue name cannot have more than "+MAXIMUM_SQS_QUEUE_NAME_LENGTH+" characters.";
-    }
-    
-    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(grouperMessageSystemParam.getMessageSystemName());
+    AmazonSQS sqs = AmazonSqsClientConnectionFactory.INSTANCE.getAmazonSqsClient(messageSystemName);
     try {
       GetQueueUrlResult getQueueUrlResult = sqs.getQueueUrl(queueName);
-      if (getQueueUrlResult != null) {
-        return null;
-      }
+      return getQueueUrlResult.getQueueUrl();
     } catch (QueueDoesNotExistException e) {
-      //do nothing.
+      throw new IllegalArgumentException("queue "+queueName+" doesn't exist.");
     }
     
-    if (grouperMessageSystemParam.isAutocreateObjects()) {
-      CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
-      sqs.createQueue(createQueueRequest);
-      return null;
-    } else {
-      return "queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true.";
-    }
   }
   
   private enum AmazonSqsClientConnectionFactory {
@@ -287,8 +273,8 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
         
         if (sqs == null) {
           
-          String accessKey = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messaging.accessKey", "sqs"));
-          String secretKey = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messaging.secretKey", "sqs"));
+          String accessKey = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messaging.accessKey", messagingSystemName));
+          String secretKey = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messaging.secretKey", messagingSystemName));
           
           accessKey = GrouperClientUtils.decryptFromFileIfFileExists(accessKey, null);
           secretKey = GrouperClientUtils.decryptFromFileIfFileExists(secretKey, null);
