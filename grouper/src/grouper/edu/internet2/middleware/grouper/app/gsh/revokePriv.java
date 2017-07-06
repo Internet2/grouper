@@ -72,19 +72,7 @@ public class revokePriv {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-      if (Privilege.isAccess(priv)) {
-        Group   g     = GroupFinder.findByName(s, name, true);
-        return g.revokePriv(subj, priv, false);
-      } else if (Privilege.isNaming(priv)) {
-        Stem    ns    = StemFinder.findByName(s, name, true);
-        return ns.revokePriv(subj, priv, false);
-      } else if (Privilege.isAttributeDef(priv)) {
-        AttributeDef attributeDef = AttributeDefFinder.findByName(name, true);
-        return attributeDef.getPrivilegeDelegate().revokePriv(subj, priv, false);
-      } else {
-        throw new RuntimeException("Invalid privilege type: " + priv);
-      }
+      return invoke(s, name, subjId, priv);
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -108,7 +96,31 @@ public class revokePriv {
       GrouperShell.error(i, eSNU); 
     }
     return false;
-  } // public static boolean invoke(i, stack, name, subjId, priv)
+  }
 
+  /**
+   * Revoke a privilege.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Revoke privilege on this {@link Group} or {@link Stem}.
+   * @param   subjId      Revoke privilege from this {@link Subject}.
+   * @param   priv        Revoke this {@link Privilege}.
+   * @return  True if succeeds.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String name,  String subjId, Privilege priv) {
+    Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
+    if (Privilege.isAccess(priv)) {
+      Group   g     = GroupFinder.findByName(grouperSession, name, true);
+      return g.revokePriv(subj, priv, false);
+    } else if (Privilege.isNaming(priv)) {
+      Stem    ns    = StemFinder.findByName(grouperSession, name, true);
+      return ns.revokePriv(subj, priv, false);
+    } else if (Privilege.isAttributeDef(priv)) {
+      AttributeDef attributeDef = AttributeDefFinder.findByName(name, true);
+      return attributeDef.getPrivilegeDelegate().revokePriv(subj, priv, false);
+    } else {
+      throw new RuntimeException("Invalid privilege type: " + priv);
+    }
+  }
 } // public class revokePriv
 

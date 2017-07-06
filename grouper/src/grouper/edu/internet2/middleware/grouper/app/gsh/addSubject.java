@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -59,7 +60,7 @@ public class addSubject {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return RegistrySubject.add( GrouperShell.getSession(i), id, type, name );
+      return invoke(GrouperShell.getSession(i), id, type, name, null);
     }
     catch (GrouperException eG)                 { 
       GrouperShell.error(i, eG);
@@ -88,14 +89,7 @@ public class addSubject {
       throws  GrouperShellException {
     GrouperShell.setOurCommand(i, true);
     try {
-      RegistrySubject registrySubject = RegistrySubject.add( GrouperShell.getSession(i), id, type, name );
-      RegistrySubjectAttribute registrySubjectAttribute = new RegistrySubjectAttribute();
-      registrySubjectAttribute.setName("description");
-      registrySubjectAttribute.setSearchValue(description.toLowerCase());
-      registrySubjectAttribute.setSubjectId(id);
-      registrySubjectAttribute.setValue(description);
-      HibernateSession.byObjectStatic().saveOrUpdate(registrySubjectAttribute);
-      return registrySubject;
+      return invoke(GrouperShell.getSession(i), id, type, name, description);
     }
     catch (GrouperException eG)                 { 
       GrouperShell.error(i, eG);
@@ -104,6 +98,31 @@ public class addSubject {
       GrouperShell.error(i, eIP);
     }
     return null;
+  }
+  
+  /**
+   * Add {@link RegistrySubject} to Groups Registry.
+   * <p/>
+   * @param   grouperSession
+   * @param   id          Subject <i>id</i>.
+   * @param   type        Subject <i>type</i>.
+   * @param   name        Subject <i>name</i>.
+   * @param description subject description
+   * @return  Added {@link RegistrySubject}.
+   */
+  public static RegistrySubject invoke(GrouperSession grouperSession, String id, String type, String name, String description) {
+    RegistrySubject registrySubject = RegistrySubject.add(grouperSession, id, type, name);
+    
+    if (description != null) {
+      RegistrySubjectAttribute registrySubjectAttribute = new RegistrySubjectAttribute();
+      registrySubjectAttribute.setName("description");
+      registrySubjectAttribute.setSearchValue(description.toLowerCase());
+      registrySubjectAttribute.setSubjectId(id);
+      registrySubjectAttribute.setValue(description);
+      HibernateSession.byObjectStatic().saveOrUpdate(registrySubjectAttribute);
+    }
+    
+    return registrySubject;
   } 
 
 } // public class addSubject

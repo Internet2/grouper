@@ -25,6 +25,7 @@ import java.util.Set;
 
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
 
@@ -50,7 +51,17 @@ public class getSources {
   public static Set invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
     return SubjectFinder.getSources();
-  } // public static Stem invoke(i, stack, parent, name)
+  }
+  
+  /**
+   * Find all {@link Subject} sources.
+   * <p/>
+   * @param   grouperSession
+   * @return  Set of sources.
+   */
+  public static Set invoke(GrouperSession grouperSession) {
+    return SubjectFinder.getSources();
+  }
 
 } // public class getSources
 

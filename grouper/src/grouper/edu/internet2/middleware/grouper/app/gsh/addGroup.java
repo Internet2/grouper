@@ -62,8 +62,7 @@ public class addGroup {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, parent, true);
-      return ns.addChildGroup(extn, displayExtn);
+      return invoke (s, parent, extn, displayExtn);
     }
     catch (GroupAddException eGA)               {
       GrouperShell.error(i, eGA);
@@ -75,7 +74,21 @@ public class addGroup {
       GrouperShell.error(i, eNSNF);
     }
     return null;
-  } // public static Group invoke(i, stack, parent, extn, displayExtn)
+  }
+  
+  /**
+   * Add a group.
+   * <p/>
+   * @param   grouperSession
+   * @param   parent      <i>name</i> of parent {@link Group}.
+   * @param   extn        <i>extension</i> of {@link Group}.
+   * @param   displayExtn <i>displayExtension</i> of {@link Group}.
+   * @return  Added {@link Group}.
+   */
+  public static Group invoke(GrouperSession grouperSession, String parent, String extn, String displayExtn) {
+    Stem            ns  = StemFinder.findByName(grouperSession, parent, true);
+    return ns.addChildGroup(extn, displayExtn);
+  }
 
 } // public class addGroup
 

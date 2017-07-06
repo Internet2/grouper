@@ -29,6 +29,7 @@ import bsh.Interpreter;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
@@ -58,14 +59,25 @@ public class typeGetFields {
     Set fields = new LinkedHashSet();
     GrouperShell.setOurCommand(i, true);
     try {
-      GroupType t = GroupTypeFinder.find(name, true);
-      fields = t.getFields();
+      fields = invoke(null, name);
     }
     catch (SchemaException eS) {
       GrouperShell.error(i, eS);
     }
     return fields;
-  } // public static Set invoke(i, stack, name)
+  }
 
+  /**
+   * Find <code>Field</code>s belonging to a <code>GroupType</code>.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Find this <code>GroupType</code>'s <code>Field</code>s.
+   * @return  {@link Set} of {@link Field}s.
+   */
+  @SuppressWarnings("deprecation")
+  public static Set invoke(GrouperSession grouperSession, String name) {
+    GroupType t = GroupTypeFinder.find(name, true);
+    return t.getFields();
+  }
 } // public class typeGetFields
 

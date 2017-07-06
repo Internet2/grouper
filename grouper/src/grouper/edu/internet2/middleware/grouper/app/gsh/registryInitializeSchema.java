@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -64,9 +65,21 @@ public class registryInitializeSchema {
    * @since   0.0.1
    */
   public static String invoke(Interpreter interpreter, CallStack stack, int options) {
+    GrouperShell.setOurCommand(interpreter, true);
+
+    return invoke(null, options);
+  }
+  
+  /**
+   * Create tables and init schema (depending on configuration in grouper.properties)
+   * <p/>
+   * @param   grouperSession
+   * @param options 
+   * @return  a string
+   */
+  public static String invoke(GrouperSession grouperSession, int options) {
     RegistryInitializeSchema.inInitSchema = true;
     try {
-      GrouperShell.setOurCommand(interpreter, true);
       boolean dropThenCreate = GrouperUtil.hasOption(options, DROP_THEN_CREATE);
       boolean writeAndRunScript = GrouperUtil.hasOption(options, WRITE_AND_RUN_SCRIPT);
       boolean installGrouperData = RegistryInitializeSchema.isInstallGrouperData();
@@ -76,7 +89,7 @@ public class registryInitializeSchema {
     } finally {
       RegistryInitializeSchema.inInitSchema = false;
     }
-  } // public static boolean invoke(i, stack, name)
+  }
 
 } // public class resetRegistry
 

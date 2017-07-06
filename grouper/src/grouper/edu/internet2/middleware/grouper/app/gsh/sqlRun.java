@@ -22,12 +22,10 @@
 
 package edu.internet2.middleware.grouper.app.gsh;
 import java.io.File;
-import java.util.Properties;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.morphString.Morph;
 
 import bsh.CallStack;
 import bsh.Interpreter;
@@ -52,8 +50,7 @@ public class sqlRun {
   public static void invoke(Interpreter interpreter, CallStack stack, File scriptFile) {
     GrouperShell.setOurCommand(interpreter, true);
     
-    GrouperDdlUtils.sqlRun(scriptFile, false, true);
-    
+    invoke(null, scriptFile);
   }
 
   /**
@@ -68,9 +65,23 @@ public class sqlRun {
    */
   public static int invoke(Interpreter interpreter, CallStack stack, String sql) throws GrouperShellException {
     GrouperShell.setOurCommand(interpreter, true);
-    return HibernateSession.bySqlStatic().executeSql(sql);
+    return invoke(null, sql);
   }
 
-
+  /**
+   * Executes an SQL statement.
+   * <p/>
+   * @param   grouperSession
+   * @param   scriptFileOrString
+   * @return  int The number of updates made if executing a string.
+   */
+  public static int invoke(GrouperSession grouperSession, Object scriptFileOrString) {
+    if (scriptFileOrString instanceof File) {
+      GrouperDdlUtils.sqlRun((File)scriptFileOrString, false, true);
+      return 0;
+    }
+    
+    return HibernateSession.bySqlStatic().executeSql((String)scriptFileOrString);
+  }
 }
 

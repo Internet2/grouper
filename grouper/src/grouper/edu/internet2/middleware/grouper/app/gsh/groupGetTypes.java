@@ -28,6 +28,7 @@ import bsh.Interpreter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 
 /**
@@ -56,14 +57,26 @@ public class groupGetTypes {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      Group g = GroupFinder.findByName(GrouperShell.getSession(i), name, true);
-      return g.getTypes();
+      return invoke(GrouperShell.getSession(i), name);
     }
     catch (GroupNotFoundException eGNF) {
       GrouperShell.error(i, eGNF);
     }
     throw new GrouperShellException(GshErrorMessages.GROUP_GETTYPES + name);
-  } // public static Set invoke(i, stack, name)
+  }
+  
+  /**
+   * Get a {@link Group}s {@link GroupType}.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Name of {@link Group}.
+   * @return  Set of {@link GroupType}s.
+   */
+  @SuppressWarnings("deprecation")
+  public static Set invoke(GrouperSession grouperSession, String name) {
+    Group g = GroupFinder.findByName(grouperSession, name, true);
+    return g.getTypes();
+  }
 
 } // public class groupGetTypes
 

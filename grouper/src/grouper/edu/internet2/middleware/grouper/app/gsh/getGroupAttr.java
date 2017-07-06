@@ -58,22 +58,7 @@ public class getGroupAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      Group           g = GroupFinder.findByName(s, name, true);
-      if (attr.equals("createSubject"))    {
-        return g.getCreateSubject();
-      }
-      else if (attr.equals("createTime"))       {
-        return g.getCreateTime();
-      }
-      else if (attr.equals("modifySubject"))    {
-        return g.getModifySubject();
-      }
-      else if (attr.equals("modifyTime"))       {
-        return g.getModifyTime();
-      }
-      else {
-        return g.getAttributeValue(attr, true, false);
-      }
+      return invoke(s, name, attr);
     }
     catch (AttributeNotFoundException eANF)     {
       GrouperShell.error(i, eANF);  
@@ -85,7 +70,31 @@ public class getGroupAttr {
       GrouperShell.error(i, eSNF);
     }
     throw new GrouperShellException(GshErrorMessages.GROUP_ATTR_INVALID + attr);
-  } // public static boolean invoke(i, stack, name, attr)
+  }
+  
+  /**
+   * Get {@link Group} attribute value.
+   * <p/>
+   * @param   grouperSession
+   * @param   name  <i>name</i> of {@link Group} to retrieve attribute on.
+   * @param   attr  Name of attribute to retrieve.
+   * @return  Value of attribute.
+   */
+  @SuppressWarnings("deprecation")
+  public static Object invoke(GrouperSession grouperSession, String name, String attr) {
+    Group g = GroupFinder.findByName(grouperSession, name, true);
+    if (attr.equals("createSubject"))    {
+      return g.getCreateSubject();
+    } else if (attr.equals("createTime"))       {
+      return g.getCreateTime();
+    } else if (attr.equals("modifySubject"))    {
+      return g.getModifySubject();
+    } else if (attr.equals("modifyTime"))       {
+      return g.getModifyTime();
+    } else {
+      return g.getAttributeValue(attr, true, false);
+    }
+  }
 
 } // public class getGroupAttr
 

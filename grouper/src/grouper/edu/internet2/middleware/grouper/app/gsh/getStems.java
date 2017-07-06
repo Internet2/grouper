@@ -59,18 +59,29 @@ public class getStems {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Stem            root  = StemFinder.findRootStem(s);
-      GrouperQuery    gq    = GrouperQuery.createQuery(
-        s, 
-        new StemNameAnyFilter(name, root)
-      );
-      return gq.getStems();
+      return invoke(s, name);
     }
     catch (QueryException eQ) {
       GrouperShell.error(i, eQ);
     }
     return null;
-  } // protected static Set getStems(i, name)
+  }
+  
+  /**
+   * Query for stems by name.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Find stems with <i>name</i> as part of their name.
+   * @return  {@link Set} of {@link Stem}s.
+   */
+  public static Set invoke(GrouperSession grouperSession, String name) {
+    Stem            root  = StemFinder.findRootStem(grouperSession);
+    GrouperQuery    gq    = GrouperQuery.createQuery(
+      grouperSession, 
+      new StemNameAnyFilter(name, root)
+    );
+    return gq.getStems();
+  }
 
 } // public class getStems
 

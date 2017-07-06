@@ -57,19 +57,30 @@ public class xmlFromURL {
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
-    //make sure right db
-    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
-      XmlImporter     importer  = new XmlImporter(s, new Properties());
-      importer.load( XmlReader.getDocumentFromURL(url) );
-      return true;
+      return invoke(s, url);
     }
     catch (GrouperException eG) {
       GrouperShell.error(i, eG);
     }
     return false;
-  } // public static boolean invoke(i, stack, url)
+  }
+  
+  /**
+   * Import Groups Registry from XML URL.
+   * <p/>
+   * @param   grouperSession
+   * @param   url         Import XML from this URL.
+   * @return  True if successful.
+   */
+  public static boolean invoke(GrouperSession grouperSession, URL url) {
+    //make sure right db
+    GrouperUtil.promptUserAboutDbChanges("import data from xml url", true);
+    XmlImporter     importer  = new XmlImporter(grouperSession, new Properties());
+    importer.load( XmlReader.getDocumentFromURL(url) );
+    return true;
+  }
 
 } // public class xmlFromURL
 

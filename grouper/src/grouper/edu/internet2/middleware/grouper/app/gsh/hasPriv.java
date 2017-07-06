@@ -72,76 +72,7 @@ public class hasPriv {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-      if (Privilege.isAccess(priv)) {
-        Group g = GroupFinder.findByName(s, name, true);
-        if      (priv.equals( AccessPrivilege.ADMIN  )) {
-          return g.hasAdmin(subj);
-        }
-        else if (priv.equals( AccessPrivilege.OPTIN  )) {
-          return g.hasOptin(subj);
-        }
-        else if (priv.equals( AccessPrivilege.OPTOUT )) {
-          return g.hasOptout(subj);
-        }
-        else if (priv.equals( AccessPrivilege.READ   )) {
-          return g.hasRead(subj);
-        }
-        else if (priv.equals( AccessPrivilege.UPDATE )) {
-          return g.hasUpdate(subj);
-        }
-        else if (priv.equals( AccessPrivilege.GROUP_ATTR_READ )) {
-          return g.hasGroupAttrRead(subj);
-        }
-        else if (priv.equals( AccessPrivilege.GROUP_ATTR_UPDATE )) {
-          return g.hasGroupAttrUpdate(subj);
-        }
-        else if (priv.equals( AccessPrivilege.VIEW   )) {
-          return g.hasView(subj);
-        } else {
-          throw new RuntimeException("Not expecting privilege: " + priv);
-        }
-      } else if (Privilege.isNaming(priv)) {
-        Stem ns = StemFinder.findByName(s, name, true);
-        if      (priv.equals( NamingPrivilege.CREATE )) {
-          return ns.hasCreate(subj);
-        }
-        else if (priv.equals( NamingPrivilege.STEM_ATTR_READ )) {
-          return ns.hasStemAttrRead(subj);
-        }
-        else if (priv.equals( NamingPrivilege.STEM_ATTR_UPDATE )) {
-          return ns.hasStemAttrUpdate(subj);
-        }
-        else if (priv.equals(NamingPrivilege.STEM) || priv.equals(NamingPrivilege.STEM_ADMIN)) {
-          return ns.hasStemAdmin(subj);
-        } else {
-          throw new RuntimeException("Not expecting privilege: " + priv);
-        }
-      } else if (Privilege.isAttributeDef(priv)) {
-        AttributeDef attributeDef = AttributeDefFinder.findByName(name, true);
-        if      (priv.equals( AttributeDefPrivilege.ATTR_ADMIN )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrAdmin(subj);
-        } else if (priv.equals( AttributeDefPrivilege.ATTR_OPTIN )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrOptin(subj);
-        } else if (priv.equals( AttributeDefPrivilege.ATTR_OPTOUT )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrOptout(subj);
-        } else if (priv.equals( AttributeDefPrivilege.ATTR_READ )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrRead(subj);
-        } else if (priv.equals( AttributeDefPrivilege.ATTR_UPDATE )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrUpdate(subj);
-        } else if (priv.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ)) {
-          return attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(subj);
-        } else if (priv.equals( AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(subj);
-        } else if (priv.equals( AttributeDefPrivilege.ATTR_VIEW )) {
-          return attributeDef.getPrivilegeDelegate().hasAttrView(subj);
-        } else {
-          throw new RuntimeException("Not expecting privilege: " + priv);
-        }
-        
-      } else {
-        throw new RuntimeException("Invalid privilege type: " + priv);
-      }
+      return invoke(s, name, subjId, priv);
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -156,7 +87,89 @@ public class hasPriv {
       GrouperShell.error(i, eSNU); 
     }
     return false;
-  } // public static boolean invoke(i, stack, name, subjId, priv)
+  }
+  
+  /**
+   * Check if subject has privilege.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Check for privilege on this {@link Group} or {@link Stem}.
+   * @param   subjId      Check if this {@link Subject} has privilege.
+   * @param   priv        Check this {@link AccessPrivilege}.
+   * @return  True if succeeds.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String name,  String subjId, Privilege priv) {
+    Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
+    if (Privilege.isAccess(priv)) {
+      Group g = GroupFinder.findByName(grouperSession, name, true);
+      if      (priv.equals( AccessPrivilege.ADMIN  )) {
+        return g.hasAdmin(subj);
+      }
+      else if (priv.equals( AccessPrivilege.OPTIN  )) {
+        return g.hasOptin(subj);
+      }
+      else if (priv.equals( AccessPrivilege.OPTOUT )) {
+        return g.hasOptout(subj);
+      }
+      else if (priv.equals( AccessPrivilege.READ   )) {
+        return g.hasRead(subj);
+      }
+      else if (priv.equals( AccessPrivilege.UPDATE )) {
+        return g.hasUpdate(subj);
+      }
+      else if (priv.equals( AccessPrivilege.GROUP_ATTR_READ )) {
+        return g.hasGroupAttrRead(subj);
+      }
+      else if (priv.equals( AccessPrivilege.GROUP_ATTR_UPDATE )) {
+        return g.hasGroupAttrUpdate(subj);
+      }
+      else if (priv.equals( AccessPrivilege.VIEW   )) {
+        return g.hasView(subj);
+      } else {
+        throw new RuntimeException("Not expecting privilege: " + priv);
+      }
+    } else if (Privilege.isNaming(priv)) {
+      Stem ns = StemFinder.findByName(grouperSession, name, true);
+      if      (priv.equals( NamingPrivilege.CREATE )) {
+        return ns.hasCreate(subj);
+      }
+      else if (priv.equals( NamingPrivilege.STEM_ATTR_READ )) {
+        return ns.hasStemAttrRead(subj);
+      }
+      else if (priv.equals( NamingPrivilege.STEM_ATTR_UPDATE )) {
+        return ns.hasStemAttrUpdate(subj);
+      }
+      else if (priv.equals(NamingPrivilege.STEM) || priv.equals(NamingPrivilege.STEM_ADMIN)) {
+        return ns.hasStemAdmin(subj);
+      } else {
+        throw new RuntimeException("Not expecting privilege: " + priv);
+      }
+    } else if (Privilege.isAttributeDef(priv)) {
+      AttributeDef attributeDef = AttributeDefFinder.findByName(name, true);
+      if      (priv.equals( AttributeDefPrivilege.ATTR_ADMIN )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrAdmin(subj);
+      } else if (priv.equals( AttributeDefPrivilege.ATTR_OPTIN )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrOptin(subj);
+      } else if (priv.equals( AttributeDefPrivilege.ATTR_OPTOUT )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrOptout(subj);
+      } else if (priv.equals( AttributeDefPrivilege.ATTR_READ )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrRead(subj);
+      } else if (priv.equals( AttributeDefPrivilege.ATTR_UPDATE )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrUpdate(subj);
+      } else if (priv.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ)) {
+        return attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(subj);
+      } else if (priv.equals( AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(subj);
+      } else if (priv.equals( AttributeDefPrivilege.ATTR_VIEW )) {
+        return attributeDef.getPrivilegeDelegate().hasAttrView(subj);
+      } else {
+        throw new RuntimeException("Not expecting privilege: " + priv);
+      }
+      
+    } else {
+      throw new RuntimeException("Invalid privilege type: " + priv);
+    }
+  }
 
 } // public class hasPriv
 

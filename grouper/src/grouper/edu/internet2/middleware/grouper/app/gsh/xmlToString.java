@@ -57,16 +57,26 @@ public class xmlToString {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
-      XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      Writer          w         = new StringWriter();
-      exporter.export(w);
-      return w.toString();
+      return invoke(s);
     }
     catch (GrouperException eG) {
       GrouperShell.error(i, eG);
     }
     return null;
-  } // public static String invoke(i, stack, group, subjId)
+  }
+  
+  /**
+   * Export Groups Registry to XML <tt>String</tt>.
+   * <p/>
+   * @param   grouperSession
+   * @return  XML string.
+   */
+  public static String invoke(GrouperSession grouperSession) {
+    XmlExporter     exporter  = new XmlExporter(grouperSession, new Properties());
+    Writer          w         = new StringWriter();
+    exporter.export(w);
+    return w.toString();
+  }
 
 } // public class xmlToString
 

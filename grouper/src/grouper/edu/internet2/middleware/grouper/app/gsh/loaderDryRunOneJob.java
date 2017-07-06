@@ -55,8 +55,20 @@ public class loaderDryRunOneJob {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    return GrouperLoader.dryRunJobOnceForGroup(grouperSession, group, fileName);
+    return invoke(grouperSession, group, fileName);
   }
 
+  /**
+   * dry run one loader job
+   * <p/>
+   * @param grouperSession 
+   * @param fileName is file name where output should go, or null or empty if std out
+   * @param group 
+   * @return  True if succeeds.
+   */
+  public static String invoke(GrouperSession grouperSession, Group group, String fileName) {
+
+    return GrouperLoader.dryRunJobOnceForGroup(grouperSession, group, fileName);
+  }
 }
 

@@ -56,19 +56,32 @@ public class xmlUpdateFromFile {
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
-    //make sure right db
-    GrouperUtil.promptUserAboutDbChanges("update data from xml", true);
+
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
-      XmlImporter     importer  = new XmlImporter(s, new Properties());
-      importer.update( XmlReader.getDocumentFromFile(file) );
-      return true;
+      return invoke(s, file);
     }
     catch (GrouperException eG) {
       GrouperShell.error(i, eG);
     }
     return false;
-  } // public static boolean invoke(i, stack, file)
+  }
 
+  /**
+   * Update Groups Registry from XML file.
+   * <p/>
+   * @param   grouperSession
+   * @param   file        Use this XML in this file for updates.
+   * @return  True if successful.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String file) {
+    //make sure right db
+    GrouperUtil.promptUserAboutDbChanges("update data from xml", true);
+
+    XmlImporter     importer  = new XmlImporter(grouperSession, new Properties());
+    importer.update( XmlReader.getDocumentFromFile(file) );
+    return true;
+  }
+  
 } // public class xmlUpdateFromFile
 

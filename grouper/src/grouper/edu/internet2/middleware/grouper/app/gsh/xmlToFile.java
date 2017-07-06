@@ -51,6 +51,7 @@ public class xmlToFile {
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   file        Export XML to file with this name.
+   * @return boolean
    * @throws  GrouperShellException
    * @since   0.1.0
    */
@@ -60,19 +61,34 @@ public class xmlToFile {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
-      XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      Writer          w         = new BufferedWriter( new FileWriter( new File(file) ) );
-      exporter.export(w);
-      return true;
+      return invoke(s, file);
     }
     catch (GrouperException eG) {
       GrouperShell.error(i, eG);
     }
-    catch (IOException eIO)     {
-      GrouperShell.error(i, eIO);
+    catch (Exception e)     {
+      GrouperShell.error(i, e);
     }
     return false;
-  } // public static boolean invoke(i, stack, file)
+  }
+  
+  /**
+   * Export Groups Registry to XML file.
+   * <p/>
+   * @param   grouperSession
+   * @param   file        Export XML to file with this name.
+   * @return boolean
+   */
+  public static boolean invoke(GrouperSession grouperSession, String file) {
+    try {
+      XmlExporter     exporter  = new XmlExporter(grouperSession, new Properties());
+      Writer          w         = new BufferedWriter( new FileWriter( new File(file) ) );
+      exporter.export(w);
+      return true;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 } // public class xmlToFile
 

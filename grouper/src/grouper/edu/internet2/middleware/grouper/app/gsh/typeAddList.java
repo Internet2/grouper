@@ -63,8 +63,7 @@ public class typeAddList {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      GroupType       t = GroupTypeFinder.find(type, true);
-      return t.addList(s, name, read, write);
+      return invoke(s, type, name, read, write);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -73,7 +72,22 @@ public class typeAddList {
       GrouperShell.error(i, eS);
     }
     throw new GrouperShellException(GshErrorMessages.TYPE_ADDLIST + name);
-  } // public static Field invoke(i, stack, type, name, read, write)
+  }
 
+  /**
+   * Add a list to a {@link GroupType}.
+   * <p/>
+   * @param   grouperSession
+   * @param   type        Add to this {@link GroupType}.
+   * @param   name        Name of list.
+   * @param   read        {@link Privilege} required for reading.
+   * @param   write       {@link Privilege} required for writing.
+   * @return  {@link Field}
+   */
+  @SuppressWarnings("deprecation")
+  public static Field invoke(GrouperSession grouperSession, String type, String name, Privilege read, Privilege write) {
+    GroupType       t = GroupTypeFinder.find(type, true);
+    return t.addList(grouperSession, name, read, write);
+  }
 } // public class typeAddList
 
