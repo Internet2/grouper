@@ -67,10 +67,7 @@ public class addMember {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group, true);
-      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-      g.addMember(subj);
-      return true;
+      return invoke(s, group, subjId, Group.getDefaultList());
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -88,7 +85,7 @@ public class addMember {
       GrouperShell.error(i, eSNU); 
     }
     return false;
-  } // public static boolean invoke(i, stack, group, subjId)
+  }
 
   /**
    * Add a member.
@@ -110,10 +107,7 @@ public class addMember {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group, true);
-      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-      g.addMember(subj, field);
-      return true;
+      return invoke(s, group, subjId, field);
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -134,8 +128,23 @@ public class addMember {
       GrouperShell.error(i, e);
     }
     return false;
-  } // public static boolean invoke(i, stack, group, subjId, field)
+  }
 
+  /**
+   * Add a member.
+   * <p/>
+   * @param   grouperSession
+   * @param   group       Add {@link Member} to {@link Group} with this name.
+   * @param   subjId      Add {@link Subject} with this <i>subject id</i> as a member.
+   * @param   field
+   * @return  True if succeeds.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String group, String subjId, Field field) {
+    Group           g     = GroupFinder.findByName(grouperSession, group, true);
+    Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
+    g.addMember(subj, field);
+    return true;
+  }
 
 } // public class addMember
 

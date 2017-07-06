@@ -57,9 +57,7 @@ public class delGroup {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      Group           g = GroupFinder.findByName(s, name, true);
-      g.delete();
-      return true;
+      return invoke(s, name);
     }
     catch (GroupDeleteException eGD)            {
       GrouperShell.error(i, eGD);
@@ -71,7 +69,20 @@ public class delGroup {
       GrouperShell.error(i, eIP);
     }
     return false;
-  } // public static boolean invoke(i, stack, name)
+  }
+  
+  /**
+   * Delete a  stem.
+   * <p/>
+   * @param   grouperSession
+   * @param   name  <i>name</i> of {@link Group} to delete.
+   * @return  True if {@link Group} deleted.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String name) {
+    Group           g = GroupFinder.findByName(grouperSession, name, true);
+    g.delete();
+    return true;
+  }
 
 } // public class delGroup
 

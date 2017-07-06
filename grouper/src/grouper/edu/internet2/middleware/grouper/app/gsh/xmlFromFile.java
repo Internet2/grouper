@@ -56,19 +56,30 @@ public class xmlFromFile {
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
-    //make sure right db
-    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
-      XmlImporter     importer  = new XmlImporter(s, new Properties());
-      importer.load( XmlReader.getDocumentFromFile(file) );
-      return true;
+      return invoke(s, file);
     }
     catch (GrouperException eG) {
       GrouperShell.error(i, eG);
     }
     return false;
-  } // public static boolean invoke(i, stack, file)
+  }
 
+  /**
+   * Import Groups Registry from XML file.
+   * <p/>
+   * @param   grouperSession
+   * @param   file        Import XML from this file.
+   * @return  True if successful.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String file) {
+
+    //make sure right db
+    GrouperUtil.promptUserAboutDbChanges("import data from xml file", true);
+    XmlImporter     importer  = new XmlImporter(grouperSession, new Properties());
+    importer.load( XmlReader.getDocumentFromFile(file) );
+    return true;
+  }
 } // public class xmlFromFile
 

@@ -61,20 +61,7 @@ public class setStemAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, name, true);
-      if      (attr.equals("description"))      {
-        ns.setDescription(val);
-        ns.store();
-        return true;
-      }
-      else if (attr.equals("displayExtension")) {
-        ns.setDisplayExtension(val);
-        ns.store();
-        return true;
-      }
-      else {
-        throw new GrouperShellException(GshErrorMessages.STEM_ATTR_INVALID + attr);
-      }
+      return invoke(s, name, attr, val);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -86,7 +73,32 @@ public class setStemAttr {
       GrouperShell.error(i, eNSNF);
     }
     return false;
-  } // public static boolean invoke(i, stack, name, attr, val)
+  }
 
+  /**
+   * Set {@link Stem} attribute value.
+   * <p/>
+   * @param   grouperSession
+   * @param   name  <i>name</i> of {@link Stem} to retrieve attribute on.
+   * @param   attr  Name of attribute to set.
+   * @param   val   New attribute value.
+   * @return  True if attribute set to new value.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String name, String attr, String val) {
+    Stem            ns  = StemFinder.findByName(grouperSession, name, true);
+    if (attr.equals("description"))      {
+      ns.setDescription(val);
+      ns.store();
+      return true;
+    }
+    else if (attr.equals("displayExtension")) {
+      ns.setDisplayExtension(val);
+      ns.store();
+      return true;
+    }
+    else {
+      throw new GrouperShellException(GshErrorMessages.STEM_ATTR_INVALID + attr);
+    }
+  }
 } // public class setStemAttr
 

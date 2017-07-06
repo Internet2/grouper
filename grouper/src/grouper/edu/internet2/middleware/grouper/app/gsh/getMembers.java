@@ -60,14 +60,25 @@ public class getMembers {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      Group           g = GroupFinder.findByName(s, group, true);
-      return g.getMembers();
+      return invoke(s, group);
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
     }
     return null;
-  } // public static Set invoke(i, stack, group)
+  }
+  
+  /**
+   * Get members of a group.
+   * <p/>
+   * @param   grouperSession
+   * @param   group       Get {@link Member}s of this {@link Group}.
+   * @return  {@link Set} of {@link Member}s.
+   */
+  public static Set invoke(GrouperSession grouperSession, String group) {
+    Group           g = GroupFinder.findByName(grouperSession, group, true);
+    return g.getMembers();
+  }
 
 } // public class getMembers
 

@@ -60,8 +60,7 @@ public class typeAddAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      GroupType       t = GroupTypeFinder.find(type, true);
-      return t.addAttribute(s, name);
+      return invoke(s, type, name);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -70,7 +69,21 @@ public class typeAddAttr {
       GrouperShell.error(i, eS);
     }
     throw new GrouperShellException(GshErrorMessages.TYPE_ADDATTR + type);
-  } // public static Field invoke(i, stack, type, name, read, write, req)
+  }
+  
+  /**
+   * Add an <code>Attribute</code> to a <code>GroupType</code>.
+   * <p/>
+   * @param   grouperSession
+   * @param   type        Add to this <code>GroupType</code>.
+   * @param   name        Name of <code>Attribute</code>.
+   * @return  <code>Field</code>
+   */
+  @SuppressWarnings("deprecation")
+  public static AttributeDefName invoke(GrouperSession grouperSession, String type, String name) {
+    GroupType       t = GroupTypeFinder.find(type, true);
+    return t.addAttribute(grouperSession, name);
+  }
 
 } // public class typeAddAttr
 

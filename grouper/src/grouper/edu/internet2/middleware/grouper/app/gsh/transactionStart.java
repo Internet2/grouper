@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
@@ -50,12 +51,23 @@ public class transactionStart {
       String grouperTransactionTypeString) 
     throws  GrouperShellException {
     GrouperShell.setOurCommand(interpreter, true);
+    return invoke(null, grouperTransactionTypeString);
+  }
+
+  /**
+   * Start a transaction
+   * <p/>
+   * @param   grouperSession
+   * @param grouperTransactionTypeString to use for starting transaction, must be a 
+   * GrouperTransactionType enum
+   * @return  instructions for use
+   */
+  public static String invoke(GrouperSession grouperSession, String grouperTransactionTypeString) {
     GrouperTransactionType grouperTransactionType = GrouperTransactionType
       .valueOfIgnoreCase(grouperTransactionTypeString);
     HibernateSession._internal_hibernateSession(grouperTransactionType);
-    interpreter.println("Started transaction index: " + (HibernateSession._internal_staticSessions().size()-1));
+    System.out.println("Started transaction index: " + (HibernateSession._internal_staticSessions().size()-1));
     return "";
   }
-
 }
 

@@ -56,19 +56,30 @@ public class xmlFromString {
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
-    //make sure right db
-    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
-      XmlImporter     importer  = new XmlImporter(s, new Properties());
-      importer.load( XmlReader.getDocumentFromString(xml) );
-      return true;
+      return invoke(s, xml);
     }
     catch (GrouperException eG) {
       GrouperShell.error(i, eG);
     }
     return false;
-  } // public static boolean invoke(i, stack, xml)
+  }
+  
+  /**
+   * Import Groups Registry from XML string.
+   * <p/>
+   * @param   grouperSession
+   * @param   xml         Import XML from this <tt>String</tt>.
+   * @return  True if successful.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String xml) {
+    //make sure right db
+    GrouperUtil.promptUserAboutDbChanges("import data from xml string", true);
+    XmlImporter     importer  = new XmlImporter(grouperSession, new Properties());
+    importer.load( XmlReader.getDocumentFromString(xml) );
+    return true;
+  }
 
 } // public class xmlFromString
 

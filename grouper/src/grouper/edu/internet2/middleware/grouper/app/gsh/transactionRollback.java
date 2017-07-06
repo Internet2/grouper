@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -56,20 +57,30 @@ public class transactionRollback {
       String grouperRollbackTypeString) 
     throws  GrouperShellException {
     GrouperShell.setOurCommand(interpreter, true);
+    return invoke(null, grouperRollbackTypeString);
+  }
+
+  /**
+   * Rollback a transaction
+   * <p/>
+   * @param  grouperSession
+   * @param grouperRollbackTypeString to use for starting transaction, must be a 
+   * GrouperCommitType enum
+   * @return  instructions for use
+   */
+  public static String invoke(GrouperSession grouperSession, String grouperRollbackTypeString) {
     GrouperRollbackType grouperRollbackType = GrouperRollbackType
       .valueOfIgnoreCase(grouperRollbackTypeString);
     HibernateSession hibernateSession = HibernateSession._internal_hibernateSession();
     if (hibernateSession == null) {
       String error = "Cant rollback a transaction since none in scope";
-      interpreter.println(error);
+      System.out.println(error);
       LOG.error(error);
       throw new GrouperShellException(error);
     }
     hibernateSession.rollback(grouperRollbackType);
-    interpreter.println("Rolled back transaction index: " + (HibernateSession._internal_staticSessions().size()-1));
+    System.out.println("Rolled back transaction index: " + (HibernateSession._internal_staticSessions().size()-1));
     return "";
-    
   }
-
 }
 

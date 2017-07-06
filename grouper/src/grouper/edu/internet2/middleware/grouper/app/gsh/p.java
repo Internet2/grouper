@@ -60,52 +60,68 @@ public class p {
     pp(i, obj);
   } // public static void invoke(i, stack, obj)
 
+  /**
+   * Pretty print results.
+   * <p/>
+   * @param   obj   Object to print.
+   */
+  public static void invoke(Object obj) {
+    StringBuilder builder = new StringBuilder();
+    pp(builder, obj);
+    System.out.print(builder.toString());
+  }
 
   // PROTECTED CLASS METHODS //
 
   // Pretty print results
-  // @since   0.0.1
   protected static void pp(Interpreter i, Object obj) {
+    StringBuilder builder = new StringBuilder();
+    pp(builder, obj);
+    i.print(builder.toString());
+  }
+  
+  // Pretty print results
+  protected static void pp(StringBuilder builder, Object obj) {
     //if ( (obj != null) && (GrouperShell.isOurCommand(i)) ) {
     if (obj != null) {
       if      (obj instanceof Boolean)          {
-        i.println(obj);
+        builder.append(obj + "\n");
       }
       else if (obj instanceof Field)            {
-        _pp(i, (Field) obj);
+        _pp(builder, (Field) obj);
       }
       else if (obj instanceof Group)            {
-        _pp(i, (Group) obj);
+        _pp(builder, (Group) obj);
       }
       else if (obj instanceof GroupType)        {
-        _pp(i, (GroupType) obj);
+        _pp(builder, (GroupType) obj);
       }
       else if (obj instanceof RegistrySubject) {
-        _pp(i, (RegistrySubject) obj);
+        _pp(builder, (RegistrySubject) obj);
       }
       else if (obj instanceof Integer)          {
-        i.println(obj);
+        builder.append(obj + "\n");
       }
       else if (obj instanceof Member)           {
-        _pp(i, (Member) obj);
+        _pp(builder, (Member) obj);
       }
       else if (obj instanceof Set)              {
-        _pp(i, (Set) obj); 
+        _pp(builder, (Set) obj); 
       }
       else if (obj instanceof Source)           {
-        _pp(i, (Source) obj);
+        _pp(builder, (Source) obj);
       }
       else if (obj instanceof Stem)             {
-        _pp(i, (Stem) obj); 
+        _pp(builder, (Stem) obj); 
       }
       else if (obj instanceof String)           {
-        i.println(obj);
+        builder.append(obj + "\n");
       }
       else if (obj instanceof Subject)          {
-        _pp(i, (Subject) obj);
+        _pp(builder, (Subject) obj);
       }
       else                                      {
-        _pp(i, obj);  // fall back to the default
+        _pp(builder, obj);  // fall back to the default
       }
     }
   } // protected static void pp(i, obj)
@@ -115,7 +131,7 @@ public class p {
  
   // Handle {@link Field}s
   // @since   0.1.0
-  private static void _pp(Interpreter i, Field f) {
+  private static void _pp(StringBuilder builder, Field f) {
     String type = f.getType().toString();  
     if      (f.getType().equals(FieldType.ACCESS))    {
       type = "access privilege";
@@ -126,96 +142,96 @@ public class p {
     else if (f.getType().equals(FieldType.NAMING))    {
       type = "naming privilege";
     }
-    i.println(type + ": " + GshUtil.q(f.getName()));
+    builder.append(type + ": " + GshUtil.q(f.getName()) + "\n");
   } // private static void _pp(i, f)
 
   // Handle {@link Group}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, Group g) {
-      i.println(
+  private static void _pp(StringBuilder builder, Group g) {
+    builder.append(
         "group: "
         + "name="        + GshUtil.q(g.getName()        ) 
         + "displayName=" + GshUtil.q(g.getDisplayName() )  
         + "uuid="        + GshUtil.q(g.getUuid()        )
-      );
+      + "\n");
   } // private static void _pp(i, g)
 
   // Handle {@link GroupType}s
   // @since   0.1.0
-  private static void _pp(Interpreter i, GroupType t) {
-      i.println("type: " + GshUtil.q(t.getName()));
+  private static void _pp(StringBuilder builder, GroupType t) {
+    builder.append("type: " + GshUtil.q(t.getName()) + "\n");
   } // private static void _pp(i, t)
 
   // Handle {@link RegistrySubject}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, RegistrySubject subj) {
-      i.println(
+  private static void _pp(StringBuilder builder, RegistrySubject subj) {
+    builder.append(
         "hibernatesubject: " 
         + "id="   + GshUtil.q(  subj.getId()             )
         + "type=" + GshUtil.q(  subj.getType().getName() )
         + "name=" + GshUtil.q(  subj.getName()           )
-      );
+      + "\n");
   } // private static void _pp(i, subj)
 
   // Handle {@link Member}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, Member m) {
-      i.println(
+  private static void _pp(StringBuilder builder, Member m) {
+    builder.append(
         "member: " 
         + "id="     + GshUtil.q(  m.getSubjectId()       )
         + "type="   + GshUtil.q(  m.getSubjectTypeId()   )
         + "source=" + GshUtil.q(  m.getSubjectSourceId() )
         + "uuid="   + GshUtil.q(  m.getUuid()            )
-      );
+      + "\n");
   } // private static void _pp(i, m)
 
   // Default pretty printer
   // @since   0.0.1
-  private static void _pp(Interpreter i, Object obj) {
-    i.println(obj.getClass().getName() + ": " + obj.toString());
+  private static void _pp(StringBuilder builder, Object obj) {
+    builder.append(obj.getClass().getName() + ": " + obj.toString() + "\n");
   } // private static void _pp(i, obj)
     
   // Handle {@link Set}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, Set obj) {
+  private static void _pp(StringBuilder builder, Set obj) {
     Iterator iter = obj.iterator();
     while (iter.hasNext()) {
-      pp(i, iter.next());
+      pp(builder, iter.next());
     }
   } // private static void _pp(i, obj)
 
   // Handle {@link Source}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, Source src) {
-      i.println(
+  private static void _pp(StringBuilder builder, Source src) {
+    builder.append(
         "source: "
         + "id="     + GshUtil.q(  src.getId()               )
         + "name="   + GshUtil.q(  src.getName()             )
         + "class="  + GshUtil.q(  src.getClass().getName()  )
-      );
+      + "\n");
   } // private static void _pp(i, src)
 
   // Handle {@link Stem}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, Stem ns) {
-      i.println(
+  private static void _pp(StringBuilder builder, Stem ns) {
+    builder.append(
         "stem: " 
         + "name="         + GshUtil.q(ns.getName()        ) 
         + "displayName="  + GshUtil.q(ns.getDisplayName() )  
         + "uuid="         + GshUtil.q(ns.getUuid()        )
-      );
+      + "\n");
   } // private static void _pp(i, ns)
 
   // Handle {@link Subject}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, Subject subj) {
-      i.println(
+  private static void _pp(StringBuilder builder, Subject subj) {
+    builder.append(
         "subject: " 
         + "id="     + GshUtil.q(  subj.getId()              )
         + "type="   + GshUtil.q(  subj.getType().getName()  )
         + "source=" + GshUtil.q(  subj.getSource().getId()  )
         + "name="   + GshUtil.q(  subj.getName()            )
-      );
+      + "\n");
   } // private static void _pp(i, subj)
 
 } // public class p

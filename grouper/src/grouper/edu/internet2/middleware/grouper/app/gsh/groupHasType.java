@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 
@@ -59,9 +60,7 @@ public class groupHasType {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      Group     g = GroupFinder.findByName(GrouperShell.getSession(i), name, true);
-      GroupType t = GroupTypeFinder.find(type, true);
-      return g.hasType(t);         
+      return invoke(GrouperShell.getSession(i), name, type);
     }
     catch (GroupNotFoundException eGNF) {
       GrouperShell.error(i, eGNF);
@@ -70,7 +69,22 @@ public class groupHasType {
       GrouperShell.error(i, eS);
     }
     return false;
-  } // public static boolean invoke(i, stack, name, type)
+  }
+  
+  /**
+   * Verify whether a {@link Group} has a {@link GroupType}.
+   * <p/>
+   * @param grouperSession
+   * @param   name        Name of {@link Group}.
+   * @param   type        Name of {@link GroupType}.
+   * @return  True if {@link Group} has {@link GroupType}.
+   */
+  @SuppressWarnings("deprecation")
+  public static boolean invoke(GrouperSession grouperSession, String name, String type) {
+    Group     g = GroupFinder.findByName(grouperSession, name, true);
+    GroupType t = GroupTypeFinder.find(type, true);
+    return g.hasType(t); 
+  }
 
 } // public class groupHasType
 

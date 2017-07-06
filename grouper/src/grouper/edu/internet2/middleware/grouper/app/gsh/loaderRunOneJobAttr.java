@@ -54,7 +54,7 @@ public class loaderRunOneJobAttr {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    return GrouperLoader.runJobOnceForAttributeDef(grouperSession, attributeDef);
+    return invoke(grouperSession, attributeDef);
   }
 
   /**
@@ -76,7 +76,22 @@ public class loaderRunOneJobAttr {
       throw new RuntimeException(e);
     }
 
-    return GrouperLoader.runOnceByJobName(grouperSession, jobName);
+    return invoke(grouperSession, jobName);
+  }
+  
+  /**
+   * run one loader job
+   * <p/>
+   * @param grouperSession
+   * @param attributeDefOrJobName 
+   * @return  True if succeeds.
+   */
+  public static String invoke(GrouperSession grouperSession, Object attributeDefOrJobName) {
+    if (attributeDefOrJobName instanceof AttributeDef) {
+      return GrouperLoader.runJobOnceForAttributeDef(grouperSession, (AttributeDef)attributeDefOrJobName);
+    }
+    
+    return GrouperLoader.runOnceByJobName(grouperSession, (String)attributeDefOrJobName);
   }
 }
 

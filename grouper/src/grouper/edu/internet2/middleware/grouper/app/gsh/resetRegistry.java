@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 /**
@@ -46,9 +47,19 @@ public class resetRegistry {
    */
   public static String invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
+    return invoke(null);
+  }
+  
+  /**
+   * Reset Groups Registry to default state.
+   * <p/>
+   * @param   grouperSession
+   * @return  True if succeeds.
+   */
+  public static String invoke(GrouperSession grouperSession) {
     RegistryReset.reset();
     return "Registry reset: all data deleted, and default data inserted, e.g. root stem";    
-  } // public static boolean invoke(i, stack, name)
+  }
 
 } // public class resetRegistry
 

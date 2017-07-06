@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 
@@ -45,17 +46,26 @@ public class findBadMemberships {
    */
   public static String invoke(Interpreter interpreter, CallStack stack) {
     GrouperShell.setOurCommand(interpreter, true);
-    GrouperShell.getSession(interpreter);
+    GrouperSession s = GrouperShell.getSession(interpreter);
     try {
-      FindBadMemberships.clearResults();
-      FindBadMemberships.printErrorsToSTOUT(true);
-      FindBadMemberships.checkAll(System.out);
-      FindBadMemberships.writeGshScriptToFile();
-      return "findBadMemberships completed successfully";
+      return invoke(s);
     } catch (SessionException se) {
       throw new RuntimeException(se);
     }
   }
 
+  /**
+   * find bad memberships
+   * <p/>
+   * @param   grouperSession
+   * @return  True if succeeds.
+   */
+  public static String invoke(GrouperSession grouperSession) {
+    FindBadMemberships.clearResults();
+    FindBadMemberships.printErrorsToSTOUT(true);
+    FindBadMemberships.checkAll(System.out);
+    FindBadMemberships.writeGshScriptToFile();
+    return "findBadMemberships completed successfully";
+  }
 }
 

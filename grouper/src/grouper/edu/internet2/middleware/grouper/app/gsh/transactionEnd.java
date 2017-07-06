@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -52,11 +53,21 @@ public class transactionEnd {
   public static String invoke(Interpreter interpreter, CallStack stack) 
       throws  GrouperShellException {
     GrouperShell.setOurCommand(interpreter, true);
+    return invoke(null);
+  }
+
+  /**
+   * End a transaction
+   * <p/>
+   * @param   grouperSession
+   * @return  instructions for use
+   */
+  public static String invoke(GrouperSession grouperSession) {
     int txIndex = HibernateSession._internal_staticSessions().size()-1;
     HibernateSession hibernateSession = HibernateSession._internal_hibernateSession();
     if (hibernateSession == null) {
       String error = "Cant end a transaction since none in scope";
-      interpreter.println(error);
+      System.out.println(error);
       LOG.error(error);
       throw new GrouperShellException(error);
     }
@@ -67,10 +78,9 @@ public class transactionEnd {
     } finally {
       HibernateSession._internal_hibernateSessionFinally(hibernateSession);
     }
-    interpreter.println("Ended transaction index: " + txIndex + ", " 
+    System.out.println("Ended transaction index: " + txIndex + ", " 
         + HibernateSession._internal_staticSessions().size() + " remaining");
     return "";
   }
-
 }
 

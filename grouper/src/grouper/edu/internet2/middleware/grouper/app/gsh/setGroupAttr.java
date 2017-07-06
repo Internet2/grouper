@@ -62,9 +62,7 @@ public class setGroupAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      Group           g = GroupFinder.findByName(s, name, true);
-      g.setAttribute(attr, val);
-      return true;
+      return invoke(s, name, attr, val);
     }
     catch (AttributeNotFoundException eANF)     {
       GrouperShell.error(i, eANF);  
@@ -79,7 +77,22 @@ public class setGroupAttr {
       GrouperShell.error(i, eNSNF);
     }
     return false;
-  } // public static boolean invoke(i, stack, name, attr, val)
+  }
 
+  /**
+   * Set {@link Group} attribute value.
+   * <p/>
+   * @param   grouperSession
+   * @param   name  <i>name</i> of {@link Group} to retrieve attribute on.
+   * @param   attr  Name of attribute to set.
+   * @param   val   New attribute value.
+   * @return  True if attribute set to new value.
+   */
+  @SuppressWarnings("deprecation")
+  public static boolean invoke(GrouperSession grouperSession, String name, String attr, String val) {
+    Group           g = GroupFinder.findByName(grouperSession, name, true);
+    g.setAttribute(attr, val);
+    return true;
+  }
 } // public class setGroupAttr
 

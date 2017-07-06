@@ -21,6 +21,7 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
+import edu.internet2.middleware.grouper.GrouperSession;
 import bsh.CallStack;
 import bsh.Interpreter;
 
@@ -66,7 +67,23 @@ public class assertTrue {
         System.err.println("Error: " + error);
       }
     }
-  } // public static void invoke(i, stack, msg, cond)
-
+  }
+  
+  /**
+   * Assert truth of condition.
+   * <p/>
+   * @param   grouperSession
+   * @param   msg         Message text for assertion.
+   * @param   cond        Boolean conditional.
+   * @since   0.0.1
+   */
+  public static void invoke(GrouperSession grouperSession, String msg, boolean cond) {
+    if (cond) {
+      System.out.println("OK (" + msg + ")");
+    } else {
+      System.err.println("Error: FAIL (" + msg + ")");
+    }
+  }
+  
 } // public class assertTrue
 

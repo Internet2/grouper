@@ -49,14 +49,7 @@ class StemHelper {
   {
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            nsP = null;
-      if (parent == null) {
-        nsP = StemFinder.findRootStem(s);
-      }
-      else {
-        nsP = StemFinder.findByName(s, parent, true);
-      }
-      return nsP.addChildStem(extn, displayExtn);
+      return addStem(s, parent, extn, displayExtn);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -68,7 +61,19 @@ class StemHelper {
       GrouperShell.error(i, eNSNF);
     }
     return null;
-  } // protected static Stem addStem(i, parent, extn, displayExtn)
+  }
+  
+  // @return  Added {@link Stem}.
+  protected static Stem addStem(GrouperSession grouperSession, String parent, String extn, String displayExtn) {
+    Stem            nsP = null;
+    if (parent == null) {
+      nsP = StemFinder.findRootStem(grouperSession);
+    }
+    else {
+      nsP = StemFinder.findByName(grouperSession, parent, true);
+    }
+    return nsP.addChildStem(extn, displayExtn);
+  }
 
 } // class StemHelper
 

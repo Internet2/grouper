@@ -18,6 +18,7 @@ import java.util.Set;
 
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 /**
@@ -41,6 +42,16 @@ public class transactionStatus {
   public static int invoke(Interpreter interpreter, CallStack stack) 
     throws  GrouperShellException {
     GrouperShell.setOurCommand(interpreter, true);
+    return invoke(null);
+  }
+
+  /**
+   * Transaction status, return the number of open transactions
+   * <p/>
+   * @param   grouperSession
+   * @return  instructions for use
+   */
+  public static int invoke(GrouperSession grouperSession) {
     Set<HibernateSession> hibernateSessions = HibernateSession._internal_staticSessions();
     int i = 0;
     StringBuilder result = new StringBuilder();
@@ -58,7 +69,7 @@ public class transactionStatus {
     } else {
       result.append("No current trasactions in scope");
     }
-    interpreter.println(result.toString());
+    System.out.println(result.toString());
     return hibernateSessions.size();
   }
 

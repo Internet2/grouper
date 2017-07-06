@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -61,10 +62,7 @@ public class groupAddType {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      Group     g = GroupFinder.findByName(GrouperShell.getSession(i), name, true);
-      GroupType t = GroupTypeFinder.find(type, true);
-      g.addType(t);
-      return true;
+      return invoke(GrouperShell.getSession(i), name, type);
     }
     catch (GroupModifyException eGM)    {
       GrouperShell.error(i, eGM);
@@ -79,7 +77,23 @@ public class groupAddType {
       GrouperShell.error(i, eS);
     }
     return false;
-  } // public static boolean invoke(i, stack, name, type)
+  }
+  
+  /**
+   * Add a {@link GroupType} to a {@link Group}.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Name of {@link Group}.
+   * @param   type        Name of {@link GroupType}.
+   * @return  True if {@link GroupType} added to {@link Group}.
+   */
+  @SuppressWarnings("deprecation")
+  public static boolean invoke(GrouperSession grouperSession, String name, String type) {
+    Group     g = GroupFinder.findByName(grouperSession, name, true);
+    GroupType t = GroupTypeFinder.find(type, true);
+    g.addType(t);
+    return true;
+  }
 
 } // public class groupAddType
 

@@ -65,17 +65,35 @@ public class stemSave2 {
     GrouperShell.setOurCommand(interpreter, true);
     try {
       GrouperSession  grouperSession = GrouperShell.getSession(interpreter);
-      SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
-      
-      Stem.saveStem(grouperSession, stem.getName(), uuid, name, 
-          displayExtension, description, saveModeEnum, false);
-
+      return invoke(grouperSession, stem, uuid, name, displayExtension, description, saveMode);
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
+    }    
+  }
+
+  /**
+   * Save a stem
+   * <p/>
+   * @param grouperSession
+   * @param stem 
+   * @param uuid 
+   * @param name 
+   * @param displayExtension 
+   * @param description 
+   * @param saveMode 
+   * @return  a string
+   */
+  public static String invoke(GrouperSession grouperSession, Stem stem,
+      String uuid, String name, String displayExtension, String description, 
+      String saveMode) {
+
+    SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
+    
+    Stem.saveStem(grouperSession, stem.getName(), uuid, name, 
+        displayExtension, description, saveModeEnum, false);
     
     return "Stem saved";    
-  } // public static boolean invoke(i, stack, name)
-
+  }
+  
 } // public class resetRegistry
 
