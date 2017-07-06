@@ -64,14 +64,31 @@ public class usdu {
     GrouperShell.setOurCommand(interpreter, true);
     try {
       GrouperSession  s = GrouperShell.getSession(interpreter);
-      boolean delete = GrouperUtil.hasOption(options, DELETE);
-      USDU.resolveMembers(s, delete);
-      return "usdu completed successfully";
+      return invoke(s, options);
     } catch (Exception e) {
       GrouperShell.error(interpreter, e);
     }
     return "";    
   } // public static boolean invoke(i, stack, name)
 
+  /**
+   * @param grouperSession 
+   * @return true if succeeds
+   */
+  public static String invoke(GrouperSession grouperSession) {
+    return invoke(grouperSession, 0);
+  }
+  
+  /**
+   * @param grouperSession 
+   * @param options 
+   * @return true if succeeds
+   */
+  public static String invoke(GrouperSession grouperSession, int options) {
+    boolean delete = GrouperUtil.hasOption(options, DELETE);
+    USDU.resolveMembers(grouperSession, delete);
+    return "usdu completed successfully";   
+  }
+  
 } // public class resetRegistry
 

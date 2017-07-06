@@ -21,6 +21,7 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.misc.GrouperInfo;
 import bsh.CallStack;
 import bsh.Interpreter;
@@ -46,9 +47,18 @@ public class version {
    */
   public static String invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
+    return invoke(null);
+  }
+
+  /**
+   * Get version information.
+   * <p/>
+   * @param   grouperSession
+   * @return  {@link GrouperShell} version.
+   */
+  public static String invoke(GrouperSession grouperSession) {
     GrouperInfo.grouperInfo(System.out, true);
     return "";
-  } // public static String invoke(i, stack)
-
+  }
 } // public class version
 

@@ -65,9 +65,7 @@ public class hasMember {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group, true);
-      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-      return g.hasMember(subj);
+      return invoke(s, group, subjId, Group.getDefaultList());
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -101,9 +99,7 @@ public class hasMember {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group, true);
-      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-      return g.hasMember(subj, field);
+      return invoke(s, group, subjId, field);
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -118,7 +114,22 @@ public class hasMember {
       GrouperShell.error(i, e);
     }
     return false;
-  } // public static boolean invoke(i, stack, group, subjId, field)
+  }
+  
+  /**
+   * Is the subject a member of this group.
+   * <p/>
+   * @param   grouperSession
+   * @param   group       Check membership in this {@link Group}.
+   * @param   subjId      Check membership for this {@link Subject}.
+   * @param   field
+   * @return  True if a {@link Member}.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String group, String subjId, Field field) {
+    Group           g     = GroupFinder.findByName(grouperSession, group, true);
+    Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
+    return g.hasMember(subj, field);
+  }
 
 } // public class hasMember
 

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -234,8 +233,46 @@ private static boolean handleSpecialCase(String[] args) {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", true)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
-      String[] newArgs = ArrayUtils.add(args, 0, GrouperUtil.getGrouperHome() + File.separator + "conf" + File.separator + "groovysh.profile");
-      org.codehaus.groovy.tools.shell.Main.main(newArgs);
+      StringBuilder body = new StringBuilder();
+      body.append(":load " + GrouperUtil.getGrouperHome() + File.separator + "conf" + File.separator + "groovysh.profile");
+      
+      if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check")) {
+        
+        if (args[0].equals("-main")) {
+          if (args.length == 1) {
+            throw new RuntimeException("When passing -main, pass at least one more argument, the class to run");
+          }
+          
+          // ok running a main method and exiting          
+          body.append("\n" + args[1] + ".main(");
+          
+          for(int i = 2; i < args.length; i++) {
+            body.append("\"" + args[i] + "\"");
+            if ((i + 1) < args.length) {
+              body.append(", ");
+            }
+          }
+          
+          body.append(")");
+        } else if (args[0].equals("-runarg")) {
+          if (args.length == 1) {
+            throw new RuntimeException("When passing -runarg, pass one other argument, the gsh command to run");
+          }
+          
+          String commands = args[1];
+          //if \\n was in there, then make it a newline...
+          commands = commands.replace("\\n", "\n");
+          body.append("\n" + commands);
+        } else {
+          body.append("\n" + ":customLoad " + args[0]);
+        }
+        
+        body.append("\n:exit");
+      } else if (inputStreamParam != null) {
+        throw new RuntimeException("Unexpected (for now at least)");
+      }
+      
+      org.codehaus.groovy.tools.shell.Main.main(new String[] { "-e", body.toString() });
     }
   }
   

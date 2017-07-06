@@ -64,11 +64,7 @@ public class addComposite {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group, true);
-      Group           l     = GroupFinder.findByName(s, left, true);
-      Group           r     = GroupFinder.findByName(s, right, true);
-      g.addCompositeMember(type, l, r);
-      return true;
+      return invoke(s, group, type, left, right);
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
@@ -80,7 +76,25 @@ public class addComposite {
       GrouperShell.error(i, eMA);
     }
     return false;
-  } // public static boolean invoke(i, stack, group, type, left, right)
+  }
 
+  /**
+   * Add a composite member.
+   * <p/>
+   * @param   grouperSession
+   * @param   group       Add {@link Composite} to {@link Group} with this name.
+   * @param   type        {@link CompositeType}.
+   * @param   left        Left factor {@link Group}.
+   * @param   right       Right factor {@link Group}.
+   * @return  True if succeeds.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String group, CompositeType type, String left, String right) {
+    Group           g     = GroupFinder.findByName(grouperSession, group, true);
+    Group           l     = GroupFinder.findByName(grouperSession, left, true);
+    Group           r     = GroupFinder.findByName(grouperSession, right, true);
+    g.addCompositeMember(type, l, r);
+    return true;
+  }
+  
 } // public class addComposite
 

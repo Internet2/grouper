@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 
 /**
@@ -55,7 +56,20 @@ public class addStem {
   {
     GrouperShell.setOurCommand(i, true);
     return StemHelper.addStem(i, parent, extn, displayExtn);
-  } // public static Stem invoke(i, stack, parent, name)
+  }
 
+  /**
+   * Add a stem.
+   * <p/>
+   * @param   grouperSession
+   * @param   parent      <i>name</i> of parent {@link Stem}.
+   * @param   extn        <i>extension</i> of {@link Stem}.
+   * @param   displayExtn <i>displayExtension</i> of {@link Stem}.
+   * @return  Added {@link Stem}.
+   */
+  public static Stem invoke(GrouperSession grouperSession, String parent, String extn, String displayExtn) {
+    return StemHelper.addStem(grouperSession, parent, extn, displayExtn);
+  }
+  
 } // public class addStem
 

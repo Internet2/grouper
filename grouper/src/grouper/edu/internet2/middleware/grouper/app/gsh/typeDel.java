@@ -57,9 +57,7 @@ public class typeDel {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      GroupType       t = GroupTypeFinder.find(name, true);
-      t.delete(s);
-      return true;
+      return invoke(s, name);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -68,7 +66,22 @@ public class typeDel {
       GrouperShell.error(i, eS);
     }
     return false;
-  } // public static Field invoke(i, stack, name)
+  }
 
+  /**
+   * Delete a {@link Field} from a {@link GroupType}.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Delete this {@link GroupType}.
+   * @return  True if {@link GroupType} was deleted.
+   * @throws  GrouperShellException
+   * @since   0.1.0
+   */
+  @SuppressWarnings("deprecation")
+  public static boolean invoke(GrouperSession grouperSession, String name) {
+    GroupType       t = GroupTypeFinder.find(name, true);
+    t.delete(grouperSession);
+    return true;
+  }
 } // public class typeDel
 

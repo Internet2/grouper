@@ -24,6 +24,7 @@ package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 
@@ -53,9 +54,7 @@ public class typeAdd {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return GroupType.createType(
-        GrouperShell.getSession(i), name
-      );
+      return invoke(GrouperShell.getSession(i), name);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -64,7 +63,19 @@ public class typeAdd {
       GrouperShell.error(i, eS);
     }
     throw new GrouperShellException(GshErrorMessages.TYPE_ADD + name);
-  } // public static GroupType invoke(i, stack, name)
+  }
+  
+  /**
+   * Add a {@link GroupType}.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Name of {@link GroupType} to add.
+   * @return  {@link GroupType}
+   */
+  @SuppressWarnings("deprecation")
+  public static GroupType invoke(GrouperSession grouperSession, String name) {
+    return GroupType.createType(grouperSession, name);
+  }
 
 } // public class typeAdd
 

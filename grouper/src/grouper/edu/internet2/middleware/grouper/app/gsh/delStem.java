@@ -57,9 +57,7 @@ public class delStem {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, name, true);
-      ns.delete();
-      return true;
+      return invoke(s, name);
     }
     catch (InsufficientPrivilegeException eIP)  {
       GrouperShell.error(i, eIP);
@@ -71,7 +69,20 @@ public class delStem {
       GrouperShell.error(i, eNSNF);
     }
     return false;
-  } // public static boolean invoke(i, stack, name)
+  }
+  
+  /**
+   * Delete a stem.
+   * <p/>
+   * @param   grouperSession
+   * @param   name  <i>name</i> of {@link Stem} to delete.
+   * @return  True if {@link Stem} was deleted.
+   */
+  public static boolean invoke(GrouperSession grouperSession, String name) {
+    Stem            ns  = StemFinder.findByName(grouperSession, name, true);
+    ns.delete();
+    return true;
+  }
 
 } // public class delStem
 

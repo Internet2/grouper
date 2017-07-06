@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -139,5 +140,22 @@ public class findSubject {
     return null;
   } // public static Subject invoke(i, stack, parent, name, type, source)
 
+  /**
+   * Find a {@link Subject}.
+   * <p/>
+   * @param   grouperSession
+   * @param   id          Subject <i>id</i>.
+   * @param   source      Subject <i>source</i>.
+   * @return  subject
+   */
+  public static Subject invoke(GrouperSession grouperSession, String id, String source) {
+
+    if (source == null) {
+      return SubjectFinder.findByIdOrIdentifier(id, true);
+    }
+    
+    return SubjectFinder.findByIdOrIdentifierAndSource(id, source, true);
+  }
+  
 } // public class findSubject
 

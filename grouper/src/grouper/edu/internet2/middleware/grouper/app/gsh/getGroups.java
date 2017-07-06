@@ -60,18 +60,29 @@ public class getGroups {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Stem            root  = StemFinder.findRootStem(s);
-      GrouperQuery    gq    = GrouperQuery.createQuery(
-        s, 
-        new GroupNameFilter(name, root)
-      );
-      return gq.getGroups();
+      return invoke(s, name);
     }
     catch (QueryException eQ) {
       GrouperShell.error(i, eQ);
     }
     return null;
-  } // public static Set invoke(i, stack, name)
+  }
+  
+  /**
+   * Query for groups by name.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Find groups with <i>name</i> as part of their name.
+   * @return  {@link Set} of {@link Group}s.
+   */
+  public static Set invoke(GrouperSession grouperSession, String name) {
+    Stem            root  = StemFinder.findRootStem(grouperSession);
+    GrouperQuery    gq    = GrouperQuery.createQuery(
+      grouperSession, 
+      new GroupNameFilter(name, root)
+    );
+    return gq.getGroups();
+  }
 
 } // public class getGroups
 

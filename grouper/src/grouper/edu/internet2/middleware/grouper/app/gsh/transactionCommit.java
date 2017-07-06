@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -56,19 +57,30 @@ public class transactionCommit {
       String grouperCommitTypeString) 
     throws  GrouperShellException {
     GrouperShell.setOurCommand(interpreter, true);
+    return invoke(null, grouperCommitTypeString);
+  }
+  
+  /**
+   * Commit a transaction
+   * <p/>
+   * @param   grouperSession
+   * @param grouperCommitTypeString to use for starting transaction, must be a 
+   * GrouperCommitType enum
+   * @return  instructions for use
+   */
+  public static String invoke(GrouperSession grouperSession, String grouperCommitTypeString) {
     GrouperCommitType grouperCommitType = GrouperCommitType
       .valueOfIgnoreCase(grouperCommitTypeString);
     HibernateSession hibernateSession = HibernateSession._internal_hibernateSession();
     if (hibernateSession == null) {
       String error = "Cant commit a transaction since none in scope";
-      interpreter.println(error);
+      System.out.println(error);
       LOG.error(error);
       throw new GrouperShellException(error);
     }
     hibernateSession.commit(grouperCommitType);
-    interpreter.println("Committed transaction index: " + (HibernateSession._internal_staticSessions().size()-1));
+    System.out.println("Committed transaction index: " + (HibernateSession._internal_staticSessions().size()-1));
     return "";
-    
   }
 
 }

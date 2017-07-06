@@ -23,6 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 
 /**
@@ -46,9 +47,18 @@ public class registryInstall {
    */
   public static String invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
-    RegistryInstall.install();
-    return "Registry installed: default data inserted if it was not already there, e.g. root stem";    
-  } // public static boolean invoke(i, stack, name)
+    return invoke(null);
+  }
 
+  /**
+   * Install default data in the registry if it is not already there
+   * <p/>
+   * @param   grouperSession
+   * @return  True if succeeds.
+   */
+  public static String invoke(GrouperSession grouperSession) {
+    RegistryInstall.install();
+    return "Registry installed: default data inserted if it was not already there, e.g. root stem";  
+  }
 } // public class resetRegistry
 

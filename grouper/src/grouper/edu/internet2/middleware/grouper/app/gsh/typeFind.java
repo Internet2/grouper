@@ -25,6 +25,7 @@ import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
@@ -53,13 +54,24 @@ public class typeFind {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return GroupTypeFinder.find(name, true);
+      return invoke(null, name);
     }
     catch (SchemaException eS) {
       GrouperShell.error(i, eS);
     }
     throw new GrouperShellException(GshErrorMessages.TYPE_NOTFOUND + name);
-  } // public static GroupType invoke(i, stack, name)
+  }
 
+  /**
+   * Find a {@link GroupType}.
+   * <p/>
+   * @param   grouperSession
+   * @param   name        Name of {@link GroupType} to find.
+   * @return  {@link GroupType}
+   */
+  @SuppressWarnings("deprecation")
+  public static GroupType invoke(GrouperSession grouperSession, String name) {
+    return GroupTypeFinder.find(name, true);
+  }
 } // public class typeFind
 
