@@ -8,9 +8,9 @@ import edu.internet2.middleware.grouper.app.gsh.*
 import edu.internet2.middleware.grouper.privs.*
 import edu.internet2.middleware.grouper.misc.*
 
-class CustomLoad extends CommandSupport {
-  protected CustomLoad(final Groovysh shell) {
-    super(shell, ':customLoad', ':cl')
+class GSHFileLoad extends CommandSupport {
+  protected GSHFileLoad(final Groovysh shell) {
+    super(shell, ':gshFileLoad', ':gshfl')
   }
 
   @Override
@@ -18,7 +18,7 @@ class CustomLoad extends CommandSupport {
     assert args != null
 
     if (args.size() == 0) {
-      fail("Command 'customLoad' requires at least one argument")
+      fail("Command 'gshFileLoad' requires at least one argument")
     }
 
     for (source in args) {
@@ -63,7 +63,7 @@ class CustomLoad extends CommandSupport {
   }
 }
 
-:register CustomLoad
+:register GSHFileLoad
 
 GrouperSession.startRootSession()
 
