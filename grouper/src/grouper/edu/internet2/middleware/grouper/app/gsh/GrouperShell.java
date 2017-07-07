@@ -230,7 +230,7 @@ private static boolean handleSpecialCase(String[] args) {
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
       StringBuilder body = new StringBuilder();
@@ -264,7 +264,7 @@ private static boolean handleSpecialCase(String[] args) {
           commands = commands.replace("\\n", "\n");
           body.append("\n" + commands);
         } else {
-          body.append("\n" + ":customLoad " + args[0]);
+          body.append("\n" + ":gshFileLoad " + args[0]);
         }
         
         body.append("\n:exit");

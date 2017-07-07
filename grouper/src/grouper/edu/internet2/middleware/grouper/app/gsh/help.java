@@ -93,7 +93,7 @@ public class help {
       appendLine(builder, "* delMember(group, subject id)"                        );
       appendLine(builder, "* delMember(group, subject id, Field)"                 );
       appendLine(builder, "* delStem(name)"                                       );
-      appendLine(builder, "* exit"                                                );
+      appendLine(builder, "* :exit"                                                );
       appendLine(builder, "* findBadMemberships: type   help(\"findBadMemberships\")   for info on finding bad memberships");
       appendLine(builder, "* findSubject(id)"                                     );
       appendLine(builder, "* findSubject(id, type)"                               );
@@ -127,10 +127,6 @@ public class help {
       appendLine(builder, "* hasMember(group, subject id, Field)"                 );
       appendLine(builder, "* hasPriv(name, subject id, Privilege)"                );
       appendLine(builder, "* help()"                                              );
-      appendLine(builder, "* history()"                                           );
-      appendLine(builder, "* history(n)"                                          );
-      appendLine(builder, "* last()"                                              );
-      appendLine(builder, "* last(n)"                                             );
       appendLine(builder, "* loaderRunOneJob(loaderGroup);");
       appendLine(builder, "* loaderRunOneJob(\"MAINTENANCE_cleanLogs\");");
       appendLine(builder, "");
@@ -143,7 +139,7 @@ public class help {
       appendLine(builder, "* member.changeSubjectReport(newSubject, Member.DELETE_OLD_MEMBER);");
       appendLine(builder, "");
       appendLine(builder, "* p(command)"                                          );
-      appendLine(builder, "* quit"                                                );
+      appendLine(builder, "* :quit"                                                );
       appendLine(builder, "* resetRegistry()"                                     );
       appendLine(builder, "* registryInstall()     will insert default Grouper data if not there, e.g. root stem");
       appendLine(builder, "* registryInitializeSchema()     will generate schema DDL for the DB, and wont drop before creating, will not run script.  Note: gsh -registry is probably better");
