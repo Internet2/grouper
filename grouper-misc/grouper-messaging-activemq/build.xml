@@ -1,0 +1,107 @@
+
+<project name="grouper activemq messaging" default="build" basedir=".">
+  
+  <!-- declare the ant-contrib tasks -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/libAnt/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
+
+  <!-- copy build.properties if not there already -->
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.example.properties" tofile="build.properties" /></then>
+  </if> 
+
+  <!-- Grouper Global Build Properties -->
+  <property file="${basedir}/build.properties"/>
+
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
+  </target>
+
+  <target name="init">
+    <tstamp />
+
+    <property name="main.source" value="src/main/java" />
+
+    <property name="main.lib" value="lib" />
+
+    <property name="main.bin" value="dist2/bin" />
+    <property name="main.outputDir" value="dist2" />
+
+    <property name="main.appName" value="grouperActiveMQMessaging" />
+    <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+
+    <path id="main.classpath">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="libCompile">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${grouperClient.dir}">
+        <include name="**/*.jar" />
+      </fileset>
+
+    </path>
+
+  </target>
+
+  <target name="clean" depends="init">
+    <mkdir dir="${main.bin}" />
+    <delete dir="${main.bin}" />
+    <mkdir dir="${main.bin}" />
+
+  </target> 
+  
+  <target name="compile">
+    <mkdir dir="${main.outputDir}" />
+    <mkdir dir="${main.bin}" />
+
+    <javac  target="1.6"  source="1.6" 
+      srcdir="${main.source}" destdir="${main.bin}" debug="true" >
+      <classpath refid="main.classpath" />    
+    </javac>
+  
+  </target>
+
+  <target name="jarPrepare">
+    <mkdir dir="${main.bin}" />
+
+    <copy todir="${main.bin}">
+      <fileset dir="${main.source}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${main.bin}/${main.appName}" />
+    
+    <copy todir="${main.bin}/${main.appName}" file="build.xml" />
+    
+  </target>
+
+  <target name="jar">
+    <tstamp>
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+    </tstamp>
+    <jar jarfile="${main.jarFile}" duplicate="fail">
+      <fileset dir="${main.bin}" />
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="Penn"/>
+        <attribute name="Implementation-Title"    value="${main.appName}"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+      </manifest>
+     </jar>
+     <echo message="Output is: ${main.jarFile}" />
+  	
+  	<tar destfile="dist2/${main.appName}.tar.gz" compression="gzip">
+      <tarfileset dir="${main.bin}" >
+      </tarfileset>
+    </tar>          
+  	<echo message="Output is: dist/${main.jarFile}" />
+    <echo message="Output is: dist/${main.appName}.tar.gz" />     	
+   </target>
+  
+  
+</project>
