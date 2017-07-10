@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -366,13 +367,26 @@ public class UiV2Attestation {
 
       GuiScreenAction guiScreenActionError = null;
 
-      if (!error && !NumberUtils.isNumber(daysUntilRectify)) {
+      String daysUntilRectifyOrDefault = daysUntilRectify;
+
+      if (StringUtils.isBlank(daysUntilRectifyOrDefault)) {
+        daysUntilRectifyOrDefault = "" + GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify");
+      }
+      
+      if (!error && !NumberUtils.isNumber(daysUntilRectifyOrDefault)) {
         guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysUntilRecertify",
             TextContainer.retrieveFromRequest().getText().get("attestationDaysUntilRectifyValidationError"));
         error = true;
       }
-      if (!error && !NumberUtils.isNumber(daysBeforeReminder)) {
+      
+      String daysBeforeReminderOrDefault = daysBeforeReminder;
+
+      if (StringUtils.isBlank(daysBeforeReminderOrDefault)) {
+        daysBeforeReminderOrDefault = "0";
+      }
+      
+      if (!error && !NumberUtils.isNumber(daysBeforeReminderOrDefault)) {
         guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysBeforeToRemind",
             TextContainer.retrieveFromRequest().getText().get("attestationDaysBeforeReminderValidationError"));
@@ -380,7 +394,7 @@ public class UiV2Attestation {
       }
 
       AttributeDefName attributeDefName = null;
-      
+
       if (!error) {
         attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF, false);
         if (attributeDefName == null) {
@@ -776,23 +790,35 @@ public class UiV2Attestation {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
-      
       boolean sendEmail = GrouperUtil.booleanValue(request.getParameter("grouperAttestationSendEmail[]"), false);
       boolean updateLastCertifiedDate = GrouperUtil.booleanValue(request.getParameter("attestationUpdateLastCertified[]"), false);
       String emailAddresses = request.getParameter("grouperAttestationEmailAddresses");
       String daysUntilRectify = request.getParameter("grouperAttestationDaysUntilRecertify");
       String daysBeforeReminder = request.getParameter("grouperAttestationDaysBeforeToRemind");
       String stemScope = request.getParameter("levelsName");
-      
+
       GuiScreenAction guiScreenActionError = null;
+
+      String daysUntilRectifyOrDefault = daysUntilRectify;
       
-      if (!error && !NumberUtils.isNumber(daysUntilRectify)) {
+      if (StringUtils.isBlank(daysUntilRectifyOrDefault)) {
+        daysUntilRectifyOrDefault = "" + GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify");
+      }
+
+      if (!error && !NumberUtils.isNumber(daysUntilRectifyOrDefault)) {
         guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysUntilRecertify",
             TextContainer.retrieveFromRequest().getText().get("attestationDaysUntilRectifyValidationError"));
         error = true;
       }
-      if (!error && !NumberUtils.isNumber(daysBeforeReminder)) {
+
+      String daysBeforeReminderOrDefault = daysBeforeReminder;
+
+      if (StringUtils.isBlank(daysBeforeReminderOrDefault)) {
+        daysBeforeReminderOrDefault = "0";
+      }
+
+      if (!error && !NumberUtils.isNumber(daysBeforeReminderOrDefault)) {
         guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysBeforeToRemind",
             TextContainer.retrieveFromRequest().getText().get("attestationDaysBeforeReminderValidationError"));
@@ -827,11 +853,11 @@ public class UiV2Attestation {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + stem.getId() + "')"));
         auditEntry.saveOrUpdate(false);
       }
-      
+
       if (error) {
-        
+
         GuiAttestation guiAttestation = new GuiAttestation(stem, GuiAttestation.Type.DIRECT);
-        
+
         guiAttestation.setGrouperAttestationDaysBeforeToRemind(daysBeforeReminder);
         guiAttestation.setGrouperAttestationDaysUntilRecertify(daysUntilRectify);
         guiAttestation.setGrouperAttestationEmailAddresses(emailAddresses);
