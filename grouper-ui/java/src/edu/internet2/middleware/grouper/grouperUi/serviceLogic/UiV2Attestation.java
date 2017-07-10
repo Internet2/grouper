@@ -61,12 +61,7 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      // link for the group
-      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
-      groupContainer.getGuiGroup().setShowBreadcrumbLink(true);
-      groupContainer.getGuiGroup().setShowBreadcrumbLinkSeparator(false);
-      
+            
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       groupAttestationHelper(request, response, group);
@@ -217,11 +212,6 @@ public class UiV2Attestation {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
 
-      // link for the group
-      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
-      groupContainer.getGuiGroup().setShowBreadcrumbLink(true);
-      groupContainer.getGuiGroup().setShowBreadcrumbLinkSeparator(false);
-      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       
@@ -283,11 +273,6 @@ public class UiV2Attestation {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      // link for the group
-      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
-      groupContainer.getGuiGroup().setShowBreadcrumbLink(true);
-      groupContainer.getGuiGroup().setShowBreadcrumbLinkSeparator(false);
-      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       
@@ -328,11 +313,6 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      // link for the group
-      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
-      groupContainer.getGuiGroup().setShowBreadcrumbLink(true);
-      groupContainer.getGuiGroup().setShowBreadcrumbLinkSeparator(false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
@@ -378,11 +358,6 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      // link for the group
-      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
-      groupContainer.getGuiGroup().setShowBreadcrumbLink(true);
-      groupContainer.getGuiGroup().setShowBreadcrumbLinkSeparator(false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
@@ -525,11 +500,6 @@ public class UiV2Attestation {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      // link for the stem
-      StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
-      stemContainer.getGuiStem().setShowBreadcrumbLink(true);
-      stemContainer.getGuiStem().setShowBreadcrumbLinkSeparator(false);
-      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -633,11 +603,6 @@ public class UiV2Attestation {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      // link for the stem
-      StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
-      stemContainer.getGuiStem().setShowBreadcrumbLink(true);
-      stemContainer.getGuiStem().setShowBreadcrumbLinkSeparator(false);
-
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -688,11 +653,6 @@ public class UiV2Attestation {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
       
-      // link for the stem
-      StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
-      stemContainer.getGuiStem().setShowBreadcrumbLink(true);
-      stemContainer.getGuiStem().setShowBreadcrumbLinkSeparator(false);
-
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -732,11 +692,6 @@ public class UiV2Attestation {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
       
-      // link for the stem
-      StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
-      stemContainer.getGuiStem().setShowBreadcrumbLink(true);
-      stemContainer.getGuiStem().setShowBreadcrumbLinkSeparator(false);
-
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -793,11 +748,6 @@ public class UiV2Attestation {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      // link for the stem
-      StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
-      stemContainer.getGuiStem().setShowBreadcrumbLink(true);
-      stemContainer.getGuiStem().setShowBreadcrumbLinkSeparator(false);
-
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -845,11 +795,6 @@ public class UiV2Attestation {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      // link for the stem
-      StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
-      stemContainer.getGuiStem().setShowBreadcrumbLink(true);
-      stemContainer.getGuiStem().setShowBreadcrumbLinkSeparator(false);
-
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       

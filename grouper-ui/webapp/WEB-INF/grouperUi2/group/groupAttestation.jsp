@@ -4,6 +4,8 @@
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
             <div class="bread-header-container">
+              <c:set target="${grouperRequestContainer.groupContainer.guiGroup}" property="showBreadcrumbLink" value="true" />
+              <c:set target="${grouperRequestContainer.groupContainer.guiGroup}" property="showBreadcrumbLinkSeparator" value="false" />
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
                 <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
