@@ -1321,7 +1321,12 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getEnabled(), wsRestGetMembershipsRequest.getMembershipIds(),
             wsRestGetMembershipsRequest.getWsOwnerStemLookups(), 
             wsRestGetMembershipsRequest.getWsOwnerAttributeDefLookups(),
-            wsRestGetMembershipsRequest.getFieldType(), wsRestGetMembershipsRequest.getServiceRole(), wsRestGetMembershipsRequest.getServiceLookup());
+            wsRestGetMembershipsRequest.getFieldType(), wsRestGetMembershipsRequest.getServiceRole(), 
+            wsRestGetMembershipsRequest.getServiceLookup(), wsRestGetMembershipsRequest.getPageSize(),
+            wsRestGetMembershipsRequest.getPageNumber(), wsRestGetMembershipsRequest.getSortString(),
+            wsRestGetMembershipsRequest.getAscending(), wsRestGetMembershipsRequest.getPageNumberForMember(),
+            wsRestGetMembershipsRequest.getPageNumberForMember(), wsRestGetMembershipsRequest.getSortStringForMember(),
+            wsRestGetMembershipsRequest.getAscendingForMember());
   
     //return result
     return wsGetMembershipsResults;
@@ -1375,7 +1380,11 @@ public class GrouperServiceRest {
             wsRestGetMembershipsLiteRequest.getOwnerStemUuid(), wsRestGetMembershipsLiteRequest.getNameOfOwnerAttributeDef(), 
             wsRestGetMembershipsLiteRequest.getOwnerAttributeDefUuid(), wsRestGetMembershipsLiteRequest.getFieldType(), 
             wsRestGetMembershipsLiteRequest.getServiceRole(), wsRestGetMembershipsLiteRequest.getServiceId(), 
-            wsRestGetMembershipsLiteRequest.getServiceName());
+            wsRestGetMembershipsLiteRequest.getServiceName(), wsRestGetMembershipsLiteRequest.getPageSize(),
+            wsRestGetMembershipsLiteRequest.getPageNumber(), wsRestGetMembershipsLiteRequest.getSortString(),
+            wsRestGetMembershipsLiteRequest.getAscending(), wsRestGetMembershipsLiteRequest.getPageNumberForMember(),
+            wsRestGetMembershipsLiteRequest.getPageNumberForMember(), wsRestGetMembershipsLiteRequest.getSortStringForMember(),
+            wsRestGetMembershipsLiteRequest.getAscendingForMember());
   
     //return result
     return wsGetMembershipsResults;
