@@ -2394,6 +2394,16 @@ public class GrouperService {
    * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending T or null for ascending, F for descending.  
+   * @param pageSizeForMember page size if paging in the members part
+   * @param pageNumberForMember page number 1 indexed if paging in the members part
+   * @param sortStringForMember must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param ascendingForMember T or null for ascending, F for descending in the members part
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -2403,7 +2413,10 @@ public class GrouperService {
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds, 
-      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, String fieldType, String serviceRole, WsAttributeDefNameLookup serviceLookup) {  
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
+      String fieldType, String serviceRole, WsAttributeDefNameLookup serviceLookup, String pageSize, String pageNumber,
+      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember) {  
     
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -2432,11 +2445,24 @@ public class GrouperService {
       }
 
       ServiceRole serviceRoleEnum = ServiceRole.valueOfIgnoreCase(serviceRole, false);
+
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+
+      Integer pageSizeForMemberInteger = GrouperUtil.intObjectValue(pageSizeForMember, true);
+      Integer pageNumberForMemberInteger = GrouperUtil.intObjectValue(pageNumberForMember, true);
+      
+      Boolean ascendingForMemberBoolean = GrouperUtil.booleanObjectValue(ascendingForMember);
+
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
-          wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum, serviceRoleEnum, serviceLookup);
+          wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum, serviceRoleEnum, serviceLookup,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pageSizeForMemberInteger, pageNumberForMemberInteger, 
+          sortStringForMember, ascendingForMemberBoolean);
+
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
     }
@@ -2506,6 +2532,16 @@ public class GrouperService {
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
    * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending T or null for ascending, F for descending.  
+   * @param pageSizeForMember page size if paging in the members part
+   * @param pageNumberForMember page number 1 indexed if paging in the members part
+   * @param sortStringForMember must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param ascendingForMember T or null for ascending, F for descending in the members part
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -2517,7 +2553,9 @@ public class GrouperService {
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
       String stemUuid, String stemScope, String enabled, String membershipIds, String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
       String ownerAttributeDefUuid, String fieldType, String serviceRole, 
-      String serviceId, String serviceName) {
+      String serviceId, String serviceName, String pageSize, String pageNumber,
+      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember) {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
@@ -2539,12 +2577,25 @@ public class GrouperService {
 
       ServiceRole serviceRoleEnum = ServiceRole.valueOfIgnoreCase(serviceRole, false);
       
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+
+      Integer pageSizeForMemberInteger = GrouperUtil.intObjectValue(pageSizeForMember, true);
+      Integer pageNumberForMemberInteger = GrouperUtil.intObjectValue(pageNumberForMember, true);
+      
+      Boolean ascendingForMemberBoolean = GrouperUtil.booleanObjectValue(ascendingForMember);
+
       wsGetMembershipsResults = GrouperServiceLogic.getMembershipsLite(grouperWsVersion, groupName,
           groupUuid, subjectId, sourceId, subjectIdentifier, memberFilter,includeSubjectDetailBoolean, 
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, field, subjectAttributeNames, 
           includeGroupDetailBoolean, paramName0, paramValue1, paramName1, paramValue1, sourceIds, scope, 
           stemName, stemUuid, theStemScope, enabled, membershipIds, ownerStemName, ownerStemUuid, 
-          nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum, serviceRoleEnum, serviceId, serviceName);
+          nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum, serviceRoleEnum, serviceId, serviceName,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pageSizeForMemberInteger, pageNumberForMemberInteger, 
+          sortStringForMember, ascendingForMemberBoolean
+          );
 
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
