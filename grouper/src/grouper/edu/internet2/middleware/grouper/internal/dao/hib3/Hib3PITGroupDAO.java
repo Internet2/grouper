@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
@@ -43,6 +44,7 @@ import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -84,17 +86,51 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   public static void reset(HibernateSession hibernateSession) {
     hibernateSession.byHql().createQuery("delete from PITGroup where sourceId not in (select g.uuid from Group as g)").executeUpdate();
   }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITGroup findBySourceIdActive(String id, boolean exceptionIfNotFound) {
+    return findBySourceIdActive(id, false, exceptionIfNotFound);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceIdActive(java.lang.String, boolean, boolean)
+   */
+  public PITGroup findBySourceIdActive(String id, boolean createIfNotFound, boolean exceptionIfNotFound) {
     PITGroup pitGroup = HibernateSession
       .byHqlStatic()
       .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITGroup.class);
+
+    if (pitGroup == null && createIfNotFound) {
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, false);
+
+      if (group != null) {
+        String contextId = null;
+        if (!GrouperUtil.isEmpty(group.getContextId())) {
+          contextId = group.getContextId();
+        }
+        
+        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true, true);
+        
+        pitGroup = new PITGroup();
+        pitGroup.setId(GrouperUuid.getUuid());
+        pitGroup.setSourceId(id);
+        pitGroup.setNameDb(group.getName());  
+        pitGroup.setStemId(pitStem.getId());        
+        pitGroup.setContextId(contextId);
+        pitGroup.setActiveDb("T");
+        pitGroup.setStartTimeDb(System.currentTimeMillis() * 1000);
+        
+        pitGroup.saveOrUpdate();
+        
+        // Add PIT group sets
+        GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(id, pitGroup.getStartTimeDb(), contextId, false);
+      }
+    }
     
     if (pitGroup == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITGroup with sourceId=" + id + " not found");

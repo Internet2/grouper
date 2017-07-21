@@ -256,7 +256,7 @@ public class ChangeLogTempToEntity {
       return;
     }
 
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId), true);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId), true, true);
     
     PITGroup pitGroup = new PITGroup();
     pitGroup.setId(GrouperUuid.getUuid());
@@ -288,7 +288,10 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.name.name());
 
       PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), false);
+      if (pitGroup == null) {
+        return;
+      }
       pitGroup.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name));
       pitGroup.setContextId(contextId);
       pitGroup.saveOrUpdate();
@@ -296,9 +299,12 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.parentStemId.name());
 
-      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId), true);
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId), true, true);
       PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), false);
+      if (pitGroup == null) {
+        return;
+      }
       pitGroup.setStemId(pitParentStem.getId());
       pitGroup.setContextId(contextId);
       pitGroup.saveOrUpdate();
@@ -367,7 +373,7 @@ public class ChangeLogTempToEntity {
     }
     
     if (parentStemId != null) {
-      parentStemId = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(parentStemId, true).getId();
+      parentStemId = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(parentStemId, true, true).getId();
     }
     
     pitStem.setId(GrouperUuid.getUuid());
@@ -399,7 +405,10 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.name.name());
 
       PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), false);
+      if (pitStem == null) {
+        return;
+      }
       pitStem.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
       pitStem.setContextId(contextId);
       pitStem.saveOrUpdate();
@@ -407,9 +416,12 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.parentStemId.name());
       
-      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId), true);
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId), true, true);
       PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), false);
+      if (pitStem == null) {
+        return;
+      }
       pitStem.setParentStemId(pitParentStem.getId());
       pitStem.setContextId(contextId);
       pitStem.saveOrUpdate();
@@ -466,7 +478,7 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId), true);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId), true, true);
     PITAttributeDef pitAttributeDef = new PITAttributeDef();
     pitAttributeDef.setId(GrouperUuid.getUuid());
     pitAttributeDef.setSourceId(id);
@@ -506,7 +518,7 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name());
 
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId), true);
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId), true, true);
       PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), true);
       pitAttributeDef.setStemId(pitStem.getId());
@@ -764,7 +776,7 @@ public class ChangeLogTempToEntity {
             changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), false);
       } else {
         pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(
-            changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), true);
+            changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), false);
       }
 
       if (pitMember == null) {
@@ -831,9 +843,9 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true);
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true, true);
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
-    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, true);
     
     PITMembership pitMembership = new PITMembership();
     pitMembership.setId(GrouperUuid.getUuid());
@@ -923,7 +935,7 @@ public class ChangeLogTempToEntity {
     }
     
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
-    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, true);
     
     PITMembership pitMembership = new PITMembership();
     pitMembership.setId(GrouperUuid.getUuid());
@@ -934,10 +946,10 @@ public class ChangeLogTempToEntity {
     pitMembership.setStartTimeDb(time);
     
     if (ownerType.equals(Membership.OWNER_TYPE_GROUP)) {
-      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId, true);
+      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId, true, true);
       pitMembership.setOwnerGroupId(pitOwner.getId());
     } else if (ownerType.equals(Membership.OWNER_TYPE_STEM)) {
-      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId, true);
+      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId, true, true);
       pitMembership.setOwnerStemId(pitOwner.getId());
     } else if (ownerType.equals(Membership.OWNER_TYPE_ATTRIBUTE_DEF)) {
       PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId, true);
@@ -1041,20 +1053,20 @@ public class ChangeLogTempToEntity {
     pitAttributeAssign.setDisallowedDb(disallowedDb);
     
     if (AttributeAssignType.group.name().equals(assignType)) {
-      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true);
+      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true, true);
       pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
     } else if (AttributeAssignType.stem.name().equals(assignType)) {
-      PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId1, true);
+      PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId1, true, true);
       pitAttributeAssign.setOwnerStemId(pitOwner1.getId());
     } else if (AttributeAssignType.member.name().equals(assignType)) {
-      PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId1, true);
+      PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId1, true, true);
       pitAttributeAssign.setOwnerMemberId(pitOwner1.getId());
     } else if (AttributeAssignType.attr_def.name().equals(assignType)) {
       PITAttributeDef pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId1, true);
       pitAttributeAssign.setOwnerAttributeDefId(pitOwner1.getId());
     } else if (AttributeAssignType.any_mem.name().equals(assignType)) {
-      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true);
-      PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId2, true);
+      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true, true);
+      PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId2, true, true);
       pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
       pitAttributeAssign.setOwnerMemberId(pitOwner2.getId());
     } else if (AttributeAssignType.imm_mem.name().equals(assignType)) {
@@ -1217,7 +1229,7 @@ public class ChangeLogTempToEntity {
     }
     
     PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stemId, true);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stemId, true, true);
     
     PITAttributeDefName pitAttributeDefName = new PITAttributeDefName();
     pitAttributeDefName.setId(GrouperUuid.getUuid());
@@ -1548,8 +1560,8 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ifHas, true);
-    PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(thenHas, true);
+    PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ifHas, true, true);
+    PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(thenHas, true, true);
     PITRoleSet pitParent = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(parent, false);
 
     PITRoleSet pitRoleSet = new PITRoleSet();
