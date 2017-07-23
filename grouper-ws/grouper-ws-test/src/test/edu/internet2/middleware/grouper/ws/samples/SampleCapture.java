@@ -281,7 +281,7 @@ public class SampleCapture {
 //    captureAttributeDefSave();
 //    captureDeleteMember();
 //    captureExternalSubjectDelete();
-    captureExternalSubjectSave();
+//    captureExternalSubjectSave();
 //    captureFindAttributeAssignAction();
 //    captureFindAttributeDefNames();
 //    captureFindAttributeDefs();
@@ -293,7 +293,7 @@ public class SampleCapture {
 //    captureGetGrouperPrivileges();
 //    captureGetGroups();
 //    captureGetMembers();
-//    captureGetMemberships();
+    captureGetMemberships();
 //    captureGetPermissionAssignments();
 //    captureGetSubjects();
 //    captureGroupDelete();
