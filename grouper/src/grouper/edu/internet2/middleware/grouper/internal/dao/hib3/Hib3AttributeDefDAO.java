@@ -686,22 +686,31 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
   /**
    * if there are sort fields, go through them, and replace name with nameDb, etc,
-   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * extension for extensionDb
    * @param querySort
    */
-  private static void massageSortFields(QuerySort querySort) {
+  public static void massageSortFields(QuerySort querySort) {
+    massageSortFields(querySort, "theAttributeDef");
+  }
+
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb
+   * @param querySort
+   * @param alias
+   */
+  public static void massageSortFields(QuerySort querySort, String alias) {
     if (querySort == null) {
       return;
     }
     for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
       if (StringUtils.equals("extension", querySortField.getColumn())) {
-        querySortField.setColumn("theAttributeDef.extensionDb");
+        querySortField.setColumn(alias + ".extensionDb");
       }
       if (StringUtils.equals("name", querySortField.getColumn())) {
-        querySortField.setColumn("theAttributeDef.nameDb");
+        querySortField.setColumn(alias + ".nameDb");
       }
     }
-
   }
 
   /**
