@@ -464,6 +464,22 @@ public class GrouperRequestContainer {
   private RulesContainer rulesContainer;
   
   /**
+   * container for attestation screen
+   */
+  private AttestationContainer attestationContainer;
+  
+  /**
+   * lazy load the attestation container
+   * @return the attestation container
+   */
+  public AttestationContainer getAttestationContainer() {
+    if (this.attestationContainer == null) {
+      this.attestationContainer = new AttestationContainer();
+    }
+    return this.attestationContainer;
+  }
+  
+  /**
    * container for rules screens
    * @return container for rules screens
    */
