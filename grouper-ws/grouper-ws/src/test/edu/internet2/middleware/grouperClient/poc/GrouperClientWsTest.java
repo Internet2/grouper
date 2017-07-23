@@ -114,7 +114,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testExternalSubjectSave"));
+    TestRunner.run(new GrouperClientWsTest("testGetMemberships"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -7950,6 +7950,44 @@ public class GrouperClientWsTest extends GrouperTest {
       outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
+
+      // ######################################################
+      // Try paging
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --pageSize=1 --pageNumber=1 --sortString=displayName --ascending=true",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+
+      // ######################################################
+      // Try paging
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --pageSizeForMember=1 --pageNumberForMember=1 --sortStringForMember=name --ascendingForMember=true",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
 
       //##########################################################
       //Try a source id with no results

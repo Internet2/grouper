@@ -21,7 +21,10 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -65,17 +68,55 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
 
     hibernateSession.byHql().createQuery("delete from PITStem where sourceId not in (select s.uuid from Stem as s)").executeUpdate();
   }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITStem findBySourceIdActive(String id, boolean exceptionIfNotFound) {
+    return findBySourceIdActive(id, false, exceptionIfNotFound);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceIdActive(java.lang.String, boolean, boolean)
+   */
+  public PITStem findBySourceIdActive(String id, boolean createIfNotFound, boolean exceptionIfNotFound) {
     PITStem pitStem = HibernateSession
       .byHqlStatic()
       .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITStem.class);
+    
+    if (pitStem == null && createIfNotFound) {
+      Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(id, false);
+
+      if (stem != null) {
+        String contextId = null;
+        if (!GrouperUtil.isEmpty(stem.getContextId())) {
+          contextId = stem.getContextId();
+        }
+        
+        String parentStemId = null;
+        
+        if (stem.getParentUuid() != null) {
+          parentStemId = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getParentUuid(), true, true).getId();
+        }
+        
+        pitStem = new PITStem();
+        pitStem.setId(GrouperUuid.getUuid());
+        pitStem.setSourceId(id);
+        pitStem.setNameDb(stem.getName());
+        pitStem.setParentStemId(parentStemId);
+        pitStem.setContextId(contextId);
+        pitStem.setActiveDb("T");
+        pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
+        
+        pitStem.saveOrUpdate();
+        
+        // Add PIT group sets
+        GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(id, pitStem.getStartTimeDb(), contextId, false);
+      }
+    }
     
     if (pitStem == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITStem with sourceId=" + id + " not found");

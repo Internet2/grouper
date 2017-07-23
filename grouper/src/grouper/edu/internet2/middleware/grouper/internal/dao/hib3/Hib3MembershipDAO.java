@@ -990,6 +990,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   
             //if paging by members, get the members, then do the same query using those members...
             if (pageMembers) {
+
+              if (queryOptionsForMember != null && queryOptionsForMember.getQuerySort() != null) {
+                Hib3MemberDAO.massageMemberSortFields(queryOptionsForMember.getQuerySort());
+              }
               
               //sort by default search string if not specified
               if (queryOptionsForMember != null && queryOptionsForMember.getQuerySort() == null) {
@@ -1090,6 +1094,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
                     " and fieldMembership.memberUuid = :fieldMembershipMemberUuid2 and fieldMembership.enabledDb = 'T' ) ");
                 byHqlStatic.setString("fieldId2", Group.getDefaultList().getUuid());
                 byHqlStatic.setString("fieldMembershipMemberUuid2", memberHasMembershipForGroup.getUuid());
+              }
+              
+              if (queryOptionsForGroup.getQuerySort()!= null) {
+                Hib3GroupDAO.massageSortFields(queryOptionsForGroup.getQuerySort(), "g");
               }
               
               //sort by default search string if not specified
@@ -3931,6 +3939,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           //if paging by members, get the members, then do the same query using those members...
           if (pageMembers) {
             
+
+            if (queryOptionsForMember != null && queryOptionsForMember.getQuerySort() != null) {
+              Hib3MemberDAO.massageMemberSortFields(queryOptionsForMember.getQuerySort());
+            }
+
             //sort by default search string if not specified
             if (queryOptionsForMember.getQuerySort() == null) {
               queryOptionsForMember.sortAsc("m." + SortStringEnum.getDefaultSortString().getFieldName());
@@ -4016,6 +4029,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             //if paging by members, get the members, then do the same query using those members...
             if (pageStems) {
               
+              if (queryOptionsForStem.getQuerySort()!= null) {
+                Hib3StemDAO.massageSortFields(queryOptionsForStem.getQuerySort(), "s");
+              }
+
               //sort by default search string if not specified
               if (queryOptionsForStem.getQuerySort() == null) {
                 queryOptionsForStem.sortAsc("s.displayNameDb");
@@ -4412,6 +4429,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           //if paging by members, get the members, then do the same query using those members...
           if (pageMembers) {
             
+            if (queryOptionsForMember != null && queryOptionsForMember.getQuerySort() != null) {
+              Hib3MemberDAO.massageMemberSortFields(queryOptionsForMember.getQuerySort());
+            }
+            
             //sort by default search string if not specified
             if (queryOptionsForMember.getQuerySort() == null) {
               queryOptionsForMember.sortAsc("m." + SortStringEnum.getDefaultSortString().getFieldName());
@@ -4495,6 +4516,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             //if paging by attributeDefs, get the attributeDefs, then do the same query using those members...
             if (pageAttributeDefs) {
               
+              if (queryOptionsForAttributeDef.getQuerySort()!= null) {
+                Hib3AttributeDefDAO.massageSortFields(queryOptionsForAttributeDef.getQuerySort(), "a");
+              }
+
               //sort by default search string if not specified
               if (queryOptionsForAttributeDef.getQuerySort() == null) {
                 queryOptionsForAttributeDef.sortAsc("a.nameDb");

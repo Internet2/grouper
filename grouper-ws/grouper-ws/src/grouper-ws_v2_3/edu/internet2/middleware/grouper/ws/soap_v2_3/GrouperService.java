@@ -1549,6 +1549,16 @@ public class GrouperService {
    * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending T or null for ascending, F for descending.  
+   * @param pageSizeForMember page size if paging in the members part
+   * @param pageNumberForMember page number 1 indexed if paging in the members part
+   * @param sortStringForMember must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param ascendingForMember T or null for ascending, F for descending in the members part
    * @return the results
    */
   public WsGetMembershipsResults getMemberships(final String clientVersion,
@@ -1558,7 +1568,9 @@ public class GrouperService {
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds, 
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, String fieldType,
-      String serviceRole, WsAttributeDefNameLookup serviceLookup) {  
+      String serviceRole, WsAttributeDefNameLookup serviceLookup, String pageSize, String pageNumber,
+      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember) {  
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getMemberships",
@@ -1580,7 +1592,8 @@ public class GrouperService {
       membershipIds, 
       GrouperUtil.changeToVersion(wsOwnerStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(wsOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      fieldType, serviceRole, serviceLookup});
+      fieldType, serviceRole, serviceLookup,
+      pageSize, pageNumber, sortString, ascending, pageSizeForMember, pageNumberForMember, sortStringForMember, ascendingForMember});
 
     return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -1644,6 +1657,16 @@ public class GrouperService {
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
    * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending T or null for ascending, F for descending.  
+   * @param pageSizeForMember page size if paging in the members part
+   * @param pageNumberForMember page number 1 indexed if paging in the members part
+   * @param sortStringForMember must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param ascendingForMember T or null for ascending, F for descending in the members part
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -1656,7 +1679,9 @@ public class GrouperService {
       String stemUuid, String stemScope, String enabled, String membershipIds,
       String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
       String ownerAttributeDefUuid, String fieldType,
-      String serviceRole, String serviceId, String serviceName) {
+      String serviceRole, String serviceId, String serviceName, String pageSize, String pageNumber,
+      String sortString, String ascending, String pageSizeForMember, String pageNumberForMember,
+      String sortStringForMember, String ascendingForMember) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getMembershipsLite",
@@ -1670,7 +1695,8 @@ public class GrouperService {
       stemUuid, stemScope, enabled, membershipIds, 
       ownerStemName, 
       ownerStemUuid, nameOfOwnerAttributeDef, 
-      ownerAttributeDefUuid, fieldType, serviceRole, serviceId, serviceName});
+      ownerAttributeDefUuid, fieldType, serviceRole, serviceId, serviceName,
+      pageSize, pageNumber, sortString, ascending, pageSizeForMember, pageNumberForMember, sortStringForMember, ascendingForMember});
     
     return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }

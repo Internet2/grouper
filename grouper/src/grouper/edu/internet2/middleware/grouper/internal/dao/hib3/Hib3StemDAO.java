@@ -689,24 +689,34 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
    * @param querySort
    */
-  private static void massageSortFields(QuerySort querySort) {
+  public static void massageSortFields(QuerySort querySort) {
+    massageSortFields(querySort, "ns");
+  }
+
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   * @param alias is the hql alias
+   */
+  public static void massageSortFields(QuerySort querySort, String alias) {
     if (querySort == null) {
       return;
     }
     for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
       if (StringUtils.equals("extension", querySortField.getColumn())) {
-        querySortField.setColumn("ns.extensionDb");
+        querySortField.setColumn(alias + ".extensionDb");
       }
       if (StringUtils.equals("name", querySortField.getColumn())) {
-        querySortField.setColumn("ns.nameDb");
+        querySortField.setColumn(alias + ".nameDb");
       }
       if (StringUtils.equals("displayExtension", querySortField.getColumn())
           || StringUtils.equals("display_extension", querySortField.getColumn())) {
-        querySortField.setColumn("ns.displayExtensionDb");
+        querySortField.setColumn(alias + ".displayExtensionDb");
       }
       if (StringUtils.equals("displayName", querySortField.getColumn())
           || StringUtils.equals("display_name", querySortField.getColumn())) {
-        querySortField.setColumn("ns.displayNameDb");
+        querySortField.setColumn(alias + ".displayNameDb");
       }
     }
 

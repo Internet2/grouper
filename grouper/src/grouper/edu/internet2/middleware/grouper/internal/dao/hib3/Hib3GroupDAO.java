@@ -677,27 +677,36 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
    * @param querySort
    */
-  private static void massageSortFields(QuerySort querySort) {
+  public static void massageSortFields(QuerySort querySort) {
+    massageSortFields(querySort, "theGroup");
+  }
+
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   * @param alias is the hql query alias
+   */
+  public static void massageSortFields(QuerySort querySort, String alias) {
     if (querySort == null) {
       return;
     }
     for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
       if (StringUtils.equals("extension", querySortField.getColumn())) {
-        querySortField.setColumn("theGroup.extensionDb");
+        querySortField.setColumn(alias + ".extensionDb");
       }
       if (StringUtils.equals("name", querySortField.getColumn())) {
-        querySortField.setColumn("theGroup.nameDb");
+        querySortField.setColumn(alias + ".nameDb");
       }
       if (StringUtils.equals("displayExtension", querySortField.getColumn())
           || StringUtils.equals("display_extension", querySortField.getColumn())) {
-        querySortField.setColumn("theGroup.displayExtensionDb");
+        querySortField.setColumn(alias + ".displayExtensionDb");
       }
       if (StringUtils.equals("displayName", querySortField.getColumn())
           || StringUtils.equals("display_name", querySortField.getColumn())) {
-        querySortField.setColumn("theGroup.displayNameDb");
+        querySortField.setColumn(alias + ".displayNameDb");
       }
     }
-
   }
 
   /**

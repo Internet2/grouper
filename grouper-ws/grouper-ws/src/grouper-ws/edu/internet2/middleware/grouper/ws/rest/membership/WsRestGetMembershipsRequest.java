@@ -479,4 +479,178 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
     return GrouperRestHttpMethod.GET;
   }
 
+  /**
+   * page size if paging
+   */
+  private String pageSize;
+
+  /**
+   * page size if paging
+   * @return page size
+   */
+  public String getPageSize() {
+    return this.pageSize;
+  }
+
+  /**
+   * page size if paging
+   * @param pageSize1
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   */
+  private String pageNumber;
+  
+  /**
+   * page number 1 indexed if paging
+   * @return page number
+   */
+  public String getPageNumber() {
+    return this.pageNumber;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1
+   */
+  public void setPageNumber(String pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+  /**
+   * sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   */
+  private String sortString;
+
+  /**
+   * sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @return sort string
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+  /**
+   * sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param sortString1
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
+
+  /**
+   * ascending T or null for ascending, F for descending.  
+   */
+  private String ascending;
+
+  /**
+   * ascending T or null for ascending, F for descending.  
+   * @return ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+  /**
+   * ascending T or null for ascending, F for descending.  
+   * @param ascending1
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
+  /**
+   * page size if paging in the members part
+   */
+  private String pageSizeForMember;
+    
+  /**
+   * page size if paging in the members part
+   * @return page size for member
+   */
+  public String getPageSizeForMember() {
+    return this.pageSizeForMember;
+  }
+
+  /**
+   * page size if paging in the members part
+   * @param pageSizeForMember1
+   */
+  public void setPageSizeForMember(String pageSizeForMember1) {
+    this.pageSizeForMember = pageSizeForMember1;
+  }
+
+  /**
+   * page number 1 indexed if paging in the members part
+   */
+  private String pageNumberForMember;
+  
+  /**
+   * page number 1 indexed if paging in the members part
+   * @return page number for member
+   */
+  public String getPageNumberForMember() {
+    return this.pageNumberForMember;
+  }
+
+  /**
+   * page number 1 indexed if paging in the members part
+   * @param pageNumberForMember1
+   */
+  public void setPageNumberForMember(String pageNumberForMember1) {
+    this.pageNumberForMember = pageNumberForMember1;
+  }
+
+  /**
+   * must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   */
+  private String sortStringForMember;
+  
+  /**
+   * must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @return sort string for member
+   */
+  public String getSortStringForMember() {
+    return this.sortStringForMember;
+  }
+
+  /**
+   * 
+   * @param sortStringForMember1
+   */
+  public void setSortStringForMember(String sortStringForMember1) {
+    this.sortStringForMember = sortStringForMember1;
+  }
+
+  /**
+   * T or null for ascending, F for descending in the members part
+   */
+  private String ascendingForMember;
+
+  /**
+   * T or null for ascending, F for descending in the members part
+   * @return if ascending for member
+   */
+  public String getAscendingForMember() {
+    return this.ascendingForMember;
+  }
+
+  /**
+   * T or null for ascending, F for descending in the members part
+   * @param ascendingForMember1
+   */
+  public void setAscendingForMember(String ascendingForMember1) {
+    this.ascendingForMember = ascendingForMember1;
+  }
+
+  
+  
 }

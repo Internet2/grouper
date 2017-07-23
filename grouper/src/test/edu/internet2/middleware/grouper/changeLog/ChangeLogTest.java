@@ -96,7 +96,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testTypeUnassignmentAndTypeDeleteTogether"));
+    TestRunner.run(new ChangeLogTest("testStemsOutOfOrder"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -3470,7 +3470,159 @@ public class ChangeLogTest extends GrouperTest {
         changeLogEntry4.getContextId()));
     assertEquals("Context id's should match", changeLogEntry4.getContextId(), member.getContextId());
   }
+  
+  /**
+   * @throws Exception
+   */
+  public void testMembersOutOfOrder() throws Exception {
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+    ChangeLogTempToEntity.convertRecords();
 
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // add member
+    SessionHelper.getRootSession();
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+        return null;
+      }
+    });
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    group.addMember(member.getSubject());
+    group.grantPriv(member.getSubject(), AccessPrivilege.ADMIN);
+    
+    // mess the order up
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    changeLogEntry.setCreatedOnDb(changeLogEntry.getCreatedOnDb() + 10000000);
+    changeLogEntry.update();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+    
+    // check PIT table
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getContextId(), pitMember.getContextId());
+    assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    assertEquals("T", pitMember.getActiveDb());
+    assertTrue((pitMember.getStartTime().getTime() + 5000) > System.currentTimeMillis());
+    assertTrue(pitMember.getStartTime().getTime() < System.currentTimeMillis());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testStemsOutOfOrder() throws Exception {
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // add stem
+    Stem stem = edu.addChildStem("testStem", "testStem");    
+
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
+    
+    // mess the order up
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.STEM_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    changeLogEntry.setCreatedOnDb(changeLogEntry.getCreatedOnDb() + 10000000);
+    changeLogEntry.update();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+    
+    // check PIT table
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem.getUuid(), false);
+    assertNotNull(pitStem);
+    assertEquals(stem.getId(), pitStem.getSourceId());
+    assertEquals(stem.getName(), pitStem.getName());
+    assertEquals(stem.getContextId(), pitStem.getContextId());
+    assertEquals("T", pitStem.getActiveDb());
+    assertTrue((pitStem.getStartTime().getTime() + 5000) > System.currentTimeMillis());
+    assertTrue(pitStem.getStartTime().getTime() < System.currentTimeMillis());
+    
+    // child stems
+    Stem stem2 = edu.addChildStem("testStem2", "testStem2");    
+
+    List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp")
+      .list(ChangeLogEntry.class);
+    
+    for (ChangeLogEntry changeLogEntry2 : changeLogEntries) {
+      changeLogEntry2.setCreatedOnDb(changeLogEntry.getCreatedOnDb() + 10000000);
+      changeLogEntry2.update();
+    }
+    
+    stem2.addChildStem("testStem3", "testStem3");
+    
+    // should not fail
+    ChangeLogTempToEntity.convertRecords();
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testGroupsOutOfOrder() throws Exception {
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // add group
+    Group group = edu.addChildGroup("testGroup", "testGroup");    
+
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    // mess the order up
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    changeLogEntry.setCreatedOnDb(changeLogEntry.getCreatedOnDb() + 10000000);
+    changeLogEntry.update();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+    
+    // check PIT table
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group.getUuid(), false);
+    assertNotNull(pitGroup);
+    assertEquals(group.getId(), pitGroup.getSourceId());
+    assertEquals(group.getName(), pitGroup.getName());
+    assertEquals(group.getContextId(), pitGroup.getContextId());
+    assertEquals("T", pitGroup.getActiveDb());
+    assertTrue((pitGroup.getStartTime().getTime() + 5000) > System.currentTimeMillis());
+    assertTrue(pitGroup.getStartTime().getTime() < System.currentTimeMillis());
+  }
   
   /**
    * @throws Exception

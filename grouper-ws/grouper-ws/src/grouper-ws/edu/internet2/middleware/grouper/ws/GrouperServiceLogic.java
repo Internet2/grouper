@@ -1579,6 +1579,16 @@ public class GrouperServiceLogic {
    * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending T or null for ascending, F for descending.  
+   * @param pageSizeForMember page size if paging in the members part
+   * @param pageNumberForMember page number 1 indexed if paging in the members part
+   * @param sortStringForMember must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param ascendingForMember T or null for ascending, F for descending in the members part
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1589,7 +1599,9 @@ public class GrouperServiceLogic {
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds,
       WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, FieldType fieldType,
-      ServiceRole serviceRole, WsAttributeDefNameLookup serviceLookup
+      ServiceRole serviceRole, WsAttributeDefNameLookup serviceLookup, Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
+      String sortStringForMember, Boolean ascendingForMember
       ) {  
 
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
@@ -1612,7 +1624,9 @@ public class GrouperServiceLogic {
           + "\n, serviceRole: " + serviceRole + ", serviceLookup: " + serviceLookup
           + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200)
           + "\n, wsStemLookups: " + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200)
-          + "\n, wsAttributeDefLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200);
+          + "\n, wsAttributeDefLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200)
+          + "\n, pageSize: " + pageSize + ", pageNumber: " + pageNumber 
+          + ", sortString: " + sortString + ", ascending: " + ascending;
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1632,7 +1646,53 @@ public class GrouperServiceLogic {
         membershipType = wsMemberFilter.getMembershipType();
         membershipFinder.assignMembershipType(membershipType);
       }
-      
+
+      QueryOptions queryOptions = null;
+      if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+        queryOptions = new QueryOptions();
+        boolean hasPaging = false;
+        if (pageNumber != null || pageSize != null) {
+          //default page number to 1
+          if (pageNumber == null) {
+            pageNumber = 1;
+          }
+          queryOptions.paging(pageSize, pageNumber, false);
+          hasPaging = true;
+        }
+        if (!StringUtils.isBlank(sortString)) {
+          if (hasPaging || ascending != null) {
+            if (ascending == null || ascending) {
+              queryOptions.sortAsc(sortString);
+            } else {
+              queryOptions.sortDesc(sortString);
+            }
+          }
+        }
+      }
+
+      QueryOptions queryOptionsForMember = null;
+      if (pageSizeForMember != null || pageNumberForMember != null || !StringUtils.isBlank(sortStringForMember) || ascendingForMember != null) {
+        queryOptionsForMember = new QueryOptions();
+        boolean hasPagingForMember = false;
+        if (pageNumberForMember != null || pageSizeForMember != null) {
+          //default page number to 1
+          if (pageNumberForMember == null) {
+            pageNumberForMember = 1;
+          }
+          queryOptionsForMember.paging(pageSizeForMember, pageNumberForMember, false);
+          hasPagingForMember = true;
+        }
+        if (!StringUtils.isBlank(sortStringForMember)) {
+          if (hasPagingForMember || ascendingForMember != null) {
+            if (ascendingForMember == null || ascendingForMember) {
+              queryOptionsForMember.sortAsc(sortStringForMember);
+            } else {
+              queryOptionsForMember.sortDesc(sortStringForMember);
+            }
+          }
+        }
+      }
+
       //get all the groups
       //we could probably batch these to get better performance.  And we dont even have to lookup uuids
       boolean groupsOk = GrouperUtil.length(wsGroupLookups) == 0;
@@ -1788,6 +1848,13 @@ public class GrouperServiceLogic {
         
         membershipFinder.assignStemIds(stemIds);
         membershipFinder.assignAttributeDefIds(attributeDefIds);
+        
+        //not 100% sure which query options are being set, so assign to all?
+        membershipFinder.assignQueryOptionsForAttributeDef(queryOptions);
+        membershipFinder.assignQueryOptionsForGroup(queryOptions);
+        membershipFinder.assignQueryOptionsForMember(queryOptionsForMember);
+        membershipFinder.assignQueryOptionsForStem(queryOptions);
+
         Set<Object[]> membershipObjects = membershipFinder.findMembershipsMembers();
         
         
@@ -1873,6 +1940,16 @@ public class GrouperServiceLogic {
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
    * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending T or null for ascending, F for descending.  
+   * @param pageSizeForMember page size if paging in the members part
+   * @param pageNumberForMember page number 1 indexed if paging in the members part
+   * @param sortStringForMember must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param ascendingForMember T or null for ascending, F for descending in the members part
    * @return the memberships, or none if none found
    */
   public static WsGetMembershipsResults getMembershipsLite(final GrouperVersion clientVersion,
@@ -1884,7 +1961,9 @@ public class GrouperServiceLogic {
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
       String stemUuid, StemScope stemScope, String enabled, String membershipIds, String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, String ownerAttributeDefUuid, 
       FieldType fieldType, ServiceRole serviceRole,
-      String serviceId, String serviceName) {
+      String serviceId, String serviceName, Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
+      String sortStringForMember, Boolean ascendingForMember) {
   
     // setup the group lookup
     WsGroupLookup wsGroupLookup = null;
@@ -1934,7 +2013,9 @@ public class GrouperServiceLogic {
         wsGroupLookups, wsSubjectLookups, wsMemberFilter, actAsSubjectLookup, fieldName,
         includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
         params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray,
-        wsStemLookups, wsAttributeDefLookups, fieldType, serviceRole, serviceLookup);
+        wsStemLookups, wsAttributeDefLookups, fieldType, serviceRole, serviceLookup,
+        pageSize, pageNumber, sortString, ascending, pageSizeForMember, pageNumberForMember, 
+        sortStringForMember, ascendingForMember);
   
     return wsGetMembershipsResults;
   }
