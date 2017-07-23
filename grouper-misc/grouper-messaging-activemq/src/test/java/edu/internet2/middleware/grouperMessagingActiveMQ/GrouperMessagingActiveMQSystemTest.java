@@ -42,6 +42,7 @@ public class GrouperMessagingActiveMQSystemTest extends TestCase {
     queueParam.assignQueueOrTopicName(queueName);
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
+    sendParam.assignAutocreateObjects(true);
     
     sendParam.addMessageBody(testMessageBody);
          
@@ -52,6 +53,7 @@ public class GrouperMessagingActiveMQSystemTest extends TestCase {
     receiveParam.assignGrouperMessageQueueParam(queueParam);
     receiveParam.assignMaxMessagesToReceiveAtOnce(10);
     receiveParam.assignLongPollMillis(1000);
+    receiveParam.assignAutocreateObjects(true);
     
     Collection<GrouperMessage> grouperMessages = system.receive(receiveParam).getGrouperMessages();
     
