@@ -213,8 +213,8 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
       throw new IllegalArgumentException("messageSystemName is a required field.");
     }
     
-    if (systemParam.isAutocreateObjects()) {
-      LOG.warn("For ActiveMQ, setting autoCreateObjects to true does nothing. queues and topics are created anyway");
+    if (!systemParam.isAutocreateObjects()) {
+      throw new IllegalArgumentException("For ActiveMQ, autoCreateObjects has to be set to true.");
     }
     
   }
