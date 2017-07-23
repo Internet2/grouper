@@ -97,6 +97,130 @@ public class GcGetMemberships {
   
   /** group id indexes to query */
   private Set<Long> groupIdIndexes = new LinkedHashSet<Long>();
+
+  /**
+   * pageSize page size if paging
+   */
+  private Integer pageSize;
+  
+  /**
+   * pageSize page size if paging
+   * @param thePageSize
+   * @return this for chaining
+   */
+  public GcGetMemberships assignPageSize(Integer thePageSize) {
+    this.pageSize = thePageSize;
+    return this;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   */
+  private Integer pageNumber;
+
+  /**
+   * 
+   * @param thePageNumber
+   * @return this for chaining
+   */
+  public GcGetMemberships assignPageNumber(Integer thePageNumber) {
+    this.pageNumber = thePageNumber;
+    return this;
+  }
+  
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   */
+  private String sortString;
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param theSortString
+   * @return this for chaining
+   */
+  public GcGetMemberships assignSortString(String theSortString) {
+    this.sortString = theSortString;
+    return this;
+  }
+  
+  /**
+   * T or null for ascending, F for descending.  
+   */
+  private Boolean ascending;
+
+  /**
+   * T or null for ascending, F for descending.  
+   * @param theAscending
+   * @return this for chaining
+   */
+  public GcGetMemberships assignAscending(Boolean theAscending) {
+    this.ascending = theAscending;
+    return this;
+  }
+  
+  /**
+   * page size if paging in the members part
+   */
+  private Integer pageSizeForMember;
+  
+  /**
+   * page size if paging in the members part
+   * @param thePageSizeForMember
+   * @return this for chaining
+   */
+  public GcGetMemberships assignPageSizeForMember(Integer thePageSizeForMember) {
+    this.pageSizeForMember = thePageSizeForMember;
+    return this;
+  }
+  
+  /**
+   * page number 1 indexed if paging in the members part
+   */
+  private Integer pageNumberForMember;
+
+  /**
+   * page number 1 indexed if paging in the members part
+   * @param thePageNumberForMember
+   * @return this for chaining
+   */
+  public GcGetMemberships assignPageNumberForMember(Integer thePageNumberForMember) {
+    this.pageNumberForMember = thePageNumberForMember;
+    return this;
+  }
+  
+  /**
+   * must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   */
+  private String sortStringForMember;
+
+  /**
+   * must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * in the members part
+   * @param theSortStringForMember
+   * @return this for chaining
+   */
+  public GcGetMemberships assignSortStringForMember(String theSortStringForMember) {
+    this.sortStringForMember = theSortStringForMember;
+    return this;
+  }
+  
+  /**
+   * T or null for ascending, F for descending in the members part
+   */
+  private Boolean ascendingForMember;
+
+  /**
+   * T or null for ascending, F for descending in the members part
+   * @param theAscendingForMember
+   * @return this for chaining
+   */
+  public GcGetMemberships assignAscendingForMember(Boolean theAscendingForMember) {
+    this.ascendingForMember = theAscendingForMember;
+    return this;
+  }
   
   /**
    * set the group name
@@ -489,6 +613,34 @@ public class GcGetMemberships {
       
       getMemberships.setScope(this.scope);
       
+      if (this.pageSize != null) {
+        getMemberships.setPageSize(this.pageSize.toString());
+      }
+      
+      if (this.pageNumber != null) {
+        getMemberships.setPageNumber(this.pageNumber.toString());
+      }
+
+      getMemberships.setSortString(this.sortString);
+
+      if (this.ascending != null) {
+        getMemberships.setAscending(this.ascending ? "T" : "F");
+      }
+
+      if (this.pageSizeForMember != null) {
+        getMemberships.setPageSizeForMember(this.pageSizeForMember.toString());
+      }
+
+      if (this.pageNumberForMember != null) {
+        getMemberships.setPageNumberForMember(this.pageNumberForMember.toString());
+      }
+
+      getMemberships.setSortStringForMember(this.sortStringForMember);
+
+      if (this.ascendingForMember != null) {
+        getMemberships.setAscendingForMember(this.ascendingForMember ? "T" : "F");
+      }
+
       if (GrouperClientUtils.length(this.sourceIds) > 0) {
         getMemberships.setSourceIds(GrouperClientUtils.toArray(this.sourceIds, String.class));
       }

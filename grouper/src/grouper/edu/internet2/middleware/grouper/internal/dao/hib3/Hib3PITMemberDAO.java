@@ -21,7 +21,10 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -62,17 +65,49 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
   public static void reset(HibernateSession hibernateSession) {//and subjectSourceId != 'g:isa'
     hibernateSession.byHql().createQuery("delete from PITMember where sourceId not in (select m.uuid from Member as m) ").executeUpdate();
   }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITMember findBySourceIdActive(String id, boolean exceptionIfNotFound) {
+    return findBySourceIdActive(id, false, exceptionIfNotFound);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#findBySourceIdActive(java.lang.String, boolean, boolean)
+   */
+  public PITMember findBySourceIdActive(String id, boolean createIfNotFound, boolean exceptionIfNotFound) {
     PITMember pitMember = HibernateSession
       .byHqlStatic()
       .createQuery("select pitMember from PITMember as pitMember where pitMember.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITMember.class);
+    
+    if (pitMember == null && createIfNotFound) {
+      Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(id, false);
+      if (member != null) {
+        pitMember = new PITMember();
+        pitMember.setId(GrouperUuid.getUuid());
+        pitMember.setSourceId(id);
+        pitMember.setSubjectId(member.getSubjectId());
+        pitMember.setSubjectSourceId(member.getSubjectSourceId());
+        pitMember.setSubjectTypeId(member.getSubjectTypeId());
+        
+        if (!GrouperUtil.isEmpty(member.getSubjectIdentifier0())) {
+          pitMember.setSubjectIdentifier0(member.getSubjectIdentifier0());
+        }
+        
+        pitMember.setActiveDb("T");
+        pitMember.setStartTimeDb(System.currentTimeMillis() * 1000);
+        
+        if (!GrouperUtil.isEmpty(member.getContextId())) {
+          pitMember.setContextId(member.getContextId());
+        }
+        
+        pitMember.saveOrUpdate();
+      }
+    }
     
     if (pitMember == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITMember with sourceId=" + id + " not found");

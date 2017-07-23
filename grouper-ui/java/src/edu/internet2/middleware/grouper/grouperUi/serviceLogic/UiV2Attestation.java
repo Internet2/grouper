@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -24,8 +25,10 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAttestation;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -58,7 +61,7 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
+            
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       groupAttestationHelper(request, response, group);
@@ -208,6 +211,7 @@ public class UiV2Attestation {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       
@@ -256,9 +260,9 @@ public class UiV2Attestation {
     GrouperSession grouperSession = null;
   
     Group group = null;
-  
+
     try {
-  
+
       grouperSession = GrouperSession.start(loggedInSubject);
         
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
@@ -268,6 +272,7 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       
@@ -308,6 +313,7 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestation.jsp"));
       
@@ -335,7 +341,11 @@ public class UiV2Attestation {
     
     GrouperSession grouperSession = null;
   
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+
     Group group = null;
+    
+    boolean error = false;
   
     try {
   
@@ -358,41 +368,81 @@ public class UiV2Attestation {
       String emailAddresses = request.getParameter("grouperAttestationEmailAddresses");
       String daysUntilRectify = request.getParameter("grouperAttestationDaysUntilRecertify");
       String daysBeforeReminder = request.getParameter("grouperAttestationDaysBeforeToRemind");
+
+      GuiScreenAction guiScreenActionError = null;
+
+      String daysUntilRectifyOrDefault = daysUntilRectify;
+
+      if (StringUtils.isBlank(daysUntilRectifyOrDefault)) {
+        daysUntilRectifyOrDefault = "" + GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify");
+      }
       
-      if (!NumberUtils.isNumber(daysUntilRectify)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+      if (!error && !NumberUtils.isNumber(daysUntilRectifyOrDefault)) {
+        guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysUntilRecertify",
-            TextContainer.retrieveFromRequest().getText().get("attestationDaysUntilRectifyValidationError")));
-        return;
+            TextContainer.retrieveFromRequest().getText().get("attestationDaysUntilRectifyValidationError"));
+        error = true;
       }
-      if (!NumberUtils.isNumber(daysBeforeReminder)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+      
+      String daysBeforeReminderOrDefault = daysBeforeReminder;
+
+      if (StringUtils.isBlank(daysBeforeReminderOrDefault)) {
+        daysBeforeReminderOrDefault = "0";
+      }
+      
+      if (!error && !NumberUtils.isNumber(daysBeforeReminderOrDefault)) {
+        guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysBeforeToRemind",
-            TextContainer.retrieveFromRequest().getText().get("attestationDaysBeforeReminderValidationError")));
-        return;
+            TextContainer.retrieveFromRequest().getText().get("attestationDaysBeforeReminderValidationError"));
+        error = true;
+      }
+
+      AttributeDefName attributeDefName = null;
+
+      if (!error) {
+        attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF, false);
+        if (attributeDefName == null) {
+          guiScreenActionError = GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("attestationAttributeNotFoundError"));
+          error = true;
+        }
+      }
+
+      if (!error) {
+        AuditEntry auditEntry = null;
+        if (!group.getAttributeDelegate().hasAttributeByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF)) {
+          group.getAttributeDelegate().assignAttribute(attributeDefName); // we are adding attribute here
+          auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD_ATTESTATION, "groupId", group.getId(), "displayName", group.getDisplayName());
+          auditEntry.setDescription("Add group attestation: "+group.getDisplayName());
+        } else {
+          auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE_ATTESTATION, "groupId", group.getId(), "displayName", group.getDisplayName());
+          auditEntry.setDescription("Update group attestation: "+group.getDisplayName());
+        }
+        updateGroupAttestationAttributes(group, attributeDefName, directAssignment, sendEmail, emailAddresses, daysUntilRectify, daysBeforeReminder, updateLastCertifiedDate);
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.groupAttestation&groupId=" + group.getId() + "')"));
+        //groupAttestationHelper(request, response, group);
+        
+        auditEntry.saveOrUpdate(false);
       }
       
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF, false);
-      if (attributeDefName == null) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("attestationAttributeNotFoundError")));
-        return;
+      if (error) {
+        
+        GuiAttestation guiAttestation = new GuiAttestation(group, GuiAttestation.Type.DIRECT);
+        
+        guiAttestation.setGrouperAttestationDaysBeforeToRemind(daysBeforeReminder);
+        guiAttestation.setGrouperAttestationDaysUntilRecertify(daysUntilRectify);
+        guiAttestation.setGrouperAttestationEmailAddresses(emailAddresses);
+        guiAttestation.setGrouperAttestationSendEmail(sendEmail);
+        
+        grouperRequestContainer.getGroupContainer().setGuiAttestation(guiAttestation);
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupAttestation",
+            "/WEB-INF/grouperUi2/group/groupEditAttestation.jsp"));
+
+        if (guiScreenActionError != null) {
+          guiResponseJs.addAction(guiScreenActionError);
+        }
       }
-      
-      AuditEntry auditEntry = null;
-      if (!group.getAttributeDelegate().hasAttributeByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF)) {
-        group.getAttributeDelegate().assignAttribute(attributeDefName); // we are adding attribute here
-        auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD_ATTESTATION, "groupId", group.getId(), "displayName", group.getDisplayName());
-        auditEntry.setDescription("Add group attestation: "+group.getDisplayName());
-      } else {
-        auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE_ATTESTATION, "groupId", group.getId(), "displayName", group.getDisplayName());
-        auditEntry.setDescription("Update group attestation: "+group.getDisplayName());
-      }
-      updateGroupAttestationAttributes(group, attributeDefName, directAssignment, sendEmail, emailAddresses, daysUntilRectify, daysBeforeReminder, updateLastCertifiedDate);
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.groupAttestation&groupId=" + group.getId() + "')"));
-      //groupAttestationHelper(request, response, group);
-      
-      auditEntry.saveOrUpdate(false);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -552,6 +602,7 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -601,6 +652,7 @@ public class UiV2Attestation {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -639,6 +691,7 @@ public class UiV2Attestation {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -694,6 +747,7 @@ public class UiV2Attestation {
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
@@ -723,8 +777,12 @@ public class UiV2Attestation {
     
     GrouperSession grouperSession = null;
   
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
     Stem stem = null;
   
+    boolean error = false;
+    
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -740,48 +798,88 @@ public class UiV2Attestation {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemAttestation.jsp"));
       
-      
       boolean sendEmail = GrouperUtil.booleanValue(request.getParameter("grouperAttestationSendEmail[]"), false);
       boolean updateLastCertifiedDate = GrouperUtil.booleanValue(request.getParameter("attestationUpdateLastCertified[]"), false);
       String emailAddresses = request.getParameter("grouperAttestationEmailAddresses");
       String daysUntilRectify = request.getParameter("grouperAttestationDaysUntilRecertify");
       String daysBeforeReminder = request.getParameter("grouperAttestationDaysBeforeToRemind");
       String stemScope = request.getParameter("levelsName");
+
+      GuiScreenAction guiScreenActionError = null;
+
+      String daysUntilRectifyOrDefault = daysUntilRectify;
       
-      if (!NumberUtils.isNumber(daysUntilRectify)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+      if (StringUtils.isBlank(daysUntilRectifyOrDefault)) {
+        daysUntilRectifyOrDefault = "" + GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify");
+      }
+
+      if (!error && !NumberUtils.isNumber(daysUntilRectifyOrDefault)) {
+        guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysUntilRecertify",
-            TextContainer.retrieveFromRequest().getText().get("attestationDaysUntilRectifyValidationError")));
-        return;
+            TextContainer.retrieveFromRequest().getText().get("attestationDaysUntilRectifyValidationError"));
+        error = true;
       }
-      if (!NumberUtils.isNumber(daysBeforeReminder)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+
+      String daysBeforeReminderOrDefault = daysBeforeReminder;
+
+      if (StringUtils.isBlank(daysBeforeReminderOrDefault)) {
+        daysBeforeReminderOrDefault = "0";
+      }
+
+      if (!error && !NumberUtils.isNumber(daysBeforeReminderOrDefault)) {
+        guiScreenActionError = GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#grouperAttestationDaysBeforeToRemind",
-            TextContainer.retrieveFromRequest().getText().get("attestationDaysBeforeReminderValidationError")));
-        return;
+            TextContainer.retrieveFromRequest().getText().get("attestationDaysBeforeReminderValidationError"));
+        error = true;
       }
       
-      Scope scope = Scope.valueOfIgnoreCase(stemScope, false);
+      AttributeDefName attributeDefName = null;
+      Scope scope = null;
       
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF, false);
-      if (attributeDefName == null) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("attestationAttributeNotFoundError")));
-        return;
+      if (!error) {
+        scope = Scope.valueOfIgnoreCase(stemScope, false);
+        
+        attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF, false);
+        if (attributeDefName == null) {
+          guiScreenActionError = GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("attestationAttributeNotFoundError"));
+          error = true;
+        }
       }
       
-      AuditEntry auditEntry = null;
-      if (!stem.getAttributeDelegate().hasAttributeByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF)) {
-        stem.getAttributeDelegate().assignAttribute(attributeDefName); // we are adding attribute here
-        auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD_ATTESTATION, "stemId", stem.getId(), "displayName", stem.getDisplayName());
-        auditEntry.setDescription("Add stem attestation: "+stem.getDisplayName());
-      } else {
-        auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_UPDATE_ATTESTATION, "stemId", stem.getId(), "displayName", stem.getDisplayName());
-        auditEntry.setDescription("Update stem attestation: "+stem.getDisplayName());
+      if (!error) {
+        AuditEntry auditEntry = null;
+        if (!stem.getAttributeDelegate().hasAttributeByName(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF)) {
+          stem.getAttributeDelegate().assignAttribute(attributeDefName); // we are adding attribute here
+          auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD_ATTESTATION, "stemId", stem.getId(), "displayName", stem.getDisplayName());
+          auditEntry.setDescription("Add stem attestation: "+stem.getDisplayName());
+        } else {
+          auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_UPDATE_ATTESTATION, "stemId", stem.getId(), "displayName", stem.getDisplayName());
+          auditEntry.setDescription("Update stem attestation: "+stem.getDisplayName());
+        }
+        updateStemAttestationAttributes(stem, attributeDefName, sendEmail, emailAddresses, daysUntilRectify, daysBeforeReminder, updateLastCertifiedDate, scope);
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + stem.getId() + "')"));
+        auditEntry.saveOrUpdate(false);
       }
-      updateStemAttestationAttributes(stem, attributeDefName, sendEmail, emailAddresses, daysUntilRectify, daysBeforeReminder, updateLastCertifiedDate, scope);
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + stem.getId() + "')"));
-      auditEntry.saveOrUpdate(false);
+
+      if (error) {
+
+        GuiAttestation guiAttestation = new GuiAttestation(stem, GuiAttestation.Type.DIRECT);
+
+        guiAttestation.setGrouperAttestationDaysBeforeToRemind(daysBeforeReminder);
+        guiAttestation.setGrouperAttestationDaysUntilRecertify(daysUntilRectify);
+        guiAttestation.setGrouperAttestationEmailAddresses(emailAddresses);
+        guiAttestation.setGrouperAttestationSendEmail(sendEmail);
+        
+        grouperRequestContainer.getStemContainer().setGuiAttestation(guiAttestation);
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemAttestation",
+            "/WEB-INF/grouperUi2/stem/stemEditAttestation.jsp"));
+
+        if (guiScreenActionError != null) {
+          guiResponseJs.addAction(guiScreenActionError);
+        }
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

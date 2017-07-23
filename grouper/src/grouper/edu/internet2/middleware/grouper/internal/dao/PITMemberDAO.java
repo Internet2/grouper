@@ -57,6 +57,14 @@ public interface PITMemberDAO extends GrouperDAO {
   
   /**
    * @param id
+   * @param createIfNotFound
+   * @param exceptionIfNotFound 
+   * @return PITMember
+   */
+  public PITMember findBySourceIdActive(String id, boolean createIfNotFound, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
    * @param exceptionIfNotFound 
    * @return PITMember
    */

@@ -3009,6 +3009,60 @@ public class GrouperClient {
       }
     }
 
+    {
+      Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascending");
+      
+      String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+          "sortString", false);
+       
+      Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageNumber", false, null);
+       
+      Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageSize", false, null);
+  
+  
+      if (ascending != null) {
+        gcGetMemberships.assignAscending(ascending);
+      }
+      if (pageSize != null) {
+        gcGetMemberships.assignPageSize(pageSize);
+      }
+      if (pageNumber != null) {
+        gcGetMemberships.assignPageNumber(pageNumber);
+      }
+      if (sortString != null) {
+        gcGetMemberships.assignSortString(sortString);
+      }
+    }
+
+    {
+      Boolean ascendingForMember = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascendingForMember");
+      
+      String sortStringForMember = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+          "sortStringForMember", false);
+       
+      Integer pageNumberForMember = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageNumberForMember", false, null);
+       
+      Integer pageSizeForMember = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageSizeForMember", false, null);
+  
+  
+      if (ascendingForMember != null) {
+        gcGetMemberships.assignAscendingForMember(ascendingForMember);
+      }
+      if (pageSizeForMember != null) {
+        gcGetMemberships.assignPageSizeForMember(pageSizeForMember);
+      }
+      if (pageNumberForMember != null) {
+        gcGetMemberships.assignPageNumberForMember(pageNumberForMember);
+      }
+      if (sortStringForMember != null) {
+        gcGetMemberships.assignSortStringForMember(sortStringForMember);
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     

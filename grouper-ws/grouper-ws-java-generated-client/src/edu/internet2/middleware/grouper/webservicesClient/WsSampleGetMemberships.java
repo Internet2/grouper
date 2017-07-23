@@ -18,11 +18,15 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
@@ -35,6 +39,8 @@ import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsParam;
 import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubject;
 import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouperClient.GrouperClient;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  *
@@ -110,6 +116,19 @@ public class WsSampleGetMemberships implements WsSampleGenerated {
       
       getMemberships.setWsSubjectLookups(new WsSubjectLookup[]{null});
       getMemberships.setWsStemLookup(new WsStemLookup());
+      
+//      --pageSize=1 --pageNumber=1 --sortString=displayName --ascending=true",
+//      --pageSizeForMember=1 --pageNumberForMember=1 --sortStringForMember=name --ascendingForMember=true
+//      getMemberships.setPageSize("1");
+//      getMemberships.setPageNumber("1");
+//      getMemberships.setSortString("displayName");
+//      getMemberships.setAscending("true");
+
+//      getMemberships.setPageSizeForMember("1");
+//      getMemberships.setPageNumberForMember("1");
+//      getMemberships.setSortStringForMember("name");
+//      getMemberships.setAscendingForMember("true");
+      
       WsGetMembershipsResults wsGetMembershipsResults = stub.getMemberships(getMemberships)
           .get_return();
 
