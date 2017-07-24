@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
@@ -33,6 +35,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 
 
@@ -69,7 +72,7 @@ public class PspUtils {
    * 
    * Adapted from: polygenelubricants at StackOverflow
    * http://stackoverflow.com/questions/2895342/java-how-can-i-split-an-arraylist-in-multiple-small-arraylists
-   * @param list
+   * @param items
    * @param L
    * @return
    */
@@ -189,7 +192,87 @@ public class PspUtils {
     return result;
   }
 
+  // PIT Groups do not have any attributes
   public static Map<String, Object> getGroupAttributes(PITGroup pitGroup) {
     return Collections.EMPTY_MAP;
   }
+
+
+  /**
+   * This method returns the first RDN of an LDAP DN. If there weren't commas for other reasons, this
+   * would mean that it returns the part of the DN before the first comma. However, there can be commas
+   * for different reasons, so this is more complicated
+   *
+   * Here are some examples:
+   *   Easy:
+   *   cn=xyz,ou=department,dc=example,dc=edu would return cn=xyz
+   *   JEXL, no comma:
+   *   cn=${group.name},ou=department,dc=example,dc=edu would return cn=${group.name}
+   *
+   *   JEXL, commas in method parameter lists:
+   *   cn=${group.name.substring(1,3)},ou=department,dc=example,dc=edu would return cn=${group.name.substring(1,3)}
+   *
+   *   Nested JEXL:
+   *   cn=${Hash.md5(${group.name})},ou=department,dc=example,dc=edu would return cn=${Hash.md5(${group.name}}
+   *
+   *  There are other ways commas need to be ignored (escaped, etc):
+   *    cn=abc\,123,ou=department,dc=example,dc=edu would return cn=abc\,123
+   *
+   * @param dnAttributeValue
+   * @return
+   */
+  public static String getFirstRdnString(final String dnAttributeValue) {
+    // We are going to replace JEXL and comma-escaping strings with jibberish, equal-length strings
+    // until there aren't any more of them. Then, the first comma will actually be the separator
+    // between the first and second RDN components
+    //
+    // This approach was chosen because java doesn't have support for recursive regexes and this is
+    // simpler than a real parser
+
+    String s = dnAttributeValue;
+
+    // Removed some escaped patterns: \\ and \,
+    s = replaceMatchesWithUnderscores(s, Pattern.compile("\\\\"));
+    s = replaceMatchesWithUnderscores(s, Pattern.compile("\\,"));
+
+    // Match ${function()} but not nested ${function(${value})} (fwiw, the inner ${value} would be matched)
+    s = replaceMatchesWithUnderscores(s, Pattern.compile("\\$\\{[^{}]*\\}"));
+
+    int indexOfFirstComma = s.indexOf(',');
+    if ( indexOfFirstComma < 0 ) {
+      return dnAttributeValue;
+    }
+    else {
+      // This is why we've kept s to be the same length of dnAttributeValue:
+      //   we can use the index of the first comma in s to find the first DN-relevant comma in
+      //   the original dnAttributeValue
+      return dnAttributeValue.substring(0, indexOfFirstComma);
+    }
+  }
+
+  /**
+   * This is used by getFirstRdnString() in order to iteratively remove parts of a string
+   * that match a pattern. However, this method does not just delete the matched characters,
+   * it instead replaces them with an equal number of underscores, KEEPING THE INPUT AND
+   * RESULT STRINGS THE SAME LENGTH
+   *
+   * @param s
+   * @param jexlPattern
+   * @return
+   */
+  private static String replaceMatchesWithUnderscores(String s, Pattern jexlPattern) {
+    Matcher m = jexlPattern.matcher(s);
+    while (m.find()) {
+      String matched = m.group();
+
+      // Replace the occurrence with an equal-length string of underscores
+      String newString = s.replace(matched, StringUtils.repeat("_", matched.length()) );
+
+      s=newString;
+      m=jexlPattern.matcher(s);
+    }
+
+    return s;
+  }
+
 }

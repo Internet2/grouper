@@ -21,6 +21,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.RDN;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
@@ -63,7 +66,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
   final GrouperCache<Subject, LdapObject> userCache_subject2User;
 
-  private Set<String> existingOUs = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+  private Set<DN> existingOUs = new HashSet<DN>();
   protected LdapSystem ldapSystem;
   
   /**
@@ -191,7 +194,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   }
 
 
-  protected SearchFilter getUserLdapFilter(Subject subject) {
+  protected SearchFilter getUserLdapFilter(Subject subject) throws PspException  {
     String result = evaluateJexlExpression(config.getUserSearchFilter(), subject, null, null, null);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("User searching requires userSearchFilter to be configured correctly");
@@ -649,72 +652,118 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   }
 
 
-  public void ensureLdapOusExist(String dn, boolean wholeDnIsTheOu) throws PspException {
-    if ( existingOUs.contains(dn) )
-      return;
-    
-    List<LdapAttribute> dnParts = DnParser.convertDnToAttributes(dn);
-    
-    int start;
-    
-    // Start at 1 (skip rdn) if wholeDn is false
-    if (wholeDnIsTheOu)
-      start=0;
-    else
-      start=1;
+  /**
+   * Public way to create any missing OUs.
+   *
+   * @param dnString
+   * @param wholeDnIsTheOu false: The top of the DN is not an OU (eg, cn=group,ou=folder1,ou=folder2,dc=example).
+   *                       true: The top of the DN is an OU (eg, ou=folder1, ou=folder2, dc=example).
+   * @throws PspException
+   */
+  public void ensureLdapOusExist(String dnString, boolean wholeDnIsTheOu) throws PspException {
+    LOG.info("{}: Checking for (and creating) missing OUs in DN: {} (wholeDnIsOu={})",
+            new Object[]{getName(), dnString, wholeDnIsTheOu});
 
-    // When we're done, this will be the part of the DN that exists
-    int partThatExists=start;
-    
-    
-    while (partThatExists < dnParts.size()) {
-      String ou = DnParser.substring(dn, partThatExists);
-      
-      // If we know it exists (from previous searches), then break right out.
-      if ( existingOUs.contains(ou) )
-        break;
-      
-      LOG.debug("{}: Checking to see if ou exists: {}", getName(), ou);
-      try {
-        if ( getLdapSystem().performLdapRead(ou) == null ) 
-          partThatExists++;
-        else {
-          existingOUs.add(ou);
-          break;
-        }
+    DN startingDn;
+    try {
+      startingDn = new DN(dnString);
+
+      if ( wholeDnIsTheOu ) {
+        ensureLdapOusExist(startingDn);
+      } else {
+        ensureLdapOusExist(startingDn.getParent());
       }
-      catch (PspException e) {
-        LOG.error("{}: Unable to find existing OU ({})", new Object[]{getName(), ou, e});
-        throw new PspException("Unable to find existing OU nor create new one (%s)", e.getMessage());
-      }
+    } catch (LDAPException e) {
+      LOG.error("Problem parsing DN {}", dnString, e);
+      throw new PspException("Problem parsing DN: %s", dnString);
     }
 
-    // Work our way back from partThatExists to the 2nd part of the DN
-    for (int i=partThatExists-1; i>=start; i--) {
-      String ouDn = DnParser.substring(dn,  i);
-      LdapAttribute attribute = dnParts.get(i);
-      
-      LOG.info("{}: Creating OU: {}", getName(), ouDn);
-      
-      String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(), null, null, null, null, "dn", ouDn, "ou", attribute.getStringValue());
-      ldif = ldif.replaceAll("\\|\\|", "\n");
+  }
 
-      try {
-        Reader reader = new StringReader(ldif);
-        LdifReader ldifReader = new LdifReader(reader);
-        SearchResult ldifResult = ldifReader.read();
-        LdapEntry ldifEntry = ldifResult.getEntry();
-        
-        // Add the current attribute if it is something other than OU
-        if ( ! attribute.getName().equalsIgnoreCase("ou") )
-          ldifEntry.addAttribute(attribute);
-        
-        performLdapAdd(ldifEntry);
-        existingOUs.add(ldifEntry.getDn());
-      } catch ( IOException e ) {
-        LOG.error("Problem while processing ldif to create new OU: {}", ldif, e);
-        throw new PspException("LDIF problem creating OU: %s", e.getMessage());
+
+  /**
+   * Internal worker function called by ensureLdapOusExist(dnString, wholeDnIsTheOu).
+   *
+   * This function reads a dn and if it doesn't already exist, then it makes sure the
+   * parent dn exists (with a recursive call) and then creates an ou at the dn location
+   * by calling createOuInExistingLocation(dn).
+   *
+   * @param dn
+   * @throws PspException
+   */
+  protected void ensureLdapOusExist(DN dn) throws PspException {
+    if ( dn.isNullDN() ) {
+      throw new PspException("Never found an existing DN component when creating OUs");
+    }
+
+
+    if ( existingOUs.contains(dn) ) {
+      LOG.debug("{}: OU is known to exist: {}", getName(), dn.toMinimallyEncodedString());
+      return;
+    }
+
+    LOG.debug("{}: Checking to see if ou exists: {}", getName(), dn);
+    try {
+        if ( getLdapSystem().performLdapRead(dn) != null ) {
+          // OU already exists
+          existingOUs.add(dn);
+          return;
+        } else {
+          // OU doesn't already exist. Make sure parent exists and then create new OU
+          ensureLdapOusExist(dn.getParent());
+          createOuInExistingLocation(dn);
+          existingOUs.add(dn);
+        }
+    }
+    catch (PspException e) {
+        LOG.error("{}: Creating OU failed: {}", new Object[]{getName(), dn, e});
+        throw new PspException("Unable to find existing OU nor create new one (%s)", e.getMessage());
+    }
+  }
+
+
+  /**
+   * This function creates an OU with the provided DN with the OU-Creation ldif template.
+   *
+   * This function assumes that the parent DN of ouDn exists. In other words, this function
+   * will not try to create any parent OUs.
+   *
+   * @param ouDn
+   * @throws PspException
+   */
+  protected void createOuInExistingLocation(DN ouDn) throws PspException {
+    String ouDnString = ouDn.toMinimallyEncodedString();
+
+    LOG.info("{}: Creating OU: {}", getName(), ouDnString);
+
+    RDN topRDN = ouDn.getRDN();
+
+    // Get the attribute information recorded in the first RDN
+    LdapAttribute topRdnAttribute = new LdapAttribute(topRDN.getAttributeNames()[0]);
+    topRdnAttribute.addStringValue( topRDN.getAttributeValues());
+
+    String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(),
+            null, null,
+            null, null,
+            "dn", ouDn.toMinimallyEncodedString(),
+            "ou", topRdnAttribute.getStringValue());
+    ldif = ldif.replaceAll("\\|\\|", "\n");
+
+    try {
+      Reader reader = new StringReader(ldif);
+      LdifReader ldifReader = new LdifReader(reader);
+      SearchResult ldifResult = ldifReader.read();
+      LdapEntry ldifEntry = ldifResult.getEntry();
+
+      // Add the current attribute from the RDN if it was not already in the ldif template
+      if ( ldifEntry.getAttribute( topRdnAttribute.getName() ) == null ) {
+        ldifEntry.addAttribute(topRdnAttribute);
       }
+
+      performLdapAdd(ldifEntry);
+    } catch ( IOException e ) {
+      LOG.error("{}: Problem while processing ldif to create new OU: {}", new Object[] {getName(), ldif, e});
+      throw new PspException("LDIF problem creating OU: %s", e.getMessage());
     }
   }
 

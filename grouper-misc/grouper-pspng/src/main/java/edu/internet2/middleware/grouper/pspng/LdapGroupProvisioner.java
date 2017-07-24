@@ -39,13 +39,13 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * This class is the workhorse for provisioning LDAP groups from
- * grouper. 
- *  
+ * grouper.
+ *
  * @author bert
  *
  */
 public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerConfiguration> {
-  
+
   public LdapGroupProvisioner(String provisionerName, LdapGroupProvisionerConfiguration config) {
     super(provisionerName, config);
 
@@ -60,11 +60,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   @Override
   protected void addMembership(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
       Subject subject, LdapUser ldapUser) throws PspException {
-    
-    // TODO: Look in memory cache to see if change is necessary: 
+
+    // TODO: Look in memory cache to see if change is necessary:
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
-    
+
     if ( ldapUser == null ) {
       LOG.warn("{}: Skipping adding membership to group {} because ldap user does not exist: {}",
           new Object[]{getName(), grouperGroupInfo, subject});
@@ -73,8 +73,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     if ( ldapGroup == null ) {
       // Create the group if it hasn't been created yet. List the user so that creation can be combined
-      // with membership addition 
-      
+      // with membership addition
+
       // This will normally occur when the schema requires members and group-creation is delayed until
       // the this method is being called to add the first member
       ldapGroup = createGroup(grouperGroupInfo, Arrays.asList(subject));
@@ -88,24 +88,24 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
   }
 
-  
+
   protected void scheduleGroupModification(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup, AttributeModificationType modType, Collection<String> membershipValuesToChange) {
     uncacheGroup(grouperGroupInfo, ldapGroup);
-    
+
     String attributeName = config.getMemberAttributeName();
-    
+
     for ( String value : membershipValuesToChange )
       // ADD/REMOVE <value> to/from <attribute> of <group>
-      LOG.info("Will change LDAP: {} {} {} {} of {}", 
+      LOG.info("Will change LDAP: {} {} {} {} of {}",
           new Object[] {modType, value,
           modType == AttributeModificationType.ADD ? "to" : "from",
           attributeName, ldapGroup});
-    
+
     scheduleLdapModification(
         new ModifyRequest(
             ldapGroup.getLdapObject().getDn(),
             new AttributeModification(
-                modType, 
+                modType,
                 new LdapAttribute(attributeName, membershipValuesToChange.toArray(new String[0])))));
   }
 
@@ -113,28 +113,28 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   protected void deleteMembership(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup ,
       Subject subject, LdapUser ldapUser) throws PspException {
     if ( ldapGroup  == null ) {
-      LOG.warn("{}: Ignoring request to remove {} from a group that doesn't exist: {}", 
+      LOG.warn("{}: Ignoring request to remove {} from a group that doesn't exist: {}",
           new Object[]{getName(), subject.getId(), grouperGroupInfo});
       return;
     }
-    
+
     if ( ldapUser == null ) {
       LOG.warn("{}: Skipping removing membership from group {} because ldap user does not exist: {}",
           new Object[]{getName(), grouperGroupInfo, subject});
       return;
     }
 
-    // TODO: Look in memory cache to see if change is necessary: 
+    // TODO: Look in memory cache to see if change is necessary:
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
-    
+
     String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
-    
+
     if ( membershipAttributeValue != null ) {
       scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
     }
   }
-  
+
   /**
    * Get a string set that is case-insensitive or case-sensitive
    * depending on the provisioner's configuration.isMemberAttributeCaseSensitive
@@ -145,11 +145,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     else
       return new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
   }
-  
+
   /**
    * Get a string set that is case-insensitive or case-sensitive,
    * depending on the provisioner's configuration.isMemberAttributeCaseSensitive.
-   * 
+   *
    * The returned set will contain the values provided
    */
   protected Set<String> getStringSet(Collection<String> values ) {
@@ -157,13 +157,13 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     if ( values != null ) {
       result.addAll(values);
     }
-    
+
     return result;
   }
-  
+
   @Override
   protected void doFullSync(
-      GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup , 
+      GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup ,
       Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap,
       Set<LdapUser> correctTSUsers,
       JobStatistics stats) throws PspException {
@@ -172,7 +172,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     // If the group does not exist yet, then create it with all the correct members
     if ( ldapGroup  == null ) {
-      
+
       // If the schema requires member attribute, then don't do anything if there aren't any members
       if ( config.areEmptyGroupsSupported() ) {
         if ( correctSubjects.size() == 0 ) {
@@ -187,7 +187,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       cacheGroup(grouperGroupInfo, ldapGroup);
       return;
     }
-    
+
     // Delete an empty group if the schema requires a membership
     if ( !config.areEmptyGroupsSupported() && correctSubjects.size() == 0 ) {
       LOG.info("{}: Deleting empty group because schema requires its member attribute", getName());
@@ -197,9 +197,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> membershipValues = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
       stats.deleteCount.set(membershipValues.size());
     }
-    
+
     Set<String> correctMembershipValues = getStringSet();
-    
+
     for ( Subject correctSubject: correctSubjects ) {
       String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), correctSubject, tsUserMap.get(correctSubject), grouperGroupInfo, ldapGroup);
 
@@ -207,9 +207,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         correctMembershipValues.add(membershipAttributeValue);
       }
     }
-    
+
     Collection<String> currentMembershipValues = getStringSet(ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
-    
+
     // EXTRA = CURRENT - CORRECT
     {
       Collection<String> extraValues = getStringSet(currentMembershipValues);
@@ -222,7 +222,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       if ( extraValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, extraValues);
     }
-    
+
     // MISSING = CORRECT - CURRENT
     {
       Collection<String> missingValues = getStringSet(correctMembershipValues);
@@ -230,7 +230,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       stats.insertCount.set(missingValues.size());
 
-      LOG.info("{}: Group {} has {} missing values", 
+      LOG.info("{}: Group {} has {} missing values",
           new Object[]{getName(), grouperGroupInfo, missingValues.size()});
       if ( missingValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, missingValues);
@@ -242,26 +242,26 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 			Set<GrouperGroupInfo> groupsForThisProvisioner,
 			Map<GrouperGroupInfo, LdapGroup> ldapGroups,
             JobStatistics stats) throws PspException {
-    
+
     // Grab all the DNs that match the groupsForThisProvisioner
     Set<String> desiredGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    for ( LdapGroup ldapGroup  : ldapGroups.values() ) 
+    for ( LdapGroup ldapGroup  : ldapGroups.values() )
       desiredGroupDns.add( ldapGroup.getLdapObject().getDn());
-    
-    
+
+
     String filterString = config.getAllGroupSearchFilter();
     if ( StringUtils.isEmpty(filterString) ) {
       LOG.error("{}: Cannot cleanup extra groups without a configured all-group search filter", getName());
       return;
     }
-    
+
     String baseDn = config.getGroupSearchBaseDn();
-    
+
     if ( StringUtils.isEmpty(baseDn)) {
       LOG.error("{}: Cannot cleanup extra groups without a configured group-search base dn", getName());
       return;
     }
-      
+
     // Get all the LDAP Groups that match the filter
     List<LdapObject> searchResult
             = getLdapSystem().performLdapSearchRequest(new SearchRequest(baseDn, filterString,
@@ -295,15 +295,15 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       LOG.warn("Not Creating LDAP group because empty groups are not supported: {}", grouperGroup);
       return null;
     }
-    
+
     LOG.info("Creating LDAP group for GrouperGroup: {} ", grouperGroup);
     String ldif = config.getGroupCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression(ldif, null, null, grouperGroup, null);
-    
+
     // If initialMembers were specified, then add the ldif necessary to include them
     if ( initialMembers != null && initialMembers.size() > 0 ) {
-      
+
       // Find all the values for the membership attribute
       Collection<String> membershipValues = new HashSet<String>(initialMembers.size());
       for ( Subject subject : initialMembers ) {
@@ -315,7 +315,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
           }
         }
       }
-      
+
       StringBuilder ldifForMemberships = new StringBuilder();
       for ( String attributeValue : membershipValues ) {
         ldifForMemberships.append(String.format("%s: %s\n", config.getMemberAttributeName(), attributeValue));
@@ -323,9 +323,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       ldif = ldif.concat("\n");
       ldif = ldif.concat(ldifForMemberships.toString());
     }
-    
+
     Connection conn = getLdapSystem().getLdapConnection();
     try {
+      LOG.debug("{}: LDIF for new group (with partial DN): {}", getName(), ldif.replaceAll("\\n", "||"));
       Reader reader = new StringReader(ldif);
       LdifReader ldifReader = new LdifReader(reader);
       SearchResult ldifResult = ldifReader.read();
@@ -333,8 +334,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       // Update DN to be relative to groupCreationBaseDn
       String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getGroupCreationBaseDn());
       ldifEntry.setDn(actualDn);
-      
-      LOG.debug("Adding group: {}", ldifEntry);
+
+      LOG.debug("{}: Adding group: {}", getName(), ldifEntry);
       
       performLdapAdd(ldifEntry);
       
@@ -442,7 +443,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   }
 
 
-  private SearchFilter getGroupLdapFilter(GrouperGroupInfo grouperGroup) {
+  private SearchFilter getGroupLdapFilter(GrouperGroupInfo grouperGroup) throws PspException {
     String result = evaluateJexlExpression(config.getSingleGroupSearchFilter(), null, null, grouperGroup, null);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("Group searching requires singleGroupSearchFilter to be configured correctly");

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import com.unboundid.ldap.sdk.DN;
 import edu.internet2.middleware.morphString.Morph;
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.AddRequest;
@@ -181,7 +182,7 @@ public class LdapSystem {
 
     SearchRequest read = new SearchRequest("", "objectclass=*");
     read.setSearchScope(SearchScope.OBJECT);
-    
+
     // Turn on attribute-value paging if this is an active directory target
     if ( isActiveDirectory() )
       read.setSearchEntryHandlers(new RangeEntryHandler());
@@ -362,6 +363,9 @@ public class LdapSystem {
   
   }
 
+  protected LdapObject performLdapRead(DN dn, String... attributes) throws PspException {
+    return performLdapRead(dn.toMinimallyEncodedString(), attributes);
+  }
   
   
   protected LdapObject performLdapRead(String dn, String... attributes) throws PspException {
@@ -386,9 +390,13 @@ public class LdapSystem {
       
       LdapEntry result = searchResult.getEntry();
       
-      if ( result == null )
+      if ( result == null ) {
+        LOG.debug("{}: Object does not exist: {}", ldapSystemName, dn);
         return null;
-      return new LdapObject(result, attributes);
+      } else {
+        LOG.debug("{}: Object does exist: {}", ldapSystemName, dn);
+        return new LdapObject(result, attributes);
+      }
     }
     catch (LdapException e) {
       if ( e.getResultCode() == ResultCode.NO_SUCH_OBJECT ) {

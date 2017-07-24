@@ -21,8 +21,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.RDN;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
  *
  */
 public class PspJexlUtils extends GrouperUtilElSafe {
+  private static final Logger LOG = LoggerFactory.getLogger(LdapObject.class);
   
   /**
    * This is a null-safe and flexible method for seeing if an item is a member
@@ -73,22 +79,59 @@ public class PspJexlUtils extends GrouperUtilElSafe {
     
     List<String> namePieces=Arrays.asList(groupName.split(":"));
     Collections.reverse(namePieces);
-    
+
     /// Work through the pieces backwards. The first is rdn=X and the others are ou=X
     for (int i=0; i<namePieces.size(); i++) {
       if ( result.length() != 0 )
         result.append(',');
-      
+
+      RDN rdn;
       String piece = namePieces.get(i);
       if (i==0)
-        result.append(rdnAttributeName);
+        rdn = new RDN(rdnAttributeName, piece);
       else
-        result.append(ouAttributeName);
-      
-      result.append('=');
-      result.append(piece);
+        rdn = new RDN(ouAttributeName, piece);
+
+      result.append(rdn.toMinimallyEncodedString());
     }
     return result.toString();
   }
 
+  /**
+   * This takes a string of attribute=value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN: attribute=value
+   * @return
+   */
+  public static String escapeLdapRdn(String rdnString) throws PspException  {
+    String rdnAttribute = StringUtils.substringBefore(rdnString, "=");
+    String rdnValue     = StringUtils.substringAfter(rdnString, "=");
+
+    if ( StringUtils.isEmpty(rdnValue) || StringUtils.isEmpty(rdnValue) ) {
+      LOG.error("RDN was not of the format attribute=value: {}", rdnString);
+      throw new PspException("Unable to parse and escape rdn");
+    }
+
+    // This is wrapping the Value in quotes so the RDN class will consider
+    // all the dn-relevant characters (eg: ,+;) as escaped
+    RDN rdn = new RDN(rdnAttribute, String.format("\"%s\"", rdnValue));
+    return rdn.toMinimallyEncodedString();
+  }
+
+  /**
+   * This takes a simple ldap filter 'attribute=value' or just 'value' and escapes the
+   * filter-relevant characters: \, *, (, )
+   *
+   * Ref: https://stackoverflow.com/questions/31309673/parse-ldap-filter-to-escape-special-characters
+   * @param filterString
+   * @return
+   */
+  public static String escapeLdapFilter(String filterString) {
+      if(filterString == null) return "";
+      return filterString.replace("\\", "\\5C")
+              .replace("*", "\\2A")
+              .replace("(", "\\28")
+              .replace(")", "\\29")
+              .replace("\000", "\\00");
+  }
 }

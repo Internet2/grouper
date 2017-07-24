@@ -444,7 +444,7 @@ public class FullSyncProvisioner  {
   }
 
 
-    public JobStatistics startFullSyncOfAllGroupsAndWaitForCompletion() {
+    public JobStatistics startFullSyncOfAllGroupsAndWaitForCompletion() throws PspException {
         JobStatistics overallStats = new JobStatistics();
 
         List<FullSyncProvisioner.FullSyncQueueItem> queuedGroupSyncs
@@ -501,7 +501,7 @@ public class FullSyncProvisioner  {
    * Go through the Grouper Groups and queue up the ones that match the provisioner's 
    * ShouldBeProvisioned filter.
    */
-  protected List<FullSyncQueueItem> queueAllGroupsForFullSync(String reason) {
+  protected List<FullSyncQueueItem> queueAllGroupsForFullSync(String reason) throws PspException {
     LOG.info("{}: Queuing all groups for full sync. ({})", getName(), reason);
     List<FullSyncQueueItem> result = new ArrayList<FullSyncQueueItem>();
 
