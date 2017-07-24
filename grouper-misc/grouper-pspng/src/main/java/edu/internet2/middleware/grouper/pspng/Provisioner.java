@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.log4j.MDC;
@@ -497,7 +499,7 @@ public abstract class Provisioner
    */
   protected final String evaluateJexlExpression(String expression, Subject subject, TSUserClass tsUser, 
       GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup,
-      Object... keysAndValues) {
+      Object... keysAndValues) throws PspException {
     
     LOG.trace("Evaluating Jexl expression: {}", expression);
     
@@ -521,8 +523,23 @@ public abstract class Provisioner
     config.populateElMap(variableMap);
     
     try {
-      String result = GrouperUtil.substituteExpressionLanguage(expression, variableMap, true, false, false);
-      LOG.debug("Evaluated Jexl expression: {} FROM {} WITH variables {}", new Object[] {result, expression, variableMap});
+      // In order to support nested expressions, we're going to repeatedly look for atomic (non-nested) expressions
+      // and replace each atomic ${...} with it's evaluation result until there are no more ${ in the string
+      // This kind of regular expression problem is discussed here:
+      // https://stackoverflow.com/questions/717644/regular-expression-that-doesnt-contain-certain-string
+
+      Pattern atomicExpressionPattern = Pattern.compile("\\$\\{([^$]|\\$[^{])*?\\}" );
+      String result=expression;
+      Matcher atomicExpressionMatcher = atomicExpressionPattern.matcher(result);
+
+      while ( atomicExpressionMatcher.find()) {
+        String atomicExpression = atomicExpressionMatcher.group();
+        String atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(atomicExpression, variableMap, true, false, false);
+        LOG.debug("Evaluated Jexl expression: {} FROM {} WITH variables {}", new Object[]{atomicExpressionResult, atomicExpression, variableMap});
+
+        result = atomicExpressionMatcher.replaceFirst(atomicExpressionResult);
+        atomicExpressionMatcher = atomicExpressionPattern.matcher(result);
+      }
 
       return result;
     }
@@ -531,8 +548,8 @@ public abstract class Provisioner
           new Object[] {expression, 
               subject, tsUser,
               grouperGroupInfo, tsGroup,
-              variableMap});
-      return null;
+              variableMap, e});
+      throw new PspException("Jexl evaluation failed: %s", e.getMessage());
     }
   }
 
@@ -1205,7 +1222,7 @@ public abstract class Provisioner
    * 
    * @return A collection of groups that are to be provisioned by this provisioner
    */
-  public Set<Group> getAllGroupsForProvisioner() {
+  public Set<Group> getAllGroupsForProvisioner() throws PspException {
     Set<Group> result = new HashSet<Group>();
     
     Set<Group> interestingGroups = new HashSet<Group>();
@@ -1279,7 +1296,7 @@ public abstract class Provisioner
    * @param grouperGroupInfo
    * @return
    */
-  protected boolean shouldGroupBeProvisioned(GrouperGroupInfo grouperGroupInfo) {
+  protected boolean shouldGroupBeProvisioned(GrouperGroupInfo grouperGroupInfo) throws PspException {
     if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
       return false;
     }

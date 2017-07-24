@@ -153,7 +153,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   }
 
 
-  protected String getAttributeValueForGroup(GrouperGroupInfo grouperGroupInfo) {
+  protected String getAttributeValueForGroup(GrouperGroupInfo grouperGroupInfo) throws PspException {
     return evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), null, null, grouperGroupInfo, null);
   }
   
