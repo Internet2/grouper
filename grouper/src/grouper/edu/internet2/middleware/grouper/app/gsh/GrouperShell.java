@@ -21,7 +21,6 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -234,7 +233,7 @@ private static boolean handleSpecialCase(String[] args) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
       StringBuilder body = new StringBuilder();
-      body.append(":load " + GrouperUtil.getGrouperHome() + File.separator + "conf" + File.separator + "groovysh.profile");
+      body.append(":load " + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath());
       
       if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check")) {
         
