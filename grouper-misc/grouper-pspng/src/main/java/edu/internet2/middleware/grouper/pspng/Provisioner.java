@@ -537,7 +537,16 @@ public abstract class Provisioner
         String atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(atomicExpression, variableMap, true, false, false);
         LOG.debug("Evaluated Jexl expression: {} FROM {} WITH variables {}", new Object[]{atomicExpressionResult, atomicExpression, variableMap});
 
-        result = atomicExpressionMatcher.replaceFirst(atomicExpressionResult);
+        // replaceFirst unescapes the string it is given (because it isn't a string literal, but can also
+        // refer to regex groupings: $1 refers to the first matching group in the Pattern. In order to get a $ in the
+        // replacement, you need to use \$. We're not using groups in this stuff, but we need to keep \, exactly
+        // as it is; therefore, We need to double-escape atomicExpressionResult... Yuck
+
+        // This is even more confusing because replaceAll takes a regex and a string literal:
+        //   the first \\\\ is a regex expression for a single \
+        //     (java strings need \\ to make a \ and the regex needs \\ to make a single \)
+        //   and the second \\\\\\\\ (8 whacks) is a substitution string resulting in  two \\
+        result = atomicExpressionMatcher.replaceFirst(atomicExpressionResult.replaceAll("\\\\", "\\\\\\\\"));
         atomicExpressionMatcher = atomicExpressionPattern.matcher(result);
       }
 
