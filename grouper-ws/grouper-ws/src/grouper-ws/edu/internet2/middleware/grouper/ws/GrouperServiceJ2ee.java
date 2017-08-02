@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
@@ -254,9 +255,15 @@ public class GrouperServiceJ2ee implements Filter {
             if (SOURCE_ID == null) {
               return SubjectFinder.findByIdOrIdentifier(USER_ID_LOGGED_IN, true);
             }
-            //see if only in one source
-            return SubjectFinder.findByIdOrIdentifierAndSource(USER_ID_LOGGED_IN, SOURCE_ID, true);
-      
+            //see if in specified sources
+            String[] sourceIds = GrouperUtil.splitTrim(SOURCE_ID, ",");
+            for (String curSource : sourceIds) {
+              Subject s = SubjectFinder.findByIdOrIdentifierAndSource(USER_ID_LOGGED_IN, curSource, false);
+              if (s != null) {
+                return s;
+              }
+            }
+            throw new SubjectNotFoundException("Unable to find subject in source type(s): " + SOURCE_ID);
           } catch (Exception e) {
             //this is probably a system error...  not a user error
             throw new RuntimeException("Cant find subject from login id: " + USER_ID_LOGGED_IN, e);
