@@ -282,6 +282,11 @@ public interface GroupSetDAO extends GrouperDAO {
   public Set<GroupSet> findBadGroupSetsForCompositeGroups();
   
   /**
+   * @return group sets
+   */
+  public Set<GroupSet> findDuplicateSelfGroupSets();
+  
+  /**
    * Find missing effective group sets.  Note that this will return some false positives
    * (due to circular group sets) that need to be filtered out.
    * @return set of array objects where the first element is the 

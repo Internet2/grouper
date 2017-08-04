@@ -302,7 +302,24 @@ public class FindBadMemberships {
       logGshScript("addMember(\"" + ownerGroup.getName() + "\", \"" + memberGroup.getId() + "\");\n");      
     }
     
-    return badType.size() + badCompositeGroupSets.size() + immediateGroupSetsWithMissingEffective.size();
+    // note this doesn't handle if in a set of duplicates, multiple group sets have foreign keys - that seems unlikely.
+    // this also doesn't fix PIT if needed.  should run pit sync after this.
+    Set<GroupSet> duplicates = GrouperDAOFactory.getFactory().getGroupSet().findDuplicateSelfGroupSets();
+
+    for (GroupSet gs : duplicates) {
+      if (gs.getDepth() != 0) {
+        throw new RuntimeException("Unexpected depth of " + gs.getDepth());
+      }
+
+      if (printErrorsToSTOUT) {
+        out.println("Duplicate group set: owner=" + gs.getOwnerId() + ", member=" + gs.getMemberId() + ", field=" + gs.getFieldId() + ".");
+      }
+      
+      logGshScript("sqlRun(\"update grouper_group_set set parent_id=null where id='" + gs.getId() + "'\");\n");
+      logGshScript("sqlRun(\"delete from grouper_group_set where id='" + gs.getId() + "'\");\n");
+    }
+    
+    return duplicates.size() + badType.size() + badCompositeGroupSets.size() + immediateGroupSetsWithMissingEffective.size();
   }
   
   /**
