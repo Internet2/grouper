@@ -15,8 +15,10 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -37,7 +39,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -720,6 +721,58 @@ return groupSets;
     
     return results;  
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findDuplicateSelfGroupSets()
+   */
+  public Set<GroupSet> findDuplicateSelfGroupSets() {
+    Set<GroupSet> duplicates = new LinkedHashSet<GroupSet>();
+    
+    String sql = "select ownerId, memberId, fieldId from GroupSet where depth='0' group by ownerId, memberId, fieldId having count(*) > 1";
+    
+    Set<Object[]> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .listSet(Object[].class);
+    
+    for (Object[] result : results) {
+      String ownerId = (String)result[0];
+      String memberId = (String)result[1];
+      String fieldId = (String)result[2];
+
+      Set<GroupSet> groupSets = HibernateSession.byHqlStatic()
+        .createQuery("select gs from GroupSet gs where memberId = :memberId and fieldId = :fieldId and ownerId = :ownerId and depth='0'")
+        .setCacheable(false)
+        .setString("ownerId", ownerId)
+        .setString("memberId", memberId)
+        .setString("fieldId", fieldId)
+        .listSet(GroupSet.class);
+      
+      Set<GroupSet> noForeignKeys = new LinkedHashSet<GroupSet>();
+      for (GroupSet groupSet : groupSets) {
+        long count = HibernateSession.byHqlStatic()
+          .createQuery("select count(*) from GroupSet where parentId = :parentId")
+          .setCacheable(false)
+          .setString("parentId", groupSet.getId())
+          .uniqueResult(Long.class);
+        
+        if (count == 1) {
+          noForeignKeys.add(groupSet);
+        }
+      }
+      
+      List<GroupSet> currentDuplicates = new ArrayList<GroupSet>();
+      currentDuplicates.addAll(noForeignKeys);
+      if (groupSets.size() == currentDuplicates.size()) {
+        currentDuplicates.remove(0);
+      }
+      
+      duplicates.addAll(currentDuplicates);
+    }
+    
+    return duplicates;  
+  }
+  
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findBadGroupSetsForCompositeGroups()

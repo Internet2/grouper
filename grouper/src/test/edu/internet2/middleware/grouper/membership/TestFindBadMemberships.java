@@ -114,13 +114,109 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testGrouperAllMembership"));
+    TestRunner.run(new TestFindBadMemberships("testDuplicates"));
   }
   
   protected void setUp () {
     super.setUp();
     FindBadMemberships.clearResults();
     FindBadMemberships.printErrorsToSTOUT(false);
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testDuplicates() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    Group test1 = top.addChildGroup("test1", "test1");
+    Group test2 = top.addChildGroup("test2", "test2");
+    Group test3 = top.addChildGroup("test3", "test3");
+    Group test4 = top.addChildGroup("test4", "test4");
+    Group test5 = top.addChildGroup("test5", "test5");
+    
+    Group test7 = top.addChildGroup("test7", "test7");
+    
+    test1.addMember(test2.toSubject());
+    test2.addMember(test3.toSubject());
+    test3.addMember(test4.toSubject());
+    test4.addMember(test5.toSubject());
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+    
+    // all should be good right now
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    {
+      // 2 with same owner/member/field with 1 having a foreign key
+      GroupSet selfGroupSetTest2 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(test2.getId(), Group.getDefaultList().getId());
+      
+      GroupSet duplicate1 = new GroupSet();
+      duplicate1.setId(GrouperUuid.getUuid());
+      duplicate1.setCreatorId(selfGroupSetTest2.getCreatorId());
+      duplicate1.setCreateTime(selfGroupSetTest2.getCreateTime());
+      duplicate1.setDepth(selfGroupSetTest2.getDepth());
+      duplicate1.setMemberGroupId(selfGroupSetTest2.getMemberGroupId());
+      duplicate1.setOwnerGroupId(selfGroupSetTest2.getOwnerGroupId());
+      duplicate1.setParentId(duplicate1.getId());
+      duplicate1.setFieldId(selfGroupSetTest2.getFieldId());
+      GrouperDAOFactory.getFactory().getGroupSet().save(duplicate1);
+    }
+    
+    {
+      // 3 with same owner/member/field with 1 having a foreign key
+      GroupSet selfGroupSetTest3 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(test3.getId(), Group.getDefaultList().getId());
+      
+      GroupSet duplicate1 = new GroupSet();
+      duplicate1.setId(GrouperUuid.getUuid());
+      duplicate1.setCreatorId(selfGroupSetTest3.getCreatorId());
+      duplicate1.setCreateTime(selfGroupSetTest3.getCreateTime());
+      duplicate1.setDepth(selfGroupSetTest3.getDepth());
+      duplicate1.setMemberGroupId(selfGroupSetTest3.getMemberGroupId());
+      duplicate1.setOwnerGroupId(selfGroupSetTest3.getOwnerGroupId());
+      duplicate1.setParentId(duplicate1.getId());
+      duplicate1.setFieldId(selfGroupSetTest3.getFieldId());
+      GrouperDAOFactory.getFactory().getGroupSet().save(duplicate1);
+      
+      GroupSet duplicate2 = new GroupSet();
+      duplicate2.setId(GrouperUuid.getUuid());
+      duplicate2.setCreatorId(selfGroupSetTest3.getCreatorId());
+      duplicate2.setCreateTime(selfGroupSetTest3.getCreateTime());
+      duplicate2.setDepth(selfGroupSetTest3.getDepth());
+      duplicate2.setMemberGroupId(selfGroupSetTest3.getMemberGroupId());
+      duplicate2.setOwnerGroupId(selfGroupSetTest3.getOwnerGroupId());
+      duplicate2.setParentId(duplicate2.getId());
+      duplicate2.setFieldId(selfGroupSetTest3.getFieldId());
+      GrouperDAOFactory.getFactory().getGroupSet().save(duplicate2);
+    }
+    
+    {
+      // 2 with same owner/member/field, no foreign keys
+      GroupSet selfGroupSetTest7 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(test7.getId(), Group.getDefaultList().getId());
+      
+      GroupSet duplicate1 = new GroupSet();
+      duplicate1.setId(GrouperUuid.getUuid());
+      duplicate1.setCreatorId(selfGroupSetTest7.getCreatorId());
+      duplicate1.setCreateTime(selfGroupSetTest7.getCreateTime());
+      duplicate1.setDepth(selfGroupSetTest7.getDepth());
+      duplicate1.setMemberGroupId(selfGroupSetTest7.getMemberGroupId());
+      duplicate1.setOwnerGroupId(selfGroupSetTest7.getOwnerGroupId());
+      duplicate1.setParentId(duplicate1.getId());
+      duplicate1.setFieldId(selfGroupSetTest7.getFieldId());
+      GrouperDAOFactory.getFactory().getGroupSet().save(duplicate1);
+    }
+    
+    // now check it
+    assertEquals(4, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time, there may be changes there to fix pit group sets
+    ChangeLogTempToEntity.convertRecords();
+    new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables();
   }
   
   /**
