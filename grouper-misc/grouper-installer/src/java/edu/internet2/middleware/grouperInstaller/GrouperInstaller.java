@@ -8631,6 +8631,9 @@ public class GrouperInstaller {
     //prompt and install ws scim
     installWsScim();
     
+    //prompt and install ws scim
+    installMessagingRabbitMq();
+    
 
     //#####################################
     //success
@@ -8701,6 +8704,110 @@ public class GrouperInstaller {
       //tell user to go to url
       System.out.println("##################################\n");
       System.out.println("Go here for the Grouper WS Scim (change hostname if on different host): http://localhost:" + this.tomeeHttpPort + "/" + "grouper-ws-scim" + "/");
+      System.out.println("\n##################################\n");
+    }
+  }
+
+  /**
+   * 
+   */
+  private void installMessagingRabbitMq() {
+    //#####################################
+    // Install Grouper Messaging RabbitMQ
+    //####################################
+    System.out.print("Do you want to install grouper rabbitMQ messaging (t|f)? [f]: ");
+    boolean installRabbitMqMessaging = readFromStdInBoolean(false, "grouperInstaller.autorun.installGrouperRabbitMqMessaging");
+    if (installRabbitMqMessaging) {
+      
+      String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+      
+      if (!urlToDownload.endsWith("/")) {
+        urlToDownload += "/";
+      }
+
+      urlToDownload += "release/";
+      String rabbitMqFileName = "grouper.rabbitMq-" + this.version + ".tar.gz";
+      urlToDownload += this.version + "/" + rabbitMqFileName;
+
+      File rabbitMqFile = new File(this.grouperTarballDirectoryString + rabbitMqFileName);
+      
+      downloadFile(urlToDownload, rabbitMqFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalRabbitMqDownloadTarEtc");
+
+      File unzippedRabbitMqFile = unzip(rabbitMqFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalRabbitMqDownloadTarEtc");
+      File unzippedRabbitMqDir = untar(unzippedRabbitMqFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalRabbitMqDownloadTarEtc", 
+          new File(this.grouperInstallDirectoryString));
+
+      File rabbitMqInstallDirectoryFile = null;
+      boolean success = false;
+      for (int i=0;i<10;i++) {
+
+        System.out.print("Where do you want the Grouper RabbitMQ messaging connector installed? ");
+        String rabbitMqInstallDirectoryFileString = readFromStdIn("grouperInstaller.autorun.rabbitMqWhereInstalled");
+        rabbitMqInstallDirectoryFile = new File(rabbitMqInstallDirectoryFileString);
+        if (!rabbitMqInstallDirectoryFile.exists() || !rabbitMqInstallDirectoryFile.isDirectory()) {
+          System.out.println("Error: cant find directory: '" + rabbitMqInstallDirectoryFile.getAbsolutePath() + "'");
+          continue;
+        }
+
+        //make sure directory is where the app is
+        
+        List<File> grouperClientFiles = GrouperInstallerUtils.jarFindJar(rabbitMqInstallDirectoryFile, "grouperClient.jar");
+        
+        if (GrouperInstallerUtils.length(grouperClientFiles) == 0) {
+          System.out.println("Cant find grouperClient.jar in a subdir of the install dir, please try again!");
+          continue;
+        }
+        
+        
+        if (GrouperInstallerUtils.length(grouperClientFiles) > 1) {
+          System.out.println("Found more than one grouperClient.jar in a subdir of the install dir, must only be one, please try again!");
+          continue;
+        }
+
+        //ok, we know where the jars go
+        File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
+        
+        for (String fileName : new String[] {"amqp-client-4.0.2.jar", "slf4j-api-1.6.1.jar", "grouperRabbitMq.jar", "slf4j-log4j12.jar"}) {
+          
+          String sourceFileName = unzippedRabbitMqDir.getAbsolutePath() + File.separatorChar 
+              + "lib" + File.separatorChar + fileName;
+          
+          File sourceFile = new File(sourceFileName);
+          
+          if (!sourceFile.isFile() || !sourceFile.exists()) {
+            throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
+          }
+          
+          String destFileName = dirWhereFilesGo.getAbsolutePath() + File.separatorChar + fileName;
+          
+          File destFile = new File(destFileName);
+          
+          if (destFile.isFile() && destFile.exists()) {
+            System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
+            continue;
+          }
+          
+          System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
+          
+          GrouperInstallerUtils.copyFile(sourceFile, destFile, true, false);
+
+        }
+
+        success = true;
+        break;
+      }        
+      
+      if (!success) {
+        System.exit(1);
+      }
+      
+      //####################################
+      //tell user to configure
+      System.out.println("##################################\n");
+      
+      System.out.println("Configure your grouper.client.properties based on this file " 
+          + unzippedRabbitMqDir.getAbsoluteFile() + File.separator 
+          + "grouper.client.rabbitMq.example.properties");
       System.out.println("\n##################################\n");
     }
   }
