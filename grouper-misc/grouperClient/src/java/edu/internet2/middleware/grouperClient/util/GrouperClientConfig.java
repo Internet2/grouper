@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
@@ -111,6 +112,21 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
   private static Pattern grouperMessagingConfigPattern = Pattern.compile("^grouper.messaging.system.([^.]+).name$");
   
   /**
+   * get a messaging config cant be null
+   * @param systemName
+   * @return the config
+   */
+  public GrouperMessagingConfig retrieveGrouperMessagingConfigNonNull(String systemName) {
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigs().get(systemName);
+    if (grouperMessagingConfig == null) {
+      throw new RuntimeException("Cant find messaging config for system name: " + systemName);
+    }
+    
+    return grouperMessagingConfig;
+    
+  }
+  
+  /**
    * process configs for messaging and return the map 
    * @return the configs
    */
@@ -133,7 +149,14 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
               String name = matcher.group(1);
               GrouperMessagingConfig grouperMessagingConfig = new GrouperMessagingConfig();
               grouperMessagingConfig.setName(name);
-              String theClassName = this.propertyValueString("grouper.messaging.system." + name + ".class");
+              String defaultMessagingSystemName = this.propertyValueString("grouper.messaging.system." + name + ".defaultSystemName");
+              
+              if (!StringUtils.isBlank(defaultMessagingSystemName)) {
+                grouperMessagingConfig.setDefaultSystemName(defaultMessagingSystemName);
+              }
+              
+              String theClassName = grouperMessagingConfig.propertyValueString(this, "class");
+              
               try {
                 Class<GrouperMessagingSystem> grouperMessagingSystemClass = GrouperClientUtils.forName(theClassName);
                 
