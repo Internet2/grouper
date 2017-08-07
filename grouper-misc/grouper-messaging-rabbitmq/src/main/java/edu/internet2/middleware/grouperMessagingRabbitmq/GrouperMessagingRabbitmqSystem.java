@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.Queue.DeclareOk;
 import com.rabbitmq.client.BuiltinExchangeType;
@@ -34,9 +32,11 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveRes
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
@@ -123,13 +123,13 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
     GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
-    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
+    if (grouperMessageSystemParam == null || edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
       throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
     }
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
+    int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
+    int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
         
-    int defaultPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", grouperMessageSystemParam.getMessageSystemName()), 5);
-    int maxPageSize = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", grouperMessageSystemParam.getMessageSystemName()), 50);
-    
     Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
     
     if (maxMessagesToReceiveAtOnce == null) {
@@ -299,14 +299,17 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
         
         if (connection == null || !connection.isOpen()) {
           
-          String host = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.host", messagingSystemName));
-          String virtualHost = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.virtualhost", messagingSystemName));
-          String username = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.username", messagingSystemName));
-          String password = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.password", messagingSystemName));
+          GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
+
+          
+          String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
+          String virtualHost = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "virtualhost");
+          String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
+          String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
           if (StringUtils.isNotBlank(password)) {
             password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
           }
-          Integer port = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messsaging.port", messagingSystemName));
+          int port = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "port", -1);
           
           try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -327,7 +330,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
               factory.setPassword(password);
             }
             
-            if (port != null) {
+            if (port != -1) {
               factory.setPort(port);
             }
             connection = factory.newConnection();

@@ -16,7 +16,9 @@
   <!-- Grouper Global Build Properties -->
   <property file="${basedir}/build.properties"/>
 
-  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
+  <property file="${basedir}/misc/version.properties"/>
+
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar,distPackage">
   </target>
 
   <target name="init">
@@ -26,17 +28,14 @@
 
     <property name="main.lib" value="lib" />
 
-    <property name="main.bin" value="dist2/bin" />
-    <property name="main.outputDir" value="dist2" />
+    <property name="main.bin" value="dist/bin" />
+    <property name="main.outputDir" value="dist" />
 
     <property name="main.appName" value="grouperRabbitMq" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
 
     <path id="main.classpath">
       <fileset dir="${main.lib}">
-        <include name="**/*.jar" />
-      </fileset>
-      <fileset dir="libCompile">
         <include name="**/*.jar" />
       </fileset>
       <fileset dir="${grouperClient.dir}">
@@ -74,10 +73,6 @@
       </fileset>
     </copy>
     
-    <mkdir dir="${main.bin}/${main.appName}" />
-    
-    <copy todir="${main.bin}/${main.appName}" file="build.xml" />
-    
   </target>
 
   <target name="jar">
@@ -88,20 +83,48 @@
       <fileset dir="${main.bin}" />
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
-        <attribute name="Implementation-Vendor"   value="Penn"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
         <attribute name="Implementation-Title"    value="${main.appName}"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
      </jar>
      <echo message="Output is: ${main.jarFile}" />
   	
-  	<tar destfile="dist2/${main.appName}.tar.gz" compression="gzip">
-      <tarfileset dir="${main.bin}" >
-      </tarfileset>
-    </tar>          
-  	<echo message="Output is: dist/${main.jarFile}" />
-    <echo message="Output is: dist/${main.appName}.tar.gz" />     	
    </target>
   
+  <target name="distPackage" description="build tar gz on internet2 box">
+    
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}" />
+    <delete dir="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}" />
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}" />
+
+    <copy todir="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}">
+      <fileset dir="${basedir}">
+        <include name="lib/*.jar"/>
+      </fileset>
+      <fileset dir="${basedir}/src/main/resources">
+        <include name="grouper.client.rabbitMq.example.properties"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}/lib">
+      <fileset dir="${basedir}/${main.outputDir}">
+        <include name="${main.appName}.jar"/>
+      </fileset>
+    </copy>
+    
+    <copy todir="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}">
+      <fileset dir="${basedir}">
+        <include name="src/main/java/**"/>
+        <include name="src/test/**"/>
+      </fileset>
+    </copy>
+    
+    <tar destfile="${basedir}/${main.outputDir}/grouper.rabbitMq-${version}.tar.gz" compression="gzip" longfile="gnu" >
+      <tarfileset dir="${basedir}/${main.outputDir}" >
+        <include name="grouper.rabbitMq-${version}/**"/>
+      </tarfileset>
+    </tar>            
+  </target>
   
 </project>

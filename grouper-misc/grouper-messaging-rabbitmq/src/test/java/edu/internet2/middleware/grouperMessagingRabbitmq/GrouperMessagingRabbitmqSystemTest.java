@@ -1,14 +1,25 @@
 package edu.internet2.middleware.grouperMessagingRabbitmq;
 
-import org.apache.commons.lang3.RandomUtils;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.RandomUtils;
 
+/**
+ * 
+ */
 public class GrouperMessagingRabbitmqSystemTest extends TestCase {
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperMessagingRabbitmqSystemTest("testSendToQueue"));
+  }
   
   /**
    * @param name
@@ -65,6 +76,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     try {
       system.send(sendParam);
     } catch (Exception e) {
+      //does rabbitmq autocreate this queue?
       assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
     }
   }
