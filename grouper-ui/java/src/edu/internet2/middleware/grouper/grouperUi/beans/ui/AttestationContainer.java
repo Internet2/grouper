@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -65,39 +66,117 @@ public class AttestationContainer {
    * if the attestation assignment is directly assigned to the stem
    */
   private boolean directStemAttestationAssignment;
+
+  /**
+   * attribute assign to the group object
+   */
+  private AttributeAssign groupAttributeAssignable = null;
   
   /**
-   * 
-   * @return attribute assignable
+   * attribute assign to stem object
    */
-  public AttributeAssignable getAttributeAssignable() {
+  private AttributeAssign stemAttributeAssignable = null;
+
+  /**
+   * 
+   * @return true if can read
+   */
+  public boolean isCanReadAttestation() {
     
     GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
     
-    Group group = null;
-    
     if (guiGroup != null) {
-      group = guiGroup.getGroup();
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
+        return true;
+      }
     }
-
+    
     GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
     
-    Stem stem = null;
+    if (guiStem != null) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * 
+   * @return true if can write
+   */
+  public boolean isCanWriteAttestation() {
+    
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    if (guiGroup != null) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanUpdate()) {
+        return true;
+      }
+    }
+    
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
     
     if (guiStem != null) {
-      stem = guiStem.getStem();
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    AttributeAssign attributeAssign = null;
+  /**
+   * 
+   */
+  private void attributeAssignableHelper() {
 
-// TODO
-//    Gr
-//    if (group != null) {
-//      stem.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+    if (!this.isCanReadAttestation() )  {
+      return;
+    }
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+        
+        if (guiGroup != null) {
+          Group group = guiGroup.getGroup();
+          AttestationContainer.this.groupAttributeAssignable = 
+            group.getAttributeDelegate().retrieveAssignment(null, AttestationContainer.this.getAttributeDefName(), false, false);
+          String attestationDirectAssignment = AttestationContainer.this.groupAttributeAssignable
+              .getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.attestationStemName() 
+                  + ":" + GrouperAttestationJob.ATTESTATION_DIRECT_ASSIGNMENT);
+          if (GrouperUtil.booleanValue(attestationDirectAssignment, false)) { 
+            // group has direct attestation, don't use stem attributes at all.
+            AttestationContainer.this.directGroupAttestationAssignment = true;
+          }
+        }
+        
+        GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+        
+        if (guiStem != null) {
+          if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+            return true;
+          }
+        }
+
+        
+        return null;
+      }
+    });
+
+//    if (guiStem != null) {
+//      Stem stem = null;
+//      
+//      stem = guiStem.getStem();
 //    }
+//
+//
+//    AttributeAssign attributeAssign = null;
+//
 //    
 //    AttributeAssign attributeAssign = 
-return null;
   }
   
   /**
