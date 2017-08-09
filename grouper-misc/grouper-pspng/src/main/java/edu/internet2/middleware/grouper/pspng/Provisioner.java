@@ -1359,7 +1359,7 @@ public abstract class Provisioner
     MDC.put("step", "filter/");
     try {
       filteredWorkItems = filterWorkItems(allWorkItems);
-      LOG.info("{}: {} work items need to be processed futher", getName(), filteredWorkItems.size());
+      LOG.info("{}: {} work items need to be processed further", getName(), filteredWorkItems.size());
     }
     catch (PspException e) {
       LOG.error("Unable to filter the provisioning batch", e);

@@ -363,73 +363,120 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // If this is a full-sync provisioner, then we want to make sure we get the member attribute of the
     // group so we see all members.
     String[] returnAttributes = getLdapAttributesToFetch();
-    
-    StringBuilder combinedLdapFilter = new StringBuilder();
-    
-    // Start the combined ldap filter as an OR-query
-    combinedLdapFilter.append("(|");
-    
-    for ( GrouperGroupInfo grouperGroup : grouperGroupsToFetch ) {
-      SearchFilter f = getGroupLdapFilter(grouperGroup);
-      String groupFilterString = f.format();
-      
-      // Wrap the subject's filter in (...) if it doesn't start with (
-      if ( groupFilterString.startsWith("(") )
-        combinedLdapFilter.append(groupFilterString);
-      else
-        combinedLdapFilter.append('(').append(groupFilterString).append(')');
-    }
-    combinedLdapFilter.append(')');
 
-    // Actually do the search
-    List<LdapObject> searchResult;
-    
-    LOG.debug("{}: Searching for {} groups with:: {}", 
-        new Object[]{getName(), grouperGroupsToFetch.size(), combinedLdapFilter});
-    
-    try {
-      searchResult = getLdapSystem().performLdapSearchRequest(
-        new SearchRequest(config.getGroupSearchBaseDn(), 
-              combinedLdapFilter.toString(), 
-              returnAttributes));
-    }
-    catch (PspException e) {
-      LOG.error("Problem fetching groups with filter '{}' on base '{}'", 
-          new Object[]{combinedLdapFilter, config.getGroupSearchBaseDn(), e});
-      throw e;
-    }
+    if ( config.isBulkGroupSearchingEnabled() ) {
+      StringBuilder combinedLdapFilter = new StringBuilder();
 
-    LOG.debug("{}: Group search returned {} groups", getName(), searchResult.size());
-    
-    // Now we have a bag of LdapObjects, but we don't know which goes with which grouperGroup.
-    // We're going to go through the Grouper Groups and their filters and compare
-    // them to the Ldap data we've fetched into memory.
-    Map<GrouperGroupInfo, LdapGroup> result = new HashMap<GrouperGroupInfo, LdapGroup>();
-    
-    Set<LdapObject> matchedFetchResults = new HashSet<LdapObject>();
-    
-    // For every group we tried to bulk fetch, find the matching LdapObject that came back
-    for ( GrouperGroupInfo groupToFetch : grouperGroupsToFetch ) {
-      SearchFilter f = getGroupLdapFilter(groupToFetch);
-      
-      for ( LdapObject aFetchedLdapObject : searchResult ) {
-        if ( aFetchedLdapObject.matchesLdapFilter(f) ) {
-          result.put(groupToFetch, new LdapGroup(aFetchedLdapObject));
-          matchedFetchResults.add(aFetchedLdapObject);
-          break;
+      // Start the combined ldap filter as an OR-query
+      combinedLdapFilter.append("(|");
+
+      for (GrouperGroupInfo grouperGroup : grouperGroupsToFetch) {
+        SearchFilter f = getGroupLdapFilter(grouperGroup);
+        String groupFilterString = f.format();
+
+        // Wrap the subject's filter in (...) if it doesn't start with (
+        if (groupFilterString.startsWith("("))
+          combinedLdapFilter.append(groupFilterString);
+        else
+          combinedLdapFilter.append('(').append(groupFilterString).append(')');
+      }
+      combinedLdapFilter.append(')');
+
+      // Actually do the search
+      List<LdapObject> searchResult;
+
+      LOG.debug("{}: Searching for {} groups with:: {}",
+              new Object[]{getName(), grouperGroupsToFetch.size(), combinedLdapFilter});
+
+      try {
+        searchResult = getLdapSystem().performLdapSearchRequest(
+                new SearchRequest(config.getGroupSearchBaseDn(),
+                        combinedLdapFilter.toString(),
+                        returnAttributes));
+      } catch (PspException e) {
+        LOG.error("Problem fetching groups with filter '{}' on base '{}'",
+                new Object[]{combinedLdapFilter, config.getGroupSearchBaseDn(), e});
+        throw e;
+      }
+
+      LOG.debug("{}: Group search returned {} groups", getName(), searchResult.size());
+
+      // Now we have a bag of LdapObjects, but we don't know which goes with which grouperGroup.
+      // We're going to go through the Grouper Groups and their filters and compare
+      // them to the Ldap data we've fetched into memory.
+      Map<GrouperGroupInfo, LdapGroup> result = new HashMap<GrouperGroupInfo, LdapGroup>();
+
+      Set<LdapObject> matchedFetchResults = new HashSet<LdapObject>();
+
+      // For every group we tried to bulk fetch, find the matching LdapObject that came back
+      for (GrouperGroupInfo groupToFetch : grouperGroupsToFetch) {
+        SearchFilter f = getGroupLdapFilter(groupToFetch);
+
+        for (LdapObject aFetchedLdapObject : searchResult) {
+          if (aFetchedLdapObject.matchesLdapFilter(f)) {
+            result.put(groupToFetch, new LdapGroup(aFetchedLdapObject));
+            matchedFetchResults.add(aFetchedLdapObject);
+            break;
+          }
         }
+      }
+
+      Set<LdapObject> unmatchedFetchResults = new HashSet<LdapObject>(searchResult);
+      unmatchedFetchResults.removeAll(matchedFetchResults);
+
+      for (LdapObject unmatchedFetchResult : unmatchedFetchResults) {
+        LOG.warn("{}: Bulk fetch failed (returned unmatchable group data). "
+                        + "This can be caused by searching for a DN with escaping or by singleGroupSearchFilter ({}) that are not included "
+                        + "in groupSearchAttributes ({})?): {}",
+                new Object[]{getName(), config.getSingleGroupSearchFilter(), config.getGroupSearchAttributes(), unmatchedFetchResult.getDn()});
+        LOG.warn("{}: Slower fetching will be attempted", getName());
+      }
+
+      // We're done if everything matched up
+      if ( unmatchedFetchResults.size() == 0 ) {
+        return result;
+      }
+      else {
+        // Fall through to the one-by-one group searching below. This is slower, but doesn't require the
+        // result-matching step that just failed
       }
     }
 
-    Set<LdapObject> unmatchedFetchResults = new HashSet<LdapObject>(searchResult);
-    unmatchedFetchResults.removeAll(matchedFetchResults);
-    
-    for ( LdapObject unmatchedFetchResult : unmatchedFetchResults )
-      LOG.error("{}: Group data from ldap server was not matched with a grouper group "
-          + "(perhaps attributes are used in singleGroupSearchFilter ({}) that are not included "
-          + "in groupSearchAttributes ({})?): {}",
-          new Object[] {getName(), config.getSingleGroupSearchFilter(), config.getGroupSearchAttributes(), unmatchedFetchResult.getDn()});
-    
+    // Do simple ldap searching
+    Map<GrouperGroupInfo, LdapGroup> result = new HashMap<GrouperGroupInfo, LdapGroup>();
+
+    for (GrouperGroupInfo grouperGroup : grouperGroupsToFetch) {
+      SearchFilter groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      try {
+        LOG.debug("{}: Searching for group {} with:: {}",
+                new Object[]{getName(), grouperGroup, groupLdapFilter});
+
+        // Actually do the search
+        List<LdapObject> searchResult = getLdapSystem().performLdapSearchRequest(
+                new SearchRequest(config.getGroupSearchBaseDn(),
+                        groupLdapFilter,
+                        returnAttributes));
+
+        if (searchResult.size() == 1) {
+          LdapObject ldapObject = searchResult.iterator().next();
+          LOG.debug("{}: Group search returned {}", getName(), ldapObject.getDn());
+          result.put(grouperGroup, new LdapGroup(ldapObject));
+        }
+        else if ( searchResult.size() > 1 ){
+          LOG.error("{}: Search for group {} with '{}' returned multiple matches: {}",
+                  new Object[]{getName(), grouperGroup, groupLdapFilter, searchResult});
+          throw new PspException("Search for ldap group returned multiple matches");
+        }
+        else if ( searchResult.size() == 0 ) {
+          // No match found ==> result will not include an entry for this grouperGroup
+        }
+      } catch (PspException e) {
+        LOG.error("{}: Problem fetching group with filter '{}' on base '{}'",
+                new Object[]{getName(), groupLdapFilter, config.getGroupSearchBaseDn(), e});
+        throw e;
+      }
+    }
+
     return result;
 }
 
