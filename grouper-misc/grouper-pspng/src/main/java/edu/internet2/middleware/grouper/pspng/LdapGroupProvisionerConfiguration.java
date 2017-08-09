@@ -110,6 +110,12 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
     // Should comparisons of the memberAttributeName be case sensitive?
     private boolean memberAttributeIsCaseSensitive;
     protected boolean memberAttributeIsCaseSensitive_defaultValue = false;
+
+    // Should bulk searching for groups be enabled (where ldap searches are ORed together
+    // and then rematched in memory)? This speeds up several operations, but sometimes fails
+    // when in-memory matching is done differently than on the actual ldap server
+    private boolean enableBulkGroupSearching;
+    protected boolean enableBulkGroupSearching_defaultValue = true;
     
     public LdapGroupProvisionerConfiguration(String provisionerName) {
       super(provisionerName);
@@ -185,7 +191,11 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
       memberAttributeIsCaseSensitive =
           GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "memberAttributeIsCaseSensitive", memberAttributeIsCaseSensitive_defaultValue);
       LOG.debug("Ldap Group Provisioner {} - Setting memberAttributeIsCaseSensitive to {}", provisionerName, memberAttributeIsCaseSensitive);
-}
+
+      enableBulkGroupSearching =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "enableBulkGroupSearching", enableBulkGroupSearching_defaultValue);
+      LOG.debug("Ldap Group Provisioner {} - Setting enableBulkGroupSearching to {}", provisionerName, enableBulkGroupSearching);
+    }
 
     
     public String getMemberAttributeName() {
@@ -252,7 +262,9 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
     public boolean isMemberAttributeCaseSensitive() {
       return memberAttributeIsCaseSensitive;
     }
-    
+
+    public boolean isBulkGroupSearchingEnabled() { return enableBulkGroupSearching; }
+
     public void populateElMap(Map<String, Object> variableMap) {
       super.populateElMap(variableMap);
       variableMap.put("groupSearchBaseDn", getGroupSearchBaseDn());
