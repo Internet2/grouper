@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 /**
  * @author vsachdeva
@@ -291,20 +293,20 @@ public class MessageConsumerDaemon implements Job {
       
       String response = method.getResponseBodyAsString();
       
-      WsResponse responseHeader = new WsResponse();
-      responseHeader.setBody(response);
-      responseHeader.setHttpStatusCode(method.getStatusCode());
+      WsResponse wsResponse = new WsResponse();
+      wsResponse.setBody(response);
+      wsResponse.setHttpStatusCode(method.getStatusCode());
       //make sure a request came back
       Header successHeader = method.getResponseHeader("X-Grouper-success");
       String successString = successHeader == null ? null : successHeader.getValue();
-      responseHeader.setSuccess(successString);
+      wsResponse.setSuccess(successString);
       String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
-      responseHeader.setResultCode(resultCode);
+      wsResponse.setResultCode(resultCode);
       
       String resultCode2 = method.getResponseHeader("X-Grouper-resultCode2").getValue();
-      responseHeader.setResultCode2(resultCode2);
+      wsResponse.setResultCode2(resultCode2);
       
-      return responseHeader;
+      return wsResponse;
   }
   
   /**
@@ -324,7 +326,16 @@ public class MessageConsumerDaemon implements Job {
     outputHeader.setEndpoint(inputGrouperHeader.getEndpoint());
     outputHeader.setMessageInputUuid(inputGrouperHeader.getMessageInputUuid());
 
-    JSONObject outputHeaderJson = JSONObject.fromObject(outputHeader);
+    PropertyFilter propertyFilter = new PropertyFilter(){  
+      public boolean apply( Object source, String name, Object value ) {  
+         return value == null;
+      }  
+   };
+    
+    JsonConfig config = new JsonConfig();
+    config.setJsonPropertyFilter(propertyFilter);
+    
+    JSONObject outputHeaderJson = JSONObject.fromObject(outputHeader, config);
     String header = outputHeaderJson.toString();
     
     String errorMessages = JSONArray.fromObject(errors).toString();
