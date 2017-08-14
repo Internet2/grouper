@@ -53,7 +53,23 @@ public class MessageConsumerDaemonTest extends TestCase {
       + "  \"subjectSourceId\":\"jdbc\" }] ,"
       + "   \"wsGroupLookup\":{ \"groupName\":\"test:testGroup\" }  }}";
   
-  public void testProcessMessages() throws IOException {
+  private String inValidMessage = "{\"grouperHeader\": "
+      + "{ \"messageVersion\": null,"
+      + "  \"timestampInput\": \"2017-07-23T18:25:43.511Z\","
+      + "  \"type\": \"grouperMessagingToWebService\","
+      + "  \"endpoint\": \"WsRestAddMemberRequest\","
+      + "  \"messageInputUuid\": \"abc123\","
+      + "  \"replyToQueueOrTopicName\": \"someQueue\","
+      + "  \"replyToQueueOrTopic\": \"queue\","
+      + "  \"httpMethod\": \"PUT\","
+      + "  \"httpPath\": \" \""
+      + "},"
+      + "\"WsRestAddMemberRequest\":{ \"subjectLookups\":[{"
+      + "  \"subjectId\":\"test.subject.0\","
+      + "  \"subjectSourceId\":\"jdbc\" }] ,"
+      + "   \"wsGroupLookup\":{ \"groupName\":\"test:testGroup\" }  }}";
+  
+  public void testProcessMessagesHappyPath() throws IOException {
     MessageConsumerDaemon daemon = new MessageConsumerDaemon();
     FakeGrouperMessageSystem grouperMessageSystem = new FakeGrouperMessageSystem();
     
@@ -70,8 +86,31 @@ public class MessageConsumerDaemonTest extends TestCase {
     
     assertTrue(replyToSendCalled);
     assertTrue(webServiceCalled);
-    System.out.println(JSONObject.fromObject(replyToBody).toString());
     assertEquals(JSONObject.fromObject(replyToBody).getString("result"), "{\"success\":true}");
+  }
+  
+  public void testProcessMessagesInvalidInputMessages() throws IOException {
+    
+    MessageConsumerDaemon daemon = new MessageConsumerDaemon();
+    FakeGrouperMessageSystem grouperMessageSystem = new FakeGrouperMessageSystem();
+    
+    Collection<GrouperMessage> grouperMessages = new ArrayList<GrouperMessage>();
+    GrouperMessage message = new FakeGrouperMessage(inValidMessage);
+    grouperMessages.add(message);
+    
+    FakeHttpServer httpServer = new FakeHttpServer();
+    httpServer.launchHttpServer();
+    
+    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, grouperMessages);
+    
+    httpServer.stopHttpServer();
+    
+    assertTrue(replyToSendCalled);
+    assertFalse(webServiceCalled);
+    assertEquals(JSONObject.fromObject(replyToBody).getJSONArray("errors").size(), 2);
+    assertEquals(JSONObject.fromObject(replyToBody).getJSONArray("errors").getString(0), "grouperHeader.messageVersion is required.");
+    assertEquals(JSONObject.fromObject(replyToBody).getJSONArray("errors").getString(1), "grouperHeader.httpPath is required.");
+    
   }
   
   class FakeHttpServer {
