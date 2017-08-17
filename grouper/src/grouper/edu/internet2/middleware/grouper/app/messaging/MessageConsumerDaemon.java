@@ -325,6 +325,11 @@ public class MessageConsumerDaemon implements Job {
     outputHeader.setType("grouperMessagingFromWebService");
     outputHeader.setEndpoint(inputGrouperHeader.getEndpoint());
     outputHeader.setMessageInputUuid(inputGrouperHeader.getMessageInputUuid());
+    
+    outputHeader.setHttpHeaderXGrouperSuccess("F");
+    outputHeader.setHttpResponseCode(400);
+    outputHeader.setHttpHeaderXGrouperResultCode2("NONE");
+    outputHeader.setHttpHeaderXGrouperResultCode("ERROR");
 
     PropertyFilter propertyFilter = new PropertyFilter(){  
       public boolean apply( Object source, String name, Object value ) {  
