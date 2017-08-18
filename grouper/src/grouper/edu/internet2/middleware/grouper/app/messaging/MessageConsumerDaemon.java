@@ -341,6 +341,7 @@ public class MessageConsumerDaemon implements Job {
     config.setJsonPropertyFilter(propertyFilter);
     
     JSONObject outputHeaderJson = JSONObject.fromObject(outputHeader, config);
+    renameKeys(outputHeaderJson);
     String header = outputHeaderJson.toString();
     
     String errorMessages = JSONArray.fromObject(errors).toString();
@@ -348,6 +349,19 @@ public class MessageConsumerDaemon implements Job {
     String finalOuput = " { \"grouperHeader\":  "+header+", \"errors\": " + errorMessages + " }" ;
         
     return finalOuput;
+    
+  }
+  
+  private void renameKeys(JSONObject jsonObject) {
+    
+    jsonObject.put("httpHeader_X-Grouper-resultCode", jsonObject.get("httpHeaderXGrouperResultCode"));
+    jsonObject.put("httpHeader_X-Grouper-success", jsonObject.get("httpHeaderXGrouperSuccess"));
+    jsonObject.put("httpHeader_X-Grouper-resultCode2", jsonObject.get("httpHeaderXGrouperResultCode2"));
+    
+    jsonObject.remove("httpHeaderXGrouperResultCode");
+    jsonObject.remove("httpHeaderXGrouperSuccess");
+    jsonObject.remove("httpHeaderXGrouperResultCode2");
+    
     
   }
   
@@ -373,6 +387,7 @@ public class MessageConsumerDaemon implements Job {
     outputHeader.setHttpHeaderXGrouperResultCode2(wsResponse.getResultCode2());
 
     JSONObject outputHeaderJson = JSONObject.fromObject(outputHeader);
+    renameKeys(outputHeaderJson);
     String header = outputHeaderJson.toString();
     
     String finalOuput = " { \"grouperHeader\":  "+header+", " + wsResponse.getBody() + " }" ;
