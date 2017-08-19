@@ -24,6 +24,7 @@ import java.sql.Timestamp;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
@@ -722,7 +723,49 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   public void store() {
     
     this.truncate();
-    
+
+    if (GrouperLoaderLogger.isLoggerEnabled()) {
+      String logLabel = StringUtils.isBlank(this.getParentJobId()) ? "overallLog" : "subjobLog";
+      GrouperLoaderLogger.addLogEntry(logLabel, "dryRun", GrouperLoader.isDryRun());
+      GrouperLoaderLogger.addLogEntry(logLabel, "jobName", this.getJobName());
+      if (!StringUtils.isBlank(this.getParentJobId())) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "parentJobName", this.getParentJobName());
+      }
+      if (!StringUtils.isBlank(this.getJobMessage())) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "jobMessage", this.getJobMessage());
+      }
+      if (!StringUtils.isBlank(this.getJobScheduleQuartzCron())) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "quartzCron", this.getJobScheduleQuartzCron());
+      }
+      GrouperLoaderLogger.addLogEntry(logLabel, "status", this.getStatus());
+      if ((this.deleteCount != null && this.deleteCount > 0)
+          || (this.insertCount != null && this.insertCount > 0)
+          || (this.updateCount != null && this.updateCount > 0)
+          || (this.totalCount != null && this.totalCount > 0)
+          || (this.millisGetData != null && this.millisGetData > 0)
+          || (this.millisLoadData != null && this.millisLoadData > 0)
+          ) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "deleteCount", this.getDeleteCount());
+        GrouperLoaderLogger.addLogEntry(logLabel, "insertCount", this.getInsertCount());
+        GrouperLoaderLogger.addLogEntry(logLabel, "updateCount", this.getUpdateCount());
+        GrouperLoaderLogger.addLogEntry(logLabel, "totalCount", this.getTotalCount());
+        GrouperLoaderLogger.addLogEntry(logLabel, "millisGetData", this.getMillisGetData());
+        GrouperLoaderLogger.addLogEntry(logLabel, "millisLoadData", this.getMillisLoadData());
+      }
+
+      if (!StringUtils.isBlank(this.getJobType())) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "jobType", this.getJobType());
+      }
+      
+      if (this.unresolvableSubjectCount != null && this.unresolvableSubjectCount > 0) {
+
+        GrouperLoaderLogger.addLogEntry(logLabel, "unresolvableSubjectCount", this.getUnresolvableSubjectCount());
+
+      }
+      GrouperLoaderLogger.addLogEntry(logLabel, "host", this.getHost());
+
+    }
+
     //if dry run dont do this
     if (!GrouperLoader.isDryRun()) {
     

@@ -1491,10 +1491,14 @@ public class GrouperLoader {
    * @return status
    */
   public static String runJobOnceForGroup(GrouperSession grouperSession, Group group) {
+    
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
+
     try {
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
       hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
   
+      @SuppressWarnings("deprecation")
       boolean isSqlLoader = group.hasType(GroupTypeFinder.find("grouperLoader", false));
       boolean isLdapLoader = false;
       
@@ -1543,7 +1547,11 @@ public class GrouperLoader {
         + hib3GrouperLoaderLog.getTotalCount() + ", unresolvable subjects: " + hib3GrouperLoaderLog.getUnresolvableSubjectCount();
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging("overallLog");
+      }
+    }      
   }
 
   /**
