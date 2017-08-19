@@ -96,10 +96,41 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListSubjectIdentifierWithAndGroups"));
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+//    Group loaderGroup = GroupFinder.findByName(grouperSession, "test:testLoader", true);
+//
+//    for (Member member : loaderGroup.getMembers()) {
+//      loaderGroup.deleteMember(member);
+//    }
+
+//    Group loaderGroup = GroupFinder.findByName(grouperSession, "test:testLoaderLdapSimple", true);
+//
+//    for (Member member : loaderGroup.getMembers()) {
+//      loaderGroup.deleteMember(member);
+//    }
+
+    
+    
+//    Group loaderGroup = GroupFinder.findByName(grouperSession, "test:testGroupListLoader", false);
+//
+//    for (String groupName : new String[]{"test:testGroup1", "test:testGroup2"}) {
+//      Group group = GroupFinder.findByName(grouperSession, groupName, false);
+//      if (group != null) {
+//        group.delete();
+//      }
+//    }
+//    
+//    GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+
+//    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListSubjectIdentifierWithAndGroups"));
 //    new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
+    
+    TestRunner.run(new GrouperLoaderTest("testLoaderFailsafeGroupListManagedGroupsOK1"));
   }
 
   /**

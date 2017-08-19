@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.app.loader;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -77,6 +78,8 @@ public class GrouperLoaderJob implements Job {
   public void execute(JobExecutionContext context) throws JobExecutionException {
     long startTime = System.currentTimeMillis();
 
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
+    
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     
     Group group = null;
@@ -86,7 +89,10 @@ public class GrouperLoaderJob implements Job {
       grouperSession = GrouperSession.startRootSession();
       String jobName = context.getJobDetail().getKey().getName();
   
+      GrouperLoaderLogger.addLogEntry("overallLog", "startTime", new Date());
+      
       if (GrouperLoader.isJobRunning(jobName)) {
+        GrouperLoaderLogger.addLogEntry("overallLog", "alreadyRunningSoAborting", true);
         LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
         return;
       }
@@ -101,6 +107,7 @@ public class GrouperLoaderJob implements Job {
       
       //job name is GrouperLoaderType__groupname__uuid
       GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
+
       if (grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST) || 
           grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE)) {
         
@@ -310,15 +317,27 @@ public class GrouperLoaderJob implements Job {
         
       }
       
+      GrouperLoaderLogger.addLogEntry("overallLog", "jobName", jobName);
+
       if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
-        
+        GrouperLoaderLogger.addLogEntry("overallLog", "attributeDefOwner", attributeDef == null ? null : attributeDef.getName());
+
         runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
       } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
         || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
         || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
         
+        if (group != null) {
+          GrouperLoaderLogger.addLogEntry("overallLog", "groupOwner", group.getName());
+        }
+        
         runJobLdap(hib3GrouploaderLog, group, grouperSession);
       } else {
+
+        if (group != null) {
+          GrouperLoaderLogger.addLogEntry("overallLog", "groupOwner", group.getName());
+        }
+        
         //all other jobs go through here
         runJob(hib3GrouploaderLog, group, grouperSession);
       }
@@ -331,6 +350,9 @@ public class GrouperLoaderJob implements Job {
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging("overallLog");
+      }
       GrouperSession.stopQuietly(grouperSession);
     }
     
@@ -346,6 +368,9 @@ public class GrouperLoaderJob implements Job {
     long startTime = System.currentTimeMillis();
     boolean throwExceptionsInFinally = true;
     String jobName = null;
+    
+    //String logLabel = StringUtils.isBlank(hib3GrouploaderLog.getParentJobId()) ? "overallLog" : "subjobLog";
+    
     try {
       
       jobName = hib3GrouploaderLog.getJobName();
@@ -359,7 +384,9 @@ public class GrouperLoaderJob implements Job {
       if (jobGroup != null) {
         String grouperLoaderAndGroupNames = jobGroup.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_AND_GROUPS);
         if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
-          
+
+          GrouperLoaderLogger.addLogEntry("overallLog", "andGroups", grouperLoaderAndGroupNames);
+
           hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroupNames);
           
           //there are groups to and with, get the list
@@ -375,6 +402,7 @@ public class GrouperLoaderJob implements Job {
       
       //log that we are starting a job
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+
       hib3GrouploaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       
@@ -391,10 +419,21 @@ public class GrouperLoaderJob implements Job {
       
       if (jobGroup != null) {
         grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
+        GrouperLoaderLogger.addLogEntry("overallLog", "dbName", grouperLoaderDbName);
         grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_QUERY);
+        GrouperLoaderLogger.addLogEntry("overallLog", "query", grouperLoaderQuery);
         groupTypesString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_TYPES);
+        if (!StringUtils.isBlank(groupTypesString)) {
+          GrouperLoaderLogger.addLogEntry("overallLog", "groupTypes", groupTypesString);
+        }
         groupLikeString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
+        if (!StringUtils.isBlank(groupLikeString)) {
+          GrouperLoaderLogger.addLogEntry("overallLog", "groupsLike", groupLikeString);
+        }
         groupQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
+        if (!StringUtils.isBlank(groupQuery)) {
+          GrouperLoaderLogger.addLogEntry("overallLog", "groupQuery", groupQuery);
+        }
         groupName = jobGroup.getName();
         hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
       }
@@ -514,9 +553,17 @@ public class GrouperLoaderJob implements Job {
 
       grouperLoaderLdapType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapTypeName());
       grouperLoaderLdapServerId = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapServerIdName());
+      GrouperLoaderLogger.addLogEntry("overallLog", "serverId", grouperLoaderLdapServerId);
+
       grouperLoaderLdapFilter = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapFilterName());
+      GrouperLoaderLogger.addLogEntry("overallLog", "filter", grouperLoaderLdapFilter);
+
       grouperLoaderLdapSubjectAttribute = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+      GrouperLoaderLogger.addLogEntry("overallLog", "subjectAttribute", grouperLoaderLdapSubjectAttribute);
+
       grouperLoaderLdapSearchDn = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+      GrouperLoaderLogger.addLogEntry("overallLog", "searchDn", grouperLoaderLdapSearchDn);
+
       grouperLoaderLdapSourceId = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSourceIdName());
       grouperLoaderLdapSubjectIdType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
       grouperLoaderLdapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
@@ -630,6 +677,9 @@ public class GrouperLoaderJob implements Job {
    * @param grouperSession 
    */
   public static void runJobAttrDef(Hib3GrouperLoaderLog hib3GrouploaderLog, AttributeDef jobAttributeDef, GrouperSession grouperSession) {
+
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
+
     long startTime = System.currentTimeMillis();
     boolean throwExceptionsInFinally = true;
     String jobName = null;
@@ -699,6 +749,9 @@ public class GrouperLoaderJob implements Job {
       throw new RuntimeException(t.getMessage(), t);
     } finally {
       
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging("overallLog");
+      }
       storeLogInDb(hib3GrouploaderLog, throwExceptionsInFinally, startTime);
     }
     
