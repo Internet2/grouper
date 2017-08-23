@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -878,12 +879,21 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFileOrCache() {
     
-    Map<String, Object> debugMap = (LOG != null && LOG.isDebugEnabled()) ? new LinkedHashMap<String, Object>() : null;
+    boolean isDebugEnabled = false;
+    if (LOG != null) {
+      if (LOG instanceof GrouperClientLog) {
+        isDebugEnabled = ((GrouperClientLog)LOG).isEnclosedLogDebugEnabled();
+      } else {
+        isDebugEnabled = LOG.isDebugEnabled();
+      }
+    }
+    
+    Map<String, Object> debugMap = (LOG != null && isDebugEnabled) ? new LinkedHashMap<String, Object>() : null;
     
     try {
     
     if (configFileCache == null) {
-        if (LOG != null && LOG.isDebugEnabled()) {
+        if (LOG != null && isDebugEnabled) {
           debugMap.put("configFileCache", null);
         }
         
@@ -895,10 +905,10 @@ public abstract class ConfigPropertiesCascadeBase {
     
     if (configObject == null) {
       
-        if (LOG != null && LOG.isDebugEnabled()) {
+        if (LOG != null && isDebugEnabled) {
           debugMap.put("configObject", null);
         }
-        if (LOG != null && LOG.isDebugEnabled()) {
+        if (LOG != null && isDebugEnabled) {
           debugMap.put("mainConfigClasspath", this.getMainConfigClasspath());
         }
       
@@ -910,7 +920,7 @@ public abstract class ConfigPropertiesCascadeBase {
       //see if that much time has passed
       if (configObject.needToCheckIfFilesNeedReloading()) {
         
-          if (LOG != null && LOG.isDebugEnabled()) {
+          if (LOG != null && isDebugEnabled) {
             debugMap.put("needToCheckIfFilesNeedReloading", true);
           }
         synchronized (configObject) {
@@ -920,11 +930,11 @@ public abstract class ConfigPropertiesCascadeBase {
           //check again in case another thread did it
           if (configObject.needToCheckIfFilesNeedReloading()) {
             
-              if (LOG != null && LOG.isDebugEnabled()) {
+              if (LOG != null && isDebugEnabled) {
                 debugMap.put("needToCheckIfFilesNeedReloading2", true);
               }
             if (configObject.filesNeedReloadingBasedOnContents()) {
-                if (LOG != null && LOG.isDebugEnabled()) {
+                if (LOG != null && isDebugEnabled) {
                   debugMap.put("filesNeedReloadingBasedOnContents", true);
                 }
               configObject = retrieveFromConfigFiles();
@@ -934,7 +944,7 @@ public abstract class ConfigPropertiesCascadeBase {
         }
       }
     }
-      if (LOG != null && LOG.isDebugEnabled()) {
+      if (LOG != null && isDebugEnabled) {
         Properties theProperties = configObject.properties();
         debugMap.put("configObjectPropertyCount", configObject == null ? null 
             : (theProperties == null ? "propertiesNull" : theProperties.size()));
@@ -942,7 +952,7 @@ public abstract class ConfigPropertiesCascadeBase {
     
     return configObject;
     } finally {
-      if (LOG != null && LOG.isDebugEnabled()) {
+      if (LOG != null && isDebugEnabled) {
         LOG.debug(ConfigPropertiesCascadeUtils.mapToString(debugMap));
       }
     }
@@ -1211,9 +1221,14 @@ public abstract class ConfigPropertiesCascadeBase {
         if (configFile != null && configFile.exists() && configFile.isFile()) {
           inputStream = new FileInputStream(configFile);
           properties.load(inputStream);
-          if (LOG != null && LOG.isDebugEnabled()) {
+          if ((LOG != null && LOG.isDebugEnabled()) || GrouperClientLog.debugToConsoleByFlag()) {
             String theLog = "Reading resource: " + resourceName + ", from: " + ConfigPropertiesCascadeUtils.fileCanonicalPath(configFile);
-            LOG.debug(theLog);
+            if (LOG != null && LOG.isDebugEnabled()) {
+              LOG.debug(theLog);
+            }
+            if (GrouperClientLog.debugToConsoleByFlag()) {
+              System.err.println(theLog);
+            }
           }
           return properties;
         }

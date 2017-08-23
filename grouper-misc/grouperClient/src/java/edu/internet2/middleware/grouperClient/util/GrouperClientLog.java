@@ -43,6 +43,16 @@ public class GrouperClientLog implements Log {
    * @return if debug to console
    */
   public static boolean debugToConsole() {
+    
+    return debugToConsoleByFlag()
+        && GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.printDebugLogWhenDebugFlag", false);
+  }
+  
+  /**
+   * if we should debug to console
+   * @return if debug to console
+   */
+  public static boolean debugToConsoleByFlag() {
     Boolean debugToConsoleBoolean = debugToConsole.get();
     return GrouperClientUtils.defaultIfNull(debugToConsoleBoolean, false);
   }
@@ -143,6 +153,13 @@ public class GrouperClientLog implements Log {
    */
   public boolean isDebugEnabled() {
     return this.enclosedLog.isDebugEnabled() || debugToConsole();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log#isDebugEnabled()
+   */
+  public boolean isEnclosedLogDebugEnabled() {
+    return this.enclosedLog.isDebugEnabled();
   }
 
   /**

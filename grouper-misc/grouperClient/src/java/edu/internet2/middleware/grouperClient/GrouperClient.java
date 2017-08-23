@@ -176,7 +176,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * main class for grouper client.  note, stdout is for output, stderr is for error messages (or logs)
  */
 public class GrouperClient {
-
+  
   /** timing gate */
   private static long startTime = System.currentTimeMillis();
   
@@ -347,6 +347,19 @@ public class GrouperClient {
       if (shouldSaveResultsToFile) {
         log.debug("Will save results to file: " + GrouperClientUtils.fileCanonicalPath(new File(saveResultsToFile)));
       }
+
+      {
+        String grouperActAsSourceId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "grouperActAsSubjectSource", false);
+        String grouperActAsSubjectId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "grouperActAsSubjectId", false);
+        String grouperActAsSubjectIdentifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "grouperActAsSubjectIdentifier", false);
+        
+        GrouperClientState grouperClientState = GrouperClientState.retrieveGrouperClientState(true);
+        
+        grouperClientState.setGrouperActAsSourceId(grouperActAsSourceId);
+        grouperClientState.setGrouperActAsSubjectId(grouperActAsSubjectId);
+        grouperClientState.setGrouperActAsSubjectIdentifier(grouperActAsSubjectIdentifier);
+        
+      }      
       
       String result = null;
       
@@ -512,9 +525,14 @@ public class GrouperClient {
       throw new RuntimeException(e.getMessage(), e);
     } finally {
       try {
-        log.debug("Elapsed time: " + (System.currentTimeMillis() - startTime) + "ms");
+        String debugMessage = "Elapsed time: " + (System.currentTimeMillis() - startTime) + "ms";
+        log.debug(debugMessage);
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println(debugMessage);
+        }
       } catch (Exception e) {}
       GrouperClientLog.assignDebugToConsole(false);
+      GrouperClientState.removeGrouperClientState();
     }
     
   }
@@ -708,8 +726,10 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.addMember.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAddMemberResults, " +
-        "grouperClientUtils, wsGroupAssigned, index, wsAddMemberResult, wsSubject, resultMetadata");
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+        System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAddMemberResults, " +
+            "grouperClientUtils, wsGroupAssigned, index, wsAddMemberResult, wsSubject, resultMetadata");
+      }
 
       for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {
         
@@ -798,9 +818,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.memberChangeSubject.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMemberChangeSubjectResults, " +
-      "grouperClientUtils, index, resultMetadata, wsMemberChangeSubjectResult, wsSubjectOld, wsSubjectNew");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMemberChangeSubjectResults, " +
+          "grouperClientUtils, index, resultMetadata, wsMemberChangeSubjectResult, wsSubjectOld, wsSubjectNew");
+    }
+    
     //there will only be one result, but loop anyways
     for (WsMemberChangeSubjectResult wsMemberChangeSubjectResult : wsMemberChangeSubjectResults.getResults()) {
       
@@ -959,9 +981,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getGrouperPrivilegesLite.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetGrouperPrivilegesLiteResult, " +
-      "grouperClientUtils, resultMetadata, index, wsGrouperPrivilegeResult, wsSubject, wsGroup, wsStem, objectType, objectName");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetGrouperPrivilegesLiteResult, " +
+          "grouperClientUtils, resultMetadata, index, wsGrouperPrivilegeResult, wsSubject, wsGroup, wsStem, objectType, objectName");
+    }
+    
     for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : GrouperClientUtils.nonNull( 
         wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), WsGrouperPrivilegeResult.class)) {
       
@@ -1061,9 +1085,11 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignGrouperPrivilegesLite.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignGrouperPrivilegesLiteResult, " +
-        "grouperClientUtils, wsSubject, resultMetadata, wsGroup, wsStem, objectType, objectName");
-
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+        System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignGrouperPrivilegesLiteResult, " +
+            "grouperClientUtils, wsSubject, resultMetadata, wsGroup, wsStem, objectType, objectName");
+      }
+      
       substituteMap.put("wsSubject", wsAssignGrouperPrivilegesLiteResult.getWsSubject());
       substituteMap.put("resultMetadata", wsAssignGrouperPrivilegesLiteResult.getResultMetadata());
       substituteMap.put("wsGroup", wsAssignGrouperPrivilegesLiteResult.getWsGroup());
@@ -1137,9 +1163,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.groupDelete.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGroupDeleteResults, " +
-      "grouperClientUtils, index, wsGroupDeleteResult, resultMetadata, wsGroup");
-
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGroupDeleteResults, " +
+          "grouperClientUtils, index, wsGroupDeleteResult, resultMetadata, wsGroup");
+    }
+    
     for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResults.getResults()) {
       
       substituteMap.put("index", index);
@@ -1212,8 +1240,10 @@ public class GrouperClient {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.stemDelete.output");
       }
       
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsStemDeleteResults, " +
-        "grouperClientUtils, resultMetadata, index, wsStemDeleteResult, wsStem");
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsStemDeleteResults, " +
+              "grouperClientUtils, resultMetadata, index, wsStemDeleteResult, wsStem");
+      }
       
       for (WsStemDeleteResult wsStemDeleteResult : wsStemDeleteResults.getResults()) {
 
@@ -1446,9 +1476,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.groupSave.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGroupSaveResults, " +
-      "grouperClientUtils, index, wsGroupSaveResult, resultMetadata");
-
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGroupSaveResults, " +
+          "grouperClientUtils, index, wsGroupSaveResult, resultMetadata");
+    }
+    
     //there is one result...  but loop anyways
     for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
       
@@ -1583,9 +1615,11 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.stemSave.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsStemSaveResults, " +
-        "grouperClientUtils, index, wsStemSaveResult, wsStem, resultMetadata");
-
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsStemSaveResults, " +
+              "grouperClientUtils, index, wsStemSaveResult, wsStem, resultMetadata");
+      }
+      
       //there is one result...  but loop anyways
       for (WsStemSaveResult wsStemSaveResult : wsStemSaveResults.getResults()) {
         
@@ -1691,9 +1725,11 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.hasMember.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsHasMemberResults, " +
-        "grouperClientUtils, index, wsGroup, wsHasMemberResult, wsSubject, resultMetadata, hasMember");
-
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+        System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsHasMemberResults, " +
+              "grouperClientUtils, index, wsGroup, wsHasMemberResult, wsSubject, resultMetadata, hasMember");
+      }
+      
       for (WsHasMemberResult wsHasMemberResult : wsHasMemberResults.getResults()) {
         
         substituteMap.put("index", index);
@@ -1794,9 +1830,11 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.deleteMember.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsDeleteMemberResults, " +
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+        System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsDeleteMemberResults, " +
       		"grouperClientUtils, wsGroup, index, wsDeleteMemberResult, wsSubject, resultMetadata");
-  
+      }
+      
       for (WsDeleteMemberResult wsDeleteMemberResult : wsDeleteMemberResults.getResults()) {
         
         substituteMap.put("index", index);
@@ -2060,9 +2098,11 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.findGroups.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindGroupsResults, " +
-        "resultMetadata, grouperClientUtils, index, wsGroup");
-
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+        System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindGroupsResults, " +
+            "resultMetadata, grouperClientUtils, index, wsGroup");
+      }
+      
       for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsFindGroupsResults.getGroupResults(), WsGroup.class)) {
         
         substituteMap.put("index", index);
@@ -2152,9 +2192,11 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.findStems.output");
       }
-      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindStemsResults, " +
-        "resultMetadata, grouperClientUtils, index, wsStem");
-
+      if (GrouperClientLog.debugToConsoleByFlag()) {
+        System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindStemsResults, " +
+            "resultMetadata, grouperClientUtils, index, wsStem");
+      }
+      
       for (WsStem wsStem : GrouperClientUtils.nonNull(wsFindStemsResults.getStemResults(), WsStem.class)) {
         
         substituteMap.put("index", index);
@@ -2296,9 +2338,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getMembers.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembersResults, " +
-      "grouperClientUtils, groupIndex, wsGetMembersResult, wsGroup, resultMetadata, subjectIndex, wsSubject");
-
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembersResults, " +
+          "grouperClientUtils, groupIndex, wsGetMembersResult, wsGroup, resultMetadata, subjectIndex, wsSubject");
+    }
+    
     for (WsGetMembersResult wsGetMembersResult : GrouperClientUtils.nonNull(wsGetMembersResults.getResults(), WsGetMembersResult.class)) {
       
       substituteMap.put("groupIndex", groupIndex);
@@ -2445,9 +2489,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getGroups.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetGroupsResults, " +
-      "grouperClientUtils, subjectIndex, wsGetGroupsResult, resultMetadata, wsSubject, groupIndex, wsGroup");
-
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetGroupsResults, " +
+          "grouperClientUtils, subjectIndex, wsGetGroupsResult, resultMetadata, wsSubject, groupIndex, wsGroup");
+    }
+    
     for (WsGetGroupsResult wsGetGroupsResult : GrouperClientUtils.nonNull(wsGetGroupsResults.getResults(), WsGetGroupsResult.class)) {
       
       substituteMap.put("subjectIndex", subjectIndex);
@@ -3087,9 +3133,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getMemberships.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembershipsResults, " +
-      "grouperClientUtils, index, wsMembership, type, ownerName");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembershipsResults, " +
+          "grouperClientUtils, index, wsMembership, type, ownerName");
+    }
+    
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
     
@@ -3260,9 +3308,11 @@ public class GrouperClient {
     }
     substituteMap.put("wsGroup", wsGetSubjectsResults.getWsGroup());
 
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetSubjectsResults, " +
-      "grouperClientUtils, index, wsSubject, wsGroup, success");
-
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetSubjectsResults, " +
+          "grouperClientUtils, index, wsSubject, wsGroup, success");
+    }
+    
     for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetSubjectsResults.getWsSubjects(), WsSubject.class)) {
             
       substituteMap.put("index", index);
@@ -3381,9 +3431,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignGrouperPrivileges.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignGrouperPrivilegesResults, wsAssignGrouperPrivilegesResult, " +
-      "grouperClientUtils, wsSubject, resultMetadata, wsGroup, wsStem, objectType, objectName, index");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignGrouperPrivilegesResults, wsAssignGrouperPrivilegesResult, " +
+          "grouperClientUtils, wsSubject, resultMetadata, wsGroup, wsStem, objectType, objectName, index");
+    }
+    
     substituteMap.put("wsGroup", wsAssignGrouperPrivilegesResults.getWsGroup());
     substituteMap.put("wsStem", wsAssignGrouperPrivilegesResults.getWsStem());
     substituteMap.put("objectType", wsAssignGrouperPrivilegesResults.getWsStem() == null ? "group" : "stem");
@@ -3773,9 +3825,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getAttributeAssignments.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetAttributeAssignmentsResults, " +
-      "grouperClientUtils, index, wsAttributeAssignment");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetAttributeAssignmentsResults, " +
+          "grouperClientUtils, index, wsAttributeAssignment");
+    }
+    
     //########## GROUPS
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
@@ -3995,10 +4049,12 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(
           "webService.getAttributeAssignActions.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate)
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate)
         + ", available variables: wsGetAttributeAssignActionsResults, " +
         "grouperClientUtils, index, wsAttributeAssignActionTuple");
-
+    }
+    
     for (WsAttributeAssignActionTuple tuple : GrouperClientUtils.nonNull(
         wsGetAttributeAssignActionsResults.getWsAttributeAssignActionTuples(),
         WsAttributeAssignActionTuple.class)) {
@@ -4350,9 +4406,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignAttributes.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributesResults, " +
-      "grouperClientUtils, index, wsAttributeAssignment");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributesResults, " +
+          "grouperClientUtils, index, wsAttributeAssignment");
+    }
+    
     //########## GROUPS
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
@@ -4574,10 +4632,12 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(
           "webService.assignAttributeDefActions.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate)
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate)
         + ", available variables: wsAttributeDefAssignActionResults, " +
         "grouperClientUtils, index, actionWithOperation, nameOfAttributeDef");
-
+    }
+    
     for (WsAttributeDefActionOperationPerformed actionWithOperation : GrouperClientUtils
         .nonNull(wsAttributeDefAssignActionResults.getActions(),
             WsAttributeDefActionOperationPerformed.class)) {
@@ -4820,9 +4880,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getPermissionAssignments.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsPermissionAssignmentsResults, " +
-      "grouperClientUtils, index, wsAttributeAssignment, wsPermissionAssign, wsAttributeDef, wsAttributeDefName, wsSubject, role");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsPermissionAssignmentsResults, " +
+          "grouperClientUtils, index, wsAttributeAssignment, wsPermissionAssign, wsAttributeDef, wsAttributeDefName, wsSubject, role");
+    }
+    
     //########## GROUPS
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
@@ -5120,10 +5182,12 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignPermissions.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignPermissionsResults, " +
-      "grouperClientUtils, index, wsAssignPermissionResult, ownerName, wsAttributeAssign, " +
-      "wsAttributeDef, wsAttributeDefName, wsOwnerGroup, permissionType");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignPermissionsResults, " +
+        "grouperClientUtils, index, wsAssignPermissionResult, ownerName, wsAttributeAssign, " +
+        "wsAttributeDef, wsAttributeDefName, wsOwnerGroup, permissionType");
+    }
+    
     //########## GROUPS
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
@@ -5320,9 +5384,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.attributeDefNameSave.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameSaveResults, " +
-      "grouperClientUtils, index, wsAttributeDefNameSaveResult, resultMetadata");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameSaveResults, " +
+          "grouperClientUtils, index, wsAttributeDefNameSaveResult, resultMetadata");
+    }
+    
     //there is one result...  but loop anyways
     for (WsAttributeDefNameSaveResult wsAttributeDefNameSaveResult : wsAttributeDefNameSaveResults.getResults()) {
       
@@ -5396,9 +5462,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.attributeDefNameDelete.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameDeleteResults, " +
-      "grouperClientUtils, index, wsattributeDefNameDeleteResult, resultMetadata, wsAttributeDefName");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameDeleteResults, " +
+          "grouperClientUtils, index, wsattributeDefNameDeleteResult, resultMetadata, wsAttributeDefName");
+    }
+    
     for (WsAttributeDefNameDeleteResult wsAttributeDefNameDeleteResult : wsAttributeDefNameDeleteResults.getResults()) {
       
       substituteMap.put("index", index);
@@ -5485,9 +5553,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignAttributeDefNameInheritance.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributeDefNameInheritanceResults, " +
-      "grouperClientUtils, resultMetadata");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributeDefNameInheritanceResults, " +
+          "grouperClientUtils, resultMetadata");
+    }
+    
     substituteMap.put("resultMetadata", wsAssignAttributeDefNameInheritanceResults.getResultMetadata());
 
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
@@ -5676,9 +5746,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.findAttributeDefNames.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindAttributeDefNamesResults, " +
-      "resultMetadata, grouperClientUtils, index, wsAttributeDefName, wsAttributeDef");
-
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindAttributeDefNamesResults, " +
+          "resultMetadata, grouperClientUtils, index, wsAttributeDefName, wsAttributeDef");
+    }
+    
     //map from uuid to attributeDef
     Map<String, WsAttributeDef> attributeDefMap = new HashMap<String, WsAttributeDef>();
     for (WsAttributeDef wsAttributeDef : GrouperClientUtils.nonNull(wsFindAttributeDefNamesResults.getAttributeDefs(), WsAttributeDef.class)) {
@@ -5976,10 +6048,12 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignAttributesBatch.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributesBatchResults, " +
-      "wsAssignAttributeBatchResult, grouperClientUtils, assignIndex, assignItemIndex, wsAttributeAssign, ownerName, valuesString, " +
-      "wsOwnerAttributeDef, wsAttributeDef, wsAttributeDefName, wsOwnerMemberSubject, wsOwnerMembership, wsOwnerGroup");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributesBatchResults, " +
+        "wsAssignAttributeBatchResult, grouperClientUtils, assignIndex, assignItemIndex, wsAttributeAssign, ownerName, valuesString, " +
+        "wsOwnerAttributeDef, wsAttributeDef, wsAttributeDefName, wsOwnerMemberSubject, wsOwnerMembership, wsOwnerGroup");
+    }
+    
     //########## GROUPS
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
@@ -6222,10 +6296,12 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig()
           .propertyValueStringRequired("webService.attributeDefSave.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate)
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate)
         + ", available variables: wsAttributeDefSaveResults, " +
         "grouperClientUtils, index, wsAttributeDefSaveResult, resultMetadata");
-
+    }
+    
     //there is one result...  but loop anyways
     for (WsAttributeDefSaveResult wsAttributeDefSaveResult : wsAttributeDefSaveResults
         .getResults()) {
@@ -6308,10 +6384,12 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig()
           .propertyValueStringRequired("webService.attributeDefDelete.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate)
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate)
         + ", available variables: wsAttributeDefDeleteResults, " +
         "grouperClientUtils, index, wsattributeDefDeleteResult, resultMetadata, wsAttributeDefName");
-
+    }
+    
     for (WsAttributeDefDeleteResult wsAttributeDefDeleteResult : wsAttributeDefDeleteResults
         .getResults()) {
 
@@ -6472,10 +6550,12 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig()
           .propertyValueStringRequired("webService.findAttributeDefs.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate)
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate)
         + ", available variables: wsFindAttributeDefsResults, " +
         "resultMetadata, grouperClientUtils, index, wsAttributeDef");
-
+    }
+    
     for (WsAttributeDef wsAttributeDef : GrouperClientUtils.nonNull(
         wsFindAttributeDefsResults.getAttributeDefResults(), WsAttributeDef.class)) {
 
@@ -6555,9 +6635,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.sendMessage.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
-      "grouperClientUtils, resultMetadata");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
+          "grouperClientUtils, resultMetadata");
+    }
+    
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
     result.append(output);
     return result.toString();
@@ -6621,9 +6703,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.receiveMessage.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
-      "grouperClientUtils, resultMetadata");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
+          "grouperClientUtils, resultMetadata");
+    }
+    
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
     result.append(output);
     return result.toString();
@@ -6695,9 +6779,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.acknowledgeMessage.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageAcknowledgeResults, " +
-      "grouperClientUtils, resultMetadata");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageAcknowledgeResults, " +
+          "grouperClientUtils, resultMetadata");
+    }
+    
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
     result.append(output);
     return result.toString();
@@ -6767,9 +6853,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.findExternalSubjects.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindExternalSubjectsResults, " +
-      "resultMetadata, grouperClientUtils, index, wsExternalSubject");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindExternalSubjectsResults, " +
+          "resultMetadata, grouperClientUtils, index, wsExternalSubject");
+    }
+    
     for (WsExternalSubject wsExternalSubject : GrouperClientUtils.nonNull(wsFindExternalSubjectsResults.getExternalSubjectResults(), WsExternalSubject.class)) {
       
       substituteMap.put("index", index);
@@ -6848,9 +6936,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.externalSubjectDelete.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsExternalSubjectDeleteResults, " +
-      "grouperClientUtils, index, wsExternalSubjectDeleteResult, resultMetadata, wsExternalSubject");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsExternalSubjectDeleteResults, " +
+          "grouperClientUtils, index, wsExternalSubjectDeleteResult, resultMetadata, wsExternalSubject");
+    }
+    
     for (WsExternalSubjectDeleteResult wsExternalSubjectDeleteResult : wsExternalSubjectDeleteResults.getResults()) {
       
       substituteMap.put("index", index);
@@ -6996,9 +7086,11 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.externalSubjectSave.output");
     }
-    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsExternalSubjectSaveResults, " +
-      "grouperClientUtils, index, wsExternalSubjectSaveResult, resultMetadata");
-  
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsExternalSubjectSaveResults, " +
+          "grouperClientUtils, index, wsExternalSubjectSaveResult, resultMetadata");
+    }
+    
     //there is one result...  but loop anyways
     for (WsExternalSubjectSaveResult wsExternalSubjectSaveResult : wsExternalSubjectSaveResults.getResults()) {
       
