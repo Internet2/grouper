@@ -33,7 +33,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.morphString.apache.codec.binary.Base64;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
@@ -80,7 +82,7 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperServiceJ2ee implements Filter {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperService.class);
+  private static final Log LOG = LogFactory.getLog(GrouperServiceJ2ee.class);
 
   /**
    * if in request, get the start time
@@ -270,6 +272,9 @@ public class GrouperServiceJ2ee implements Filter {
           }
         }
       });
+      
+      caller = retrieveSubjectGrouperActAsHelper(caller);
+      
       //this is set in filter
       GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
       
@@ -285,9 +290,204 @@ public class GrouperServiceJ2ee implements Filter {
 
   }
 
+  /**
+   * see if there is a grouper act as in play here
+   * @param loggedInSubject
+   * @return the subject
+   */
+  private static Subject retrieveSubjectGrouperActAsHelper(final Subject loggedInSubject) {
+    
+    //see if we are acting as someone else
+    String grouperActAsGroup = GrouperWsConfig.retrieveConfig().propertyValueString("ws.grouper.act.as.group");
+    if (StringUtils.isBlank(grouperActAsGroup)
+        || loggedInSubject == null) {
+      LOG.debug("No grouperActAs configured");
+      return loggedInSubject;
+    }
+
+    GrouperSession session = null;
+    
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+
+    String grouperActAsSubjectId = httpServletRequest.getHeader("X-Grouper-actAsSubjectId");
+    String grouperActAsSubjectIdentifier = httpServletRequest.getHeader("X-Grouper-actAsSubjectIdentifier");
+    String grouperActAsSubjectSource = httpServletRequest.getHeader("X-Grouper-actAsSourceId");
+
+    if (!StringUtils.isBlank(grouperActAsSubjectSource)) {
+
+      if (!StringUtils.isBlank(grouperActAsSubjectId) 
+          && !StringUtils.isBlank(grouperActAsSubjectIdentifier)) {
+        throw new RuntimeException("You can only have one of X-Grouper-actAsSubjectId or X-Grouper-actAsSubjectIdentifier set!");
+      }
+
+      if (StringUtils.isBlank(grouperActAsSubjectId) 
+          && StringUtils.isBlank(grouperActAsSubjectIdentifier)) {
+        throw new RuntimeException("You must have one of X-Grouper-actAsSubjectId or X-Grouper-actAsSubjectIdentifier set if X-Grouper-actAsSourceId is set!");
+      }
+
+      try {
+        grouperActAsSubjectSource = new String(new Base64().decode(grouperActAsSubjectSource.getBytes("UTF-8")), "UTF-8");
+  
+        if (!StringUtils.isBlank(grouperActAsSubjectId)) {
+          grouperActAsSubjectId = new String(new Base64().decode(grouperActAsSubjectId.getBytes("UTF-8")), "UTF-8");
+        } else if (!StringUtils.isBlank(grouperActAsSubjectIdentifier)) {
+          grouperActAsSubjectIdentifier = new String(new Base64().decode(grouperActAsSubjectIdentifier.getBytes("UTF-8")), "UTF-8");
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Problem with: source: '" + grouperActAsSubjectSource + "', id: '" 
+            + grouperActAsSubjectId + "', or identifier: '" + grouperActAsSubjectIdentifier + "'", e);
+      }
+    } else {
+      if (!StringUtils.isBlank(grouperActAsSubjectId) 
+          || !StringUtils.isBlank(grouperActAsSubjectIdentifier)) {
+        throw new RuntimeException("If X-Grouper-actAsSubjectId or X-Grouper-actAsSubjectIdentifier is set, then you must have a X-Grouper-actAsSourceId!");
+      }
+      //there is nothing there, go back
+      return loggedInSubject;
+    }
+    
+    // get the all powerful user
+    Subject rootSubject = SubjectFinder.findRootSubject();
+
+    try {
+      session = GrouperSession.start(rootSubject);
+
+      Subject actAsSubject = null;
+
+      if (!StringUtils.isBlank(grouperActAsSubjectId)) {
+        actAsSubject = SubjectFinder.findByIdAndSource(grouperActAsSubjectId, grouperActAsSubjectSource, true);
+      } else if (!StringUtils.isBlank(grouperActAsSubjectIdentifier)) {
+        actAsSubject = SubjectFinder.findByIdentifierAndSource(grouperActAsSubjectIdentifier, grouperActAsSubjectSource, true);
+      } else {
+        throw new RuntimeException("Why am I here?");
+      }
+
+      final Subject ACT_AS_SUBJECT = actAsSubject;
+      
+      //cache key to get or set if a user can act as another
+      final MultiKey cacheKey = new MultiKey(loggedInSubject.getId(), loggedInSubject.getSource()
+          .getId(), actAsSubject.getId(), actAsSubject.getSource().getId());
+
+      Boolean inCache = null;
+      
+      if (actAsCacheMinutes() > 0) {
+        inCache = grouperActAsCache().get(cacheKey);
+      } else {
+        inCache = false;
+      }
+
+      if (inCache != null && Boolean.TRUE.equals(inCache)) {
+        LOG.debug("grouperActAs retrieved from cache");
+        //if in cache and true, then allow
+        return actAsSubject;
+      }
+      
+      {
+        //see if root or wheel group
+        Subject rootAllowedSubject = (Subject)GrouperSession.callbackGrouperSession(session, new GrouperSessionHandler() {
+
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+              actAsCache().put(cacheKey, Boolean.TRUE);
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("grouperActAs allowed since logged in user is wheel or root: " + GrouperUtil.subjectToString(loggedInSubject));
+              }
+              return ACT_AS_SUBJECT;
+            }
+            return null;
+          }
+        });
+  
+        if (rootAllowedSubject != null) {
+          return rootAllowedSubject;
+        }
+      }
+      
+      //first separate by comma
+      String[] groupEntries = GrouperUtil.splitTrim(grouperActAsGroup, ",");
+
+      //see if all throw exceptions
+      int countNoExceptions = 0;
+
+      //we could also cache which entries the user is in...  not sure how many entries will be here
+      for (String groupEntry : groupEntries) {
+
+        //each entry should be failsafe
+        try {
+          //now see if it is a multi input
+          if (StringUtils.contains(groupEntry, GrouperWsConfig.WS_SEPARATOR)) {
+
+            //it is the group the user is in, and the group the act as has to be in
+            String[] groupEntryArray = GrouperUtil.splitTrim(groupEntry,
+                GrouperWsConfig.WS_SEPARATOR);
+            String userMustBeInGroupName = groupEntryArray[0];
+            String actAsMustBeInGroupName = groupEntryArray[1];
+
+            Group userMustBeInGroup = GroupFinder.findByName(session,
+                userMustBeInGroupName, true);
+            Group actAsMustBeInGroup = GroupFinder.findByName(session,
+                actAsMustBeInGroupName, true);
+
+            if (userMustBeInGroup.hasMember(loggedInSubject)
+                && actAsMustBeInGroup.hasMember(actAsSubject)) {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("grouperActAs allowed since logged in user is in group: " + userMustBeInGroupName + ", and act as user is in group: " + actAsMustBeInGroupName);
+              }
+              //its ok, lets add to cache
+              actAsCache().put(cacheKey, Boolean.TRUE);
+              return actAsSubject;
+            }
+
+          } else {
+            //else this is a straightforward rule where the logged in user just has to be in a group and
+            //can act as anyone
+            Group actAsGroup = GroupFinder.findByName(session, grouperActAsGroup, true);
+
+            // if the logged in user is a member of the actAs group, then allow
+            // the actAs
+            if (actAsGroup.hasMember(loggedInSubject)) {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("grouperActAs allowed since logged in user is in group: " + grouperActAsGroup);
+              }
+              //its ok, lets add to cache
+              actAsCache().put(cacheKey, Boolean.TRUE);
+              // this is the subject the web service wants to use
+              return actAsSubject;
+            }
+          }
+          countNoExceptions++;
+        } catch (Exception e) {
+          //just log and dont act since other entries could be fine
+          LOG.error("Problem with groupEntry: " + groupEntry + ", loggedInUser: "
+              + loggedInSubject + ", actAsSubject: " + actAsSubject, e);
+        }
+
+      }
+
+      if (countNoExceptions == 0) {
+        throw new RuntimeException("Problems seeing if web service user '"
+            + loggedInSubject + "' can actAs the other subject: '" + actAsSubject + "'");
+      }
+      // if not an effective member
+      throw new RuntimeException(
+          "A web service is specifying an actAsUser, but the groups specified in "
+              + GrouperWsConfig.WS_ACT_AS_GROUP + " in the grouper-ws.properties "
+              + " does not have a valid rule for member: '" + loggedInSubject
+              + "', and actAs: '" + actAsSubject + "'");
+    } catch (SessionException se) {
+      throw new RuntimeException(se);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+    
+  }
+  
   /** cache the actAs */
   private static GrouperCache<MultiKey, Boolean> actAsCache = null;
 
+  /** cache the grouper actAs */
+  private static GrouperCache<MultiKey, Boolean> grouperActAsCache = null;
+  
   /** cache the actAs */
   private static GrouperCache<MultiKey, Boolean> subjectAllowedCache = null;
 
@@ -306,6 +506,23 @@ public class GrouperServiceJ2ee implements Filter {
       }
     }
     return actAsCache;
+  }
+
+  /**
+   * get the grouperActAsCache, and init if not initted
+   * @return the grouperActAsCache
+   */
+  private static GrouperCache<MultiKey, Boolean> grouperActAsCache() {
+    if (grouperActAsCache == null) {
+      int actAsTimeoutMinutes = actAsCacheMinutes();
+
+      synchronized(GrouperServiceJ2ee.class) {
+        if (grouperActAsCache == null) {
+          grouperActAsCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperGrouperWsActAsCache", 10000, false, 60*60*24, actAsTimeoutMinutes*60, false);
+        }
+      }
+    }
+    return grouperActAsCache;
   }
 
   /**
