@@ -78,6 +78,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 
 
 
@@ -5299,6 +5300,10 @@ public class ConfigPropertiesCascadeCommonUtils  {
         if (callingLog != null) {
           callingLog.append(theLog);
         }
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println(theLog);
+        }
+
       } catch (Exception e) {
         
         //clear out just in case
@@ -5321,6 +5326,9 @@ public class ConfigPropertiesCascadeCommonUtils  {
             String theLog = "Reading resource: " + resourceName + ", from: " + fileCanonicalPath(configFile);
             if (callingLog != null) {
               callingLog.append(theLog);
+            }
+            if (GrouperClientLog.debugToConsoleByFlag()) {
+              System.err.println(theLog);
             }
           }
           

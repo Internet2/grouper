@@ -5487,6 +5487,10 @@ public class GrouperClientCommonUtils  {
         if (callingLog != null) {
           callingLog.append(theLog);
         }
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println(theLog);
+        }
+
       } catch (Exception e) {
         
         //clear out just in case
@@ -5513,6 +5517,10 @@ public class GrouperClientCommonUtils  {
             if (callingLog != null) {
               callingLog.append(theLog);
             }
+            if (GrouperClientLog.debugToConsoleByFlag()) {
+              System.err.println(theLog);
+            }
+
           }
           
         } catch (Exception e2) {

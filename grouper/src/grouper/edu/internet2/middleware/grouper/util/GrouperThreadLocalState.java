@@ -20,6 +20,7 @@ import org.apache.log4j.NDC;
 
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -109,6 +110,7 @@ public class GrouperThreadLocalState {
     HibernateSession.internal_assignThreadlocalReadonly(null);
     GrouperContextTypeBuiltIn.setThreadLocalContext(null);
     GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
+    GrouperLoaderLogger.removeThreadLocalMaps();
     NDC.remove();
 
     for (Class theClass : new Class[]{edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, Crypto.class}) {

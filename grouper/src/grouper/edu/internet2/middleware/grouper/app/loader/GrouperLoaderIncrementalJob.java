@@ -124,6 +124,8 @@ public class GrouperLoaderIncrementalJob implements Job {
     long startTime = System.currentTimeMillis();
     final Hib3GrouperLoaderLog hib3GrouperloaderLog = new Hib3GrouperLoaderLog();
     
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
+
     try {
       hib3GrouperloaderLog.setJobName(jobName);
       hib3GrouperloaderLog.setHost(GrouperUtil.hostname());
@@ -246,12 +248,15 @@ public class GrouperLoaderIncrementalJob implements Job {
           final String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_TYPE);
           final String grouperLoaderAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_AND_GROUPS);
 
+          final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
+
           for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
 
             GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
               
               @Override
               public Void callLogic() {
+                GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                 processOneRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, grouperLoaderQuery, grouperLoaderType, grouperLoaderAndGroups, hib3GrouperloaderLog);
                 return null;
               }
@@ -283,6 +288,9 @@ public class GrouperLoaderIncrementalJob implements Job {
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
       storeLogInDb(hib3GrouperloaderLog, true, startTime);
     } catch (Exception e) {
+      
+      GrouperLoaderLogger.addLogEntry("overallLog", "exception", ExceptionUtils.getFullStackTrace(e));
+
       LOG.error("Error running job", e);
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       hib3GrouperloaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
@@ -293,6 +301,10 @@ public class GrouperLoaderIncrementalJob implements Job {
       JobExecutionException jobExecutionException = (JobExecutionException)e;
       storeLogInDb(hib3GrouperloaderLog, false, startTime);
       throw jobExecutionException;
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging("overallLog");
+      }
     }
   }
   
@@ -454,17 +466,37 @@ public class GrouperLoaderIncrementalJob implements Job {
           }
         }
         
+        boolean added = false;
+        boolean removed = false;
+        
         if (isMemberInGroup && !isMemberInSourceAfterAndGroupsConsideration) {
           loaderGroup.deleteMember(subject);
+          removed = true;
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addDeleteCount(1);
           }
         } else if (!isMemberInGroup && isMemberInSourceAfterAndGroupsConsideration) {
           loaderGroup.addMember(subject);
+          added = true;
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addInsertCount(1);
           }
         }
+        
+        if (added || removed) {
+          GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", added ? "add" : "remove");
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+
+          GrouperLoaderLogger.doTheLogging("membershipManagement");
+
+        }
+        
       } else if (GrouperLoaderType.SQL_GROUP_LIST.name().equals(grouperLoaderType)) {
         String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
         if (StringUtils.isEmpty(grouperLoaderGroupsLike)) {
@@ -546,6 +578,17 @@ public class GrouperLoaderIncrementalJob implements Job {
           }
           theGroup.addMember(subject);
           
+          GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+
+          GrouperLoaderLogger.doTheLogging("membershipManagement");
+
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addInsertCount(1);
           }
@@ -554,7 +597,18 @@ public class GrouperLoaderIncrementalJob implements Job {
         for (String groupName : membershipsToRemove) {
           Group theGroup = GroupFinder.findByName(grouperSession, groupName, true);
           theGroup.deleteMember(subject);
-          
+
+          GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+
+          GrouperLoaderLogger.doTheLogging("membershipManagement");
+
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addDeleteCount(1);
           }

@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import edu.internet2.middleware.grouperClient.GrouperClientState;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
@@ -744,10 +745,15 @@ public class FailoverClient implements Serializable {
 
         } else {
 
+          final GrouperClientState GROUPER_CLIENT_STATE = GrouperClientState.retrieveGrouperClientState(false);
+          
           Callable<T> callable = new Callable<T>() {
 
             @Override
             public T call() throws Exception {
+              
+              GrouperClientState.assignGrouperClientState(GROUPER_CLIENT_STATE);
+              
               try {
 
                 long startNanos = -1;
@@ -766,6 +772,8 @@ public class FailoverClient implements Serializable {
                 }
                 results[I] = e;
                 successes[I] = false;
+              } finally {
+                GrouperClientState.removeGrouperClientState();
               }
               return null;
             }
