@@ -80,7 +80,7 @@ public class MessageConsumerDaemonTest extends TestCase {
     FakeHttpServer httpServer = new FakeHttpServer();
     httpServer.launchHttpServer();
     
-    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, grouperMessages);
+    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages);
     
     httpServer.stopHttpServer();
     
@@ -101,7 +101,7 @@ public class MessageConsumerDaemonTest extends TestCase {
     FakeHttpServer httpServer = new FakeHttpServer();
     httpServer.launchHttpServer();
     
-    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, grouperMessages);
+    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages);
     
     httpServer.stopHttpServer();
     
