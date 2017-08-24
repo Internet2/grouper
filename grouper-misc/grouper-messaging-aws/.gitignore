@@ -1,8 +1,8 @@
 /bin/
 build
-dist2
+build.properties
+dist
 logs
-.classpath
 .project
 .settings
 target
