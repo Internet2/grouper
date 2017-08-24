@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
@@ -95,7 +97,7 @@ public class MessageConsumerDaemon implements Job {
       LOG.error("Error occurred while receving messages from "+queueOrTopicName, e);
     }
     
-    processMessages(messagingSystemName, grouperMessageSystem, grouperMessages);
+    processMessages(messagingSystemName, grouperMessageSystem, messageQueueType, queueOrTopicName, grouperMessages);
 
   }
 
@@ -103,10 +105,15 @@ public class MessageConsumerDaemon implements Job {
   /**
    * @param messagingSystemName
    * @param grouperMessageSystem
+   * @param messageQueueType
+   * @param queueTopicName
    * @param grouperMessages
    */
   protected void processMessages(String messagingSystemName, GrouperMessagingSystem grouperMessageSystem,
+      String messageQueueType, String queueTopicName,
       Collection<GrouperMessage> grouperMessages) {
+    
+    List<GrouperMessage> messagesToBeAcknowledged = new ArrayList<GrouperMessage>();
     
     for (GrouperMessage inputMessage: grouperMessages) {
       
@@ -156,6 +163,7 @@ public class MessageConsumerDaemon implements Job {
       WsResponse wsReponse = null;
       try {        
         wsReponse = callWebService(newJson, grouperHeader.getHttpPath());
+        messagesToBeAcknowledged.add(inputMessage);
       } catch (Exception e) {
         wsReponse = new WsResponse();
         wsReponse.setHttpStatusCode(400);
@@ -168,8 +176,39 @@ public class MessageConsumerDaemon implements Job {
         String messageToBeSent = buildWsReplyToMessage(wsReponse, grouperHeader);
         sendReplyMessage(grouperMessageSystem, grouperHeader, messagingSystemName, messageToBeSent);
       }
-      
+            
     }
+    
+    acknowledge(grouperMessageSystem, messagingSystemName, messageQueueType, queueTopicName, messagesToBeAcknowledged);
+    
+  }
+  
+  /**
+   * @param grouperMessageSystem
+   * @param messagingSystemName
+   * @param messageQueueType
+   * @param queueTopicName
+   * @param messagesToBeAcknowledged
+   */
+  private void acknowledge(GrouperMessagingSystem grouperMessageSystem,
+      String messagingSystemName, String messageQueueType, String queueTopicName, Collection<GrouperMessage> messagesToBeAcknowledged) {
+    
+    GrouperMessageAcknowledgeParam acknowledgeParam = new GrouperMessageAcknowledgeParam();
+    acknowledgeParam.assignQueueName(queueTopicName);
+    acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed);
+    acknowledgeParam.assignGrouperMessages(messagesToBeAcknowledged);
+    acknowledgeParam.assignGrouperMessageSystemName(messagingSystemName);
+    
+    GrouperMessageSystemParam systemParam = new GrouperMessageSystemParam();
+    systemParam.assignMesssageSystemName(messagingSystemName);
+    acknowledgeParam.assignGrouperMessageSystemParam(systemParam);
+    
+    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
+    queueParam.assignQueueOrTopicName(queueTopicName);
+    queueParam.assignQueueType(GrouperMessageQueueType.valueOfIgnoreCase(messageQueueType, true));
+    acknowledgeParam.assignGrouperMessageQueueParam(queueParam);
+    
+    grouperMessageSystem.acknowledge(acknowledgeParam);
     
   }
   
