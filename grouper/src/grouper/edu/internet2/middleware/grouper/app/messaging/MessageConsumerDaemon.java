@@ -3,14 +3,13 @@ package edu.internet2.middleware.grouper.app.messaging;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
@@ -38,6 +37,7 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -319,13 +319,19 @@ public class MessageConsumerDaemon implements Job {
 
       PostMethod method = new PostMethod(url);
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials("GrouperSystem", "admin123");
+      Map<String, String> requestHeaders = new LinkedHashMap<String, String>();
       
-      method.setRequestHeader("Connection", "close");
+      String actAsSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectSourceId");
+      String actAsSubjectId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectId");
       
-      httpClient.getState().setCredentials(new AuthScope("localhost", 8085), defaultcreds);
-
+      requestHeaders.put("X-Grouper-actAsSourceId", actAsSubjectSourceId);
+      requestHeaders.put("X-Grouper-actAsSubjectId", actAsSubjectId);
+      requestHeaders.put("Connection", "close");
+      
+      for (String requestHeaderKey : requestHeaders.keySet()) {
+        method.addRequestHeader(requestHeaderKey, new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8"))));
+      }
+      
       method.setRequestEntity(new StringRequestEntity(jsonInput, "text/x-json", "UTF-8"));
       
       httpClient.executeMethod(method);
