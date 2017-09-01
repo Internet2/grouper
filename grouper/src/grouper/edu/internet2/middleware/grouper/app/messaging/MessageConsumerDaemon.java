@@ -3,13 +3,14 @@ package edu.internet2.middleware.grouper.app.messaging;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -72,7 +73,6 @@ public class MessageConsumerDaemon implements Job {
     String messageQueueType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.messageQueueType");
     String actAsSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectSourceId");
     String actAsSubjectId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectId");
-    //Integer secondsBetweenChecks = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.messaging.wsMessagingBridge.secondsBetweenChecks");
     Integer longPollingSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.messaging.wsMessagingBridge.longPollingSeconds");
     
     try {
@@ -160,9 +160,11 @@ public class MessageConsumerDaemon implements Job {
       
       String newJson = "{ \"" + endpoint + "\" :" + wsRequestBody + "}";
       
+      String wsBaseUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.ws.url");
+      
       WsResponse wsReponse = null;
       try {        
-        wsReponse = callWebService(newJson, grouperHeader.getHttpPath());
+        wsReponse = callWebService(newJson, wsBaseUrl + grouperHeader.getHttpPath());
         messagesToBeAcknowledged.add(inputMessage);
       } catch (Exception e) {
         wsReponse = new WsResponse();
@@ -319,19 +321,24 @@ public class MessageConsumerDaemon implements Job {
 
       PostMethod method = new PostMethod(url);
 
-      Map<String, String> requestHeaders = new LinkedHashMap<String, String>();
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      
+      String username = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.ws.username");
+      String password = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.ws.password");
+      password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
+      
+      Credentials credentials = new UsernamePasswordCredentials(username, password);
       
       String actAsSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectSourceId");
       String actAsSubjectId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectId");
       
-      requestHeaders.put("X-Grouper-actAsSourceId", actAsSubjectSourceId);
-      requestHeaders.put("X-Grouper-actAsSubjectId", actAsSubjectId);
-      requestHeaders.put("Connection", "close");
+      method.setRequestHeader("X-Grouper-actAsSourceId", actAsSubjectSourceId);
+      method.setRequestHeader("X-Grouper-actAsSubjectId", actAsSubjectId);
       
-      for (String requestHeaderKey : requestHeaders.keySet()) {
-        method.addRequestHeader(requestHeaderKey, new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8"))));
-      }
+      method.setRequestHeader("Connection", "close");
       
+      httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+
       method.setRequestEntity(new StringRequestEntity(jsonInput, "text/x-json", "UTF-8"));
       
       httpClient.executeMethod(method);
@@ -468,7 +475,11 @@ public class MessageConsumerDaemon implements Job {
     sendParam.assignGrouperMessageSystemParam(systemParam);
     
     sendParam.assignMessageBodies(Collections.singleton(finalOuput));
-    grouperMessagingSystem.send(sendParam);
+    try {      
+      grouperMessagingSystem.send(sendParam);
+    } catch (Exception e) {
+      LOG.error("Error occurred while sending reply message "+ inputGrouperHeader.getMessageInputUuid()+" to "+inputGrouperHeader.getReplyToQueueOrTopicName());
+    }
   }
   
 }
