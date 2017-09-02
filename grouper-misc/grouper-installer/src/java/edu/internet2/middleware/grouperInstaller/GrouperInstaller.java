@@ -8631,8 +8631,17 @@ public class GrouperInstaller {
     //prompt and install ws scim
     installWsScim();
     
-    //prompt and install ws scim
+    //prompt and install rabbitmq messaging
     installMessagingRabbitMq();
+    
+    //prompt and install aws sqs messaging
+    installMessagingAwsSqs();
+    
+    //prompt and install activemq messaging
+    installMessagingActiveMq();
+    
+    //prompt and install activeMq messaging
+    //installMessagingRabbitMq();
     
 
     //#####################################
@@ -8810,6 +8819,218 @@ public class GrouperInstaller {
           + "grouper.client.rabbitMq.example.properties");
       System.out.println("\n##################################\n");
     }
+  }
+  
+  /**
+   * 
+   */
+  private void installMessagingAwsSqs() {
+
+    //#####################################
+    // Install Grouper Messaging AWS SQS
+    //####################################
+    System.out.print("Do you want to install grouper AWS SQS messaging (t|f)? [f]: ");
+    boolean installAwsMessaging = readFromStdInBoolean(false, "grouperInstaller.autorun.installGrouperAwsSqsMessaging");
+    if (installAwsMessaging) {
+      
+      String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+      
+      if (!urlToDownload.endsWith("/")) {
+        urlToDownload += "/";
+      }
+
+      urlToDownload += "release/";
+      String awsFileName = "grouper.aws-" + this.version + ".tar.gz";
+      urlToDownload += this.version + "/" + awsFileName;
+
+      File awsFile = new File(this.grouperTarballDirectoryString + awsFileName);
+      
+      downloadFile(urlToDownload, awsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalAwsSqsDownloadTarEtc");
+
+      File unzippedAwsFile = unzip(awsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalAwsSqsDownloadTarEtc");
+      File unzippedAwsDir = untar(unzippedAwsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalAwsSqsDownloadTarEtc", 
+          new File(this.grouperInstallDirectoryString));
+
+      File awsInstallDirectoryFile = null;
+      boolean success = false;
+      for (int i=0;i<10;i++) {
+
+        System.out.print("Where do you want the Grouper AWS SQS messaging connector installed? ");
+        String awsInstallDirectoryFileString = readFromStdIn("grouperInstaller.autorun.AwsSqsWhereInstalled");
+        awsInstallDirectoryFile = new File(awsInstallDirectoryFileString);
+        if (!awsInstallDirectoryFile.exists() || !awsInstallDirectoryFile.isDirectory()) {
+          System.out.println("Error: cant find directory: '" + awsInstallDirectoryFile.getAbsolutePath() + "'");
+          continue;
+        }
+
+        //make sure directory is where the app is
+        
+        List<File> grouperClientFiles = GrouperInstallerUtils.jarFindJar(awsInstallDirectoryFile, "grouperClient.jar");
+        
+        if (GrouperInstallerUtils.length(grouperClientFiles) == 0) {
+          System.out.println("Cant find grouperClient.jar in a subdir of the install dir, please try again!");
+          continue;
+        }
+        
+        
+        if (GrouperInstallerUtils.length(grouperClientFiles) > 1) {
+          System.out.println("Found more than one grouperClient.jar in a subdir of the install dir, must only be one, please try again!");
+          continue;
+        }
+
+        //ok, we know where the jars go
+        File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
+        
+        for (String fileName : new String[] {"aws-java-sdk-1.11.155.jar", "slf4j-api-1.6.1.jar", "grouperSQSMessaging.jar", "slf4j-log4j12.jar"}) {
+          
+          String sourceFileName = unzippedAwsDir.getAbsolutePath() + File.separatorChar 
+              + "lib" + File.separatorChar + fileName;
+          
+          File sourceFile = new File(sourceFileName);
+          
+          if (!sourceFile.isFile() || !sourceFile.exists()) {
+            throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
+          }
+          
+          String destFileName = dirWhereFilesGo.getAbsolutePath() + File.separatorChar + fileName;
+          
+          File destFile = new File(destFileName);
+          
+          if (destFile.isFile() && destFile.exists()) {
+            System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
+            continue;
+          }
+          
+          System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
+          
+          GrouperInstallerUtils.copyFile(sourceFile, destFile, true, false);
+
+        }
+
+        success = true;
+        break;
+      }        
+      
+      if (!success) {
+        System.exit(1);
+      }
+      
+      //####################################
+      //tell user to configure
+      System.out.println("##################################\n");
+      
+      System.out.println("Configure your grouper.client.properties based on this file " 
+          + unzippedAwsDir.getAbsoluteFile() + File.separator 
+          + "grouper.client.aws.example.properties");
+      System.out.println("\n##################################\n");
+    }
+  
+  }
+  
+  /**
+   * 
+   */
+  private void installMessagingActiveMq() {
+
+    //#####################################
+    // Install Grouper Messaging ActiveMq
+    //####################################
+    System.out.print("Do you want to install grouper activeMq messaging (t|f)? [f]: ");
+    boolean installActiveMqMessaging = readFromStdInBoolean(false, "grouperInstaller.autorun.installGrouperActiveMqMessaging");
+    if (installActiveMqMessaging) {
+      
+      String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+      
+      if (!urlToDownload.endsWith("/")) {
+        urlToDownload += "/";
+      }
+
+      urlToDownload += "release/";
+      String activeMqFileName = "grouper.activeMq-" + this.version + ".tar.gz";
+      urlToDownload += this.version + "/" + activeMqFileName;
+
+      File activeMqFile = new File(this.grouperTarballDirectoryString + activeMqFileName);
+      
+      downloadFile(urlToDownload, activeMqFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalActiveMqDownloadTarEtc");
+
+      File unzippedActiveMqFile = unzip(activeMqFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalActiveMqDownloadTarEtc");
+      File unzippedActiveMqDir = untar(unzippedActiveMqFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalActiveMqDownloadTarEtc", 
+          new File(this.grouperInstallDirectoryString));
+
+      File activeMqInstallDirectoryFile = null;
+      boolean success = false;
+      for (int i=0;i<10;i++) {
+
+        System.out.print("Where do you want the Grouper ActiveMq messaging connector installed? ");
+        String activeMqInstallDirectoryFileString = readFromStdIn("grouperInstaller.autorun.activeMqWhereInstalled");
+        activeMqInstallDirectoryFile = new File(activeMqInstallDirectoryFileString);
+        if (!activeMqInstallDirectoryFile.exists() || !activeMqInstallDirectoryFile.isDirectory()) {
+          System.out.println("Error: cant find directory: '" + activeMqInstallDirectoryFile.getAbsolutePath() + "'");
+          continue;
+        }
+
+        //make sure directory is where the app is
+        
+        List<File> grouperClientFiles = GrouperInstallerUtils.jarFindJar(activeMqInstallDirectoryFile, "grouperClient.jar");
+        
+        if (GrouperInstallerUtils.length(grouperClientFiles) == 0) {
+          System.out.println("Cant find grouperClient.jar in a subdir of the install dir, please try again!");
+          continue;
+        }
+        
+        
+        if (GrouperInstallerUtils.length(grouperClientFiles) > 1) {
+          System.out.println("Found more than one grouperClient.jar in a subdir of the install dir, must only be one, please try again!");
+          continue;
+        }
+
+        //ok, we know where the jars go
+        File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
+        
+        for (String fileName : new String[] {"activemq-all-5.15.0.jar", "slf4j-api-1.6.1.jar", "qpid-jms-client-0.11.1.jar", "slf4j-log4j12.jar"}) {
+          
+          String sourceFileName = unzippedActiveMqDir.getAbsolutePath() + File.separatorChar 
+              + "lib" + File.separatorChar + fileName;
+          
+          File sourceFile = new File(sourceFileName);
+          
+          if (!sourceFile.isFile() || !sourceFile.exists()) {
+            throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
+          }
+          
+          String destFileName = dirWhereFilesGo.getAbsolutePath() + File.separatorChar + fileName;
+          
+          File destFile = new File(destFileName);
+          
+          if (destFile.isFile() && destFile.exists()) {
+            System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
+            continue;
+          }
+          
+          System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
+          
+          GrouperInstallerUtils.copyFile(sourceFile, destFile, true, false);
+
+        }
+
+        success = true;
+        break;
+      }        
+      
+      if (!success) {
+        System.exit(1);
+      }
+      
+      //####################################
+      //tell user to configure
+      System.out.println("##################################\n");
+      
+      System.out.println("Configure your grouper.client.properties based on this file " 
+          + unzippedActiveMqDir.getAbsoluteFile() + File.separator 
+          + "grouper.client.activeMq.example.properties");
+      System.out.println("\n##################################\n");
+    }
+  
   }
 
   /**
