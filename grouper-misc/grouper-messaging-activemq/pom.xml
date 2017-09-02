@@ -43,12 +43,6 @@
 	    <artifactId>xercesImpl</artifactId>
 	    <version>2.10.0</version>
 	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	</dependency>
-	
   	
     <dependency>
         <groupId>${project.groupId}</groupId>
@@ -69,21 +63,10 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jms_1.1_spec</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.qpid</groupId>
       <artifactId>qpid-jms-client</artifactId>
       <version>0.11.1</version>
     </dependency>
-    
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-pool2</artifactId>
-	    <version>2.4.2</version>
-	</dependency>
     
   </dependencies>
     
