@@ -22,7 +22,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.qpid.jms.JmsConnectionFactory;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
@@ -35,9 +34,11 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveRes
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
@@ -106,11 +107,10 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
     final GrouperMessageQueueParam queueParam = grouperMessageReceiveParam.getGrouperMessageQueueParam();
     
     validate(queueParam, systemParam);
-        
-    int defaultPageSize = GrouperClientConfig.retrieveConfig()
-        .propertyValueInt(String.format("grouper.%s.messaging.defaultPageSize", systemParam.getMessageSystemName()), 5);
-    int maxPageSize = GrouperClientConfig.retrieveConfig()
-        .propertyValueInt(String.format("grouper.%s.messaging.maxPageSize", systemParam.getMessageSystemName()), 10);
+    
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
+    int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
+    int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 10);
     
     Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
     
@@ -242,14 +242,16 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
         
         if (connection == null) {
           
+          GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
+
+          String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
+          String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
+          String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
           
-          String host = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.host", messagingSystemName));
-          String username = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.username", messagingSystemName));
-          String password = GrouperClientConfig.retrieveConfig().propertyValueString(String.format("grouper.%s.messsaging.password", messagingSystemName));
           if (StringUtils.isNotBlank(password)) {
             password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
           }
-          Integer port = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messsaging.port", messagingSystemName));
+          Integer port = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "port", -1);
           
           String connectionUrl = "amqp://"+host+":"+port;
           JmsConnectionFactory factory = new JmsConnectionFactory(connectionUrl);

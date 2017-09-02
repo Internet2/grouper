@@ -4,13 +4,12 @@ import static edu.internet2.middleware.grouperClient.messaging.GrouperMessageQue
 
 import java.util.Collection;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.RandomStringUtils;
 import junit.framework.TestCase;
 
 public class GrouperMessagingActiveMQSystemTest extends TestCase {
