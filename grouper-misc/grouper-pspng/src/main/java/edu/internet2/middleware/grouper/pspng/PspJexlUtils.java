@@ -21,9 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -73,8 +71,15 @@ public class PspJexlUtils extends GrouperUtilElSafe {
     
     return false;
   }
-  
+
+  // This bushyDn function is typically called from Jexl templates and does the most common
+  // escaping (rdn escaping), but does not escape filter characters
   public static String bushyDn(String groupName, String rdnAttributeName, String ouAttributeName) {
+    return bushyDn(groupName, rdnAttributeName, ouAttributeName, true, false);
+  }
+
+  public static String bushyDn(String groupName, String rdnAttributeName, String ouAttributeName,
+                               boolean performRdnEscaping, boolean performFilterEscaping) {
     StringBuilder result = new StringBuilder();
     
     List<String> namePieces=Arrays.asList(groupName.split(":"));
@@ -87,13 +92,24 @@ public class PspJexlUtils extends GrouperUtilElSafe {
 
       RDN rdn;
       String piece = namePieces.get(i);
+
+      // Look for filter-relevant characters if this will be used in a filter
+      if ( performFilterEscaping ) {
+        piece = escapeLdapFilter(piece);
+      }
+
       if (i==0)
         rdn = new RDN(rdnAttributeName, piece);
       else
         rdn = new RDN(ouAttributeName, piece);
 
-      result.append(rdn.toMinimallyEncodedString());
+      if ( performRdnEscaping ) {
+        result.append(rdn.toMinimallyEncodedString());
+      } else {
+        result.append(rdn.toString());
+      }
     }
+
     return result.toString();
   }
 

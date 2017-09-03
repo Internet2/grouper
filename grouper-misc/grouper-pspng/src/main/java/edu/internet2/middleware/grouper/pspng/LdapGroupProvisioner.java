@@ -469,6 +469,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         }
         else if ( searchResult.size() == 0 ) {
           // No match found ==> result will not include an entry for this grouperGroup
+          LOG.debug("{}: Group search did not return any results", getName());
         }
       } catch (PspException e) {
         LOG.error("{}: Problem fetching group with filter '{}' on base '{}'",
