@@ -77,5 +77,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang3-3.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/joda-time-2.9.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/groovy-all-2.4.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jline-2.12.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
