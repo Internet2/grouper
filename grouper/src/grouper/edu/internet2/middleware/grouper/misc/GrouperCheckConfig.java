@@ -2719,9 +2719,13 @@ public class GrouperCheckConfig {
           .assignAttributeDefPublic(true).assignAttributeDefType(AttributeDefType.attr)
           .assignMultiAssignable(false).assignMultiValued(false).assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
         
-        //this is publicly assignable and readable
-        entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-        entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.allow.everyEntity.privileges", true)) {
+          
+          //this is publicly assignable and readable
+          entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+          entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+
+        }
         
         //add the only name
         checkAttribute(entitiesStem, entityIdDef, EntityUtils.ATTR_DEF_EXTENSION_ENTITY_SUBJECT_IDENTIFIER, "This overrides the subjectId of the entity", wasInCheckConfig);
