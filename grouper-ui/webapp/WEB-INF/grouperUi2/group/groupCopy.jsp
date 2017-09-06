@@ -84,7 +84,7 @@
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" name="copyPrivsInOtherGroups"  checked="checked" value="true">${textContainer.text['groupCopyGroupsAsPrivilegees'] }<span class="help-block">${textContainer.text['groupCopyGroupsAsPrivilegees'] }</span>
+                        <input type="checkbox" name="copyPrivsInOtherGroups"  checked="checked" value="true">${textContainer.text['groupCopyGroupsAsPrivilegees'] }<span class="help-block">${textContainer.text['groupCopyGroupsAsPrivilegeesHelp'] }</span>
                       </label>
                     </div>
                   </div>
