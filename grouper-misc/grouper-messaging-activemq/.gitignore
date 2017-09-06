@@ -1,5 +1,6 @@
 /bin/
 build
+dist
 dist2
 logs
 .classpath
