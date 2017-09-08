@@ -2323,6 +2323,9 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
           "pit_member_subjidentifier0_idx", false, "subject_identifier0");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          "change_log_temp_created_on_idx", false, "created_on");
     }
   };
   
@@ -12955,6 +12958,9 @@ public enum GrouperDdl implements DdlVersionable {
           
         }
       }
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(),
+          "change_log_temp_created_on_idx", false, "created_on");
     }
 
     {
