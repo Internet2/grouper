@@ -4,13 +4,18 @@
  */
 package edu.internet2.middleware.grouperMessagingRabbitmq;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeoutException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.Queue.DeclareOk;
@@ -306,6 +311,11 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           String virtualHost = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "virtualhost");
           String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
           String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
+          
+          String tlsVersion = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "tlsVersion");
+          String pathToTrustStore = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "pathToTrustStore");
+          String trustPassphrase = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "trustPassphrase");
+          
           if (StringUtils.isNotBlank(password)) {
             password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
           }
@@ -314,25 +324,40 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
           try {
             ConnectionFactory factory = new ConnectionFactory();
            
-            if (!StringUtils.isEmpty(host)) {
+            if (StringUtils.isNotEmpty(host)) {
               factory.setHost(host);
             }
             
-            if (!StringUtils.isEmpty(virtualHost)) {
+            if (StringUtils.isNotEmpty(virtualHost)) {
               factory.setVirtualHost(virtualHost);
             }
             
-            if (!StringUtils.isEmpty(username)) {
+            if (StringUtils.isNotEmpty(username)) {
               factory.setUsername(username);
             }
             
-            if (!StringUtils.isEmpty(password)) {
+            if (StringUtils.isNotEmpty(password)) {
               factory.setPassword(password);
             }
             
             if (port != -1) {
               factory.setPort(port);
             }
+
+            if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)
+                && StringUtils.isNotEmpty(tlsVersion)) {
+              
+              KeyStore tks = KeyStore.getInstance("JKS");
+              tks.load(new FileInputStream(pathToTrustStore), trustPassphrase.toCharArray());
+              TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+              tmf.init(tks);
+              SSLContext c = SSLContext.getInstance(tlsVersion);
+              c.init(null, tmf.getTrustManagers(), null);
+              
+              factory.useSslProtocol();
+              
+            }
+            
             connection = factory.newConnection();
             messagingSystemNameConnection.put(messagingSystemName, connection);
             
