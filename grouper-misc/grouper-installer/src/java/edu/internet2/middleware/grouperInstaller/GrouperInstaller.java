@@ -8881,7 +8881,7 @@ public class GrouperInstaller {
         //ok, we know where the jars go
         File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
         
-        for (String fileName : new String[] {"aws-java-sdk-1.11.155.jar", "slf4j-api-1.6.1.jar", "grouperSQSMessaging.jar", "slf4j-log4j12.jar"}) {
+        for (String fileName : new String[] {"aws-java-sdk-bundle-1.11.155.jar", "slf4j-api-1.6.1.jar", "grouperSQSMessaging.jar", "slf4j-log4j12.jar"}) {
           
           String sourceFileName = unzippedAwsDir.getAbsolutePath() + File.separatorChar 
               + "lib" + File.separatorChar + fileName;
@@ -8987,7 +8987,8 @@ public class GrouperInstaller {
         //ok, we know where the jars go
         File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
         
-        for (String fileName : new String[] {"activemq-all-5.15.0.jar", "slf4j-api-1.6.1.jar", "qpid-jms-client-0.11.1.jar", "slf4j-log4j12.jar"}) {
+        for (String fileName : new String[] {"grouperActiveMQMessaging.jar", "activemq-all-5.15.0.jar", "slf4j-api-1.6.1.jar", 
+            "qpid-jms-client-0.11.1.jar", "slf4j-log4j12.jar", "geronimo-jms_1.1_spec-1.1.1.jar", "netty-all-4.0.41.Final.jar", "proton-j-0.14.0.jar"}) {
           
           String sourceFileName = unzippedActiveMqDir.getAbsolutePath() + File.separatorChar 
               + "lib" + File.separatorChar + fileName;

@@ -131,7 +131,9 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
     }
     
     long startReceive = System.currentTimeMillis();
-    int pollSleepSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(String.format("grouper.%s.messaging.polling.sleep.seconds", systemParam.getMessageSystemName()), 5);
+    
+    int pollSleepSeconds = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "polling.sleep.seconds", 5);
+    
     if (pollSleepSeconds < 1) {
       pollSleepSeconds = 1;
     }
