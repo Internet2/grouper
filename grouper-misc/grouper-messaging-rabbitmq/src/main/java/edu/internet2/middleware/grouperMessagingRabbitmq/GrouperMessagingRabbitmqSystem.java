@@ -174,7 +174,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
             throws IOException {
           String message = new String(body, "UTF-8");
-          GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId());
+          GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId(), envelope.getRoutingKey());
           messages.add(rabbitmqMessage);
           channel.basicAck(envelope.getDeliveryTag(), false);
           if (messages.size() >= pageSize) {
