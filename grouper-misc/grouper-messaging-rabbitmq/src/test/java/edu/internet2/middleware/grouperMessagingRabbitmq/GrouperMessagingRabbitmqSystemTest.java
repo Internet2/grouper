@@ -40,7 +40,10 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     queueParam.assignQueueOrTopicName("test_queue");
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
-    sendParam.addMessageBody(testMessageBody);
+    
+    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id");
+    
+    sendParam.addGrouperMessage(rabbitMqMessage);
     sendParam.assignAutocreateObjects(true);
          
     system.send(sendParam);
@@ -72,7 +75,10 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     queueParam.assignQueueOrTopicName(queueName);
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
-    sendParam.addMessageBody(testMessageBody);
+    
+    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id");
+    
+    sendParam.addGrouperMessage(rabbitMqMessage);
     try {
       system.send(sendParam);
     } catch (Exception e) {
@@ -93,7 +99,9 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     queueParam.assignQueueOrTopicName(exchangeName);
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
-    sendParam.addMessageBody(testMessageBody);
+    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id");
+    
+    sendParam.addGrouperMessage(rabbitMqMessage);
     try {
       system.send(sendParam);
     } catch (Exception e) {
@@ -164,10 +172,12 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
     GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
     queueParam.assignQueueType(GrouperMessageQueueType.topic);
-    queueParam.assignQueueOrTopicName("test_topic4");
+    queueParam.assignQueueOrTopicName("test_exchange");
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
-    sendParam.addMessageBody(testMessageBody);
+    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id", "test_routing_key");
+    
+    sendParam.addGrouperMessage(rabbitMqMessage);
     sendParam.assignAutocreateObjects(true);
          
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
