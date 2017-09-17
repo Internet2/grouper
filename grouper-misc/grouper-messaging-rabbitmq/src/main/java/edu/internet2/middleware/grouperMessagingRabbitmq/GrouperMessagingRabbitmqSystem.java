@@ -94,8 +94,9 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       
       for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
         String message = grouperMessage.getMessageBody();
+        GrouperMessageRabbitmq grouperMessageRabbitmq = (GrouperMessageRabbitmq) grouperMessage;
         if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
-          channel.basicPublish(queueOrTopicName, "", MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
+          channel.basicPublish(queueOrTopicName, StringUtils.defaultString(grouperMessageRabbitmq.getRoutingKey(), ""), MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         } else {
           channel.basicPublish("", queueOrTopicName, MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         }
@@ -128,12 +129,13 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
     GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
-    if (grouperMessageSystemParam == null || edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
+    if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
       throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
     }
     GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
     int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
     int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
+    String routingKey = StringUtils.defaultString(grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "incoming.routingKey"), "");
         
     Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
     
@@ -198,7 +200,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       
       if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
         DeclareOk declareOk = channel.queueDeclare();
-        channel.queueBind(declareOk.getQueue(), queueOrTopicName, "");
+        channel.queueBind(declareOk.getQueue(), queueOrTopicName, routingKey);
         channel.basicConsume(declareOk.getQueue(), false, consumer);
       } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
         channel.basicConsume(queueOrTopicName, false, consumer);

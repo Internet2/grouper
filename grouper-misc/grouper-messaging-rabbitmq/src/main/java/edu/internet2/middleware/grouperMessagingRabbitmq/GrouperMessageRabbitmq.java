@@ -8,9 +8,16 @@ public class GrouperMessageRabbitmq implements GrouperMessage {
   
   String id;
   
+  String routingKey;
+  
   public GrouperMessageRabbitmq(String messageBody, String id) {
     this.messageBody = messageBody;
     this.id = id;
+  }
+  
+  public GrouperMessageRabbitmq(String messageBody, String id, String routingKey) {
+    this(messageBody, id);
+    this.routingKey = routingKey;
   }
 
   @Override
@@ -41,5 +48,9 @@ public class GrouperMessageRabbitmq implements GrouperMessage {
   public void setMessageBody(String messageBody) {
     this.messageBody = messageBody;
   }
-
+  
+  public String getRoutingKey() {
+    return this.routingKey;
+  }
+ 
 }
