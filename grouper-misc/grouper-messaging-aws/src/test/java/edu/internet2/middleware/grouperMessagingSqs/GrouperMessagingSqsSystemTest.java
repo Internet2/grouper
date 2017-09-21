@@ -74,7 +74,7 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     sendParam.assignGrouperMessageSystemName(messageSystemName);
     sendParam.addMessageBody(testMessageBody);
     try {
-      system.send(sendParam);
+      system.send(sendParam, null);
     } catch (Exception e) {
       assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist."));
     }
@@ -97,14 +97,14 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     
     sendParam.addMessageBody(testMessageBody);
          
-    system.send(sendParam);
+    system.send(sendParam, null);
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
     receiveParam.assignGrouperMessageQueueParam(queueParam);
     receiveParam.assignMaxMessagesToReceiveAtOnce(10);
     
-    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    GrouperMessage grouperMessage = system.receive(receiveParam, null).getGrouperMessages().iterator().next();
     
     assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
     
@@ -115,7 +115,7 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed);
     system.acknowledge(acknowledgeParam);
     
-    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam).getGrouperMessages();
+    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam, null).getGrouperMessages();
     assertTrue(grouperMessagesAfterDeleting.isEmpty());
     
   }
@@ -136,14 +136,14 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     sendParam.assignGrouperMessageSystemName(messageSystemName);
     sendParam.addMessageBody(testMessageBody);
          
-    system.send(sendParam);
+    system.send(sendParam, null);
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
     receiveParam.assignGrouperMessageQueueParam(queueParam);
     receiveParam.assignMaxMessagesToReceiveAtOnce(10);
     
-    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    GrouperMessage grouperMessage = system.receive(receiveParam, null).getGrouperMessages().iterator().next();
     
     assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
     
@@ -163,7 +163,7 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     system.acknowledge(acknowledgeParam);
     
     // sending to another queue means delete from current queue and add to antoher queue.
-    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam).getGrouperMessages();
+    Collection<GrouperMessage> grouperMessagesAfterDeleting = system.receive(receiveParam, null).getGrouperMessages();
     assertTrue(grouperMessagesAfterDeleting.isEmpty());
     
     // check if another queue has the message
@@ -171,7 +171,7 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
     receiveParam.assignGrouperMessageQueueParam(anotherQueueParam);
     
-    grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    grouperMessage = system.receive(receiveParam, null).getGrouperMessages().iterator().next();
     assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
 
   }
@@ -192,14 +192,14 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     sendParam.assignGrouperMessageSystemName(messageSystemName);
     sendParam.addMessageBody(testMessageBody);
          
-    system.send(sendParam);
+    system.send(sendParam, null);
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
     receiveParam.assignGrouperMessageQueueParam(queueParam);
     receiveParam.assignMaxMessagesToReceiveAtOnce(10);
     
-    GrouperMessage grouperMessage = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    GrouperMessage grouperMessage = system.receive(receiveParam, null).getGrouperMessages().iterator().next();
     
     assertTrue(grouperMessage.getMessageBody().equals(testMessageBody));
     
@@ -210,7 +210,7 @@ public class GrouperMessagingSqsSystemTest extends TestCase {
     acknowledgeParam.assignAcknowledgeType(GrouperMessageAcknowledgeType.return_to_queue);
     system.acknowledge(acknowledgeParam);
     
-    GrouperMessage message = system.receive(receiveParam).getGrouperMessages().iterator().next();
+    GrouperMessage message = system.receive(receiveParam, null).getGrouperMessages().iterator().next();
     
     assertTrue(message.getMessageBody().equals(testMessageBody));
   }

@@ -43,6 +43,9 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
         + changeLogProcessorMetadata.getConsumerName() + ".messageQueueType");
     GrouperMessageQueueType grouperMessageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(messageQueueType, true);
     
+    String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
+        + changeLogProcessorMetadata.getConsumerName() + ".routingKey", "");
+    
     boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
     
     for (ChangeLogEntry changeLogEntry : GrouperUtil.nonNull(changeLogEntryList)) {
@@ -51,7 +54,7 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
         String json = changeLogEntry.toJson(true);
         GrouperMessagingEngine.send(new GrouperMessageSendParam().assignGrouperMessageSystemName(messagingSystemName)
             .assignAutocreateObjects(autocreateObjects)
-            .assignQueueType(grouperMessageQueueType).assignQueueOrTopicName(queueOrTopicName).addMessageBody(json));
+            .assignQueueType(grouperMessageQueueType).assignQueueOrTopicName(queueOrTopicName).addMessageBody(json), routingKey);
         lastProcessed = changeLogEntry.getSequenceNumber();
       } catch (Exception e) {
         LOG.error("Error processing event: " + changeLogEntry.getId(), e);

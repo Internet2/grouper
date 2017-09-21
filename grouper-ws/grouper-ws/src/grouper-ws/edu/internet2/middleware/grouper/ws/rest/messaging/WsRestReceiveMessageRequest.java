@@ -45,6 +45,9 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   /** messaging system name **/
   private String messageSystemName;
   
+  /** routing key - valid for rabbitmq only; **/
+  private String routingKey;
+  
   /** the millis to block waiting for messages, max of 20000 (optional) **/
   Integer blockMillis;
   
@@ -64,6 +67,20 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    */
   public void setQueueOrTopicName(String queueOrTopicName1) {
     this.queueOrTopicName = queueOrTopicName1;
+  }
+  
+  /**
+   * @return routingKey
+   */
+  public String getRoutingKey() {
+    return this.routingKey;
+  }
+
+  /**
+   * @param routingKey1
+   */
+  public void setRoutingKey(String routingKey1) {
+    this.routingKey = routingKey1;
   }
 
   /**

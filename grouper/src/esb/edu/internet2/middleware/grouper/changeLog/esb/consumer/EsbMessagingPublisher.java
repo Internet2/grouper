@@ -55,10 +55,13 @@ public class EsbMessagingPublisher extends EsbListenerBase {
         + consumerName + ".publisher.messageQueueType");
     GrouperMessageQueueType grouperMessageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(messageQueueType, true);
     
+    String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
+        + consumerName + ".publisher.routingKey", "");
+    
     GrouperMessagingEngine.send(new GrouperMessageSendParam()
         .assignGrouperMessageSystemName(messagingSystemName)
         .assignQueueType(grouperMessageQueueType)
-        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopicName));
+        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopicName), routingKey);
     return true;
   }
 
