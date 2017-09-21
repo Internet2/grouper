@@ -80,7 +80,7 @@
                                 <input type="checkbox" name="privileges_attributeDefAttrReaders" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
                               </label>
                               <label class="checkbox inline" id="attributeDefPrivsErrorId">
-                                <input type="checkbox" name="privileges_attributeDefAttrUpdaters" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
+                                <input type="checkbox" name="privileges_attributeDefAttrUpdaters" value="true" />${textContainer.text['priv.attrDefAttrUpdateUpper'] }
                               </label>
                             </div>
                           </div>
