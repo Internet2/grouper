@@ -53,7 +53,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
-  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
         
     GrouperMessageSystemParam systemParam = grouperMessageSendParam.getGrouperMessageSystemParam();
     GrouperMessageQueueParam queueParam = grouperMessageSendParam.getGrouperMessageQueueParam();
@@ -101,7 +101,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
    */
-  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
     
     final GrouperMessageSystemParam systemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
     final GrouperMessageQueueParam queueParam = grouperMessageReceiveParam.getGrouperMessageQueueParam();

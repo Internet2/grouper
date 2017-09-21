@@ -63,7 +63,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
-  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
         
     if (grouperMessageSendParam.getGrouperMessageQueueParam() == null) {
       throw new IllegalArgumentException("grouperMessageQueueParam is required.");
@@ -94,9 +94,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       
       for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
         String message = grouperMessage.getMessageBody();
-        GrouperMessageRabbitmq grouperMessageRabbitmq = (GrouperMessageRabbitmq) grouperMessage;
         if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
-          channel.basicPublish(queueOrTopicName, StringUtils.defaultString(grouperMessageRabbitmq.getRoutingKey(), ""), MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
+          channel.basicPublish(queueOrTopicName, StringUtils.defaultString(routingKey, ""), MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         } else {
           channel.basicPublish("", queueOrTopicName, MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         }
@@ -126,7 +125,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
    */
-  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
     
     GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
     if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
@@ -135,7 +134,6 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
     int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
     int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
-    String routingKey = StringUtils.defaultString(grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "incoming.routingKey"), "");
         
     Integer maxMessagesToReceiveAtOnce = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
     
@@ -174,7 +172,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
             throws IOException {
           String message = new String(body, "UTF-8");
-          GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId(), envelope.getRoutingKey());
+          GrouperMessageRabbitmq rabbitmqMessage = new GrouperMessageRabbitmq(message, properties.getMessageId());
           messages.add(rabbitmqMessage);
           channel.basicAck(envelope.getDeliveryTag(), false);
           if (messages.size() >= pageSize) {
@@ -200,7 +198,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       
       if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
         DeclareOk declareOk = channel.queueDeclare();
-        channel.queueBind(declareOk.getQueue(), queueOrTopicName, routingKey);
+        channel.queueBind(declareOk.getQueue(), queueOrTopicName, StringUtils.defaultString(routingKey, ""));
         channel.basicConsume(declareOk.getQueue(), false, consumer);
       } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
         channel.basicConsume(queueOrTopicName, false, consumer);

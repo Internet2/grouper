@@ -38496,7 +38496,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
       GrouperSession.start(SubjectTestHelper.SUBJ0);
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
-    	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+    	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue), null);
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=receiveMessageWs --queueOrTopicName=test_queue --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
@@ -38524,9 +38524,9 @@ public class GrouperClientWsTest extends GrouperTest {
       // ############################
       // max messages to receive at once
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
-  	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+  	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue), null);
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
-    	        .addMessageBody("another message body").assignQueueType(GrouperMessageQueueType.queue));
+    	        .addMessageBody("another message body").assignQueueType(GrouperMessageQueueType.queue), null);
       baos = new ByteArrayOutputStream();
 
       System.setOut(new PrintStream(baos));
@@ -38588,9 +38588,9 @@ public class GrouperClientWsTest extends GrouperTest {
       
       GrouperSession.start(SubjectTestHelper.SUBJ0);
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
-    	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+    	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue), null);
       
-      GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("test_queue"));
+      GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("test_queue"), null);
       
       GrouperMessage grouperMessage = grouperMessageReceiveResult.getGrouperMessages().iterator().next();
 
@@ -38622,9 +38622,9 @@ public class GrouperClientWsTest extends GrouperTest {
       // ############################
       
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
-  	        .addMessageBody("message test body").assignQueueType(GrouperMessageQueueType.queue));
+  	        .addMessageBody("message test body").assignQueueType(GrouperMessageQueueType.queue), null);
     
-      grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("test_queue"));
+      grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("test_queue"), null);
       grouperMessage = grouperMessageReceiveResult.getGrouperMessages().iterator().next();
 
       baos = new ByteArrayOutputStream();

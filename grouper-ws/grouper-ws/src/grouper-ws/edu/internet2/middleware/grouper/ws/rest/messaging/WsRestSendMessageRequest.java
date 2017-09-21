@@ -49,6 +49,9 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   /** messaging system name **/
   private String messageSystemName;
   
+  /** routing key for rabbitmq **/
+  private String routingKey;
+
   /** messages to be sent **/
   private WsMessage[] messages;
   
@@ -64,6 +67,22 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    */
   public void setMessages(WsMessage[] messages1) {
     this.messages = messages1;
+  }
+  
+  /**
+   * routing key for rabbitmq
+   * @return routingKey
+   */
+  public String getRoutingKey() {
+    return this.routingKey;
+  }
+
+  /**
+   * routing key for rabbitmq
+   * @param routingKey1
+   */
+  public void setRoutingKey(String routingKey1) {
+    this.routingKey = routingKey1;
   }
   
   /**

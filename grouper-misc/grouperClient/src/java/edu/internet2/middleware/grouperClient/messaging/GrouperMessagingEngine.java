@@ -25,9 +25,10 @@ public class GrouperMessagingEngine {
   /**
    * send one or more messages 
    * @param grouperMessageSendParam parameters to send message
+   * @param routingKey - valid for rabbitmq only; ignored for other messaging systems.
    * @return result
    */
-  public static GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
+  public static GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
 
     Collection<GrouperMessage> grouperMessages = grouperMessageSendParam.getGrouperMessages();
     
@@ -57,7 +58,7 @@ public class GrouperMessagingEngine {
     
     GrouperMessagingSystem grouperMessagingSystem = retrieveGrouperMessageSystem(grouperMessageSystemName);
 
-    return grouperMessagingSystem.send(grouperMessageSendParam);
+    return grouperMessagingSystem.send(grouperMessageSendParam, routingKey);
     
   }
 
@@ -111,10 +112,11 @@ public class GrouperMessagingEngine {
    * this will generally block until there are messages to process.  These messages
    * are ordered in the order that they were sent.
    * @param grouperMessageReceiveParam param to receive messages
+   * @param routingKey valid for rabbitmq only; ignored for others.
    * @return a message or multiple messages.  It will block until there are messages
    * available for this recipient to process
    */
-  public static GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
+  public static GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
 
     String grouperMessageSystemName = retrieveGrouperMessageSystemName(grouperMessageReceiveParam.getGrouperMessageSystemParam());
 
@@ -130,7 +132,7 @@ public class GrouperMessagingEngine {
 
     GrouperMessagingSystem grouperMessagingSystem = retrieveGrouperMessageSystem(grouperMessageSystemName);
     
-    return grouperMessagingSystem.receive(grouperMessageReceiveParam);
+    return grouperMessagingSystem.receive(grouperMessageReceiveParam, routingKey);
     
   }
   

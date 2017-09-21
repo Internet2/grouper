@@ -2491,6 +2491,7 @@ public class GrouperServiceRest {
         clientVersionString, wsRestSendMessageRequest.getQueueOrTopic(),
         wsRestSendMessageRequest.getQueueOrTopicName(),
         wsRestSendMessageRequest.getMessageSystemName(),
+        wsRestSendMessageRequest.getRoutingKey(),
         wsRestSendMessageRequest.getMessages(),
         wsRestSendMessageRequest.getActAsSubjectLookup(),
         wsRestSendMessageRequest.getParams());
@@ -2518,6 +2519,7 @@ public class GrouperServiceRest {
     WsMessageResults wsReceiveMessageResults = new GrouperService(false).receiveMessage(
         clientVersionString, wsRestReceiveMessageRequest.getQueueOrTopicName(),
         wsRestReceiveMessageRequest.getMessageSystemName(),
+        wsRestReceiveMessageRequest.getRoutingKey(),
         wsRestReceiveMessageRequest.getBlockMillis(),
         wsRestReceiveMessageRequest.getMaxMessagesToReceiveAtOnce(),
         wsRestReceiveMessageRequest.getActAsSubjectLookup(),

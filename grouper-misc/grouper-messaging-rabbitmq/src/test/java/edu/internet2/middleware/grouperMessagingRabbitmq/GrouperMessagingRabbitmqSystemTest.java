@@ -46,7 +46,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     sendParam.addGrouperMessage(rabbitMqMessage);
     sendParam.assignAutocreateObjects(true);
          
-    system.send(sendParam);
+    system.send(sendParam, null);
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
     receiveParam.assignGrouperMessageSystemName(messageSystemName);
@@ -60,7 +60,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
         system.closeConnection(messageSystemName);
       }
     });
-    system.receive(receiveParam);
+    system.receive(receiveParam, null);
   }
   
   public void testErrorSendingWhenQueueNotThereAlready() {
@@ -80,7 +80,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     
     sendParam.addGrouperMessage(rabbitMqMessage);
     try {
-      system.send(sendParam);
+      system.send(sendParam, null);
     } catch (Exception e) {
       //does rabbitmq autocreate this queue?
       assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
@@ -103,7 +103,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     
     sendParam.addGrouperMessage(rabbitMqMessage);
     try {
-      system.send(sendParam);
+      system.send(sendParam, null);
     } catch (Exception e) {
       assertTrue(e.getMessage().equals("exchange "+exchangeName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true."));
     }
@@ -130,7 +130,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     });
     
     try {
-      system.receive(receiveParam);
+      system.receive(receiveParam, null);
     } catch (Exception e) {
       assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
     }
@@ -157,7 +157,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     });
     
     try {
-      system.receive(receiveParam);
+      system.receive(receiveParam, null);
     } catch (Exception e) {
       assertTrue(e.getMessage().equals("exchange "+exchangeName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true."));
     }
@@ -175,7 +175,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     queueParam.assignQueueOrTopicName("test_exchange");
     sendParam.assignGrouperMessageQueueParam(queueParam);
     sendParam.assignGrouperMessageSystemName(messageSystemName);
-    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id", "test_routing_key");
+    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id");
     
     sendParam.addGrouperMessage(rabbitMqMessage);
     sendParam.assignAutocreateObjects(true);
@@ -192,9 +192,9 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
         system.closeConnection(messageSystemName);
       }
     });
-    system.receive(receiveParam);
+    system.receive(receiveParam, "test_routing_key");
 
-    system.send(sendParam);
+    system.send(sendParam, "test_routing_key");
   }
 
 }
