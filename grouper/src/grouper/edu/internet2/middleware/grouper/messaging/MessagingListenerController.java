@@ -77,6 +77,7 @@ public class MessagingListenerController {
 
       String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".messagingSystemName");
       String queueName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queueName");
+      String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".routingKey");
       
       boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
 
@@ -116,7 +117,7 @@ public class MessagingListenerController {
           GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
               new GrouperMessageReceiveParam().assignLongPollMillis(pollingTimeoutSeconds * 1000)
                 .assignAutocreateObjects(autocreateObjects)
-                .assignGrouperMessageSystemName(messagingSystemName).assignQueueName(queueName).assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce));
+                .assignGrouperMessageSystemName(messagingSystemName).assignQueueName(queueName).assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce), routingKey);
           numberOfTries++;
           grouperMessages = grouperMessageReceiveResult.getGrouperMessages();
 
