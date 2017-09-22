@@ -76,7 +76,7 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       GrouperSession.start(SubjectFinder.findById("test.subject.0", true));
       
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
-          .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+          .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue), null);
 
       ReceiveMessage receiveMessage = ReceiveMessage.class.newInstance();
 

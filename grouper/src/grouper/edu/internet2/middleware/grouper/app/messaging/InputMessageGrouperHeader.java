@@ -9,6 +9,7 @@ public class InputMessageGrouperHeader {
   private String messageInputUuid;
   private String replyToQueueOrTopicName;
   private String replyToQueueOrTopic;
+  private String replyToRoutingKey;
   private String httpMethod;
   private String httpPath;
   
@@ -68,6 +69,14 @@ public class InputMessageGrouperHeader {
     this.replyToQueueOrTopic = replyToQueueOrTopic;
   }
   
+  public String getReplyToRoutingKey() {
+    return replyToRoutingKey;
+  }
+
+  public void setReplyToRoutingKey(String replyToRoutingKey) {
+    this.replyToRoutingKey = replyToRoutingKey;
+  }
+
   public String getHttpMethod() {
     return httpMethod;
   }
