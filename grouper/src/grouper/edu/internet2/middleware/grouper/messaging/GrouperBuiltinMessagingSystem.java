@@ -1140,9 +1140,9 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
   }
   
   /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam, String)
+   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
-  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
 
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
     Member fromMember = grouperSession.getMember();
@@ -1239,9 +1239,9 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
   }
 
   /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(GrouperMessageReceiveParam, String)
+   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(GrouperMessageReceiveParam)
    */
-  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
 
     Integer pageSize = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
 
@@ -1452,7 +1452,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
                   GrouperBuiltinMessagingSystem.this.send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
                       grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam())
                       .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
-                      .addGrouperMessage(grouperMessageDefault), null);
+                      .addGrouperMessage(grouperMessageDefault));
                   
                   GROUPER_MESSAGE_HIBERNATE.delete();
                   

@@ -180,7 +180,7 @@ public class MessageConsumerDaemonTest extends TestCase {
   class FakeGrouperMessageSystem implements GrouperMessagingSystem {
 
     @Override
-    public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
+    public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
        replyToSendCalled = true;
        replyToBody = grouperMessageSendParam.getGrouperMessages().iterator().next().getMessageBody();
        return null;
@@ -194,7 +194,7 @@ public class MessageConsumerDaemonTest extends TestCase {
 
     @Override
     public GrouperMessageReceiveResult receive(
-        GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
+        GrouperMessageReceiveParam grouperMessageReceiveParam) {
       return null;
     }
     

@@ -17,6 +17,29 @@ public class GrouperMessageReceiveParam {
   }
   
   /**
+   * if the messaging system can use a routing key (e.g. rabbitmq), set it here
+   */
+  private String routingKey;
+  
+  /**
+   * if the messaging system can use a routing key (e.g. rabbitmq), set it here
+   * @param theRoutingKey
+   * @return this for chaining
+   */
+  public GrouperMessageReceiveParam assignRoutingKey(String theRoutingKey) {
+    this.routingKey = theRoutingKey;
+    return this;
+  }
+  
+  /**
+   * if the messaging system can use a routing key (e.g. rabbitmq), set it here
+   * @return the routing key
+   */
+  public String getRoutingKey() {
+    return this.routingKey;
+  }
+  
+  /**
    * maximum number of messages to receive at once
    */
   private Integer maxMessagesToReceiveAtOnce;

@@ -303,8 +303,9 @@ public class MessageConsumerDaemon implements Job {
     receiveParam.assignGrouperMessageSystemParam(systemParam);
     receiveParam.assignLongPollMillis(longPollingSeconds*1000);
     receiveParam.assignAutocreateObjects(true);
+    receiveParam.assignRoutingKey(routingKey);
     
-    GrouperMessageReceiveResult grouperMessageReceiveResult = grouperMessageSystem.receive(receiveParam, routingKey);
+    GrouperMessageReceiveResult grouperMessageReceiveResult = grouperMessageSystem.receive(receiveParam);
     return grouperMessageReceiveResult.getGrouperMessages();
   } 
   
@@ -477,8 +478,9 @@ public class MessageConsumerDaemon implements Job {
     sendParam.assignGrouperMessageSystemParam(systemParam);
     
     sendParam.assignMessageBodies(Collections.singleton(finalOuput));
+    sendParam.assignRoutingKey(routingKey);
     try {      
-      grouperMessagingSystem.send(sendParam, routingKey);
+      grouperMessagingSystem.send(sendParam);
     } catch (Exception e) {
       LOG.error("Error occurred while sending reply message "+ inputGrouperHeader.getMessageInputUuid()+" to "+inputGrouperHeader.getReplyToQueueOrTopicName());
     }

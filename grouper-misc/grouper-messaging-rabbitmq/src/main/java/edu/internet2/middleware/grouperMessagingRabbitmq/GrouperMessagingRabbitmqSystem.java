@@ -63,7 +63,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
-  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
         
     if (grouperMessageSendParam.getGrouperMessageQueueParam() == null) {
       throw new IllegalArgumentException("grouperMessageQueueParam is required.");
@@ -95,7 +95,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       for (GrouperMessage grouperMessage: GrouperClientUtils.nonNull(grouperMessageSendParam.getGrouperMessages())) {
         String message = grouperMessage.getMessageBody();
         if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
-          channel.basicPublish(queueOrTopicName, StringUtils.defaultString(routingKey, ""), MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
+          channel.basicPublish(queueOrTopicName, StringUtils.defaultString(grouperMessageSendParam.getRoutingKey(), ""), MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         } else {
           channel.basicPublish("", queueOrTopicName, MessageProperties.PERSISTENT_BASIC, message.getBytes("UTF-8"));
         }
@@ -125,7 +125,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
    */
-  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
     GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
     if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
@@ -198,7 +198,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       
       if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic) {
         DeclareOk declareOk = channel.queueDeclare();
-        channel.queueBind(declareOk.getQueue(), queueOrTopicName, StringUtils.defaultString(routingKey, ""));
+        channel.queueBind(declareOk.getQueue(), queueOrTopicName, StringUtils.defaultString(grouperMessageReceiveParam.getRoutingKey(), ""));
         channel.basicConsume(declareOk.getQueue(), false, consumer);
       } else if (grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue) {
         channel.basicConsume(queueOrTopicName, false, consumer);

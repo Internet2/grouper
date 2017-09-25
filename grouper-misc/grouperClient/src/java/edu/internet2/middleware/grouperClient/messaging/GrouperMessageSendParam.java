@@ -17,6 +17,29 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperMessageSendParam {
 
   /**
+   * if the messaging system can use a routing key (e.g. rabbitmq), set it here
+   */
+  private String routingKey;
+  
+  /**
+   * if the messaging system can use a routing key (e.g. rabbitmq), set it here
+   * @param theRoutingKey
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignRoutingKey(String theRoutingKey) {
+    this.routingKey = theRoutingKey;
+    return this;
+  }
+  
+  /**
+   * if the messaging system can use a routing key (e.g. rabbitmq), set it here
+   * @return the routing key
+   */
+  public String getRoutingKey() {
+    return this.routingKey;
+  }
+  
+  /**
    * describes the grouper message system
    */
   private GrouperMessageSystemParam grouperMessageSystemParam;

@@ -20,10 +20,9 @@ public interface GrouperMessagingSystem {
    * delivering the messages, the implementation should log, wait (back off)
    * and retry until it is successful.
    * @param grouperMessageSendParam has the queue or topic, and the message(s) and perhaps args
-   * @param routingKey - valid for rabbitmq only. ignored otherwise
    * @return result
    */
-  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey);
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam);
 
   /**
    * tell the messaging system that these messages are processed
@@ -42,10 +41,9 @@ public interface GrouperMessagingSystem {
    * this will generally block until there are messages to process.  These messages
    * are ordered in the order that they were sent.
    * @param grouperMessageReceiveParam grouper messaging receive param
-   * @param routingKey - valid for rabbitmq only. ignored otherwise
    * @return a message or multiple messages.  It will block until there are messages
    * available for this recipient to process
    */
-  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey);
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam);
 
 }

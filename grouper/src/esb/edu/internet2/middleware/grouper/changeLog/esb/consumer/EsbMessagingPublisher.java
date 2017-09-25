@@ -61,7 +61,7 @@ public class EsbMessagingPublisher extends EsbListenerBase {
     GrouperMessagingEngine.send(new GrouperMessageSendParam()
         .assignGrouperMessageSystemName(messagingSystemName)
         .assignQueueType(grouperMessageQueueType)
-        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopicName), routingKey);
+        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopicName).assignRoutingKey(routingKey));
     return true;
   }
 
