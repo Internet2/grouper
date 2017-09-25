@@ -117,7 +117,8 @@ public class MessagingListenerController {
           GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
               new GrouperMessageReceiveParam().assignLongPollMillis(pollingTimeoutSeconds * 1000)
                 .assignAutocreateObjects(autocreateObjects)
-                .assignGrouperMessageSystemName(messagingSystemName).assignQueueName(queueName).assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce), routingKey);
+                .assignGrouperMessageSystemName(messagingSystemName).assignQueueName(queueName)
+                .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce).assignRoutingKey(routingKey));
           numberOfTries++;
           grouperMessages = grouperMessageReceiveResult.getGrouperMessages();
 

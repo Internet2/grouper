@@ -9293,7 +9293,7 @@ public class GrouperServiceLogic {
           .assignQueueType(queueType)
           .assignGrouperMessages(grouperMessages);
 
-      GrouperMessagingEngine.send(grouperMessageSendParam, routingKey);
+      GrouperMessagingEngine.send(grouperMessageSendParam.assignRoutingKey(routingKey));
 
       wsSendMessageResults.setMessages(messages);
       wsSendMessageResults.setMessageSystemName(messageSystemName);
@@ -9369,7 +9369,7 @@ public class GrouperServiceLogic {
       }
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
-          .receive(grouperMessageReceiveParam, routingKey);
+          .receive(grouperMessageReceiveParam.assignRoutingKey(routingKey));
 
       WsMessage[] wsMessages = new WsMessage[grouperMessageReceiveResult
           .getGrouperMessages().size()];

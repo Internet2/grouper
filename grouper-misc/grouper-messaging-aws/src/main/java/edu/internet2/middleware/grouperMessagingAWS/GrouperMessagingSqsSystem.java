@@ -58,7 +58,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
-  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam, String routingKey) {
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
         
     GrouperMessageSystemParam systemParam = grouperMessageSendParam.getGrouperMessageSystemParam();
     GrouperMessageQueueParam queueParam = grouperMessageSendParam.getGrouperMessageQueueParam();
@@ -122,7 +122,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
             send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
                 grouperMessageAcknowledgeParam.getGrouperMessageQueueParam())
                 .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
-                .addMessageBody(grouperMessage.getMessageBody()), null);
+                .addMessageBody(grouperMessage.getMessageBody()));
           } else {
             LOG.warn("return_to_end_of_queue can only work with FIFO queues.");
           }
@@ -135,7 +135,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
           send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
               grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam())
               .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
-              .addMessageBody(grouperMessage.getMessageBody()), null);
+              .addMessageBody(grouperMessage.getMessageBody()));
           
           sqs.deleteMessage(queueUrl, id);
           break;
@@ -151,7 +151,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
    */
-  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam, String routingKey) {
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
     GrouperMessageSystemParam systemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
     GrouperMessageQueueParam queueParam = grouperMessageReceiveParam.getGrouperMessageQueueParam();

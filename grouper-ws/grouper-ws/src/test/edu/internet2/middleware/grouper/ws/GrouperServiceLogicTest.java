@@ -9849,7 +9849,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperSession.start(SubjectTestHelper.SUBJ0);
         
     GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
-        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue), null);
+        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
     
     
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
@@ -9882,9 +9882,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     GrouperSession.start(SubjectTestHelper.SUBJ0);
     GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
-        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue), null);
+        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
     
-    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("abc"), null);
+    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("abc"));
     
     assertEquals(1, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
     
