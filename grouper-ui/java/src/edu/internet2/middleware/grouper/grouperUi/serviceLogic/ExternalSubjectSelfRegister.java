@@ -215,6 +215,27 @@ public class ExternalSubjectSelfRegister {
         "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
 
   }
+  
+  /**
+   * index page of application
+   * @param request
+   * @param response
+   */
+  public void newExternalSubjectSelfRegister(HttpServletRequest request, HttpServletResponse response) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //setup the container
+    final ExternalRegisterContainer externalRegisterContainer = new ExternalRegisterContainer();
+    externalRegisterContainer.storeToRequest();
+
+    if (!this.allowedToRegister(true)) {
+      return;
+    }
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+        "/WEB-INF/grouperUi2/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
+    
+  }
 
   /**
    * see if the user is allowed to register

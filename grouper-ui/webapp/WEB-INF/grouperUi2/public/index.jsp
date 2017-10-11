@@ -26,17 +26,11 @@
           <%-- this is where messages go --%>
         </div>
         <div class="row-fluid">
-          <div class="span9 main-content offset3">
+          <div class="span9 main-content offset2">
             <!-- this is the main content div where the page content goes via ajax -->
             <div id="grouperMainContentDivId">
             </div>
             <!-- end of the main content div where the page content goes -->
-          </div>
-          <div class="span3 left-column">
-            <div class="btn-group btn-group-create">
-            </div>
-            <div class="leftnav-accordions">
-            </div>
           </div>
         </div>
         <hr>
