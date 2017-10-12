@@ -89,6 +89,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -788,6 +789,9 @@ public class GrouperUiFilter implements Filter {
       
       if (!StringUtils.isBlank(theClass)) {
         if (theClass.startsWith(ExternalSubjectSelfRegister.class.getSimpleName())) {
+          return UiSection.EXTERNAL;
+        }
+        if (theClass.startsWith(UiV2ExternalSubjectSelfRegister.class.getSimpleName())) {
           return UiSection.EXTERNAL;
         }
       } else {

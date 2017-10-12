@@ -238,7 +238,8 @@ public class GrouperUiRestServlet extends HttpServlet {
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, response);
     if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
         && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".postIndex", urlStrings.get(1))
-        && !StringUtils.defaultString(urlStrings.get(1)).startsWith("ExternalSubjectSelfRegister.")) {
+        && !StringUtils.defaultString(urlStrings.get(1)).startsWith("ExternalSubjectSelfRegister.")
+        && !StringUtils.defaultString(urlStrings.get(1)).startsWith("UiV2ExternalSubjectSelfRegister.")) {
 
       response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=anonymousSessionNotAllowed");
       return;

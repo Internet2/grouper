@@ -106,7 +106,14 @@ public class ExternalSubjectAttrFramework {
         
         String uuid = GrouperUuid.getUuid();
         
-        String theUrl = uiUrl + "grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId=" + uuid;
+        Boolean useNewUi = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubject.selfRegister.useNewUI", false);
+        
+        String theUrl = uiUrl;
+        if (useNewUi) {
+          theUrl = theUrl + "grouperExternal/public/UiV2Public.index?operation=UiV2ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId=" + uuid;
+        } else {
+          theUrl = theUrl + "grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId=" + uuid;
+        }
         
         currentExternalSubjectInviteBean.setUuid(uuid);
   
