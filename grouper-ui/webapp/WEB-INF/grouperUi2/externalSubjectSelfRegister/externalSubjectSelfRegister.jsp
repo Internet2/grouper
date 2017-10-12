@@ -47,16 +47,12 @@
    
      <c:if test="${externalRegisterContainer.showDeleteButton}">
        <a href="#" 
-	     onclick="if(confirm('${grouper:escapeJavascript(navMap['inviteExternalSubjects.confirmDelete'])}')) {ajax('../app/ExternalSubjectSelfRegister.delete', {formIds: 'selfRegisterFormId'});} return false;" 
-	     onmouseover="Tip('${grouper:escapeJavascript(navMap['externalSubjectSelfRegister.deleteRecordButtonTooltip'])}')"
-	     onmouseout="UnTip()"
+	     onclick="if(confirm('${grouper:escapeJavascript(navMap['inviteExternalSubjects.confirmDelete'])}')) {ajax('../app/UiV2ExternalSubjectSelfRegister.delete', {formIds: 'selfRegisterFormId'});} return false;" 
 	     class="btn btn-cancel redButton">${navMap['externalSubjectSelfRegister.deleteRecordButtonText']}</a>        
      </c:if>
    
      <a href="#" class="btn btn-primary"
-  	   onclick="ajax('../app/ExternalSubjectSelfRegister.submit', {formIds: 'selfRegisterFormId'}); return false;"
-  	   onmouseout="UnTip()"
-  	   onmouseover="Tip('${grouper:escapeJavascript(navMap['externalSubjectSelfRegister.submitButtonTooltip'])}')">
+  	   onclick="ajax('../app/UiV2ExternalSubjectSelfRegister.submit', {formIds: 'selfRegisterFormId'}); return false;">
   	     ${navMap['externalSubjectSelfRegister.submitButtonText']}</a> 
    </div> 
  </form></div>
