@@ -1,46 +1,77 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-            <%-- for the new group or new stem button --%>
-            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
-
-            <%@ include file="stemHeader.jsp" %>
-
-            <div class="row-fluid">
-              <div class="span12 tab-interface">
-                <ul class="nav nav-tabs">
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
-                  <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
-                    <%@ include file="stemMoreTab.jsp" %>
-                  </c:if>
-                </ul>
                 <div class="row-fluid">
-                  <div class="lead span9">${textContainer.text['stemAttestationTitle'] }</div>
-                  <div class="span3" id="stemAttestationMoreActionsButtonContentsDivId">
-                    <%@ include file="stemAttestationMoreActionsButtonContents.jsp"%>
+                  <div class="lead span9">${textContainer.text['groupAttestationTitle'] }</div>
+                  <div class="span3" id="groupAttestationMoreActionsButtonContentsDivId">
+                    <%@ include file="groupAttestationMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
+                
+
                 <c:choose>
-                  <c:when test="${grouperRequestContainer.attestationContainer.directStemAttestationAssignment}">
-                    <p>${textContainer.text['attestationConfiguredForStem'] }</p>
+                  <c:when test="${grouperRequestContainer.attestationContainer.directGroupAttestationAssignment}">
+                    <p>${textContainer.text['attestationConfiguredForGroup'] }</p>
                   </c:when>
 
                   <c:when test="${grouperRequestContainer.attestationContainer.ancestorStemAttestationAssignment}">
-                    <p>${textContainer.text['attestationConfiguredOnStemForAncestorStem'] }</p>
+                    <p>${textContainer.text['attestationConfiguredOnGroupForAncestorStem'] }</p>
                   </c:when>
                   
                   <c:otherwise>
-                    <p>${textContainer.text['noAttestationConfiguredOnStem'] }</p>
+                    <p>${textContainer.text['noAttestationConfiguredOnGroup'] }</p>
                   </c:otherwise>
                                     
                 </c:choose>
-                <div id="stemAttestation">
+
+
                   <c:if test="${grouperRequestContainer.attestationContainer.hasAttestation}">
                     
                     <table class="table table-condensed table-striped">
                       <tbody>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationStatusLabel'] }</strong></td>
+                          <td>
+                            <c:choose>
+                              <c:when test="${!grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">
+                                ${textContainer.textEscapeXml['attestationStatusOk']}
+                              </c:when>
+                              <c:otherwise>
+                                ${textContainer.textEscapeXml['attestationStatusNotOk']}                              
+                              </c:otherwise>
+                            </c:choose>
+                            <br />
+                            <span class="description">${textContainer.text['attestationStatusDescription']}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDateCertifiedLabel'] }</strong></td>
+                          <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDateCertified}
+                            <br />
+                            <span class="description">${textContainer.text['attestationDateCertifiedDescription']}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDateNeedsRecertifyLabel'] }</strong></td>
+                          <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDateNeedsCertify}
+                            <br />
+                            <span class="description">${textContainer.text['attestationDateNeedsRecertifyDescription']}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDaysLeftUntilRecertifyLabel'] }</strong></td>
+                          <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDaysLeftUntilRecertify}
+                            <br />
+                            <span class="description">${textContainer.text['attestationDaysLeftUntilRecertifyDescription']}</span>
+                          </td>
+                        </tr>
+                        
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationLastEmailedDateLabel']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationLastEmailedDate)}
+                            <br />
+                            <span class="description">${textContainer.text['attestationLastEmailedDateDescription']}</span>
+                          </td>
+                        </tr>
                         <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.type == 'INDIRECT'}">
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationParentFolderLabel']}</strong></td>
@@ -124,9 +155,3 @@
                       </tbody>
                     </table>
                   </c:if>
-                </div>
-              </div>
-            </div>
-            <c:if test="${grouperRequestContainer.indexContainer.menuRefreshOnView}">
-              <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
-            </c:if>

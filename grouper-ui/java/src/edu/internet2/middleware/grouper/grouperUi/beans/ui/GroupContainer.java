@@ -806,16 +806,5 @@ public class GroupContainer {
   public void setGuiGroups(Set<GuiGroup> guiGroupsAddMember1) {
     this.guiGroups = guiGroupsAddMember1;
   }
-  
-  private GuiAttestation guiAttestation;
-
-  public GuiAttestation getGuiAttestation() {
-    return guiAttestation;
-  }
-
-  public void setGuiAttestation(GuiAttestation guiAttestation) {
-    this.guiAttestation = guiAttestation;
-  }
-  
-  
+    
 }

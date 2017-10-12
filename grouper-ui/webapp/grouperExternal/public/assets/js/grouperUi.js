@@ -1119,6 +1119,7 @@ function guiProcessAction(guiScreenAction) {
     guiMessageHelper(guiScreenAction.messageType, guiScreenAction.validationMessage);
     guiScrollTop();
     //put up the validation error thing
+    //TODO if the handle doesnt exist, throw error to help develop, sometimes the error is thrown before JSP is drawn wont work
     $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + guiEscapeHtml(guiScreenAction.validationMessage, true) + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
   }
 }

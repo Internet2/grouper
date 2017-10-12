@@ -677,11 +677,11 @@
                       
                       <tr>
                         <td></td>
-                        <td style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" 
+                        <td style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;"><input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
                           value="${textContainer.text['grouperLoaderEditButtonSave'] }" 
                           onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;"> 
                           &nbsp; 
-                          <a class="btn" role="button" 
+                          <a class="btn btn-cancel" role="button" 
                             onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>
                         </td>

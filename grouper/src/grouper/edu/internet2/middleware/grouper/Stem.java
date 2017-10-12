@@ -1142,6 +1142,24 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     return parent;
   } // public Stem getParentStem()
   
+  /**
+   * Get parent stem.
+   * <pre class="eg">
+   * // Get parent
+   * Stem parent = ns.getParentStem();
+   * </pre>
+   * @return  Parent {@link Stem}.
+   * @throws StemNotFoundException if stem not found
+   */
+  public Stem getParentStemOrNull() 
+  {
+    String theParentUuid = this.getParentUuid();
+    if (theParentUuid == null) {
+      return null;
+    }
+    Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(theParentUuid, true);
+    return parent;
+  }
   
   /**
    * Returns the alternate name for the stem.  Used by hibernate.

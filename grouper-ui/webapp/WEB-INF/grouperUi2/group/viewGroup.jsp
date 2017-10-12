@@ -25,6 +25,28 @@
 
                     <p class="lead">${textContainer.text['groupViewMembersDescription'] }</p>
                     
+                    <c:if test="${grouperRequestContainer.attestationContainer.hasAttestation && grouperRequestContainer.attestationContainer.canWriteAttestation}" >
+                      <c:choose>
+                        <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">
+                          <p class="lead" style="color: red">${textContainer.text['attestationGroupNeedsAttestationNow'] }
+
+                            <input type="submit" class="btn" value="${textContainer.textEscapeDouble['groupAttestationMarkAsReviewed'] }"
+                              onclick="ajax('../app/UiV2Attestation.attestGroupFromOutside?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" /> 
+                            
+                          </p>
+                          <br />
+                        </c:when>
+                        <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertifySoon}">
+                          <p class="lead" style="color: red">${textContainer.text['attestationGroupNeedsAttestationSoon'] }
+
+                            <input type="submit" class="btn" value="${textContainer.textEscapeDouble['groupAttestationMarkAsReviewed'] }"
+                              onclick="ajax('../app/UiV2Attestation.attestGroupFromOutside?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" /> 
+
+                          </p>
+                          <br />
+                        </c:when>
+                      </c:choose>
+                    </c:if>
                     <c:if test="${mediaMap['uiV2.group.show.compositeAndFactors']=='true' && grouperRequestContainer.groupContainer.guiGroup.group.hasComposite}" >
 
                       <p class="compositeInfo">${textContainer.text['groupLabelCompositeOwnerMainPanel'] }

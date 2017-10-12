@@ -49,13 +49,17 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -787,8 +791,202 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testFindNonByEmptySetNameOrId"));
+    TestRunner.run(new TestGroupFinder("testFindByAttributeAssignOnAssignValuesAndPrivilege"));
   }
 
+  /**
+   * 
+   */
+  public void testFindByAttributeAssignOnAssignValuesAndPrivilege() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // this group has attestation
+    Group groupA = new GroupSave(grouperSession).assignName("testA:groupA").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      Group group = groupA;
+      
+      AttributeAssign attributeAssignBase = new AttributeAssignSave(grouperSession).assignOwnerGroup(group)
+          .assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).save();
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "0");
+
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.VIEW);
+      
+    }
+    
+    // this group does not have attestation
+    Group groupB = new GroupSave(grouperSession).assignName("testB:groupB").assignCreateParentStemsIfNotExist(true).save();
+
+    
+    {
+      Group group = groupB;
+
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.VIEW);
+      
+    }
+
+    // this group has attestation
+    Group groupC = new GroupSave(grouperSession).assignName("testC:groupC").assignCreateParentStemsIfNotExist(true).save();
+
+    
+    {
+      Group group = groupC;
+      
+      AttributeAssign attributeAssignBase = new AttributeAssignSave(grouperSession).assignOwnerGroup(group)
+          .assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).save();
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "2");
+
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.VIEW);
+      
+    }
+
+    // this group has attestation and no privs
+    Group groupD = new GroupSave(grouperSession).assignName("testD:groupD").assignCreateParentStemsIfNotExist(true).save();
+
+    
+    {
+      Group group = groupD;
+      
+      AttributeAssign attributeAssignBase = new AttributeAssignSave(grouperSession).assignOwnerGroup(group)
+          .assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).save();
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "5");
+
+      
+    }
+
+    // this group has attestation and privs with the wrong value to search for
+    Group groupE = new GroupSave(grouperSession).assignName("testE:groupE").assignCreateParentStemsIfNotExist(true).save();
+
+    
+    {
+      Group group = groupE;
+      
+      AttributeAssign attributeAssignBase = new AttributeAssignSave(grouperSession).assignOwnerGroup(group)
+          .assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).save();
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "180");
+
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+      group.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.VIEW);
+      
+    }
+
+    Set<Group> groups = null;
+
+    //do a search as grouper system
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectFinder.findRootSubject())
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(GrouperUtil.toSet(groupA, groupC, groupD), groups, null);
+
+    //try in a folder
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectFinder.findRootSubject())
+      .assignParentStemId(groupA.getParentUuid())
+      .assignStemScope(Scope.SUB)
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(GrouperUtil.toSet(groupA), groups, null);
+    
+    //try SUBJ 0 has admin
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectTestHelper.SUBJ0)
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(GrouperUtil.toSet(groupA, groupC, groupD), groups, null);
+
+    //try SUBJ 1 has update/read
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectTestHelper.SUBJ1)
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(GrouperUtil.toSet(groupA, groupC, groupD), groups, null);
+
+    //try SUBJ 2 has read
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectTestHelper.SUBJ2)
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(null, groups, null);
+
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ2)
+        .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+        .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+        .findGroups();
+
+    assertContainsGroups(GrouperUtil.toSet(groupA, groupC, groupD), groups, null);
+    
+    //try SUBJ 3 has view
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectTestHelper.SUBJ3)
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(null, groups, null);
+
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ3)
+        .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+        .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+        .findGroups();
+
+    assertContainsGroups(GrouperUtil.toSet(groupA, groupC, groupD), groups, null);
+
+    //try SUBJ 4 has view
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(SubjectTestHelper.SUBJ4)
+      .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+      .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+      .findGroups();
+
+    assertContainsGroups(null, groups, null);
+    
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ4)
+        .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+        .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+        .findGroups();
+
+      assertContainsGroups(null, groups, null);
+      
+
+  }
+  
 } // public class TestGroupFinder_FindByAttribute
 

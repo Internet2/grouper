@@ -518,29 +518,43 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * add attestation for group
    */
-  GROUP_ADD_ATTESTATION(new AuditType("group attestation", "add", null, "groupId", "displayName")),
+  GROUP_ATTESTATION_ADD(new AuditType("groupAttestationAdd", "addGroupAttestation", null, "groupId", "groupName")),
   
+  /**
+   * delete attestation for group
+   */
+  GROUP_ATTESTATION_DELETE(new AuditType("groupAttestationDelete", "deleteGroupAttestation", null, "groupId", "groupName")),
+
   /** 
    * update attestation for group
    */
-  GROUP_UPDATE_ATTESTATION(new AuditType("group attestation", "update", null, "groupId", "displayName")),
+  GROUP_ATTESTATION_UPDATE(new AuditType("groupAttestation", "updateGroupAttestation", null, "groupId", "groupName")),
   
   /**
    * update last certified date for group
    */
-  GROUP_UPDATE_LAST_CERTIFIED_DATE(new AuditType("group attestation", "updateLastCertifiedDate", null, "groupId", "displayName")),
-  
+  GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE(new AuditType("groupAttestation", "updateGroupLastCertifiedDate", null, "groupId", "groupName")),
+
+  /**
+   * clear last certified date for group
+   */
+  GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE(new AuditType("groupAttestation", "clearGroupLastCertifiedDate", null, "groupId", "groupName")),
+
   /**
    * add attestation for stem
    */
-  STEM_ADD_ATTESTATION(new AuditType("stem attestation", "add", null, "stemId", "displayName")),
-  
+  STEM_ATTESTATION_ADD(new AuditType("stemAttestation", "addStemAttestation", null, "stemId", "stemName")),
+
+  /**
+   * add attestation for stem
+   */
+  STEM_ATTESTATION_DELETE(new AuditType("stemAttestation", "deleteStemAttestation", null, "stemId", "stemName")),
+
   /** 
    * update attestation for stem
    */
-  STEM_UPDATE_ATTESTATION(new AuditType("stem attestation", "update", null, "stemId", "displayName"));
-  
-  
+  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName"));
+
   /**
    * defaults for audit type, though doesnt hold the id
    */

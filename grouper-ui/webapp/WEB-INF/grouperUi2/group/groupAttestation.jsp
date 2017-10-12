@@ -16,45 +16,8 @@
                   </c:if>
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
-                <div class="row-fluid">
-                  <div class="lead span10">${textContainer.text['groupAttestationTitle'] }</div>
-                  <div class="span2" id="grouperLoaderMoreActionsButtonContentsDivId">
-                    <%@ include file="grouperLoaderMoreActionsButtonContents.jsp"%>
-                  </div>
-                </div>
-                
-                <c:choose>
-                  <c:when test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
-                    <p>${textContainer.text['grouperLoaderIsGrouperLoader'] }</p>
-                  </c:when>
-                  <c:otherwise>
-                    <p>${textContainer.text['noAttestationConfigured'] }</p>
-                  </c:otherwise>
-                  
-                  attestationConfiguredForGroup = Attestation is configured on this group
-attestationConfiguredForStem = Attestation is configured on this folder
-attestationConfiguredForAncestorStem = Attestation is configured an ancestor folder
-                  
-                  
-                </c:choose>
-
-                <c:choose>
-                  <c:when test="${true}">
-                    <table class="table table-condensed table-striped">
-                      <tbody>
-                        <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong>Label</strong></td>
-                          <td>value<br />
-                            <span class="description">description</span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </c:when>
-                </c:choose>
-
                 <div id="groupAttestation">
-                
+                  <%@ include file="../group/groupAttestationView.jsp"%>
                 </div>
 
               </div>
