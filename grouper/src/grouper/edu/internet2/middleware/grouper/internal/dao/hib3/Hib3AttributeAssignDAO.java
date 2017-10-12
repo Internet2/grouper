@@ -819,6 +819,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param sqlWhereClause should not be empty
    * @param attributeDefValueType
    * @param theValue
+   * @param attributeAssignAlias is usually "aa"
    */
   public static void queryByValueAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
       AttributeDefValueType attributeDefValueType, Object theValue) {
@@ -878,6 +879,125 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
           
         default:
           throw new RuntimeException("Not expecting attributeDefValueType: " + attributeDefValueType);
+      }
+    }
+    
+  }
+  
+  /**
+   * make sure if sending a value you are sending a value type, and add table if necessary
+   * @param byHqlStatic
+   * @param sqlTables
+   * @param sqlWhereClause should not be empty
+   * @param attributeDefValueType
+   * @param theValue
+   * @param attributeAssignAlias is usually "aa"
+   */
+  public static void queryByValuesAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
+      AttributeDefValueType attributeDefValueType, Set<Object> theValues, String attributeAssignAlias) {
+
+    if (theValues != null && attributeDefValueType == null) {
+      throw new RuntimeException("Why is attributeDefValueType null if you are querying by value???");
+    }
+
+    if (attributeDefValueType != null) {
+      
+      if (sqlTables != null) {
+        sqlTables.append(", AttributeAssignValue aav ");
+      }
+      
+      if (sqlWhereClause.length() > 0) {
+        sqlWhereClause.append(" and ");
+      }
+      sqlWhereClause.append(" " + attributeAssignAlias + ".id = aav.attributeAssignId ");
+      
+      switch(attributeDefValueType) {
+        case floating:
+          sqlWhereClause.append(" and aav.valueFloating ");
+          break;
+        case integer:
+          sqlWhereClause.append(" and aav.valueInteger ");
+          break;
+          
+        case marker:
+          //this should throw exception
+          throw new RuntimeException("Why are you querying by value on a marker attribute???");
+        case memberId:
+          sqlWhereClause.append(" and aav.valueMemberId ");
+          break;
+          
+        case string:
+          sqlWhereClause.append(" and aav.valueString ");
+          break;
+          
+        case timestamp:
+          
+          sqlWhereClause.append(" and aav.valueInteger ");
+          break;
+          
+          
+        default:
+          throw new RuntimeException("Not expecting attributeDefValueType: " + attributeDefValueType);
+      }
+
+      if (GrouperUtil.length(theValues) > 100) {
+        throw new RuntimeException("Too many values for theValues: " + GrouperUtil.length(theValues));
+      }
+
+      List<Object> theValuesList = new ArrayList<Object>(theValues);
+      sqlWhereClause.append(" in ( ");
+      for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
+        if (i!=0) {
+          sqlWhereClause.append(", ");
+        }
+        sqlWhereClause.append(" :theValue");
+        sqlWhereClause.append(i);
+        
+      }
+      sqlWhereClause.append(" ) ");
+      
+      for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
+        Object theValueLocal = theValuesList.get(i);
+        String alias = "theValue" + i;
+        switch(attributeDefValueType) {
+          case floating:
+            
+            Double theDouble = (Double)attributeDefValueType.convertToObject(theValueLocal);
+            byHqlStatic.setDouble(alias, theDouble);
+  
+            break;
+          case integer:
+            Long theLong = (Long)attributeDefValueType.convertToObject(theValueLocal);
+            byHqlStatic.setLong(alias, theLong);
+            break;
+            
+          case marker:
+            //this should throw exception
+            throw new RuntimeException("Why are you querying by value on a marker attribute???");
+          case memberId:
+            theValueLocal = attributeDefValueType.convertToObject(theValueLocal);
+            byHqlStatic.setString(alias, (String)theValueLocal);
+            break;
+            
+          case string:
+            theValueLocal = attributeDefValueType.convertToObject(theValueLocal);
+            byHqlStatic.setString(alias, (String)theValueLocal);
+            break;
+            
+          case timestamp:
+            
+            theValueLocal = attributeDefValueType.convertToObject(theValueLocal);
+            
+            if (theValueLocal != null) {
+              theValueLocal = ((Timestamp)theValueLocal).getTime();
+            }
+            byHqlStatic.setLong(alias, (Long)theValueLocal);
+            break;
+            
+            
+          default:
+            throw new RuntimeException("Not expecting attributeDefValueType: " + attributeDefValueType);
+        }
       }
     }
     

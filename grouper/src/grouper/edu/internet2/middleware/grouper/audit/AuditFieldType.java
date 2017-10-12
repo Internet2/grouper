@@ -42,6 +42,9 @@ public class AuditFieldType {
   public static final String AUDIT_TYPE_GROUP_ID = "groupId";
   
   /** audit type for group id */
+  public static final String AUDIT_TYPE_ATTESTATION_GROUP_ID = "attestationGroupId";
+  
+  /** audit type for group id */
   public static final String AUDIT_TYPE_STEM_ID = "stemId";
   
   /** audit type for member id */
@@ -91,8 +94,19 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_MOVE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_MOVE, "newParentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_MOVE, "newStemId");
-    
+
+    addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId");
+    addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE, "groupId");
+
         
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ADD, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_UPDATE, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_DELETE, "id");

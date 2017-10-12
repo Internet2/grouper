@@ -180,23 +180,76 @@ public class GrouperTest extends TestCase {
       fail("Empty set does not contain group: " + group.getName());
     }
 
-    StringBuilder groupsString = new StringBuilder();
-    
     for (Group current : groups) {
       if (StringUtils.equals(current.getId(), group.getId())) {
         return;
       }
       
-      groupsString.append(current.getName()).append(", ");
-      
     }
     
-    if (groups.size() > 100) {
-      fail(StringUtils.defaultString(message) + ", expected groups to contain group '" + group.getName() + "' but doesnt");
+    fail(StringUtils.defaultString(message) + ", expected groups to contain group '" + group.getName() + "' but contains: " + groupsString(groups));
+
+  }
+
+  /**
+   * @param message
+   * @param groups
+   * @param group
+   */
+  public void assertContainsGroups(Collection<Group> expectedGroups, Collection<Group> actualGroups, String message) {
+    
+    if (GrouperUtil.length(expectedGroups) != GrouperUtil.length(actualGroups)) {
+      fail(StringUtils.defaultString(message) + ", expected " + GrouperUtil.length(expectedGroups) 
+        + " groups but had " + GrouperUtil.length(actualGroups) + ",\nexpected: " + groupsString(expectedGroups)
+        + "\nactual: " + groupsString(actualGroups));
     }
 
-    fail(StringUtils.defaultString(message) + ", expected groups to contain group '" + group.getName() + "' but contains: " + groupsString);
+    //we good
+    if (GrouperUtil.length(expectedGroups) == 0) {
+      return;
+    }
+    
+    for (Group current : actualGroups) {
+      assertContainsGroup(expectedGroups, current, message);
+    }
+    
 
+  }
+
+  /**
+   * 
+   * @param groups
+   * @return the groups string
+   */
+  public static String groupsString(Collection<Group> groups) {
+    
+    StringBuilder groupsString = new StringBuilder(GrouperUtil.length(groups) + " groups: " );
+
+    int i=0;
+    
+    if (GrouperUtil.length(groups) == 0) {
+      groupsString.append(" <none>");
+      return groupsString.toString();
+    }
+    
+    for (Group current : groups) {
+
+      if (i != 0) {
+        groupsString.append(", ");
+      }
+      
+      groupsString.append(current.getName());
+
+      if (i>100) {
+        groupsString.append(", and " + (GrouperUtil.length(groups) - 100) + " more groups...");
+        break;
+      }
+      
+      i++;
+    }
+
+    return groupsString.toString();
+    
   }
   
   /**

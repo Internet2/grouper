@@ -2461,6 +2461,25 @@ public class GrouperUtil {
   }
 
   /**
+   * return a set of objects from varargs.
+   *
+   * @param <T> template type of the objects
+   * @param objects
+   * @return the set
+   */
+  public static <T> Set<Object> toSetObjectType(T... objects) {
+    if (objects == null || objects.length == 0 || (objects.length == 1 && objects[0] == null )) {
+      return null;
+    }
+    Set<Object> result = new LinkedHashSet<Object>();
+    for (T object : objects) {
+      result.add(object);
+    }
+    return result;
+  }
+
+
+  /**
    * return a set of string
    *
    * @param <T> template type of the objects

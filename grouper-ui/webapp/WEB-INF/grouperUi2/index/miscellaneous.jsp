@@ -31,6 +31,8 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderOverall');" style="white-space: nowrap;"
                       >${textContainer.text['adminLoaderLink'] }</a>
                     </c:if>
+                    <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
+                      >${textContainer.text['miscAttestationLink'] }</a>
                   </div>
                 </div>
               </div>

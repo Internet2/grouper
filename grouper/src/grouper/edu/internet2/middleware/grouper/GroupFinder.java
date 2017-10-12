@@ -650,7 +650,7 @@ public class GroupFinder {
   private Collection<String> groupIds;
 
   /**
-   * find groups that have this attribute def name id
+   * find groups that have this attribute def name id, note could be an assignment on an assignment
    */
   private String attributeDefNameId;
   
@@ -659,6 +659,34 @@ public class GroupFinder {
    */
   private Object attributeValue;
   
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   */
+  private Set<Object> attributeValuesOnAssignment;
+  
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   * @param theValues
+   * @return this for chaining
+   */
+  public GroupFinder assignAttributeValuesOnAssignment(Set<Object> theValues) {
+    this.attributeValuesOnAssignment = theValues;
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   * @param theValues
+   * @return this for chaining
+   */
+  public GroupFinder addAttributeValuesOnAssignment(Object value) {
+    if (this.attributeValuesOnAssignment == null) {
+      this.attributeValuesOnAssignment = new HashSet<Object>();
+    }
+    this.attributeValuesOnAssignment.add(value);
+    return this;
+  }
+
   /**
    * find objects with this value
    * @param theValue
@@ -673,7 +701,7 @@ public class GroupFinder {
   }
   
   /**
-   * find groups that have this attribute assigned
+   * find groups that have this attribute def name id, note could be an assignment on an assignment
    * @param theAttributeDefNameId
    * @return this for chaining
    */
@@ -815,7 +843,7 @@ public class GroupFinder {
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
             this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
-            this.attributeDefNameId, this.attributeValue);
+            this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment);
     
   }
 

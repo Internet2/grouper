@@ -406,6 +406,54 @@ public class GuiAuditEntry {
     
       switch (theAuditTypeBuiltin) {
         
+        case GROUP_ATTESTATION_ADD:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_ADD");
+
+        case GROUP_ATTESTATION_DELETE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_DELETE");
+
+        case GROUP_ATTESTATION_UPDATE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_UPDATE");
+
+        case GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE");
+
+        case GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE");
+
+        case STEM_ATTESTATION_ADD:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_ADD");
+
+        case STEM_ATTESTATION_DELETE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_DELETE");
+
+        case STEM_ATTESTATION_UPDATE:
+
+          this.setupGroup();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_UPDATE");
+
         case ATTRIBUTE_ASSIGN_ANYMSHIP_ADD:
           
           this.setupMember();
@@ -967,6 +1015,7 @@ public class GuiAuditEntry {
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE) {
       attributeDefNameIdName = "id";
     }
+    
     String attributeDefNameId = this.auditEntry.retrieveStringValue(attributeDefNameIdName);
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
     GuiAttributeDefName guiAttributeDefName = new GuiAttributeDefName(attributeDefName);
