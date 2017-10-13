@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -37,6 +38,43 @@ public class GuiAttestation {
   /** days before attestation needed */
   private Integer grouperAttestationDaysLeftUntilRecertify;
 
+  /**
+   * gui group associated with the group the attestation is on if applicable 
+   */
+  private GuiGroup guiGroup;
+
+  /**
+   * gui stem associates with the stem the attestation is on if applicable
+   */
+  private GuiStem guiStem;
+
+  /**
+   * gui stem associated with the stem the attestation is on if applicable 
+   * @return gui stem
+   */
+  public GuiStem getGuiStem() {
+    if (this.guiStem == null) {
+      if (this.attributeAssignable instanceof Stem) {
+        this.guiStem = new GuiStem((Stem)this.attributeAssignable);
+      }
+    }
+    return this.guiStem;
+  }
+   
+
+  /**
+   * gui group associated with the group the attestation is on if applicable 
+   * @return gui group
+   */
+  public GuiGroup getGuiGroup() {
+    if (this.guiGroup == null) {
+      if (this.attributeAssignable instanceof Group) {
+        this.guiGroup = new GuiGroup((Group)this.attributeAssignable);
+      }
+    }
+    return this.guiGroup;
+  }
+   
   /**
    * days before attestation needed
    * @return days left before recertify

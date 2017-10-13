@@ -655,6 +655,21 @@ public class GroupFinder {
   private String attributeDefNameId;
   
   /**
+   * use security around attribute def?  default is true
+   */
+  private boolean attributeDefNameUseSecurity = true;
+  
+  /**
+   * use security around attribute def?  default is true
+   * @param theAttributeDefNameUseSecurity
+   * @return this for chaining
+   */
+  public GroupFinder assignAttributeDefNameUseSecurity(boolean theAttributeDefNameUseSecurity) {
+    this.attributeDefNameUseSecurity = theAttributeDefNameUseSecurity;
+    return this;
+  }
+  
+  /**
    * find groups with this value
    */
   private Object attributeValue;
@@ -843,7 +858,8 @@ public class GroupFinder {
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
             this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
-            this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment);
+            this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment, 
+            this.attributeDefNameUseSecurity);
     
   }
 
