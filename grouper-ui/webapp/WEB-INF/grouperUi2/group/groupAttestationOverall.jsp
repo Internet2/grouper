@@ -26,6 +26,15 @@
                           <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                             <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                         data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipGroup']}">${textContainer.text['grouperAttestationOverallColumnHeaderGroup'] }</span></th>
+                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                        data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipNeedsAttestation']}">${textContainer.text['grouperAttestationOverallColumnHeaderNeedsAttestation'] }</span></th>
+                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                        data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipDaysLeftUntilNeedsAttestation']}">${textContainer.text['grouperAttestationOverallColumnHeaderDaysLeftUntilNeedsAttestation'] }</span></th>
+                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                        data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipLastCertifiedDate']}">${textContainer.text['grouperAttestationOverallColumnHeaderLastCertifiedDate'] }</span></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -33,7 +42,7 @@
                         <c:forEach  items="${grouperRequestContainer.attestationContainer.guiAttestations}" 
                           var="guiAttestation">
                           <tr>
-                            <td class="expand foo-clicker" style="white-space: nowrap;">${guiAttestation.guiGroup.shortLinkWithIcon}
+                            <td class="expand foo-clicker" style="white-space: nowrap;">${guiAttestation.guiGroup.linkWithIcon}
                             </td>
                           </tr>
                           <c:set var="i" value="${i+1}" />

@@ -3,7 +3,10 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +27,10 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditFieldType;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -1918,8 +1924,59 @@ public class UiV2Attestation {
       List<GuiAttestation> guiAttestations = new ArrayList<GuiAttestation>();
       GrouperRequestContainer.retrieveFromRequestOrCreate().getAttestationContainer().setGuiAttestations(guiAttestations);
 
-      //new AttributeAssignFinder().
+      Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+          .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+          .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+          .assignAttributeDefNameUseSecurity(false).assignQueryOptions(QueryOptions.create(null, null, 1, 100))
+          .findGroups();
       
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
+        .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+        .assignAttributeDefNameUseSecurity(false)
+        .findAttributeAssignValuesResult();
+      
+      //now we have groups, assignments, assignments on assignments, and values
+      for (Group group : groups) {
+        
+        Map<String, String> attributes = attributeAssignValueFinderResult.retrieveAttributeDefNamesAndValueStrings(group.getId());
+        
+        String attestationDirectAssignment = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+        String attestationSendEmail = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
+        String attestationEmailAddresses = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
+        String attestationDaysUntilRecertify = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+        String attestationLastEmailedDate = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
+        String attestationDaysBeforeToRemind = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName());
+        String attestationStemScope = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+        String attestationDateCertified = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+
+        String daysLeftBeforeAttestation = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+        if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
+
+          AttributeAssign attributeAssign = attributeAssignValueFinderResult.getMapGroupIdToAttributeAssign().get(group.getId());
+          
+          GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
+
+        }
+        daysLeftBeforeAttestation = attributes.get(
+            GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+        int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
+        GuiAttestation guiAttestation = new GuiAttestation(group, GrouperUtil.booleanObjectValue(attestationSendEmail), 
+            attestationEmailAddresses, attestationDaysUntilRecertify,
+            attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
+            GrouperUtil.booleanValue(attestationDirectAssignment, false), GuiAttestation.Type.DIRECT, daysLeft);
+
+        guiAttestations.add(guiAttestation);
+        
+//        
+//        
+//        GuiAttestation guiAttestation = new GuiAttestation(group, )
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestationOverall.jsp"));

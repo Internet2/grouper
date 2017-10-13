@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
@@ -85,6 +86,7 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -2828,7 +2830,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null, null, null, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null, null, null, null, null);
   }
 
   /**
@@ -2839,7 +2841,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null, null, null, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null, null, null, null, null);
   }
 
   /**
@@ -2862,6 +2864,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param idOfAttributeDefName 
    * @param attributeValue 
    * @param attributeValuesOnAssignment
+   * @param attributeDefNameUseSecurity
    * @return groups
    * 
    */
@@ -2870,7 +2873,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
       Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup,
       Collection<String> totalGroupIds, Collection<String> totalGroupNames, Boolean compositeOwner,
-      String idOfAttributeDefName, Object attributeValue, Set<Object> attributeValuesOnAssignment) {
+      final String idOfAttributeDefName, Object attributeValue, Set<Object> attributeValuesOnAssignment,
+      Boolean attributeDefNameUseSecurity) {
 
     if ((attributeValue != null || GrouperUtil.length(attributeValuesOnAssignment) > 0) && StringUtils.isBlank(idOfAttributeDefName)) {
       throw new RuntimeException("If you are searching by attributeValue then you must specify an attribute definition name");
@@ -2974,9 +2978,34 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
           }
 
-          //make sure user can READ the attribute
-          AttributeDefName attributeDefName = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
-            .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
+          //make sure user can READ the attribute if checking security
+          AttributeDefName attributeDefName = null;
+          AttributeDef attributeDef = null;
+          
+          final AttributeDef[] ATTRIBUTE_DEF = new AttributeDef[]{null};
+          
+          //default to true
+          attributeDefNameUseSecurity = GrouperUtil.defaultIfNull(attributeDefNameUseSecurity, true);
+
+          if (attributeDefNameUseSecurity) {
+            attributeDefName =  new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
+                .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
+            attributeDef = attributeDefName == null ? null : attributeDefName.getAttributeDef();
+          } else {
+            
+            attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                AttributeDefName result = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
+                    .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
+                ATTRIBUTE_DEF[0] = result == null ? null : result.getAttributeDef();
+                return result;
+              }
+            });
+            
+            attributeDef = ATTRIBUTE_DEF[0];
+            
+          }
 
           //cant read the attribute????
           if (attributeDefName == null) {
@@ -2996,7 +3025,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
             whereClause.append(" and aa.enabledDb = 'T' ");
 
-            AttributeDef attributeDef = attributeDefName.getAttributeDef();
             AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
 
             Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValuesOnAssignment, "aaOnAssign");
@@ -3023,7 +3051,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
             if (attributeValue != null) {
 
-              AttributeDef attributeDef = attributeDefName.getAttributeDef();
               AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
 
               Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValue);
@@ -3637,7 +3664,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
-        typeOfGroups, membershipSubject, field, null, null, false, null, null, null, null, null, null, null);
+        typeOfGroups, membershipSubject, field, null, null, false, null, null, null, null, null, null, null, null);
   }
 
   /**
@@ -3652,7 +3679,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Boolean compositeOwner) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
-        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, null, null, null);
+        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, null, null, null, null);
   }
 
   /**
@@ -3667,11 +3694,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Boolean compositeOwner, String idOfAttributeDefName, Object attributeValue) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
-        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, attributeValue, null);
+        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, attributeValue, null, null);
   }
 
   /**
-   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope, boolean, Subject, Collection, Collection, Boolean, String, Object, Set)
+   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope, boolean, Subject, Collection, Collection, Boolean, String, Object, Set, Boolean)
    */
   @Override
   public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
@@ -3680,10 +3707,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Subject subjectNotInGroup, Collection<String> groupIds,
       Collection<String> groupNames, Boolean compositeOwner, String idOfAttributeDefName,
-      Object attributeValue, Set<Object> attributeValuesOnAssignment) {
+      Object attributeValue, Set<Object> attributeValuesOnAssignment, Boolean attributeDefNameUseSecurity) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroup, membershipSubject, field, parentStemId, stemScope,
-        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, attributeValue, attributeValuesOnAssignment);
+        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, 
+        attributeValue, attributeValuesOnAssignment, attributeDefNameUseSecurity);
   }
 } 
 

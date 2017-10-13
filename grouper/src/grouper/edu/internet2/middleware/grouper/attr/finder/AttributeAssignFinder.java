@@ -20,22 +20,128 @@
 package edu.internet2.middleware.grouper.attr.finder;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * finder methods for attribute assign
  */
 public class AttributeAssignFinder {
+
+  
+  /**
+   * attribute def names ids
+   */
+  private Collection<String> attributeDefNameIds;
+  
+  /**
+   * attribute def name id to find
+   * @param attributeDefNameId
+   * @return this for chaining
+   */
+  public AttributeAssignFinder addAttributeDefNameId(String attributeDefNameId) {
+    if (this.attributeDefNameIds == null) {
+      this.attributeDefNameIds = new LinkedHashSet<String>();
+    }
+    this.attributeDefNameIds.add(attributeDefNameId);
+    return this;
+  }
+  
+  /**
+   * attribute def name ids to find
+   * @param theAttributeDefNameIds
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignAttributeDefNameIds(Collection<String> theAttributeDefNameIds) {
+    this.attributeDefNameIds = theAttributeDefNameIds;
+    return this;
+  }
+  
+  /**
+   * 
+   */
+  private Collection<String> ownerGroupIds;
+  
+  /**
+   * add owner group id
+   * @param ownerGroupId
+   * @return this for chaining
+   */
+  public AttributeAssignFinder addOwnerGroupId(String ownerGroupId) {
+    if (this.ownerGroupIds == null) {
+      this.ownerGroupIds = new LinkedHashSet<String>();
+    }
+    this.ownerGroupIds.add(ownerGroupId);
+    return this;
+  }
+  
+  /**
+   * add owner group id
+   * @param ownerGroupIds1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignOwnerGroupIds(Collection<String> ownerGroupIds1) {
+    this.ownerGroupIds = ownerGroupIds1;
+    return this;
+  }
+  
+  /**
+   * if assignments on assignments should also be included
+   */
+  private boolean includeAssignmentsOnAssignments = false;
+  
+  /**
+   * if assignments on assignments should also be included
+   * @param theIncludeAssignAssignmentsOnAssignments
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignIncludeAssignmentsOnAssignments(boolean theIncludeAssignAssignmentsOnAssignments) {
+    this.includeAssignmentsOnAssignments = theIncludeAssignAssignmentsOnAssignments;
+    return this;
+  }
+  
+  /**
+   * find all the attribute assigns
+   * @return the set of groups or the empty set if none found
+   */
+  public Set<AttributeAssign> findAttributeAssigns() {
+  
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
+  
+      // if passed in empty set of group ids and no names, then no groups found
+      if (this.ownerGroupIds != null && this.ownerGroupIds.size() == 0) {
+        return new HashSet<AttributeAssign>();
+      }
+      
+    }
+    
+    if (this.ownerGroupIds != null) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign()
+          .findGroupAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerGroupIds, null, true, 
+              this.includeAssignmentsOnAssignments, null, null, null);
+
+    }
+    
+    throw new RuntimeException("Bad query");
+  }
 
   /**
    * find an attributeAssign by id.  This is a secure method, a GrouperSession must be open

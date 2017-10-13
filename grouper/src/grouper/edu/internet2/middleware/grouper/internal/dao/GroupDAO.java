@@ -878,6 +878,7 @@ public interface GroupDAO extends GrouperDAO {
    * @param idOfAttributeDefName if looking for groups that have this attribute def name
    * @param attributeValue if looking for groups that have this attribute value on the attribute def name
    * @param attributeValuesOnAssignment if looking for an attribute value on an assignment, could be multiple values
+   * @param attributeDefNameUseSecurity use security around attribute def?  default is true
    * @return set of group
    * @since v2.2.3
    */
@@ -887,7 +888,7 @@ public interface GroupDAO extends GrouperDAO {
       Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
       boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
       Collection<String> groupNames, Boolean compositeOwner, String idOfAttributeDefName, Object attributeValue,
-      Set<Object> attributeValuesOnAssignment);  
+      Set<Object> attributeValuesOnAssignment, Boolean attributeDefNameUseSecurity);  
   
   /**
    * find by uuid secure
