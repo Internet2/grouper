@@ -438,19 +438,19 @@ public class GuiAuditEntry {
 
         case STEM_ATTESTATION_ADD:
           
-          this.setupGroup();
+          this.setupStem();
             
           return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_ADD");
 
         case STEM_ATTESTATION_DELETE:
           
-          this.setupGroup();
+          this.setupStem();
             
           return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_DELETE");
 
         case STEM_ATTESTATION_UPDATE:
 
-          this.setupGroup();
+          this.setupStem();
 
           return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_UPDATE");
 

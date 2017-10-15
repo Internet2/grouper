@@ -390,20 +390,19 @@ public class AttributeAssignValueFinder {
 
     //get all attribute def names
     final AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder();
-    Set<String> attributeDefNameIds = new HashSet<String>();
+
+    Set<String> theAttributeDefNameIds = new HashSet<String>();
     
-    for (AttributeAssign attributeAssign : result.allAttributeAssigns) {
+    for (AttributeAssign attributeAssign : GrouperUtil.nonNull(result.allAttributeAssigns)) {
 
       String attributeDefNameId = attributeAssign.getAttributeDefNameId();
-      if (!attributeDefNameIds.contains(attributeDefNameId)) {
+      if (!theAttributeDefNameIds.contains(attributeDefNameId)) {
         attributeDefNameFinder.addIdOfAttributeDefName(attributeDefNameId);
-        attributeDefNameIds.add(attributeDefNameId);
+        theAttributeDefNameIds.add(attributeDefNameId);
       }
       
     }
-    
-    
-        
+   
     if (this.attributeCheckReadOnAttributeDef) {
       attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
     }
@@ -411,14 +410,14 @@ public class AttributeAssignValueFinder {
     Set<AttributeDefName> attributeDefNames = attributeDefNameFinder.findAttributeNames();
 
     final Set<String> attributeDefIds = new HashSet<String>();
-    for (AttributeDefName attributeDefName : attributeDefNames) {
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
       result.mapAttributeDefNameIdToAttributeDefName.put(attributeDefName.getId(), attributeDefName);
       attributeDefIds.add(attributeDefName.getAttributeDefId());
       result.mapAttributeDefIdToAttributeDef.put(attributeDefName.getAttributeDefId(), attributeDefName.getAttributeDef());
     }
     
     //setup the attribute defs and attribute def names in assignments
-    for (AttributeAssign attributeAssign : result.allAttributeAssigns) {
+    for (AttributeAssign attributeAssign : GrouperUtil.nonNull(result.allAttributeAssigns)) {
       String attributeDefNameId = attributeAssign.getAttributeDefNameId();
       AttributeDefName attributeDefName = result.mapAttributeDefNameIdToAttributeDefName.get(attributeDefNameId);
       
@@ -432,7 +431,7 @@ public class AttributeAssignValueFinder {
       
     }
     
-    for (AttributeAssignValue attributeAssignValue : result.attributeAssignValues) {
+    for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(result.attributeAssignValues)) {
       
       String attributeAssignId = attributeAssignValue.getAttributeAssignId();
       
@@ -449,13 +448,13 @@ public class AttributeAssignValueFinder {
     
     Collection<String> ownerIdsOfAssignAssign = GrouperUtil.defaultIfNull(this.ownerGroupIdsOfAssignAssign, this.ownerStemIdsOfAssignAssign);
     
-    for (String ownerId : ownerIdsOfAssignAssign) {
+    for (String ownerId : GrouperUtil.nonNull(ownerIdsOfAssignAssign)) {
       
       AttributeAssign attributeAssign = result.mapOwnerIdToAttributeAssign.get(ownerId);
       
       Set<String> attributeAssignAssignIds = result.mapAttributeAssignIdToAssignAssignIds.get(attributeAssign.getId());
       
-      for (String attributeAssignAssignId : attributeAssignAssignIds) {
+      for (String attributeAssignAssignId : GrouperUtil.nonNull(attributeAssignAssignIds)) {
         AttributeAssign attributeAssignOnAssign = result.mapAttributeAssignIdToAttributeAssign.get(attributeAssignAssignId);
             
         AttributeDefName attributeDefName = result.mapAttributeDefNameIdToAttributeDefName.get(attributeAssignOnAssign.getAttributeDefNameId());

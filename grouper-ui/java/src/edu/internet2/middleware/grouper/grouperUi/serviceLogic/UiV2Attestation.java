@@ -471,14 +471,8 @@ public class UiV2Attestation {
             if (!attestationContainer.isEditAttestationIsAssigned()) {
               if (attestationContainer.isDirectGroupAttestationAssignment()) {
 
-                if (attestationContainer.isAncestorStemAttestationAssignment()) {
-                 
-                  removeDirectGroupAttestation(group);
-                  
-                } else {
-                
-                  group.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
-                }
+                // remove most of the attributes
+                GrouperAttestationJob.removeDirectGroupAttestation(group, true);
       
                 guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
                     TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
@@ -900,22 +894,6 @@ public class UiV2Attestation {
     attributeAssign.saveOrUpdate(false);
   }
 
-  /**
-   * remove direct group assignment in favor of stem assignment
-   * @param group
-   * @param attributeDefName
-   */
-  private void removeDirectGroupAttestation(Group group) {
-    
-    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
-    attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameSendEmail());
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses());
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify());
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind());
-    attributeAssign.saveOrUpdate(false);
-    
-  }
   
   /**
    * stem attestation
