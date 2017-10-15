@@ -1929,13 +1929,15 @@ public class UiV2Attestation {
             .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
             .findStems();
   
-        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemsOfAssignAssign(stems)
-          .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-          .assignAttributeCheckReadOnAttributeDef(false)
-          .findAttributeAssignValuesResult();
-  
-        guiAttestations.addAll(GuiAttestation.convertStemIntoGuiAttestation(stems,
-            attributeAssignValueFinderResult));
+        if (GrouperUtil.length(stems) > 0) {
+          AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemsOfAssignAssign(stems)
+            .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+            .assignAttributeCheckReadOnAttributeDef(false)
+            .findAttributeAssignValuesResult();
+    
+          guiAttestations.addAll(GuiAttestation.convertStemIntoGuiAttestation(stems,
+              attributeAssignValueFinderResult));
+        }
       }
       
       {
@@ -1945,14 +1947,17 @@ public class UiV2Attestation {
             .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true", "false"))
             .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
             .findGroups();
+        
+        if (GrouperUtil.length(groups) > 0) {
+          AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
+              .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+              .assignAttributeCheckReadOnAttributeDef(false)
+              .findAttributeAssignValuesResult();
+          guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
+              attributeAssignValueFinderResult));
+          
+        }
   
-        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
-          .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-          .assignAttributeCheckReadOnAttributeDef(false)
-          .findAttributeAssignValuesResult();
-  
-        guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
-            attributeAssignValueFinderResult));
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1995,14 +2000,15 @@ public class UiV2Attestation {
           .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
           .findGroups();
       
-      AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
-        .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-        .assignAttributeCheckReadOnAttributeDef(false)
-        .findAttributeAssignValuesResult();
-
-      guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
-          attributeAssignValueFinderResult));
-
+      if (GrouperUtil.length(groups) > 0) {
+        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
+          .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+          .assignAttributeCheckReadOnAttributeDef(false)
+          .findAttributeAssignValuesResult();
+  
+        guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
+            attributeAssignValueFinderResult));
+      }
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestationOverall.jsp"));
 
@@ -2049,14 +2055,15 @@ public class UiV2Attestation {
           .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
           .findGroups();
 
-        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
-          .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-          .assignAttributeCheckReadOnAttributeDef(false)
-          .findAttributeAssignValuesResult();
-        
-        guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
-            attributeAssignValueFinderResult));
-        
+        if (GrouperUtil.length(groups) > 0) {
+          AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
+            .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+            .assignAttributeCheckReadOnAttributeDef(false)
+            .findAttributeAssignValuesResult();
+          
+          guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
+              attributeAssignValueFinderResult));
+        }        
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/stem/stemAttestationGroups.jsp"));
     
@@ -2113,13 +2120,15 @@ public class UiV2Attestation {
             .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
             .findStems();
   
-        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemsOfAssignAssign(stems)
-          .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-          .assignAttributeCheckReadOnAttributeDef(false)
-          .findAttributeAssignValuesResult();
-  
-        guiAttestations.addAll(GuiAttestation.convertStemIntoGuiAttestation(stems,
-            attributeAssignValueFinderResult));
+        if (GrouperUtil.length(stems) > 0) {
+          AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemsOfAssignAssign(stems)
+            .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+            .assignAttributeCheckReadOnAttributeDef(false)
+            .findAttributeAssignValuesResult();
+    
+          guiAttestations.addAll(GuiAttestation.convertStemIntoGuiAttestation(stems,
+              attributeAssignValueFinderResult));
+        }
       }
       
       {
@@ -2132,13 +2141,15 @@ public class UiV2Attestation {
             .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
             .findGroups();
   
-        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
-          .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-          .assignAttributeCheckReadOnAttributeDef(false)
-          .findAttributeAssignValuesResult();
-  
-        guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
-            attributeAssignValueFinderResult));
+        if (GrouperUtil.length(groups) > 0) {
+          AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
+            .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+            .assignAttributeCheckReadOnAttributeDef(false)
+            .findAttributeAssignValuesResult();
+    
+          guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
+              attributeAssignValueFinderResult));
+        }
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
