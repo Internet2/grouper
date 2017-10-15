@@ -1002,16 +1002,34 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
   }
-  
+
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType, AttributeDefValueType, Object)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean)
    */
   public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
       Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
-      AttributeDefType attributeDefType, AttributeDefValueType attributeDefValueType, Object theValue) {
+      AttributeDefType attributeDefType, AttributeDefValueType attributeDefValueType, Object theValue,
+      boolean attributeCheckReadOnAttributeDef) {
+    return findGroupAttributeAssignmentsHelper(attributeAssignIds,
+        attributeDefIds, attributeDefNameIds,
+        groupIds, actions, enabled, includeAssignmentsOnAssignments,
+        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef);
+
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean)
+   */
+  private Set<AttributeAssign> findGroupAttributeAssignmentsHelper(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType, AttributeDefValueType attributeDefValueType, Object theValue,
+      Boolean attributeCheckReadOnAttributeDef) {
       
+    attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int groupIdsSize = GrouperUtil.length(groupIds);
     int actionsSize = GrouperUtil.length(actions);
@@ -1055,13 +1073,17 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     Subject grouperSessionSubject = grouperSession.getSubject();
     
-    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
-      grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+    boolean changedQuery = false;
     
-    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+    if (attributeCheckReadOnAttributeDef) {
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "aa.ownerGroupId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+      changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+          grouperSessionSubject, byHqlStatic, 
+          sqlTables, "aa.ownerGroupId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+    }
+    
 
     StringBuilder sql;
     
@@ -1138,12 +1160,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     //if the hql didnt filter, we need to do that here
-    results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
+    if (attributeCheckReadOnAttributeDef) {
+      results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
+    }
     
     //if looking for assignments on assignments, do that now
     if (includeAssignmentsOnAssignments) {
       Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
-        .findAssignmentsOnAssignments(results, AttributeAssignType.group_asgn, enabled);
+        .findAssignmentsOnAssignments(results, AttributeAssignType.group_asgn, enabled, attributeCheckReadOnAttributeDef);
       results.addAll(assignmentsOnAssignments);
     }
     
@@ -1944,12 +1968,23 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return results;
   }
 
+  
+
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAssignmentsOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, java.lang.Boolean)
    */
   public Set<AttributeAssign> findAssignmentsOnAssignments(
       Collection<AttributeAssign> attributeAssigns,
       AttributeAssignType attributeAssignType, Boolean enabled) {
+    return findAssignmentsOnAssignments(attributeAssigns, attributeAssignType, enabled, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAssignmentsOnAssignments(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, java.lang.Boolean)
+   */
+  public Set<AttributeAssign> findAssignmentsOnAssignments(
+      Collection<AttributeAssign> attributeAssigns,
+      AttributeAssignType attributeAssignType, Boolean enabled, Boolean attributeCheckReadOnAttributeDef) {
     
     Set<String> attributeAssignIds = new HashSet<String>();
     
@@ -1957,15 +1992,25 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssignIds.add(attributeAssign.getId());
     }
     
-    return findAssignmentsOnAssignmentsByIds(attributeAssignIds, attributeAssignType, null, enabled);
+    return findAssignmentsOnAssignmentsByIds(attributeAssignIds, attributeAssignType, null, enabled, attributeCheckReadOnAttributeDef);
   }
-    
+
   /**
    * @see AttributeAssignDAO#findAssignmentsOnAssignmentsByIds(Collection, AttributeAssignType, AttributeDefType, Boolean)
    */
   public Set<AttributeAssign> findAssignmentsOnAssignmentsByIds(Collection<String> attributeAssignIds, 
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled) {
+    return findAssignmentsOnAssignmentsByIds(attributeAssignIds, attributeAssignType, attributeDefType, enabled, null);
+  }
 
+  /**
+   * @see AttributeAssignDAO#findAssignmentsOnAssignmentsByIds(Collection, AttributeAssignType, AttributeDefType, Boolean, Boolean)
+   */
+  public Set<AttributeAssign> findAssignmentsOnAssignmentsByIds(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled, Boolean attributeCheckReadOnAttributeDef) {
+
+    attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
+    
     int attributeAssignsSize = GrouperUtil.length(attributeAssignIds);
 
     Set<AttributeAssign> results = new LinkedHashSet<AttributeAssign>();
@@ -2010,9 +2055,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       Subject grouperSessionSubject = grouperSession.getSubject();
       
-      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
-        grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+      if (attributeCheckReadOnAttributeDef) {
+        grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+            grouperSessionSubject, byHqlStatic, 
+            sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+      }
       
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -2042,7 +2089,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       Set<AttributeAssign> tempResults = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
 
       //nothing to filter
-      if (GrouperUtil.length(tempResults) > 0) {
+      if (GrouperUtil.length(tempResults) > 0 && attributeCheckReadOnAttributeDef) {
         //if the hql didnt filter, we need to do that here
         tempResults = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, tempResults);
       }
@@ -3311,7 +3358,35 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       Collection<String> stemIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
       AttributeDefType attributeDefType,
       AttributeDefValueType attributeDefValueType, Object theValue) {
-      
+    return findStemAttributeAssignmentsHelper(attributeAssignIds,
+        attributeDefIds, attributeDefNameIds,
+        stemIds, actions, enabled, includeAssignmentsOnAssignments, 
+        attributeDefType, attributeDefValueType, theValue, null);
+
+  }
+
+  /**
+   * 
+   * @param attributeAssignIds
+   * @param attributeDefIds
+   * @param attributeDefNameIds
+   * @param stemIds
+   * @param actions
+   * @param enabled
+   * @param includeAssignmentsOnAssignments
+   * @param attributeDefType
+   * @param attributeDefValueType
+   * @param theValue
+   * @return
+   */
+  private Set<AttributeAssign> findStemAttributeAssignmentsHelper(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> stemIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue, Boolean attributeCheckReadOnAttributeDef) {
+
+    attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
+    
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int stemIdsSize = GrouperUtil.length(stemIds);
     int actionsSize = GrouperUtil.length(actions);
@@ -3359,10 +3434,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       grouperSessionSubject, byHqlStatic, 
       sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
-    boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
+    boolean changedQuery = false;
+    
+    if (attributeCheckReadOnAttributeDef) {
+      grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
         grouperSessionSubject, byHqlStatic, 
         sqlTables, "aa.ownerStemId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
-
+    }
+    
     StringBuilder sql;
     
     if (changedQuery) {
@@ -3439,12 +3518,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     //if the hql didnt filter, we need to do that here
-    results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
+    if (attributeCheckReadOnAttributeDef) {
+      results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
+    }
     
     //if looking for assignments on assignments, do that now
     if (includeAssignmentsOnAssignments) {
       Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
-        .findAssignmentsOnAssignments(results, AttributeAssignType.stem_asgn, enabled);
+        .findAssignmentsOnAssignments(results, AttributeAssignType.stem_asgn, enabled, attributeCheckReadOnAttributeDef);
       results.addAll(assignmentsOnAssignments);
     }
   
@@ -4349,6 +4430,39 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     return results;
+  }
+
+  /**
+   * @see AttributeAssignDAO#delete(Attribute
+   */
+  @Override
+  public Set<AttributeAssign> findGroupAttributeAssignments(
+      Collection<String> attributeAssignIds, Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> groupIds,
+      Collection<String> actions, Boolean enabled,
+      boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue) {
+    return findGroupAttributeAssignmentsHelper(attributeAssignIds,
+        attributeDefIds, attributeDefNameIds,
+        groupIds, actions, enabled, includeAssignmentsOnAssignments,
+        attributeDefType, attributeDefValueType, theValue, null);
+  }
+
+  /**
+   * @see AttributeAssignDAO#findStemAttributeAssignments(Collection, Collection, Collection, Collection, Collection, Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean)
+   */
+  @Override
+  public Set<AttributeAssign> findStemAttributeAssignments(
+      Collection<String> attributeAssignIds, Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> stemIds,
+      Collection<String> actions, Boolean enabled,
+      boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue,
+      boolean attributeCheckReadOnAttributeDef) {
+    return findStemAttributeAssignmentsHelper(attributeAssignIds,
+        attributeDefIds, attributeDefNameIds,
+        stemIds, actions, enabled, includeAssignmentsOnAssignments, 
+        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef);
   }
 } 
 

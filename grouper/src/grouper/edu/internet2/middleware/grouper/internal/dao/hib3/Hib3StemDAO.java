@@ -1366,7 +1366,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, 
-        queryOptions, false, null, null, false, null, null, null, null, null, null);
+        queryOptions, false, null, null, false, null, null, null, null, null, null, null);
   }
 
   /**
@@ -1385,6 +1385,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param idOfAttributeDefName 
    * @param attributeValue 
    * @param attributeCheckReadOnAttributeDef
+   * @param attributeValuesOnAssignment
    * @return the matching stems
    * @throws GrouperDAOException
    */
@@ -1394,13 +1395,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
       Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue, 
-      Boolean attributeCheckReadOnAttributeDef) 
+      Boolean attributeCheckReadOnAttributeDef, Set<Object> attributeValuesOnAssignment)
           throws GrouperDAOException {
 
-    if (attributeValue != null && StringUtils.isBlank(idOfAttributeDefName)) {
+    if ((attributeValue != null || GrouperUtil.length(attributeValuesOnAssignment) > 0) && StringUtils.isBlank(idOfAttributeDefName)) {
       throw new RuntimeException("If you are searching by attributeValue then you must specify an attribute definition name");
     }
 
+    if (attributeValue != null && GrouperUtil.length(attributeValuesOnAssignment) > 0) {
+      throw new RuntimeException("Cant send in attributeValue and attributeValuesOnAssignment"); 
+    }
+    
     if (idOfAttributeDefName == null && attributeCheckReadOnAttributeDef != null) {
       throw new RuntimeException("Cant pass attributeCheckReadOnAttributeDef if not passing idOfAttributeDefName");
     }
@@ -1516,6 +1521,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         //make sure user can READ the attribute
         AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
 
+        //default to check security
         if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
           attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
         }
@@ -1526,34 +1532,58 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         if (attributeDefName == null) {
           return new HashSet<Stem>();
         }
-        
           
-        sql.append(" exists ( select ");
+        AttributeDef attributeDef = attributeDefName.getAttributeDef();
         
-        sql.append(attributeValue == null ? "aa" : "aav");
-        
-        sql.append(" from AttributeAssign aa ");
-
-        if (attributeValue != null) {
-          sql.append(", AttributeAssignValue aav ");
-        }
-        
-        sql.append(" where ns.uuid = aa.ownerStemId ");
-        sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName ");
-        byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
-        sql.append(" and aa.enabledDb = 'T' ");
-
-        if (attributeValue != null) {
-
-          AttributeDef attributeDef = attributeDefName.getAttributeDef();
+        if (GrouperUtil.length(attributeValuesOnAssignment) > 0) {
+  
+  
+          sql.append(" exists ( select aav ");
+          
+          sql.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
+          
+          sql.append(" where ns.uuid = aa.ownerStemId ");
+          sql.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
+          
+          sql.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName ");
+          byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+          sql.append(" and aa.enabledDb = 'T' ");
+  
           AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
-
-          Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValue);
+  
+          Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValuesOnAssignment, "aaOnAssign");
           
-        }
+          sql.append(" ) ");
+          
+          
+        } else {
         
-        sql.append(" ) ");
-        
+
+          sql.append(" exists ( select ");
+          
+          sql.append(attributeValue == null ? "aa" : "aav");
+          
+          sql.append(" from AttributeAssign aa ");
+  
+          if (attributeValue != null) {
+            sql.append(", AttributeAssignValue aav ");
+          }
+          
+          sql.append(" where ns.uuid = aa.ownerStemId ");
+          sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName ");
+          byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+          sql.append(" and aa.enabledDb = 'T' ");
+  
+          if (attributeValue != null) {
+  
+            AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+  
+            Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValue);
+            
+          }
+          
+          sql.append(" ) ");
+        }        
       }
       
       
@@ -2331,7 +2361,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
     return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, null, null, false, null, null, null, null, null, null);
+        queryOptions, true, null, null, false, null, null, null, null, null, null, null);
   }
 
   /**
@@ -2408,7 +2438,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
         splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-        totalStemIds, null, null, null);
+        totalStemIds, null, null, null, null);
   }
 
   /**
@@ -2423,7 +2453,20 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
         splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-        totalStemIds, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef);
+        totalStemIds, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef, null);
+  }
+
+  @Override
+  public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
+      Collection<String> stemIds, String idOfAttributeDefName, Object attributeValue,
+      Boolean attributeCheckReadOnAttributeDef, Set<Object> attributeValuesOnAssignment) throws GrouperDAOException {
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
+        splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
+        stemIds, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef, attributeValuesOnAssignment);
+
   }
 
 } 

@@ -694,7 +694,11 @@ public class GrouperAttestationJob extends OtherJobBase {
          break lbl;
        }
       }
-      new GrouperEmail().setBody(emailBody.toString()).setSubject(sub).setTo(entry.getKey()).send();
+      try {
+        new GrouperEmail().setBody(emailBody.toString()).setSubject(sub).setTo(entry.getKey()).send();
+      } catch (Exception e) {
+        LOG.error("Error sending email", e);
+      }
     }
   }
   

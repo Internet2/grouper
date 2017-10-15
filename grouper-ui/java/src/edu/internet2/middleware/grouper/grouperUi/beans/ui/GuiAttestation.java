@@ -5,9 +5,13 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,7 +19,10 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -29,7 +36,7 @@ public class GuiAttestation {
   
   private AttributeAssignable attributeAssignable;
   
-  private Boolean grouperAttestationSendEmail = true;
+  private Boolean grouperAttestationSendEmail;
   
   private String grouperAttestationEmailAddresses; // list of comma separated emails
   
@@ -317,5 +324,98 @@ public class GuiAttestation {
   public Type getType() {
     return type;
   }
+  
+  /**
+   * convert groups into gui attestations
+   * @param groups
+   * @param attributeAssignValueFinderResult
+   * @return the list of gui attestations
+   */
+  public static List<GuiAttestation> convertGroupIntoGuiAttestation(
+      Set<Group> groups,
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
+    
+    List<GuiAttestation> guiAttestations = new ArrayList<GuiAttestation>();
+    
+    //now we have groups, assignments, assignments on assignments, and values
+    for (Group group : groups) {
+      
+      Map<String, String> attributes = attributeAssignValueFinderResult.retrieveAttributeDefNamesAndValueStrings(group.getId());
+      
+      String attestationDirectAssignment = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+      String attestationSendEmail = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
+      String attestationEmailAddresses = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
+      String attestationDaysUntilRecertify = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+      String attestationLastEmailedDate = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
+      String attestationDaysBeforeToRemind = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName());
+      String attestationStemScope = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+      String attestationDateCertified = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+  
+      String daysLeftBeforeAttestation = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+      if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
+  
+        AttributeAssign attributeAssign = attributeAssignValueFinderResult.getMapOwnerIdToAttributeAssign().get(group.getId());
+        
+        GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
+  
+      }
+      daysLeftBeforeAttestation = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+      int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
+      GuiAttestation guiAttestation = new GuiAttestation(group, GrouperUtil.booleanObjectValue(attestationSendEmail), 
+          attestationEmailAddresses, attestationDaysUntilRecertify,
+          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
+          GrouperUtil.booleanValue(attestationDirectAssignment, false), GuiAttestation.Type.DIRECT, daysLeft);
+  
+      guiAttestations.add(guiAttestation);
+      
+    }
+    return guiAttestations;
+  }
+
+
+  /**
+   * convert stems into gui attestations
+   * @param groups
+   * @param attributeAssignValueFinderResult
+   * @return the list of gui attestations
+   */
+  public static List<GuiAttestation> convertStemIntoGuiAttestation(
+      Set<Stem> stems,
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
+    
+    List<GuiAttestation> guiAttestations = new ArrayList<GuiAttestation>();
+    
+    //now we have groups, assignments, assignments on assignments, and values
+    for (Stem stem : stems) {
+      
+      Map<String, String> attributes = attributeAssignValueFinderResult.retrieveAttributeDefNamesAndValueStrings(stem.getId());
+      
+      String attestationSendEmail = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
+      String attestationEmailAddresses = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
+      String attestationDaysUntilRecertify = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+      String attestationDaysBeforeToRemind = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName());
+      String attestationStemScope = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+ 
+      GuiAttestation guiAttestation = new GuiAttestation(stem, GrouperUtil.booleanObjectValue(attestationSendEmail), 
+          attestationEmailAddresses, attestationDaysUntilRecertify,
+          null, attestationDaysBeforeToRemind, attestationStemScope, null, 
+          null, GuiAttestation.Type.DIRECT, null);
+ 
+      guiAttestations.add(guiAttestation);
+      
+    }
+    return guiAttestations;
+  }
+
+
   
 }

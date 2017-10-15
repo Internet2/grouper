@@ -67,7 +67,6 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
@@ -86,7 +85,6 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -2864,7 +2862,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param idOfAttributeDefName 
    * @param attributeValue 
    * @param attributeValuesOnAssignment
-   * @param attributeDefNameUseSecurity
+   * @param attributeCheckReadOnAttributeDef
    * @return groups
    * 
    */
@@ -2874,12 +2872,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup,
       Collection<String> totalGroupIds, Collection<String> totalGroupNames, Boolean compositeOwner,
       final String idOfAttributeDefName, Object attributeValue, Set<Object> attributeValuesOnAssignment,
-      Boolean attributeDefNameUseSecurity) {
+      Boolean attributeCheckReadOnAttributeDef) {
 
     if ((attributeValue != null || GrouperUtil.length(attributeValuesOnAssignment) > 0) && StringUtils.isBlank(idOfAttributeDefName)) {
       throw new RuntimeException("If you are searching by attributeValue then you must specify an attribute definition name");
     }
     
+    if (attributeValue != null && GrouperUtil.length(attributeValuesOnAssignment) > 0) {
+      throw new RuntimeException("Cant send in attributeValue and attributeValuesOnAssignment"); 
+    }
+
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -2978,40 +2980,25 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
           }
 
-          //make sure user can READ the attribute if checking security
-          AttributeDefName attributeDefName = null;
-          AttributeDef attributeDef = null;
-          
-          final AttributeDef[] ATTRIBUTE_DEF = new AttributeDef[]{null};
-          
           //default to true
-          attributeDefNameUseSecurity = GrouperUtil.defaultIfNull(attributeDefNameUseSecurity, true);
+          attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
 
-          if (attributeDefNameUseSecurity) {
-            attributeDefName =  new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
-                .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
-            attributeDef = attributeDefName == null ? null : attributeDefName.getAttributeDef();
-          } else {
-            
-            attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-              
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                AttributeDefName result = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
-                    .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
-                ATTRIBUTE_DEF[0] = result == null ? null : result.getAttributeDef();
-                return result;
-              }
-            });
-            
-            attributeDef = ATTRIBUTE_DEF[0];
-            
+          //make sure user can READ the attribute
+          AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
+
+          if (attributeCheckReadOnAttributeDef) {
+            attributeDefNameFinder.addPrivilege(AttributeDefPrivilege.ATTR_READ);
           }
+
+          AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
 
           //cant read the attribute????
           if (attributeDefName == null) {
             return new HashSet<Group>();
           }
 
+          AttributeDef attributeDef = attributeDefName.getAttributeDef();
+          
           if (GrouperUtil.length(attributeValuesOnAssignment) > 0) {
 
             whereClause.append(" exists ( select aav ");
@@ -3707,11 +3694,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Subject subjectNotInGroup, Collection<String> groupIds,
       Collection<String> groupNames, Boolean compositeOwner, String idOfAttributeDefName,
-      Object attributeValue, Set<Object> attributeValuesOnAssignment, Boolean attributeDefNameUseSecurity) {
+      Object attributeValue, Set<Object> attributeValuesOnAssignment, Boolean attributeCheckReadOnAttributeDef) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroup, membershipSubject, field, parentStemId, stemScope,
         findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, 
-        attributeValue, attributeValuesOnAssignment, attributeDefNameUseSecurity);
+        attributeValue, attributeValuesOnAssignment, attributeCheckReadOnAttributeDef);
   }
 } 
 

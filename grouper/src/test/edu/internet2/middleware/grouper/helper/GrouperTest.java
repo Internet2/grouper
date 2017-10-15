@@ -217,6 +217,31 @@ public class GrouperTest extends TestCase {
   }
 
   /**
+   * @param message
+   * @param groups
+   * @param group
+   */
+  public void assertContainsStems(Collection<Stem> expectedStems, Collection<Stem> actualStems, String message) {
+    
+    if (GrouperUtil.length(expectedStems) != GrouperUtil.length(actualStems)) {
+      fail(StringUtils.defaultString(message) + ", expected " + GrouperUtil.length(expectedStems) 
+        + " stems but had " + GrouperUtil.length(actualStems) + ",\nexpected: " + stemsString(expectedStems)
+        + "\nactual: " + stemsString(actualStems));
+    }
+
+    //we good
+    if (GrouperUtil.length(expectedStems) == 0) {
+      return;
+    }
+    
+    for (Stem current : actualStems) {
+      assertContainsStem(expectedStems, current, message);
+    }
+    
+
+  }
+
+  /**
    * 
    * @param groups
    * @return the groups string
@@ -249,6 +274,42 @@ public class GrouperTest extends TestCase {
     }
 
     return groupsString.toString();
+    
+  }
+  
+  /**
+   * 
+   * @param stems
+   * @return the stems string
+   */
+  public static String stemsString(Collection<Stem> stems) {
+    
+    StringBuilder stemsString = new StringBuilder(GrouperUtil.length(stems) + " stems: " );
+
+    int i=0;
+    
+    if (GrouperUtil.length(stems) == 0) {
+      stemsString.append(" <none>");
+      return stemsString.toString();
+    }
+    
+    for (Stem current : stems) {
+
+      if (i != 0) {
+        stemsString.append(", ");
+      }
+      
+      stemsString.append(current.getName());
+
+      if (i>100) {
+        stemsString.append(", and " + (GrouperUtil.length(stems) - 100) + " more stems...");
+        break;
+      }
+      
+      i++;
+    }
+
+    return stemsString.toString();
     
   }
   

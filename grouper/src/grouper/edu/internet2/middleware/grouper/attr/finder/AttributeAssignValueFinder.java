@@ -29,15 +29,14 @@ import java.util.Set;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -57,13 +56,13 @@ public class AttributeAssignValueFinder {
     private Set<AttributeAssign> attributeAssigns = new LinkedHashSet<AttributeAssign>();
     private Set<AttributeAssign> attributeAssignsOnAssigns = new LinkedHashSet<AttributeAssign>();
     private Set<String> attributeAssignsOnAssignsIds = new LinkedHashSet<String>();
-    private Map<String, AttributeAssign> mapGroupIdToAttributeAssign = new LinkedHashMap<String, AttributeAssign>();
+    private Map<String, AttributeAssign> mapOwnerIdToAttributeAssign = new LinkedHashMap<String, AttributeAssign>();
     
     /**
      * get the map from group id to the attribute assign
      */
-    public Map<String, AttributeAssign> getMapGroupIdToAttributeAssign() {
-      return this.mapGroupIdToAttributeAssign;
+    public Map<String, AttributeAssign> getMapOwnerIdToAttributeAssign() {
+      return this.mapOwnerIdToAttributeAssign;
     }
     
     private Map<String, Set<String>> mapAttributeAssignIdToAssignAssignIds = new LinkedHashMap<String, Set<String>>();
@@ -72,20 +71,20 @@ public class AttributeAssignValueFinder {
     private Map<String, AttributeDefName> mapAttributeDefNameIdToAttributeDefName = new LinkedHashMap<String, AttributeDefName>();
     private Map<String, AttributeDef> mapAttributeDefIdToAttributeDef = new LinkedHashMap<String, AttributeDef>();
     private Map<String, AttributeAssignValue> mapAttributeAssignOnAssignIdToAttributeAssignValue = new LinkedHashMap<String, AttributeAssignValue>();
-    private Map<MultiKey, AttributeAssign> mapGroupIdAndNameOfAttributeDefNameToAttributeAssignOnAssign = new LinkedHashMap<MultiKey, AttributeAssign>();
+    private Map<MultiKey, AttributeAssign> mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign = new LinkedHashMap<MultiKey, AttributeAssign>();
     
     /**
      * get the map of nameOfattribuetDefName to value
-     * @param groupId
+     * @param ownerId
      * @return the map
      */
-    public Map<String, String> retrieveAttributeDefNamesAndValueStrings(String groupId) {
+    public Map<String, String> retrieveAttributeDefNamesAndValueStrings(String ownerId) {
       
       Map<String, String> result = new LinkedHashMap<String, String>();
       
       if (GrouperUtil.length(this.attributeAssignValues) > 0) {
         
-        AttributeAssign attributeAssign = this.mapGroupIdToAttributeAssign.get(groupId);
+        AttributeAssign attributeAssign = this.mapOwnerIdToAttributeAssign.get(ownerId);
         
         if (attributeAssign != null) {
           
@@ -114,13 +113,13 @@ public class AttributeAssignValueFinder {
     
     /**
      * get the attribute assign on assign based on group id and name of the attributeDefName
-     * @param groupId
+     * @param ownerId
      * @param nameOfAttributeDefName
      * @return the assignment
      */
-    public AttributeAssign retrieveAttributeAssignOnAssign(String groupId, String nameOfAttributeDefName) {
-      MultiKey multiKey = new MultiKey(groupId, nameOfAttributeDefName);
-      return this.mapGroupIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.get(multiKey);
+    public AttributeAssign retrieveAttributeAssignOnAssign(String ownerId, String nameOfAttributeDefName) {
+      MultiKey multiKey = new MultiKey(ownerId, nameOfAttributeDefName);
+      return this.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.get(multiKey);
     }
     
   }
@@ -128,15 +127,15 @@ public class AttributeAssignValueFinder {
   /**
    * attributeDefNameUseSecurity use security around attribute def?  default is true
    */
-  private boolean attributeDefNameUseSecurity = true;
+  private boolean attributeCheckReadOnAttributeDef = true;
   
   /**
    * use security around attribute def?  default is true
    * @param theAttributeDefNameUseSecurity
    * @return this for chaining
    */
-  public AttributeAssignValueFinder assignAttributeDefNameUseSecurity(boolean theAttributeDefNameUseSecurity) {
-    this.attributeDefNameUseSecurity = theAttributeDefNameUseSecurity;
+  public AttributeAssignValueFinder assignAttributeCheckReadOnAttributeDef(boolean theAttributeDefNameUseSecurity) {
+    this.attributeCheckReadOnAttributeDef = theAttributeDefNameUseSecurity;
     return this;
   }
   
@@ -194,6 +193,62 @@ public class AttributeAssignValueFinder {
    */
   public AttributeAssignValueFinder addOwnerGroupOfAssignAssign(Group ownerGroupIdsOfAssignAssign1) {
     return this.addOwnerGroupIdsOfAssignAssign(ownerGroupIdsOfAssignAssign1.getId());
+  }
+  
+  /**
+   * look for values of stems where it is an assignment on assignment
+   */
+  private Collection<String> ownerStemIdsOfAssignAssign;
+
+  /**
+   * look for values of stems where it is an assignment on assignment
+   * @param ownerStemIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder assignOwnerStemIdsOfAssignAssign(Collection<String> ownerStemIdsOfAssignAssign1) {
+    this.ownerStemIdsOfAssignAssign = ownerStemIdsOfAssignAssign1;
+    return this;
+  }
+  
+  /**
+   * look for values of stems where it is an assignment on assignment
+   * @param ownerStemIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder addOwnerStemIdsOfAssignAssign(String ownerStemIdsOfAssignAssign1) {
+    if (this.ownerStemIdsOfAssignAssign == null) {
+      this.ownerStemIdsOfAssignAssign = new LinkedHashSet<String>();
+    }
+    this.ownerStemIdsOfAssignAssign.add(ownerStemIdsOfAssignAssign1);
+    return this;
+  }
+  
+  /**
+   * look for values of stems where it is an assignment on assignment
+   * @param ownerStemIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder assignOwnerStemsOfAssignAssign(Collection<Stem> ownerStemIdsOfAssignAssign1) {
+    
+    if (ownerStemIdsOfAssignAssign1 == null) {
+      this.ownerStemIdsOfAssignAssign = null;
+    } else {
+    
+      this.ownerStemIdsOfAssignAssign = new LinkedHashSet<String>();
+      for (Stem stem : ownerStemIdsOfAssignAssign1) {
+        this.ownerStemIdsOfAssignAssign.add(stem.getId());
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * look for values of stems where it is an assignment on assignment
+   * @param ownerStemIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder addOwnerStemOfAssignAssign(Stem ownerStemIdsOfAssignAssign1) {
+    return this.addOwnerStemIdsOfAssignAssign(ownerStemIdsOfAssignAssign1.getId());
   }
   
   /**
@@ -282,33 +337,23 @@ public class AttributeAssignValueFinder {
 
   /**
    * find all the attribute assigns
-   * @return the set of groups or the empty set if none found
+   * @return the result which has the values
    */
   public AttributeAssignValueFinderResult findAttributeAssignValuesResult() {
     
     AttributeAssignValueFinderResult result = new AttributeAssignValueFinderResult();
     
     
-    if (GrouperUtil.length(this.ownerGroupIdsOfAssignAssign) > 0) {
-      
-      GrouperSessionHandler grouperSessionHandler = new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          Set<AttributeAssign> theAttributeAssigns = new AttributeAssignFinder()
-            .assignOwnerGroupIds(AttributeAssignValueFinder.this.ownerGroupIdsOfAssignAssign).assignIncludeAssignmentsOnAssignments(true)
-            .assignAttributeDefNameIds(AttributeAssignValueFinder.this.attributeDefNameIds).findAttributeAssigns();
-          return theAttributeAssigns;
-        }
-      };
-      if (this.attributeDefNameUseSecurity) {
-        result.allAttributeAssigns = (Set<AttributeAssign>)grouperSessionHandler.callback(GrouperSession.staticGrouperSession());
-      } else {
-        result.allAttributeAssigns = (Set<AttributeAssign>)GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
-      }
-    }
+    AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder()
+      .assignOwnerGroupIds(this.ownerGroupIdsOfAssignAssign)
+      .assignOwnerStemIds(this.ownerStemIdsOfAssignAssign)
+      .assignIncludeAssignmentsOnAssignments(true)
+      .assignAttributeDefNameIds(this.attributeDefNameIds)
+      .assignAttributeCheckReadOnAttributeDef(this.attributeCheckReadOnAttributeDef);
+    
+    result.allAttributeAssigns = attributeAssignFinder.findAttributeAssigns();
     
     //separate into assigns and assigns on assigns
-    
     for (AttributeAssign attributeAssign : GrouperUtil.nonNull(result.allAttributeAssigns)) {
       
       result.mapAttributeAssignIdToAttributeAssign.put(attributeAssign.getId(), attributeAssign);
@@ -318,7 +363,12 @@ public class AttributeAssignValueFinder {
         result.attributeAssignsOnAssignsIds.add(attributeAssign.getId());
       } else {
         result.attributeAssigns.add(attributeAssign);
-        result.mapGroupIdToAttributeAssign.put(attributeAssign.getOwnerGroupId(), attributeAssign);
+        if (attributeAssign.getOwnerGroupId() != null) {
+          result.mapOwnerIdToAttributeAssign.put(attributeAssign.getOwnerGroupId(), attributeAssign);
+        }
+        if (attributeAssign.getOwnerStemId() != null) {
+          result.mapOwnerIdToAttributeAssign.put(attributeAssign.getOwnerStemId(), attributeAssign);
+        }
       }
       
     }
@@ -352,43 +402,19 @@ public class AttributeAssignValueFinder {
       
     }
     
-    Set<AttributeDefName> attributeDefNames = null;
+    
         
-    GrouperSessionHandler grouperSessionHandler = new GrouperSessionHandler() {
-      
-      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-        return attributeDefNameFinder.findAttributeNames();
-      }
-    };
-    if (this.attributeDefNameUseSecurity) {
-      attributeDefNames = (Set<AttributeDefName>)grouperSessionHandler.callback(GrouperSession.staticGrouperSession());
-    } else {
-      attributeDefNames = (Set<AttributeDefName>)GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
+    if (this.attributeCheckReadOnAttributeDef) {
+      attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
     }
+    
+    Set<AttributeDefName> attributeDefNames = attributeDefNameFinder.findAttributeNames();
 
     final Set<String> attributeDefIds = new HashSet<String>();
     for (AttributeDefName attributeDefName : attributeDefNames) {
       result.mapAttributeDefNameIdToAttributeDefName.put(attributeDefName.getId(), attributeDefName);
       attributeDefIds.add(attributeDefName.getAttributeDefId());
-    }
-
-    grouperSessionHandler = new GrouperSessionHandler() {
-      
-      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-        return new AttributeDefFinder().assignAttributeDefIds(attributeDefIds).findAttributes();
-      }
-    };
-    
-    Set<AttributeDef> attributeDefs = null;
-
-    if (this.attributeDefNameUseSecurity) {
-      attributeDefs = (Set<AttributeDef>)grouperSessionHandler.callback(GrouperSession.staticGrouperSession());
-    } else {
-      attributeDefs = (Set<AttributeDef>)GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
-    }
-
-    for (AttributeDef attributeDef : attributeDefs) {
-      result.mapAttributeDefIdToAttributeDef.put(attributeDef.getId(), attributeDef);
+      result.mapAttributeDefIdToAttributeDef.put(attributeDefName.getAttributeDefId(), attributeDefName.getAttributeDef());
     }
     
     //setup the attribute defs and attribute def names in assignments
@@ -421,9 +447,11 @@ public class AttributeAssignValueFinder {
 
     }
     
-    for (String ownerGroupId : this.ownerGroupIdsOfAssignAssign) {
+    Collection<String> ownerIdsOfAssignAssign = GrouperUtil.defaultIfNull(this.ownerGroupIdsOfAssignAssign, this.ownerStemIdsOfAssignAssign);
+    
+    for (String ownerId : ownerIdsOfAssignAssign) {
       
-      AttributeAssign attributeAssign = result.mapGroupIdToAttributeAssign.get(ownerGroupId);
+      AttributeAssign attributeAssign = result.mapOwnerIdToAttributeAssign.get(ownerId);
       
       Set<String> attributeAssignAssignIds = result.mapAttributeAssignIdToAssignAssignIds.get(attributeAssign.getId());
       
@@ -432,13 +460,13 @@ public class AttributeAssignValueFinder {
             
         AttributeDefName attributeDefName = result.mapAttributeDefNameIdToAttributeDefName.get(attributeAssignOnAssign.getAttributeDefNameId());
 
-        MultiKey multiKey = new MultiKey(ownerGroupId, attributeDefName.getName());
+        MultiKey multiKey = new MultiKey(ownerId, attributeDefName.getName());
         
-        if (result.mapGroupIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.get(multiKey) != null) {
-          throw new RuntimeException("Why does groupId and attributeDefName already exist? " + ownerGroupId + ", " + attributeDefName.getName());
+        if (result.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.get(multiKey) != null) {
+          throw new RuntimeException("Why does ownerId and attributeDefName already exist? " + ownerId + ", " + attributeDefName.getName());
         }
         
-        result.mapGroupIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.put(multiKey, attributeAssignOnAssign);
+        result.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.put(multiKey, attributeAssignOnAssign);
         
       }
       
@@ -450,7 +478,7 @@ public class AttributeAssignValueFinder {
 
   /**
    * find all the attribute assigns
-   * @return the set of groups or the empty set if none found
+   * @return the set of values or the empty set if none found
    */
   public Set<AttributeAssignValue> findAttributeAssignValues() {
   

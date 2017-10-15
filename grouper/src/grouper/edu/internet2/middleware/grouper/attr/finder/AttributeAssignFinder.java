@@ -21,23 +21,15 @@ package edu.internet2.middleware.grouper.attr.finder;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -45,6 +37,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeAssignFinder {
 
+  /**
+   * use security around attribute def?  default is true
+   */
+  private boolean attributeCheckReadOnAttributeDef = true;
+  
+  /**
+   * use security around attribute def?  default is true
+   * @param theAttributeDefNameUseSecurity
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignAttributeCheckReadOnAttributeDef(boolean theAttributeDefNameUseSecurity) {
+    this.attributeCheckReadOnAttributeDef = theAttributeDefNameUseSecurity;
+    return this;
+  }
   
   /**
    * attribute def names ids
@@ -103,6 +109,34 @@ public class AttributeAssignFinder {
   }
   
   /**
+   * 
+   */
+  private Collection<String> ownerStemIds;
+  
+  /**
+   * add owner stem id
+   * @param ownerStemId
+   * @return this for chaining
+   */
+  public AttributeAssignFinder addOwnerStemId(String ownerStemId) {
+    if (this.ownerStemIds == null) {
+      this.ownerStemIds = new LinkedHashSet<String>();
+    }
+    this.ownerStemIds.add(ownerStemId);
+    return this;
+  }
+  
+  /**
+   * add owner stem id
+   * @param ownerStemIds1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignOwnerStemIds(Collection<String> ownerStemIds1) {
+    this.ownerStemIds = ownerStemIds1;
+    return this;
+  }
+  
+  /**
    * if assignments on assignments should also be included
    */
   private boolean includeAssignmentsOnAssignments = false;
@@ -131,12 +165,24 @@ public class AttributeAssignFinder {
       }
       
     }
-    
+
+    if (this.ownerGroupIds != null && this.ownerStemIds != null) {
+      throw new RuntimeException("Cant pass in owner groups and owner stems");
+    }
+
     if (this.ownerGroupIds != null) {
       
       return GrouperDAOFactory.getFactory().getAttributeAssign()
           .findGroupAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerGroupIds, null, true, 
-              this.includeAssignmentsOnAssignments, null, null, null);
+              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef);
+
+    }
+    
+    if (this.ownerStemIds != null) {
+      
+      return GrouperDAOFactory.getFactory().getAttributeAssign()
+          .findStemAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerStemIds, null, true, 
+              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef);
 
     }
     
