@@ -18,6 +18,7 @@
  */
 package edu.internet2.middleware.grouper.externalSubjects;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
 import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
@@ -68,6 +69,10 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
           
           newInstance.addInitParam("subjectAttributeCol2", "email");
           newInstance.addInitParam("subjectAttributeName2", "email");
+          
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjectRegisterEmailAttribute", true)) {
+            newInstance.addInitParam("emailAttributeName", "email");
+          }
           
           int index = 3;
           for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
