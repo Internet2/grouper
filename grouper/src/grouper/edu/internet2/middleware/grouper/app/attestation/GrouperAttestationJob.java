@@ -598,7 +598,27 @@ public class GrouperAttestationJob extends OtherJobBase {
 
       // group has inherited attestation, don't process as group, this will be processed as stem descendent
       if (!GrouperUtil.booleanValue(directAssignmentString, false)) { 
+        
         iterator.remove();
+        
+        String groupId = attributeAssign.getOwnerGroupId();
+        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+        
+        if (group != null) {
+          
+          //if doesnt have a parent thats configured, remove this one
+          //start at stem and look for assignment
+          AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
+            .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+
+          //if no parent has it, then remove most attributes
+          if (attributeAssignable == null) {
+            removeDirectGroupAttestation(group, false);
+          } else {
+            removeDirectGroupAttestation(group, true);
+          }
+        }
+        
       }
     }
     
@@ -924,6 +944,39 @@ public class GrouperAttestationJob extends OtherJobBase {
       return "EmailObject [groupId=" + groupId + ", groupName=" + groupName
           + ", ccEmails=" + ccEmails + "]";
     }
+    
+  }
+
+  /**
+   * remove direct group assignment in favor of stem assignment
+   * @param group
+   * @param changeToIndirect means keep the indirect attributes
+   */
+  public static void removeDirectGroupAttestation(Group group, boolean changeToIndirect) {
+    
+    //if there is no last certified or emailed, just remove
+    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    if (!changeToIndirect) {
+      if (StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName()))
+          && StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName()))
+          ) {
+        group.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
+        return;
+      }
+    }
+    
+    if (changeToIndirect) {
+      attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+    } else {
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment());
+    }
+    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameSendEmail());
+    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses());
+    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify());
+    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind());
+
+    //this has to be recalculated
+    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft());
     
   }
 
