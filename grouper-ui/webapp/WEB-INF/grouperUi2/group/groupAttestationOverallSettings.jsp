@@ -9,14 +9,14 @@
                             
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
-                  <div class="lead span9"><h1>${textContainer.text['miscellaneousAttestationOverallDecription'] }</h1></div>
+                  <div class="lead span9"><h1>${textContainer.text['miscellaneousAttestationOverallSettingsDecription'] }</h1></div>
                   <div class="span3" id="groupAttestationOverallMoreActionsButtonContentsDivId">
                     <%@ include file="groupAttestationOverallMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
                 <div class="row-fluid">
                   <div class="span12">
-                    <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousAttestationOverallSubtitle']}</p>
+                    <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousAttestationOverallSettingsSubtitle']}</p>
                   </div>
                 </div>
               </div>
@@ -25,5 +25,5 @@
             </div>
 
             <div class="row-fluid">
-              <%@ include file="../group/groupAttestationListOfGroupsHelper.jsp"%>
+              <%@ include file="../group/groupAttestationListOfSettingsHelper.jsp"%>
             </div>

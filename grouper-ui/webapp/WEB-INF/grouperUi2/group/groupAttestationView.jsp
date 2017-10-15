@@ -85,7 +85,8 @@
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationSendEmailLabel']}</strong></td>
                           <td>
                             <c:choose>
-                              <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
+                              <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail == null 
+                                  || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
                                 ${textContainer.textEscapeXml['grouperAttestationYesSendEmailLabel']}
                               </c:when>
                               <c:otherwise>
@@ -97,7 +98,8 @@
                           </td>
                         </tr>
                         <c:if
-                          test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
+                          test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail == null 
+                             || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>
                               ${textContainer.text['attestationEmailManagersLabel']}</strong></td>

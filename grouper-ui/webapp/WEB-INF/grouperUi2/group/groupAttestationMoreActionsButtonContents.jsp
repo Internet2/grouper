@@ -40,6 +40,10 @@
                               >${textContainer.text['groupAttestationViewAuditButton'] }</a></li>
                         </c:if>
                           
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall'); return false;"
+                            >${textContainer.text['groupAttestationViewAllButton'] }</a></li>
+                          
+                          
 
                       </ul>
                     </div>

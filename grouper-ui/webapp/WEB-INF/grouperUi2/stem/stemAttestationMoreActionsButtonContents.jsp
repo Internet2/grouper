@@ -15,6 +15,21 @@
 	                            >${textContainer.text['stemAttestationMoreActionsEditAttestation'] }</a></li>
                         </c:if>
 
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.viewGroupsInStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                            >${textContainer.text['groupAttestationViewGroupsInStem'] }</a></li>
+
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.viewSettingsInStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                            >${textContainer.text['groupAttestationStemMoreActionsSettings'] }</a></li>
+
+                        <c:if test="${grouperRequestContainer.attestationContainer.canRunDaemon}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Attestation.runDaemon'); return false;"
+                              >${textContainer.text['groupAttestationMoreActionsRunDaemon'] }</a></li>
+                        </c:if>
+
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall'); return false;"
+                            >${textContainer.text['groupAttestationViewAllButton'] }</a></li>
+
+
                       </ul>
                     </div>
 

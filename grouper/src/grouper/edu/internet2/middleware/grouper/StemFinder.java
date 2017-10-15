@@ -560,6 +560,11 @@ public class StemFinder {
   private Boolean attributeCheckReadOnAttributeDef;
 
   /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   */
+  private Set<Object> attributeValuesOnAssignment;
+
+  /**
    * check read on attribute def when checking attribute def name
    * @param theAttributeCheckReadOnAttributeDef
    * @return this for chaining
@@ -702,7 +707,8 @@ public class StemFinder {
             this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
             this.findByUuidOrName, this.userHasInGroupFields,
             this.userHasInAttributeFields, this.stemIds, 
-            this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef);
+            this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
+            this.attributeValuesOnAssignment);
     
   }
 
@@ -746,6 +752,16 @@ public class StemFinder {
    */
   public StemFinder assignStemIds(Collection<String> theStemIds) {
     this.stemIds = theStemIds;
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   * @param theValues
+   * @return this for chaining
+   */
+  public StemFinder assignAttributeValuesOnAssignment(Set<Object> theValues) {
+    this.attributeValuesOnAssignment = theValues;
     return this;
   }
 

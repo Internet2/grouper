@@ -15,9 +15,11 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -423,6 +425,61 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * 
    */
   private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
+      GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
+      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames) {
+    Set<AttributeDefName> attributeDefNames = findAllAttributeNamesSecureHelper2(scope,
+        grouperSession, attributeDefId, subject, privileges,
+        queryOptions, splitScope, attributeAssignType,
+        attributeDefType, serviceRole, anyServiceRole, parentStemId,
+        stemScope, findByUuidOrName, idsOfAttributeDefNames);
+    
+    //get all the attribute defs so that it is more efficient and same security settings
+    Set<String> attributeDefIds = new LinkedHashSet<String>();
+    
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+      attributeDefIds.add(attributeDefName.getAttributeDefId());
+    }
+    
+    //note, security has already been checked
+    Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignAttributeDefIds(attributeDefIds).findAttributes();
+    
+    Map<String, AttributeDef> mapAttributeDefIdToAttributeDef = new HashMap<String, AttributeDef>();
+    
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      mapAttributeDefIdToAttributeDef.put(attributeDef.getId(), attributeDef);
+    }
+
+    for (AttributeDefName attributeDefName : attributeDefNames) {
+      AttributeDef attributeDef = mapAttributeDefIdToAttributeDef.get(attributeDefName.getAttributeDefId());
+      attributeDefName.internalSetAttributeDef(attributeDef);
+    }
+
+    return attributeDefNames;
+  }
+
+  /**
+   * 
+   * @param scope 
+   * @param grouperSession 
+   * @param attributeDefId 
+   * @param subject 
+   * @param privileges if privileges is null and filterByServicesCanView is true then set the privileges to the view set 
+   * @param queryOptions 
+   * @param splitScope 
+   * @param attributeAssignType
+   * @param attributeDefType 
+   * @param serviceRole if filtering by services the user has in a certain role
+   * @param anyServiceRole true if services should be returned where the user has any role
+   * @param parentStemId stem id of the parent of ancestor of this object
+   * @param stemScope is SUB or ONE
+   * @param findByUuidOrName 
+   * @param idsOfAttributeDefNames 
+   * @return  attribute def names
+   * 
+   */
+  private Set<AttributeDefName> findAllAttributeNamesSecureHelper2(String scope,
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
