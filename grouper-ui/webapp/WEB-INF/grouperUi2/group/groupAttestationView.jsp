@@ -72,7 +72,7 @@
                             <span class="description">${textContainer.text['attestationLastEmailedDateDescription']}</span>
                           </td>
                         </tr>
-                        <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.type == 'INDIRECT'}">
+                        <c:if test="${grouperRequestContainer.attestationContainer.ancestorStemAttestationAssignment}">
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationParentFolderLabel']}</strong></td>
                             <td>${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.guiFolderWithSettings.shortLinkWithIcon)}
