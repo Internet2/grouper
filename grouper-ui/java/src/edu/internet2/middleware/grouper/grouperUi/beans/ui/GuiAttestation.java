@@ -111,20 +111,13 @@ public class GuiAttestation {
  
   private Mode mode;
   
-  private Type type;
-  
   public enum Mode {
     EDIT, ADD
   }
   
-  public enum Type {
-    DIRECT, INDIRECT
-  }
-  
-  public GuiAttestation(AttributeAssignable attributeAssignable, Type type) {
+  public GuiAttestation(AttributeAssignable attributeAssignable) {
     this.mode = Mode.ADD;
     this.attributeAssignable = attributeAssignable;
-    this.type = type;
   }
   
   
@@ -133,7 +126,7 @@ public class GuiAttestation {
       String grouperAttestationDaysUntilRecertify,
       String grouperAttestationLastEmailedDate,
       String grouperAttestationDaysBeforeToRemind, String grouperAttestationStemScope,
-      String grouperAttestationDateCertified, Boolean grouperAttestationDirectAssignment, Type type, Integer daysLeftUntilRecertify) {
+      String grouperAttestationDateCertified, Boolean grouperAttestationDirectAssignment, Integer daysLeftUntilRecertify) {
     
     super();
     this.mode = Mode.EDIT;
@@ -146,7 +139,6 @@ public class GuiAttestation {
     this.grouperAttestationStemScope = grouperAttestationStemScope;
     this.grouperAttestationDateCertified = grouperAttestationDateCertified;
     this.grouperAttestationDirectAssignment = grouperAttestationDirectAssignment;
-    this.type = type;
     this.grouperAttestationDaysLeftUntilRecertify = daysLeftUntilRecertify;
   }
 
@@ -321,10 +313,6 @@ public class GuiAttestation {
     return mode;
   }
 
-  public Type getType() {
-    return type;
-  }
-  
   /**
    * convert groups into gui attestations
    * @param groups
@@ -371,7 +359,7 @@ public class GuiAttestation {
       GuiAttestation guiAttestation = new GuiAttestation(group, GrouperUtil.booleanObjectValue(attestationSendEmail), 
           attestationEmailAddresses, attestationDaysUntilRecertify,
           attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
-          GrouperUtil.booleanValue(attestationDirectAssignment, false), GuiAttestation.Type.DIRECT, daysLeft);
+          GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft);
   
       guiAttestations.add(guiAttestation);
       
@@ -408,7 +396,7 @@ public class GuiAttestation {
       GuiAttestation guiAttestation = new GuiAttestation(stem, GrouperUtil.booleanObjectValue(attestationSendEmail), 
           attestationEmailAddresses, attestationDaysUntilRecertify,
           null, attestationDaysBeforeToRemind, attestationStemScope, null, 
-          null, GuiAttestation.Type.DIRECT, null);
+          null, null);
  
       guiAttestations.add(guiAttestation);
       
