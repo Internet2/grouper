@@ -78,10 +78,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttestationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAttestation;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -265,7 +263,7 @@ public class UiV2Group {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      if (retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup() != null) {
+      if (retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup() != null) {
         UiV2Attestation.setupAttestation(group);            
       }
       
@@ -2442,48 +2440,50 @@ public class UiV2Group {
       boolean privsOk = true;
 
       if (requirePrivilege != null) {
-        if (requirePrivilege.equals(AccessPrivilege.ADMIN)) {
-          if (!groupContainer.isCanAdmin()) {
+        if (requirePrivilege.equals(AccessPrivilege.ADMIN) && !groupContainer.isCanAdmin()) {
+          if (errorIfNotFound) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToAdminGroup")));
             addedError = true;
-            privsOk = false;
-          }
-        } else if (requirePrivilege.equals(AccessPrivilege.VIEW)) {
-          if (!groupContainer.isCanView()) {
+            }
+          privsOk = false;
+        }
+        else if (requirePrivilege.equals(AccessPrivilege.VIEW) && !groupContainer.isCanView()) {
+          if (errorIfNotFound) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToViewGroup")));
             addedError = true;
-            privsOk = false;
           }
-        } else if (requirePrivilege.equals(AccessPrivilege.READ)) {
-          if (!groupContainer.isCanRead()) {
+          privsOk = false;
+        }
+        else if (requirePrivilege.equals(AccessPrivilege.READ) && !groupContainer.isCanRead()) {
+          if (errorIfNotFound) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToReadGroup")));
             addedError = true;
-            privsOk = false;
           }
-        } else if (requirePrivilege.equals(AccessPrivilege.OPTIN)) {
-          if (!groupContainer.isCanOptin()) {
+          privsOk = false;
+        } else if (requirePrivilege.equals(AccessPrivilege.OPTIN) && !groupContainer.isCanOptin()) {
+          if (errorIfNotFound) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToOptinGroup")));
             addedError = true;
-            privsOk = false;
           }
-        } else if (requirePrivilege.equals(AccessPrivilege.OPTOUT)) {
-          if (!groupContainer.isCanOptout()) {
+          privsOk = false;
+        } else if (requirePrivilege.equals(AccessPrivilege.OPTOUT) && !groupContainer.isCanOptout()) {
+          if (errorIfNotFound) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToOptoutGroup")));
             addedError = true;
-            privsOk = false;
           }
-        } else if (requirePrivilege.equals(AccessPrivilege.UPDATE)) {
-          if (!groupContainer.isCanUpdate()) {
+          privsOk = false;
+        } else if (requirePrivilege.equals(AccessPrivilege.UPDATE) && !groupContainer.isCanUpdate()) {
+          if (errorIfNotFound) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToUpdateGroup")));
             addedError = true;
-            privsOk = false;
           }
+          privsOk = false;
         }  
       }
       
