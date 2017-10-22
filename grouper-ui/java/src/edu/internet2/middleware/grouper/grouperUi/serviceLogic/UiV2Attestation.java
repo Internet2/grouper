@@ -117,46 +117,59 @@ public class UiV2Attestation {
     }
   }
   
-  public static GuiAttestation retrieveGuiAttestation(AttributeAssignable attributeAssignable) {
-    GuiAttestation result = null;
-    AttributeAssign attributeAssign = attributeAssignable.getAttributeDelegate().retrieveAssignment(null, 
+  public static GuiAttestation retrieveGuiAttestation(final AttributeAssignable attributeAssignable) {
+    
+    final AttributeAssign attributeAssign = attributeAssignable.getAttributeDelegate().retrieveAssignment(null, 
         GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    
     if (attributeAssign == null) {
       return null;
     }
-    String attestationDirectAssignment = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
-    String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
-    String attestationEmailAddresses = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
-    String attestationDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
-    String attestationLastEmailedDate = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
-    String attestationDaysBeforeToRemind = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName());
-    String attestationStemScope = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
-    String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+    
+    //switch over to admin so attributes work
+    Object guiAttestation = GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public GuiAttestation callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        String attestationDirectAssignment = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+        String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
+        String attestationEmailAddresses = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
+        String attestationDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+        String attestationLastEmailedDate = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
+        String attestationDaysBeforeToRemind = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName());
+        String attestationStemScope = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+        String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+        
+        if (attributeAssignable instanceof Group) {
 
-    if (attributeAssignable instanceof Group) {
+          String daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+              GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+          if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
 
-      String daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-      if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
+            GrouperAttestationJob.updateCalculatedDaysUntilRecertify((Group)attributeAssignable, attributeAssign);
 
-        GrouperAttestationJob.updateCalculatedDaysUntilRecertify((Group)attributeAssignable, attributeAssign);
-
+          }
+          daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+              GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+          int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
+          return new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), attestationEmailAddresses, attestationDaysUntilRecertify,
+              attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft);
+        } else if (attributeAssignable instanceof Stem) {
+          return new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), attestationEmailAddresses, attestationDaysUntilRecertify,
+              attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), null);
+        }
+        
+        return null;
       }
-      daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-      int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
-      result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), attestationEmailAddresses, attestationDaysUntilRecertify,
-          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft);
-    } else if (attributeAssignable instanceof Stem) {
-      result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), attestationEmailAddresses, attestationDaysUntilRecertify,
-          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), null);
-    }
-    return result;
+    });
+    
+    return (GuiAttestation)guiAttestation;
   }
   
 //  /**
