@@ -470,10 +470,20 @@ public class MemberFinder {
                 throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
               }
             }
+
+            boolean isAlreadyRetriable = GrouperUtil.isInRetriableCode();
             try {
+
+              if (!isAlreadyRetriable) {
+                GrouperUtil.threadLocalInRetriableCodeAssign();
+              }
+
               Member _m = internal_createMember(subj, memberUuidIfCreate);
               return _m;
             } catch (RuntimeException re) {
+              if (!isAlreadyRetriable) {
+                GrouperUtil.threadLocalInRetriableCodeClear();
+              }
               
               //dont interrupt a hook veto
               if (re instanceof HookVeto) {
@@ -499,6 +509,10 @@ public class MemberFinder {
                     + "... " + ExceptionUtils.getFullStackTrace(eMNF2) + "...");
                 //ignore this exception...  throw the original create exception
                 throw re;
+              }
+            } finally {
+              if (!isAlreadyRetriable) {
+                GrouperUtil.threadLocalInRetriableCodeClear();
               }
             }
           }
