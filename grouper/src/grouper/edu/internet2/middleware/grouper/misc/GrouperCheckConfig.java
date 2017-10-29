@@ -1965,6 +1965,12 @@ public class GrouperCheckConfig {
             "true or false if emails should be sent", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_STEM_SCOPE,
             "one or sub for if attestation settings inherit to just this folder or also to subfolders (folder only)", wasInCheckConfig);
+        
+        //this is publicly readable
+        attestationType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+        attestationType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+        attestationAttrType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+        attestationAttrType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
       
       }
       {
