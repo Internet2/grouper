@@ -151,10 +151,10 @@ public class UiV2Attestation {
           GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
       int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
       result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), attestationEmailAddresses, attestationDaysUntilRecertify,
-          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft);
+          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), GuiAttestation.Type.DIRECT, daysLeft);
     } else if (attributeAssignable instanceof Stem) {
       result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), attestationEmailAddresses, attestationDaysUntilRecertify,
-          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), null);
+          attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, GrouperUtil.booleanValue(attestationDirectAssignment, false), GuiAttestation.Type.INDIRECT, null);
     }
     return result;
   }
@@ -953,7 +953,7 @@ public class UiV2Attestation {
     }
   }
   
-  private GuiAttestation retrieveStemAttestation(AttributeAssignable attributeAssignable) {
+  private GuiAttestation retrieveStemAttestation(AttributeAssignable attributeAssignable, GuiAttestation.Type type) {
     GuiAttestation result = null;
     AttributeAssign attributeAssign = attributeAssignable.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
     String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
@@ -965,7 +965,7 @@ public class UiV2Attestation {
     if (attributeAssignable instanceof Stem) {
       result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), 
           attestationEmailAddresses, attestationDaysUntilRecertify,
-          null, attestationDaysBeforeToRemind, attestationStemScope, null, false, null);
+          null, attestationDaysBeforeToRemind, attestationStemScope, null, false, type, null);
     }
     return result;
   }
@@ -984,7 +984,7 @@ public class UiV2Attestation {
       
       AttributeAssignable attributeAssignable = stem.getAttributeDelegate().getAttributeOrAncestorAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName(), false);
       
-      GuiAttestation guiAttestation = retrieveStemAttestation(attributeAssignable);
+      GuiAttestation guiAttestation = retrieveStemAttestation(attributeAssignable, GuiAttestation.Type.DIRECT);
     
       if (guiAttestation != null) {
         grouperRequestContainer.getStemContainer().setGuiAttestation(guiAttestation);
@@ -1000,7 +1000,7 @@ public class UiV2Attestation {
       
       AttributeAssignable attributeAssignable = stem.getAttributeDelegate().getAttributeOrAncestorAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName(), false);
       
-      GuiAttestation guiAttestation = retrieveStemAttestation(attributeAssignable);
+      GuiAttestation guiAttestation = retrieveStemAttestation(attributeAssignable, GuiAttestation.Type.INDIRECT);
     
       if (guiAttestation == null) {
         grouperRequestContainer.getStemContainer().setGuiAttestation(guiAttestation);
@@ -1300,7 +1300,7 @@ public class UiV2Attestation {
 
       if (error) {
 
-        GuiAttestation guiAttestation = new GuiAttestation(stem);
+        GuiAttestation guiAttestation = new GuiAttestation(stem, GuiAttestation.Type.DIRECT);
 
         guiAttestation.setGrouperAttestationDaysBeforeToRemind(daysBeforeReminder);
         guiAttestation.setGrouperAttestationDaysUntilRecertify(daysUntilRectify);
