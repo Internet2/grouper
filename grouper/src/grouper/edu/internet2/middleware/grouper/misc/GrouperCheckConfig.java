@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+//import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -676,6 +677,27 @@ public class GrouperCheckConfig {
             "member sort/search security from grouper.properties key: " + key, null);
         
       }
+      
+//      if (GrouperDeprovisioningJob.deprovisioningEnabled()) {
+//        
+//        // group that users who are allowed to deprovision other users are in
+//        String deprovisioningMustBeInGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningManagersMustBeInGroupName();
+//
+//        boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
+//        
+//        checkGroup(grouperSession, deprovisioningMustBeInGroupName, wasInCheckConfig, autocreate, 
+//            wasInCheckConfig, null, "group that users who are allowed to deprovision other users are in", 
+//            "group that users who are allowed to deprovision other users are in", null);
+//
+//        // group that deprovisioned users go in (temporarily, but history will always be there)
+//        String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned();
+//        
+//        checkGroup(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, wasInCheckConfig, autocreate, 
+//            wasInCheckConfig, null, "group that deprovisioned users go in (temporarily, but history will always be there)", 
+//            "group that deprovisioned users go in (temporarily, but history will always be there)", null);
+//        
+//      }
+      
       
     } catch (SessionException se) {
       throw new RuntimeException(se);
@@ -1966,12 +1988,6 @@ public class GrouperCheckConfig {
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_STEM_SCOPE,
             "one or sub for if attestation settings inherit to just this folder or also to subfolders (folder only)", wasInCheckConfig);
         
-        //this is publicly readable
-        attestationType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-        attestationType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
-        attestationAttrType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-        attestationAttrType.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
-      
       }
       {
         String rulesRootStemName = RuleUtils.attributeRuleStemName();
