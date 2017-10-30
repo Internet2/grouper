@@ -25,7 +25,7 @@
 
                     <p class="lead">${textContainer.text['groupViewMembersDescription'] }</p>
                     
-                    <c:if test="${grouperRequestContainer.attestationContainer.hasAttestation && grouperRequestContainer.attestationContainer.canWriteAttestation}" >
+                    <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfigured && grouperRequestContainer.attestationContainer.canWriteAttestation}" >
                       <c:choose>
                         <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">
                           <p class="lead" style="color: red">${textContainer.text['attestationGroupNeedsAttestationNow'] }

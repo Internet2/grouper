@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -17,11 +18,14 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.group.TestGroupFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
-import junit.textui.TestRunner;
 
+/**
+ * 
+ */
 public class GrouperAttestationJobTest extends GrouperTest {
   
   /**
@@ -29,7 +33,7 @@ public class GrouperAttestationJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAttestationJobTest("testBuildAttestationGroupEmails"));
+    TestRunner.run(new GrouperAttestationJobTest("testGrouperAttestationPrivileges"));
   }
   
   /**
@@ -37,6 +41,13 @@ public class GrouperAttestationJobTest extends GrouperTest {
    */
   public GrouperAttestationJobTest(String name) {
     super(name);
+  }
+  
+  /**
+   * 
+   */
+  public void testGrouperAttestationPrivileges() {
+    new TestGroupFinder().testFindByAttributeAssignOnAssignValuesAndPrivilege();
   }
   
   /**
@@ -117,6 +128,9 @@ public class GrouperAttestationJobTest extends GrouperTest {
 
   }
   
+  /**
+   * 
+   */
   private void setupGroupEmailAttributes() {
     
     GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
@@ -133,6 +147,9 @@ public class GrouperAttestationJobTest extends GrouperTest {
  
   }
   
+  /**
+   * 
+   */
   public void testBuildAttestationGroupEmails() {
    
     setupGroupEmailAttributes();

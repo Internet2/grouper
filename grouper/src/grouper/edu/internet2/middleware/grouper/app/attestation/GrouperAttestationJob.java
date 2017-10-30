@@ -126,6 +126,48 @@ public class GrouperAttestationJob extends OtherJobBase {
     return attributeDefName;
 
   }
+
+  /**
+   * attestationHasAttestation
+   */
+  public static final String ATTESTATION_HAS_ATTESTATION = "attestationHasAttestation";
+
+  /**
+   * if this object has attestation assigned (either in group or stem)
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameHasAttestation() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_HAS_ATTESTATION);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation has attestation attribute def name be found?");
+    }
+    return attributeDefName;
+
+  }
+  
+  /**
+   * 
+   * @param nameOfAttributeDefName
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameByName(String nameOfAttributeDefName) {
+    
+    if (!nameOfAttributeDefName.startsWith(GrouperAttestationJob.attestationStemName() + ":")) {
+      throw new RuntimeException("Why doesnt attribute start with '" 
+          + GrouperAttestationJob.attestationStemName() + ":' ???? '" + nameOfAttributeDefName + "'");
+    }
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(nameOfAttributeDefName);
+    
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation attribute def name be found?");
+    }
+    return attributeDefName;
+
+  }
   
  /**
    * 
@@ -358,7 +400,7 @@ public class GrouperAttestationJob extends OtherJobBase {
   /**
    * update the calculated days until recertify
    * @param group group to calculate
-   * @param attributeAssignBase that has the settings, stem or group
+   * @param attributeAssign that has the settings, stem or group
    */
   public static void updateCalculatedDaysUntilRecertify(Group group, AttributeAssign attributeAssign) {
 
@@ -402,7 +444,7 @@ public class GrouperAttestationJob extends OtherJobBase {
   
   /**
    * get map of email addresses to email objects for group attributes
-   * @param groupAttributeAssigns
+   * @param stemAttributeAssign
    * @return the map of email objects
    */
   protected static Map<String, Set<EmailObject>> buildAttestationGroupEmails(AttributeAssign stemAttributeAssign, Set<AttributeAssign> groupAttributeAssigns) {
@@ -415,6 +457,23 @@ public class GrouperAttestationJob extends OtherJobBase {
       Group group = groupAttributeAssign.getOwnerGroup();
       
       AttributeAssign configurationAttributeAssign = GrouperUtil.defaultIfNull(stemAttributeAssign, groupAttributeAssign);
+
+      {
+        String hasAttestationString = configurationAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+        
+        // it needs this if it doesnt have it
+        if (StringUtils.isBlank(hasAttestationString)) {
+          
+          hasAttestationString = "true";
+        }
+
+        //make sure group is in sync
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), hasAttestationString);
+        
+        if (!GrouperUtil.booleanValue(hasAttestationString, true)) {
+          continue;
+        }
+      }
       
       updateCalculatedDaysUntilRecertify(group, configurationAttributeAssign);
 
@@ -597,7 +656,7 @@ public class GrouperAttestationJob extends OtherJobBase {
       String directAssignmentString = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDirectAssignment().getName());
 
       // group has inherited attestation, don't process as group, this will be processed as stem descendent
-      if (!GrouperUtil.booleanValue(directAssignmentString, false)) { 
+      if (!GrouperUtil.booleanValue(directAssignmentString, false) ) { 
         
         iterator.remove();
         
@@ -618,7 +677,7 @@ public class GrouperAttestationJob extends OtherJobBase {
             removeDirectGroupAttestation(group, true);
           }
         }
-        
+        continue;
       }
     }
     
@@ -791,17 +850,18 @@ public class GrouperAttestationJob extends OtherJobBase {
       
       String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameSendEmail().getName());
       
+      Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign);
+
       boolean sendEmailAttributeValue = GrouperUtil.booleanValue(attestationSendEmail, true);
       
       // skip sending email for this attribute assign
       if (!sendEmailAttributeValue) {
         LOG.debug("For "+attributeAssign.getOwnerStem().getDisplayName()+" attestationSendEmail attribute is not set to true so skipping sending email.");
+        continue;
       }
 
-      Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign);
       if (sendEmailAttributeValue) {
         mergeEmailObjects(emails, localEmailMap);
-
       }
     }
     
@@ -811,21 +871,22 @@ public class GrouperAttestationJob extends OtherJobBase {
 
   /**
    * take a stem attribute assign and process it
-   * @param attributeAssign
+   * @param stemAttributeAssign
+   * @return the email objects
    */
-  public static Map<String, Set<EmailObject>> stemAttestationProcessHelper(AttributeAssign attributeAssign) {
+  public static Map<String, Set<EmailObject>> stemAttestationProcessHelper(AttributeAssign stemAttributeAssign) {
     
     Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
     
-    String attestationStemScope = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
-    
+    String attestationStemScope = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
+     
     // go through each group and check if they have their own attestation attribute and use them if they are present.
     // if not, then use the stem attributes.
     Scope scope = GrouperUtil.defaultIfNull(Scope.valueOfIgnoreCase(attestationStemScope, false), Scope.SUB);
         
-    Set<Group> childGroups = attributeAssign.getOwnerStem().getChildGroups(scope);
+    Set<Group> childGroups = stemAttributeAssign.getOwnerStem().getChildGroups(scope);
     
-    Stem stem = attributeAssign.getOwnerStem();
+    Stem stem = stemAttributeAssign.getOwnerStem();
     
     for (Group group: childGroups) {
       
@@ -855,12 +916,29 @@ public class GrouperAttestationJob extends OtherJobBase {
       if (!StringUtils.equals(((Stem)attributeAssignable).getName(), stem.getName())) {
         continue;
       }
+
+      String stemHasAttestationString = stemAttributeAssign.getAttributeValueDelegate()
+          .retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+        
+      // it needs this if it doesnt have it
+      if (StringUtils.isBlank(stemHasAttestationString)) {
+        
+        stemAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "true");
+        stemHasAttestationString = "true";
+      }
+
+      //make sure group is in sync with stem
+      groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), stemHasAttestationString);
       
+      if (!GrouperUtil.booleanValue(stemHasAttestationString, true)) {
+        continue;
+      }
+
       Set<AttributeAssign> singleGroupAttributeAssign = new HashSet<AttributeAssign>();
       singleGroupAttributeAssign.add(groupAttributeAssign);
       
       // skip sending email for this attribute assign
-      Map<String, Set<EmailObject>> buildAttestationGroupEmails = buildAttestationGroupEmails(attributeAssign, singleGroupAttributeAssign);
+      Map<String, Set<EmailObject>> buildAttestationGroupEmails = buildAttestationGroupEmails(stemAttributeAssign, singleGroupAttributeAssign);
      
       mergeEmailObjects(emails, buildAttestationGroupEmails);
 
@@ -873,7 +951,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    * get unique elements from array except specified by index except.
    * @param array
    * @param except
-   * @return
+   * @return the set
    */
   private static Set<String> getElements(String[] array, int except) {
     Set<String> result = new HashSet<String>();
@@ -968,7 +1046,9 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (changeToIndirect) {
       attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
     } else {
+      //has no more attestation
       attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment());
+      attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "false");
     }
     attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameSendEmail());
     attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses());

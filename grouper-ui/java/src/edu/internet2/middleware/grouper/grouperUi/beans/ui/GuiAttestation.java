@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -108,33 +109,32 @@ public class GuiAttestation {
   private String grouperAttestationDateCertified;
   
   private Boolean grouperAttestationDirectAssignment = false;
- 
+
+  private Boolean grouperAttestationHasAttestation = false;
+
   private Mode mode;
   
   public enum Mode {
     EDIT, ADD
   }
   
-  public enum Type {
-    DIRECT, INDIRECT
-  }
-  
-  public GuiAttestation(AttributeAssignable attributeAssignable, Type theType) {
+  public GuiAttestation(AttributeAssignable attributeAssignable) {
     this.mode = Mode.ADD;
     this.attributeAssignable = attributeAssignable;
-    this.type = theType;
   }
   
   
   public GuiAttestation(AttributeAssignable attributeAssignable, Boolean grouperAttestationSendEmail,
+      Boolean grouperAttestationHasAttestation,
       String grouperAttestationEmailAddresses,
       String grouperAttestationDaysUntilRecertify,
       String grouperAttestationLastEmailedDate,
       String grouperAttestationDaysBeforeToRemind, String grouperAttestationStemScope,
-      String grouperAttestationDateCertified, Boolean grouperAttestationDirectAssignment, Type type, Integer daysLeftUntilRecertify) {
+      String grouperAttestationDateCertified, Boolean grouperAttestationDirectAssignment, Integer daysLeftUntilRecertify) {
     
     super();
     this.mode = Mode.EDIT;
+    this.grouperAttestationHasAttestation = grouperAttestationHasAttestation;
     this.attributeAssignable = attributeAssignable;
     this.grouperAttestationSendEmail = grouperAttestationSendEmail;
     this.grouperAttestationEmailAddresses = grouperAttestationEmailAddresses;
@@ -144,17 +144,9 @@ public class GuiAttestation {
     this.grouperAttestationStemScope = grouperAttestationStemScope;
     this.grouperAttestationDateCertified = grouperAttestationDateCertified;
     this.grouperAttestationDirectAssignment = grouperAttestationDirectAssignment;
-    this.type = type;
     this.grouperAttestationDaysLeftUntilRecertify = daysLeftUntilRecertify;
   }
 
-  private Type type;
-
-  
-  public Type getType() {
-    return this.type;
-  }
-  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Group.class);
 
@@ -167,10 +159,23 @@ public class GuiAttestation {
   }
 
   /**
+   * if has attestation
+   * @return if has attestation
+   */
+  public boolean isHasAttestation() {
+    return this.grouperAttestationHasAttestation == null || this.grouperAttestationHasAttestation;
+  }
+  
+  /**
    * @param daysBuffer is 0 for needs recertify now, or more than that for buffer
    * @return if needs recertify
    */
   public boolean needsRecertifyHelper(int daysBuffer) {
+    
+    if (this.grouperAttestationHasAttestation != null && this.grouperAttestationHasAttestation == false) {
+      return false;
+    }
+    
     int daysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
     if (! StringUtils.isBlank(this.grouperAttestationDaysUntilRecertify)) {
       try {
@@ -206,7 +211,11 @@ public class GuiAttestation {
    * @return if the group needs recertify soon
    */
   public boolean isNeedsRecertifySoon() {
-    
+
+    if (this.grouperAttestationHasAttestation != null && this.grouperAttestationHasAttestation == false) {
+      return false;
+    }
+
     int daysBeforeNeeds = GrouperConfig.retrieveConfig().propertyValueInt("attestation.daysBeforeNeedsAttestationToShowButton", 14);
     return needsRecertifyHelper(daysBeforeNeeds);
   }
@@ -216,6 +225,10 @@ public class GuiAttestation {
    * @return the date
    */
   public String getGrouperAttestationDateNeedsCertify() {
+    if (this.grouperAttestationHasAttestation != null && this.grouperAttestationHasAttestation == false) {
+      return null;
+    }
+
     int daysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
     if (! StringUtils.isBlank(this.grouperAttestationDaysUntilRecertify)) {
       try {
@@ -278,6 +291,15 @@ public class GuiAttestation {
     this.grouperAttestationSendEmail = grouperAttestationSendEmail;
   }
 
+  
+  /**
+   * @return the grouperAttestationHasAttestation
+   */
+  private Boolean getGrouperAttestationHasAttestation() {
+    return this.grouperAttestationHasAttestation;
+  }
+
+
   public Boolean getGrouperAttestationDirectAssignment() {
     return grouperAttestationDirectAssignment;
   }
@@ -318,6 +340,15 @@ public class GuiAttestation {
     return grouperAttestationStemScope;
   }
   
+  /**
+   * 
+   * @return true if blank or sub
+   */
+  public boolean isGrouperAttestationStemScopeSub() {
+    return this.grouperAttestationStemScope == null 
+        || StringUtils.equalsIgnoreCase(this.grouperAttestationStemScope, Scope.SUB.toString());
+  }
+  
   public String getGrouperAttestationDateCertified() {
     return grouperAttestationDateCertified;
   }
@@ -345,6 +376,8 @@ public class GuiAttestation {
       
       String attestationDirectAssignment = attributes.get(
           GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+      String attestationHasAssignment = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName());
       String attestationSendEmail = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
       String attestationEmailAddresses = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
       String attestationDaysUntilRecertify = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
@@ -368,11 +401,17 @@ public class GuiAttestation {
       }
       daysLeftBeforeAttestation = attributes.get(
           GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-      int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
+      Integer daysLeft = null;
+      try {
+        daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
+      } catch (Exception e) {
+        LOG.error("Invalid days left: '" + daysLeftBeforeAttestation + "' for group: " + group.getName());
+      }
       GuiAttestation guiAttestation = new GuiAttestation(group, GrouperUtil.booleanObjectValue(attestationSendEmail), 
+          GrouperUtil.booleanObjectValue(attestationHasAssignment),
           attestationEmailAddresses, attestationDaysUntilRecertify,
           attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
-          GrouperUtil.booleanValue(attestationDirectAssignment, false), GuiAttestation.Type.DIRECT, daysLeft);
+          GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft);
   
       guiAttestations.add(guiAttestation);
       
@@ -383,7 +422,7 @@ public class GuiAttestation {
 
   /**
    * convert stems into gui attestations
-   * @param groups
+   * @param stems
    * @param attributeAssignValueFinderResult
    * @return the list of gui attestations
    */
@@ -399,6 +438,7 @@ public class GuiAttestation {
       Map<String, String> attributes = attributeAssignValueFinderResult.retrieveAttributeDefNamesAndValueStrings(stem.getId());
       
       String attestationSendEmail = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
+      String attestationHasAssignment = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName());
       String attestationEmailAddresses = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
       String attestationDaysUntilRecertify = attributes.get(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
       String attestationDaysBeforeToRemind = attributes.get(
@@ -407,9 +447,10 @@ public class GuiAttestation {
           GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
  
       GuiAttestation guiAttestation = new GuiAttestation(stem, GrouperUtil.booleanObjectValue(attestationSendEmail), 
+          GrouperUtil.booleanObjectValue(attestationHasAssignment),
           attestationEmailAddresses, attestationDaysUntilRecertify,
           null, attestationDaysBeforeToRemind, attestationStemScope, null, 
-          null, GuiAttestation.Type.DIRECT, null);
+          null, null);
  
       guiAttestations.add(guiAttestation);
       

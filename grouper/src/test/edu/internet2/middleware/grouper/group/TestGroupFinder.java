@@ -31,7 +31,11 @@
 */
 
 package edu.internet2.middleware.grouper.group;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +97,8 @@ public class TestGroupFinder extends GrouperTest {
     super(name);
   }
 
-  
+  public TestGroupFinder() {
+  }
   
   /**
    * 
@@ -821,6 +826,10 @@ public class TestGroupFinder extends GrouperTest {
       
       attributeAssignBase.getAttributeValueDelegate().assignValueString(
           GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "0");
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName(), "false");
 
       group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
       group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
@@ -857,6 +866,18 @@ public class TestGroupFinder extends GrouperTest {
       
       attributeAssignBase.getAttributeValueDelegate().assignValueString(
           GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "2");
+      
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTime(new Date());
+      calendar.add(Calendar.DAY_OF_YEAR, -180 + 2);
+      String dateString = new SimpleDateFormat("yyyy/MM/dd").format(calendar.getTime());
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), dateString);
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName(), "false");
 
       group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
       group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
@@ -879,6 +900,19 @@ public class TestGroupFinder extends GrouperTest {
       attributeAssignBase.getAttributeValueDelegate().assignValueString(
           GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "5");
 
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTime(new Date());
+      calendar.add(Calendar.DAY_OF_YEAR, -180+5);
+      String dateString = new SimpleDateFormat("yyyy/MM/dd").format(calendar.getTime());
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), dateString);
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName(), "false");
+
+
       
     }
 
@@ -894,6 +928,19 @@ public class TestGroupFinder extends GrouperTest {
       
       attributeAssignBase.getAttributeValueDelegate().assignValueString(
           GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "180");
+
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTime(new Date());
+      calendar.add(Calendar.DAY_OF_YEAR, -180 + 180);
+      String dateString = new SimpleDateFormat("yyyy/MM/dd").format(calendar.getTime());
+      
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), dateString);
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName(), "false");
+
 
       group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
       group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
@@ -1043,7 +1090,7 @@ public class TestGroupFinder extends GrouperTest {
 
     
     AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
-        .addAttributeDefNameIdsOfBaseAssignment(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+        .addAttributeDefNameId(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
         .assignAttributeCheckReadOnAttributeDef(false)
         .findAttributeAssignValuesResult();
       
@@ -1078,7 +1125,11 @@ public class TestGroupFinder extends GrouperTest {
           .assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).save();
       
       attributeAssignBase.getAttributeValueDelegate().assignValueString(
-          GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName(), "true");
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "true");
+
+      attributeAssignBase.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName(), "false");
+
 
       stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
 
@@ -1109,6 +1160,25 @@ public class TestGroupFinder extends GrouperTest {
         .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
         .findStems();
     assertContainsStems(GrouperUtil.toSet(stemA), stems, null);
+    
+    // this group has attestation and privs with the wrong value to search for
+    Group stemAGroupAA = new GroupSave(grouperSession).assignName("testA:stemA:groupAA").assignCreateParentStemsIfNotExist(true).save();
+    Group stemAGroupAB = new GroupSave(grouperSession).assignName("testA:stemA:groupAB").assignCreateParentStemsIfNotExist(true).save();
+    Group stemAGroupAC = new GroupSave(grouperSession).assignName("testA:stemA:groupAC").assignCreateParentStemsIfNotExist(true).save();
+
+    for (Group group : new Group[]{stemAGroupAA, stemAGroupAB, stemAGroupAC}) {
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE, false);
+      group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ, false);
+      group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ, false);
+      group.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.VIEW, false);
+
+    }
+
+    grouperSession = GrouperSession.startRootSession();
+    GrouperAttestationJob.runDaemonStandalone();
+    GrouperSession.stopQuietly(grouperSession);
+
   }
   
 } // public class TestGroupFinder_FindByAttribute

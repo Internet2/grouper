@@ -69,6 +69,9 @@ public class AuditFieldType {
 
     initAuditFieldTypesDone = true;
     
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_ADD, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_DELETE, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_UPDATE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_ADD, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_UPDATE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, "stemId");
