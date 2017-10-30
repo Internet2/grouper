@@ -10,6 +10,11 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="group-attestation-more-options">
 
+                        <c:if test="${grouperRequestContainer.attestationContainer.canReadAttestation}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupAttestationMoreActionsViewAttestation'] }</a></li>
+                        </c:if>
+
                         <c:if test="${grouperRequestContainer.attestationContainer.canWriteAttestation}" >
 	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
 	                            >${textContainer.text['groupAttestationMoreActionsEditAttestation'] }</a></li>

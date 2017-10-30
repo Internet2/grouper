@@ -250,35 +250,7 @@ public class AttributeAssignValueFinder {
   public AttributeAssignValueFinder addOwnerStemOfAssignAssign(Stem ownerStemIdsOfAssignAssign1) {
     return this.addOwnerStemIdsOfAssignAssign(ownerStemIdsOfAssignAssign1.getId());
   }
-  
-  /**
-   * if we are looking for assignments on assignments, this is the base attribute def name
-   */
-  private Collection<String> attributeDefNameIdsOfBaseAssignment;
-  
-  /**
-   * if we are looking for assignments on assignments, this is the base attribute def name
-   * @param attributeDefNameIdOfBaseAssignment1
-   * @return this for chaining
-   */
-  public AttributeAssignValueFinder addAttributeDefNameIdsOfBaseAssignment(String attributeDefNameIdOfBaseAssignment1) {
-    if (this.attributeDefNameIdsOfBaseAssignment == null) {
-      this.attributeDefNameIdsOfBaseAssignment = new LinkedHashSet<String>();
-    }
-    this.attributeDefNameIdsOfBaseAssignment.add(attributeDefNameIdOfBaseAssignment1);
-    return this;
-  }
-
-  /**
-   * if we are looking for assignments on assignments, this is the base attribute def name
-   * @param attributeDefNameIdsOfBaseAssignment1
-   * @return this for chaining
-   */
-  public AttributeAssignValueFinder assignAttributeDefNameIdsOfBaseAssignment(Collection<String> attributeDefNameIdsOfBaseAssignment1) {
-    this.attributeDefNameIdsOfBaseAssignment = attributeDefNameIdsOfBaseAssignment1;
-    return this;
-  }
-  
+    
   /**
    * lookup attribute assign values by attribute assign value
    */
@@ -352,7 +324,10 @@ public class AttributeAssignValueFinder {
       .assignAttributeCheckReadOnAttributeDef(this.attributeCheckReadOnAttributeDef);
     
     result.allAttributeAssigns = attributeAssignFinder.findAttributeAssigns();
-    
+
+    if (GrouperUtil.length(result.allAttributeAssigns) == 0) {
+      return result;
+    }
     //separate into assigns and assigns on assigns
     for (AttributeAssign attributeAssign : GrouperUtil.nonNull(result.allAttributeAssigns)) {
       

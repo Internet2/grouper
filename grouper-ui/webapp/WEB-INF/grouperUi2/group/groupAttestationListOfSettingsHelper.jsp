@@ -15,6 +15,9 @@
                         data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipOwner']}">${textContainer.text['grouperAttestationOverallColumnHeaderOwner'] }</span></th>
                           <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                             <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                        data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipEnabled']}">${textContainer.text['grouperAttestationOverallColumnHeaderEnabled'] }</span></th>
+                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                         data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipDaysUntilRecertify']}">${textContainer.text['grouperAttestationOverallColumnHeaderDaysUntilRecertify'] }</span></th>
                           <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                             <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
@@ -36,20 +39,35 @@
                               ${guiAttestation.guiGroup != null ? guiAttestation.guiGroup.linkWithIcon :  guiAttestation.guiStem.linkWithIcon}
                             </td>
                             <td class="expand foo-clicker" style="white-space: nowrap;">
-                              ${guiAttestation.grouperAttestationDaysUntilRecertify != null ? guiAttestation.grouperAttestationDaysUntilRecertify : textContainer.text['grouperAttestationOverallColumnDefaultRecertify']}
+                              ${guiAttestation.hasAttestation ? textContainer.text['grouperAttestationOverallColumnEnabled'] :  textContainer.text['grouperAttestationOverallColumnNotEnabled']}
                             </td>
-                            <td class="expand foo-clicker" style="white-space: nowrap;">
-                              ${guiAttestation.grouperAttestationEmailAddresses != null ? guiAttestation.grouperAttestationEmailAddresses : textContainer.text['grouperAttestationOverallColumnDefaultEmailAddresses']}
-                            </td>
-                            <td class="expand foo-clicker" style="white-space: nowrap;">
-                              ${guiAttestation.grouperAttestationSendEmail != null ? guiAttestation.grouperAttestationSendEmail : textContainer.text['grouperAttestationOverallColumnDefaultSendEmail']}
-                            </td>
-                            <td class="expand foo-clicker" style="white-space: nowrap;">
-                              ${guiAttestation.guiGroup != null ? textContainer.text['grouperAttestationOverallSettingsNotApplicable'] : 
-                                ( guiAttestation.grouperAttestationStemScope == null ? textContainer.text['grouperAttestationOverallColumnScopeDefault'] 
-                                  : guiAttestation.grouperAttestationStemScope )}
-                            </td>
-                            
+                            <c:choose>
+                              <c:when test="${guiAttestation.hasAttestation}">
+                                <td class="expand foo-clicker" style="white-space: nowrap;">
+                                  ${guiAttestation.grouperAttestationDaysUntilRecertify != null ? guiAttestation.grouperAttestationDaysUntilRecertify : textContainer.text['grouperAttestationOverallColumnDefaultRecertify']}
+                                </td>
+                                <td class="expand foo-clicker" style="white-space: nowrap;">
+                                  ${guiAttestation.grouperAttestationEmailAddresses != null ? guiAttestation.grouperAttestationEmailAddresses : textContainer.text['grouperAttestationOverallColumnDefaultEmailAddresses']}
+                                </td>
+                                <td class="expand foo-clicker" style="white-space: nowrap;">
+                                  ${guiAttestation.grouperAttestationSendEmail != null ? guiAttestation.grouperAttestationSendEmail : textContainer.text['grouperAttestationOverallColumnDefaultSendEmail']}
+                                </td>
+                                <td class="expand foo-clicker" style="white-space: nowrap;">
+                                  ${guiAttestation.guiGroup != null ? textContainer.text['grouperAttestationOverallSettingsNotApplicable'] : 
+                                    ( guiAttestation.grouperAttestationStemScope == null ? textContainer.text['grouperAttestationOverallColumnScopeDefault'] 
+                                      : guiAttestation.grouperAttestationStemScope )}
+                                </td>
+                                
+                              
+                              </c:when>
+                              <c:otherwise>
+                                <td class="expand foo-clicker" style="white-space: nowrap;"></td>
+                                <td class="expand foo-clicker" style="white-space: nowrap;"></td>
+                                <td class="expand foo-clicker" style="white-space: nowrap;"></td>
+                                <td class="expand foo-clicker" style="white-space: nowrap;"></td>
+                              
+                              </c:otherwise>
+                            </c:choose>
                             
                           </tr>
                           <c:set var="i" value="${i+1}" />

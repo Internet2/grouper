@@ -56,13 +56,13 @@ public class AttestationContainer {
   /**
    * if the stem scope is "sub" for this attestation
    */
-  private boolean editAttestationStemScopeSub;
+  private Boolean editAttestationStemScopeSub;
 
   /**
    * if the stem scope is "sub" for this attestation
    * @return true if for all subgroups
    */
-  public boolean isEditAttestationStemScopeSub() {
+  public Boolean getEditAttestationStemScopeSub() {
     return this.editAttestationStemScopeSub;
   }
 
@@ -70,7 +70,7 @@ public class AttestationContainer {
    * if the stem scope is "sub" for this attestation
    * @param editAttestationStemScopeSub2
    */
-  public void setEditAttestationStemScopeSub(boolean editAttestationStemScopeSub2) {
+  public void setEditAttestationStemScopeSub(Boolean editAttestationStemScopeSub2) {
     this.editAttestationStemScopeSub = editAttestationStemScopeSub2;
   }
 
@@ -85,6 +85,31 @@ public class AttestationContainer {
    */
   public boolean isEditAttestationShowEmailSettings() {
     return this.editAttestationShowEmailSettings;
+  }
+
+  /**
+   * if should show has attestation
+   */
+  private boolean editAttestationShowHasAttestation;
+  
+  
+  
+  
+  /**
+   * if should show has attestation
+   * @return the editAttestationShowHasAttestation
+   */
+  public boolean isEditAttestationShowHasAttestation() {
+    return this.editAttestationShowHasAttestation;
+  }
+
+  
+  /**
+   * if should show has attestation
+   * @param editAttestationShowHasAttestation2 the editAttestationShowHasAttestation to set
+   */
+  public void setEditAttestationShowHasAttestation(boolean editAttestationShowHasAttestation2) {
+    this.editAttestationShowHasAttestation = editAttestationShowHasAttestation2;
   }
 
   /**
@@ -197,7 +222,7 @@ public class AttestationContainer {
    */
   public boolean isSendEmail() {
 
-    AttributeAssign attributeAssign = this.getGroupAttributeAssignable();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
 
     if (attributeAssign == null) {
       return true;
@@ -207,6 +232,24 @@ public class AttestationContainer {
         .retrieveValueString(
             GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName());
     return GrouperUtil.booleanValue(attestationSendEmail, true);
+  }
+
+  /**
+   * default to true
+   * @return true if has attestation
+   */
+  public boolean isHasAttestation() {
+
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return true;
+    }
+
+    String attestationHasAttestation = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName());
+    return GrouperUtil.booleanValue(attestationHasAttestation, true);
   }
 
   /**
@@ -226,7 +269,7 @@ public class AttestationContainer {
   public String getEmailAddresses() {
 
     this.attributeAssignableHelper();
-    AttributeAssign attributeAssign = this.getGroupAttributeAssignable();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
 
     if (attributeAssign == null) {
       return null;
@@ -243,7 +286,7 @@ public class AttestationContainer {
    * @return configured recertify days
    */
   public Integer getRecertifyDays() {
-    AttributeAssign attributeAssign = this.getGroupAttributeAssignable();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
 
     if (attributeAssign == null) {
       return null;
@@ -389,6 +432,27 @@ public class AttestationContainer {
     this.editAttestationSendEmail = editAttestationSendEmail1;
   }
 
+  /**
+   * if has attestation
+   */
+  private boolean editAttestationHasAttestation;
+  
+  /**
+   * if has attestation
+   * @return if should send email
+   */
+  public boolean isEditAttestationHasAttestation() {
+    return this.editAttestationHasAttestation;
+  }
+
+  /**
+   * if has attestation
+   * @param editAttestationHasAttestation1
+   */
+  public void setEditAttestationHasAttestation(boolean editAttestationHasAttestation1) {
+    this.editAttestationHasAttestation = editAttestationHasAttestation1;
+  }
+
 
   /**
    * if should show the edit email field (and other fields)
@@ -422,7 +486,7 @@ public class AttestationContainer {
    */
   public boolean isAncestorStemAttestationAssignment() {
     this.attributeAssignableHelper();
-    return this.hasAttestation && !this.directGroupAttestationAssignment && !this.directStemAttestationAssignment;
+    return this.hasAttestationConfigured && !this.directGroupAttestationAssignment && !this.directStemAttestationAssignment;
   }
   
   /**
@@ -440,6 +504,17 @@ public class AttestationContainer {
    */
   private AttributeAssign stemAttributeAssignable = null;
 
+  /**
+   * 
+   * @return the stem or group attribute assignable
+   */
+  public AttributeAssign getAttributeAssignable() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.getGroupAttributeAssignable();
+    }
+    return this.getStemAttributeAssignable();
+  }
+  
   /**
    * get the group assignable
    * @return the assignable
@@ -475,7 +550,7 @@ public class AttestationContainer {
   /**
    * if the object has attestation direct or inherited
    */
-  private boolean hasAttestation = false;
+  private boolean hasAttestationConfigured = false;
 
   /**
    * if can read ancestor attestation
@@ -650,7 +725,7 @@ public class AttestationContainer {
         if (GrouperUtil.booleanValue(attestationDirectAssignment, false)) { 
           // group has direct attestation, don't use stem attributes at all.
           this.directGroupAttestationAssignment = true;
-          this.hasAttestation = true;
+          this.hasAttestationConfigured = true;
         }
       }
     }
@@ -663,7 +738,7 @@ public class AttestationContainer {
           stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
       if (this.stemAttributeAssignable != null) {
         this.directStemAttestationAssignment = true;
-        this.hasAttestation = true;
+        this.hasAttestationConfigured = true;
       }
       if (parentStem == null) {
         parentStem = stem.getParentStemOrNull();
@@ -685,7 +760,7 @@ public class AttestationContainer {
           
           this.parentStemWithAttestation = ancestorStem;
           this.stemInheritedAttributeAssignable = ancestorAssign;
-          hasAttestation = true;
+          hasAttestationConfigured = true;
         }
       }
     }
@@ -748,9 +823,9 @@ public class AttestationContainer {
    * if has attestation
    * @return true if has
    */
-  public boolean isHasAttestation() {
+  public boolean isHasAttestationConfigured() {
     this.attributeAssignableHelper();
-    return this.hasAttestation;
+    return this.hasAttestationConfigured;
   }
   
 }

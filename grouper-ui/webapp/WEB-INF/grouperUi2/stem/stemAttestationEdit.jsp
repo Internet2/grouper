@@ -5,9 +5,9 @@
 
       <tr>
         <td style="vertical-align: top; white-space: nowrap;"><strong><label
-            for="grouperAttestationHasAttestationId">${textContainer.text['attestationDirectAssignmentLabel']}</label></strong></td>
-        <td><select name="grouperAttestationHasAttestationName"
-          id="grouperAttestationHasAttestationId" style="width: 25em"
+            for="grouperAttestationDirectAssignmentId">${textContainer.text['attestationDirectAssignmentLabel']}</label></strong></td>
+        <td><select name="grouperAttestationDirectAssignmentName"
+          id="grouperAttestationDirectAssignmentId" style="width: 25em"
           onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
             <option value="false"
               ${grouperRequestContainer.attestationContainer.editAttestationIsAssigned ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['grouperAttestationNoDoesNotHaveAttestationLabel']}</option>
@@ -17,6 +17,23 @@
         </td>
       </tr>
 
+      <c:if
+        test="${grouperRequestContainer.attestationContainer.editAttestationShowHasAttestation}">
+
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label
+              for="grouperAttestationHasAttestationId">${textContainer.text['attestationHasAttestationLabel']}</label></strong></td>
+          <td><select name="grouperAttestationHasAttestationName"
+            id="grouperAttestationHasAttestationId" style="width: 25em"
+            onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
+              <option value="true"
+                ${grouperRequestContainer.attestationContainer.editAttestationHasAttestation ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['attestationHasAttestationYes']}</option>
+              <option value="false"
+                ${grouperRequestContainer.attestationContainer.editAttestationHasAttestation ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['attestationHasAttestationNo']}</option>
+          </select> <br /> <span class="description">${textContainer.text['attestationHasAttestationDescription']}</span>
+          </td>
+        </tr>
+      </c:if>
       <c:if
         test="${grouperRequestContainer.attestationContainer.editAttestationShowSendEmail}">
         <tr>
