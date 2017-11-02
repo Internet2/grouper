@@ -123,17 +123,17 @@ public class GrouperLoader {
     
     GrouperLoaderType.scheduleLdapLoads();
 
-    scheduleMaintenanceJobs();
-    scheduleChangeLogJobs();
-    scheduleMessagingListeners();
-    
-    scheduleOtherJobs();
+//    scheduleMaintenanceJobs();
+//    scheduleChangeLogJobs();
+//    scheduleMessagingListeners();
+//    
+    //scheduleOtherJobs();
     
     //this will schedule ESB listener jobs if enabled
-    scheduleEsbListenerJobs();
+    //scheduleEsbListenerJobs();
     
-    schedulePspFullSyncJob();
-    schedulePspFullSyncRunAtStartupJob();
+    //schedulePspFullSyncJob();
+    //schedulePspFullSyncRunAtStartupJob();
     
     InstrumentationThread.startThread(GrouperContext.retrieveDefaultContext().getGrouperEngine(), null);
     
@@ -275,6 +275,36 @@ public class GrouperLoader {
    * SQL query with at least the following columns: if_has_action_name, then_has_action_name
    */
   public static final String ATTRIBUTE_LOADER_ACTION_SET_QUERY = "attributeLoaderActionSetQuery";
+  
+  /**
+   * True means the group was loaded from loader
+   */
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED = "grouperLoaderMetadataLoaded";
+  
+  /**
+   * Group id which is being populated from the loader
+   */
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID = "grouperLoaderMetadataGroupId";
+  
+  /**
+   * Millis since 1970 that this group was fully processed
+   */
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS = "grouperLoaderMetadataLastFullMillisSince1970";
+  
+  /**
+   * Millis since 1970 that this group was incrementally processed
+   */
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS = "grouperLoaderMetadataLastIncrementalMillisSince1970";
+
+  /**
+   * summary like count of additions, updates and removals
+   */
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY = "grouperLoaderMetadataLastSummary";
+  
+  /**
+   * name of the loader metadata definition
+   */
+  public static final String LOADER_METADATA_VALUE_DEF = "loaderMetadata";
 
   /**
    * scheduler factory singleton
