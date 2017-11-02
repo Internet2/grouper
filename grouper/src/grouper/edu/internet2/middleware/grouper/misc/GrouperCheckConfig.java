@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
@@ -1739,6 +1740,10 @@ public class GrouperCheckConfig {
     return rootStemName;
   }
   
+  public static String loaderMetadataStemName() {
+    return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:loaderMetadata";
+  }
+  
   /**
    * make sure configured attributes are there 
    */
@@ -1990,6 +1995,57 @@ public class GrouperCheckConfig {
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_HAS_ATTESTATION,
             "If this folder has attestation directly assigned or if this group has attestation either directly or indirectly assigned", wasInCheckConfig);
       }
+      
+      {
+        
+        Stem loaderMetadataStem = StemFinder.findByName(grouperSession, loaderMetadataStemName(), false);
+        if (loaderMetadataStem == null) {
+          loaderMetadataStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper Loader Metadata attributes").assignName(loaderMetadataStemName())
+            .save();
+        }
+
+        //see if attributeDef is there
+        String loaderMetadataTypeDefName = loaderMetadataStemName() + ":loaderMetadataDef";
+        AttributeDef loaderMetadataType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            loaderMetadataTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (loaderMetadataType == null) {
+          loaderMetadataType = loaderMetadataStem.addChildAttributeDef("loaderMetadataDef", AttributeDefType.type);
+          loaderMetadataType.setAssignToGroup(true);
+          loaderMetadataType.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(loaderMetadataStem, loaderMetadataType, "loaderMetadata", "has metadata attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String loaderMetadataAttrDefName = loaderMetadataStemName() + ":loaderMetadataValueDef";
+        AttributeDef loaderMetadataAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            loaderMetadataAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (loaderMetadataAttrType == null) {
+          loaderMetadataAttrType = loaderMetadataStem.addChildAttributeDef("loaderMetadataValueDef", AttributeDefType.attr);
+          loaderMetadataAttrType.setAssignToGroupAssn(true);
+          loaderMetadataAttrType.setValueType(AttributeDefValueType.string);
+          loaderMetadataAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        loaderMetadataAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+
+        //add some names
+        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, 
+            "True means the group was loaded from loader", wasInCheckConfig);
+        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID,
+            "Group id which is being populated from the loader", wasInCheckConfig);
+        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS,
+            "Millis since 1970 that this group was fully processed", wasInCheckConfig);
+        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS,
+            "Millis since 1970 that this group was incrementally processed", wasInCheckConfig);
+        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY,
+            "Summary of loader job", wasInCheckConfig);
+      }
+      
       {
         String rulesRootStemName = RuleUtils.attributeRuleStemName();
         

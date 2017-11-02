@@ -19,6 +19,13 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
+import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -2995,6 +3002,29 @@ public enum GrouperLoaderType {
             + hib3GrouploaderLog.getTotalCount() + ", inserts: " + hib3GrouploaderLog.getInsertCount()
             + ", deletes: " + hib3GrouploaderLog.getDeleteCount());
       }
+      
+      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+      if (!theGroup.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+        theGroup.getAttributeDelegate().assignAttribute(attributeDefName);
+      }
+      AttributeAssign attributeAssign = theGroup.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+      
+      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
+          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "True");
+      
+      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), theGroup.getId());
+      
+      AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
+      
+      AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
+          "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
+          + " updated: "+ hib3GrouploaderLog.getUpdateCount());
+      
     } catch (Exception e) {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       hib3GrouploaderLog.insertJobMessage(ExceptionUtils.getFullStackTrace(e));
