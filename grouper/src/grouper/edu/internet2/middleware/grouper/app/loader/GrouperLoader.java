@@ -123,17 +123,17 @@ public class GrouperLoader {
     
     GrouperLoaderType.scheduleLdapLoads();
 
-//    scheduleMaintenanceJobs();
-//    scheduleChangeLogJobs();
-//    scheduleMessagingListeners();
-//    
-    //scheduleOtherJobs();
+    scheduleMaintenanceJobs();
+    scheduleChangeLogJobs();
+    scheduleMessagingListeners();
+    
+    scheduleOtherJobs();
     
     //this will schedule ESB listener jobs if enabled
-    //scheduleEsbListenerJobs();
+    scheduleEsbListenerJobs();
     
-    //schedulePspFullSyncJob();
-    //schedulePspFullSyncRunAtStartupJob();
+    schedulePspFullSyncJob();
+    schedulePspFullSyncRunAtStartupJob();
     
     InstrumentationThread.startThread(GrouperContext.retrieveDefaultContext().getGrouperEngine(), null);
     
