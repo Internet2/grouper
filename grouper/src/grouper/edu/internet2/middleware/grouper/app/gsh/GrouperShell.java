@@ -233,7 +233,7 @@ private static boolean handleSpecialCase(String[] args) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
       StringBuilder body = new StringBuilder();
-      body.append(":load " + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath());
+      body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
       
       if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check")) {
         
