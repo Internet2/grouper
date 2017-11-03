@@ -1,4 +1,5 @@
 :set verbosity QUIET
+:set interpreterMode false
 
 import org.codehaus.groovy.tools.shell.CommandSupport
 import org.codehaus.groovy.tools.shell.Groovysh
@@ -352,3 +353,4 @@ import edu.internet2.middleware.grouper.messaging.*
 import edu.internet2.middleware.grouper.filter.*
 
 :set verbosity INFO
+:set interpreterMode true

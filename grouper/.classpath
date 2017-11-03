@@ -75,8 +75,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-c3p0-5.0.4.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/cron-parser-core-2.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang3-3.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/groovy-all-2.5.0-beta-2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/joda-time-2.9.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/groovy-all-2.4.11.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/jline-2.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jline-2.14.5.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

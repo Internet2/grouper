@@ -1309,7 +1309,7 @@ public class GrouperCheckConfig {
     checkJar("c3p0-0.9.5.2.jar", 497865, "com.mchange.v2.c3p0.ConnectionTester", "0.9.5.2");
     checkJar("commons-beanutils.jar", 173783, "org.apache.commons.beanutils.BasicDynaBean", "0.1.0");
     checkJar("commons-betwixt.jar", 242227, "org.apache.commons.betwixt.expression.MethodExpression", "0.8");
-    checkJar("commons-cli.jar", 41123, "org.apache.commons.cli.AlreadySelectedException", "1.2");
+    checkJar("commons-cli.jar", 53820, "org.apache.commons.cli.GnuParser", "1.4");
     checkJar("commons-codec.jar", 46725, "org.apache.commons.codec.BinaryDecoder", "1.3");
     checkJar("commons-collections.jar", 1224771, "org.apache.commons.collections.ArrayStack", "3.2.1");
     checkJar("commons-digester.jar", 384875, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
@@ -1326,6 +1326,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j-1.6.1.jar", 313898, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache-core-2.4.3.jar", 1006424, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
+    checkJar("groovy-all-2.5.0-beta-2.jar", 7715312, "groovy.beans.Bindable", "2.5.0-beta-2");
     checkJar("grouperClient.jar", GrouperUtil.toSet(4341330L, 4332468L), "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.3.0");
     checkJar("hibernate-c3p0-5.0.4.Final.jar", 11578, "org.hibernate.c3p0.internal.StrategyRegistrationProviderImpl", "5.0.4.Final");
     checkJar("hibernate-commons-annotations-5.0.0.Final.jar", 75113, "org.hibernate.annotations.common.AssertionFailure", "5.0.0.Final");
@@ -1338,6 +1339,7 @@ public class GrouperCheckConfig {
     checkJar("jandex-2.0.0.CR1.jar", 187746, "org.jboss.jandex.AnnotationInstance", "2.0.0.CR1");
     checkJar("javassist-3.18.1-GA.jar", 714194, "javassist.ByteArrayClassPath", "null");
     checkJar("jboss-logging-3.3.0.Final.jar", 66802, "org.jboss.logging.LogMessage", "3.3.0.Final");
+    checkJar("jline-2.14.5.jar", 268597, "jline.AnsiWindowsTerminal", "null");
     checkJar("joda-time-2.9.7.jar", 633290, "org.joda.time.base.AbstractDateTime", "2.9.7");
     checkJar("json-lib.jar", 255813, "net.sf.json.filters.AndPropertyFilter", "2.3");
     checkJar("jsr107cache.jar", 8302, "net.sf.jsr107cache.Cache", "1.0");
