@@ -15,6 +15,12 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
+import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,19 +47,20 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 import org.quartz.Trigger.TriggerState;
+import org.quartz.TriggerKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -232,6 +240,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
         List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+        
+        final Set<Group> groupsRequiringLoaderMetadataUpdates = new HashSet<Group>();
           
         for (String loaderGroupName : rowsByGroup.keySet()) {
           
@@ -276,7 +286,8 @@ public class GrouperLoaderIncrementalJob implements Job {
                 @Override
                 public Void callLogic() {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
-                  processOneRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, grouperLoaderQuery, GROUPER_LOADER_TYPE, grouperLoaderAndGroups, hib3GrouperloaderLog);
+                  processOneRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, grouperLoaderQuery, 
+                      GROUPER_LOADER_TYPE, grouperLoaderAndGroups, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates);
                   return null;
                 }
               };
@@ -300,6 +311,9 @@ public class GrouperLoaderIncrementalJob implements Job {
         GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
         
         deleteRowsCompleted(connection, tableName);
+        
+        updateLastIncrementalAttributeValue(groupsRequiringLoaderMetadataUpdates);
+        
       } catch (SQLException se) {
         throw new RuntimeException("Problem with query: " + query + ",  on db: " + grouperLoaderDb, se);
       } finally {
@@ -328,6 +342,30 @@ public class GrouperLoaderIncrementalJob implements Job {
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }
+    }
+  }
+  
+  private static void updateLastIncrementalAttributeValue(Set<Group> groups) {
+    
+    for (Group group: groups) {
+
+      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+      if (!group.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+        group.getAttributeDelegate().assignAttribute(attributeDefName);
+      }
+      
+      AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+      
+      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
+          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
+      
+      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), group.getId());
+      
+      AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
     }
   }
   
@@ -398,7 +436,9 @@ public class GrouperLoaderIncrementalJob implements Job {
   }
   
   
-  private static void processOneRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, Group loaderGroup, String grouperLoaderQuery, String grouperLoaderType, String grouperLoaderAndGroups, Hib3GrouperLoaderLog hib3GrouperloaderLog) {
+  private static void processOneRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
+      Group loaderGroup, String grouperLoaderQuery, String grouperLoaderType, String grouperLoaderAndGroups, 
+      Hib3GrouperLoaderLog hib3GrouperloaderLog, Set<Group> groupsRequiringLoaderMetadataUpdates) {
 
     Connection connection = null;
 
@@ -516,7 +556,9 @@ public class GrouperLoaderIncrementalJob implements Job {
           GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
 
           GrouperLoaderLogger.doTheLogging("membershipManagement");
-
+          
+          groupsRequiringLoaderMetadataUpdates.add(loaderGroup);
+          
         }
         
       } else if (GrouperLoaderType.SQL_GROUP_LIST.name().equals(grouperLoaderType)) {
@@ -614,6 +656,9 @@ public class GrouperLoaderIncrementalJob implements Job {
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addInsertCount(1);
           }
+          
+          groupsRequiringLoaderMetadataUpdates.add(theGroup);
+          
         }
         
         for (String groupName : membershipsToRemove) {
@@ -634,6 +679,8 @@ public class GrouperLoaderIncrementalJob implements Job {
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addDeleteCount(1);
           }
+          
+          groupsRequiringLoaderMetadataUpdates.add(theGroup);
         }
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);

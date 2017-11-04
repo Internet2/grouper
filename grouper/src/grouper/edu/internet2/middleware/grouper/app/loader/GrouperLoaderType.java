@@ -1427,6 +1427,8 @@ public enum GrouperLoaderType {
   
       Set<String> groupNames = grouperLoaderResultsetOverall.groupNames();
       
+      updateLoaderMetadataForGroupsNoLongerInLoader(groupNames);
+      
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
       }
@@ -1899,6 +1901,33 @@ public enum GrouperLoaderType {
       
     }
     
+  }
+  
+  /**
+   * update ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED to false for groups which are no longer in grouper loader.
+   * @param groupNamesInLoader
+   */
+  private static void updateLoaderMetadataForGroupsNoLongerInLoader(Set<String> groupNamesInLoader) {
+    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+    //get all groups with settings
+    Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
+        .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
+        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+        .assignAttributeCheckReadOnAttributeDef(false)
+        .findGroups();
+    
+    String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+   
+    AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
+        +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+    
+    for (Group groupWithMetadata: groupsWithLoaderMetadata) {
+      if (!groupNamesInLoader.contains(groupWithMetadata.getName())) {
+        AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
+      }
+    }
   }
     
   /**
@@ -3012,7 +3041,7 @@ public enum GrouperLoaderType {
       
       AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
           +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "True");
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
       
       AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
       attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), theGroup.getId());
