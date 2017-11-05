@@ -312,7 +312,15 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         deleteRowsCompleted(connection, tableName);
         
-        updateLastIncrementalAttributeValue(groupsRequiringLoaderMetadataUpdates);
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
+          @Override
+          public Void callLogic() {
+            updateLastIncrementalAttributeValue(groupsRequiringLoaderMetadataUpdates);
+            return null;
+          }
+        };
+        
+        GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
         
       } catch (SQLException se) {
         throw new RuntimeException("Problem with query: " + query + ",  on db: " + grouperLoaderDb, se);
