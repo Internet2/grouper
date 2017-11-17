@@ -234,7 +234,12 @@ private static boolean handleSpecialCase(String[] args) {
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
+    String javaVersion = System.getProperty("java.version");
+    
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
+      new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
+    } else if (javaVersion != null && javaVersion.startsWith("1.6")) {
+      System.out.println("Detected Java Version as 1.6 (" + javaVersion + ").  Reverting to legacy GSH.");
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
       

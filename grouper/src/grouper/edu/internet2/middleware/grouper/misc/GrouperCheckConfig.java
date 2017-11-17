@@ -233,6 +233,17 @@ public class GrouperCheckConfig {
       System.err.println("Grouper warning: " + error);
       LOG.warn(error);
       return;
+    } catch (UnsupportedClassVersionError e) {
+      
+      if (name.startsWith("groovy")) {
+        // ok if this is groovy and we're running java 1.6
+        String javaVersion = System.getProperty("java.version");
+        if (javaVersion != null && javaVersion.startsWith("1.6")) {
+          return;
+        }
+      }
+      
+      throw e;
     }
     String jarFileFullName = null;
     String jarFileName = null;
