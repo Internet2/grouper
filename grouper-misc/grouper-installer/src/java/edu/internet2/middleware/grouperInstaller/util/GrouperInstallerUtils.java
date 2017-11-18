@@ -10423,7 +10423,7 @@ public class GrouperInstallerUtils  {
    * 
    * @param sourceFile
    * @param destinationFile
-   * @param onlyIfDifferentContents true if only saving due to different contents
+   * @param onlyIfDifferentContents true if only saving due to different contents.  Note, this is only for non-binary files!
    * @param ignoreWhitespace true to ignore whitespace in comparisons
    * @return true if contents were saved (thus different if param set)
    */

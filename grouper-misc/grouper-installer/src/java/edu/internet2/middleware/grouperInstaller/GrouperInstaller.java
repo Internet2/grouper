@@ -8791,14 +8791,15 @@ public class GrouperInstaller {
           
           File destFile = new File(destFileName);
           
-          if (destFile.isFile() && destFile.exists()) {
+          if (destFile.isFile() && destFile.exists() && 
+              GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
             System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
             continue;
           }
           
           System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
           
-          GrouperInstallerUtils.copyFile(sourceFile, destFile, true, false);
+          GrouperInstallerUtils.copyFile(sourceFile, destFile, false, false);
 
         }
 
@@ -8896,14 +8897,15 @@ public class GrouperInstaller {
           
           File destFile = new File(destFileName);
           
-          if (destFile.isFile() && destFile.exists()) {
+          if (destFile.isFile() && destFile.exists() && 
+              GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
             System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
             continue;
           }
           
           System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
           
-          GrouperInstallerUtils.copyFile(sourceFile, destFile, true, false);
+          GrouperInstallerUtils.copyFile(sourceFile, destFile, false, false);
 
         }
 
@@ -9003,14 +9005,15 @@ public class GrouperInstaller {
           
           File destFile = new File(destFileName);
           
-          if (destFile.isFile() && destFile.exists()) {
+          if (destFile.isFile() && destFile.exists() && 
+              GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
             System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
             continue;
           }
           
           System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
           
-          GrouperInstallerUtils.copyFile(sourceFile, destFile, true, false);
+          GrouperInstallerUtils.copyFile(sourceFile, destFile, false, false);
 
         }
 
