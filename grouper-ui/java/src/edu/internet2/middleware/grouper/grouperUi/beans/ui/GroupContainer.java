@@ -410,6 +410,22 @@ public class GroupContainer {
   public void setGuiSubjectsAddMember(Set<GuiSubject> guiSubjectsAddMember1) {
     this.guiSubjectsAddMember = guiSubjectsAddMember1;
   }
+  
+  /**
+   * list of loader managed groups
+   */
+  private Set<GuiLoaderManagedGroup> guiLoaderManagedGroups;
+  
+  /**
+   * @return
+   */
+  public Set<GuiLoaderManagedGroup> getGuiLoaderManagedGroups() {
+    return this.guiLoaderManagedGroups;
+  }
+  
+  public void setGuiLoaderManagedGroups(Set<GuiLoaderManagedGroup> guiLoaderManagedGroups1) {
+    this.guiLoaderManagedGroups = guiLoaderManagedGroups1;
+  }
 
   /**
    * gui group shown on screen

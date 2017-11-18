@@ -35,6 +35,10 @@
                           <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
                         </c:if>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Group.viewAllLoaderManagedGroups?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['groupViewAllLoaderManagedGroups'] }</a></li>
+                        </c:if>
                       </ul>
                     </div>
 
