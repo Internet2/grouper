@@ -15,6 +15,10 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
+import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -57,7 +61,10 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -81,6 +88,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -4550,6 +4558,69 @@ public class UiV2Group {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * view all loader managed groups
+   * @param request
+   * @param response
+   */
+  public void viewAllLoaderManagedGroups(HttpServletRequest request, HttpServletResponse response) { 
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GrouperSession grouperSession = null;
+  
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+    Set<GuiLoaderManagedGroup> guiLoaderManagedGroups = new HashSet<GuiLoaderManagedGroup>();
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
+      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+
+      //get all groups with settings
+      Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
+          .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
+          .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+          .assignAttributeCheckReadOnAttributeDef(false)
+          .assignQueryOptions(QueryOptions.create(null, null, 1, 100))
+          .findGroups();
+      
+      if (GrouperUtil.length(groupsWithLoaderMetadata) > 0) {
+        
+        String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+        
+        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
+            .assignOwnerGroupsOfAssignAssign(groupsWithLoaderMetadata)
+            .addAttributeDefNameId(attributeDefName.getId())
+            .assignAttributeCheckReadOnAttributeDef(false)
+            .findAttributeAssignValuesResult();
+        
+        guiLoaderManagedGroups.addAll(GuiLoaderManagedGroup.convertGroupIntoGuiAttestation(groupsWithLoaderMetadata, attributeAssignValueFinderResult));
+        
+      }
+      
+      groupContainer.setGuiLoaderManagedGroups(guiLoaderManagedGroups);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/group/loaderManagedGroupsTab.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    
   }
 
   /**
