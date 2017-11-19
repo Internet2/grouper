@@ -2271,6 +2271,26 @@ public class GrouperLoaderContainer {
   public void setEditLoaderType(String editLoaderType1) {
     this.editLoaderType = editLoaderType1;
   }
+  
+  
+  /**
+   * loader managed group attributes
+   */
+  private GuiLoaderManagedGroup loaderManagedGroup;
+  
+  /**
+   * @return
+   */
+  public GuiLoaderManagedGroup getLoaderManagedGroup() {
+    return loaderManagedGroup;
+  }
+
+  /**
+   * @param loaderManagedGroup
+   */
+  public void setLoaderManagedGroup(GuiLoaderManagedGroup loaderManagedGroup) {
+    this.loaderManagedGroup = loaderManagedGroup;
+  }
 
   /**
    * show if grouper admin or loader group or group admin
