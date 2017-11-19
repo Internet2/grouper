@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
@@ -22,14 +20,34 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GuiLoaderManagedGroup {
   
-  /** logger */
-  //private static final Log LOG = GrouperUtil.getLog(GuiLoaderManagedGroup.class);
-  
+  /**
+   * true means this group was loaded by loader; false means at some point in time, it was loaded by loader and the source system doesn't manage this group anymores
+   */
   private boolean grouperLoaderMetadataLoaded;
+  
+  /**
+   * group id which is being managed by loader
+   */
   private String grouperLoaderMetadataGroupId;
+  
+  /**
+   * last time the group was loaded via regular loader job
+   */
   private String grouperLoaderMetadataLastFullMillisSince1970;
+  
+  /**
+   * last time the group was loaded via real time incremental loader
+   */
   private String grouperLoaderMetadataLastIncrementalMillisSince1970;
+  
+  /**
+   * summary describing addtions/deletions/updations
+   */
   private String grouperLoaderMetadataLastSummary;
+  
+  /**
+   * group which is being managed
+   */
   private GuiGroup guiGroup;
   
   public GuiLoaderManagedGroup(GuiGroup guiGroup, boolean grouperLoaderMetadataLoaded, String grouperLoaderMetadataGroupId, 

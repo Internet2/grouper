@@ -32,6 +32,29 @@
                     <p>${textContainer.text['grouperLoaderIsNotGrouperLoader'] }</p>
                   </c:otherwise>
                 </c:choose>
+                
+                <c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup}">
+                
+                	<p>
+                		${textContainer.text['grouperLoaderGroupManagedByLoader'] }
+                		<c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}">
+                			<grouper:message key="grouperLoaderGroupManagedByLoaderFullyLoaded">
+            					<grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}</grouper:param>
+          					</grouper:message>
+                		</c:if>
+                		<c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastIncrementalMillisSince1970}">
+                			<grouper:message key="grouperLoaderGroupManagedByLoaderIncrementallyLoaded">
+            					<grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastIncrementalMillisSince1970}</grouper:param>
+          					</grouper:message>
+                		</c:if>
+                		<c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastSummary}">
+                			<grouper:message key="grouperLoaderGroupManagedByLoaderSummary">
+            					<grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastSummary}</grouper:param>
+          					</grouper:message>
+                		</c:if>
+                	</p>
+                
+                </c:if>
 
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoader}">
