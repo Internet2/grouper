@@ -31,6 +31,7 @@ import java.util.Map;
 import jline.TerminalFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -234,7 +235,13 @@ private static boolean handleSpecialCase(String[] args) {
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
+    boolean forceLegacyGsh = false;
+    if (args != null && args.length > 0 && args[0].equalsIgnoreCase("-forceLegacyGsh")) {
+      forceLegacyGsh = true;
+      args = ArrayUtils.remove(args, 0);
+    }
+    
+    if (forceLegacyGsh || GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
       
