@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -248,7 +249,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
         List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
         
-        final Set<Group> groupsRequiringLoaderMetadataUpdates = new HashSet<Group>();
+        // loader group name -> list of groups being managed by this loader group
+        final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
           
         for (String loaderGroupName : rowsByGroup.keySet()) {
           
@@ -360,33 +362,37 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
   }
   
-  private static void updateLastIncrementalAttributeValue(Set<Group> groups) {
+  private static void updateLastIncrementalAttributeValue(Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates) {
     
-    for (Group group: groups) {
-
-      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-      if (!group.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
-        group.getAttributeDelegate().assignAttribute(attributeDefName);
+    for (String loaderGroupName : groupsRequiringLoaderMetadataUpdates.keySet()) {
+      
+      for (Group group: groupsRequiringLoaderMetadataUpdates.get(loaderGroupName)) {
+        String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+        if (!group.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+          group.getAttributeDelegate().assignAttribute(attributeDefName);
+        }
+        
+        AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        
+        AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
+            +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
+        
+        AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroupName);
+        
+        AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
+        
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE,
+            "groupId", group.getId(), "groupName", group.getName());
+        auditEntry.setDescription("Update group laoder metadata attributes: " + group.getName());
+        loaderMetadataSaveAudit(auditEntry);
       }
       
-      AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-      
-      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
-          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
-      
-      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), group.getId());
-      
-      AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
-      
-      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE,
-          "groupId", group.getId(), "groupName", group.getName());
-      auditEntry.setDescription("Update group laoder metadata attributes: " + group.getName());
-      loaderMetadataSaveAudit(auditEntry);
     }
+    
   }
   
   /**
@@ -473,7 +479,7 @@ public class GrouperLoaderIncrementalJob implements Job {
   
   private static void processOneRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
       Group loaderGroup, String grouperLoaderQuery, String grouperLoaderType, String grouperLoaderAndGroups, 
-      Hib3GrouperLoaderLog hib3GrouperloaderLog, Set<Group> groupsRequiringLoaderMetadataUpdates) {
+      Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates) {
 
     Connection connection = null;
 
@@ -592,7 +598,13 @@ public class GrouperLoaderIncrementalJob implements Job {
 
           GrouperLoaderLogger.doTheLogging("membershipManagement");
           
-          groupsRequiringLoaderMetadataUpdates.add(loaderGroup);
+          if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+            groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(loaderGroup);
+          } else {
+            Set<Group> managedGroups = new HashSet<Group>();
+            managedGroups.add(loaderGroup);
+            groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+          }
           
         }
         
@@ -692,7 +704,13 @@ public class GrouperLoaderIncrementalJob implements Job {
             hib3GrouperloaderLog.addInsertCount(1);
           }
           
-          groupsRequiringLoaderMetadataUpdates.add(theGroup);
+          if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+            groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
+          } else {
+            Set<Group> managedGroups = new HashSet<Group>();
+            managedGroups.add(theGroup);
+            groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+          }
           
         }
         
@@ -715,7 +733,14 @@ public class GrouperLoaderIncrementalJob implements Job {
             hib3GrouperloaderLog.addDeleteCount(1);
           }
           
-          groupsRequiringLoaderMetadataUpdates.add(theGroup);
+          if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+            groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
+          } else {
+            Set<Group> managedGroups = new HashSet<Group>();
+            managedGroups.add(theGroup);
+            groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+          }
+          
         }
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);

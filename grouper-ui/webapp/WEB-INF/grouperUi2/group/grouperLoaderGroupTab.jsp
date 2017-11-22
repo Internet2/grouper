@@ -36,7 +36,20 @@
                 <c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup}">
                 
                 	<p>
-                		${textContainer.text['grouperLoaderGroupManagedByLoader'] }
+                	
+                		<c:choose>
+						  <c:when test="${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLoaded}">
+						    <grouper:message key="grouperLoaderGroupManagedByLoader">
+	            				<grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.controllingGroup.shortLinkWithIcon}</grouper:param>
+	          				</grouper:message>
+						  </c:when>
+						  <c:otherwise>
+						    <grouper:message key="grouperLoaderGroupWasManagedByLoader">
+	            				<grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.controllingGroup.shortLinkWithIcon}</grouper:param>
+	          				</grouper:message>
+						  </c:otherwise>
+						</c:choose>
+                	
                 		<c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}">
                 			<grouper:message key="grouperLoaderGroupManagedByLoaderFullyLoaded">
             					<grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}</grouper:param>

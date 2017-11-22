@@ -42,18 +42,13 @@
                       
                       <tr>
                       
-                        <td>${guiLoaderManagedGroup.guiGroup.shortLinkWithIcon}</td>
+                        <td>${guiLoaderManagedGroup.groupBeingManaged.shortLinkWithIcon}</td>
                       
                         <td>
                           <c:choose>
                             <c:when test="${guiLoaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970 == null}">
                               ${guiLoaderManagedGroup.grouperLoaderMetadataLastIncrementalMillisSince1970}
                             </c:when>
-                            
-                           <%--  <c:when test="${guiHib3GrouperLoaderLog.loadedGuiGroup == null && guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.parentJobId != null}">
-                            
-                              ${textContainer.text['grouperLoaderLogsLoadedGroupNotFound']}
-                            </c:when> --%>
 
                             <c:otherwise>
                               ${guiLoaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}
