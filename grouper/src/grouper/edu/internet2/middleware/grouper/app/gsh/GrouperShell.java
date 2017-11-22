@@ -31,6 +31,7 @@ import java.util.Map;
 import jline.TerminalFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -236,7 +237,13 @@ private static boolean handleSpecialCase(String[] args) {
     
     String javaVersion = System.getProperty("java.version");
     
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
+    boolean forceLegacyGsh = false;
+    if (args != null && args.length > 0 && args[0].equalsIgnoreCase("-forceLegacyGsh")) {
+      forceLegacyGsh = true;
+      args = ArrayUtils.remove(args, 0);
+    }
+    
+    if (forceLegacyGsh || GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else if (javaVersion != null && javaVersion.startsWith("1.6")) {
       System.out.println("Detected Java Version as 1.6 (" + javaVersion + ").  Reverting to legacy GSH.");
