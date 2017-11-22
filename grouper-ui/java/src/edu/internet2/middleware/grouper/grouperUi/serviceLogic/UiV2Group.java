@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
 import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
 import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
 import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
@@ -4586,12 +4587,12 @@ public class UiV2Group {
         return;
       }
       
-      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
 
       //get all groups with settings
       Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
           .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
-          .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+          .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(group.getId()))
           .assignAttributeCheckReadOnAttributeDef(false)
           .assignQueryOptions(QueryOptions.create(null, null, 1, 100))
           .findGroups();

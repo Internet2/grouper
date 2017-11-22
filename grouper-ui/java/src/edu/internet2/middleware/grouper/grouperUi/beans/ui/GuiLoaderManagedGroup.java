@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -26,11 +28,6 @@ public class GuiLoaderManagedGroup {
   private boolean grouperLoaderMetadataLoaded;
   
   /**
-   * group id which is being managed by loader
-   */
-  private String grouperLoaderMetadataGroupId;
-  
-  /**
    * last time the group was loaded via regular loader job
    */
   private String grouperLoaderMetadataLastFullMillisSince1970;
@@ -46,17 +43,22 @@ public class GuiLoaderManagedGroup {
   private String grouperLoaderMetadataLastSummary;
   
   /**
-   * group which is being managed
+   * group that is being managed
    */
-  private GuiGroup guiGroup;
+  private GuiGroup groupBeingManaged;
   
-  public GuiLoaderManagedGroup(GuiGroup guiGroup, boolean grouperLoaderMetadataLoaded, String grouperLoaderMetadataGroupId, 
+  /**
+   * group that is managing the memberships
+   */
+  private GuiGroup controllingGroup;
+  
+  public GuiLoaderManagedGroup(GuiGroup guiGroup, GuiGroup controllingGroup, boolean grouperLoaderMetadataLoaded,
       String grouperLoaderMetadataLastFullMillisSince1970, String grouperLoaderMetadataLastIncrementalMillisSince1970, 
       String grouperLoaderMetadataLastSummary) {
     
-    this.guiGroup = guiGroup;
+    this.groupBeingManaged = guiGroup;
     this.grouperLoaderMetadataLoaded = grouperLoaderMetadataLoaded;
-    this.grouperLoaderMetadataGroupId = grouperLoaderMetadataGroupId;
+    this.controllingGroup = controllingGroup;
     this.grouperLoaderMetadataLastFullMillisSince1970 = grouperLoaderMetadataLastFullMillisSince1970;
     this.grouperLoaderMetadataLastIncrementalMillisSince1970 = grouperLoaderMetadataLastIncrementalMillisSince1970;
     this.grouperLoaderMetadataLastSummary = grouperLoaderMetadataLastSummary;
@@ -92,8 +94,10 @@ public class GuiLoaderManagedGroup {
       String groupId = attributes.get(groupIdKey);
       String grouperLoaderMetadataLoaded = attributes.get(grouperLoaderMetadataLoadedKey);
       
-      GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), GrouperUtil.booleanObjectValue(grouperLoaderMetadataLoaded), 
-          groupId,
+      Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
+      
+      GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
+          GrouperUtil.booleanObjectValue(grouperLoaderMetadataLoaded), 
           lastFullMillisLoaded == null ? null: new Date(lastFullMillisLoaded).toString(),
           lastIncrementalMillisLoaded == null ? null: new Date(lastIncrementalMillisLoaded).toString(),
           summaryLoaderPerGroup);
@@ -108,10 +112,6 @@ public class GuiLoaderManagedGroup {
     return grouperLoaderMetadataLoaded;
   }
   
-  public String getGrouperLoaderMetadataGroupId() {
-    return grouperLoaderMetadataGroupId;
-  }
-
   public String getGrouperLoaderMetadataLastFullMillisSince1970() {
     return grouperLoaderMetadataLastFullMillisSince1970;
   }
@@ -123,9 +123,13 @@ public class GuiLoaderManagedGroup {
   public String getGrouperLoaderMetadataLastSummary() {
     return grouperLoaderMetadataLastSummary;
   }
+  
+  public GuiGroup getGroupBeingManaged() {
+    return groupBeingManaged;
+  }
 
-  public GuiGroup getGuiGroup() {
-    return guiGroup;
+  public GuiGroup getControllingGroup() {
+    return controllingGroup;
   }
   
 }

@@ -177,7 +177,7 @@ public enum GrouperLoaderType {
           loaderJobBean.getGrouperLoaderDb(), loaderJobBean.getQuery(), loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
           loaderJobBean.getHib3GrouploaderLogOverall());
       
-      syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+      syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), loaderJobBean.getGroupNameOverall(), null, null, 
           loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
           grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), 
           loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes(), null);
@@ -980,7 +980,7 @@ public enum GrouperLoaderType {
             loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getLdapSubjectExpression());
         
-        syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+        syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), loaderJobBean.getGroupNameOverall(), null, null, 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
             grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null);
         
@@ -1776,7 +1776,7 @@ public enum GrouperLoaderType {
               syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
                   GrouperSession.staticGrouperSession(), andGroups, groupTypes, hib3GrouploaderLogOverall,
                   statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
-                  groupStartedMillis, groupName);
+                  groupStartedMillis, groupName, groupNameOverall);
               
               GrouperLoaderLogger.addLogEntry("subjobLog", "success", true);
             } catch (RuntimeException re) {
@@ -1844,7 +1844,7 @@ public enum GrouperLoaderType {
       GrouperLoaderStatus[] statusOverall, Map<String, String> groupNameToDisplayName,
       Map<String, String> groupNameToDescription,
       Map<String, Map<Privilege, List<Subject>>> privsToAdd, long groupStartedMillis,
-      String groupName) {
+      String groupName, String groupNameOverall) {
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     try {
       GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
@@ -1867,7 +1867,7 @@ public enum GrouperLoaderType {
       hib3GrouploaderLog.store();
       
       //based on type, run query from the db and sync members
-      syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
+      syncOneGroupMembership(groupName, groupNameOverall, groupNameToDisplayName.get(groupName), 
           groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
           grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName));
       
@@ -2476,7 +2476,8 @@ public enum GrouperLoaderType {
   }
     
   /**
-   * @param groupName
+   * @param groupName 
+   * @param loaderGroupName - it's the same as groupName for SQL_SIMPLE and LDAP_SIMPLE. For SQL_GROUP_LIST, it's the loader group name.
    * @param groupDisplayNameForInsert can be null to default to group name or extension.  This is display names
    * if a group needs to be created.  But the display extension will be changed if different
    * @param groupDescription can be null to default to generated description, or the description of the group
@@ -2492,6 +2493,7 @@ public enum GrouperLoaderType {
    */
   @SuppressWarnings("unchecked")
   protected static void syncOneGroupMembership(final String groupName,
+      final String loaderGroupName,
       final String groupDisplayNameForInsert, final String groupDescription,
       final Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime,
       final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
@@ -3041,7 +3043,10 @@ public enum GrouperLoaderType {
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
         @Override
         public Void callLogic() {
-          updateLoaderMetadataAttributes(hib3GrouploaderLog, THE_GROUP);
+          
+          Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, true);
+          
+          updateLoaderMetadataAttributes(hib3GrouploaderLog, THE_GROUP, loaderGroup);
           return null;
         }
       };
@@ -3067,23 +3072,24 @@ public enum GrouperLoaderType {
 
   /**
    * @param hib3GrouploaderLog
-   * @param theGroup
+   * @param groupBeingManaged
+   * @param loaderGroup
    */
-  private static void updateLoaderMetadataAttributes(Hib3GrouperLoaderLog hib3GrouploaderLog, Group theGroup) {
+  private static void updateLoaderMetadataAttributes(Hib3GrouperLoaderLog hib3GrouploaderLog, Group groupBeingManaged, Group loaderGroup) {
     
     String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-    if (!theGroup.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
-      theGroup.getAttributeDelegate().assignAttribute(attributeDefName);
+    if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+      groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
     }
-    AttributeAssign attributeAssign = theGroup.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+    AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
     
     AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
         +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
     attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
     
     AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-    attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), theGroup.getId());
+    attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroup.getId());
     
     AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, false);
     attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
@@ -3094,8 +3100,8 @@ public enum GrouperLoaderType {
         + " updated: "+ hib3GrouploaderLog.getUpdateCount());
     
     AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE,
-        "groupId", theGroup.getId(), "groupName", theGroup.getName());
-    auditEntry.setDescription("Update group laoder metadata attributes: " + theGroup.getName());
+        "groupId", groupBeingManaged.getId(), "groupName", groupBeingManaged.getName());
+    auditEntry.setDescription("Update group laoder metadata attributes: " + groupBeingManaged.getName());
     loaderMetadataSaveAudit(auditEntry);
   }
   

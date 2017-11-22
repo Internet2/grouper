@@ -38,6 +38,7 @@ import org.hibernate.criterion.Restrictions;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -705,14 +706,15 @@ public class UiV2GrouperLoader {
       if (groupAttributeAssign != null) {
         
         String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED);
-        String groupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
+        String loaderGroupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
         String lastFullMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS);
         String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
         String summary = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY);
       
+        Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, true);
 
-        GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), GrouperUtil.booleanObjectValue(metadataLoaded), 
-            groupId,
+        GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
+            GrouperUtil.booleanObjectValue(metadataLoaded), 
             lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
             lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
             summary);
