@@ -711,17 +711,22 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 Set<Membership> membershipsNew = GrouperDAOFactory.getFactory().getMembership().findAllByMember(newMemberUuid, true);
                 Set<Membership> membershipsToUpdate = new HashSet<Membership>();
                 Set<Membership> membershipsToDelete = new HashSet<Membership>();
-    
+
                 for (Membership membershipPrevious : membershipsPrevious) {
-                  if (membershipPrevious.isEffective()) {
+                  if (membershipPrevious.isEffective() || membershipPrevious.isComposite()) {
                     continue;
                   }
+
                   boolean isDeleting = false;
                   if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getMemberUuid())) {
                     
                     membershipPrevious.setMemberUuid(newMemberUuid);
                     //dont add a duplicate
                     if (membershipsNew.contains(membershipPrevious)) {
+                      
+                      // set the member uuid back so that composite calculations happen correctly
+                      membershipPrevious.setMemberUuid(Member.this.getUuid());
+                      
                       changeSubjectMembershipDeleteCount++;
                       isDeleting = true;
                       if (report == null) {
@@ -763,6 +768,41 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   }
                   if (GrouperUtil.length(membershipsToDelete) > 0) {
                     GrouperDAOFactory.getFactory().getMembership().delete(membershipsToDelete);
+                  }
+                }
+                
+                // loop again and take care of composite creator ids if any are left.
+                membershipsToUpdate.clear();
+                membershipsToDelete.clear();
+                for (Membership membershipPrevious : membershipsPrevious) {
+                  if (!membershipPrevious.isComposite()) {
+                    continue;
+                  }
+                  
+                  if (!StringUtils.equals(Member.this.getUuid(), membershipPrevious.getCreatorUuid())) {
+                    continue;
+                  }
+
+                  // find it again
+                  Membership membershipPreviousUpdated = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipPrevious.getUuid(), false, false);
+                  
+                  if (membershipPreviousUpdated != null) {
+                    if (report == null) {
+                      membershipPreviousUpdated.setCreatorUuid(newMemberUuid);
+                      membershipsToUpdate.add(membershipPreviousUpdated);
+                    } else {
+                      report.append("CHANGE membership: " 
+                          + membershipPreviousUpdated.getUuid() + ", " + membershipPreviousUpdated.getOwnerName() 
+                          + ", " + membershipPreviousUpdated.getListType() + "-" + membershipPreviousUpdated.getListName()
+                          + ", creator id FROM: " + membershipPreviousUpdated.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
+                      
+                    }
+                  }
+                }
+                if (report == null) {
+                  //see if there are objects to update
+                  if (GrouperUtil.length(membershipsToUpdate) > 0) {
+                    GrouperDAOFactory.getFactory().getMembership().update(membershipsToUpdate);
                   }
                 }
               }
