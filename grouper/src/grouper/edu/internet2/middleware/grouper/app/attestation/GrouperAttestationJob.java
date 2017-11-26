@@ -850,7 +850,7 @@ public class GrouperAttestationJob extends OtherJobBase {
       
       String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameSendEmail().getName());
       
-      Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign);
+      Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign.getOwnerStem(), attributeAssign);
 
       boolean sendEmailAttributeValue = GrouperUtil.booleanValue(attestationSendEmail, true);
       
@@ -871,22 +871,38 @@ public class GrouperAttestationJob extends OtherJobBase {
 
   /**
    * take a stem attribute assign and process it
+   * @param stem is the stem the attribute is on
    * @param stemAttributeAssign
    * @return the email objects
    */
-  public static Map<String, Set<EmailObject>> stemAttestationProcessHelper(AttributeAssign stemAttributeAssign) {
+  public static Map<String, Set<EmailObject>> stemAttestationProcessHelper(Stem stem, AttributeAssign stemAttributeAssign) {
     
     Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
     
-    String attestationStemScope = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
-     
+    String stemHasAttestationString = "false";
+
+    if (stemAttributeAssign != null) {
+
+      stemHasAttestationString = stemAttributeAssign.getAttributeValueDelegate()
+          .retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+        
+      // it needs this if it doesnt have it (from earlier upgrade)
+      if (StringUtils.isBlank(stemHasAttestationString)) {
+        
+        stemAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "true");
+        stemHasAttestationString = "true";
+      }
+
+    }
+
+    String attestationStemScope = stemAttributeAssign == null ? Scope.SUB.name() : stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
+    
     // go through each group and check if they have their own attestation attribute and use them if they are present.
     // if not, then use the stem attributes.
     Scope scope = GrouperUtil.defaultIfNull(Scope.valueOfIgnoreCase(attestationStemScope, false), Scope.SUB);
-        
-    Set<Group> childGroups = stemAttributeAssign.getOwnerStem().getChildGroups(scope);
     
-    Stem stem = stemAttributeAssign.getOwnerStem();
+        
+    Set<Group> childGroups = stem.getChildGroups(scope);
     
     for (Group group: childGroups) {
       
@@ -912,19 +928,18 @@ public class GrouperAttestationJob extends OtherJobBase {
       AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
         .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
 
+      //there is no direct assignment and no stem with attestation
+      if (attributeAssignable == null) {
+        
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "false");
+        groupAttributeAssign.getAttributeDelegate().removeAttribute(retrieveAttributeDefNameCalculatedDaysLeft());
+        continue;
+        
+      }
+      
       //make sure its the right stem that has the assignment
       if (!StringUtils.equals(((Stem)attributeAssignable).getName(), stem.getName())) {
         continue;
-      }
-
-      String stemHasAttestationString = stemAttributeAssign.getAttributeValueDelegate()
-          .retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
-        
-      // it needs this if it doesnt have it
-      if (StringUtils.isBlank(stemHasAttestationString)) {
-        
-        stemAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "true");
-        stemHasAttestationString = "true";
       }
 
       //make sure group is in sync with stem
