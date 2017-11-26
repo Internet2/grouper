@@ -78,7 +78,7 @@ public class GrouperAttestationJobTest extends GrouperTest {
     
     attributeAssignBase.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName(), "test@test.com,test1@test.com");
         
-    GrouperAttestationJob.stemAttestationProcessHelper(attributeAssignBase);
+    GrouperAttestationJob.stemAttestationProcessHelper(stem0, attributeAssignBase);
 
     //####### check that the direct assigned did not change    
     attributeAssignBase = groupDirectAssigned.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
@@ -108,7 +108,7 @@ public class GrouperAttestationJobTest extends GrouperTest {
     groupInheritAssigned0.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true)
       .getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), today);
 
-    GrouperAttestationJob.stemAttestationProcessHelper(stem0.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true));
+    GrouperAttestationJob.stemAttestationProcessHelper(stem0, stem0.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true));
 
     //####### check that the indirect assigned did change and need recertify 
     

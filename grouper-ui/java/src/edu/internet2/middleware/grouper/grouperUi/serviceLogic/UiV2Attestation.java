@@ -1532,7 +1532,7 @@ public class UiV2Attestation {
                 
                 try {
                   GrouperSession.startRootSession();
-                  GrouperAttestationJob.stemAttestationProcessHelper(attributeAssign);
+                  GrouperAttestationJob.stemAttestationProcessHelper(STEM, attributeAssign);
                   FINISHED[0] = true;
                 } catch (RuntimeException re) {
                   //log incase thread didnt finish when screen was drawing
