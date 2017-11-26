@@ -232,7 +232,7 @@ public class UiV2Attestation {
           AttributeAssign attributeAssign = GROUP.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
           if (attributeAssign == null) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("attestationAttributeNotFoundError")));
+                TextContainer.retrieveFromRequest().getText().get("noDirectAttestationAttributeOnGroupError")));
             return null;
           }
           
@@ -1626,7 +1626,7 @@ public class UiV2Attestation {
           AttributeAssign attributeAssign = GROUP.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
           if (attributeAssign == null) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("attestationAttributeNotFoundError")));
+                TextContainer.retrieveFromRequest().getText().get("noDirectAttestationAttributeOnGroupError")));
             return true;
           }
           attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), null);
