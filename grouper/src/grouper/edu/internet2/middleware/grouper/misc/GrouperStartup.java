@@ -417,45 +417,47 @@ public class GrouperStartup {
       }
     }
 
-    //this shouldnt exist, just make sure
-    GrouperDdlUtils.deleteUtfDdls();
-
-    Hib3GrouperDdl grouperDdl = GrouperDdlUtils.storeAndReadUtfString(someUtfString, id, name);
-
-    //lets check transactions
-    if (detectTransactionProblems) {
-      Hib3GrouperDdl grouperDdlNew = GrouperDdlUtils.retrieveDdlByIdFromDatabase(id);
-      if (grouperDdlNew != null) {
-
-        String error = "Error: Your database does not seem to support transactions, Grouper requires a transactional database";
-        LOG.error(error);
-        System.out.println(error);
-
-        //delete it again
-        GrouperDdlUtils.deleteDdlById(id);
-
-      } else if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.transaction.success.message", false)) {
-        System.out.println("Your database can handle transactions correctly");
+    if (!HibernateSession.isReadonlyMode()) {
+      //this shouldnt exist, just make sure
+      GrouperDdlUtils.deleteUtfDdls();
+  
+      Hib3GrouperDdl grouperDdl = GrouperDdlUtils.storeAndReadUtfString(someUtfString, id, name);
+  
+      //lets check transactions
+      if (detectTransactionProblems) {
+        Hib3GrouperDdl grouperDdlNew = GrouperDdlUtils.retrieveDdlByIdFromDatabase(id);
+        if (grouperDdlNew != null) {
+  
+          String error = "Error: Your database does not seem to support transactions, Grouper requires a transactional database";
+          LOG.error(error);
+          System.out.println(error);
+  
+          //delete it again
+          GrouperDdlUtils.deleteDdlById(id);
+  
+        } else if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.transaction.success.message", false)) {
+          System.out.println("Your database can handle transactions correctly");
+        }
       }
-    }
-
-    if (grouperDdl == null) {
-      String error = "Error: Why is grouperDdl utf null???";
-      LOG.error(error);
-      System.out.println(error);
-      utfProblems = true;
-    } else if (!utfProblems) {
-
-      if (!StringUtils.equals(grouperDdl.getHistory(), someUtfString)) {
-        String error = "Error: Cannot properly read UTF string from database: '" + grouperDdl.getHistory()
-            + "', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties";
+  
+      if (grouperDdl == null) {
+        String error = "Error: Why is grouperDdl utf null???";
         LOG.error(error);
         System.out.println(error);
         utfProblems = true;
+      } else if (!utfProblems) {
+  
+        if (!StringUtils.equals(grouperDdl.getHistory(), someUtfString)) {
+          String error = "Error: Cannot properly read UTF string from database: '" + grouperDdl.getHistory()
+              + "', make sure your database has UTF tables and perhaps a hibernate.connection.url in grouper.hibernate.properties";
+          LOG.error(error);
+          System.out.println(error);
+          utfProblems = true;
+        }
       }
-    }
-    if (!utfProblems & GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.utf8.success.message", false)) {
-      System.out.println("Grouper and the database can handle UTF characters correctly");
+      if (!utfProblems & GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.utf8.success.message", false)) {
+        System.out.println("Grouper and the database can handle UTF characters correctly");
+      }
     }
   }
 
