@@ -28,17 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import jline.TerminalFactory;
+import jline.TerminalFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-//import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
+import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -237,20 +236,14 @@ private static boolean handleSpecialCase(String[] args) {
     
     String javaVersion = System.getProperty("java.version");
     
-    boolean forceLegacyGsh = false;
-    if (args != null && args.length > 0 && args[0].equalsIgnoreCase("-forceLegacyGsh")) {
-      forceLegacyGsh = true;
-      args = ArrayUtils.remove(args, 0);
-    }
-    
-    if (forceLegacyGsh || GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else if (javaVersion != null && javaVersion.startsWith("1.6")) {
       System.out.println("Detected Java Version as 1.6 (" + javaVersion + ").  Reverting to legacy GSH.");
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
       
-      //TerminalFactory.registerFlavor(TerminalFactory.Flavor.WINDOWS, WindowsTerminal.class);
+      TerminalFactory.registerFlavor(TerminalFactory.Flavor.WINDOWS, WindowsTerminal.class);
       
       StringBuilder body = new StringBuilder();
       body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
