@@ -7,18 +7,22 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob.EmailObject;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TestGroupFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
@@ -33,7 +37,7 @@ public class GrouperAttestationJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAttestationJobTest("testGrouperAttestationPrivileges"));
+    TestRunner.run(new GrouperAttestationJobTest("testAttestationUpgrade"));
   }
   
   /**
@@ -42,6 +46,204 @@ public class GrouperAttestationJobTest extends GrouperTest {
   public GrouperAttestationJobTest(String name) {
     super(name);
   }
+  
+
+  /**
+   * 
+   */
+  public void testAttestationUpgrade() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    //setup a folder with attestation with a group inside, and a group by itself with attestation
+    StemSave stemSave = new StemSave(grouperSession).assignName("test:attestation").assignCreateParentStemsIfNotExist(true).assignDisplayName("test:attestation");
+    stemSave.save();
+    stemSave = new StemSave(grouperSession).assignName("test:attestation:attestationInheritFolder").assignCreateParentStemsIfNotExist(true).assignDisplayName("test:attestation:attestationInheritFolder");
+    Stem testAttestationAttestationInheritFolder = stemSave.save();
+    GroupSave groupSave = new GroupSave(grouperSession).assignName("test:attestation:attestationGroup").assignCreateParentStemsIfNotExist(true).assignDisplayName("test:attestation:attestationGroup").assignTypeOfGroup(TypeOfGroup.group);
+    groupSave.save();
+    groupSave = new GroupSave(grouperSession).assignName("test:attestation:attestationInheritFolder:attestationInheritGroup").assignCreateParentStemsIfNotExist(true).assignDisplayName("test:attestation:attestationInheritFolder:attestationInheritGroup").assignTypeOfGroup(TypeOfGroup.group);
+    groupSave.save();
+
+    AttributeAssignSave attributeAssignSave = new AttributeAssignSave(grouperSession);
+    attributeAssignSave.assignAttributeAssignType(AttributeAssignType.stem);
+    AttributeDefName attestationAttributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestation", false);
+    attributeAssignSave.assignAttributeDefName(attestationAttributeDefName);
+
+    attributeAssignSave.assignOwnerStem(testAttestationAttestationInheritFolder);
+
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.stem_asgn);
+      AttributeDefName attestationSendEmailAttributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationSendEmail", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attestationSendEmailAttributeDefName);
+      attributeAssignOnAssignSave.addValue("true");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.stem_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationDaysUntilRecertify", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("180");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.stem_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationEmailAddresses", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.stem_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationStemScope", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("sub");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.stem_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationDaysBeforeToRemind", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("10");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    attributeAssignSave.save();
+
+    attributeAssignSave = new AttributeAssignSave(grouperSession);
+    attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
+    {
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestation", false);
+      attributeAssignSave.assignAttributeDefName(attributeDefName);
+    }
+    
+    {
+      Group ownerGroup = GroupFinder.findByName(grouperSession, "test:attestation:attestationGroup", false);
+      attributeAssignSave.assignOwnerGroup(ownerGroup);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationDaysBeforeToRemind", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("10");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationDirectAssignment", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("true");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationLastEmailedDate", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("2017/11/26");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationSendEmail", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("true");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationEmailAddresses", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    {
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationDaysUntilRecertify", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("180");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    }
+    
+    attributeAssignSave.save(); 
+
+    attributeAssignSave = new AttributeAssignSave(grouperSession);
+    attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
+    {
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestation", false);
+      attributeAssignSave.assignAttributeDefName(attributeDefName);
+    }
+    {
+      Group ownerGroup = GroupFinder.findByName(grouperSession, "test:attestation:attestationInheritFolder:attestationInheritGroup", false);
+      attributeAssignSave.assignOwnerGroup(ownerGroup);
+      AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(grouperSession);
+      attributeAssignOnAssignSave.assignAttributeAssignType(AttributeAssignType.group_asgn);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:attestation:attestationLastEmailedDate", false);
+      attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+      attributeAssignOnAssignSave.addValue("2017/11/26");
+      attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+      attributeAssignSave.save(); 
+    }
+    
+    //upgrade the groups and folders
+    {
+      Group group = GroupFinder.findByName(grouperSession, "test:attestation:attestationGroup", true);
+      GrouperAttestationJob.updateObjectAttributesToPatch81(group, null);
+      
+      AttributeAssign attributeAssignBase = group.getAttributeDelegate().retrieveAssignment(null, 
+          GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+      assertEquals("0", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName()));
+      assertEquals("true", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName()));
+      assertEquals("true", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName()));
+    }
+    
+    {
+      Group group = GroupFinder.findByName(grouperSession, "test:attestation:attestationInheritFolder:attestationInheritGroup", true);
+      GrouperAttestationJob.updateObjectAttributesToPatch81(group, null);
+      
+      AttributeAssign attributeAssignBase = group.getAttributeDelegate().retrieveAssignment(null, 
+          GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+      assertEquals("0", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName()));
+      assertEquals("false", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName()));
+      assertEquals("true", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName()));
+    }
+    
+    
+    
+    {
+      Stem stem = StemFinder.findByName(grouperSession, "test:attestation:attestationInheritFolder", true);
+      GrouperAttestationJob.updateObjectAttributesToPatch81(stem, null);
+      AttributeAssign attributeAssignBase = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+      assertEquals("true", attributeAssignBase.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName()));
+    }
+    
+  }
+  
+  
   
   /**
    * 

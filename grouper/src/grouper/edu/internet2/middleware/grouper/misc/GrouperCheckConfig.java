@@ -1956,6 +1956,9 @@ public class GrouperCheckConfig {
             .save();
         }
 
+        //clear this for tests
+        GrouperAttestationJob.clearCaches();
+
         //see if attributeDef is there
         String attestationTypeDefName = attestationRootStemName + ":attestationDef";
         AttributeDef attestationType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(

@@ -193,6 +193,14 @@ public class GrouperAttestationJob extends OtherJobBase {
   private static ExpirableCache<String, AttributeDefName> attributeDefNameCache = new ExpirableCache<String, AttributeDefName>(5);
   
   /**
+   * clear caches
+   */
+  public static void clearCaches() {
+    attributeDefCache.clear();
+    attributeDefNameCache.clear();
+  }
+  
+  /**
    * cache this.  note, not sure if its necessary
    */
   private static AttributeDefName retrieveAttributeDefNameFromDbOrCache(final String name) {
@@ -398,6 +406,87 @@ public class GrouperAttestationJob extends OtherJobBase {
   private static final Log LOG = GrouperUtil.getLog(GrouperAttestationJob.class);
   
   /**
+   * @param groupAttributeAssign
+   * @param group
+   */
+  public static void updateObjectAttributesToPatch81(Group group, AttributeAssign groupAttributeAssign) {
+
+    if (groupAttributeAssign == null) {
+      groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+    }
+
+    AttributeAssign attributeAssign = groupAttributeAssign;
+    
+    // not sure why not attestation but thats ok
+    if (groupAttributeAssign == null) {
+      return;
+    }
+    
+    String hasAttestationAttributeValue = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+
+    // if this is blank then we need to upgrade
+    if (StringUtils.isBlank(hasAttestationAttributeValue)) {
+
+      groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "true");
+
+      //this is not direct
+      if (!StringUtils.equals("true", groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName()))) {
+        
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+        
+        Stem configStem = (Stem)group.getParentStem().getAttributeDelegate()
+            .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+
+        //there is no direct assignment and no stem with attestation
+        if (configStem == null) {
+          LOG.error("Why is there no direct assignment or parent stem with attestation on group: " + group.getName() + ", " + group.getUuid());
+          return;
+        }
+
+        updateObjectAttributesToPatch81(configStem, null);
+        
+        attributeAssign = configStem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+        
+      }
+      
+      //calculate
+      GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
+      
+    }
+    
+  }
+  
+  /**
+   * @param stemAttributeAssign
+   * @param stem
+   */
+  public static void updateObjectAttributesToPatch81(Stem stem, AttributeAssign stemAttributeAssign) {
+    
+    if (stemAttributeAssign == null) {
+      stemAttributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+    }
+
+    // not sure why not attestation but thats ok
+    if (stemAttributeAssign == null) {
+      return;
+    }
+    
+    String hasAttestationAttributeValue = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+
+    // if this is blank then we need to upgrade
+    if (StringUtils.isBlank(hasAttestationAttributeValue)) {
+      
+      //needs has attestation attribute
+      stemAttributeAssign.getAttributeValueDelegate().assignValueString(
+          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "true");
+      
+    }
+  }
+  
+  /**
    * update the calculated days until recertify
    * @param group group to calculate
    * @param attributeAssign that has the settings, stem or group
@@ -409,6 +498,10 @@ public class GrouperAttestationJob extends OtherJobBase {
     String attestationDateCertified = null;
     
     if (groupAttributeAssign != null) {
+      
+      //see if converting from previous patch
+      updateObjectAttributesToPatch81(group, groupAttributeAssign);
+      
       attestationDateCertified = groupAttributeAssign.getAttributeValueDelegate()
           .retrieveValueString(retrieveAttributeDefNameDateCertified().getName());
     }
@@ -462,16 +555,14 @@ public class GrouperAttestationJob extends OtherJobBase {
         String hasAttestationString = configurationAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
         
         // it needs this if it doesnt have it
-        if (StringUtils.isBlank(hasAttestationString)) {
+        if (!StringUtils.isBlank(hasAttestationString)) {
           
-          hasAttestationString = "true";
-        }
-
-        //make sure group is in sync
-        groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), hasAttestationString);
-        
-        if (!GrouperUtil.booleanValue(hasAttestationString, true)) {
-          continue;
+          //make sure group is in sync
+          groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), hasAttestationString);
+          
+          if (!GrouperUtil.booleanValue(hasAttestationString, true)) {
+            continue;
+          }
         }
       }
       
@@ -882,6 +973,8 @@ public class GrouperAttestationJob extends OtherJobBase {
     String stemHasAttestationString = "false";
 
     if (stemAttributeAssign != null) {
+
+      GrouperAttestationJob.updateObjectAttributesToPatch81((Stem)stem, stemAttributeAssign);
 
       stemHasAttestationString = stemAttributeAssign.getAttributeValueDelegate()
           .retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
