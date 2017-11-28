@@ -2482,7 +2482,7 @@ public class GrouperInstaller {
   /**
    * patch pattern
    */
-  private static final Pattern patchNamePattern = Pattern.compile("^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp|pspng)_patch_\\d+$");
+  private static final Pattern patchNamePattern = Pattern.compile("^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp|pspng)_patch_(\\d+)$");
 
   
   /**
@@ -6679,6 +6679,17 @@ public class GrouperInstaller {
   private Boolean installAllPatches = null;
   
   /**
+   * if should install some patches
+   */
+  private Boolean installPatchesUpToACertainPatchLevel = null;
+  
+  /**
+   * if should install up to patch levels, comma separated
+   * e.g. grouper_v2_3_0_api_patch_9, grouper_v2_3_0_ui_patch_10, grouper_v2_3_0_ws_patch_5
+   */
+  private String installPatchesUpToThesePatchLevels = null;
+  
+  /**
    * revert patches for an app
    * @param thisAppToRevert
    * @return if reverted
@@ -7124,8 +7135,21 @@ public class GrouperInstaller {
 
       foundNewPatch = true;
 
+      Boolean installPatch = null;
+      
+      if (this.installPatchesUpToACertainPatchLevel != null && this.installPatchesUpToACertainPatchLevel) {
+        if (!GrouperInstallerUtils.isBlank(this.installPatchesUpToThesePatchLevels)) {
+          
+          installPatch = shouldInstallPatchUpToLevel(keyBase);
+          
+          if (!installPatch) {
+            break OUTER;
+          }
+        }
+      }
+      
       // check dependencies
-      {
+      if (installPatch == null || installPatch == true){
         String[] dependencies = GrouperInstallerUtils.splitTrim(patchProperties.getProperty("dependencies"), ",");
   
         boolean invalidDependency = false;
@@ -7148,27 +7172,60 @@ public class GrouperInstaller {
       if (this.installAllPatches == null) {
         System.out.println("Would you like to install all patches (t|f)? [t]: ");
         this.installAllPatches = readFromStdInBoolean(true, "grouperInstaller.autorun.installAllPatches");
+
+        if (!this.installAllPatches && this.installPatchesUpToACertainPatchLevel == null ) {
+          System.out.println("Would you like to install patches up to a certain patch level? (t|f)? [f]: ");
+          this.installPatchesUpToACertainPatchLevel = readFromStdInBoolean(true, "grouperInstaller.autorun.installPatchesUpToACertainPatchLevel");
+          
+          if (this.installPatchesUpToACertainPatchLevel) {
+
+            System.out.println("What patch levels would you like to install up to and including [comma-separated] (e.g. grouper_v2_3_0_api_patch_9, grouper_v2_3_0_ui_patch_10, grouper_v2_3_0_ws_patch_5)? : ");
+            this.installPatchesUpToThesePatchLevels = readFromStdIn("grouperInstaller.autorun.installPatchesUpToThesePatchLevels");
+
+          }
+          
+        }
+        
+        if (this.installPatchesUpToACertainPatchLevel == null) {
+          this.installPatchesUpToACertainPatchLevel = false;
+        }
+        
       }
       
       //print description
       System.out.println("Patch " + keyBase + " is " + patchProperties.getProperty("risk") + " risk, "
           + (securityRelated ? "is a security patch" : "is not a security patch"));
       System.out.println(patchProperties.getProperty("description"));
-      boolean installPatch = false;
-      if (!this.installAllPatches) {
+
+      if (this.installAllPatches) {
+        installPatch = true;
+      } else if (this.installPatchesUpToACertainPatchLevel) {
+        if (installPatch == null) {
+          installPatch = shouldInstallPatchUpToLevel(keyBase);
+        }
+        // taken care of above
+      } else {
         System.out.println("Would you like to install patch " + keyBase + " (t|f)? [t]: ");
+        installPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
       }
-      installPatch = this.installAllPatches || readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
 
       //keep track that we skipped this in the patch properties file
       editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
           GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), true);
 
+      //if we arent installing the patch
       if (!installPatch) {
+        
+        boolean temporary = false;
+        
+        //if installing up to a patch level, and not specifying about next time, make it temporary
+        if (this.installPatchesUpToACertainPatchLevel && GrouperInstallerUtils.isBlank(GrouperInstallerUtils.propertiesValue("grouperInstaller.autorun.promptAboutPatchNextTime", false))) {
+          temporary = true;
+        } else {
+          System.out.println("Would you like to be prompted about this patch next time? (t|f)? [t]: ");
 
-        System.out.println("Would you like to be prompted about this patch next time? (t|f)? [t]: ");
-
-        boolean temporary = readFromStdInBoolean(true, "grouperInstaller.autorun.promptAboutPatchNextTime");
+          temporary = readFromStdInBoolean(true, "grouperInstaller.autorun.promptAboutPatchNextTime");
+        }
 
         GrouperInstallerPatchStatus grouperInstallerPatchStatus = null;
 
@@ -7369,6 +7426,48 @@ public class GrouperInstaller {
       return false;
     } 
     return true;
+  }
+
+  /**
+   * @param keyBase
+   * @return if should install patch
+   */
+  private boolean shouldInstallPatchUpToLevel(String keyBase) {
+    boolean installPatch = false;
+
+    //e.g. ^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp|pspng)_patch_(\\d+)$
+    Matcher patchNameMatcher = patchNamePattern.matcher(keyBase);
+    if (!patchNameMatcher.matches()) {
+      throw new RuntimeException("Invalid patch name: " + keyBase);
+    }
+    
+    String grouperVersionInstallPatch = patchNameMatcher.group(1) + "." + patchNameMatcher.group(2) + "." + patchNameMatcher.group(3);
+    String systemInstallPatch = patchNameMatcher.group(4);
+    int numberInstallPatch = GrouperInstallerUtils.intValue(patchNameMatcher.group(5));
+
+    
+    String[] installUpToThesePatchLevels = GrouperInstallerUtils.splitTrim(this.installPatchesUpToThesePatchLevels, ",");
+    for (String patchName : installUpToThesePatchLevels) {
+
+      //e.g. ^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp|pspng)_patch_(\\d+)$
+      patchNameMatcher = patchNamePattern.matcher(patchName);
+      if (!patchNameMatcher.matches()) {
+        throw new RuntimeException("Invalid patch name: " + patchName);
+      }
+      
+      String grouperVersionUpToPatch = patchNameMatcher.group(1) + "." + patchNameMatcher.group(2) + "." + patchNameMatcher.group(3);
+      String systemUpToPatch = patchNameMatcher.group(4);
+      int numberUpToPatch = GrouperInstallerUtils.intValue(patchNameMatcher.group(5));
+
+      if (GrouperInstallerUtils.equals(systemInstallPatch, systemUpToPatch)
+          && GrouperInstallerUtils.equals(grouperVersionInstallPatch, grouperVersionUpToPatch)
+          && numberInstallPatch <= numberUpToPatch) {
+        installPatch = true;
+        break;
+      }
+      
+    }
+    return installPatch;
   }
   
   /**
