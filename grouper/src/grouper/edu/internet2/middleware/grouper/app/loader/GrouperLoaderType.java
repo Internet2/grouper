@@ -2632,6 +2632,12 @@ public enum GrouperLoaderType {
           boolean added = group[0].addType(groupType, false);
           if (added) {
             LOG.debug("Added type: " + groupType.getName() + " to group: " + group[0].getName());
+          } else {
+            if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.fixIncludeExcludes", false)) {
+              if (StringUtils.equals("addIncludeExclude", groupType.getName())) {
+                group[0].manageIncludesExcludesRequiredGroups(grouperSession, true);
+              }
+            }
           }
         }
       }
