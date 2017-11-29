@@ -6690,6 +6690,28 @@ public class GrouperInstaller {
   private String installPatchesUpToThesePatchLevels = null;
   
   /**
+   * if should install certain specified
+   */
+  private Boolean installCertainSpecifiedPatches = null;
+  
+  /**
+   * if should install up to patch levels, comma separated
+   * e.g. grouper_v2_3_0_api_patch_0, grouper_v2_3_0_api_patch_1, grouper_v2_3_0_ui_patch_0
+   */
+  private String installCertainSpecifiedPatchesList = null;
+  
+  /**
+   * if should revert certain specified
+   */
+  private Boolean revertCertainSpecifiedPatches = null;
+  
+  /**
+   * if should revert up to patch levels, comma separated
+   * e.g. grouper_v2_3_0_api_patch_0, grouper_v2_3_0_api_patch_1, grouper_v2_3_0_ui_patch_0
+   */
+  private String revertCertainSpecifiedPatchesList = null;
+  
+  /**
    * revert patches for an app
    * @param thisAppToRevert
    * @return if reverted
@@ -6814,19 +6836,44 @@ public class GrouperInstaller {
         this.revertAllPatches = readFromStdInBoolean(this.revertAllPatchesDefault, "grouperInstaller.autorun.revertAllPatches");
       }
       
+      if (!this.revertAllPatches && this.revertCertainSpecifiedPatches == null) {
+        System.out.println("Would you like to revert certain specified patches? (t|f)? [f]: ");
+        this.revertCertainSpecifiedPatches = readFromStdInBoolean(false, "grouperInstaller.autorun.revertCertainSpecifiedPatches");
+
+        if (this.revertCertainSpecifiedPatches) {
+
+          System.out.println("What patches would you like to revert [comma-separated] (e.g. grouper_v2_3_0_api_patch_0, grouper_v2_3_0_api_patch_1, grouper_v2_3_0_ui_patch_0)? : ");
+          this.revertCertainSpecifiedPatchesList = readFromStdIn("grouperInstaller.autorun.revertCertainSpecifiedPatchesList");
+        }
+      }
+      if (this.revertCertainSpecifiedPatches == null) {
+        this.revertCertainSpecifiedPatches = false;
+      }
+
       //print description
       System.out.println("Patch " + keyBase + " is " + patchProperties.getProperty("risk") + " risk, "
           + (securityRelated ? "is a security patch" : "is not a security patch"));
       System.out.println(patchProperties.getProperty("description"));
-      if (!this.revertAllPatches) {
-        System.out.print("Would you like to revert patch " + keyBase + " (t|f)? [f]: ");
-        boolean revertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.revertPatch");
-
-        if (!revertPatch) {
-          System.out.println("");
-          continue;
+      
+      Boolean revertPatch = null;
+      
+      if (this.revertAllPatches) {
+        revertPatch = true;
+      } else if (this.revertCertainSpecifiedPatches) {
+        if (revertPatch == null) {
+          revertPatch = shouldRevertCertainSpecifiedPatches(keyBase);
         }
+      } else {
+        System.out.print("Would you like to revert patch " + keyBase + " (t|f)? [f]: ");
+        revertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.revertPatch");
       }
+
+
+      if (!revertPatch) {
+        System.out.println("");
+        continue;
+      }
+
       //check dependencies
       for (String patchName : installedPatchDependencies.keySet()) {
         
@@ -7147,7 +7194,14 @@ public class GrouperInstaller {
           }
         }
       }
-      
+      if (this.installCertainSpecifiedPatches != null && this.installCertainSpecifiedPatches) {
+        if (!GrouperInstallerUtils.isBlank(this.installCertainSpecifiedPatchesList)) {
+          
+          installPatch = shouldInstallCertainSpecifiedPatches(keyBase);
+          
+        }
+      }
+     
       // check dependencies
       if (installPatch == null || installPatch == true){
         String[] dependencies = GrouperInstallerUtils.splitTrim(patchProperties.getProperty("dependencies"), ",");
@@ -7175,7 +7229,7 @@ public class GrouperInstaller {
 
         if (!this.installAllPatches && this.installPatchesUpToACertainPatchLevel == null ) {
           System.out.println("Would you like to install patches up to a certain patch level? (t|f)? [f]: ");
-          this.installPatchesUpToACertainPatchLevel = readFromStdInBoolean(true, "grouperInstaller.autorun.installPatchesUpToACertainPatchLevel");
+          this.installPatchesUpToACertainPatchLevel = readFromStdInBoolean(false, "grouperInstaller.autorun.installPatchesUpToACertainPatchLevel");
           
           if (this.installPatchesUpToACertainPatchLevel) {
 
@@ -7190,8 +7244,21 @@ public class GrouperInstaller {
           this.installPatchesUpToACertainPatchLevel = false;
         }
         
+        if (!this.installAllPatches && !this.installPatchesUpToACertainPatchLevel && this.installCertainSpecifiedPatches == null) {
+          System.out.println("Would you like to install certain specified patches? (t|f)? [f]: ");
+          this.installCertainSpecifiedPatches = readFromStdInBoolean(false, "grouperInstaller.autorun.installCertainSpecifiedPatches");
+
+          if (this.installCertainSpecifiedPatches) {
+
+            System.out.println("What patches would you like to install [comma-separated] (e.g. grouper_v2_3_0_api_patch_0, grouper_v2_3_0_api_patch_1, grouper_v2_3_0_ui_patch_0)? : ");
+            this.installCertainSpecifiedPatchesList = readFromStdIn("grouperInstaller.autorun.installCertainSpecifiedPatchesList");
+          }
+        }
+        if (this.installCertainSpecifiedPatches == null) {
+          this.installCertainSpecifiedPatches = false;
+        }
       }
-      
+
       //print description
       System.out.println("Patch " + keyBase + " is " + patchProperties.getProperty("risk") + " risk, "
           + (securityRelated ? "is a security patch" : "is not a security patch"));
@@ -7203,7 +7270,10 @@ public class GrouperInstaller {
         if (installPatch == null) {
           installPatch = shouldInstallPatchUpToLevel(keyBase);
         }
-        // taken care of above
+      } else if (this.installCertainSpecifiedPatches) {
+        if (installPatch == null) {
+          installPatch = shouldInstallCertainSpecifiedPatches(keyBase);
+        }
       } else {
         System.out.println("Would you like to install patch " + keyBase + " (t|f)? [t]: ");
         installPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
@@ -7221,6 +7291,9 @@ public class GrouperInstaller {
         //if installing up to a patch level, and not specifying about next time, make it temporary
         if (this.installPatchesUpToACertainPatchLevel && GrouperInstallerUtils.isBlank(GrouperInstallerUtils.propertiesValue("grouperInstaller.autorun.promptAboutPatchNextTime", false))) {
           temporary = true;
+        } else if (this.installCertainSpecifiedPatches && GrouperInstallerUtils.isBlank(GrouperInstallerUtils.propertiesValue("grouperInstaller.autorun.promptAboutPatchNextTime", false))) {
+          temporary = true;
+
         } else {
           System.out.println("Would you like to be prompted about this patch next time? (t|f)? [t]: ");
 
@@ -7428,6 +7501,25 @@ public class GrouperInstaller {
     return true;
   }
 
+  /**
+   * @param keyBase
+   * @return if should revert patch
+   */
+  private boolean shouldRevertCertainSpecifiedPatches(String keyBase) {
+    List<String> revertUpToThesePatchLevelsList = GrouperInstallerUtils.splitTrimToList(this.revertCertainSpecifiedPatchesList, ",");
+    return revertUpToThesePatchLevelsList.contains(keyBase);
+  }
+
+  /**
+   * @param keyBase
+   * @return if should install patch
+   */
+  private boolean shouldInstallCertainSpecifiedPatches(String keyBase) {
+    
+    List<String> installUpToThesePatchLevelsList = GrouperInstallerUtils.splitTrimToList(this.installCertainSpecifiedPatchesList, ",");
+    return installUpToThesePatchLevelsList.contains(keyBase);
+  }
+  
   /**
    * @param keyBase
    * @return if should install patch
