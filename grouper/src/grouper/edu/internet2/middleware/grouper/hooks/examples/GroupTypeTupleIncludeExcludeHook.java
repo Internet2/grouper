@@ -47,11 +47,17 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -522,7 +528,43 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @param andGroups 
    * @param calledFromForLog summary of where this is coming from for debug log
    */
-  public static void manageIncludesExcludesAndGroups(Group typedGroup, boolean isIncludeExclude, 
+  public static void manageIncludesExcludesAndGroups(final Group typedGroup, final boolean isIncludeExclude, 
+      final Set<Group> andGroups, final String calledFromForLog) {
+    
+    boolean useTransaction = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExcludeUseTransaction", true);
+    
+    if (useTransaction) {
+
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          manageIncludesExcludesAndGroupsHelper(typedGroup, isIncludeExclude, 
+              andGroups, calledFromForLog);
+          return null;
+        }
+      });
+    
+      
+    } else {
+      
+      manageIncludesExcludesAndGroupsHelper(typedGroup, isIncludeExclude, 
+          andGroups, calledFromForLog);
+      
+    }
+    
+    
+  }
+  
+  /**
+   * change a typed group into include and exclude group lists and andGroups also
+   * this should be called from manageIncludesExcludesAndGroups
+   * @param typedGroup 
+   * @param isIncludeExclude 
+   * @param andGroups 
+   * @param calledFromForLog summary of where this is coming from for debug log
+   */
+  private static void manageIncludesExcludesAndGroupsHelper(Group typedGroup, boolean isIncludeExclude, 
       Set<Group> andGroups, String calledFromForLog) {
 
     String groupUuid = null;
