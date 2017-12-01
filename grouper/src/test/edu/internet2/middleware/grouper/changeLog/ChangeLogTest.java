@@ -96,7 +96,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testStemsOutOfOrder"));
+    TestRunner.run(new ChangeLogTest("testAttributeAssignValueExcludeAudits"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -127,7 +127,8 @@ public class ChangeLogTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.env.name");
-
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig");
+    GrouperConfig.retrieveConfig().resetAttributeDefNameIdsToIgnoreChangeLogAndAudit();
   }
   
   /**
@@ -302,6 +303,10 @@ public class ChangeLogTest extends GrouperTest {
     attributeDef.setValueType(AttributeDefValueType.string);
     attributeDef.store();
     AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    AttributeDefName attributeDefNameExcludeAudits = edu.addChildAttributeDefName(attributeDef, "testAttributeExcludeAudits", "testAttributeExcludeAudits");
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefNameExcludeAudits.getName());
+
     AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
 
@@ -736,6 +741,67 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(AttributeDefValueType.integer.name(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType));
   }
   
+  /**
+   * @throws Exception
+   */
+  public void testAttributeAssignValueExcludeAudits() throws Exception {
+    
+    //##################################
+    // try a string value
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefName.getName());
+
+    AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // add value
+    AttributeAssignValue attributeAssignValue = attributeAssign.getValueDelegate().assignValueString("test").getAttributeAssignValue();
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly zero change log temp", 0, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    // no pit fixes
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+
+    // try an update
+    attributeAssignValue.setValueString("test2");
+    attributeAssignValue.saveOrUpdate();
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+    
+    // no pit fixes
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+
+    // now delete the attribute value
+    attributeAssign.getValueDelegate().deleteValue("test2");
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+    
+    // no pit fixes
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    grouperSession = GrouperSession.startRootSession();
+  }
   
   /**
    * @throws Exception

@@ -521,7 +521,8 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
             AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
             AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
             
-            if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId())) {
+            if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId()) && 
+                !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getId())) {
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry(
                     isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
@@ -866,7 +867,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
                 GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
   
                 if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(
-                    AttributeAssignValue.this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+                    AttributeAssignValue.this.getAttributeAssign().getAttributeDefName().getAttributeDefId()) && 
+                    !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(
+                        AttributeAssignValue.this.getAttributeAssign().getAttributeDefName().getId())) {
                   if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                     AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
                     AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
@@ -1226,7 +1229,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     super.onPreDelete(hibernateSession);
 
     if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit()
-        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId()) && 
+        !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit()
+        .contains(this.getAttributeAssign().getAttributeDefName().getId())) {
       
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
@@ -1303,7 +1308,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     this.setLastUpdatedDb(now);
     
     if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit()
-        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId()) && 
+        !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit()
+        .contains(this.getAttributeAssign().getAttributeDefName().getId())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 

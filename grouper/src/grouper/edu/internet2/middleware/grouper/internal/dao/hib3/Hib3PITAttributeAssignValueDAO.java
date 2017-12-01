@@ -197,6 +197,15 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
       
     }
     
+    Set<String> idsOfAttributeDefNamesToIgnore = GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit();
+    if (GrouperUtil.length(idsOfAttributeDefNamesToIgnore) > 0) {
+      
+      hql.append(" and not exists (select 1 from AttributeAssign aa where value.attributeAssignId = aa.id "
+          + "and aa.attributeDefNameId in (" 
+          + HibUtils.convertToInClause(idsOfAttributeDefNamesToIgnore, byHqlStatic) + ") )");
+      
+    }
+    
     Set<AttributeAssignValue> values = byHqlStatic
       .createQuery(hql.toString())
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITAttributeAssignValues")
