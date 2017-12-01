@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -15,7 +17,6 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSystemPara
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -63,23 +65,49 @@ public class MessageConsumerDaemon implements Job {
   @Override
   public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
     
-    String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.messagingSystemName");
-    if (StringUtils.isBlank(messagingSystemName)) {
-      LOG.info("No messaging system name found so not going to connect to any queue or topic.");
-      return;
+    Pattern pattern = Pattern.compile("^grouper\\.messaging\\.([^.]+)\\.messagingSystemName$");
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+    
+    String configName = null;
+    
+    String actAsSubjectId = null;
+    String actAsSubjectSourceId = null;
+    String messagingSystemName = null;
+    String queueOrTopicName = null;
+    String routingKey = null;
+    String messageQueueType = null;
+    Integer longPollingSeconds = null;
+    
+    for (String propertyName : grouperLoaderConfig.propertyNames()) {
+      Matcher matcher = pattern.matcher(propertyName);
+      if (matcher.matches()) {
+
+        configName = matcher.group(1);
+        
+        messagingSystemName = grouperLoaderConfig.propertyValueString(propertyName);
+        if (StringUtils.isBlank(messagingSystemName)) {
+          LOG.info("No messaging system name found so not going to connect to any queue or topic.");
+          return;
+        }
+        
+        queueOrTopicName = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".queueOrTopicName");
+        routingKey = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".routingKey");
+        messageQueueType = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".messageQueueType");
+        actAsSubjectSourceId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectSourceId");
+        actAsSubjectId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectId");
+        longPollingSeconds = grouperLoaderConfig.propertyValueInt("grouper.messaging."+configName+".longPollingSeconds", 1);
+      }
     }
     
-    String queueOrTopicName = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.queueOrTopicName");
-    String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.routingKey");
-    String messageQueueType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.messageQueueType");
-    String actAsSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectSourceId");
-    String actAsSubjectId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectId");
-    Integer longPollingSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.messaging.wsMessagingBridge.longPollingSeconds");
+    if (StringUtils.isBlank(configName)) {
+      return;
+    }
     
     try {
       GrouperSession.startBySubjectIdAndSource(actAsSubjectId, actAsSubjectSourceId);
     } catch (Exception e) {
       LOG.error("Error occurred while starting grouper session for subjectId" + actAsSubjectId +" and source id "+actAsSubjectSourceId, e);
+      return;
     }
     
     GrouperMessagingSystem grouperMessageSystem = null;
@@ -88,6 +116,7 @@ public class MessageConsumerDaemon implements Job {
       grouperMessageSystem = GrouperMessagingEngine.retrieveGrouperMessageSystem(messagingSystemName);
     } catch(Exception e) {
       LOG.error("Error occurred while retrieving grouper message system for "+messagingSystemName, e);
+      return;
     }
     
     Collection<GrouperMessage> grouperMessages = null;
@@ -96,9 +125,10 @@ public class MessageConsumerDaemon implements Job {
       LOG.info("Received "+grouperMessages.size() +" massages from "+queueOrTopicName +" for message system: "+messagingSystemName);
     } catch (Exception e) {
       LOG.error("Error occurred while receving messages from "+queueOrTopicName, e);
+      return;
     }
     
-    processMessages(messagingSystemName, grouperMessageSystem, messageQueueType, queueOrTopicName, grouperMessages);
+    processMessages(messagingSystemName, grouperMessageSystem, messageQueueType, queueOrTopicName, grouperMessages, configName);
 
   }
 
@@ -109,10 +139,11 @@ public class MessageConsumerDaemon implements Job {
    * @param messageQueueType
    * @param queueTopicName
    * @param grouperMessages
+   * @param configName
    */
   protected void processMessages(String messagingSystemName, GrouperMessagingSystem grouperMessageSystem,
       String messageQueueType, String queueTopicName,
-      Collection<GrouperMessage> grouperMessages) {
+      Collection<GrouperMessage> grouperMessages, String configName) {
     
     List<GrouperMessage> messagesToBeAcknowledged = new ArrayList<GrouperMessage>();
     
@@ -125,6 +156,7 @@ public class MessageConsumerDaemon implements Job {
         jsonObject = JSONObject.fromObject(messageBody);
       } catch(JSONException e) {
         LOG.error("Error occurred while building json object for "+messageBody);
+        continue;
       }
       
       JSONObject grouperHeaderJson = null;
@@ -132,6 +164,7 @@ public class MessageConsumerDaemon implements Job {
         grouperHeaderJson = jsonObject.getJSONObject("grouperHeader");
       } catch (JSONException e) {
         LOG.error("Error occurred while retrieving key grouperHeader out of message body: "+messageBody);
+        continue;
       }
       
       InputMessageGrouperHeader grouperHeader = null;
@@ -139,6 +172,7 @@ public class MessageConsumerDaemon implements Job {
         grouperHeader = (InputMessageGrouperHeader)JSONObject.toBean(grouperHeaderJson, InputMessageGrouperHeader.class);
       } catch (JSONException e) {
         LOG.error("Error occurred while building Json object for "+grouperHeaderJson);
+        continue;
       }
       
       Collection<String> errors = validate(grouperHeader);
@@ -162,11 +196,11 @@ public class MessageConsumerDaemon implements Job {
       
       String newJson = "{ \"" + endpoint + "\" :" + wsRequestBody + "}";
       
-      String wsBaseUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.ws.url");
+      String wsBaseUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging."+configName+".ws.url");
       
       WsResponse wsReponse = null;
       try {        
-        wsReponse = callWebService(newJson, wsBaseUrl + grouperHeader.getHttpPath());
+        wsReponse = callWebService(newJson, wsBaseUrl + grouperHeader.getHttpPath(), configName);
         messagesToBeAcknowledged.add(inputMessage);
       } catch (Exception e) {
         wsReponse = new WsResponse();
@@ -312,10 +346,11 @@ public class MessageConsumerDaemon implements Job {
   /**
    * @param jsonInput
    * @param url
+   * @param configName
    * @return
    * @throws Exception
    */
-  private WsResponse callWebService(String jsonInput, String url) throws Exception {
+  private WsResponse callWebService(String jsonInput, String url, String configName) throws Exception {
       
       HttpClient httpClient = new HttpClient();
       
@@ -326,21 +361,25 @@ public class MessageConsumerDaemon implements Job {
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       
-      String username = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.ws.username");
-      String password = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.ws.password");
-      password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
+      GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
       
-      Credentials credentials = new UsernamePasswordCredentials(username, password);
+      String username = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".ws.username");
+      String password = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".ws.password");
+      if (StringUtils.isNotBlank(password)) {        
+        password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
+        Credentials credentials = new UsernamePasswordCredentials(username, password);
+        httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+      }
       
-      String actAsSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectSourceId");
-      String actAsSubjectId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.messaging.wsMessagingBridge.actAsSubjectId");
+      String actAsSubjectSourceId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectSourceId");
+      String actAsSubjectId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectId");
       
       method.setRequestHeader("X-Grouper-actAsSourceId", actAsSubjectSourceId);
       method.setRequestHeader("X-Grouper-actAsSubjectId", actAsSubjectId);
       
       method.setRequestHeader("Connection", "close");
       
-      httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+      
 
       method.setRequestEntity(new StringRequestEntity(jsonInput, "text/x-json", "UTF-8"));
       
