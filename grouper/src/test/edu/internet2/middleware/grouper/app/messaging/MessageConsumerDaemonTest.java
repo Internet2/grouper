@@ -106,7 +106,9 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     FakeHttpServer httpServer = new FakeHttpServer();
     httpServer.launchHttpServer();
     
-    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages);
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.fake-config-name.ws.url", "http://localhost:8085");
+    
+    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages, "fake-config-name");
     
     httpServer.stopHttpServer();
     
@@ -127,7 +129,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     FakeHttpServer httpServer = new FakeHttpServer();
     httpServer.launchHttpServer();
     
-    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages);
+    daemon.processMessages("fakeMessagingSystem", grouperMessageSystem, "queue", "test-queue-name", grouperMessages, "fake-config-name");
     
     httpServer.stopHttpServer();
     
