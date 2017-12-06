@@ -102,7 +102,8 @@ public class AuditTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.env.name");
-
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig");
+    GrouperConfig.retrieveConfig().resetAttributeDefNameIdsToIgnoreChangeLogAndAudit();
   }
 
   /**
@@ -1555,6 +1556,10 @@ public class AuditTest extends GrouperTest {
     attributeDef.store();
 
     AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    AttributeDefName attributeDefNameExcludeAudits = this.edu.addChildAttributeDefName(attributeDef, "testExcludeAudits", "testExcludeAudits");
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefNameExcludeAudits.getName());
+
     Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
     
     group.getAttributeDelegate().assignAttribute(attributeDefName);
@@ -1633,5 +1638,51 @@ public class AuditTest extends GrouperTest {
     
     
   }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignValueExcludeAudits() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
 
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefName.getName());
+
+    Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    group.getAttributeDelegate().assignAttribute(attributeDefName);
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+   AttributeAssignValue attributeAssignValue = group.getAttributeValueDelegate()
+     .assignValue(attributeDefName.getName(), "something").getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly zero audits", auditCount+0, newAuditCount);
+    
+    attributeAssignValue.setValueString("anotherString");
+    attributeAssignValue.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly zero audits", auditCount+0, newAuditCount);
+    
+    group.getAttributeValueDelegate().deleteValue(attributeDefName.getName(), "anotherString");
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly zero audits", auditCount+0, newAuditCount);
+  }
 }

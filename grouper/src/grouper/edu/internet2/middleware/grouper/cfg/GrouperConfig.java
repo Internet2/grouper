@@ -41,7 +41,9 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -80,6 +82,16 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    * attribute def ids that shouldnt be stored in change log or audited
    */
   private Set<String> attributeDefIdsToIgnoreChangeLogAndAuditSet = null;
+  
+  /**
+   * cache this so we dont have to lookup ids all the time
+   */
+  private static ExpirableCache<String, Set<String>> attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache = new ExpirableCache<String, Set<String>>(10);
+  
+  /**
+   * attribute def name ids that shouldnt be stored in change log or audited
+   */
+  private Set<String> attributeDefNameIdsToIgnoreChangeLogAndAuditSet = null;
   
   /**
    * get the attribute def ids to ignore when sending to change log, and audit 
@@ -161,7 +173,96 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
     return this.attributeDefIdsToIgnoreChangeLogAndAuditSet;
     
   }
+  
+  /**
+   * For testing purposes
+   */
+  public void resetAttributeDefNameIdsToIgnoreChangeLogAndAudit() {
+    attributeDefNameIdsToIgnoreChangeLogAndAuditSet = null;
+    attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.clear();
+  }
 
+  
+  /**
+   * get the attribute def name ids to ignore when sending to change log, and audit 
+   * @return the set of attribute def name ids
+   */
+  public Set<String> attributeDefNameIdsToIgnoreChangeLogAndAudit() {
+    
+    if (this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet == null) {
+      
+      synchronized (this) {
+
+        if (this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet == null) {
+          Set<String> result = new HashSet<String>();
+          String namesOfAttributeDefNamesCommaSeparated = this.propertyValueString("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit");
+            
+          Set<String> tempResult = attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.get(namesOfAttributeDefNamesCommaSeparated);
+          
+          if (tempResult == null) {
+            
+            if (!StringUtils.isBlank(namesOfAttributeDefNamesCommaSeparated)) {
+              String[] namesOfAttributeDefNames = GrouperUtil.splitTrim(namesOfAttributeDefNamesCommaSeparated, ",");
+              
+              //get a root session, or use existing
+              GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+              boolean startedSession = grouperSession == null;
+              try {
+                if (startedSession) {
+                  grouperSession = GrouperSession.startRootSession();
+                } else {
+                  grouperSession = grouperSession.internal_getRootSession();
+                }
+                
+                for (String nameOfAttributeDefName : namesOfAttributeDefNames) {
+                  try {
+                    //if not there log it.  e.g. for UI you might ignore attributes, but wont be there if testing the API
+                    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(nameOfAttributeDefName, false);
+                    
+                    if (attributeDefName == null) {
+                      LOG().error("Attribute def name not found: " + nameOfAttributeDefName);
+                      continue;
+                    }
+                    
+                    result.add(attributeDefName.getId());
+                    
+                    if (result.size() > 150) {
+                      throw new RuntimeException("Cant have a size of more than 150 for attributeDefNames excluded from audits and PIT");
+                    }
+                    
+                  } catch (RuntimeException re) {
+                    GrouperUtil.injectInException(re, "name of attributeDefName configured "
+                        + "in grouper properties file: grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit, "
+                        + "that attribute cannot be found.  ");
+                    throw re;
+                  }
+                }
+                
+              } finally {
+                if (startedSession) {
+                  GrouperSession.stopQuietly(grouperSession);
+                }
+              }
+            }
+            
+            //you dont want callers modifying this
+            result = Collections.unmodifiableSet(result);
+
+            //put back in cache
+            attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.put(namesOfAttributeDefNamesCommaSeparated, result);
+          } else {
+            result = tempResult;
+          }
+          this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet = result;
+            
+        }
+
+      }
+      
+    }
+    return this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet;
+    
+  }
   
   
   /**
