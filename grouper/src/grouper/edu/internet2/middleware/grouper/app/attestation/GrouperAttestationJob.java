@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -622,7 +623,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    * build array of email addresses from either the attribute itself or from the group admins/readers/updaters.
    * @param attributeAssign
    * @param group
-   * @return
+   * @return the email addresses
    */
   private static String[] getEmailAddresses(AttributeAssign attributeAssign, Group group) {
     
@@ -631,18 +632,25 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (StringUtils.isBlank(attestationEmailAddresses)) {
       
       // get the group's admins/updaters/readers 
-      Set<Subject> groupMembers = group.getAdmins();
-      groupMembers.addAll(group.getReaders());
-      groupMembers.addAll(group.getUpdaters());
+      Set<Subject> groupMembers = GrouperUtil.nonNull(group.getAdmins());
+
+      //if someone is a reader and an updater then add their email address
+      for (Subject subject : GrouperUtil.nonNull(group.getUpdaters())) {
+        if (SubjectHelper.inList(GrouperUtil.nonNull(group.getReaders()), subject)) {
+          groupMembers.add(subject);
+        }
+      }
       
       Set<String> addresses = new HashSet<String>();
       
       // go through each subject and find the email address.
       for (Subject subject: groupMembers) {
         String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
-        String emailAddress = subject.getAttributeValue(emailAttributeName);
-        if (!StringUtils.isBlank(emailAttributeName) && !StringUtils.isBlank(emailAddress)) {
-          addresses.add(emailAddress);
+        if (!StringUtils.isBlank(emailAttributeName)) {
+          String emailAddress = subject.getAttributeValue(emailAttributeName);
+          if (!StringUtils.isBlank(emailAddress)) {
+            addresses.add(emailAddress);
+          }
         }
       }
       
