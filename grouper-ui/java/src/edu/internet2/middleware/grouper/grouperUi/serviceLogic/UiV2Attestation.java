@@ -302,7 +302,7 @@ public class UiV2Attestation {
     boolean validationDone = false;
     if (!hasError) {
       String rawHasAttestation = request.getParameter("grouperAttestationHasAttestationName");
-      if (!GrouperUtil.booleanValue(rawHasAttestation)) {
+      if (!GrouperUtil.booleanValue(rawHasAttestation, false)) {
         validationDone = true;
       }
     }
@@ -324,7 +324,7 @@ public class UiV2Attestation {
         }
       } else  {
         String rawUseDefault = request.getParameter("grouperAttestationDefaultCertifyName");
-        if (!GrouperUtil.booleanValue(rawUseDefault)) {
+        if (!GrouperUtil.booleanValue(rawUseDefault, false)) {
           guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperAttestationCustomRecertifyDaysId",
               TextContainer.retrieveFromRequest().getText().get("attestationCustomRecertifyDaysRequired")));
           hasError = true;
