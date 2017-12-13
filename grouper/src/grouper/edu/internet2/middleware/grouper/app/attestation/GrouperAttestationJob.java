@@ -631,7 +631,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     String[] emailAddresses = null;
     if (StringUtils.isBlank(attestationEmailAddresses)) {
       
-      // get the group's admins/updaters/readers 
+      // get the group's admins and updaters-and-readers (must be both)
       Set<Subject> groupMembers = GrouperUtil.nonNull(group.getAdmins());
 
       //if someone is a reader and an updater then add their email address
