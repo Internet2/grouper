@@ -21,9 +21,11 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -35,7 +37,6 @@ import org.apache.commons.logging.Log;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -1830,10 +1831,27 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @return the value delegate
    */
   public AttributeAssignValueDelegate getValueDelegate() {
-    if  (this.valueDelegate == null) {
-      this.valueDelegate = new AttributeAssignValueDelegate(this);
+    
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "getValueDelegate");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
     }
-    return this.valueDelegate;
+    try {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("retrievedValueDelegateFromCache", this.valueDelegate != null);
+      }
+      if  (this.valueDelegate == null) {
+        this.valueDelegate = new AttributeAssignValueDelegate(this);
+      }
+      return this.valueDelegate;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        //LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
   
   /** */
@@ -1845,10 +1863,28 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @return the delegate
    */
   public AttributeValueDelegate getAttributeValueDelegate() {
-    if (this.attributeValueDelegate == null) {
-      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "getAttributeValueDelegate");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
     }
-    return this.attributeValueDelegate;
+    try {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("retrievedValueDelegateFromCache", this.attributeValueDelegate != null);
+      }
+      if (this.attributeValueDelegate == null) {
+        
+        this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+      }
+      return this.attributeValueDelegate;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        //LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+ 
   }
 
   /**

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -405,59 +406,85 @@ public class GrouperAttestationJob extends OtherJobBase {
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperAttestationJob.class);
-  
+
   /**
    * @param groupAttributeAssign
    * @param group
    */
   public static void updateObjectAttributesToPatch81(Group group, AttributeAssign groupAttributeAssign) {
-
-    if (groupAttributeAssign == null) {
-      groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
-    }
-
-    AttributeAssign attributeAssign = groupAttributeAssign;
+    updateObjectAttributesToPatch81(group, groupAttributeAssign, true);
+  }
+  
+  /**
+   * @param groupAttributeAssign
+   * @param group
+   * @param updateLastCertified
+   */
+  public static void updateObjectAttributesToPatch81(Group group, AttributeAssign groupAttributeAssign, boolean updateLastCertified) {
     
-    // not sure why not attestation but thats ok
-    if (groupAttributeAssign == null) {
-      return;
-    }
+    Map<String, Object> debugMap = null;
     
-    String hasAttestationAttributeValue = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
-
-    // if this is blank then we need to upgrade
-    if (StringUtils.isBlank(hasAttestationAttributeValue)) {
-
-      groupAttributeAssign.getAttributeValueDelegate().assignValueString(
-          GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "true");
-
-      //this is not direct
-      if (!StringUtils.equals("true", groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(
-          GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName()))) {
-        
-        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
-            GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
-        
-        Stem configStem = (Stem)group.getParentStem().getAttributeDelegate()
-            .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
-
-        //there is no direct assignment and no stem with attestation
-        if (configStem == null) {
-          LOG.error("Why is there no direct assignment or parent stem with attestation on group: " + group.getName() + ", " + group.getUuid());
-          return;
-        }
-
-        updateObjectAttributesToPatch81(configStem, null);
-        
-        attributeAssign = configStem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
-        
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "updateObjectAttributesToPatch81");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+      debugMap.put("groupAttributeAssignInitialNull", groupAttributeAssign == null);
+    }
+    try {
+      if (groupAttributeAssign == null) {
+        groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+      }
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("groupAttributeAssignRetrieveNull", groupAttributeAssign == null);
+      }
+  
+      AttributeAssign attributeAssign = groupAttributeAssign;
+      
+      // not sure why not attestation but thats ok
+      if (groupAttributeAssign == null) {
+        return;
       }
       
-      //calculate
-      GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
-      
+      String hasAttestationAttributeValue = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+  
+      // if this is blank then we need to upgrade
+      if (StringUtils.isBlank(hasAttestationAttributeValue)) {
+  
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "true");
+  
+        //this is not direct
+        if (!StringUtils.equals("true", groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName()))) {
+          
+          groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+              GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+          
+          Stem configStem = (Stem)group.getParentStem().getAttributeDelegate()
+              .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+  
+          //there is no direct assignment and no stem with attestation
+          if (configStem == null) {
+            LOG.error("Why is there no direct assignment or parent stem with attestation on group: " + group.getName() + ", " + group.getUuid());
+            return;
+          }
+  
+          updateObjectAttributesToPatch81(configStem, null);
+          
+          attributeAssign = configStem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+  
+        }
+        
+        if (updateLastCertified) {
+          //calculate
+          GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
+        }      
+      }
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
-    
   }
   
   /**
@@ -486,6 +513,27 @@ public class GrouperAttestationJob extends OtherJobBase {
       
     }
   }
+
+//  /**
+//   * 
+//   * @param debugMap
+//   */
+//  public static void debugQueries(Map<String, Object> debugMap) {
+//
+//    String hasAttestationCount = HibernateSession.bySqlStatic().select(String.class, "SELECT COUNT(1) FROM grouper_aval_asn_asn_group_v WHERE group_name = 'testAttestation:attestable' AND attribute_def_name_name2 = 'etc:attribute:attestation:attestationCalculatedDaysLeft' AND value_String = 'etc:attribute:attestation:attestationHasAttestation'");
+//    
+//    if (!StringUtils.equals(hasAttestationCount, "0")) {
+//
+//      debugMap.put("dbHasAttestation", HibernateSession.bySqlStatic().select(String.class, "SELECT value_string FROM grouper_aval_asn_asn_group_v WHERE group_name = 'testAttestation:attestable' AND attribute_def_name_name2 = 'etc:attribute:attestation:attestationHasAttestation'"));
+//      
+//    } else {
+//      debugMap.put("dbHasAttestation", "false");
+//      
+//    }
+//    debugMap.put("dbCalculatedDayUntilAttestation", HibernateSession.bySqlStatic().select(String.class, "SELECT COUNT(1) FROM grouper_aval_asn_asn_group_v WHERE group_name = 'testAttestation:attestable' AND attribute_def_name_name2 = 'etc:attribute:attestation:attestationCalculatedDaysLeft' AND value_String IS NOT NULL"));
+//
+//  }
+  
   
   /**
    * update the calculated days until recertify
@@ -494,51 +542,101 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static void updateCalculatedDaysUntilRecertify(Group group, AttributeAssign attributeAssign) {
 
-    AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+    Map<String, Object> debugMap = null;
     
-    String attestationDateCertified = null;
-    
-    if (groupAttributeAssign != null) {
-      
-      //see if converting from previous patch
-      updateObjectAttributesToPatch81(group, groupAttributeAssign);
-      
-      attestationDateCertified = groupAttributeAssign.getAttributeValueDelegate()
-          .retrieveValueString(retrieveAttributeDefNameDateCertified().getName());
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "updateCalculatedDaysUntilRecertify");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+      debugMap.put("attributeAssignInitialNull", attributeAssign == null);
+      debugMap.put("group", group.getName());
     }
-    String configuredAttestationDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDaysUntilRecertify().getName());
-    
-    int configuredDaysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
-    if (! StringUtils.isBlank(configuredAttestationDaysUntilRecertify)) {
-      configuredDaysUntilRecertify = Integer.valueOf(configuredAttestationDaysUntilRecertify);
-    }
-    
-    // find the difference between today's date and last certified date
-    // and if the difference is greater than daysUntilRecertify minus attestationDaysBeforeToRemind, then sendEmail
-    int daysUntilNeedsCertify = 0;
-    if (!StringUtils.isBlank(attestationDateCertified)) {
-      Date lastCertifiedDate = null;
-      try {
-        lastCertifiedDate = new SimpleDateFormat("yyyy/MM/dd").parse(attestationDateCertified);
-      } catch (ParseException e) {
-        LOG.error("Could not convert "+attestationDateCertified+" to date. Attribute assign id is: "+attributeAssign.getId(), e);
-        return;
-      }
-      long millisSinceCertify = new Date().getTime() - lastCertifiedDate.getTime();
-      int daysSinceCertify = (int)TimeUnit.DAYS.convert(millisSinceCertify, TimeUnit.MILLISECONDS);
-      daysUntilNeedsCertify = configuredDaysUntilRecertify - daysSinceCertify;
-      if (daysUntilNeedsCertify < 0) {
-        daysUntilNeedsCertify = 0;
-      }
-    }
+    try {
+      AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
 
-    groupAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "" + daysUntilNeedsCertify);
-    
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("groupAttributeAssignInitialNull", groupAttributeAssign == null);
+      }
+
+      String attestationDateCertified = null;
+      
+      if (groupAttributeAssign != null) {
+        
+        //see if converting from previous patch
+        updateObjectAttributesToPatch81(group, groupAttributeAssign, false);
+        
+        attestationDateCertified = groupAttributeAssign.getAttributeValueDelegate()
+            .retrieveValueString(retrieveAttributeDefNameDateCertified().getName());
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("attestationDateCertified", attestationDateCertified);
+        }
+      }
+      
+      String hasAttestationAttributeValue = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("hasAttestationAttributeValue", hasAttestationAttributeValue);
+      }
+
+      // if this is blank then we need to upgrade
+      if (StringUtils.isBlank(hasAttestationAttributeValue) || !GrouperUtil.booleanValue(hasAttestationAttributeValue)) {
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("removeAttribute", true);
+        }
+        groupAttributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft());
+
+      } else {
+      
+        String configuredAttestationDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDaysUntilRecertify().getName());
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("configuredAttestationDaysUntilRecertify", configuredAttestationDaysUntilRecertify);
+        }
+
+        int configuredDaysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
+        if (! StringUtils.isBlank(configuredAttestationDaysUntilRecertify)) {
+          configuredDaysUntilRecertify = Integer.valueOf(configuredAttestationDaysUntilRecertify);
+        }
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("configuredDaysUntilRecertify", configuredDaysUntilRecertify);
+        }
+
+        // find the difference between today's date and last certified date
+        // and if the difference is greater than daysUntilRecertify minus attestationDaysBeforeToRemind, then sendEmail
+        int daysUntilNeedsCertify = 0;
+        if (!StringUtils.isBlank(attestationDateCertified)) {
+          Date lastCertifiedDate = null;
+          try {
+            lastCertifiedDate = new SimpleDateFormat("yyyy/MM/dd").parse(attestationDateCertified);
+          } catch (ParseException e) {
+            LOG.error("Could not convert "+attestationDateCertified+" to date. Attribute assign id is: "+attributeAssign.getId(), e);
+            return;
+          }
+          long millisSinceCertify = new Date().getTime() - lastCertifiedDate.getTime();
+          int daysSinceCertify = (int)TimeUnit.DAYS.convert(millisSinceCertify, TimeUnit.MILLISECONDS);
+          daysUntilNeedsCertify = configuredDaysUntilRecertify - daysSinceCertify;
+          if (daysUntilNeedsCertify < 0) {
+            daysUntilNeedsCertify = 0;
+          }
+        }
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("assigningCalculatedDaysLeft",daysUntilNeedsCertify);
+        }
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "" + daysUntilNeedsCertify);
+      }
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
   
   /**
    * get map of email addresses to email objects for group attributes
    * @param stemAttributeAssign
+   * @param groupAttributeAssigns
    * @return the map of email objects
    */
   protected static Map<String, Set<EmailObject>> buildAttestationGroupEmails(AttributeAssign stemAttributeAssign, Set<AttributeAssign> groupAttributeAssigns) {
@@ -763,18 +861,7 @@ public class GrouperAttestationJob extends OtherJobBase {
         Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
         
         if (group != null) {
-          
-          //if doesnt have a parent thats configured, remove this one
-          //start at stem and look for assignment
-          AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
-            .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
-
-          //if no parent has it, then remove most attributes
-          if (attributeAssignable == null) {
-            removeDirectGroupAttestation(group, false);
-          } else {
-            removeDirectGroupAttestation(group, true);
-          }
+          removeDirectGroupAttestation(group);
         }
         continue;
       }
@@ -1144,36 +1231,88 @@ public class GrouperAttestationJob extends OtherJobBase {
   /**
    * remove direct group assignment in favor of stem assignment
    * @param group
+   */
+  public static void removeDirectGroupAttestation(Group group) {
+    //if doesnt have a parent thats configured, remove this one
+    //start at stem and look for assignment
+    AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
+      .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+  
+    //if no parent has it, then remove most attributes
+    if (attributeAssignable == null) {
+      removeDirectGroupAttestation(group, false);
+    } else {
+      removeDirectGroupAttestation(group, true);
+    }
+  }
+
+  /**
+   * remove direct group assignment in favor of stem assignment
+   * @param group
    * @param changeToIndirect means keep the indirect attributes
    */
   public static void removeDirectGroupAttestation(Group group, boolean changeToIndirect) {
+    Map<String, Object> debugMap = null;
     
-    //if there is no last certified or emailed, just remove
-    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
-    if (!changeToIndirect) {
-      if (StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName()))
-          && StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName()))
-          ) {
-        group.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
-        return;
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "removeDirectGroupAttestation");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+      debugMap.put("group", group.getName());
+      debugMap.put("changeToIndirect", changeToIndirect);
+    }
+    try {
+      //if there is no last certified or emailed, just remove
+      AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("attributeAssignNull", attributeAssign == null);
+      }
+      if (!changeToIndirect) {
+        String emailedDate = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
+        String dateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("emailedDate", emailedDate);
+          debugMap.put("dateCertified", dateCertified);
+        }
+        if (StringUtils.isBlank(emailedDate)
+            && StringUtils.isBlank(dateCertified)
+            ) {
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("removeAttribute", true);
+          }
+          group.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
+          return;
+        }
+      }
+      
+      if (changeToIndirect) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("directAssignment", false);
+        }
+        attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+      } else {
+        //has no more attestation
+        attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment());
+        attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "false");
+      }
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameSendEmail());
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses());
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify());
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind());
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("calculatedDays", "null");
+      }
+
+      //this has to be recalculated
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft());
+      
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
       }
     }
-    
-    if (changeToIndirect) {
-      attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
-    } else {
-      //has no more attestation
-      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment());
-      attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "false");
-    }
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameSendEmail());
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses());
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify());
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind());
 
-    //this has to be recalculated
-    attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft());
-    
   }
 
 }

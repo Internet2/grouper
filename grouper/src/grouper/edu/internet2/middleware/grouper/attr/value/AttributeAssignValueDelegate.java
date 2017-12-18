@@ -22,13 +22,17 @@ package edu.internet2.middleware.grouper.attr.value;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -82,6 +86,10 @@ public class AttributeAssignValueDelegate {
    * reference to the group in question
    */
   private AttributeAssign attributeAssign = null;
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(AttributeAssignValueDelegate.class);
   
   /**
    * 
@@ -125,44 +133,78 @@ public class AttributeAssignValueDelegate {
    * @return the values
    */
   public Set<AttributeAssignValue> internal_retrieveValues(boolean checkSecurity, boolean filterInvalidTypes, boolean useCache) {
-    
-    if (checkSecurity) {
-      //make sure can read
-      AttributeAssignable attributeAssignable = this.attributeAssign.retrieveAttributeAssignable();
-      attributeAssignable.getAttributeDelegate().assertCanReadAttributeDefName(this.attributeAssign.getAttributeDefName());
-    }
-    
-    AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
-    
-    Set<AttributeAssignValue> results = this.allAttributeAssignValuesCache;
-    
-    if (results == null) {
-      results = GrouperDAOFactory.getFactory().getAttributeAssignValue()
-        .findByAttributeAssignId(this.attributeAssign.getId(), new QueryOptions().secondLevelCache(useCache));
-      allAttributeAssignValuesCacheMissesForTest++;
-    } else {
-      allAttributeAssignValuesCacheHitsForTest++;
-    }
 
-    if (filterInvalidTypes) {
-      //lets filter if not the right type...  not sure why this would be, might be because the type was changed mid-use
-      Iterator<AttributeAssignValue> iterator = results.iterator();
-      while (iterator.hasNext()) {
-        AttributeAssignValue attributeAssignValue = iterator.next();
-        AttributeAssignValueType attributeAssignValueType = attributeAssignValue.getCurrentAssignValueType();
-        if (!attributeAssignValueType.compatibleWith(attributeDef.getValueType())) {
-          iterator.remove();
-        }
-        
-      }
-    } 
+    Map<String, Object> debugMap = null;
     
-    if (!attributeDef.isMultiValued() && GrouperUtil.length(results) > 1) {
-      throw new RuntimeException("Attribute is not multi-valued, but has multiple results! " 
-          + this.attributeAssign.getAttributeDefName().getName() + ", " + this + ", size: " 
-          + GrouperUtil.length(results));
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "internal_retrieveValues");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+      debugMap.put("checkSecurity", checkSecurity);
+      debugMap.put("filterInvalidTypes", filterInvalidTypes);
+      debugMap.put("useCache", useCache);
     }
-    return results;
+    try {
+      if (checkSecurity) {
+        //make sure can read
+        AttributeAssignable attributeAssignable = this.attributeAssign.retrieveAttributeAssignable();
+        attributeAssignable.getAttributeDelegate().assertCanReadAttributeDefName(this.attributeAssign.getAttributeDefName());
+      }
+
+      AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
+      
+      Set<AttributeAssignValue> results = this.allAttributeAssignValuesCache;
+      
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("nameOfAttributeDefName", this.attributeAssign.getAttributeDefName().getName());
+        debugMap.put("resultsFromCache", results != null);
+      }
+      
+      if (results == null) {
+        results = GrouperDAOFactory.getFactory().getAttributeAssignValue()
+          .findByAttributeAssignId(this.attributeAssign.getId(), new QueryOptions().secondLevelCache(useCache));
+        allAttributeAssignValuesCacheMissesForTest++;
+      } else {
+        allAttributeAssignValuesCacheHitsForTest++;
+      }
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("resultsSizePreFilter", GrouperUtil.length(results));
+      }
+      
+      if (filterInvalidTypes) {
+        //lets filter if not the right type...  not sure why this would be, might be because the type was changed mid-use
+        Iterator<AttributeAssignValue> iterator = results.iterator();
+        while (iterator.hasNext()) {
+          AttributeAssignValue attributeAssignValue = iterator.next();
+          AttributeAssignValueType attributeAssignValueType = attributeAssignValue.getCurrentAssignValueType();
+          if (!attributeAssignValueType.compatibleWith(attributeDef.getValueType())) {
+            iterator.remove();
+          }
+          
+        }
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("resultsSizePostFilter", GrouperUtil.length(results));
+        }
+      } 
+      
+      if (!attributeDef.isMultiValued() && GrouperUtil.length(results) > 1) {
+        throw new RuntimeException("Attribute is not multi-valued, but has multiple results! " 
+            + this.attributeAssign.getAttributeDefName().getName() + ", " + this + ", size: " 
+            + GrouperUtil.length(results));
+      }
+      
+      if (LOG.isDebugEnabled() && GrouperUtil.length(results) > 0) {
+        debugMap.put("firstResult", results.iterator().next().valueString(true));
+      }
+
+      return results;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
   }
 
   /**

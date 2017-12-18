@@ -3,13 +3,16 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -159,7 +162,7 @@ public class UiV2Attestation {
           }
           daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
               GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-          int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation);
+          int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation, -1);
           result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), 
               GrouperUtil.booleanObjectValue(attestationHasAttestation), attestationEmailAddresses, attestationDaysUntilRecertify,
               attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
@@ -365,6 +368,14 @@ public class UiV2Attestation {
     
     GrouperSession grouperSession = null;
   
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "editGroupAttestationSave");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+    }
+
     try {
 
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -376,6 +387,8 @@ public class UiV2Attestation {
       }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Map<String, Object> DEBUG_MAP = debugMap;
       
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -402,12 +415,23 @@ public class UiV2Attestation {
 
             AuditEntry auditEntry = null;
 
+            if (LOG.isDebugEnabled()) {
+              DEBUG_MAP.put("editAttestationIsAssigned", attestationContainer.isEditAttestationIsAssigned());
+            }
+            if (LOG.isDebugEnabled()) {
+              DEBUG_MAP.put("directGroupAttestationAssignment", attestationContainer.isDirectGroupAttestationAssignment());
+            }
+
             //if it was removed
             if (!attestationContainer.isEditAttestationIsAssigned()) {
+
               if (attestationContainer.isDirectGroupAttestationAssignment()) {
 
+                if (LOG.isDebugEnabled()) {
+                  DEBUG_MAP.put("removeGroupAttestationAssignment", true);
+                }
                 // remove most of the attributes
-                GrouperAttestationJob.removeDirectGroupAttestation(group, true);
+                GrouperAttestationJob.removeDirectGroupAttestation(group);
       
                 guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
                     TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
@@ -420,6 +444,9 @@ public class UiV2Attestation {
               }
             } else {
               if (!attestationContainer.isDirectGroupAttestationAssignment()) {
+                if (LOG.isDebugEnabled()) {
+                  DEBUG_MAP.put("assignAttribute", true);
+                }
                 group.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()); // we are adding attribute here
                 auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId", group.getId(), "groupName", group.getName());
                 auditEntry.setDescription("Add group attestation: "+group.getName());
@@ -464,16 +491,22 @@ public class UiV2Attestation {
 
       
     } catch (RuntimeException re) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("error", ExceptionUtils.getStackTrace(re));
+      }
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
         return;
       }
       throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
 
   }
-  
+
   /**
    * @param request
    * @param response
@@ -878,14 +911,41 @@ public class UiV2Attestation {
    * @param value
    */
   private void updateAttribute(AttributeAssign attributeAssign, String attributeName, String value) {
-    if (value == null) {
-      AttributeDefName attributeDefName = GrouperAttestationJob.retrieveAttributeDefNameByName(attributeName);
-      if (attributeAssign.getAttributeDelegate().hasAttribute(attributeDefName)) {
-        attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
-      }
-    } else {
-      attributeAssign.getAttributeValueDelegate().assignValue(attributeName, value);
+    
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "updateAttribute");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+      debugMap.put("attributeName", attributeName);
+      debugMap.put("value", value);
     }
+    try {
+      if (value == null) {
+        AttributeDefName attributeDefName = GrouperAttestationJob.retrieveAttributeDefNameByName(attributeName);
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("hasAttribute", attributeAssign.getAttributeDelegate().hasAttribute(attributeDefName));
+        }
+        if (attributeAssign.getAttributeDelegate().hasAttribute(attributeDefName)) {
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("removeAttribute", true);
+          }
+          attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+        }
+      } else {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("assignValue", true);
+        }
+        attributeAssign.getAttributeValueDelegate().assignValue(attributeName, value);
+      }
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
+    
   }
   
   /**
@@ -1446,6 +1506,14 @@ public class UiV2Attestation {
   
     Stem stem = null;
 
+    Map<String, Object> debugMap = null;
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "editStemAttestationSave");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+    }
+    
     try {
 
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -1582,12 +1650,18 @@ public class UiV2Attestation {
         }
       });
     } catch (RuntimeException re) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("error", ExceptionUtils.getStackTrace(re));
+      }
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
         return;
       }
       throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
   
   }
@@ -2080,13 +2154,26 @@ public class UiV2Attestation {
           .findGroups();
       
       if (GrouperUtil.length(groups) > 0) {
-        AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
-          .addAttributeDefNameId(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
-          .assignAttributeCheckReadOnAttributeDef(false)
-          .findAttributeAssignValuesResult();
-  
-        guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
-            attributeAssignValueFinderResult));
+
+        {
+          Set<Group> groupsUpdate = new GroupFinder().assignPrivileges(isRoot ? null : AccessPrivilege.UPDATE_PRIVILEGES)
+              .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getId())
+              .assignAttributeValuesOnAssignment(GrouperAttestationJob.TWO_WEEKS_DAYS_LEFT)
+              .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
+              .findGroups();
+          
+          groups.retainAll(groupsUpdate);
+        }
+        
+        if (GrouperUtil.length(groups) > 0) {
+          AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
+            .addAttributeDefNameId(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
+            .assignAttributeCheckReadOnAttributeDef(false)
+            .findAttributeAssignValuesResult();
+    
+          guiAttestations.addAll(GuiAttestation.convertGroupIntoGuiAttestation(groups,
+              attributeAssignValueFinderResult));
+        }
       }
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupAttestationOverall.jsp"));
