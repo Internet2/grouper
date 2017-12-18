@@ -2100,6 +2100,19 @@ public class UiV2Attestation {
             .findGroups();
         
         if (GrouperUtil.length(groups) > 0) {
+          
+          
+          {
+            //only show groups you can READ and UPDATE
+            Set<Group> groupsUpdate = new GroupFinder().assignPrivileges(isRoot ? null : AccessPrivilege.UPDATE_PRIVILEGES)
+                .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getId())
+                .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+                .assignAttributeCheckReadOnAttributeDef(false).assignQueryOptions(QueryOptions.create(null, null, 1, 150))
+                .findGroups();
+            
+            groups.retainAll(groupsUpdate);
+          }
+
           AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupsOfAssignAssign(groups)
               .addAttributeDefNameId(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId())
               .assignAttributeCheckReadOnAttributeDef(false)
