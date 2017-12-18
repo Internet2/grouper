@@ -103,6 +103,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -532,14 +533,22 @@ public class Membership extends GrouperAPI implements
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
 
-          //delete any attributes on this def
-          Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(Membership.this.getImmediateMembershipId());
-          
-          for (AttributeAssign attributeAssign : attributeAssigns) {
-            attributeAssign.delete();
-          }
-          
-          GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
+          //delete any attributes on this stem, this is done as root
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              //delete any attributes on this membership, as root
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(Membership.this.getImmediateMembershipId());
+              
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+              }
+              
+              GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
+              return null;
+            }
+          });
+
           return null;
         }
       });

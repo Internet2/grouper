@@ -33,6 +33,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -42,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -53,6 +55,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignAction;
@@ -322,14 +325,21 @@ public class AttributeAssignAction extends GrouperAPI
                 attributeAssignActionSet.delete();
               }
               
-              //delete assignments that use this action
-              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-                .getAttributeAssign().findByActionId(AttributeAssignAction.this.getId());
-              
-              for (AttributeAssign attributeAssign : attributeAssigns) {
-                attributeAssign.delete();
-              }
-              
+              GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+                
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  //delete assignments that use this action as root
+                  Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
+                    .getAttributeAssign().findByActionId(AttributeAssignAction.this.getId());
+                  
+                  for (AttributeAssign attributeAssign : attributeAssigns) {
+                    attributeAssign.delete();
+                  }
+                  
+                  return null;
+                }
+              });
+
               GrouperDAOFactory.getFactory().getAttributeAssignAction().delete(AttributeAssignAction.this);
               
               hibernateSession.misc().flush();

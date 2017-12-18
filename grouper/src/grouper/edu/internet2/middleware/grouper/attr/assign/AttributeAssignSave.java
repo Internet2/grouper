@@ -968,6 +968,7 @@ public class AttributeAssignSave {
         if (printChangesToSystemOutThreadlocal()) {
           System.out.println("Made change deleted attribute assignment " + existingAttributeAssign);
         }
+        // should this be done as root???
         existingAttributeAssign.delete();
         this.changesCount++;
       }

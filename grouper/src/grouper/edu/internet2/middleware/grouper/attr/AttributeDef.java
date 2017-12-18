@@ -1556,14 +1556,19 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
         try {
           threadLocalInAttributeDefDelete.set(true);
 
-          //delete any attributes on this def
-          Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeDefId(AttributeDef.this.getId());
-          
-          for (AttributeAssign attributeAssign : attributeAssigns) {
-            attributeAssign.delete();
-          }
-  
-          
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              //delete any attributes on this def as root
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeDefId(AttributeDef.this.getId());
+              
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+              }
+              return null;
+            }
+          });
+
           //find the names that use this def
           Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(AttributeDef.this.getId());
           

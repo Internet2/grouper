@@ -1779,12 +1779,18 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
               threadLocalInGroupDelete.set(true);
               
-              //delete any attributes on this group
-              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
-              
-              for (AttributeAssign attributeAssign : attributeAssigns) {
-                attributeAssign.delete();
-              }
+              //delete any attributes on this group, this is done as root
+              GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+                
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
+                  
+                  for (AttributeAssign attributeAssign : attributeAssigns) {
+                    attributeAssign.delete();
+                  }
+                  return null;
+                }
+              });
 
               // ... And delete composite mship if it exists
               if (Group.this.hasComposite()) {
@@ -5031,14 +5037,22 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                     selfRoleSet.delete();
                   }
 
-                  Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getUuid());
-                  Iterator<AttributeAssign> attributeAssignsIter = attributeAssigns.iterator();
-                  while (attributeAssignsIter.hasNext()) {
-                    AttributeAssign attributeAssign = attributeAssignsIter.next();
-                    if (attributeAssign.getAttributeDef().getAttributeDefType().equals(AttributeDefType.perm)) {
-                      attributeAssign.delete();
+                  //delete any attributes on this stem, this is done as root
+                  GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+                    
+                    public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                      Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getUuid());
+                      Iterator<AttributeAssign> attributeAssignsIter = attributeAssigns.iterator();
+                      while (attributeAssignsIter.hasNext()) {
+                        AttributeAssign attributeAssign = attributeAssignsIter.next();
+                        if (attributeAssign.getAttributeDef().getAttributeDefType().equals(AttributeDefType.perm)) {
+                          attributeAssign.delete();
+                        }
+                      }
+                      return null;
                     }
-                  }
+                  });
+
                 }
 
               }

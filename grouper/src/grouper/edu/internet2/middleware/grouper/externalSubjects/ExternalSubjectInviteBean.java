@@ -308,6 +308,7 @@ public class ExternalSubjectInviteBean {
       //get the owner
       AttributeAssign ownerAttributeAssign = attributeAssign.getOwnerAttributeAssign();
       
+      // should this be done as root???
       //just delete and it should cascade...
       ownerAttributeAssign.delete();
       

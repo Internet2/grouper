@@ -685,12 +685,19 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               String name = Stem.this.getName(); // Preserve name for logging
               Stem.this._revokeAllNamingPrivs();
               
-              //delete any attributes on this stem
-              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerStemId(Stem.this.getUuid());
-              
-              for (AttributeAssign attributeAssign : attributeAssigns) {
-                attributeAssign.delete();
-              }
+              //delete any attributes on this stem, this is done as root
+              GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+                
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  //delete any attributes on this stem
+                  Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerStemId(Stem.this.getUuid());
+                  
+                  for (AttributeAssign attributeAssign : attributeAssigns) {
+                    attributeAssign.delete();
+                  }
+                  return null;
+                }
+              });
 
               GrouperDAOFactory.getFactory().getStem().delete( Stem.this );
               
