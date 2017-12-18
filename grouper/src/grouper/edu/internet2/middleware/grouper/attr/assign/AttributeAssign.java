@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -94,6 +95,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
@@ -695,18 +697,24 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
           AuditControl.WILL_AUDIT, new HibernateHandler() {
         
-        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+        public Object callback(final HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
   
-          //delete other assignments on this assignment
-          Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
-            .findByOwnerAttributeAssignId(AttributeAssign.this.getId(), new QueryOptions().secondLevelCache(false));
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              //delete other assignments on this assignment as root
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+                .findByOwnerAttributeAssignId(AttributeAssign.this.getId(), new QueryOptions().secondLevelCache(false));
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+                hibernateHandlerBean.getHibernateSession().getSession().flush();
+              }
+      
+              return null;
+            }
+          });
           
-          for (AttributeAssign attributeAssign : attributeAssigns) {
-            attributeAssign.delete();
-            hibernateHandlerBean.getHibernateSession().getSession().flush();
-          }
-  
           //delete any values based on this assignment
           Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory()
             .getAttributeAssignValue().findByAttributeAssignId(AttributeAssign.this.getId(), new QueryOptions().secondLevelCache(false));

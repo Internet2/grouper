@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
@@ -71,6 +72,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -705,13 +707,22 @@ public class AttributeDefName extends GrouperAPI
           attributeDefNameSet.delete();
         }
 
-        Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(AttributeDefName.this.getId());
-        
-        //delete all assignments
-        for(AttributeAssign attributeAssign : attributeAssigns) {
-          attributeAssign.delete();
-        }
-        
+        //delete any attributes on this stem, this is done as root
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+            Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(AttributeDefName.this.getId());
+            
+            //delete all assignments
+            for(AttributeAssign attributeAssign : attributeAssigns) {
+              attributeAssign.delete();
+            }
+            
+            return null;
+          }
+        });
+
         GrouperDAOFactory.getFactory().getAttributeDefName().delete(AttributeDefName.this);
         
         if (!hibernateHandlerBean.isCallerWillCreateAudit()) {

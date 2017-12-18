@@ -630,6 +630,7 @@ public abstract class AttributeAssignBaseDelegate {
       if (StringUtils.equals(action, currentAttributeAction)) {
         attributeAssignResult.setChanged(true);
         attributeAssignsToReturn.add(attributeAssign);
+        //Should this be done as root???
         attributeAssign.delete();
       }
     }
