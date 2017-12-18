@@ -100,8 +100,9 @@ public class AttributeAssignValueFinder {
             
             AttributeAssignValue attributeAssignValue = this.mapAttributeAssignOnAssignIdToAttributeAssignValue.get(attributeAssignOnAssign.getId());
             
-            result.put(attributeDefName.getName(), attributeAssignValue.valueString());
-            
+            if (attributeAssignValue != null) {
+              result.put(attributeDefName.getName(), attributeAssignValue.valueString());
+            }
           }
           
         }

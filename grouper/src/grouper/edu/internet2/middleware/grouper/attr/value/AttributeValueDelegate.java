@@ -21,12 +21,15 @@ package edu.internet2.middleware.grouper.attr.value;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -52,6 +55,8 @@ public class AttributeValueDelegate {
   public static long allAttributeAssignValuesCacheMissesForTest = 0;
   /** keep a cache of attribute assigns and values */
   private Map<AttributeAssign, Set<AttributeAssignValue>> allAttributeAssignValuesCache = null;
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(AttributeValueDelegate.class);
 
   /**
    * 
@@ -90,6 +95,10 @@ public class AttributeValueDelegate {
     AttributeAssignValueResult attributeAssignValueResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValueString(value);
     
+    if (attributeAssignValueResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+    
     return new AttributeValueResult(attributeAssignResult, attributeAssignValueResult);
   }
 
@@ -106,6 +115,10 @@ public class AttributeValueDelegate {
     AttributeAssignValueResult attributeAssignValueResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValueInteger(value);
     
+    if (attributeAssignValueResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValueResult);
   }
 
@@ -122,6 +135,10 @@ public class AttributeValueDelegate {
     AttributeAssignValueResult attributeAssignValueResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValueFloating(value);
     
+    if (attributeAssignValueResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValueResult);
   }
 
@@ -138,6 +155,10 @@ public class AttributeValueDelegate {
     AttributeAssignValueResult attributeAssignValueResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValueMember(memberId);
     
+    if (attributeAssignValueResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValueResult);
   }
 
@@ -154,6 +175,10 @@ public class AttributeValueDelegate {
     AttributeAssignValueResult attributeAssignValueResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValueMember(member);
     
+    if (attributeAssignValueResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValueResult);
   }
 
@@ -170,6 +195,10 @@ public class AttributeValueDelegate {
     AttributeAssignValueResult attributeAssignValueResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValueTimestamp(timestamp);
     
+    if (attributeAssignValueResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValueResult);
   }
 
@@ -187,6 +216,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesAnyType(values, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -205,6 +238,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesInteger(values, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -222,6 +259,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesFloating(values, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -239,6 +280,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesTimestamp(values, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -256,6 +301,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesMember(values, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -273,6 +322,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesMemberIds(memberIds, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -291,6 +344,10 @@ public class AttributeValueDelegate {
     AttributeAssignValuesResult attributeAssignValuesResult = attributeAssignResult
       .getAttributeAssign().getValueDelegate().assignValuesString(values, deleteOrphans);
     
+    if (attributeAssignValuesResult.isChanged()) {
+      allAttributeAssignValuesCache = null;
+    }
+
     return new AttributeValueResult(attributeAssignResult, attributeAssignValuesResult);
   }
 
@@ -621,25 +678,48 @@ public class AttributeValueDelegate {
    * @return assignment
    */
   private AttributeAssign retrieveAssignmentForRead(String attributeDefNameName) {
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
+    Map<String, Object> debugMap = null;
     
-    this.attributeAssignBaseDelegate.assertCanReadAttributeDefName(attributeDefName);
-    
-    Map<AttributeAssign, Set<AttributeAssignValue>> cachedMap = this.getAllAttributeAssignsForCache();
-    
-    if (cachedMap != null) {
-      Set<AttributeAssign> matching = new HashSet<AttributeAssign>();
-      for (AttributeAssign attributeAssign : cachedMap.keySet()) {
-        if (StringUtils.equals(attributeAssign.getAttributeDefNameId(), attributeDefName.getId())) {
-          matching.add(attributeAssign);
-        }
-      }
-      return GrouperUtil.setPopOne(matching);
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "retrieveAssignmentForRead");
+      debugMap.put("entered", GrouperUtil.timestampToString(new Date()));
+      debugMap.put("attributeDefNameName", attributeDefNameName);
     }
-    
-    AttributeAssign attributeAssign = this.attributeAssignBaseDelegate.retrieveAssignment(
-        null, attributeDefName, false, false);
-    return attributeAssign;
+    try {
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
+      
+      this.attributeAssignBaseDelegate.assertCanReadAttributeDefName(attributeDefName);
+      
+      Map<AttributeAssign, Set<AttributeAssignValue>> cachedMap = this.getAllAttributeAssignsForCache();
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("cachedMapExists", cachedMap != null);
+      }
+      
+      if (cachedMap != null) {
+        Set<AttributeAssign> matching = new HashSet<AttributeAssign>();
+        for (AttributeAssign attributeAssign : cachedMap.keySet()) {
+          if (StringUtils.equals(attributeAssign.getAttributeDefNameId(), attributeDefName.getId())) {
+            matching.add(attributeAssign);
+
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("foundAttributeAssign", true);
+            }
+          }
+        }
+        return GrouperUtil.setPopOne(matching);
+      }
+      
+      AttributeAssign attributeAssign = this.attributeAssignBaseDelegate.retrieveAssignment(
+          null, attributeDefName, false, false);
+      return attributeAssign;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        //LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
   }
 
   /**
