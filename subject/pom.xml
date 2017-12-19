@@ -39,11 +39,11 @@
             <artifactId>morphString</artifactId>
             <version>${project.version}</version>
         </dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>grouperClient</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>grouperClient</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-			<artifactId>commons-digester3</artifactId>
+            <artifactId>commons-digester3</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -72,16 +72,18 @@
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
+<!--
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
+-->
         <dependency>
             <groupId>edu.vt.middleware</groupId>
             <artifactId>vt-ldap</artifactId>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
+            <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
         </dependency>
         <dependency>
@@ -136,6 +138,24 @@
                             </manifestSection>
                         </manifestSections>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>conf/*.example</exclude>
+                        <exclude>doc/**/*.html</exclude>
+                        <exclude>doc/api/stylesheet.css</exclude>
+                        <exclude>doc/api/package-list</exclude>
+                        <exclude>testDB/ldap/*.ldif</exclude>
+                        <exclude>testDB/ldap/*.schema</exclude>
+                        <exclude>testDB/hsqldb/*.log</exclude>
+                        <exclude>testDB/hsqldb/*.script</exclude>
+                        <exclude>testDB/hsqldb/*.lck</exclude>
+                        <exclude>testDB/hsqldb/*.properties</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

@@ -91,8 +91,6 @@ echo using MEMORY:                 %MEM_START%-%MEM_MAX%
 
 set GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
-rem %JAVA%  -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -jar %GROUPER_HOME%/lib/grouper/invoker.jar -cpdir %GROUPER_CONF% -cpalljars %GROUPER_HOME%/lib -cpjar %GROUPER_HOME%/dist/lib/grouper.jar  -cpjar %GROUPER_HOME%/dist/lib/test/grouper-test.jar %GSH% %*
-
 %JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -classpath "%GROUPER_CP%" %GSH% %*
 
 :end
