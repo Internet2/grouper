@@ -528,6 +528,42 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
   }
 
   /**
+   * 
+   * @param previousEmailAddress
+   * @return the new email address
+   */
+  public static String massageGrouperEmailAddress(String previousEmailAddress, String username) {
+
+    //  # if should makeup email address for people without email addresses (since atlassian needs them)
+    //  # e.g.  @institution.edu
+    //  # will append to the atlassian id
+    //  atlassian.email.suffixForBlankEmails = 
+
+
+    //  # if should use something like eppn for email addresses
+    //  # e.g.  @institution.edu
+    //  # will append to the atlassian id
+    //  atlassian.email.suffixForAllEmails = 
+
+    {
+      String suffixForAllEmails = GrouperClientConfig.retrieveConfig().propertyValueString("atlassian.email.suffixForAllEmails");
+      if (!GrouperClientUtils.isBlank(suffixForAllEmails)) {
+        return username + suffixForAllEmails;
+      }
+    }
+    
+    
+    {
+      String suffixForBlankEmails = GrouperClientConfig.retrieveConfig().propertyValueString("atlassian.email.suffixForBlankEmails");
+      if (!GrouperClientUtils.isBlank(suffixForBlankEmails) && GrouperClientUtils.isBlank(previousEmailAddress)) {
+        return username + suffixForBlankEmails;
+      }
+    }
+    
+    return previousEmailAddress;
+  }
+  
+  /**
    * @param readonly
    */
   private void reconcilePeople(boolean readonly) {
@@ -548,9 +584,10 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
           atlassianUser.setLowerDisplayName(GrouperClientUtils.defaultString(grouperUser.getDisplayName()).toLowerCase());
           hasChange = true;
         }
-        if (!GrouperClientUtils.equalsIgnoreCase(grouperUser.getEmailAddress(), atlassianUser.getEmailAddress())) {
-          atlassianUser.setEmailAddress(grouperUser.getEmailAddress());
-          atlassianUser.setLowerEmailAddress(GrouperClientUtils.defaultString(grouperUser.getEmailAddress()).toLowerCase());
+        String grouperEmailAddress = massageGrouperEmailAddress(grouperUser.getEmailAddress(), username);
+        if (!GrouperClientUtils.equalsIgnoreCase(grouperEmailAddress, atlassianUser.getEmailAddress())) {
+          atlassianUser.setEmailAddress(grouperEmailAddress);
+          atlassianUser.setLowerEmailAddress(grouperEmailAddress.toLowerCase());
           hasChange = true;
         }
         //if has change, then store it

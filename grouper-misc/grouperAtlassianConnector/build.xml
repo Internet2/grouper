@@ -48,6 +48,13 @@
       <fileset dir="${main.lib}">
         <include name="**/*.jar" />
       </fileset>
+      <fileset dir="${grouper.client.folder}/dist">
+        <include name="grouperClient.jar"/>
+      </fileset>
+      <fileset dir="${grouper.awsChangelog.folder}/dist">
+        <include name="grouperAws.jar"/>
+      </fileset>
+      
     </path>
 
     <condition property="main.os" value="windows">
@@ -72,7 +79,7 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
-    <javac  target="1.5"  source="1.5" 
+    <javac  target="1.8"  source="1.8" 
       srcdir="${main.sourceDir}" destdir="${main.binDir}" classpath="${main.theClasspath}" debug="true" />
   </target>
 
