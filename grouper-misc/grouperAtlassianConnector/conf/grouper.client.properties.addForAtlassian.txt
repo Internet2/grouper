@@ -125,3 +125,13 @@ grouperClient.webService.jira.user = username
 grouperClient.webService.jira.pass = password
 grouperClient.webService.jira.defaultRequestContentType = Application/json
 
+# if should makeup email address for people without email addresses (since atlassian needs them)
+# e.g.  @institution.edu
+# will append to the atlassian id
+atlassian.email.suffixForBlankEmails = 
+
+
+# if should use something like eppn for email addresses
+# e.g.  @institution.edu
+# will append to the atlassian id
+atlassian.email.suffixForAllEmails = 
