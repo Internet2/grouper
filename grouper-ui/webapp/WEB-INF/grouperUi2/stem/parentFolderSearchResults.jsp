@@ -5,7 +5,8 @@
 
                     <%-- p>The table below lists folders where you are allowed to create new groups.</p>
                     <p>The table below lists folders where you are allowed to create new folders.</p --%>
-                    <p>${grouperRequestContainer.stemContainer.stemSearchType.keyDescription}</p>
+                    <c:set var="keyDescriptionKey" value="${grouperRequestContainer.stemContainer.stemSearchType.keyDescription}" />
+                    <p>${textContainer.text[keyDescriptionKey]}</p>
                     <table class="table table-hover table-bordered table-striped table-condensed data-table">
                       <thead>
                         <tr>

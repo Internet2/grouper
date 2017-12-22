@@ -45,7 +45,16 @@
                             		role="menu" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
                             		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
                               <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
+                                <li><a href="#"
+                                	   onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                                		${textContainer.text['attributeDefViewAttributeDefNameButton'] }
+                                	</a>
+                                </li>
                                 <c:if test="${isAdmin}">
+                                	<li><a href="#"
+                                	 		onclick="return guiV2link('operation=UiV2AttributeDef.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
+                                		${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
+                                	</li>                                	
                                   <li><a href="#" onclick="ajax('../app/UiV2AttributeDef.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId'}); return false;" class="actions-delete-attributeDef">${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                                 </c:if>
                               </ul>

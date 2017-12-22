@@ -205,6 +205,29 @@ public class GrouperRequestContainer {
   public void setAttributeDefContainer(AttributeDefContainer attributeDefContainer1) {
     this.attributeDefContainer = attributeDefContainer1;
   }
+  
+  /** 
+   * attribute def name container 
+   */
+  private AttributeDefNameContainer attributeDefNameContainer;
+  
+  /**
+   * attribute def name container 
+   * @return attribute def name container
+   */
+  public AttributeDefNameContainer getAttributeDefNameContainer() {
+    if (this.attributeDefNameContainer == null) {
+      this.attributeDefNameContainer = new AttributeDefNameContainer();
+    }
+    return this.attributeDefNameContainer;
+  }
+  
+  /**
+   * @param attributeDefNameContainer1
+   */
+  public void setAttributeDefNameContainer(AttributeDefNameContainer attributeDefNameContainer1) {
+    this.attributeDefNameContainer = attributeDefNameContainer1;
+  }
 
   /**
    * subject container

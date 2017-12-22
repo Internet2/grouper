@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -37,6 +38,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -54,11 +56,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttributeDefContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttributeDefNameContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -76,7 +81,9 @@ import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -1980,6 +1987,316 @@ public class UiV2AttributeDef {
   }
 
   /**
+   * show the add attribute name screen
+   * @param request
+   * @param response
+   */
+  public void newAttributeDefName(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      //see if there is a stem id for this
+      String objectStemId = request.getParameter("objectStemId");
+      
+      Pattern pattern = Pattern.compile("^[a-zA-Z0-9-_]+$");
+      
+      if (!StringUtils.isBlank(objectStemId) && pattern.matcher(objectStemId).matches()) {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setObjectStemId(objectStemId);
+      }
+      
+      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      
+      if (objectStemId != null) {
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, 2);
+        Set<AttributeDef> attributes = new AttributeDefFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
+            .assignStemScope(Scope.ONE).assignSubject(loggedInSubject)
+            .assignQueryOptions(queryOptions).assignParentStemId(objectStemId).findAttributes();
+        
+        if (attributes.size() == 1) {
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getAttributeDefContainer()
+          .setObjectAttributeDefId(attributes.iterator().next().getId());
+        }
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDef/newAttributeDefName.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * save new attribute def name
+   * @param request
+   * @param response
+   */
+  public void newAttributeDefNameSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    AttributeDefName attributeDefName = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      String parentFolderId = request.getParameter("parentFolderComboName");
+      String attributeDefId = request.getParameter("attributeDefComboName");
+      String displayExtension = request.getParameter("attributeDefNameToEditDisplayExtension");
+      String extension = request.getParameter("attributeDefNameToEditExtension");
+      String description = request.getParameter("attributeDefNameToEditDescription");
+      
+      if (StringUtils.isBlank(attributeDefId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#attributeDefComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateRequiredAttributeDef")));
+        return;
+      }
+      
+      if (StringUtils.isBlank(parentFolderId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#parentFolderComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateRequiredParentStemId")));
+        return;
+      }
+      
+      if (StringUtils.isBlank(displayExtension)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#name",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateErrorDisplayExtensionRequired")));
+        return;
+      }
+
+      if (StringUtils.isBlank(extension)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#attributeDefNameId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateErrorExtensionRequired")));
+        return;
+      }
+      
+      final Stem parentFolder = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
+          .assignSubject(loggedInSubject)
+          .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
+
+      if (parentFolder == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#parentFolderComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateCantFindStemId")));
+        return;
+      }
+      
+      String stemName = parentFolder.getName();
+      String attributeDefNameName = stemName + ":" + extension;
+      if (AttributeDefNameFinder.findByName(attributeDefNameName, false) != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameExistsError")));
+        return;
+      }
+      
+      AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
+      if (attributeDef == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#attributeDefComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateRequiredAttributeDef")));
+        return;
+      }
+         
+      attributeDefName = parentFolder.addChildAttributeDefName(attributeDef, extension, displayExtension);
+      attributeDefName.setDescription(description);
+      
+      attributeDefName.setDisplayExtensionDb(displayExtension);
+      
+      attributeDefName.store();
+      
+      //go to the view attribute def screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef?attributeDefId=" + attributeDef.getId() + "')"));
+
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateSuccess")));
+
+    } catch (Exception e) {
+      LOG.warn("Error creating attribute def name: " + SubjectHelper.getPretty(loggedInSubject) + ", " + attributeDefName, e);
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, e)) {
+        return;
+      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateError") 
+          + ": " + GrouperUtil.xmlEscape(e.getMessage(), true)));
+      return;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * attribute def name view screen 
+   * @param request
+   * @param response
+   */
+  public void viewAttributeDefName(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final String attributeDefNameId = request.getParameter("attributeDefNameId");
+      
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
+      
+      //not sure why this would happen
+      if (attributeDefName == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefEditAttributeDefNameCantFindAttributeDefName")));
+        return;
+      }
+      
+      //initialize the bean
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      AttributeDefNameContainer attributeDefNameContainer = grouperRequestContainer.getAttributeDefNameContainer();
+      attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDef/attributeDefNameView.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * show attribute def name edit screen 
+   * @param request
+   * @param response
+   */
+  public void editAttributeDefName(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //AttributeDef attributeDef = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+//      attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDef();
+//      
+//      if (attributeDef == null) {
+//        return;
+//      }
+
+      final String attributeDefNameId = request.getParameter("attributeDefNameId");
+      
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
+      
+      //not sure why this would happen
+      if (attributeDefName == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefEditAttributeDefNameCantFindAttributeDefName")));
+        return;
+      }
+      
+      //initialize the bean
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      AttributeDefNameContainer attributeDefNameContainer = grouperRequestContainer.getAttributeDefNameContainer();
+      attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDef/attributeDefNameEdit.jsp"));
+      
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * save attribute def name from edit screen
+   * @param request
+   * @param response
+   */
+  public void attributeDefNameEditSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    AttributeDefName attributeDefName = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      String displayExtension = request.getParameter("attributeDefNameToEditDisplayExtension");
+      String description = request.getParameter("attributeDefNameToEditDescription");
+      String attributeDefNameId = request.getParameter("attributeDefNameId");
+      
+      if (StringUtils.isBlank(displayExtension)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#name", TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateErrorDisplayExtensionRequired")));
+        return;
+      }
+      
+      attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
+      if (attributeDefName == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameNotFoundError")));
+        return;
+      }
+         
+      attributeDefName.setDescription(description);
+      attributeDefName.setDisplayExtensionDb(displayExtension);
+      
+      attributeDefName.store();
+      
+      //go to the view attribute def screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef?attributeDefId=" + attributeDefName.getAttributeDefId() + "')"));
+
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefNameEditSuccess")));
+
+    } catch (Exception e) {
+      LOG.warn("Error editing attribute def name: " + SubjectHelper.getPretty(loggedInSubject) + ", " + attributeDefName, e);
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, e)) {
+        return;
+      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefNameEditError") 
+          + ": " + GrouperUtil.xmlEscape(e.getMessage(), true)));
+      return;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
    * delete attributeDef (show confirm screen)
    * @param request
    * @param response
@@ -2084,6 +2401,72 @@ public class UiV2AttributeDef {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+  
+  /**
+   * combo filter for attribute def
+   * @param request
+   * @param response
+   */
+  public void createAttributeDefNameParentAttributeDefFilter(final HttpServletRequest request, HttpServletResponse response) {
+  
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<AttributeDef>() {
+  
+      /**
+       * 
+       */
+      @Override
+      public AttributeDef lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        
+        return new AttributeDefFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findAttribute();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public Collection<AttributeDef> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        int attributeDefsComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.attributeDefsComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, attributeDefsComboSize);
+        return new AttributeDefFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findAttributes();
+      }
+  
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, AttributeDef t) {
+        return t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, AttributeDef t) {
+        return t.getDisplayName();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, AttributeDef t) {
+        //description could be null?
+        String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
+        return htmlLabel;
+      }
+  
+    });
+    
   }
   
 }
