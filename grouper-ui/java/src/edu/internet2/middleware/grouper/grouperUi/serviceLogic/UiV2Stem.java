@@ -171,6 +171,28 @@ public class UiV2Stem {
     }
     
   }
+  
+  /**
+   * submit button on parent folder search model dialog for create attribute def names
+   * @param request
+   * @param response
+   */
+  public void stemSearchAttributeDefNameFormSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      stemSearchFormSubmitHelper(request, response, StemSearchType.createAttributeDefName);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
 
   
   
@@ -243,6 +265,11 @@ public class UiV2Stem {
      * folder that can create a group
      */
     createGroup("stemSearchDescriptionNewGroups", "stemSearchGroupFormSubmit"),
+    
+    /**
+     * folder that can create attribute def name
+     */
+    createAttributeDefName("stemSearchDescriptionNewAttributeDefNames", "stemSearchAttributeDefNameFormSubmit"),
     
     /**
      * folder that can create a folder

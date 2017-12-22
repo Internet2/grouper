@@ -99,6 +99,27 @@ public class AttributeDefContainer {
       Set<GuiAttributeDef> guiAttributeDefSearchResults1) {
     this.guiAttributeDefSearchResults = guiAttributeDefSearchResults1;
   }
+  
+  /**
+   * if we have attribute def id to use for e.g. create attribute def name
+   */
+  private String objectAttributeDefId;
+  
+  /**
+   * if we have a attribute def id to use for e.g. create attribute def name
+   * @return object attribute def id
+   */
+  public String getObjectAttributeDefId() {
+    return this.objectAttributeDefId;
+  }
+
+  /**
+   * if we have attribute def id to use for e.g. create attribute def name
+   * @param objectStemId1
+   */
+  public void setObjectAttributeDefId(String objectAttributeDefId1) {
+    this.objectAttributeDefId = objectAttributeDefId1;
+  }
 
   /**
    * gui attribute def from url
