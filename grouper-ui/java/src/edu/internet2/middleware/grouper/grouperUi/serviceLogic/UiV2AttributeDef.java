@@ -2269,6 +2269,12 @@ public class UiV2AttributeDef {
             TextContainer.retrieveFromRequest().getText().get("attributeDefNameNotFoundError")));
         return;
       }
+      
+      if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNoAdminPriv")));
+        return;
+      }
          
       attributeDefName.setDescription(description);
       attributeDefName.setDisplayExtensionDb(displayExtension);
