@@ -92,7 +92,7 @@
                     </div>
                   </div>
                  
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDef.newAttributeDefNameSubmit', {formIds: 'addAttributeNameForm'}); return false;">${textContainer.text['attributeDefNameCreateSaveButton'] }</a> 
+                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefName.newAttributeDefNameSubmit', {formIds: 'addAttributeNameForm'}); return false;">${textContainer.text['attributeDefNameCreateSaveButton'] }</a> 
                   <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['attributeDefNameCreateCancelButton'] }</a></div>
                 </form>
               </div>

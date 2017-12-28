@@ -6,7 +6,7 @@
                   <thead>
                     <c:if test="${isAdmin}" >
                       <tr>
-                        <td colspan="4" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2AttributeDef.deleteAttributeDefNames?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId,attributeDefNamesToDeleteFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefNamesButton'] }</a></td>
+                        <td colspan="4" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefNames?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId,attributeDefNamesToDeleteFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefNamesButton'] }</a></td>
                       </tr>
                     </c:if>
                     <tr>
@@ -46,16 +46,16 @@
                             		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
                               <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
                                 <li><a href="#"
-                                	   onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                                	   onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
                                 		${textContainer.text['attributeDefViewAttributeDefNameButton'] }
                                 	</a>
                                 </li>
                                 <c:if test="${isAdmin}">
                                 	<li><a href="#"
-                                	 		onclick="return guiV2link('operation=UiV2AttributeDef.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
+                                	 		onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
                                 		${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
                                 	</li>                                	
-                                  <li><a href="#" onclick="ajax('../app/UiV2AttributeDef.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId'}); return false;" class="actions-delete-attributeDef">${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
+                                  <li><a href="#" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId'}); return false;" class="actions-delete-attributeDef">${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                                 </c:if>
                               </ul>
                             </div>

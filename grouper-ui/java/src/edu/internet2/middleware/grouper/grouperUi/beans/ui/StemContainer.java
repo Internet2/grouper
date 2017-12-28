@@ -20,6 +20,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -627,6 +628,19 @@ public class StemContainer {
 
   public void setGuiAttestation(GuiAttestation guiAttestation) {
     this.guiAttestation = guiAttestation;
+  }
+  
+  /**
+   * attributes assigned to this folder.
+   */
+  private Set<GuiAttributeAssign> guiAttributeAssigns;
+  
+  public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return guiAttributeAssigns;
+  }
+  
+  public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
+    this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
 }

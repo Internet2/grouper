@@ -2003,7 +2003,7 @@ public class GrouperCheckConfig {
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_LAST_EMAILED_DATE,
             "yyyy/mm/dd date that this was last emailed so multiple emails don't go out on same day (group only)", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_CALCULATED_DAYS_LEFT,
-            "In order to ssearch for attestations, this is the calculated days left before needs attestation", wasInCheckConfig);
+            "In order to search for attestations, this is the calculated days left before needs attestation", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_SEND_EMAIL,
             "true or false if emails should be sent", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_STEM_SCOPE,
