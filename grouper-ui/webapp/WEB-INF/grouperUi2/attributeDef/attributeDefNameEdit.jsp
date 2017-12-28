@@ -63,7 +63,7 @@
                     </div>
                   </div>
                  
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDef.attributeDefNameEditSubmit', {formIds: 'editAttributeDefNameForm'}); return false;">${textContainer.text['attributeDefNameEditSaveButton'] }</a> 
+                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefName.attributeDefNameEditSubmit', {formIds: 'editAttributeDefNameForm'}); return false;">${textContainer.text['attributeDefNameEditSaveButton'] }</a> 
                   <a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef?attributeDefId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.attributeDefId}');" class="btn btn-cancel">${textContainer.text['attributeDefCreateCancelButton'] }</a></div>
                 </form>
               </div>
