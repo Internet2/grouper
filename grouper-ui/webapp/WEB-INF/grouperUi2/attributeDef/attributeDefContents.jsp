@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
               <form id="attributeDefNamesToDeleteFormId">
-                <c:set var="isAdmin" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.hasAdmin}" />
+                <c:set var="isAdmin" value="${grouperRequestContainer.attributeDefContainer.canAdmin}" />
                 <table class="table table-hover table-bordered table-striped table-condensed data-table">
                   <thead>
                     <c:if test="${isAdmin}" >

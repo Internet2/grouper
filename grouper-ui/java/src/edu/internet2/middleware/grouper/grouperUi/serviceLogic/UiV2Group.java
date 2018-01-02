@@ -1331,6 +1331,7 @@ public class UiV2Group {
       }
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
 
+      // TODO 20180101 MCH: I think this should be "canAdmin" not "hasAdmin"
       if (group.hasAdmin(loggedInSubject)) {
         filterPrivilegesHelper(request, response, group);
       } else {
