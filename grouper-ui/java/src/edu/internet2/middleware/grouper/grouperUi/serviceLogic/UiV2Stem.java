@@ -2691,9 +2691,48 @@ public class UiV2Stem {
           .setSuccessCount(GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getSuccessCount() + 1);
       }
 
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      // run the daemon so these privs bubble down to the sub objects
+      final boolean[] DONE = new boolean[]{false};
+      
+      Thread thread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          GrouperSession grouperSession = GrouperSession.startRootSession();
+          try {
+            
+            RuleApi.runRulesForOwner(stem);
+            
+            DONE[0] = true;
+          } catch (RuntimeException re) {
+            LOG.error("Error in running daemon", re);
+          } finally {
+            GrouperSession.stopQuietly(grouperSession);
+          }
+          
+        }
+        
+      });
+
+      thread.start();
+      
+      try {
+        thread.join(45000);
+      } catch (Exception e) {
+        throw new RuntimeException("Exception in thread");
+      }
+
+      if (DONE[0]) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedAddSuccesses")));
 
+      } else {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedAddSuccessesNotDone")));
+      }
+      
       privilegesInheritedToObjectsHelper(request, response, stem);
 
       //clear out the combo
