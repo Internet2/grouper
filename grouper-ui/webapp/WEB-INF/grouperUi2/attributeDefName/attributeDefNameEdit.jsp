@@ -39,7 +39,10 @@
                   <div class="control-group">
                     <label for="attributeDefNameId" class="control-label">${textContainer.text['attributeDefNameIdLabel'] }</label>
                     <div class="controls">
-                      <span>${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.extension)}</span>
+                      <input type="text" id="name" name="attributeDefNameToEditExtension" 
+                        value="${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.extension)}" />
+                      <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                        data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                       <span class="help-block">${textContainer.text['attributeDefNameIdDescription'] }</span>
                     </div>
                   </div>

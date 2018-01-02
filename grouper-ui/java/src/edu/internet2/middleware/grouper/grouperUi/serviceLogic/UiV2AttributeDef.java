@@ -590,7 +590,7 @@ public class UiV2AttributeDef {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_ADMIN, false).getAttributeDef();
+      attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_VIEW, false).getAttributeDef();
       
       if (attributeDef == null) {
         return;
@@ -630,7 +630,7 @@ public class UiV2AttributeDef {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_ADMIN, false).getAttributeDef();
+      attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_VIEW, false).getAttributeDef();
       
       if (attributeDef == null) {
         return;
