@@ -2006,7 +2006,7 @@ public enum GrouperLoaderType {
   /**
    * change log consumer prefix
    */
-  public static final String GROUPER_MESSAGING_LISTENER_PREFIX = GrouperLoaderType.MESSAGE_LISTENER.name() + "_";
+  public static final String GROUPER_MESSAGING_LISTENER_PREFIX = "MESSAGE_LISTENER_";
 
   /**
    * other jobs prefix

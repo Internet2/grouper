@@ -1733,7 +1733,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup")
+                "select theGroup from Group as theGroup order by theGroup.displayNameDb")
               .setCacheable(false)
               .setCacheRegion(KLASS + ".GetAllGroups")
               .listSet(Group.class);
@@ -1762,7 +1762,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup where theGroup.nameDb like :scope")
+                "select theGroup from Group as theGroup where theGroup.nameDb like :scope order by theGroup.displayNameDb")
               .setCacheable(false)
               .setCacheRegion(KLASS + ".GetAllGroups")
               .setString("scope", scope + "%")
@@ -1792,7 +1792,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup where theGroup.parentUuid = :parent")
+                "select theGroup from Group as theGroup where theGroup.parentUuid = :parent order by theGroup.displayNameDb")
               .setCacheable(false)
               .setCacheRegion(KLASS + ".GetImmediateChildren")
               .setString("parent", stem.getUuid())
