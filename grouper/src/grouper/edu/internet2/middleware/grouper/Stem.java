@@ -4614,77 +4614,23 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         System.out.println("Obliterating stem: " + this.getName());
       }
     }
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-  
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-  
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-            
-            //obliterate all child stems
-            Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
-            
-            for (Stem stem : GrouperUtil.nonNull(stems)) {
-              stem.obliterate(printOutput, testOnly);
-            }
-
-            //delete all objects
-            //groups
-            Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
-            
-            for (Group group : GrouperUtil.nonNull(groups)) {
-              if (!testOnly) {
-                group.delete();
-              }
-              if (printOutput) {
-                if (testOnly) {
-                  System.out.println("Would be done deleting " + group.getTypeOfGroup() + ": " + group.getName());
-                } else {
-                  System.out.println("Done deleting " + group.getTypeOfGroup() + ": " + group.getName());
-                }
-              }              
-            }
-
-            Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(Stem.this.getUuid());
-            
-            for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
-              if (!testOnly) {
-                attributeDefName.delete();
-              }
-              if (printOutput) {
-                if (testOnly) {
-                  System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
-                } else {
-                  System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
-                }
-              }              
-            }
-
-            Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(Stem.this.getUuid());
-            
-            for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
-              if (!testOnly) {
-                attributeDef.delete();
-              }
-              if (printOutput) {
-                if (testOnly) {
-                  System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
-                } else {
-                  System.out.println("Done deleting attributeDef: " + attributeDef.getName());
-                }
-              }              
-            }
-
-            //delete stem
-            if (!testOnly) {
-              Stem.this.delete();
-            }
-            
-            return null;
-         }
-    });
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.obliterate.stem.in.transaction", false)) {
+      
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+    
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+    
+              obliterateHelper(printOutput, testOnly, hibernateHandlerBean);
+              
+              return null;
+           }
+      });
+    } else {
+      obliterateHelper(printOutput, testOnly, null);
+    }
   
     if (printOutput) {
       if (testOnly) {
@@ -4861,5 +4807,81 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     
   }
 
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param hibernateHandlerBean
+   */
+  private void obliterateHelper(final boolean printOutput, final boolean testOnly,
+      HibernateHandlerBean hibernateHandlerBean) {
+    
+    if (hibernateHandlerBean != null) {
+      hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+    }
+    //obliterate all child stems
+    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
+    
+    for (Stem stem : GrouperUtil.nonNull(stems)) {
+      stem.obliterate(printOutput, testOnly);
+    }
+
+    //delete all objects
+    //groups
+    Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
+    
+    //pass one for composites since if you delete a factor first it bombs...
+    for (int i : new int[]{0,1}) {
+      for (Group group : GrouperUtil.nonNull(groups)) {
+        if (i==0 && !group.isComposite()) {
+          continue;
+        }
+        if (!testOnly) {
+          group.delete();
+        }
+        if (printOutput) {
+          if (testOnly) {
+            System.out.println("Would be done deleting " + group.getTypeOfGroup() + ": " + group.getName());
+          } else {
+            System.out.println("Done deleting " + group.getTypeOfGroup() + ": " + group.getName());
+          }
+        }              
+      }
+    }
+
+    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(Stem.this.getUuid());
+    
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+      if (!testOnly) {
+        attributeDefName.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
+        } else {
+          System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
+        }
+      }              
+    }
+
+    Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(Stem.this.getUuid());
+    
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      if (!testOnly) {
+        attributeDef.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
+        } else {
+          System.out.println("Done deleting attributeDef: " + attributeDef.getName());
+        }
+      }              
+    }
+
+    //delete stem
+    if (!testOnly) {
+      Stem.this.delete();
+    }
+  }
 }
 

@@ -238,7 +238,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public Set<AttributeDef> findByStem(String id) {
     Set<AttributeDef> attributeDefs = HibernateSession.byHqlStatic()
-        .createQuery("from AttributeDef where stemId = :id")
+        .createQuery("from AttributeDef where stemId = :id order by nameDb")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByStem")
         .setString("id", id)

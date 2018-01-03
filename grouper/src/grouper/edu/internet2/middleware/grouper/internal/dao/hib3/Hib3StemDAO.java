@@ -959,6 +959,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
     Set<Stem> stemsSet;
     try {
+
+      if (queryOptions == null) {
+        queryOptions = new QueryOptions();
+      }
+      if (queryOptions.getQuerySort() == null) {
+        queryOptions.sortAsc("ns.displayNameDb");
+      }
+
       if (queryOptions != null) {
         
         massageSortFields(queryOptions.getQuerySort());
