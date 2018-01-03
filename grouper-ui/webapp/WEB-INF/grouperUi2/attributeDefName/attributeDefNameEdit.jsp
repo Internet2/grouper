@@ -8,7 +8,7 @@
               ${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.extension)}
+                <h1> <i class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.displayExtension)}
                 <br /><small>${textContainer.text['attributeDefNameEditTitle'] }</small></h1>
               </div>
 
@@ -66,8 +66,10 @@
                     </div>
                   </div>
                  
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefName.attributeDefNameEditSubmit', {formIds: 'editAttributeDefNameForm'}); return false;">${textContainer.text['attributeDefNameEditSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef?attributeDefId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.attributeDefId}');" class="btn btn-cancel">${textContainer.text['attributeDefCreateCancelButton'] }</a></div>
+                  <div class="form-actions">
+                    <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefName.attributeDefNameEditSubmit', {formIds: 'editAttributeDefNameForm'}); return false;">${textContainer.text['attributeDefNameEditSaveButton'] }</a> 
+                    <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</a>
+                  </div>
                 </form>
               </div>
             </div>

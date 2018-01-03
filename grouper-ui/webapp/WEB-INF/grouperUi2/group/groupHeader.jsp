@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-            <!-- start subject/subjectHeader.jsp -->
+            <!-- start group/groupHeader.jsp -->
             <div class="bread-header-container">
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">

@@ -157,8 +157,6 @@ public abstract class GuiObjectBase {
         creator = ((GuiStem)this).getStem().getCreateSubject();
       } else if (this instanceof GuiAttributeDef) {
         creator = ((GuiAttributeDef)this).getAttributeDef().getCreateSubject();
-      } else if (this instanceof GuiAttributeDefName) {
-        creator = ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getCreateSubject();
       }
     } catch (SubjectNotFoundException snfe) {
       LOG.warn("Cant find creator of:" + this.getNameColonSpaceSeparated(), snfe );

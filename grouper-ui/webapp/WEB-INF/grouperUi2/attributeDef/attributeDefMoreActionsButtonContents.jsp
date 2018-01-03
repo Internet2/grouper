@@ -39,7 +39,10 @@
                             >${textContainer.text['attributeDefViewDeleteAttributeDefButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                             >${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                            >${textContainer.text['attributeDefViewNewAttributeDefNameButton'] }</a></li>
                         </c:if>
+
 
 
 <%--

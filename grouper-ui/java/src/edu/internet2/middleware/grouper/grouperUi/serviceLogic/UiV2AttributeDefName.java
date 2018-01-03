@@ -15,6 +15,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -24,8 +27,10 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -37,6 +42,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -62,7 +68,7 @@ public class UiV2AttributeDefName {
    * @param request
    * @param response
    */
-  public void deleteAttributeDefName(HttpServletRequest request, HttpServletResponse response) {
+  public void deleteAttributeDefNameSubmit(HttpServletRequest request, HttpServletResponse response) {
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
@@ -83,11 +89,12 @@ public class UiV2AttributeDefName {
 
       attributeDefName.delete();
 
+      //go to the view attributeDef screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=" + attributeDefName.getAttributeDefId() + "')"));
+
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attributeDefAttributeDefNameDeleteSuccess")));
               
-      //filterHelper(request, response, attributeDefName.getAttributeDef());
-
       GrouperUserDataApi.recentlyUsedAttributeDefNameAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, attributeDefName);
 
@@ -97,11 +104,45 @@ public class UiV2AttributeDefName {
   }
 
   /**
+   * delete an attribute def name (show confirm screen)
+   * @param request
+   * @param response
+   */
+  public void deleteAttributeDefName(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      AttributeDefName attributeDefName = null;
+      
+      attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDefName();
+      
+      if (attributeDefName == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDefName/attributeDefNameDelete.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  
+  /**
    * delete attribute def names
    * @param request
    * @param response
    */
-  public void deleteAttributeDefNames(HttpServletRequest request, HttpServletResponse response) {
+  public void deleteAttributeDefNamesSubmit(HttpServletRequest request, HttpServletResponse response) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
@@ -434,7 +475,7 @@ public class UiV2AttributeDefName {
       attributeDefName.store();
       
       //go to the view attribute def screen
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef?attributeDefId=" + attributeDef.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName?attributeDefNameId=" + attributeDefName.getId() + "')"));
 
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -854,6 +895,39 @@ public class UiV2AttributeDefName {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+
+  /**
+   * delete an attribute def name (show confirm screen)
+   * @param request
+   * @param response
+   */
+  public void deleteAttributeDefNames(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      AttributeDefName attributeDefName = null;
+      
+      attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDefName();
+      
+      if (attributeDefName == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDefName/attributeDefNamesDelete.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
 }

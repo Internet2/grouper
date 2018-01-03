@@ -37,7 +37,9 @@
                               onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
                             ${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
                           </li>                                 
-                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
+                          <li><a href="#" 
+                            onclick="return guiV2link('operation=UiV2AttributeDefName.deleteAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
+                            ${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                         </c:if>
                       </ul>
                     </div>

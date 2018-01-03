@@ -17,11 +17,9 @@
                           </label>
                         </th>
                       </c:if>
-                      <th class="sorted">${textContainer.text['attributeDefHeaderStem'] }</th>
-                      <th class="sorted">${textContainer.text['attributeDefHeaderName'] }</th>
-                      <c:if test="${isAdmin}" >
-                        <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
-                      </c:if>
+                      <th>${textContainer.text['attributeDefHeaderStem'] }</th>
+                      <th>${textContainer.text['attributeDefHeaderName'] }</th>
+                      <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -38,29 +36,30 @@
                         </c:if>
                         <td>${guiAttributeDefName.parentGuiStem.shortLinkWithIcon }</td>
                         <td>${guiAttributeDefName.shortLinkWithIcon }</td>
-                        <c:if test="${isAdmin}" >
-                          <td>
-                            <div class="btn-group">
-                            	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeNameActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
-                            		role="menu" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
-                            		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
-                              <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
-                                <li><a href="#"
-                                	   onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
-                                		${textContainer.text['attributeDefViewAttributeDefNameButton'] }
-                                	</a>
-                                </li>
-                                <c:if test="${isAdmin}">
-                                	<li><a href="#"
-                                	 		onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
-                                		${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
-                                	</li>                                	
-                                  <li><a href="#" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId'}); return false;" class="actions-delete-attributeDef">${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
-                                </c:if>
-                              </ul>
-                            </div>
-                          </td>
-                        </c:if>
+                        <td>
+                          <div class="btn-group">
+                          	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeNameActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
+                          		role="menu" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
+                          		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
+                            
+                              <li><a href="#"
+                              	   onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                              		${textContainer.text['attributeDefViewAttributeDefNameButton'] }
+                              	</a>
+                              </li>
+                              <c:if test="${isAdmin}">
+                              	<li><a href="#"
+                              	 		onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                              		${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
+                              	</li>                                	
+                                <li><a href="#" 
+                                    onclick="return guiV2link('operation=UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
+                                  ${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
+                              </c:if>
+                            </ul>
+                          </div>
+                        </td>
                       </tr>
                       <c:set var="i" value="${i+1}" />
                     </c:forEach>
