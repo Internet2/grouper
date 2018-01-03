@@ -2845,6 +2845,10 @@ public class UiV2Stem {
    */
   public void viewAttributeAssignments(final HttpServletRequest request, final HttpServletResponse response) {
     
+    if (true) {
+      throw new RuntimeException("Not implemented yet");
+    }
+
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -2895,6 +2899,10 @@ public class UiV2Stem {
    */
   public void assignAttribute(final HttpServletRequest request, final HttpServletResponse response) {
     
+    if (true) {
+      throw new RuntimeException("Not implemented yet");
+    }
+    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -2931,6 +2939,10 @@ public class UiV2Stem {
    */
   public void assignAttributeSubmit(final HttpServletRequest request, final HttpServletResponse response) {
     
+    if (true) {
+      throw new RuntimeException("Not implemented yet");
+    }
+
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
