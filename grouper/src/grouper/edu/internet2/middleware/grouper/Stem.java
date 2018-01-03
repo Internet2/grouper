@@ -4831,8 +4831,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     
     //pass one for composites since if you delete a factor first it bombs...
     for (int i : new int[]{0,1}) {
-      for (Group group : GrouperUtil.nonNull(groups)) {
-        if (i==0 && !group.isComposite()) {
+      Iterator<Group> groupIterator = groups.iterator();
+      while (groupIterator.hasNext()) {
+        Group group = groupIterator.next();
+        if (i==0 && !group.isHasComposite()) {
           continue;
         }
         if (!testOnly) {
@@ -4844,7 +4846,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           } else {
             System.out.println("Done deleting " + group.getTypeOfGroup() + ": " + group.getName());
           }
-        }              
+        }
+        groupIterator.remove();
       }
     }
 
