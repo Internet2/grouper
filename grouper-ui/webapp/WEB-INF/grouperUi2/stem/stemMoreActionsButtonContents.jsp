@@ -61,14 +61,14 @@
                         </c:if>
                         
                         <li class="divider"></li>
-
+<%--
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewAttributeAssignments&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                             >${textContainer.text['stemViewAttributeAssignmentsButton'] }</a></li>
                         <c:if test="${grouperRequestContainer.stemContainer.canUpdateAttributes }">
                           <li><a href="#"
                           onclick="return guiV2link('operation=UiV2Stem.assignAttribute', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemAssignAttributeButton'] }</a></li>
                         </c:if>
-
+--%>
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
 
                           <li class="divider"></li>
