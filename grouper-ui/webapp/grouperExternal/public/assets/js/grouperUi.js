@@ -626,7 +626,7 @@ function dojoInitMenu(autoSelectNode) {
         guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);                          
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeUpdate.createEdit&attributeDefId=' + item.id;
       } else if (item.theType == 'attributeDefName') {
-    	  guiV2link('operation=UiV2AttributeDef.viewAttributeDefName&attributeDefNameId=' + item.id); 
+    	  guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id); 
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
 
       } else {
