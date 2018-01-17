@@ -19,6 +19,9 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -728,6 +731,23 @@ public class EsbEvent {
     this.subjectAttributes = subjectAttributes;
   }
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    EsbEvent esbEvent = new EsbEvent();
+    esbEvent.addSubjectAttribute("pennname", "whatever");
+    esbEvent.addSubjectAttribute("email", "a@b.c");
+    
+    EsbEvents events = new EsbEvents();
+    events.addEsbEvent(esbEvent);
+
+    String eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
+    
+    System.out.println(eventJsonString);
+  }
+  
   /**
    * Method to add attribute name/value pair to subjectAttribute array
    * @param attributeName

@@ -598,7 +598,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     }
     Subject subject = esbEvent.retrieveSubject();
     if (subject != null) {
-      String[] attributesArray = attributes.split(",");
+      String[] attributesArray = GrouperUtil.splitTrim(attributes, ",");
       for (int i = 0; i < attributesArray.length; i++) {
         String attributeName = attributesArray[i];
         String attributeValue = subject.getAttributeValueOrCommaSeparated(attributeName);
