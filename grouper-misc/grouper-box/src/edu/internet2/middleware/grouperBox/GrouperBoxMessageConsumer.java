@@ -44,8 +44,7 @@ public class GrouperBoxMessageConsumer implements Job {
    * @param args
    */
   public static void main(String[] args) {
-    System.out.println(System.currentTimeMillis());
-    //incrementalSync();
+    incrementalSync();
   }
   
   /**
