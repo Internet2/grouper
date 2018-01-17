@@ -46,6 +46,11 @@ public class GrouperWsCommandsForBox {
    * @return the list of users
    */
   public static Set<String> retrieveGrouperMembershipsForGroup(String groupName) {
+
+    
+    //users that are supposed to be in box (do this at top so it doesnt affect the timing here
+    Map<String, String[]> usersAllowedToBeInBox = GrouperWsCommandsForBox.retrieveGrouperUsers();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
     debugMap.put("method", "retrieveGrouperMembershipsForGroup");
@@ -78,9 +83,6 @@ public class GrouperWsCommandsForBox {
 
       String[] attributeNames = wsGetMembersResults.getSubjectAttributeNames();
 
-      //users that are supposed to be in box
-      Map<String, String[]> usersAllowedToBeInBox = GrouperWsCommandsForBox.retrieveGrouperUsers();
-      
       int unresolvableCount = 0;
       int notAllowedInBoxCount = 0;
       
@@ -99,7 +101,7 @@ public class GrouperWsCommandsForBox {
         } else {
           String boxUserName = subjectPrefix
               + GrouperClientUtils.defaultIfBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.subjectIdSuffix"), "");
-          if (usersAllowedToBeInBox != null && usersAllowedToBeInBox.containsKey(boxUserName)) {
+          if (usersAllowedToBeInBox == null || usersAllowedToBeInBox.containsKey(boxUserName)) {
             grouperUsernamesInGroup.add(boxUserName);
           } else {
             notAllowedInBoxCount++;
@@ -309,12 +311,14 @@ public class GrouperWsCommandsForBox {
 
       GcMessageAcknowledge successMessageAcknowledge = null;
       successMessageAcknowledge = new GcMessageAcknowledge()
-        .assignMessageSystemName(messageQueueName).assignAcknowledgeType(acknowledgeType);
+        .assignMessageSystemName(messageSystemName).assignQueueOrTopicName(messageQueueName).assignAcknowledgeType(acknowledgeType);
       
       for (String id : ids) {
         //mark message as processed
         successMessageAcknowledge.addMessageId(id);
       }
+      
+      successMessageAcknowledge.execute();
       
     } finally {
       GrouperBoxLog.boxLog(debugMap, startTimeNanos);
