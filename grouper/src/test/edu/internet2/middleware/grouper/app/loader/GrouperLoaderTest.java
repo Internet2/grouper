@@ -3633,6 +3633,8 @@ public class GrouperLoaderTest extends GrouperTest {
           scheduler.deleteJob(new JobKey(jobName));
         }
       }
+
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
 }
