@@ -170,7 +170,7 @@
             <artifactId>c3p0-oracle-thin-extras</artifactId>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
@@ -207,14 +207,6 @@
             <classifier>jdk15</classifier>
         </dependency>
         <dependency>
-            <groupId>net.sf.jsr107cache</groupId>
-            <artifactId>jsr107cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>odmg</groupId>
-            <artifactId>odmg</artifactId>
-        </dependency>
-        <dependency>
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz</artifactId>
         </dependency>
@@ -241,8 +233,8 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3_min</artifactId>
+            <groupId>xmlpull</groupId>
+            <artifactId>xmlpull</artifactId>
         </dependency>
         <dependency>
             <groupId>jivesoftware</groupId>

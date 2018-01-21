@@ -94,14 +94,6 @@
             <artifactId>antlr</artifactId>
         </dependency>
         <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>backport-util-concurrent</groupId>
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
@@ -178,12 +170,16 @@
             <artifactId>c3p0-oracle-thin-extras</artifactId>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
@@ -198,10 +194,6 @@
             <artifactId>jta</artifactId>
         </dependency>
         <dependency>
-            <groupId>jug</groupId>
-            <artifactId>jug</artifactId>
-        </dependency>
-        <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
         </dependency>
@@ -213,14 +205,6 @@
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <classifier>jdk15</classifier>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jsr107cache</groupId>
-            <artifactId>jsr107cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>odmg</groupId>
-            <artifactId>odmg</artifactId>
         </dependency>
         <dependency>
           <groupId>org.quartz-scheduler</groupId>
@@ -237,6 +221,13 @@
         <dependency>
             <groupId>org.apache.ddlutils</groupId>
             <artifactId>ddlutils</artifactId>
+            <exclusions>
+                <!-- this pulls in xercesImpl which messes up digester3 sax parsing -->
+                <exclusion>
+                    <artifactId>commons-dbcp</artifactId>
+                    <groupId>commons-dbcp</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.beanshell</groupId>
@@ -249,8 +240,8 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3_min</artifactId>
+            <groupId>xmlpull</groupId>
+            <artifactId>xmlpull</artifactId>
         </dependency>
         <dependency>
             <groupId>jivesoftware</groupId>
@@ -267,11 +258,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>                
-        </dependency>
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>smtp</artifactId>
-            <version>${smtp.version}</version>
         </dependency>
 
         <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
@@ -290,31 +276,17 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- needed for tests only -->
         <dependency>
             <groupId>com.jamonapi</groupId>
             <artifactId>jamon</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
+            <groupId>jug</groupId>
+            <artifactId>jug</artifactId>
+            <scope>test</scope>
         </dependency>
-
-<!--
-        <dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.core</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.wink</groupId>
-          <artifactId>wink-client</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.samples</artifactId>
-        </dependency>
--->
 
         <!-- used by gsh -->
         <dependency>
