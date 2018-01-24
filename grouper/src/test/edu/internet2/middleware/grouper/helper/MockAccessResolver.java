@@ -292,5 +292,26 @@ public class MockAccessResolver implements AccessResolver {
       Set<Member> additionalMembers) {
     throw E;
   }
+
+
+
+  /**
+   * @see AccessResolver#getGroupsWhereSubjectDoesHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesHavePrivilege(String stemId, Scope scope,
+      Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    throw E;
+  }
+
+
+
+  /**
+   * @see AccessResolver#hqlFilterGroupsWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsWithPrivWhereClause(Subject subject, HqlQuery byHqlStatic, 
+      StringBuilder sql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    throw E;
+  }
 }
 

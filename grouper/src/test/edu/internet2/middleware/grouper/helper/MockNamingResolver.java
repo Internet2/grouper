@@ -239,6 +239,18 @@ public class MockNamingResolver implements NamingResolver {
       StringBuilder hql, String stemColumn, Privilege privilege,
       boolean considerAllSubject) {
     throw E;
+  }
+
+  public Set<Stem> getStemsWhereSubjectDoesHavePrivilege(String stemId, Scope scope,
+      Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    throw E;
+  }
+
+  public boolean hqlFilterStemsWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Privilege privilege,
+      boolean considerAllSubject) {
+    throw E;
   }            
 }
 

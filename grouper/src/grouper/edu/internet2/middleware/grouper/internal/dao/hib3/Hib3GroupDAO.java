@@ -3700,5 +3700,102 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner, idOfAttributeDefName, 
         attributeValue, attributeValuesOnAssignment, attributeCheckReadOnAttributeDef);
   }
+
+  /**
+   * @see GroupDAO#findGroupsInStemWithPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
+   */
+  public Set<Group> findGroupsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, 
+      QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theGroup.displayNameDb");
+    }
+  
+    StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
+    Set<Privilege> adminSet = GrouperUtil.toSet(AccessPrivilege.ADMIN);
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sql, "theGroup.uuid", adminSet);
+  
+    boolean changedQueryNotWithPriv = grouperSession.getAccessResolver().hqlFilterGroupsWithPrivWhereClause(subject, byHqlStatic, 
+        sql, "theGroup.uuid", privilege, considerAllSubject);
+  
+    if (changedQuery || changedQueryNotWithPriv) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+  
+    switch (scope) {
+      case ONE:
+        
+        sql.append(" theGroup.parentUuid = :stemId ");
+        byHqlStatic.setString("stemId", stemId);
+        
+        break;
+        
+      case SUB:
+        
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
+        sql.append(" theGroup.nameDb like :stemPattern ");
+        byHqlStatic.setString("stemPattern", stem.getName() + ":%");
+  
+        break;
+        
+      default:
+        throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
+    }
+  
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      
+      sql.append(" and theGroup.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
+  
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+  
+    String sqlString = sql.toString();
+    Set<Group> groups = new HashSet<Group>();
+    
+    if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      groups = byHqlStatic.createQuery(sqlString)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindGroupsInStemWithoutPrivilege")
+        .options(queryOptions)
+        .listSet(Group.class);
+    }
+          
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(groups, grouperSession.getSubject(), adminSet);
+  
+    if (!changedQueryNotWithPriv) {
+      
+      //didnt do this in the query
+      Set<Group> originalList = new LinkedHashSet<Group>(filteredGroups);
+      filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(originalList, subject, GrouperUtil.toSet(privilege));
+      
+      //we want the ones in the original list not in the new list
+      if (filteredGroups != null) {
+        originalList.removeAll(filteredGroups);
+      }
+      filteredGroups = originalList;
+    }
+    
+    return filteredGroups;
+    
+  }
 } 
 

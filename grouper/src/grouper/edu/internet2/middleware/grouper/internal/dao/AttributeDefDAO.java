@@ -246,4 +246,20 @@ public interface AttributeDefDAO extends GrouperDAO {
       QueryOptions queryOptions, String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<String> attributeDefIds);
 
+  /**
+   * see which attributeDefs do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the attributeDefs
+   */
+  public Set<AttributeDef> findAttributeDefsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString);
+
 }

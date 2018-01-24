@@ -361,5 +361,36 @@ public interface AccessAdapter {
   public Set<PrivilegeSubjectContainer> retrievePrivileges(GrouperSession grouperSession, 
       Group group, Set<Privilege> privileges, 
       MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers);
+
+  /**
+   * find the groups which do not have a certain privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject
+   * @param sqlLikeString 
+   * @return the groups
+   */
+  Set<Group> getGroupsWhereSubjectDoesHavePrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
+
+  /**
+   * for a group query, see if the groups have certain privs
+   * @param grouperSession 
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param groupColumn is the name of the group column to join to
+   * @param privilege find a privilege which is in this set 
+   * (e.g. for view, send view).  
+   * @param considerAllSubject if true, then consider GrouperAll when seeing if doesnt have privilege, else do consider
+   * @return if the query was changed
+   */
+  public boolean hqlFilterGroupsWithPrivWhereClause(GrouperSession grouperSession, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String groupColumn, Privilege privilege, boolean considerAllSubject);
 }
 

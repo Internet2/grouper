@@ -805,5 +805,35 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
   }
 
 
+  /**
+   * Get all groups where this subject does have this privilege.
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return groups
+   */
+  public Set<Group> getGroupsWhereSubjectDoesHavePrivilege(
+      GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
+      Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+  
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Set<Group> groups = new LinkedHashSet();
+  
+    // This subject
+    groups.addAll( 
+      GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectDoesHavePriv( grouperSession, 
+          stemId, scope, subject, privilege, considerAllSubject, sqlLikeString) 
+    );
+    return groups;
+  
+  }
+
+
 } // public class GrouperAccessAdapter 
 

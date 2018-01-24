@@ -32,7 +32,6 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
@@ -445,29 +444,6 @@ public class WheelNamingResolver extends NamingResolverDecorator {
    */
   private Boolean getFromIsWheelReadonlyMemberCache(Subject subj) {
     return WheelCache.getFromIsWheelReadonlyMemberCache(subj);
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
-   */
-  public boolean hqlFilterStemsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
-      StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
-
-    //Wheel can see all groups
-    if (this.isAndUseWheel(subject)) {
-      return false;
-    }
-    if (this.isAndUseWheelReadonly(subject) && privilege.isNaming() 
-        && (StringUtils.equals(privilege.getListName(), NamingPrivilege.STEM_ATTR_READ.getListName())
-            )) {
-      return false;
-    }
-    NamingResolver decoratedResolver = super.getDecoratedResolver();
-    //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
-    return decoratedResolver.hqlFilterStemsNotWithPrivWhereClause(subject, hqlQuery, hql,
-        stemColumn, privilege, considerAllSubject);
   }
 
 }

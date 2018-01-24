@@ -97,6 +97,20 @@ public interface AccessResolver {
       String sqlLikeString);
   
   /**
+   * find the groups which do have a certain privilege
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject 
+   * @param sqlLikeString
+   * @return the groups
+   */
+  Set<Group> getGroupsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
+  
+  /**
    * Get all stems which have groups where <i>subject</i> has <i>privilege</i>.
    * <p/>
    * @param subject 
@@ -267,6 +281,19 @@ public interface AccessResolver {
    * @return if the statement was changed
    */
   public boolean hqlFilterGroupsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject);
+  
+  /**
+   * for a group query, check to make sure the result has privs
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param groupColumn is the name of the group column to join to
+   * @param privilege find a privilege which is in this set (e.g. for view, send all access privs)
+   * @param considerAllSubject if true, then consider GrouperAll when seeign if subject has priv, else do not
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterGroupsWithPrivWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject);
   
   /**

@@ -658,5 +658,22 @@ public interface StemDAO extends GrouperDAO {
    */
   public void moveStemSets(List<StemSet> ifHasStemSetsOfParentStem, List<StemSet> oldStemSets, String currentStemId, int depthOfFirstParent);
 
+  /**
+   * see which stems do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the stems
+   */
+  public Set<Stem> findStemsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, 
+      QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString);
+
 } 
 

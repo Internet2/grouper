@@ -2477,5 +2477,90 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
   }
 
+  /**
+   * @see StemDAO#findStemsInStemWithPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
+   */
+  public Set<Stem> findStemsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, 
+      Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("ns.displayNameDb");
+    }
+  
+    StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
+    Set<Privilege> adminSet = GrouperUtil.toSet(NamingPrivilege.CREATE);
+    grouperSession.getNamingResolver().hqlFilterStemsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sql, "ns.uuid", adminSet);
+  
+    boolean changedQueryNotWithPriv = grouperSession.getNamingResolver().hqlFilterStemsWithPrivWhereClause(subject, byHqlStatic, 
+        sql, "ns.uuid", privilege, considerAllSubject);
+  
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      sql.append(" and ns.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
+  
+    switch (scope) {
+      case ONE:
+        
+        sql.append(" and ns.parentUuid = :stemId ");
+        byHqlStatic.setString("stemId", stemId);
+        
+        break;
+        
+      case SUB:
+        
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
+        sql.append(" and ns.nameDb like :stemPattern ");
+        byHqlStatic.setString("stemPattern", stem.getName() + ":%");
+  
+        break;
+        
+      default:
+        throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
+    }
+    
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+  
+    Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindStemsInStemWithPrivilege")
+      .options(queryOptions)
+      .listSet(Stem.class);
+          
+    //if the hql didnt filter, this will
+    Set<Stem> filteredStems = grouperSession.getNamingResolver()
+      .postHqlFilterStems(stems, grouperSession.getSubject(), adminSet);
+  
+    if (!changedQueryNotWithPriv) {
+      
+      //didnt do this in the query
+      Set<Stem> originalList = new LinkedHashSet<Stem>(filteredStems);
+      filteredStems = grouperSession.getNamingResolver()
+        .postHqlFilterStems(originalList, subject, GrouperUtil.toSet(privilege));
+      
+      //we want the ones in the original list not in the new list
+      if (filteredStems != null) {
+        originalList.removeAll(filteredStems);
+      }
+      filteredStems = originalList;
+    }
+    
+    return filteredStems;
+    
+  }
+
 } 
 

@@ -96,6 +96,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -109,6 +110,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -1213,6 +1215,8 @@ public class UiV2Stem {
         }
       }
       
+      final Set<GuiRuleDefinition> guiRuleDefinitionsToDelete = new HashSet<GuiRuleDefinition>();
+      
       //subject has update, so this operation as root in case removing affects the membership
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -1227,7 +1231,8 @@ public class UiV2Stem {
                 failures[0]++;
                 continue;
               }
-
+              
+              guiRuleDefinitionsToDelete.add(guiRuleDefinition);
               guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
 
               successes[0]++;
@@ -1241,6 +1246,59 @@ public class UiV2Stem {
         }
       });
       
+      // run the daemon so these privs bubble down to the sub objects
+      final boolean[] DONE = new boolean[]{false};
+      
+      final GrouperSession GROUPER_SESSION = grouperSession;
+      
+      Thread thread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          
+          GrouperSession grouperSession = GrouperSession.start(GROUPER_SESSION.getSubject());
+          try {
+            
+            if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.grouperRule.removeInheritedPrivileges.whenUnassigned", true)) {
+              
+              //remove the assignments...
+              for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitionsToDelete) {
+                
+                boolean actAsRoot = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.grouperRule.removeInheritedPrivileges.asRoot", true);
+                RuleDefinition ruleDefinition = guiRuleDefinition.getRuleDefinition();
+                
+                Set<Privilege> privilegeSet = Privilege.convertNamesToPrivileges(GrouperUtil.splitTrimToList(ruleDefinition.getThen().getThenEnumArg1(), ","));
+                Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getCheck().getCheckStemScope(), true);
+                
+                String subjectString = ruleDefinition.getThen().getThenEnumArg0();
+                
+                Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+                
+                RuleApi.removePrivilegesIfNotAssignedByRule(actAsRoot, ruleDefinition.getAttributeAssignType().getOwnerStem(), 
+                    stemScope, subject, privilegeSet, 
+                    ruleDefinition.getIfCondition() == null ? null : ruleDefinition.getIfCondition().getIfConditionEnumArg0());
+
+              }
+            }                          
+            DONE[0] = true;
+          } catch (RuntimeException re) {
+            failures[0]++;
+            LOG.error("Error in running daemon", re);
+          } finally {
+            GrouperSession.stopQuietly(grouperSession);
+          }
+        }
+        
+      });
+
+      thread.start();
+      
+      try {
+        thread.join(45000);
+      } catch (Exception e) {
+        throw new RuntimeException("Exception in thread");
+      }
+
       GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setSuccessCount(successes[0]);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setFailureCount(failures[0]);
 
@@ -1251,12 +1309,26 @@ public class UiV2Stem {
       privilegesInheritedToObjectsHelper(request, response, stem);
       
       //put this after redirect
-      if (failures[0] > 0) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+
+      if (DONE[0]) {
+
+        if (failures[0] > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccesses")));
+        }
+
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccesses")));
+
+        if (failures[0] > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrorsNotDone")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccessesNotDone")));
+        }
       }
 
     } catch (RuntimeException re) {
@@ -2702,6 +2774,17 @@ public class UiV2Stem {
           try {
             
             RuleApi.runRulesForOwner(stem);
+            
+            // TODO change to:
+            
+            //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign.getId());
+            //
+            //if (ruleDefinition.validate() == null) {
+            //  if (ruleDefinition.runDaemonOnDefinitionIfShould()) {
+            //    i++;
+            //  }
+            //}
+
             
             DONE[0] = true;
           } catch (RuntimeException re) {

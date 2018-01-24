@@ -278,6 +278,7 @@ public class GrouperUtil {
   }
 
   /**
+   * match sqlLike string
    * see if a sql like string matches a real string.
    * e.g. if the input is a:b:%, and the input is: a:b:test:that, then it returns true
    * @param sqlMatcher
