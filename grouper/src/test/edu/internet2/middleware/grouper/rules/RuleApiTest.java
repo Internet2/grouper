@@ -89,13 +89,13 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
-    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
-    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
+//    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
+//    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
+//    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
     TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesRemove"));
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
+//    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
+//    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
+//    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
     
     
   }
@@ -3920,7 +3920,15 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(stem2_sub2_c.hasStemAdmin(SubjectTestHelper.SUBJ0));
     assertTrue(stem2_sub2_c.hasCreate(SubjectTestHelper.SUBJ0));
     assertTrue(stem2_sub2_c.hasStemAdmin(SubjectTestHelper.SUBJ3));
-  
+
+    assertFalse(stem2.hasCreate(groupA.toSubject()));
+    assertFalse(stem2.hasStemAdmin(groupA.toSubject()));
+
+    RuleApi.runRulesForOwner(stem2);
+    
+    assertTrue(stem2.hasCreate(groupA.toSubject()));
+    assertTrue(stem2.hasStemAdmin(groupA.toSubject()));
+
     // REMOVE THIS: stem2 inherits SUB to groupA read/update
     attributeAssign_stem2_SUB_groupA_readUpdate.delete();
     //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
@@ -3928,7 +3936,7 @@ public class RuleApiTest extends GrouperTest {
     //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
     //guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
     //RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
-    
+
     int changes = RuleApi.removePrivilegesIfNotAssignedByRule(true, stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"), null);
     
     //assertEquals(5, changes);
@@ -3939,6 +3947,8 @@ public class RuleApiTest extends GrouperTest {
     assertFalse(stem2_groupB1.hasCreate(groupA.toSubject()));
     assertFalse(stem2_groupB1.hasStemAdmin(groupA.toSubject()));
   
+    assertFalse(stem2.hasCreate(groupA.toSubject()));
+    assertFalse(stem2.hasStemAdmin(groupA.toSubject()));
   }
 
   /**
