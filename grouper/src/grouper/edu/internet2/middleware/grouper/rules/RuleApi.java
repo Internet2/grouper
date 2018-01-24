@@ -583,10 +583,16 @@ public class RuleApi {
                     stem.getId(), stemScope, subjectToAssign, privilege, false, sqlLikeString);
             grouperObjectsWithPrivsToBeRemoved.addAll(GrouperUtil.nonNull(groupsWhichNeedPrivsRemoved)); 
           } else if (privilege.isNaming()) {
-            Set<Stem> stemsWhichNeedPrivsRemoved = GrouperSession.staticGrouperSession()
+            Set<Stem> stemsWhichNeedPrivsRemoved = GrouperUtil.nonNull(GrouperSession.staticGrouperSession()
                 .getNamingResolver().getStemsWhereSubjectDoesHavePrivilege(
-                    stem.getId(), stemScope, subjectToAssign, privilege, false, sqlLikeString);
-            grouperObjectsWithPrivsToBeRemoved.addAll(GrouperUtil.nonNull(stemsWhichNeedPrivsRemoved)); 
+                    stem.getId(), stemScope, subjectToAssign, privilege, false, sqlLikeString));
+            
+            //GRP-1667: a folder inherited privilege should apply to the assigned folder
+            if (stem.hasPrivilege(subjectToAssign, privilege.getName())) {
+              stemsWhichNeedPrivsRemoved.add(stem);
+            }
+            
+            grouperObjectsWithPrivsToBeRemoved.addAll(stemsWhichNeedPrivsRemoved); 
             
           } else if (privilege.isAttributeDef()) {
             Set<AttributeDef> attributeDefsWhichNeedPrivsRemoved = GrouperSession.staticGrouperSession()

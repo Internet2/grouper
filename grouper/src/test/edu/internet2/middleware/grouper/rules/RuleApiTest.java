@@ -89,13 +89,13 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
-    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
-    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
+//    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
+//    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
+//    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
     TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesRemove"));
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
+//    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
+//    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
+//    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
     
     
   }
