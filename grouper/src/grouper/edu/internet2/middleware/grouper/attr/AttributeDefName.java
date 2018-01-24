@@ -1461,4 +1461,13 @@ public class AttributeDefName extends GrouperAPI
     return true;
   }
 
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperObject#getParentStem()
+   */
+  public Stem getParentStem() {
+    return this.getStem();
+  }
+
 }

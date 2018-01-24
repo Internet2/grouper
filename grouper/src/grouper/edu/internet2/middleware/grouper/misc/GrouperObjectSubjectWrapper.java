@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -128,6 +129,13 @@ public class GrouperObjectSubjectWrapper implements GrouperObject {
       return null;
     }
     return this.subject.getSourceId() + "||||" + this.subject.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperObject#getParentStem()
+   */
+  public Stem getParentStem() {
+    throw new RuntimeException("Not implemented");
   }
 
 }

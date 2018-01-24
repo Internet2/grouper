@@ -366,5 +366,25 @@ public class AccessWrapper implements AccessResolver {
         group, privileges, membershipType, queryPaging, additionalMembers);
   }
 
+  /**
+   * @see AccessResolver#getGroupsWhereSubjectDoesHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.access.getGroupsWhereSubjectDoesHavePrivilege(
+        this.s, stemId, scope, subject, privilege, considerAllSubject, 
+        sqlLikeString);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.access.hqlFilterGroupsWithPrivWhereClause(this.s, subject, hqlQuery, hql, groupColumn, privilege, considerAllSubject);
+  }
+
 }
 

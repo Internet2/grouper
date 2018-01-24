@@ -87,7 +87,11 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
+<<<<<<< master
     TestRunner.run(new RuleApiTest("testPermissionAssignmentIntersectFolder"));
+=======
+    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
+>>>>>>> b59675c GRP-1663: inherited privileges should revoke those privileges to subobjects
   }
 
   /**
@@ -3901,6 +3905,445 @@ public class RuleApiTest extends GrouperTest {
   
     assertFalse(groupC.hasRead(subject0));
     assertFalse(groupC.hasUpdate(subject0));
+  
+  }
+
+  /**
+   * 
+   */
+  public void testInheritGroupPrivilegesRemove() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2subSub2 = new StemSave(grouperSession).assignName("stem2:sub:sub2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ1);
+
+    // stem2 inherits SUB to groupA read/update
+    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+
+    // stem2 inherits SUB to SUBJ3 read
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("read"));
+    
+    // stem2:sub inherits SUB to groupA read
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read"));
+    
+    // stem2 inherits ONE to SUBJ0 update
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("update"));
+
+    long initialFirings = RuleEngine.ruleFirings;
+
+    Group stem2_sub_b = new GroupSave(grouperSession).assignName("stem2:sub:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stem2_sub_b.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub_b.hasRead(SubjectTestHelper.SUBJ0));
+    
+
+    initialFirings = RuleEngine.ruleFirings;
+
+    Group stem2_groupB1 = new GroupSave(grouperSession).assignName("stem2:groupB1").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+
+    //make sure allowed
+    assertTrue(stem2_groupB1.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_groupB1.hasRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Group stem3_d = new GroupSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    assertFalse(stem3_d.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(stem3_d.hasRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Group stem2_sub2_c = new GroupSave(grouperSession).assignName("stem2:sub2:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(stem2_sub2_c.hasRead(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasRead(SubjectTestHelper.SUBJ3));
+
+    // REMOVE THIS: stem2 inherits SUB to groupA read/update
+    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
+    //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+    //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
+    //guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
+    //RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+    
+    int changes = RuleApi.removePrivilegesIfNotAssignedByRule(true, stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"), null);
+    
+    assertEquals(5, changes);
+    
+    assertFalse(stem2_sub_b.hasUpdate(groupA.toSubject()));
+    assertTrue(stem2_sub_b.hasRead(groupA.toSubject()));
+
+    assertFalse(stem2_groupB1.hasUpdate(groupA.toSubject()));
+    assertFalse(stem2_groupB1.hasRead(groupA.toSubject()));
+
+  }
+
+  /**
+   * 
+   */
+  public void testInheritGroupPrivilegesRemoveWithLikeString() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2subSub2 = new StemSave(grouperSession).assignName("stem2:sub:sub2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ1);
+
+    // stem2 inherits SUB to groupA read/update
+    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+
+    // stem2 inherits SUB to SUBJ3 read
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("read"));
+    
+    // stem2:sub inherits SUB to groupA read
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read"), "stem2:sub:%");
+    
+    // stem2 inherits ONE to SUBJ0 update
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("update"));
+
+    long initialFirings = RuleEngine.ruleFirings;
+
+    Group stem2_sub_b = new GroupSave(grouperSession).assignName("stem2:sub:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stem2_sub_b.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub_b.hasRead(SubjectTestHelper.SUBJ0));
+    
+
+    initialFirings = RuleEngine.ruleFirings;
+
+    Group stem2_groupB1 = new GroupSave(grouperSession).assignName("stem2:groupB1").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+
+    //make sure allowed
+    assertTrue(stem2_groupB1.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_groupB1.hasRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Group stem3_d = new GroupSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    assertFalse(stem3_d.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(stem3_d.hasRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Group stem2_sub2_c = new GroupSave(grouperSession).assignName("stem2:sub2:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(stem2_sub2_c.hasRead(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasRead(SubjectTestHelper.SUBJ3));
+
+    // REMOVE THIS: stem2 inherits SUB to groupA read/update
+    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
+    //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+    //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
+    //guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
+    //RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+    
+    int changes = RuleApi.removePrivilegesIfNotAssignedByRule(true, stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"), null);
+    
+    assertEquals(5, changes);
+    
+    assertFalse(stem2_sub_b.hasUpdate(groupA.toSubject()));
+    assertTrue(stem2_sub_b.hasRead(groupA.toSubject()));
+
+    assertFalse(stem2_groupB1.hasUpdate(groupA.toSubject()));
+    assertFalse(stem2_groupB1.hasRead(groupA.toSubject()));
+
+  }
+
+  /**
+   * 
+   */
+  public void testInheritGroupPrivilegesRemoveWithLikeStringNotMatch() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2subSub2 = new StemSave(grouperSession).assignName("stem2:sub:sub2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ1);
+
+    // stem2 inherits SUB to groupA read/update
+    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+
+    // stem2 inherits SUB to SUBJ3 read
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("read"));
+    
+    // stem2:sub inherits SUB to groupA read
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read"), "stem2:sub:NOTMATCH%");
+    
+    // stem2 inherits ONE to SUBJ0 update
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("update"));
+
+    long initialFirings = RuleEngine.ruleFirings;
+
+    Group stem2_sub_b = new GroupSave(grouperSession).assignName("stem2:sub:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    //make sure allowed
+    assertTrue(stem2_sub_b.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub_b.hasRead(SubjectTestHelper.SUBJ0));
+
+    initialFirings = RuleEngine.ruleFirings;
+
+    Group stem2_groupB1 = new GroupSave(grouperSession).assignName("stem2:groupB1").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+
+    //make sure allowed
+    assertTrue(stem2_groupB1.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_groupB1.hasRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Group stem3_d = new GroupSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    assertFalse(stem3_d.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(stem3_d.hasRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Group stem2_sub2_c = new GroupSave(grouperSession).assignName("stem2:sub2:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(stem2_sub2_c.hasRead(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasRead(SubjectTestHelper.SUBJ3));
+
+    // REMOVE THIS: stem2 inherits SUB to groupA read/update
+    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
+    //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+    //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
+    //guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
+    //RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+    
+    int changes = RuleApi.removePrivilegesIfNotAssignedByRule(true, stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"), null);
+    
+    assertEquals(6, changes);
+    
+    assertFalse(stem2_sub_b.hasUpdate(groupA.toSubject()));
+    assertFalse(stem2_sub_b.hasRead(groupA.toSubject()));
+
+    assertFalse(stem2_groupB1.hasUpdate(groupA.toSubject()));
+    assertFalse(stem2_groupB1.hasRead(groupA.toSubject()));
+
+  }
+
+  /**
+   * 
+   */
+  public void testInheritFolderPrivilegesRemove() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2subSub2 = new StemSave(grouperSession).assignName("stem2:sub:sub2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ1);
+  
+    // stem2 inherits SUB to groupA read/update
+    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"));
+  
+    // stem2 inherits SUB to SUBJ3 read
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("stemAdmin"));
+    
+    // stem2:sub inherits SUB to groupA read
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin"));
+    
+    // stem2 inherits ONE to SUBJ0 update
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("create"));
+  
+    long initialFirings = RuleEngine.ruleFirings;
+  
+    Stem stem2_sub_b = new StemSave(grouperSession).assignName("stem2:sub:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stem2_sub_b.hasCreate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub_b.hasStemAdmin(SubjectTestHelper.SUBJ0));
+    
+  
+    initialFirings = RuleEngine.ruleFirings;
+  
+    Stem stem2_groupB1 = new StemSave(grouperSession).assignName("stem2:groupB1").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stem2_groupB1.hasCreate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_groupB1.hasStemAdmin(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Stem stem3_d = new StemSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    assertFalse(stem3_d.hasCreate(SubjectTestHelper.SUBJ0));
+    assertFalse(stem3_d.hasStemAdmin(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    Stem stem2_sub2_c = new StemSave(grouperSession).assignName("stem2:sub2:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    //assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(stem2_sub2_c.hasStemAdmin(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasCreate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.hasStemAdmin(SubjectTestHelper.SUBJ3));
+  
+    // REMOVE THIS: stem2 inherits SUB to groupA read/update
+    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
+    //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+    //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
+    //guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
+    //RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+    
+    int changes = RuleApi.removePrivilegesIfNotAssignedByRule(true, stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"), null);
+    
+    //assertEquals(5, changes);
+    
+    assertFalse(stem2_sub_b.hasCreate(groupA.toSubject()));
+    assertTrue(stem2_sub_b.hasStemAdmin(groupA.toSubject()));
+  
+    assertFalse(stem2_groupB1.hasCreate(groupA.toSubject()));
+    assertFalse(stem2_groupB1.hasStemAdmin(groupA.toSubject()));
+  
+  }
+
+  /**
+   * 
+   */
+  public void testInheritAttributeDefPrivilegesRemove() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2subSub2 = new StemSave(grouperSession).assignName("stem2:sub:sub2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ1);
+  
+    // stem2 inherits SUB to groupA read/update
+    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("attrRead, attrUpdate"));
+  
+    // stem2 inherits SUB to SUBJ3 read
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("attrRead"));
+    
+    // stem2:sub inherits SUB to groupA read
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("attrRead"));
+    
+    // stem2 inherits ONE to SUBJ0 update
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("attrUpdate"));
+  
+    long initialFirings = RuleEngine.ruleFirings;
+  
+    AttributeDef stem2_sub_b = new AttributeDefSave(grouperSession).assignName("stem2:sub:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stem2_sub_b.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub_b.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+  
+    initialFirings = RuleEngine.ruleFirings;
+  
+    AttributeDef stem2_groupB1 = new AttributeDefSave(grouperSession).assignName("stem2:groupB1").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stem2_groupB1.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_groupB1.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    AttributeDef stem3_d = new AttributeDefSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    assertFalse(stem3_d.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(stem3_d.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    initialFirings = RuleEngine.ruleFirings;
+    AttributeDef stem2_sub2_c = new AttributeDefSave(grouperSession).assignName("stem2:sub2:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(stem2_sub2_c.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(stem2_sub2_c.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ3));
+  
+    // REMOVE THIS: stem2 inherits SUB to groupA read/update
+    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
+    //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+    //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
+    //guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
+    //RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+    
+    int changes = RuleApi.removePrivilegesIfNotAssignedByRule(true, stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("attrRead, attrUpdate"), null);
+    
+    assertEquals(5, changes);
+    
+    assertFalse(stem2_sub_b.getPrivilegeDelegate().hasAttrUpdate(groupA.toSubject()));
+    assertTrue(stem2_sub_b.getPrivilegeDelegate().hasAttrRead(groupA.toSubject()));
+  
+    assertFalse(stem2_groupB1.getPrivilegeDelegate().hasAttrUpdate(groupA.toSubject()));
+    assertFalse(stem2_groupB1.getPrivilegeDelegate().hasAttrRead(groupA.toSubject()));
   
   }
 

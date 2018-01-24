@@ -15,19 +15,33 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -412,7 +426,6 @@ public class RuleApi {
     return attributeAssign;
   }
 
-  
   /**
    * make sure group privileges are inherited in a stem
    * @param actAs
@@ -426,7 +439,239 @@ public class RuleApi {
       Subject subjectToAssign, Set<Privilege> privileges) {
     return inheritGroupPrivileges(actAs, stem, stemScope, subjectToAssign, privileges, null);
   }
+
+  /**
+   * find rules on a folder for inherited privs, or get from cache
+   * @param inheritedRulesCacheByStemIdSubjectPrivilege
+   * @param stem
+   * @param subjectToAssign
+   * @param privilege
+   * @return the applicable rules
+   */
+  private static Set<RuleDefinition> inheritedRulesForFolderOrCache(Map<MultiKey, Set<RuleDefinition>> inheritedRulesCacheByStemIdSubjectPrivilege, 
+      Stem stem, Subject subjectToAssign, Privilege privilege) {
     
+    MultiKey multiKey = new MultiKey(stem.getId(), subjectToAssign.getSourceId(), subjectToAssign.getId(), privilege.getName());
+    Set<RuleDefinition> ruleDefinitions = inheritedRulesCacheByStemIdSubjectPrivilege.get(multiKey);
+    
+    if (ruleDefinitions == null) {
+      
+      ruleDefinitions = GrouperUtil.nonNull(inheritedRulesForFolder(stem, subjectToAssign, privilege));
+      inheritedRulesCacheByStemIdSubjectPrivilege.put(multiKey, ruleDefinitions);
+    }
+    
+    return ruleDefinitions;
+    
+  }
+  
+  /**
+   * find rules on a folder for inherited privileges
+   * @param stem
+   * @param stemScope
+   * @param subjectToAssign
+   * @param privilege
+   * @return the rule definitions
+   */
+  private static Set<RuleDefinition> inheritedRulesForFolder(Stem stem, Subject subjectToAssign, Privilege privilege) {
+    
+    Set<RuleDefinition> ruleDefinitions = null;
+    
+    if (privilege.isAccess()) {
+    
+      ruleDefinitions = RuleFinder.findGroupPrivilegeInheritRules(stem);
+      
+    } else if (privilege.isNaming()) {
+      
+      ruleDefinitions = RuleFinder.findFolderPrivilegeInheritRules(stem);
+      
+    } else if (privilege.isAttributeDef()) {
+      
+      ruleDefinitions = RuleFinder.findAttributeDefPrivilegeInheritRules(stem);
+      
+    } else {
+      
+      throw new RuntimeException("Not expecting privilege: " + privilege);
+
+    }
+    
+    if (GrouperUtil.length(ruleDefinitions) == 0) {
+      return ruleDefinitions;
+    }
+    
+    
+    Iterator<RuleDefinition> iterator = ruleDefinitions.iterator();
+    
+    //go through privs
+    while (iterator.hasNext()) {
+      
+      RuleDefinition ruleDefinition = iterator.next();
+      
+      // the subject must match
+      String subjectString = ruleDefinition.getThen().getThenEnumArg0();
+      if (StringUtils.isBlank(subjectString) ) {
+        iterator.remove();
+        continue;
+      }
+      
+      Subject ruleSubject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+      
+      if (!SubjectHelper.eq(ruleSubject, subjectToAssign)) {
+        
+        iterator.remove();
+        continue;
+        
+      }
+      
+      //check the privilege
+      if (!StringUtils.equals(ruleDefinition.getThen().getThenEnumArg1(), privilege.getName())) {
+        
+        iterator.remove();
+        continue;
+        
+      }
+      
+    }
+    
+    return ruleDefinitions;
+  }
+  
+  
+  
+  /**
+   * remove group privileges are inherited in a stem
+   * @param actAsRoot
+   * @param stem
+   * @param stemScope ONE or SUB
+   * @param subjectToAssign
+   * @param privileges can use Privilege.getInstances() to convert from string
+   * @param sqlLikeString 
+   * @return the number removed
+   */
+  public static int removePrivilegesIfNotAssignedByRule(final boolean actAsRoot, final Stem stem, final Scope stemScope, 
+      final Subject subjectToAssign, final Set<Privilege> privileges, final String sqlLikeString) {
+
+    return (Integer)GrouperSession.callbackGrouperSession(actAsRoot ? GrouperSession.staticGrouperSession().internal_getRootSession() : GrouperSession.staticGrouperSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        int removedCount = 0;
+        
+        // a lot of these will be duplicates so cache it
+        Map<MultiKey, Set<RuleDefinition>> inheritedRulesForFolderOrCache = new HashMap<MultiKey, Set<RuleDefinition>>();
+        
+        for(Privilege privilege : GrouperUtil.nonNull(privileges)) {
+          
+          Set<GrouperObject> grouperObjectsWithPrivsToBeRemoved = new HashSet<GrouperObject>();
+          
+          if (privilege.isAccess()) {
+            Set<Group> groupsWhichNeedPrivsRemoved = GrouperSession.staticGrouperSession()
+                .getAccessResolver().getGroupsWhereSubjectDoesHavePrivilege(
+                    stem.getId(), stemScope, subjectToAssign, privilege, false, sqlLikeString);
+            grouperObjectsWithPrivsToBeRemoved.addAll(GrouperUtil.nonNull(groupsWhichNeedPrivsRemoved)); 
+          } else if (privilege.isNaming()) {
+            Set<Stem> stemsWhichNeedPrivsRemoved = GrouperSession.staticGrouperSession()
+                .getNamingResolver().getStemsWhereSubjectDoesHavePrivilege(
+                    stem.getId(), stemScope, subjectToAssign, privilege, false, sqlLikeString);
+            grouperObjectsWithPrivsToBeRemoved.addAll(GrouperUtil.nonNull(stemsWhichNeedPrivsRemoved)); 
+            
+          } else if (privilege.isAttributeDef()) {
+            Set<AttributeDef> attributeDefsWhichNeedPrivsRemoved = GrouperSession.staticGrouperSession()
+                .getAttributeDefResolver().getAttributeDefsWhereSubjectDoesHavePrivilege(
+                    stem.getId(), stemScope, subjectToAssign, privilege, false, sqlLikeString);
+            grouperObjectsWithPrivsToBeRemoved.addAll(GrouperUtil.nonNull(attributeDefsWhichNeedPrivsRemoved)); 
+            
+          } else {
+            throw new RuntimeException("Not expecting privilege: " + privilege); 
+          }
+          
+          
+          GROUPER_OBJECT_LOOP:
+          for (GrouperObject grouperObject : GrouperUtil.nonNull(grouperObjectsWithPrivsToBeRemoved)) {
+           
+            boolean immediateStem = true;
+            
+            Stem currentStem = grouperObject.getParentStem();
+            
+            //work up to root stem
+            while(true) {
+              
+              //see if there is a SUB or ONE in parent folder
+              Set<RuleDefinition> ruleDefinitions = inheritedRulesForFolderOrCache(inheritedRulesForFolderOrCache, currentStem, subjectToAssign, privilege);
+              
+              for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
+
+                //if directly in the folder or if the scope is SUB
+                if (immediateStem || Scope.SUB.name().equalsIgnoreCase(ruleDefinition.getCheck().getCheckStemScope())) {
+                  
+                  // its ok if no name pattern or if the name pattern matches
+                  //see if there is a name pattern
+                  //  attributeValueDelegate.assignValue(
+                  //      RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.nameMatchesSqlLikeString.name());
+                  //  attributeValueDelegate.assignValue(
+                  //      RuleUtils.ruleIfConditionEnumArg0Name(), "a:b:%someGroup");
+                  if (ruleDefinition.getIfCondition() == null || ruleDefinition.getIfCondition().getIfConditionEnum() == null ||
+                      (RuleIfConditionEnum.nameMatchesSqlLikeString.name().equalsIgnoreCase(ruleDefinition.getIfCondition().getIfConditionEnum())
+                          && GrouperUtil.matchSqlString(ruleDefinition.getIfCondition().getIfConditionEnumArg0(), grouperObject.getName()))) {
+                    continue GROUPER_OBJECT_LOOP;
+                  }
+                  
+                }
+              }
+
+              currentStem = currentStem.getParentStemOrNull();
+              if (currentStem == null) {
+                break;
+              }
+              immediateStem = false;
+            }
+            
+            removedCount++;
+            
+            //we need to remove this privilege, since it is not in another rule
+            if (privilege.isAccess()) {
+              if (((Group)grouperObject).canHavePrivilege(grouperSession.getSubject(), AccessPrivilege.ADMIN.getName(), false)) {
+                ((Group)grouperObject).revokePriv(subjectToAssign, privilege, false);
+
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Revoking privilege (due to inherited priv removed and no other inherited priv assigned): " + privilege + " from subject: " + GrouperUtil.subjectToString(subjectToAssign) + " from group: " + grouperObject.getName());
+                }
+              }
+
+            } else if (privilege.isNaming()) {
+
+              if (((Stem)grouperObject).canHavePrivilege(grouperSession.getSubject(), NamingPrivilege.STEM_ADMIN.getName(), false)) {
+                ((Stem)grouperObject).revokePriv(subjectToAssign, privilege, false);
+  
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Revoking privilege (due to inherited priv removed and no other inherited priv assigned): " + privilege + " from subject: " + GrouperUtil.subjectToString(subjectToAssign) + " from folder: " + grouperObject.getName());
+                }
+              }
+
+            } else if (privilege.isAttributeDef()) {
+              
+              if (((AttributeDef)grouperObject).getPrivilegeDelegate().canHavePrivilege(grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN.getName(), false)) {
+                ((AttributeDef)grouperObject).getPrivilegeDelegate().revokePriv(subjectToAssign, privilege, false);
+  
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Revoking privilege (due to inherited priv removed and no other inherited priv assigned): " + privilege + " from subject: " + GrouperUtil.subjectToString(subjectToAssign) + " from attributeDef: " + grouperObject.getName());
+                }
+              }
+
+            } else {
+              throw new RuntimeException("Not expecting privilege: " + privilege); 
+            }
+            
+          }
+          
+          
+        }
+        return removedCount;
+      }
+    });
+    
+  }
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(RuleApi.class);
+
   /**
    * make sure group privileges are inherited in a stem
    * @param actAs

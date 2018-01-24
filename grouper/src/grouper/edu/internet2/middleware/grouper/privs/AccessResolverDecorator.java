@@ -277,5 +277,26 @@ public abstract class AccessResolverDecorator implements AccessResolver {
         membershipType, queryPaging, additionalMembers);
   }
 
+
+  /**
+   * @see AccessResolver#getGroupsWhereSubjectDoesHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.getDecoratedResolver().getGroupsWhereSubjectDoesHavePrivilege(stemId, 
+        scope, subject, privilege, considerAllSubject, 
+        sqlLikeString);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().hqlFilterGroupsWithPrivWhereClause(subject, hqlQuery, hql, groupColumn, privilege, considerAllSubject);
+  }
+
 }
 

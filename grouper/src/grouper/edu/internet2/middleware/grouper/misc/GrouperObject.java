@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.misc;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Stem;
+
 
 /**
  * grouper objects extend this, e.g. groups, stems, attribute def names
@@ -49,4 +51,11 @@ public interface GrouperObject extends GrouperId {
    * @return display name
    */
   public String getDisplayName();
+  
+  
+  /**
+   * get stem this is in
+   * @return the stem
+   */
+  public Stem getParentStem();
 }

@@ -193,10 +193,6 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
       StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
 
-    if (SubjectHelper.eq(this.root, subject)) {
-      return false;
-    }
-
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     //System.out.println(decoratedResolver.getClass().getName());
     //CachingAccessResolver

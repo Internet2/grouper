@@ -567,32 +567,4 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
     return decoratedResolver.postHqlFilterPermissions(subject, permissionsEntries);
   }
 
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
-   */
-  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
-      StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
-
-    //Wheel can see all groups
-    if (this.isAndUseWheel(subject)) {
-      return false;
-    }
-    if (this.isAndUseWheelViewonly(subject) && privilege != null 
-        && privilege.equals(AttributeDefPrivilege.ATTR_VIEW)) {
-      return false;
-    }
-    if (this.isAndUseWheelReadonly(subject) && privilege != null 
-        && (privilege.equals(AttributeDefPrivilege.ATTR_VIEW)
-            || privilege.equals(AttributeDefPrivilege.ATTR_READ)
-            || privilege.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ))) {
-      return false;
-    }
-    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
-    //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
-    return decoratedResolver.hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql,
-        attributeDefColumn, privilege, considerAllSubject);
-  }
-
 }

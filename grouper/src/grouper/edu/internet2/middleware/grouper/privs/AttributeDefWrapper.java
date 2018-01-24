@@ -355,4 +355,24 @@ public class AttributeDefWrapper implements AttributeDefResolver {
         attributeDef, privileges, membershipType, queryPaging, additionalMembers);
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.attributeDefAdapter.hqlFilterAttributeDefsWithPrivWhereClause(this.grouperSession, subject, hqlQuery, hql, attributeDefColumn, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.attributeDefAdapter.getAttributeDefsWhereSubjectDoesHavePrivilege(
+        this.grouperSession, stemId, scope, subject, privilege, considerAllSubject, 
+        sqlLikeString);
+  }
+
 }

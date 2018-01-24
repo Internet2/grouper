@@ -718,6 +718,35 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
         LOG.debug(GrouperUtil.mapToString(debugLog));
       }
     }
+  }
+
+  /**
+   * Get all attributedefs where this subject does have this privilege.
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return attributedefs
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesHavePrivilege(
+      GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
+      Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+  
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Set<AttributeDef> attributeDefs = new LinkedHashSet();
+  
+    // This subject
+    attributeDefs.addAll( 
+      GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectDoesHavePriv( grouperSession, 
+          stemId, scope, subject, privilege, considerAllSubject, sqlLikeString) 
+    );
+    return attributeDefs;
+  
   }  
 
 
