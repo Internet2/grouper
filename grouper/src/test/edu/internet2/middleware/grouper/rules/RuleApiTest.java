@@ -87,7 +87,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
+    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
   }
 
   /**
@@ -4017,6 +4017,28 @@ public class RuleApiTest extends GrouperTest {
     assertFalse(stem2_groupB1.getPrivilegeDelegate().hasAttrUpdate(groupA.toSubject()));
     assertFalse(stem2_groupB1.getPrivilegeDelegate().hasAttrRead(groupA.toSubject()));
   
+  }
+
+  /**
+   * 
+   */
+  public void testNoNeedForWheelOrRootPrivileges() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertFalse(SubjectHelper.inList(groupA.getAdmins(), SubjectFinder.findRootSubject()));
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertFalse(SubjectHelper.inList(stem2.getStemAdmins(), SubjectFinder.findRootSubject()));
+    
+    @SuppressWarnings("unused")
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("stem1:attributeDef").assignCreateParentStemsIfNotExist(true).save();
+    
+    // doesnt currently work
+    //assertFalse(attributeDef.getPrivilegeDelegate().hasPrivilege(SubjectFinder.findRootSubject(), AttributeDefPrivilege.ATTR_ADMIN.getName()));
+    
   }
 
 }

@@ -75,6 +75,8 @@ public class GrouperSystemNamingResolver extends NamingResolverDecorator {
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
       throws IllegalArgumentException {
+    
+    //TODO remove this!
     if (SubjectHelper.eq(this.root, subject)) {
       return true;
     }
