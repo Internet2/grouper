@@ -130,6 +130,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -2881,9 +2882,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       boolean assignAdminToWheelOrRootOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToWheelOrRootOnCreate", false);
       
       if (assignAdminToWheelOrRootOnCreate || !PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
-        GrouperSession.staticGrouperSession().internal_getRootSession().getAccessResolver().grantPrivilege(
-          g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, null   
-        );
+        
+        boolean assignAdminToInheritedAdminsOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToInheritedAdminsOnCreate", false);
+        if (assignAdminToInheritedAdminsOnCreate || !RuleApi.hasInheritedPrivilege(g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, true)) {
+        
+          GrouperSession.staticGrouperSession().internal_getRootSession().getAccessResolver().grantPrivilege(
+            g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, null   
+          );
+        }
       }
       
       // Now optionally grant other privs
@@ -2923,9 +2929,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       boolean assignAdminToWheelOrRootOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToWheelOrRootOnCreate", false);
       
       if (assignAdminToWheelOrRootOnCreate || !PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
-        //whoever created this is an admin
-        GrouperSession.staticGrouperSession().internal_getRootSession().getAttributeDefResolver().grantPrivilege(
-          attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, null);
+        boolean assignAdminToInheritedAdminsOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToInheritedAdminsOnCreate", false);
+        if (assignAdminToInheritedAdminsOnCreate || !RuleApi.hasInheritedPrivilege(attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, true)) {
+          //whoever created this is an admin
+          GrouperSession.staticGrouperSession().internal_getRootSession().getAttributeDefResolver().grantPrivilege(
+            attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, null);
+        }
       }
       
       // Now optionally grant other privs
@@ -2987,9 +2996,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       boolean assignAdminToWheelOrRootOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToWheelOrRootOnCreate", false);
       
       if (assignAdminToWheelOrRootOnCreate || !PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
-        GrouperSession.staticGrouperSession().internal_getRootSession().getNamingResolver().grantPrivilege(
-          ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, null
-        );
+        
+        boolean assignAdminToInheritedAdminsOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToInheritedAdminsOnCreate", false);
+        if (assignAdminToInheritedAdminsOnCreate || !RuleApi.hasInheritedPrivilege(ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, true)) {
+
+          GrouperSession.staticGrouperSession().internal_getRootSession().getNamingResolver().grantPrivilege(
+            ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, null
+          );
+        }
       }
       
       // Now optionally grant other privs

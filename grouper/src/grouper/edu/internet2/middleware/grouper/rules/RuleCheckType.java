@@ -1247,6 +1247,17 @@ public enum RuleCheckType {
           
         }
         
+        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+        if (stem!=null) {
+          if (stem.grantPriv(subject, privilege, false)){
+            RuleEngine.ruleFirings++;
+
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Daemon granting privilege: " + privilege + " to subject: " + GrouperUtil.subjectToString(subject) + " to stem: " + stem);
+            }
+          }
+        }
+        
       }
       
     }

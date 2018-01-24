@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -51,6 +52,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
@@ -87,7 +89,15 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
+    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
     TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
+    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
+    TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesRemove"));
+    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
+    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
+    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
+    
+    
   }
 
   /**
@@ -3921,8 +3931,69 @@ public class RuleApiTest extends GrouperTest {
     @SuppressWarnings("unused")
     AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("stem1:attributeDef").assignCreateParentStemsIfNotExist(true).save();
     
+    assertNull(new MembershipFinder().addAttributeDef(attributeDef).assignMembershipType(MembershipType.IMMEDIATE).addPrivilegeTheUserHas(AttributeDefPrivilege.ATTR_ADMIN).addSubject(SubjectFinder.findRootSubject()).findMembership(false));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testNoNeedForInheritedAdminPrivileges() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    Stem mainStem = new StemSave(grouperSession).assignName("stem").assignCreateParentStemsIfNotExist(true).save();
+    mainStem.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.CREATE);
+
+    Group groupAdmins = new GroupSave(grouperSession).assignName("stemX:admins").assignCreateParentStemsIfNotExist(true).save();
+    
+    groupAdmins.addMember(SubjectTestHelper.SUBJ0);
+    groupAdmins.addMember(SubjectTestHelper.SUBJ1);
+
+    // stem2 inherits SUB to groupA read/update
+    RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), mainStem, Scope.SUB, groupAdmins.toSubject(), Privilege.getInstances("admin"));
+    RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), mainStem, Scope.SUB, groupAdmins.toSubject(), Privilege.getInstances("stemAdmin"));
+    RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), mainStem, Scope.SUB, groupAdmins.toSubject(), Privilege.getInstances("attrAdmin"));
+    
+    RuleApi.runRulesForOwner(mainStem);
+
+    GrouperSession.stopQuietly(grouperSession);
+
+    //NOT INHERITED
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    
+    Stem stem1 = new StemSave(grouperSession).assignName("stem:stem1").assignCreateParentStemsIfNotExist(true).save();
+    stem1.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.CREATE);
+    Group groupA = new GroupSave(grouperSession).assignName("stem:stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertTrue(SubjectHelper.inList(groupA.getAdmins(), SubjectTestHelper.SUBJ3));
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("stem:stem2").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertTrue(SubjectHelper.inList(stem2.getStemAdmins(), SubjectTestHelper.SUBJ3));
+    
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("stem:stem1:attributeDef").assignCreateParentStemsIfNotExist(true).save();
+    
     // doesnt currently work
-    //assertFalse(attributeDef.getPrivilegeDelegate().hasPrivilege(SubjectFinder.findRootSubject(), AttributeDefPrivilege.ATTR_ADMIN.getName()));
+    assertNotNull(new MembershipFinder().addAttributeDef(attributeDef).addPrivilegeTheUserHas(AttributeDefPrivilege.ATTR_ADMIN).addSubject(SubjectTestHelper.SUBJ3).findMembership(false));
+
+
+    GrouperSession.stopQuietly(grouperSession);
+
+    //YES INHERITED
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    groupA = new GroupSave(grouperSession).assignName("stem:stem1:admins2").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertNull(new MembershipFinder().addGroup(groupA).addPrivilegeTheUserHas(AccessPrivilege.ADMIN).addSubject(SubjectTestHelper.SUBJ0).assignMembershipType(MembershipType.IMMEDIATE).findMembership(false));
+    
+    stem2 = new StemSave(grouperSession).assignName("stem:stem2a").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertNull(new MembershipFinder().addStem(stem2).addPrivilegeTheUserHas(NamingPrivilege.STEM_ADMIN).addSubject(SubjectTestHelper.SUBJ0).assignMembershipType(MembershipType.IMMEDIATE).findMembership(false));
+    
+    attributeDef = new AttributeDefSave(grouperSession).assignName("stem:stem1:attributeDef2").assignCreateParentStemsIfNotExist(true).save();
+    
+    // doesnt currently work
+    assertNull(new MembershipFinder().addAttributeDef(attributeDef).addPrivilegeTheUserHas(AttributeDefPrivilege.ATTR_ADMIN).assignMembershipType(MembershipType.IMMEDIATE).addSubject(SubjectTestHelper.SUBJ0).findMembership(false));
     
   }
 

@@ -27,6 +27,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -41,6 +43,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -446,18 +449,21 @@ public class RuleApi {
    * @param stem
    * @param subjectToAssign
    * @param privilege
+   * @param considerInGroup if allow the subject to be in a group which has an inherited privilege
    * @return the applicable rules
    */
   private static Set<RuleDefinition> inheritedRulesForFolderOrCache(Map<MultiKey, Set<RuleDefinition>> inheritedRulesCacheByStemIdSubjectPrivilege, 
-      Stem stem, Subject subjectToAssign, Privilege privilege) {
+      Stem stem, Subject subjectToAssign, Privilege privilege, boolean considerInGroup) {
     
     MultiKey multiKey = new MultiKey(stem.getId(), subjectToAssign.getSourceId(), subjectToAssign.getId(), privilege.getName());
-    Set<RuleDefinition> ruleDefinitions = inheritedRulesCacheByStemIdSubjectPrivilege.get(multiKey);
+    Set<RuleDefinition> ruleDefinitions = inheritedRulesCacheByStemIdSubjectPrivilege == null ? null : inheritedRulesCacheByStemIdSubjectPrivilege.get(multiKey);
     
     if (ruleDefinitions == null) {
       
-      ruleDefinitions = GrouperUtil.nonNull(inheritedRulesForFolder(stem, subjectToAssign, privilege));
-      inheritedRulesCacheByStemIdSubjectPrivilege.put(multiKey, ruleDefinitions);
+      ruleDefinitions = GrouperUtil.nonNull(inheritedRulesForFolder(stem, subjectToAssign, privilege, considerInGroup));
+      if (inheritedRulesCacheByStemIdSubjectPrivilege != null) {
+        inheritedRulesCacheByStemIdSubjectPrivilege.put(multiKey, ruleDefinitions);
+      }
     }
     
     return ruleDefinitions;
@@ -467,12 +473,12 @@ public class RuleApi {
   /**
    * find rules on a folder for inherited privileges
    * @param stem
-   * @param stemScope
    * @param subjectToAssign
    * @param privilege
+   * @param considerInGroup if allow the subject to be in a group which has an inherited privilege
    * @return the rule definitions
    */
-  private static Set<RuleDefinition> inheritedRulesForFolder(Stem stem, Subject subjectToAssign, Privilege privilege) {
+  private static Set<RuleDefinition> inheritedRulesForFolder(Stem stem, Subject subjectToAssign, Privilege privilege, boolean considerInGroup) {
     
     Set<RuleDefinition> ruleDefinitions = null;
     
@@ -516,10 +522,19 @@ public class RuleApi {
       Subject ruleSubject = SubjectFinder.findByPackedSubjectString(subjectString, true);
       
       if (!SubjectHelper.eq(ruleSubject, subjectToAssign)) {
-        
-        iterator.remove();
-        continue;
-        
+        boolean subjectInGroup = false;
+
+        //if consider
+        if (considerInGroup) {
+          if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), ruleSubject.getSourceId())) {
+            subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).addSubject(subjectToAssign).findMembership(false) != null;
+          }
+        }
+
+        if (!considerInGroup || !subjectInGroup) {
+          iterator.remove();
+          continue;
+        }        
       }
       
       //check the privilege
@@ -583,45 +598,13 @@ public class RuleApi {
             throw new RuntimeException("Not expecting privilege: " + privilege); 
           }
           
-          
           GROUPER_OBJECT_LOOP:
           for (GrouperObject grouperObject : GrouperUtil.nonNull(grouperObjectsWithPrivsToBeRemoved)) {
            
-            boolean immediateStem = true;
+            boolean hasInheritedPrivilege = hasInheritedPrivilege(inheritedRulesForFolderOrCache, grouperObject, subjectToAssign, privilege, false);
             
-            Stem currentStem = grouperObject.getParentStem();
-            
-            //work up to root stem
-            while(true) {
-              
-              //see if there is a SUB or ONE in parent folder
-              Set<RuleDefinition> ruleDefinitions = inheritedRulesForFolderOrCache(inheritedRulesForFolderOrCache, currentStem, subjectToAssign, privilege);
-              
-              for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
-
-                //if directly in the folder or if the scope is SUB
-                if (immediateStem || Scope.SUB.name().equalsIgnoreCase(ruleDefinition.getCheck().getCheckStemScope())) {
-                  
-                  // its ok if no name pattern or if the name pattern matches
-                  //see if there is a name pattern
-                  //  attributeValueDelegate.assignValue(
-                  //      RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.nameMatchesSqlLikeString.name());
-                  //  attributeValueDelegate.assignValue(
-                  //      RuleUtils.ruleIfConditionEnumArg0Name(), "a:b:%someGroup");
-                  if (ruleDefinition.getIfCondition() == null || ruleDefinition.getIfCondition().getIfConditionEnum() == null ||
-                      (RuleIfConditionEnum.nameMatchesSqlLikeString.name().equalsIgnoreCase(ruleDefinition.getIfCondition().getIfConditionEnum())
-                          && GrouperUtil.matchSqlString(ruleDefinition.getIfCondition().getIfConditionEnumArg0(), grouperObject.getName()))) {
-                    continue GROUPER_OBJECT_LOOP;
-                  }
-                  
-                }
-              }
-
-              currentStem = currentStem.getParentStemOrNull();
-              if (currentStem == null) {
-                break;
-              }
-              immediateStem = false;
+            if (hasInheritedPrivilege) {
+              continue GROUPER_OBJECT_LOOP;
             }
             
             removedCount++;
@@ -669,6 +652,78 @@ public class RuleApi {
     });
     
   }
+
+  /**
+   * see if there is an inherited privilege
+   * @param grouperObject
+   * @param subject
+   * @param privilege
+   * @param considerInGroup if allow the subject to be in a group which has an inherited privilege
+   * @return true if so, or false if not
+   */
+  public static boolean hasInheritedPrivilege(GrouperObject grouperObject, Subject subject, Privilege privilege, boolean considerInGroup) {
+    return hasInheritedPrivilege(null, grouperObject, subject, privilege, considerInGroup);
+  }
+
+  /**
+   * see if there is an inherited privilege
+   * @param inheritedRulesCacheByStemIdSubjectPrivilege
+   * @param grouperObject
+   * @param subject
+   * @param privilege
+   * @param considerInGroup if allow the subject to be in a group which has an inherited privilege
+   * @return true if so, or false if not
+   */
+  public static boolean hasInheritedPrivilege(final Map<MultiKey, Set<RuleDefinition>> inheritedRulesCacheByStemIdSubjectPrivilege, 
+      final GrouperObject grouperObject, final Subject subject, final Privilege privilege, final boolean considerInGroup) {
+    
+    return (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        boolean immediateStem = true;
+        
+        Stem currentStem = grouperObject.getParentStem();
+        
+        //work up to root stem
+        while(true) {
+          
+          //see if there is a SUB or ONE in parent folder
+          Set<RuleDefinition> ruleDefinitions = inheritedRulesForFolderOrCache(inheritedRulesCacheByStemIdSubjectPrivilege, currentStem, subject, privilege, considerInGroup);
+          
+          for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
+
+            //if directly in the folder or if the scope is SUB
+            if (immediateStem || Scope.SUB.name().equalsIgnoreCase(ruleDefinition.getCheck().getCheckStemScope())) {
+              
+              // its ok if no name pattern or if the name pattern matches
+              //see if there is a name pattern
+              //  attributeValueDelegate.assignValue(
+              //      RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.nameMatchesSqlLikeString.name());
+              //  attributeValueDelegate.assignValue(
+              //      RuleUtils.ruleIfConditionEnumArg0Name(), "a:b:%someGroup");
+              if (ruleDefinition.getIfCondition() == null || ruleDefinition.getIfCondition().getIfConditionEnum() == null ||
+                  (RuleIfConditionEnum.nameMatchesSqlLikeString.name().equalsIgnoreCase(ruleDefinition.getIfCondition().getIfConditionEnum())
+                      && GrouperUtil.matchSqlString(ruleDefinition.getIfCondition().getIfConditionEnumArg0(), grouperObject.getName()))) {
+                return true;
+              }
+              
+            }
+          }
+
+          currentStem = currentStem.getParentStemOrNull();
+          if (currentStem == null) {
+            break;
+          }
+          immediateStem = false;
+        }
+        
+        return false;
+      }
+    });
+    
+  }
+  
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(RuleApi.class);
 
