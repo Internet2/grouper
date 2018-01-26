@@ -41,6 +41,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -151,6 +153,14 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         int i = 0;
         for (Iterator<?> it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
 
+        Map<String, String> virtualAttributes = SubjectUtils.nonNull(SubjectImpl.virtualAttributesForSource(this));
+        
+        // GRP-1669: grouper sends virtual attribute names to ldap
+        //take out dupes and virtuals
+        Set<String> attributeSet = SubjectUtils.toSet(allAttributeNames);
+        attributeSet.removeAll(virtualAttributes.keySet());
+        allAttributeNames = toArray(attributeSet, String.class);
+        
         initializeLdap();
   
         String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
@@ -169,6 +179,24 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         }
 
    }
+
+    /**
+     * convert a list into an array of type of theClass
+     * @param <T> is the type of the array
+     * @param collection list to convert
+     * @param theClass type of array to return
+     * @return array of type theClass[] filled with the objects from list
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] toArray(Collection collection, Class<T> theClass) {
+      if (collection == null || collection.size() == 0) {
+        return null;
+      }
+
+      return (T[])collection.toArray((Object[]) Array.newInstance(theClass,
+          collection.size()));
+
+    }
 
    private void initializeLdap() {
    
