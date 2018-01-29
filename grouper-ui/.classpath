@@ -10,7 +10,6 @@
 	<classpathentry kind="src" path="contrib/penn-auth/java/src"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/commons-validator.jar"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/jakarta-oro.jar"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/jstl.jar"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/serializer.jar"/>
