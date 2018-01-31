@@ -143,7 +143,7 @@
         <activation.version>1.1.1</activation.version>
         <mail.version>1.4.3</mail.version>
         <jta.version>1.1</jta.version>
-        <servlet.api.version>2.5.20110712</servlet.api.version>
+        <servlet.api.version>2.5</servlet.api.version>
         <xmlunit.version>1.5</xmlunit.version>
         <groovyall.version>2.5.0-beta-2</groovyall.version>
         <jline.version>2.14.5</jline.version>

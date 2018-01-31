@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="GROUPER_MASTER_CLIENT_SOURCE"/>
-	<classpathentry kind="src" path="GROUPER_MASTER_SOURCE"/>
-	<classpathentry kind="src" path="GROUPER_MASTER_CONF"/>
-	<classpathentry kind="src" path="contrib/struts-patch/java/src"/>
-	<classpathentry kind="src" path="contrib/yale-cas-auth/java/src"/>
-	<classpathentry kind="src" path="java/src"/>
-	<classpathentry kind="src" path="java/test"/>
-	<classpathentry kind="src" path="contrib/penn-auth/java/src"/>
-	<classpathentry kind="src" path="conf"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/jakarta-oro.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/jstl.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/serializer.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/servlet.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/standard.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/struts.jar" sourcepath="java/lib/struts.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/struts-el.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/taglibs-datetime.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/taglibs-request.jar"/>
-	<classpathentry exported="true" kind="lib" path="contrib/yale-cas-auth/java/lib/casclient.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/commons-fileupload.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/xalan.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/xercesImpl.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/xml-apis.jar"/>
-	<classpathentry exported="true" kind="lib" path="contrib/penn-auth/java/lib/fastWebsec.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/opencsv.jar"/>
-	<classpathentry exported="true" kind="lib" path="java/lib/csrfguard.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
-	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
+  <classpathentry kind="src" path="GROUPER_MASTER_CLIENT_SOURCE"/>
+  <classpathentry kind="src" path="GROUPER_MASTER_SOURCE"/>
+  <classpathentry kind="src" path="GROUPER_MASTER_CONF"/>
+  <classpathentry kind="src" path="contrib/struts-patch/java/src"/>
+  <classpathentry kind="src" path="contrib/yale-cas-auth/java/src"/>
+  <classpathentry kind="src" path="java/src"/>
+  <classpathentry kind="src" path="java/test"/>
+  <classpathentry kind="src" path="contrib/penn-auth/java/src"/>
+  <classpathentry kind="src" path="conf"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/jstl-1.1.2.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/jsp-api-2.0.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/standard-1.1.2.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/struts-1.2.4.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/struts-el-1.2.4.jar"/>
+  <classpathentry kind="lib" path="contrib/yale-cas-auth/java/lib/casclient.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/commons-fileupload-1.2.1.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/xercesImpl-2.7.1.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/xml-apis-1.3.02.jar"/>
+  <classpathentry kind="lib" path="contrib/penn-auth/java/lib/fastWebsec.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/opencsv-1.8.jar"/>
+  <classpathentry exported="true" kind="lib" path="java/lib/csrfguard.jar"/>
+  <classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
+  <classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>
