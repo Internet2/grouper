@@ -432,5 +432,91 @@ public class GrouperPrivilegeAdapter {
     }
   } // public static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
 
+  /**
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the set of groups
+   */
+  public static Set<Group> internal_getGroupsWhereSubjectDoesHavePriv(GrouperSession grouperSession, 
+      final String stemId, final Scope scope, 
+      final Subject subject, final Privilege privilege, final boolean considerAllSubject, 
+      final String sqlLikeString) {
+    return (Set<Group>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+  
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findGroupsInStemWithPrivilege(
+            grouperSession, stemId, scope, subject, privilege, null, considerAllSubject, 
+            sqlLikeString);
+        
+        return groups;
+      }
+      
+    });
+  }
+
+  /**
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the set of attributeDefs
+   */
+  public static Set<AttributeDef> internal_getAttributeDefsWhereSubjectDoesHavePriv(GrouperSession grouperSession, 
+      final String stemId, final Scope scope, 
+      final Subject subject, final Privilege privilege, final boolean considerAllSubject, 
+      final String sqlLikeString) {
+    return (Set<AttributeDef>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+  
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findAttributeDefsInStemWithPrivilege(
+            grouperSession, stemId, scope, subject, privilege, null, considerAllSubject, sqlLikeString);
+        
+        return attributeDefs;
+      }
+      
+    });
+  }
+
+  /**
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the set of stems
+   */
+  public static Set<Stem> internal_getStemsWhereSubjectDoesHavePriv(GrouperSession grouperSession, 
+      final String stemId, final Scope scope, 
+      final Subject subject, final Privilege privilege, final boolean considerAllSubject, 
+      final String sqlLikeString) {
+    return (Set<Stem>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+  
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findStemsInStemWithPrivilege(
+            grouperSession, stemId, scope, subject, privilege, null, considerAllSubject, 
+            sqlLikeString);
+        
+        return stems;
+      }
+      
+    });
+  }
+
 } // class GrouperPrivilegeAdapter
 

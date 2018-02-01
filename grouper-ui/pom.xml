@@ -62,46 +62,6 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.common</groupId>
-            <artifactId>hibernate-commons-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jandex</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>oro</groupId>
-            <artifactId>oro</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>backport-util-concurrent</groupId>
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
@@ -110,32 +70,8 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-betwixt</groupId>
-            <artifactId>commons-betwixt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-        </dependency>
-        <dependency>
-           	<groupId>org.apache.commons</groupId>
-			<artifactId>commons-digester3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-jexl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -150,52 +86,13 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-math</groupId>
-            <artifactId>commons-math</artifactId>
+            <groupId>net.redhogs.cronparser</groupId>
+            <artifactId>cron-parser-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>mchange-commons-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.maven-play-plugin.com.mchange</groupId>
-            <artifactId>c3p0-oracle-thin-extras</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mailapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jug</groupId>
-            <artifactId>jug</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ezmorph</groupId>
@@ -207,93 +104,65 @@
             <classifier>jdk15</classifier>
         </dependency>
         <dependency>
-          <groupId>org.quartz-scheduler</groupId>
-          <artifactId>quartz</artifactId>
+            <groupId>struts</groupId>
+            <artifactId>struts</artifactId>
+            <version>1.2.4</version>
         </dependency>
         <dependency>
-          <groupId>org.quartz-scheduler</groupId>
-          <artifactId>quartz-jobs</artifactId>
-        </dependency>   
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ddlutils</groupId>
-            <artifactId>ddlutils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.beanshell</groupId>
-            <artifactId>bsh</artifactId>
-        </dependency>
-        <!-- custom Penn -->
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>xmlpull</groupId>
-            <artifactId>xmlpull</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jivesoftware</groupId>
-            <artifactId>smack</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>                
-        </dependency>
-		<dependency>
-			<groupId>struts</groupId>
-			<artifactId>struts</artifactId>
-			<version>1.2.4</version>
-		</dependency>
-        <dependency>
-            <groupId>org.apache.struts</groupId>
+            <groupId>struts</groupId>
             <artifactId>struts-el</artifactId>
-            <version>1.3.10</version>
+            <version>1.2.4</version>
         </dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.1.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>au.com.bytecode</groupId>
-			<artifactId>opencsv</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.owasp</groupId>
-			<artifactId>csrfguard</artifactId>
-			<version>3.0.0</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.owasp</groupId>
+            <artifactId>csrfguard</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.vt.middleware</groupId>
+            <artifactId>vt-ldap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.3.02</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -317,24 +186,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.jamonapi</groupId>
-            <artifactId>jamon</artifactId>
-            <scope>test</scope>
-        </dependency>
-		
-    	<dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.core</artifactId>
-        </dependency>
-    	    <dependency>
-          <groupId>org.apache.wink</groupId>
-          <artifactId>wink-client</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.samples</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -389,6 +240,25 @@
                         <additionalClasspathElement>${basedir}/conf</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

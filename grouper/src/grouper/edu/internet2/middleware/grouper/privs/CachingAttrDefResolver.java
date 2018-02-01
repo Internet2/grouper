@@ -39,6 +39,7 @@ import net.sf.ehcache.Element;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cache.CacheStats;
@@ -431,7 +432,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
    */
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn,
@@ -441,6 +442,21 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     //System.out.println(decoratedResolver.getClass().getName());
     //CachingAccessResolver
     return decoratedResolver.hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        attributeDefColumn, privilege, considerAllSubject);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsWithPrivWhereClause(
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn,
+      Privilege privilege, boolean considerAllSubject) {
+  
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterAttributeDefsWithPrivWhereClause(subject, hqlQuery, hql,
         attributeDefColumn, privilege, considerAllSubject);
   }
 

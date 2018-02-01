@@ -292,6 +292,33 @@ public interface AttributeDefResolver {
   public Set<PrivilegeSubjectContainer> retrievePrivileges(
       AttributeDef attributeDef, Set<Privilege> privileges, 
       MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers);
+
+  /**
+   * for an attribute def query, check to make sure the records have certain privs
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param attributeDefColumn is the name of the attributeDef column to join to
+   * @param privilege find a privilege which is in this set (e.g. for view, attr view)
+   * @param considerAllSubject if true, then consider GrouperAll when seeign if subject has priv, else do not
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterAttributeDefsWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject);
+
+  /**
+   * find the attributeDefs which do have a certain privilege
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject 
+   * @param sqlLikeString
+   * @return the attributeDefs
+   */
+  Set<AttributeDef> getAttributeDefsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
   
 }
 

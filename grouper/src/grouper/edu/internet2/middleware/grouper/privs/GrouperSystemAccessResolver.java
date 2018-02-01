@@ -115,6 +115,8 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
    */
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
       throws IllegalArgumentException {
+    
+    // TODO remove this!
     if (SubjectHelper.eq(this.root, subject)) {
       if (!privilege.equals(AccessPrivilege.OPTIN)
           && !privilege.equals(AccessPrivilege.OPTOUT)) {

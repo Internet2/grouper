@@ -771,6 +771,23 @@ public interface GroupDAO extends GrouperDAO {
       String sqlLikeString);
 
   /**
+   * see which groups do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the groups
+   */
+  public Set<Group> findGroupsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, 
+      QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString);
+
+  /**
    * get all groups secure, split the scope by whitespace
    * @param scope
    * @param grouperSession

@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
@@ -59,8 +60,10 @@ import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInsta
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -615,7 +618,6 @@ public class UiV2Admin extends UiServiceLogicBase {
             subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
           }
         }       
-        
         subjectApiReport.append("\n######## SUBJECT ATTRIBUTES ########\n\n");
         
         if (theSubject == null) {
@@ -644,6 +646,36 @@ public class UiV2Admin extends UiServiceLogicBase {
               }
             }
           }
+          
+          // dont check for internal sources
+          if (!StringUtils.equals(GrouperSourceAdapter.groupSourceId(), sourceId) && !StringUtils.equals(InternalSourceAdapter.ID, sourceId)) {
+            String emailAttributeNameForSource = GrouperEmailUtils.emailAttributeNameForSource(sourceId);
+            if (StringUtils.isBlank(emailAttributeNameForSource)) {
+              subjectApiReport.append("<font color='blue'>NOTE:</font> This source does not list an attribute named emailAttributeName so Grouper will not be able to get the email address of a subject from this source\n");
+            } else {
+              
+              subjectApiReport.append("<font color='green'>SUCCESS:</font> The emailAttributeName is configured to be: '" + GrouperUtil.xmlEscape(emailAttributeNameForSource) + "'\n");
+              
+              String emailAddress = theSubject.getAttributeValue(emailAttributeNameForSource);
+              
+              if (!StringUtils.isBlank(emailAddress)) {
+                
+                if (EmailValidator.getInstance().isValid(emailAddress)) {
+                  
+                  subjectApiReport.append("<font color='green'>SUCCESS:</font> The email address '" + GrouperUtil.xmlEscape(emailAddress) + "' was found and has a valid format\n");
+
+                } else {
+                  
+                  subjectApiReport.append("<font color='red'>ERROR:</font> The email address '" + GrouperUtil.xmlEscape(emailAddress) + "' was found but does not have valid format\n");
+                }
+                
+              } else {
+                
+                subjectApiReport.append("<font color='orange'>WARNING:</font> The email attribute value is blank for this subject\n");
+              }
+            }
+          }
+
         }
 
         subjectApiReport.append("\n######## SUBJECT IN UI ########\n\n");

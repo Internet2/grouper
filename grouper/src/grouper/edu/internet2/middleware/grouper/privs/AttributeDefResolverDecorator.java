@@ -269,11 +269,30 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
    */
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
       StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
     return this.getDecoratedResolver().hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql, groupColumn, privilege, considerAllSubject);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().hqlFilterAttributeDefsWithPrivWhereClause(subject, hqlQuery, hql, groupColumn, privilege, considerAllSubject);
+  }
+
+
+  /**
+   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.getDecoratedResolver().getAttributeDefsWhereSubjectDoesHavePrivilege(stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
   }
   
 }

@@ -104,6 +104,7 @@ import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
@@ -248,19 +249,12 @@ public class GrouperUtil {
   }
 
   /**
-   * pattern as simple validation for email.  need text, @ sign, then text, dot, and text.
-   * granted this could be better, but this is a first step
-   */
-  private static Pattern emailPattern = Pattern.compile("^[^@]+@[^.]+\\..+$");
-
-  /**
    *
    * @param email
    * @return true if valid, false if not
    */
   public static boolean validEmail(String email) {
-    Matcher matcher = emailPattern.matcher(email);
-    return matcher.matches();
+    return EmailValidator.getInstance().isValid(email);
   }
 
   /**
@@ -278,6 +272,7 @@ public class GrouperUtil {
   }
 
   /**
+   * match sqlLike string
    * see if a sql like string matches a real string.
    * e.g. if the input is a:b:%, and the input is: a:b:test:that, then it returns true
    * @param sqlMatcher

@@ -192,5 +192,36 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
     return true;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#hqlFilterAttributeDefsWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsWithPrivWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
+    
+    Member member = MemberFinder.internal_findBySubject(subject, null, true);
+    Member allMember = MemberFinder.internal_findAllMember();
+  
+    String fieldId = privilege.getField().getUuid();
+    
+    if (hql.indexOf(" where ") == -1) {
+      hql.append(" where ");
+    } else {
+      hql.append(" and ");
+    }
+    
+    hql.append(" exists (select __inMembership.uuid from MembershipEntry __inMembership where " +
+        " __inMembership.enabledDb = 'T' and __inMembership.ownerAttrDefId = " + attributeDefColumn + " " +
+            " and __inMembership.fieldId = :inMembershipFieldId and __inMembership.memberUuid in ( " +
+            " :inMembershipMemberId" + (considerAllSubject ? ", :inMembershipAllMemberId" : "") + ")) ");
+    
+    hqlQuery.setString("inMembershipFieldId", fieldId);
+    hqlQuery.setString("inMembershipMemberId", member.getUuid());
+    if (considerAllSubject) {
+      hqlQuery.setString("inMembershipAllMemberId", allMember.getUuid());
+    }
+  
+    return true;
+  }
+
 }
 

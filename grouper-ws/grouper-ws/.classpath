@@ -34,12 +34,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/wstx-asl-3.2.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/xmlbeans-2.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.4.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/commons-net.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/commons-net-1.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/jdom-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit-4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/stax-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/xom-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet-api-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/rampart/bcprov-jdk15-140.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/rampart/opensaml-2.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-core-1.6.1.jar"/>

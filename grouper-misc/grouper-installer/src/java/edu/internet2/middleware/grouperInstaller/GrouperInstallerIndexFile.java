@@ -15,6 +15,29 @@ import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
 public class GrouperInstallerIndexFile {
 
   /**
+   * errors to print when there is an error
+   */
+  private StringBuilder errors = new StringBuilder();
+  
+  
+  /**
+   * errors to print when there is an error
+   * @return the errors
+   */
+  public StringBuilder getErrors() {
+    return this.errors;
+  }
+
+  
+  /**
+   * errors to print when there is an error
+   * @param errors1 the errors to set
+   */
+  public void setErrors(StringBuilder errors1) {
+    this.errors = errors1;
+  }
+
+  /**
    * type of patch file
    */
   public static enum PatchFileType {

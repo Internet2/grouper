@@ -829,6 +829,97 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope, findByUuidOrName, totalAttributeDefIds);
     
   }
+
+  /**
+   * @see AttributeDefDAO#findAttributeDefsInStemWithPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
+   */
+  public Set<AttributeDef> findAttributeDefsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    massageSortFields(queryOptions.getQuerySort());
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theAttributeDef.nameDb");
+    }
+  
+    StringBuilder sqlTables = new StringBuilder("select distinct theAttributeDef from AttributeDef theAttributeDef ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder sqlWhereClause = new StringBuilder();
+  
+    switch (scope) {
+      case ONE:
+        
+        sqlWhereClause.append(" theAttributeDef.stemId = :stemId ");
+        byHqlStatic.setString("stemId", stemId);
+        
+        break;
+        
+      case SUB:
+        
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
+        sqlWhereClause.append(" theAttributeDef.nameDb like :stemPattern ");
+        byHqlStatic.setString("stemPattern", stem.getName() + ":%");
+  
+        break;
+        
+      default:
+        throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
+    }
+    
+  
+    
+    //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
+    Set<Privilege> adminSet = GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN);
+  
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sqlTables, sqlWhereClause, "theAttributeDef.id", adminSet);
+  
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      if (sqlWhereClause.length() > 0) {
+        sqlWhereClause.append(" and ");
+      }
+      sqlWhereClause.append(" theAttributeDef.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
+  
+    StringBuilder sql = sqlTables.append(" where ").append(sqlWhereClause);
+  
+    boolean changedQueryNotWithPriv = grouperSession.getAttributeDefResolver().hqlFilterAttributeDefsWithPrivWhereClause(subject, byHqlStatic, 
+        sql, "theAttributeDef.id", privilege, considerAllSubject);
+  
+    Set<AttributeDef> attributeDefs = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAttributeDefsInStemWithPrivilege")
+      .options(queryOptions)
+      .listSet(AttributeDef.class);
+          
+    //if the hql didnt filter, this will
+    Set<AttributeDef> filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+      .postHqlFilterAttrDefs(attributeDefs, grouperSession.getSubject(), adminSet);
+  
+    if (!changedQueryNotWithPriv) {
+      
+      //didnt do this in the query
+      Set<AttributeDef> originalList = new LinkedHashSet<AttributeDef>(filteredAttributeDefs);
+      filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+        .postHqlFilterAttrDefs(originalList, subject, GrouperUtil.toSet(privilege));
+      
+      //we want the ones in the original list not in the new list
+      if (filteredAttributeDefs != null) {
+        originalList.removeAll(filteredAttributeDefs);
+      }
+      filteredAttributeDefs = originalList;
+    }
+    
+    return filteredAttributeDefs;
+    
+  }
   
 
 
