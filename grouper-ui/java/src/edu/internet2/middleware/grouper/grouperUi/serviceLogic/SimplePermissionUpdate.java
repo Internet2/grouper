@@ -1485,10 +1485,14 @@ public class SimplePermissionUpdate {
       //this is the attribute we are editing
       String limitAssignId = httpServletRequest.getParameter("limitAssignId");
       
-      if (StringUtils.isBlank(limitAssignId)) {
+      Object limitAssignIdAttribute = httpServletRequest.getAttribute("limitAssignId");
+      
+      if (StringUtils.isBlank(limitAssignId) && limitAssignIdAttribute == null) {
         throw new RuntimeException("Why is limitAssignId blank???");
       }
-  
+      
+      limitAssignId = StringUtils.defaultIfBlank(limitAssignId, (String)limitAssignIdAttribute);
+      
       AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
   
       //we need the type so we know how to display it
@@ -1513,6 +1517,12 @@ public class SimplePermissionUpdate {
       permissionUpdateRequestContainer.setGuiAttributeAssignAssign(guiAttributeAssignAssign);
       permissionUpdateRequestContainer.setAttributeAssignType(underlyingAttributeAssignType);
       permissionUpdateRequestContainer.setAttributeAssignAssignType(attributeAssignType);
+      
+      if (httpServletRequest.getAttribute("newUi") != null) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPermission", 
+            "/WEB-INF/grouperUi2/permission/permissionLimitEdit.jsp"));
+        return;
+      }
         
       guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
         "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionLimitEdit.jsp"));

@@ -80,21 +80,6 @@
                         <span class="help-block">${textContainer.text['groupCreatePrivilegeDescription']}</span>
                       </div>
                     </div>
-                    <div class="control-group">
-                      <label for="group-type" class="control-label">${textContainer.text['groupCreateTypeLabel'] }</label>
-                      <div class="controls">
-                        <label class="radio">
-                          <input type="radio" name="groupType" id="group-type-group" value="group" 
-                            ${grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup.name == 'group' ? 'checked="checked"' : '' }  
-                          >${textContainer.text['groupCreateTypeGroup'] }
-                        </label>
-                        <label class="radio">
-                          <input type="radio" name="groupType" id="group-type-role" value="role"
-                            ${grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup.name == 'role' ? 'checked="checked"' : '' }  
-                          >${textContainer.text['groupCreateTypeRole'] }
-                        </label><span class="help-block">${textContainer.text['groupCreateTypeDescription'] }</span>
-                      </div>
-                    </div>
                     <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                       <div class="control-group">
                         <label for="group-type" class="control-label">${textContainer.text['groupCreateTypeLabel'] }</label>

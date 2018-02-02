@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -693,5 +694,9 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     }
     
     return hasAttrLdap;
+  }
+  
+  public boolean isTypeRole() {
+    return this.group.getTypeOfGroup() == TypeOfGroup.role;
   }
 }

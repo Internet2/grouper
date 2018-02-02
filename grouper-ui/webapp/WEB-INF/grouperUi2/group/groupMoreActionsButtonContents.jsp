@@ -91,6 +91,10 @@
                               >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
                           </c:if>
                         </c:if>
+                        
+                        <li class="divider"></li>
+                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Permission.groupPermission&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['groupViewPermissionsButton'] }</a></li>
 
                         <c:if test="${grouperRequestContainer.groupContainer.showMenuLinkToAdminUi}">
                           <li class="divider"></li>

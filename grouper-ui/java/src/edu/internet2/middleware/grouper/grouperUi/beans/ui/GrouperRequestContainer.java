@@ -22,6 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
+import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -520,5 +521,34 @@ public class GrouperRequestContainer {
   public void setRulesContainer(RulesContainer theRulesContainer) {
     this.rulesContainer = theRulesContainer;
   }
+  
+  /**
+   * container for permission screen
+   */
+  private PermissionContainer permissionContainer;
+
+  /**
+   * lazy load the permission container
+   * @return container for permission screen
+   */
+  public PermissionContainer getPermissionContainer() {
+    if (this.permissionContainer == null) {
+      this.permissionContainer = new PermissionContainer();
+    }
+    return this.permissionContainer;
+  }
+  
+  private PermissionUpdateRequestContainer permissionUpdateRequestContainer;
+
+  
+  public PermissionUpdateRequestContainer getPermissionUpdateRequestContainer() {
+    
+    if (this.permissionUpdateRequestContainer == null) {
+      this.permissionUpdateRequestContainer = new PermissionUpdateRequestContainer();
+    }
+    return permissionUpdateRequestContainer;
+  }
+  
+  
   
 }
