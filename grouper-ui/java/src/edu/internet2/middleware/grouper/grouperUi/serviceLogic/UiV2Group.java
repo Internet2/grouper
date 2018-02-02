@@ -16,7 +16,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
 import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
 import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
 
@@ -4753,6 +4752,47 @@ public class UiV2Group {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * convert group to role from permissions screen
+   * @param request
+   * @param response
+   */
+  public void convertGroupToRole(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      //update the group
+      group.setTypeOfGroup(TypeOfGroup.role);
+      group.store();
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Permission.groupPermission&groupId=" + group.getId() + "')"));
+      
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("groupConvertedToRoleSuccess")));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
 
 //  /**

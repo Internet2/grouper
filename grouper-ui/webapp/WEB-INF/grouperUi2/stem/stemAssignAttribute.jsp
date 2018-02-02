@@ -54,7 +54,7 @@
                     <div class="controls">
                       <input type="hidden" name="attributeAssignType" value="stem" /> 	                    	
                       <grouper:combobox2 idBase="attributeDefCombo" style="width: 30em"
-                        filterOperation="UiV2AttributeDef.createAttributeDefNameParentAttributeDefFilter"
+                        filterOperation="UiV2AttributeDef.attributeDefFilter"
                         additionalFormElementNames="attributeAssignType"
                         value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.objectAttributeDefId)}"
                         />

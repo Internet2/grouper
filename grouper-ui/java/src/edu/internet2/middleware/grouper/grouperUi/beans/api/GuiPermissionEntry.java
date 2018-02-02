@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.subject.Subject;
@@ -48,6 +47,21 @@ public class GuiPermissionEntry implements Serializable {
 
   /** raw gui permission entries */
   private List<GuiPermissionEntry> rawGuiPermissionEntries = null;
+  
+  /**
+   * owner role
+   */
+  private GuiGroup guiRole;
+  
+  /**
+   * attribute def name
+   */
+  private GuiAttributeDefName guiAttributeDefName;
+  
+  /**
+   * attribute def
+   */
+  private GuiAttributeDef guiAttributeDef;
   
   /**
    * see if allowed
@@ -370,6 +384,48 @@ public class GuiPermissionEntry implements Serializable {
   public boolean isNeedsTooltip() {
     this.initScreenLabels();
     return !StringUtils.equals(this.screenLabelLong, this.screenLabelShort);
+  }
+
+  /**
+   * @return owner role
+   */
+  public GuiGroup getGuiRole() {
+    return guiRole;
+  }
+
+  /**
+   * @param guiRole: owner role
+   */
+  public void setGuiRole(GuiGroup guiRole) {
+    this.guiRole = guiRole;
+  }
+
+  /**
+   * @return attribute def name
+   */
+  public GuiAttributeDefName getGuiAttributeDefName() {
+    return guiAttributeDefName;
+  }
+
+  /**
+   * @param guiAttributeDefName
+   */
+  public void setGuiAttributeDefName(GuiAttributeDefName guiAttributeDefName) {
+    this.guiAttributeDefName = guiAttributeDefName;
+  }
+
+  /**
+   * @return gui attribute def
+   */
+  public GuiAttributeDef getGuiAttributeDef() {
+    return guiAttributeDef;
+  }
+
+  /**
+   * @param guiAttributeDef
+   */
+  public void setGuiAttributeDef(GuiAttributeDef guiAttributeDef) {
+    this.guiAttributeDef = guiAttributeDef;
   }
   
 }

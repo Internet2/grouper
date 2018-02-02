@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntit
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Permission;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Public;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
@@ -135,6 +136,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitDefinitions",
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitNames",
       SimplePermissionUpdateMenu.class.getSimpleName() + ".limitMenuStructure",
+      SimplePermissionUpdateMenu.class.getSimpleName() + ".limitMenuStructureNewUi",
+      SimplePermissionUpdateMenu.class.getSimpleName() + ".assignmentMenuStructureNewUi",
+      SimplePermissionUpdateMenu.class.getSimpleName() + ".limitValueMenuStructure",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterGroupsRolesEntities",
       UiV2Main.class.getSimpleName() + ".index",
       UiV2Main.class.getSimpleName() + ".folderMenu",
@@ -143,8 +147,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",
-      UiV2AttributeDef.class.getSimpleName() + ".createAttributeDefNameParentAttributeDefFilter",
+      UiV2AttributeDef.class.getSimpleName() + ".attributeDefFilter",
       UiV2AttributeDefName.class.getSimpleName() + ".attributeDefNameFilter",
+      UiV2Permission.class.getSimpleName() + ".permissionActionNameFilter",
       UiV2Subject.class.getSimpleName() + ".addToGroupFilter",
       UiV2Group.class.getSimpleName() + ".groupUpdateFilter",
       UiV2Group.class.getSimpleName() + ".groupCompositeFactorFilter",

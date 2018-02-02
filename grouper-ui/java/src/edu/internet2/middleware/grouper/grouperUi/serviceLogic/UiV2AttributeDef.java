@@ -1953,7 +1953,7 @@ public class UiV2AttributeDef {
    * @param request
    * @param response
    */
-  public void createAttributeDefNameParentAttributeDefFilter(final HttpServletRequest request, HttpServletResponse response) {
+  public void attributeDefFilter(final HttpServletRequest request, HttpServletResponse response) {
   
     //run the combo logic
     DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<AttributeDef>() {
@@ -1977,19 +1977,19 @@ public class UiV2AttributeDef {
         Subject loggedInSubject = grouperSession.getSubject();
         
         String attributeAssignTypeString = request.getParameter("attributeAssignType");
+        
+        String attributeDefTypeString = request.getParameter("attributeDefType");
 
         int attributeDefsComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.attributeDefsComboboxResultSize", 200);
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, attributeDefsComboSize);
         
         AttributeAssignType attributeAssignType = AttributeAssignType.valueOfIgnoreCase(attributeAssignTypeString, false);
         
-        if (attributeAssignType != null) {
-          return GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(query, grouperSession, loggedInSubject, 
-              GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, attributeAssignType, null);
-        } else {
-          return GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(query, grouperSession, loggedInSubject, 
-              GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, null, null);
-        }
+        AttributeDefType attributeDefType = AttributeDefType.valueOfIgnoreCase(attributeDefTypeString, false);
+        
+        return GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(query, grouperSession, loggedInSubject, 
+            GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, attributeAssignType, attributeDefType);
+        
       }
   
       /**
