@@ -32,7 +32,7 @@
                         ${textContainer.text['groupViewPermissionsColumnResourceName']}
                       </th>
                       <c:forEach items="${grouperRequestContainer.permissionUpdateRequestContainer.allActions}" var="action">
-                        <th class="privilegeHeader" style="white-space: nowrap;">
+                        <th class="privilegeHeader" style="white-space: nowrap; border-right: #8e8a8f 1px solid; min-width: 40px;">
                           ${grouper:escapeHtml(action)}
                         </th>
                       </c:forEach>
@@ -55,7 +55,7 @@
                   </td>
                   
                   <c:forEach items="${grouperRequestContainer.permissionUpdateRequestContainer.allActions}" var="action">
-                    <td align="center" style="white-space: nowrap;">
+                    <td align="center" style="white-space: nowrap; border-right: #8e8a8f 1px solid; min-width: 40px;">
                       <%-- see if this row has this action, if not then blank --%>
                       <c:if test="${guiPermissionEntryActionsContainer.showAction[action]}">
                         <c:set var="guiPermissionEntry" value="${guiPermissionEntryContainer.actionToGuiPermissionEntryMap[action]}" />
@@ -105,18 +105,6 @@
                       ${textContainer.text['simplePermissionUpdate.limitLabel']}</span>
                       <c:choose>
                         <c:when test="${guiPermissionLimitBeanContainer.immediate}" >
-                          <%-- <a href="#" onclick="if (confirm('${grouper:message('simplePermissionUpdate.limitDeleteConfirm', true, true)}')) {ajax('SimplePermissionUpdate.limitDelete?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}', {formIds: 'simplePermissionFilterForm'});} return false;" 
-                                ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-                                alt="${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, false)}"
-                                onmouseover="Tip('${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, true)}')" 
-                                onmouseout="UnTip()"/></a>
-    
-                          <a href="#" onclick="ajax('SimplePermissionUpdate.assignLimitEdit?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}', {formIds: 'simplePermissionFilterForm'}); return false;" 
-                            ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
-                            alt="${grouper:message('simplePermissionUpdate.editLimitAlt', true, false)}"
-                            onmouseover="Tip('${grouper:message('simplePermissionUpdate.editLimitAlt', true, true)}')" 
-                            onmouseout="UnTip()"/></a> --%>
-    
                           <a class="limitMenuButton" href="#"
                             ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                             id="limitMenuButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/></a>
@@ -142,10 +130,6 @@
                     <td style="white-space: nowrap;">
                       <grouper:message value="${grouper:escapeHtml(guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.displayExtension)}" 
                         valueTooltip="${grouper:escapeHtml(guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.displayName)}" />
-                      <%-- help image next to permission name --%>
-                      <%-- <a href="#" onclick="$('#limitDocumentationId').show(); guiScrollTo('#limitDocumentationId'); return false;"
-                        ><img src="../../grouperExternal/public/assets/images/infodot.gif" border="0" height="11px" width="11px"
-                        alt="${grouper:message('simplePermissionUpdate.limitNameHelpButtonAlt', true, false)}"/></a> --%>
                         
                     </td>
                     <td style="white-space: nowrap;" colspan="${grouperRequestContainer.permissionUpdateRequestContainer.allActionsSize}">
@@ -173,17 +157,6 @@
                                  id="limitAssignValueButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}_${limitAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
                               </a>
                             
-                              <%-- <a href="#" onclick="if (confirm('${grouper:message('simplePermissionUpdate.limitValueDeleteConfirm', true, true)}')) {ajax('SimplePermissionUpdate.limitValueDelete?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}&limitAssignValueId=${limitAssignValue.id}', {formIds: 'simplePermissionFilterForm'});} return false;" 
-                                ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-                                alt="${grouper:message('simplePermissionUpdate.limitDeleteValueAlt', true, false)}"
-                                onmouseover="Tip('${grouper:message('simplePermissionUpdate.limitDeleteValueAlt', true, true)}')" 
-                                onmouseout="UnTip()"/></a>
-          
-                              <a href="#" onclick="ajax('SimplePermissionUpdate.limitValueEdit?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}&limitAssignValueId=${limitAssignValue.id}', {formIds: 'simplePermissionFilterForm'}); return false;" 
-                                ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
-                                alt="${grouper:message('simplePermissionUpdate.editLimitValueAssignmentAlt', true, false)}"
-                                onmouseover="Tip('${grouper:message('simplePermissionUpdate.editLimitValueAssignmentAlt', true, true)}')" 
-                                onmouseout="UnTip()"/></a> --%>
                             </c:when>
                             <c:otherwise>
                               <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
