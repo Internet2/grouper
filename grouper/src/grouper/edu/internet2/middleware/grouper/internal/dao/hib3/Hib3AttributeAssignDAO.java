@@ -3437,7 +3437,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     boolean changedQuery = false;
     
     if (attributeCheckReadOnAttributeDef) {
-      grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
+      changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
         grouperSessionSubject, byHqlStatic, 
         sqlTables, "aa.ownerStemId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
     }
