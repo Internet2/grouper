@@ -9,14 +9,19 @@
     <link rel="stylesheet" type="text/css" href="../../grouperExternal/public/assets/dhtmlx/menu/skins/dhtmlxmenu_dhx_blue.css" />
 
     <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
-          <table class="table table-hover table-bordered table-striped table-condensed data-table">
+    <c:choose>
+      <c:when test="${fn:length(grouperRequestContainer.permissionUpdateRequestContainer.guiPermissionEntryActionsContainers) == 0}">
+        ${textContainer.text['groupViewPermissionsNoAssignedPermissions']}
+      </c:when>
+      <c:otherwise>
+        <table class="table table-hover table-bordered table-striped table-condensed data-table">
             <c:forEach items="${grouperRequestContainer.permissionUpdateRequestContainer.guiPermissionEntryActionsContainers}" var="guiPermissionEntryActionsContainer">
               <c:set var="row" value="0" />
               <c:forEach items="${guiPermissionEntryActionsContainer.guiPermissionEntryContainers}" var="guiPermissionEntryContainer">
               
                 <c:if test="${grouperRequestContainer.permissionUpdateRequestContainer.showHeader[row]}">
                   <thead>
-                    <tr>           
+                    <tr>
                       <th></th>
                       <th></th>
                       <th style="background-color: #DFEFF4; text-align: center;" colspan="${grouperRequestContainer.permissionUpdateRequestContainer.allActionsSize }">
@@ -207,3 +212,5 @@
             contextZoneJqueryHandle=".limitAssignValueButton" contextMenu="true" />
           
         </table>
+      </c:otherwise>
+    </c:choose>
