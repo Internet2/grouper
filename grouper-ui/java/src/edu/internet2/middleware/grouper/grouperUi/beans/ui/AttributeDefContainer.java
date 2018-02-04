@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
@@ -54,8 +55,26 @@ public class AttributeDefContainer {
    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance();
  }
  
+   /**
+    * actions associated with this attribute def
+    */
+   private Set<AttributeAssignAction> attributeAssignActions;
+   
+  /**
+   * actions associated with this attribute def
+   * @return
+   */
+  public Set<AttributeAssignAction> getAttributeAssignActions() {
+    return attributeAssignActions;
+  }
 
- /**
+  /**
+   * actions associated with this attribute def
+   * @param attributeAssignActions1
+   */
+  public void setAttributeAssignActions(Set<AttributeAssignAction> attributeAssignActions1) {
+    this.attributeAssignActions = attributeAssignActions1;
+  }
 
   /**
    * gui attribute def names e.g. results for attribute def name list on attribute def tab
