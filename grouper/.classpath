@@ -11,7 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/bsh-2.0b5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-beanutils-1.9.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-betwixt-0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-cli-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-collections-3.2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-digester-2.1.jar"/>
@@ -22,7 +21,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/dom4j-2.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ehcache-core-2.4.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-core-5.0.12.Final.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/oro-2.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jta-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/jug-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/log4j-1.2.17.jar"/>
@@ -36,7 +34,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql-42.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/junit-4.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ant/ant-contrib-1.0b3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery-0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/jamon-2.81.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant-1.10.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io-1.4.jar"/>
@@ -50,7 +47,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-codec-1.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty/jetty-util-6.1.26.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty/jetty-6.1.26.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty/servlet-api-2.5.20110712.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlutils-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/grouperClient.jar"/>
