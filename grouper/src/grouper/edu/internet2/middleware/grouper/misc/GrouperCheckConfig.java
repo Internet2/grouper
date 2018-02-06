@@ -1304,13 +1304,11 @@ public class GrouperCheckConfig {
     checkJar("bsh-2.0b5.jar", 383846, "bsh.BSHFormalComment", "2.0b5 2005-06-12 04:50:41");
     checkJar("c3p0-0.9.5.2.jar", 497865, "com.mchange.v2.c3p0.ConnectionTester", "0.9.5.2");
     checkJar("commons-beanutils-1.9.3.jar", 246174, "org.apache.commons.beanutils.locale.LocaleConverter", "1.9.3");
-    checkJar("commons-betwixt-0.8.jar", 242227, "org.apache.commons.betwixt.expression.MethodExpression", "0.8");
     checkJar("commons-cli-1.4.jar", 53820, "org.apache.commons.cli.GnuParser", "1.4");
     checkJar("commons-codec-1.11.jar", 335042, "org.apache.commons.codec.binary.Base32OutputStream", "1.11");
     checkJar("commons-collections-3.2.2.jar", 588337, "org.apache.commons.collections.keyvalue.AbstractKeyValue", "3.2.2");
     checkJar("commons-digester-2.1.jar", 196768, "org.apache.commons.digester.AbstractObjectCreationFactory", "2.1");
     checkJar("commons-digester3-3.2.jar", 241614, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
-    checkJar("commons-discovery-0.5.jar", 79796, "org.apache.commons.discovery.ant.ServiceDiscoveryTask", "0.5");
     checkJar("commons-httpclient-3.1.jar", 305001, "org.apache.commons.httpclient.ChunkedInputStream", "3.1");
     checkJar("commons-io-1.4.jar", 109043, "org.apache.commons.io.comparator.DefaultFileComparator", "1.4");
     checkJar("commons-jexl-2.1.1.jar", 267634, "org.apache.commons.jexl2.DebugInfo", "2.1.1");
@@ -1342,7 +1340,6 @@ public class GrouperCheckConfig {
     checkJar("mailapi-1.4.3.jar", 250233, "com.sun.mail.handlers.text_html", "1.4.3");
     checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
     checkJar("morphString.jar", 78679, "edu.internet2.middleware.morphString.Crypto", "1.2");
-    checkJar("oro-2.0.8.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");
     checkJar("p6spy-3.6.0.jar", 123220, "com.p6spy.engine.logging.P6LogOptionsMBean", "null");
     checkJar("quartz-2.3.0.jar", 690992, "org.quartz.Calendar", "null");
     checkJar("slf4j-api-1.7.25.jar", 41203, "org.slf4j.event.EventConstants", "1.7.25");

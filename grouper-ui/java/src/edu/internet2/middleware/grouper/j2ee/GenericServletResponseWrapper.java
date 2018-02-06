@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.j2ee;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponseWrapper;
@@ -204,4 +205,33 @@ public class GenericServletResponseWrapper extends ServletResponseWrapper implem
   public void setStatus(int arg0, String arg1) {
     this.httpServletResponse.setStatus(arg0, arg1);
   }
+
+  /**
+   * @see javax.servlet.http.HttpServletResponse#getStatus()
+   */
+  public int getStatus() {
+    return this.httpServletResponse.getStatus();
+  }
+
+  /**
+   * @see javax.servlet.http.HttpServletResponse#getHeader(java.lang.String)
+   */
+  public String getHeader(String s) {
+    return this.httpServletResponse.getHeader(s);
+  }
+
+  /**
+   * @see javax.servlet.http.HttpServletResponse#getHeaders(java.lang.String)
+   */
+  public Collection<String> getHeaders(String s) {
+    return this.httpServletResponse.getHeaders(s);
+  }
+
+  /**
+   * @see javax.servlet.http.HttpServletResponse#getHeaderNames()
+   */
+  public Collection<String> getHeaderNames() {
+    return this.httpServletResponse.getHeaderNames();
+  }
+
 }

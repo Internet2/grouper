@@ -33,6 +33,7 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import java.io.*;
 
 /**
@@ -89,5 +90,25 @@ public class CaptureServletOutputStream extends ServletOutputStream {
 	public String toString() {
 		return out.toString();
 	}
+
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see CaptureServletOutputStream#isReady()
+	 */
+	public boolean isReady() {
+		return true;
+	}
+
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see javax.servlet.ServletOutputStream#setWriteListener(javax.servlet.WriteListener)
+ 	 */
+	public void setWriteListener(WriteListener writeListener) {
+		// neither async nor HTTP upgrade in progress
+		throw new IllegalStateException();
+	}
+
 
 }

@@ -668,7 +668,7 @@
         <include name="**/*.jar"/>
       </fileset>
     	<!-- we need this for at least status servlet -->
-      <pathelement  location="${lib.dir}/jetty/servlet-api-2.5.20110712.jar"/>
+      <pathelement  location="${lib.dir}/grouper/javax.servlet-api-3.1.0.jar"/>
       <!--<fileset dir="dist/lib">
         <include name="**/*.jar"/>
       </fileset>-->
