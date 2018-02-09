@@ -64,6 +64,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-jpa-2.1-api-1.0.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/vt-ldap.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ldaptive-1.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/ojdbc6_g.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-commons-annotations-5.0.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-ehcache-5.0.4.Final.jar"/>

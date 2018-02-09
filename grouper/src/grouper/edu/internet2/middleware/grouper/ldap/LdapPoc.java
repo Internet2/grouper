@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.ldap.vtldap.VTLdapSessionImpl;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
@@ -100,21 +101,21 @@ public class LdapPoc {
    */
   public static void manyObjectsOneAttributeFramework() {
     
-    List<String> results = LdapSession.list(String.class, "personLdap", "ou=pennnames", 
+    List<String> results = new VTLdapSessionImpl().list(String.class, "personLdap", "ou=pennnames", 
         null, "(|(pennname=mchyzer)(pennname=choate))", "pennid");
     
     for (String result : results) {
       System.out.println(result);
     }
     
-    results = LdapSession.list(String.class, "personLdap", "ou=groups", 
+    results = new VTLdapSessionImpl().list(String.class, "personLdap", "ou=groups", 
         null, "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))", "hasMember");
     
     for (String result : results) {
       System.out.println(result);
     }
     
-    results = LdapSession.list(String.class, "personLdap", "ou=groups", 
+    results = new VTLdapSessionImpl().list(String.class, "personLdap", "ou=groups", 
         null, "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))", "dn");
 
     for (String result : results) {
@@ -127,7 +128,7 @@ public class LdapPoc {
    * 
    */
   public static void manyObjectsListMapAttributeFramework() {
-    Map<String, List<String>> resultMap = LdapSession.listInObjects(String.class, "personLdap", "ou=groups", 
+    Map<String, List<String>> resultMap = new VTLdapSessionImpl().listInObjects(String.class, "personLdap", "ou=groups", 
         null, "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))", "hasMember");
   
     for (String key : resultMap.keySet()) {
