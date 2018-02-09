@@ -23,11 +23,6 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import edu.vt.middleware.ldap.Ldap;
-import edu.vt.middleware.ldap.SearchFilter;
-import edu.vt.middleware.ldap.pool.CompareLdapValidator;
-import edu.vt.middleware.ldap.pool.ConnectLdapValidator;
-import edu.vt.middleware.ldap.pool.LdapValidator;
 
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
@@ -303,27 +298,13 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
 
     grouperLoaderLdapServer.setSearchResultHandlers(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".searchResultHandlers"));
 
-    grouperLoaderLdapServer.setReferral(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".referral"));
+    grouperLoaderLdapServer.setReferral(getPropertyString("ldap." + name + ".referral"));
 
-    LdapValidator<Ldap> validator = null;
-
-    String ldapValidator = getPropertyString("ldap." + name + ".validator");
-
-    if (StringUtils.equalsIgnoreCase(ldapValidator, CompareLdapValidator.class.getSimpleName())) {
-      String validationDn = getPropertyString("ldap." + name + ".validatorCompareDn");
-      String validationSearchFilterString = getPropertyString("ldap." + name + ".validatorCompareSearchFilterString");
-      validator = new CompareLdapValidator(validationDn, new SearchFilter(validationSearchFilterString)); // perform a simple compare
-    } else if (StringUtils.equalsIgnoreCase(ldapValidator, ConnectLdapValidator.class.getSimpleName())) {
-      //this is the default, why not
-      validator = new ConnectLdapValidator(); // perform a simple connect
-    } else if (!StringUtils.isBlank(ldapValidator)) {
-      //get the class
-      Class<LdapValidator<Ldap>> validatorClass = GrouperUtil.forName(ldapValidator);
-      validator = GrouperUtil.newInstance(validatorClass);
+    //#validateOnCheckout defaults to true if all other validate methods are false
+    if (!grouperLoaderLdapServer.isValidateOnCheckIn() && !grouperLoaderLdapServer.isValidateOnCheckOut() && !grouperLoaderLdapServer.isValidatePeriodically()) {
+      grouperLoaderLdapServer.setValidateOnCheckOut(true);
     }
-
-    grouperLoaderLdapServer.setValidator(validator);
-
+    
     //#ldap.personLdap.validateTimerPeriod = 
     grouperLoaderLdapServer.setValidateTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".validateTimerPeriod", -1));
     
