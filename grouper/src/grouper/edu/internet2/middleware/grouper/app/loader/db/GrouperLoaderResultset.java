@@ -35,11 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -49,17 +44,15 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
-import edu.internet2.middleware.grouper.ldap.LdapHandler;
-import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
+import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
-import edu.internet2.middleware.grouper.ldap.LdapSession;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.vt.middleware.ldap.Ldap;
-import edu.vt.middleware.ldap.SearchFilter;
 
 /**
  * encapsulate a resultset into this resultset to be case-insensitive and
@@ -516,7 +509,7 @@ public class GrouperLoaderResultset {
 
     }
 
-    List<String> results = LdapSession.list(String.class, ldapServerId, searchDn,
+    List<String> results = LdapSessionUtils.ldapSession().list(String.class, ldapServerId, searchDn,
         ldapSearchScopeEnum, filter, subjectAttribute);
 
     for (String result : results) {
@@ -608,176 +601,127 @@ public class GrouperLoaderResultset {
     }
     final String groupParentFolderName = groupParentFolderNameTemp;
 
-    
-    Map<String, List<String>> resultMap = null;
+    Map<String, List<String>> resultMap = new HashMap<String, List<String>>();
+
     try {
 
-      resultMap = (Map<String, List<String>>) LdapSession.callbackLdapSession(
-          ldapServerId, new LdapHandler() {
+      List<String> attributesList = new ArrayList<String>();
+      attributesList.add(subjectAttributeName);
+      String[] extraAttributeArray = null;
 
-            public Object callback(LdapHandlerBean ldapHandlerBean)
-                throws NamingException {
+      if (!StringUtils.isBlank(extraAttributes)) {
+        extraAttributeArray = GrouperUtil.splitTrim(extraAttributes, ",");
+        for (String attribute : extraAttributeArray) {
+          attributesList.add(attribute);
+        }
 
-              Ldap ldap = ldapHandlerBean.getLdap();
+      }
 
-              Iterator<SearchResult> searchResultIterator = null;
+      String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
 
-              List<String> attributesList = new ArrayList<String>();
-              attributesList.add(subjectAttributeName);
-              String[] extraAttributeArray = null;
+      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray);
 
-              if (!StringUtils.isBlank(extraAttributes)) {
-                extraAttributeArray = GrouperUtil.splitTrim(extraAttributes, ",");
-                for (String attribute : extraAttributeArray) {
-                  attributesList.add(attribute);
+      int subObjectCount = 0;
+      for (LdapEntry searchResult : searchResults) {
+
+        List<String> valueResults = new ArrayList<String>();
+        String nameInNamespace = searchResult.getDn();
+        
+        GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig
+          .retrieveLdapProfile(ldapServerId);
+
+        String defaultFolder = defaultLdapFolder();
+
+        String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+            grouperLoaderLdapServer.getBaseDn(), searchDn);
+
+        String loaderGroupDisplayName = null;
+        String loaderGroupDescription = null;
+
+        if (!StringUtils.isBlank(groupNameExpression)
+            || !StringUtils.isBlank(groupDisplayNameExpression)
+            || !StringUtils.isBlank(groupDescriptionExpression)) {
+
+          Map<String, Object> envVars = new HashMap<String, Object>();
+
+          Map<String, Object> groupAttributes = new HashMap<String, Object>();
+          groupAttributes.put("dn", nameInNamespace);
+          if (!StringUtils.isBlank(extraAttributes)) {
+            for (String groupAttributeName : extraAttributeArray) {
+              LdapAttribute groupAttribute = searchResult.getAttribute(
+                  groupAttributeName);
+
+              if (groupAttribute != null) {
+
+                if (groupAttribute.getStringValues().size() > 1) {
+                  throw new RuntimeException(
+                      "Grouper LDAP loader only supports single valued group attributes at this point: "
+                      + groupAttributeName);
                 }
+                String attributeValue = groupAttribute.getStringValues().iterator().next();
+                groupAttributes.put(groupAttributeName, attributeValue);
 
               }
-
-              SearchFilter searchFilterObject = new SearchFilter(filter);
-              String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
-
-              SearchControls searchControls = ldap.getLdapConfig().getSearchControls(
-                  attributeArray);
-
-              if (ldapSearchScopeEnum != null) {
-                searchControls.setSearchScope(ldapSearchScopeEnum
-                    .getSeachControlsConstant());
-              }
-
-              if (StringUtils.isBlank(searchDn)) {
-                searchResultIterator = ldap.search(
-                    searchFilterObject, searchControls);
-              } else {
-                searchResultIterator = ldap.search(searchDn,
-                    searchFilterObject, searchControls);
-              }
-
-              Map<String, List<String>> result = new HashMap<String, List<String>>();
-              int subObjectCount = 0;
-              while (searchResultIterator.hasNext()) {
-
-                SearchResult searchResult = searchResultIterator.next();
-
-                List<String> valueResults = new ArrayList<String>();
-                String nameInNamespace = searchResult.getName();
-                //for some reason this returns: cn=test:testGroup,dc=upenn,dc=edu
-                // instead of cn=test:testGroup,ou=groups,dc=upenn,dc=edu
-                GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig
-                  .retrieveLdapProfile(ldapServerId);
-                if (nameInNamespace != null && !StringUtils.isBlank(searchDn)) {
-                  String baseDn = grouperLoaderLdapServer.getBaseDn();
-                  if (!StringUtils.isBlank(baseDn)
-                      && nameInNamespace.endsWith("," + baseDn)) {
-
-                    //sub one to get the comma out of there
-                    nameInNamespace = nameInNamespace.substring(0, nameInNamespace
-                        .length()
-                        - (baseDn.length() + 1));
-                    nameInNamespace += "," + searchDn + "," + baseDn;
-                  }
-                }
-                
-                String defaultFolder = defaultLdapFolder();
-                
-                String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
-                    grouperLoaderLdapServer.getBaseDn(), searchDn);
-                
-                String loaderGroupDisplayName = null;
-                String loaderGroupDescription = null;
-                
-                if (!StringUtils.isBlank(groupNameExpression)
-                    || !StringUtils.isBlank(groupDisplayNameExpression)
-                    || !StringUtils.isBlank(groupDescriptionExpression)) {
-                  
-                  Map<String, Object> envVars = new HashMap<String, Object>();
-
-                  Map<String, Object> groupAttributes = new HashMap<String, Object>();
-                  groupAttributes.put("dn", nameInNamespace);
-                  if (!StringUtils.isBlank(extraAttributes)) {
-                    for (String groupAttributeName : extraAttributeArray) {
-                      Attribute groupAttribute = searchResult.getAttributes().get(
-                          groupAttributeName);
-
-                      if (groupAttribute != null) {
-
-                        if (groupAttribute.size() > 1) {
-                          throw new RuntimeException(
-                              "Grouper LDAP loader only supports single valued group attributes at this point: "
-                                  + groupAttributeName);
-                        }
-                        Object attributeValue = groupAttribute.get(0);
-                        attributeValue = GrouperUtil.typeCast(attributeValue,
-                            String.class);
-                        groupAttributes.put(groupAttributeName, attributeValue);
-
-                      }
-                    }
-                  }
-                  envVars.put("groupAttributes", groupAttributes);
-                  if (!StringUtils.isBlank(groupNameExpression)) {
-                    String elGroupName = LoaderLdapUtils.substituteEl(groupNameExpression,
-                        envVars);
-                    loaderGroupName = groupParentFolderName + elGroupName;
-                  }
-                  if (!StringUtils.isBlank(groupDisplayNameExpression)) {
-                    String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
-                        envVars);
-                    loaderGroupDisplayName = groupParentFolderName +  elGroupDisplayName;
-                  }
-                  if (!StringUtils.isBlank(groupDescriptionExpression)) {
-                    String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
-                        envVars);
-                    loaderGroupDescription = elGroupDescription;
-                  }
-                }
-                
-                groupNames.add(loaderGroupName);
-
-                result.put(loaderGroupName, valueResults);
-
-                if (!StringUtils.isBlank(loaderGroupDisplayName)) {
-                  groupNameToDisplayName.put(loaderGroupName, loaderGroupDisplayName);
-                }
-                
-                if (!StringUtils.isBlank(loaderGroupDescription)) {
-                  groupNameToDescription.put(loaderGroupName, loaderGroupDescription);
-                }
-                
-                Attribute subjectAttribute = searchResult.getAttributes().get(
-                    subjectAttributeName);
-
-                if (subjectAttribute != null) {
-                  for (int i = 0; i < subjectAttribute.size(); i++) {
-
-                    Object attributeValue = subjectAttribute.get(i);
-                    attributeValue = GrouperUtil.typeCast(attributeValue, String.class);
-                    if (attributeValue != null) {
-                      subObjectCount++;
-                      valueResults.add((String) attributeValue);
-                    }
-                  }
-                }
-              }
-
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Found " + result.size() + " results, (" + subObjectCount
-                    + " sub-results) for serverId: " + ldapServerId + ", searchDn: "
-                    + searchDn
-                    + ", filter: '" + filter + "', returning subject attribute: "
-                    + subjectAttributeName + ", some results: "
-                    + GrouperUtil.toStringForLog(result, 100));
-              }
-
-              return result;
             }
-          });
-    } catch (RuntimeException re) {
+          }
+          envVars.put("groupAttributes", groupAttributes);
+          if (!StringUtils.isBlank(groupNameExpression)) {
+            String elGroupName = LoaderLdapUtils.substituteEl(groupNameExpression,
+                envVars);
+            loaderGroupName = groupParentFolderName + elGroupName;
+          }
+          if (!StringUtils.isBlank(groupDisplayNameExpression)) {
+            String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
+                envVars);
+            loaderGroupDisplayName = groupParentFolderName +  elGroupDisplayName;
+          }
+          if (!StringUtils.isBlank(groupDescriptionExpression)) {
+            String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
+                envVars);
+            loaderGroupDescription = elGroupDescription;
+          }
+        }
+
+        groupNames.add(loaderGroupName);
+
+        resultMap.put(loaderGroupName, valueResults);
+
+        if (!StringUtils.isBlank(loaderGroupDisplayName)) {
+          groupNameToDisplayName.put(loaderGroupName, loaderGroupDisplayName);
+        }
+
+        if (!StringUtils.isBlank(loaderGroupDescription)) {
+          groupNameToDescription.put(loaderGroupName, loaderGroupDescription);
+        }
+
+        LdapAttribute subjectAttribute = searchResult.getAttribute(
+            subjectAttributeName);
+
+        if (subjectAttribute != null) {
+          for (String attributeValue : subjectAttribute.getStringValues()) {
+
+            if (attributeValue != null) {
+              subObjectCount++;
+              valueResults.add((String) attributeValue);
+            }
+          }
+        }
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Found " + resultMap.size() + " results, (" + subObjectCount
+            + " sub-results) for serverId: " + ldapServerId + ", searchDn: "
+            + searchDn
+            + ", filter: '" + filter + "', returning subject attribute: "
+            + subjectAttributeName + ", some results: "
+            + GrouperUtil.toStringForLog(resultMap, 100));
+      }
+    } catch (Exception re) {
       GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId
           + ", searchDn: " + searchDn
           + ", filter: '" + filter + "', returning subject attribute: "
           + subjectAttributeName);
-      throw re;
+      throw new RuntimeException(re);
     }
 
     for (String currentGroupName : resultMap.keySet()) {
@@ -869,281 +813,228 @@ public class GrouperLoaderResultset {
     }
     final String groupParentFolderName = groupParentFolderNameTemp;
     
-    Map<String, List<String>> resultMap = null;
+    Map<String, List<String>> resultMap = new HashMap<String, List<String>>();
     try {
+      
+      List<String> attributesList = new ArrayList<String>();
 
-      resultMap = (Map<String, List<String>>) LdapSession.callbackLdapSession(
-          ldapServerId, new LdapHandler() {
+      //there can be subject attribute
+      if (!StringUtils.isBlank(subjectAttributeName)) {
+        attributesList.add(subjectAttributeName);
+      }
+      //there must be a group attribute points to group
+      // and multiple attributes may be present and separated
+      // by a comma
+      String[] groupAttributeNameArray = null;
+      groupAttributeNameArray = GrouperUtil.splitTrim(groupAttributeName, ",");
+      for (String attribute: groupAttributeNameArray) {
+        attributesList.add(attribute);
+      }
 
-            public Object callback(LdapHandlerBean ldapHandlerBean)
-                throws NamingException {
+      String[] extraAttributeArray = null;
 
-              Ldap ldap = ldapHandlerBean.getLdap();
+      if (!StringUtils.isBlank(extraAttributes)) {
+        extraAttributeArray = GrouperUtil.splitTrim(extraAttributes, ",");
+        for (String attribute : extraAttributeArray) {
+          attributesList.add(attribute);
+        }
 
-              Iterator<SearchResult> searchResultIterator = null;
+      }
 
-              List<String> attributesList = new ArrayList<String>();
+      String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
 
-              //there can be subject attribute
-              if (!StringUtils.isBlank(subjectAttributeName)) {
-                attributesList.add(subjectAttributeName);
-              }
-              //there must be a group attribute points to group
-              // and multiple attributes may be present and separated
-              // by a comma
-              String[] groupAttributeNameArray = null;
-              groupAttributeNameArray = GrouperUtil.splitTrim(groupAttributeName, ",");
-              for (String attribute: groupAttributeNameArray) {
-                attributesList.add(attribute);
-              }
-              
-              String[] extraAttributeArray = null;
+      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray);
 
-              if (!StringUtils.isBlank(extraAttributes)) {
-                extraAttributeArray = GrouperUtil.splitTrim(extraAttributes, ",");
-                for (String attribute : extraAttributeArray) {
-                  attributesList.add(attribute);
+      Map<String, String> attributeNameToGroupNameMap = new HashMap<String, String>();
+
+      int subObjectCount = 0;
+      int subObjectValidCount = 0;
+
+      //if filtering attributes by a jexl, then this is the cached result true or false, for if it is a valid attribute
+      Map<String, Boolean> validAttributes = new HashMap<String, Boolean>();
+
+      for (LdapEntry searchResult : searchResults) {
+
+        String subjectNameInNamespace = searchResult.getDn();
+        String subjectId = null;
+
+        if (!StringUtils.isBlank(subjectAttributeName)) {
+          LdapAttribute subjectAttributeObject = searchResult.getAttribute(subjectAttributeName);
+          if (subjectAttributeObject == null) {
+            throw new RuntimeException("Cant find attribute " + subjectAttributeName + " in LDAP record.  Maybe you have "
+                + "bad data in your LDAP or need to add to your filter a restriction that this attribute exists: '" 
+                + subjectNameInNamespace + "'");
+          }
+          subjectId = (String) subjectAttributeObject.getStringValues().iterator().next();
+        }
+
+        if (!StringUtils.isBlank(subjectExpression)) {
+          Map<String, Object> envVars = new HashMap<String, Object>();
+
+          Map<String, Object> subjectAttributes = new HashMap<String, Object>();
+          subjectAttributes.put("dn", subjectNameInNamespace);
+
+          if (!StringUtils.isBlank(subjectId)) {
+            subjectAttributes.put("subjectId", subjectId);
+          }
+
+          if (!StringUtils.isBlank(extraAttributes)) {
+            for (String currSubjectAttributeName : extraAttributeArray) {
+              LdapAttribute subjectAttribute = searchResult.getAttribute(
+                  currSubjectAttributeName);
+
+              if (subjectAttribute != null) {
+
+                if (subjectAttribute.getStringValues().size() > 1) {
+                  throw new RuntimeException(
+                      "Grouper LDAP loader only supports single valued subject attributes at this point: "
+                      + currSubjectAttributeName);
                 }
+                subjectAttributes.put(currSubjectAttributeName, subjectAttribute.getStringValues().iterator().next());
 
               }
-
-              SearchFilter searchFilterObject = new SearchFilter(filter);
-              String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
-
-              SearchControls searchControls = ldap.getLdapConfig().getSearchControls(
-                  attributeArray);
-
-              if (ldapSearchScopeEnum != null) {
-                searchControls.setSearchScope(ldapSearchScopeEnum
-                    .getSeachControlsConstant());
-              }
-
-              if (StringUtils.isBlank(searchDn)) {
-                searchResultIterator = ldap.search(
-                    searchFilterObject, searchControls);
-              } else {
-                searchResultIterator = ldap.search(searchDn,
-                    searchFilterObject, searchControls);
-              }
-              
-              Map<String, String> attributeNameToGroupNameMap = new HashMap<String, String>();
-              
-              Map<String, List<String>> result = new HashMap<String, List<String>>();
-              int subObjectCount = 0;
-              int subObjectValidCount = 0;
-              
-              //if filtering attributes by a jexl, then this is the cached result true or false, for if it is a valid attribute
-              Map<String, Boolean> validAttributes = new HashMap<String, Boolean>();
-
-              while (searchResultIterator.hasNext()) {
-
-                SearchResult searchResult = searchResultIterator.next();
-
-                String subjectNameInNamespace = searchResult.getName();
-                //for some reason this returns: cn=test:testGroup,dc=upenn,dc=edu
-                // instead of cn=test:testGroup,ou=groups,dc=upenn,dc=edu
-                if (subjectNameInNamespace != null && !StringUtils.isBlank(searchDn)) {
-                  GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig
-                      .retrieveLdapProfile(ldapServerId);
-                  String baseDn = grouperLoaderLdapServer.getBaseDn();
-                  if (!StringUtils.isBlank(baseDn)
-                      && subjectNameInNamespace.endsWith("," + baseDn)) {
-
-                    //sub one to get the comma out of there
-                    subjectNameInNamespace = subjectNameInNamespace.substring(0,
-                        subjectNameInNamespace.length() - (baseDn.length() + 1));
-                    subjectNameInNamespace += "," + searchDn + "," + baseDn;
-                  }
-                }
-                String subjectId = null;
-
-                if (!StringUtils.isBlank(subjectAttributeName)) {
-                  Attribute subjectAttributeObject = searchResult.getAttributes().get(
-                      subjectAttributeName);
-                  if (subjectAttributeObject == null) {
-                    throw new RuntimeException("Cant find attribute " + subjectAttributeName + " in LDAP record.  Maybe you have "
-                        + "bad data in your LDAP or need to add to your filter a restriction that this attribute exists: '" 
-                        + subjectNameInNamespace + "'");
-                  }
-                  subjectId = (String) subjectAttributeObject.get(0);
-                }
-
-                if (!StringUtils.isBlank(subjectExpression)) {
-                  Map<String, Object> envVars = new HashMap<String, Object>();
-
-                  Map<String, Object> subjectAttributes = new HashMap<String, Object>();
-                  subjectAttributes.put("dn", subjectNameInNamespace);
-                  
-                  if (!StringUtils.isBlank(subjectId)) {
-                    subjectAttributes.put("subjectId", subjectId);
-                  }
-                  
-                  if (!StringUtils.isBlank(extraAttributes)) {
-                    for (String subjectAttributeName : extraAttributeArray) {
-                      Attribute subjectAttribute = searchResult.getAttributes().get(
-                          subjectAttributeName);
-
-                      if (subjectAttribute != null) {
-
-                        if (subjectAttribute.size() > 1) {
-                          throw new RuntimeException(
-                              "Grouper LDAP loader only supports single valued subject attributes at this point: "
-                                  + subjectAttributeName);
-                        }
-                        Object attributeValue = subjectAttribute.get(0);
-                        attributeValue = GrouperUtil.typeCast(attributeValue,
-                            String.class);
-                        subjectAttributes.put(subjectAttributeName, attributeValue);
-
-                      }
-                    }
-                  }
-                  envVars.put("subjectAttributes", subjectAttributes);
-                  subjectId = LoaderLdapUtils.substituteEl(subjectExpression,
-                      envVars);
-                }
-
-                if (StringUtils.isBlank(groupAttributeName)) {
-                  throw new RuntimeException("LDAP_GROUPS_FROM_ATTRIBUTES loader type requires group attribute name");
-                }
-
-                // loop over attribute names that indicate group membership
-                for (String attribute: groupAttributeNameArray) {
-                
-                  Attribute groupAttribute = searchResult.getAttributes().get(attribute);
-
-                  if (groupAttribute != null) {
-                    for (int i = 0; i < groupAttribute.size(); i++) {
-  
-                      Object attributeValue = groupAttribute.get(i);
-                      attributeValue = GrouperUtil.typeCast(attributeValue, String.class);
-                      if (attributeValue != null) {
-                        subObjectCount++;
-                        
-                        //lets see if we know the groupName
-                        String groupName = attributeNameToGroupNameMap.get(attributeValue);
-                        if (StringUtils.isBlank(groupName)) {
-  
-                          //lets see if valid attribute, see if a filter expression is set
-                          if (!StringUtils.isBlank(ldapAttributeFilterExpression)) {
-                            //see if we have already calculated it
-                            if (!validAttributes.containsKey(attributeValue)) {
-                              
-                              Map<String, Object> variableMap = new HashMap<String, Object>();
-                              variableMap.put("attributeValue", attributeValue);
-                              
-                              //lets run the filter on the attribute name
-                              String attributeResultBooleanString = GrouperUtil.substituteExpressionLanguage(
-                                  ldapAttributeFilterExpression, variableMap, true, false, false);
-                              
-                              boolean attributeResultBoolean = false;
-                              try {
-                                attributeResultBoolean = GrouperUtil.booleanValue(attributeResultBooleanString);
-                              } catch (RuntimeException re) {
-                                throw new RuntimeException("Error parsing boolean: '" + attributeResultBooleanString 
-                                    + "', expecting true or false, from expression: " + ldapAttributeFilterExpression );
-                              }
-                              
-                              if (LOG.isDebugEnabled()) {
-                                LOG.debug("Attribute '" + attributeValue + "' is allowed to be used based on expression? " 
-                                    + attributeResultBoolean + ", '" + ldapAttributeFilterExpression + "', note the attributeValue is" +
-                                        " in a variable called attributeValue");
-                              }
-                              
-                              validAttributes.put((String)attributeValue, attributeResultBoolean);
-                              
-                            }
-                            
-                            //lets see if filtering
-                            if (!validAttributes.get(attributeValue)) {
-                              continue;
-                            }
-                          }
-                          
-                          subObjectValidCount++;
-                          
-                          String defaultFolder = defaultLdapFolder();
-                          
-                          groupName = defaultFolder + attributeValue;
-                          
-                          
-                          String loaderGroupDisplayName = null;
-                          String loaderGroupDescription = null;
-                          
-                          if (!StringUtils.isBlank(groupNameExpression)
-                              || !StringUtils.isBlank(groupDisplayNameExpression)
-                              || !StringUtils.isBlank(groupDescriptionExpression)) {
-                            
-                            //calculate it
-  
-                            Map<String, Object> envVars = new HashMap<String, Object>();
-  
-                            envVars.put("groupAttribute", attributeValue);
-                            
-                            if (!StringUtils.isBlank(groupNameExpression)) {
-                              groupName = LoaderLdapUtils.substituteEl(groupNameExpression,
-                                  envVars);
-                            }
-                            if (!StringUtils.isBlank(groupDisplayNameExpression)) {
-                              String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
-                                  envVars);
-                              loaderGroupDisplayName = groupParentFolderName + elGroupDisplayName;
-                            }
-                            if (!StringUtils.isBlank(groupDescriptionExpression)) {
-                              String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
-                                  envVars);
-                              loaderGroupDescription = elGroupDescription;
-                            }
-                          }
-                          
-                          groupName = groupParentFolderName + groupName;
-                          
-                          if (!StringUtils.isBlank(loaderGroupDisplayName)) {
-                            groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
-                          }
-                          
-                          if (!StringUtils.isBlank(loaderGroupDescription)) {
-                            groupNameToDescription.put(groupName, loaderGroupDescription);
-                          }
-                          
-                          //cache this
-                          attributeNameToGroupNameMap.put((String)attributeValue, groupName);
-                          
-                          //init the subject list
-                        if (!result.containsKey(groupName)) {
-                          result.put(groupName, new ArrayList<String>());
-                        }
-                      }
-                        //get the "row" for the group
-                        List<String> valueResults = result.get(groupName);
-                        //add the subject
-                        valueResults.add((String) subjectId);
-                      }
-                    }
-                  }
-                
-                } // end of looping over attributes indicating group membership
-              } // end of looping over search results
-
-              
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Found " + result.size() + " results, (" + subObjectCount
-                    + " sub-results, " + subObjectValidCount + " valid-sub-results) for serverId: " + ldapServerId + ", searchDn: "
-                    + searchDn
-                    + ", filter: '" + filter + "', returning subject attribute: "
-                    + subjectAttributeName + ", some results: "
-                    + GrouperUtil.toStringForLog(result, 100));
-              }
-
-              return result;
             }
-          });
-    } catch (RuntimeException re) {
+          }
+          envVars.put("subjectAttributes", subjectAttributes);
+          subjectId = LoaderLdapUtils.substituteEl(subjectExpression,
+              envVars);
+        }
+
+        if (StringUtils.isBlank(groupAttributeName)) {
+          throw new RuntimeException("LDAP_GROUPS_FROM_ATTRIBUTES loader type requires group attribute name");
+        }
+
+        // loop over attribute names that indicate group membership
+        for (String attribute: groupAttributeNameArray) {
+
+          LdapAttribute groupAttribute = searchResult.getAttribute(attribute);
+
+          if (groupAttribute != null) {
+            for (String attributeValue : groupAttribute.getStringValues()) {
+
+              if (attributeValue != null) {
+                subObjectCount++;
+
+                //lets see if we know the groupName
+                String groupName = attributeNameToGroupNameMap.get(attributeValue);
+                if (StringUtils.isBlank(groupName)) {
+
+                  //lets see if valid attribute, see if a filter expression is set
+                  if (!StringUtils.isBlank(ldapAttributeFilterExpression)) {
+                    //see if we have already calculated it
+                    if (!validAttributes.containsKey(attributeValue)) {
+
+                      Map<String, Object> variableMap = new HashMap<String, Object>();
+                      variableMap.put("attributeValue", attributeValue);
+
+                      //lets run the filter on the attribute name
+                      String attributeResultBooleanString = GrouperUtil.substituteExpressionLanguage(
+                          ldapAttributeFilterExpression, variableMap, true, false, false);
+
+                      boolean attributeResultBoolean = false;
+                      try {
+                        attributeResultBoolean = GrouperUtil.booleanValue(attributeResultBooleanString);
+                      } catch (RuntimeException re) {
+                        throw new RuntimeException("Error parsing boolean: '" + attributeResultBooleanString 
+                            + "', expecting true or false, from expression: " + ldapAttributeFilterExpression );
+                      }
+
+                      if (LOG.isDebugEnabled()) {
+                        LOG.debug("Attribute '" + attributeValue + "' is allowed to be used based on expression? " 
+                            + attributeResultBoolean + ", '" + ldapAttributeFilterExpression + "', note the attributeValue is" +
+                        " in a variable called attributeValue");
+                      }
+
+                      validAttributes.put((String)attributeValue, attributeResultBoolean);
+
+                    }
+
+                    //lets see if filtering
+                    if (!validAttributes.get(attributeValue)) {
+                      continue;
+                    }
+                  }
+
+                  subObjectValidCount++;
+
+                  String defaultFolder = defaultLdapFolder();
+
+                  groupName = defaultFolder + attributeValue;
+
+
+                  String loaderGroupDisplayName = null;
+                  String loaderGroupDescription = null;
+
+                  if (!StringUtils.isBlank(groupNameExpression)
+                      || !StringUtils.isBlank(groupDisplayNameExpression)
+                      || !StringUtils.isBlank(groupDescriptionExpression)) {
+
+                    //calculate it
+
+                    Map<String, Object> envVars = new HashMap<String, Object>();
+
+                    envVars.put("groupAttribute", attributeValue);
+
+                    if (!StringUtils.isBlank(groupNameExpression)) {
+                      groupName = LoaderLdapUtils.substituteEl(groupNameExpression,
+                          envVars);
+                    }
+                    if (!StringUtils.isBlank(groupDisplayNameExpression)) {
+                      String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
+                          envVars);
+                      loaderGroupDisplayName = groupParentFolderName + elGroupDisplayName;
+                    }
+                    if (!StringUtils.isBlank(groupDescriptionExpression)) {
+                      String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
+                          envVars);
+                      loaderGroupDescription = elGroupDescription;
+                    }
+                  }
+
+                  groupName = groupParentFolderName + groupName;
+
+                  if (!StringUtils.isBlank(loaderGroupDisplayName)) {
+                    groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
+                  }
+
+                  if (!StringUtils.isBlank(loaderGroupDescription)) {
+                    groupNameToDescription.put(groupName, loaderGroupDescription);
+                  }
+
+                  //cache this
+                  attributeNameToGroupNameMap.put((String)attributeValue, groupName);
+
+                  //init the subject list
+                  if (!resultMap.containsKey(groupName)) {
+                    resultMap.put(groupName, new ArrayList<String>());
+                  }
+                }
+                //get the "row" for the group
+                List<String> valueResults = resultMap.get(groupName);
+                //add the subject
+                valueResults.add((String) subjectId);
+              }
+            }
+          }
+
+        } // end of looping over attributes indicating group membership
+      } // end of looping over search results
+
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Found " + resultMap.size() + " results, (" + subObjectCount
+            + " sub-results, " + subObjectValidCount + " valid-sub-results) for serverId: " + ldapServerId + ", searchDn: "
+            + searchDn
+            + ", filter: '" + filter + "', returning subject attribute: "
+            + subjectAttributeName + ", some results: "
+            + GrouperUtil.toStringForLog(resultMap, 100));
+      }
+    } catch (Exception re) {
       GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId
           + ", searchDn: " + searchDn
           + ", filter: '" + filter + "', returning subject attribute: "
           + subjectAttributeName);
-      throw re;
+      throw new RuntimeException(re);
     }
 
     for (String currentGroupName : resultMap.keySet()) {
