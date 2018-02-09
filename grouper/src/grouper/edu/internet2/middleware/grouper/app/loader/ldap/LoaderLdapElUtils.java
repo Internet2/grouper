@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.ldap.LdapSession;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -241,7 +241,7 @@ public class LoaderLdapElUtils {
     if (isPerson == null) {
 
       // Send a request to LDAP.  Note, in the future we can make this part of the original filter maybe
-      List<String> results = LdapSession.list(String.class, "personLdap",
+      List<String> results = LdapSessionUtils.ldapSession().list(String.class, "personLdap",
           "", null, "(&(sAMAccountName=" + cn +")(objectClass=person))","sAMAccountName");
       
       // If no results were found, it means it didn't pass through the (objectClass=person) filter
@@ -387,7 +387,7 @@ public class LoaderLdapElUtils {
     if (isPerson == null) {
 
       // Send a request to LDAP.  Note, in the future we can make this part of the original filter maybe
-      List<String> results = LdapSession.list(String.class,serverId,searchBase, null,"(&(objectClass=person)(" + uniqueAttribute + "=*)(" + rdnAttribute + "=" + rdnValue + "))",uniqueAttribute);
+      List<String> results = LdapSessionUtils.ldapSession().list(String.class,serverId,searchBase, null,"(&(objectClass=person)(" + uniqueAttribute + "=*)(" + rdnAttribute + "=" + rdnValue + "))",uniqueAttribute);
 
       // Put it in cache if there is a result
       isPerson = new Boolean(results.size() > 0);
@@ -415,7 +415,7 @@ public class LoaderLdapElUtils {
       // perform another LDAP query to make sure it is actually a group. Return the RDN in query
       // "(|(objectClass=group)(objectclass=*group*))" filter should match grouperOfNames, grouperOfUniqueNames objectclasses
       // (objectclass=*group*) alone did not work with AD, thus the redundancy of the filter
-      List<String> groupresults = LdapSession.list(String.class,serverId,searchBase, null,"(&(|(objectClass=group)(objectclass=*group*))(" + rdnAttribute + "=" + rdnValue + "))",rdnAttribute);
+      List<String> groupresults = LdapSessionUtils.ldapSession().list(String.class,serverId,searchBase, null,"(&(|(objectClass=group)(objectclass=*group*))(" + rdnAttribute + "=" + rdnValue + "))",rdnAttribute);
       Boolean isGroup = new Boolean(groupresults.size() > 0);
     
       if (isGroup) {
