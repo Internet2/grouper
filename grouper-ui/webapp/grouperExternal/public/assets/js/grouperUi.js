@@ -2301,6 +2301,24 @@ function showHideMemberAddBlock() {
 }
 
 /**
+ * show/hide the assign permission block on click of Assign permission button
+ * Also add attributes for accessibility
+ * */
+function showHideAssignPermissionBlock() {
+	
+  $('#assign-permission-block-container').toggle('slow');
+  if ($("#assign-permission-block-container").attr("aria-expanded") === 'true') {
+	  $("#assign-permission-block-container").attr("aria-expanded","false");
+	  $("#assign-permission-block-container").removeAttr("role");
+  } else {	  
+	  $("#assign-permission-block-container").append(input);
+	  $("#assign-permission-block-container").attr("aria-expanded","true");
+	  $("assign-permission-block-container").attr("role", "alert");
+	  $("#permissionDefComboId").focus();
+  }	
+}
+
+/**
  * show the privileges block on click of Custom Privileges radio button
  * Also add attributes for accessibility
  * */

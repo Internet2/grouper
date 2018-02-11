@@ -25,6 +25,9 @@ import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
@@ -86,9 +89,16 @@ public class GuiPermissionEntryActionsContainer implements Serializable {
         guiPermissionEntryContainer.setRawPermissionEntries(new ArrayList<PermissionEntry>());
         roleResourceToContainer.put(roleResource, guiPermissionEntryContainer);
         
+        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRole().getId(), true);
+        
         guiPermissionEntryContainer.setRole(permissionEntry.getRole());
+        guiPermissionEntryContainer.setGuiRole(new GuiGroup(group));
         guiPermissionEntryContainer.setPermissionResource(permissionEntry.getAttributeDefName());
+        guiPermissionEntryContainer.setGuiPermissionResource(new GuiAttributeDefName(permissionEntry.getAttributeDefName()));
+        
         guiPermissionEntryContainer.setPermissionDefinition(permissionEntry.getAttributeDef());
+        guiPermissionEntryContainer.setGuiPermissionDefinition(new GuiAttributeDef(permissionEntry.getAttributeDef()));
+        
         guiPermissionEntryContainer.setMemberId(permissionEntry.getMemberId());
         
         //if searching by role this will be null
