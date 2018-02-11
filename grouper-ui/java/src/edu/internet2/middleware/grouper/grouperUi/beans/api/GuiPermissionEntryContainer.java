@@ -29,12 +29,10 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -162,6 +160,25 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
   public void setRole(Role role1) {
     this.role = role1;
   }
+  
+  /** gui role for this row*/
+  private GuiGroup guiRole;
+  
+  /**
+   * gui role
+   * @return
+   */
+  public GuiGroup getGuiRole() {
+    return guiRole;
+  }
+  
+  /**
+   * gui role 
+   * @param guiRole
+   */
+  public void setGuiRole(GuiGroup guiRole) {
+    this.guiRole = guiRole;
+  }
 
   /**
    * permission definition
@@ -183,6 +200,27 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
   public void setPermissionDefinition(AttributeDef permissionDefinition1) {
     this.permissionDefinition = permissionDefinition1;
   }
+  
+  /**
+   * gui permission definition
+   */
+  private GuiAttributeDef guiPermissionDefinition;
+  
+  /**
+   * gui permission definition
+   * @return gui permission definition
+   */
+  public GuiAttributeDef getGuiPermissionDefinition() {
+    return this.guiPermissionDefinition;
+  }
+
+  /**
+   * gui permission definition
+   * @param guiPermissionDefinition1
+   */
+  public void setGuiPermissionDefinition(GuiAttributeDef guiPermissionDefinition1) {
+    this.guiPermissionDefinition = guiPermissionDefinition1;
+  }
 
   /** permission resource for this row */
   private AttributeDefName permissionResource;
@@ -201,6 +239,25 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
    */
   public void setPermissionResource(AttributeDefName permissionResource1) {
     this.permissionResource = permissionResource1;
+  }
+  
+  /** gui permission resource for this row */
+  private GuiAttributeDefName guiPermissionResource;
+  
+  /**
+   * gui permission resource
+   * @return gui permission resource
+   */
+  public GuiAttributeDefName getGuiPermissionResource() {
+    return this.guiPermissionResource;
+  }
+
+  /**
+   * gui permission resource
+   * @param guiPermissionResource1
+   */
+  public void setGuiPermissionResource(GuiAttributeDefName guiPermissionResource1) {
+    this.guiPermissionResource = guiPermissionResource1;
   }
 
   /**

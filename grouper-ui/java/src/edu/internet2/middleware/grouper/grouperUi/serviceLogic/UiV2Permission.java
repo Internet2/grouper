@@ -4,11 +4,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +24,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -37,6 +42,7 @@ import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -119,6 +125,10 @@ public class UiV2Permission {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
+      
+      if (group.getTypeOfGroup() == TypeOfGroup.role) {
+        groupViewPermissionsHelper(request, response, group);
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -423,6 +433,9 @@ public class UiV2Permission {
         }
       }
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
+      
       groupViewPermissionsHelper(request, response, role);
       //lets show a message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, screenMessage));
@@ -645,10 +658,10 @@ public class UiV2Permission {
    
    permissionUpdateRequestContainer.setGuiPermissionEntryActionsContainers(guiPermissionEntryActionsContainers);
     
-   guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-       "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
+//   guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+//       "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
    
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPermission", 
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewPermissions",
         "/WEB-INF/grouperUi2/permission/groupViewPermissions.jsp"));
     
   }
@@ -687,7 +700,6 @@ public class UiV2Permission {
       PermissionType permissionAssignType = PermissionType.valueOfIgnoreCase(permissionAssignTypeString, false);
       
       if (permissionAssignType == null) {
-        //TODO change the error message key
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
             TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
         return;
@@ -751,6 +763,8 @@ public class UiV2Permission {
       
       attributeAssign.saveOrUpdate();
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
       //go to the view permissions screen
       groupViewPermissionsHelper(request, response, role);
 
@@ -825,6 +839,8 @@ public class UiV2Permission {
         
       }
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
       groupViewPermissionsHelper(request, response, role);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -834,7 +850,6 @@ public class UiV2Permission {
       GrouperSession.stopQuietly(grouperSession); 
     }
 
-    
   }
   
   
@@ -914,6 +929,9 @@ public class UiV2Permission {
       }
       
       limitAssign.saveOrUpdate();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
       
       groupViewPermissionsHelper(request, response, role);
 
@@ -1261,7 +1279,11 @@ public class UiV2Permission {
         
       }
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/permission/groupPermission.jsp"));
+      
       groupViewPermissionsHelper(request, response, role);
+      
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.limitEditValueSuccess")));
       
@@ -1269,6 +1291,342 @@ public class UiV2Permission {
       GrouperSession.stopQuietly(grouperSession); 
     }
   
+  }
+  
+  /**
+   * submit permissions button was pressed on the view permissions screen
+   * @param request
+   * @param response
+   */
+  public void saveMultiplePermissionSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      String permissionAssignTypeString = request.getParameter("permissionAssignType");
+      
+      if (StringUtils.isBlank(permissionAssignTypeString)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
+        return;
+      }
+      PermissionType permissionAssignType = PermissionType.valueOfIgnoreCase(permissionAssignTypeString, false);
+
+      if (permissionAssignType ==  null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.requiredOwnerType")));
+        return;
+      }
+      
+      StringBuilder message = new StringBuilder();
+      
+      Pattern pattern = Pattern.compile("^previousState__(.*)__(.*)__(.*)__(.*)$");
+      Enumeration<?> enumeration = request.getParameterNames();
+      
+      Role role = null;
+
+      //process all params submitted
+      while (enumeration != null && enumeration.hasMoreElements()) {
+        String paramName = (String)enumeration.nextElement();
+        Matcher matcher = pattern.matcher(paramName);
+        if (matcher.matches()) {
+          
+          //lets get the previous state
+          boolean previousChecked = GrouperUtil.booleanValue(request.getParameter(paramName));
+          
+          //get current state
+          String roleId = matcher.group(1);
+          String memberId = matcher.group(2);
+          String attributeDefNameId = matcher.group(3);
+          String action = matcher.group(4);
+
+          String currentStateString = request.getParameter("permissionCheckbox__" + roleId + "__" + memberId + "__" + attributeDefNameId + "__" + action);
+          boolean currentChecked = GrouperUtil.booleanValue(currentStateString, false);
+          
+          //if they dont match, do something about it
+          if (previousChecked != currentChecked) {
+
+            if (message.length() > 0) {
+              message.append("<br />");
+            }
+
+            if (role == null) {
+              role = GroupFinder.findByUuid(grouperSession, roleId, true);
+              if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                    TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
+                return;
+              }
+            }
+           
+            Member member = null;
+            { 
+              if (permissionAssignType == PermissionType.role_subject) {
+                member = MemberFinder.findByUuid(grouperSession, memberId, true);
+              }
+            }
+            AttributeDefName attributeDefName = null;
+            {
+              attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+              attributeDef = attributeDefName.getAttributeDef();
+              if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                    TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
+                return;
+              }
+              
+            }
+            
+            GuiMember guiMember = permissionAssignType == PermissionType.role_subject ? new GuiMember(member) : null;
+            String subjectScreenLabel = permissionAssignType == PermissionType.role_subject ? guiMember.getGuiSubject().getScreenLabel() : null;
+
+            if (currentChecked) {
+              
+              if (permissionAssignType == PermissionType.role) {
+                AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(action, attributeDefName, PermissionAllowed.ALLOWED);
+                if (attributeAssignResult.isChanged()) {
+                  //simplePermissionUpdate.permissionAllowRole = Success: Role: {0} can now perform action: {1} on permission resource: {2}
+                  message.append(
+                      GrouperUiUtils.message("simplePermissionUpdate.permissionAllowRole", false, true, 
+                          new Object[]{role.getDisplayExtension(), action, attributeDefName.getDisplayExtension()}));
+                } else {
+                  throw new RuntimeException("Why was this not changed????");
+                }
+              } else if (permissionAssignType == PermissionType.role_subject) {
+                AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().assignSubjectRolePermission(action, attributeDefName, member, PermissionAllowed.ALLOWED);
+                if (attributeAssignResult.isChanged()) {
+                  //simplePermissionUpdate.permissionAllowRoleSubject = Success: Subject: {0} can now perform action: {1} on permission resource: {2} in the context of role: {3}
+                  message.append(
+                      GrouperUiUtils.message("simplePermissionUpdate.permissionAllowRoleSubject", false, true, 
+                          new Object[]{subjectScreenLabel, action, attributeDefName.getDisplayExtension(), role.getDisplayExtension()}));
+                } else {
+                  throw new RuntimeException("Why was this not changed????");
+                }
+                
+              } else {
+                throw new RuntimeException("Not expecting permission type: " + permissionAssignType);
+              }
+            } else {
+
+              if (permissionAssignType == PermissionType.role) {
+                AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().removeRolePermission(action, attributeDefName);
+                if (attributeAssignResult.isChanged()) {
+                  //simplePermissionUpdate.permissionRevokeRole = Success: Role: {0} can no longer perform action: {1} on permission resource: {2}
+                  message.append(
+                      GrouperUiUtils.message("simplePermissionUpdate.permissionRevokeRole", false, true, 
+                          new Object[]{role.getDisplayExtension(), action, attributeDefName.getDisplayExtension()}));
+                } else {
+                  throw new RuntimeException("Why was this not changed????");
+                }
+                
+              } else if (permissionAssignType == PermissionType.role_subject) {
+                AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().removeSubjectRolePermission(action, attributeDefName, member);
+                if (attributeAssignResult.isChanged()) {
+                  //simplePermissionUpdate.permissionAllowRoleSubject = Success: Subject: {0} can now perform action: {1} on permission resource: {2} in the context of role: {3}
+                  message.append(
+                      GrouperUiUtils.message("simplePermissionUpdate.permissionRevokeRoleSubject", false, true, 
+                          new Object[]{subjectScreenLabel, action, attributeDefName.getDisplayExtension(), role.getDisplayExtension()}));
+                } else {
+                  throw new RuntimeException("Why was this not changed????");
+                }
+                
+              } else {
+                throw new RuntimeException("Not expecting permission type: " + permissionAssignType);
+              }
+
+            }
+            
+          }
+        }
+      }
+      
+      groupViewPermissionsHelper(request, response, group);
+      
+      if (message.length() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, message.toString()));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.noPermissionChangesDetected")));
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    } 
+    
+  }
+  
+  /**
+   * privilege image button was pressed on the privilege edit panel
+   * @param request
+   * @param response
+   */
+  public void permissionPanelImageClick(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    AttributeDef attributeDef = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String guiPermissionId = request.getParameter("guiPermissionId");
+      
+      if (StringUtils.isBlank(guiPermissionId)) {
+        throw new RuntimeException("Why is guiPermissionId blank????");
+      }
+
+      String permissionAssignTypeString = request.getParameter("permissionAssignType");
+      
+      if (StringUtils.isBlank(permissionAssignTypeString)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
+        return;
+      }
+      PermissionType permissionType = PermissionType.valueOfIgnoreCase(permissionAssignTypeString, false);
+
+      if (permissionType ==  null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.requiredOwnerType")));
+        return;
+      }
+      
+      //<c:set var="guiPermissionId" value="${firstPermissionEntry.roleId}__${firstPermissionEntry.memberId}__${firstPermissionEntry.attributeDefNameId}__${firstPermissionEntry.action}" />
+      Pattern pattern = Pattern.compile("^(.*)__(.*)__(.*)__(.*)$");
+      Matcher matcher = pattern.matcher(guiPermissionId);
+      if (!matcher.matches()) {
+        throw new RuntimeException("Why does guiPermissionId not match? " + guiPermissionId);
+      }
+
+      //get current state
+      Role role = null;
+      {
+        String roleId = matcher.group(1);
+        role = GroupFinder.findByUuid(grouperSession, roleId, true);
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
+          return;
+        }
+      }
+      Member member = null;
+      { 
+        if (permissionType == PermissionType.role_subject) {
+          String memberId = matcher.group(2);
+          member = MemberFinder.findByUuid(grouperSession, memberId, true);
+        }
+      }
+      AttributeDefName attributeDefName = null;
+      {
+        String attributeDefNameId = matcher.group(3);
+        attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+        attributeDef = attributeDefName.getAttributeDef();
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
+          return;
+        }
+        
+      }
+      
+      String action = matcher.group(4);
+      
+      String allowString = request.getParameter("allow");
+
+      if (StringUtils.isBlank(allowString)) {
+        throw new RuntimeException("Why is allow blank????");
+      }
+      boolean allow = GrouperUtil.booleanValue(allowString);
+      
+      String subjectScreenLabel = null;
+      
+      if (permissionType == PermissionType.role_subject) {
+        GuiMember guiMember = new GuiMember(member);
+        subjectScreenLabel = guiMember.getGuiSubject().getScreenLabel();
+      }
+      if (allow) {
+        
+        if (permissionType == PermissionType.role) {
+          AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(action, attributeDefName, PermissionAllowed.ALLOWED);
+          if (attributeAssignResult.isChanged()) {
+            //simplePermissionUpdate.permissionAllowRole = Success: Role: {0} can now perform action: {1} on permission resource: {2}
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, GrouperUiUtils.message("simplePermissionUpdate.permissionAllowRole", false, true,
+                new Object[]{role.getDisplayExtension(), action, attributeDefName.getDisplayExtension()})));
+          } else {
+            throw new RuntimeException("Why was this not changed????");
+          }
+        } else if (permissionType == PermissionType.role_subject) {
+          AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().assignSubjectRolePermission(action, attributeDefName, member, PermissionAllowed.ALLOWED);
+          if (attributeAssignResult.isChanged()) {
+            //simplePermissionUpdate.permissionAllowRoleSubject = Success: Subject: {0} can now perform action: {1} on permission resource: {2} in the context of role: {3}
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, GrouperUiUtils.message("simplePermissionUpdate.permissionAllowRoleSubject", false, true, 
+                new Object[]{subjectScreenLabel, action, attributeDefName.getDisplayExtension(), role.getDisplayExtension()})));
+          } else {
+            throw new RuntimeException("Why was this not changed????");
+          }
+          
+        } else {
+          throw new RuntimeException("Not expecting permission type: " + permissionType);
+        }
+      } else {
+
+        if (permissionType == PermissionType.role) {
+          AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().removeRolePermission(action, attributeDefName);
+          if (attributeAssignResult.isChanged()) {
+            //simplePermissionUpdate.permissionRevokeRole = Success: Role: {0} can no longer perform action: {1} on permission resource: {2}
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, GrouperUiUtils.message("simplePermissionUpdate.permissionRevokeRole", false, true, 
+                new Object[]{role.getDisplayExtension(), action, attributeDefName.getDisplayExtension()})));
+          } else {
+            throw new RuntimeException("Why was this not changed????");
+          }
+          
+        } else if (permissionType == PermissionType.role_subject) {
+          AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().removeSubjectRolePermission(action, attributeDefName, member);
+          if (attributeAssignResult.isChanged()) {
+            //simplePermissionUpdate.permissionAllowRoleSubject = Success: Subject: {0} can now perform action: {1} on permission resource: {2} in the context of role: {3}
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, GrouperUiUtils.message("simplePermissionUpdate.permissionRevokeRoleSubject", false, true, 
+                new Object[]{subjectScreenLabel, action, attributeDefName.getDisplayExtension(), role.getDisplayExtension()})));
+          } else {
+            throw new RuntimeException("Why was this not changed????");
+          }
+          
+        } else {
+          throw new RuntimeException("Not expecting permission type: " + permissionType);
+        }
+
+      }
+      groupViewPermissionsHelper(request, response, role);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+        
   }
 
   private String[] retrieveLimitAssignValueId(HttpServletRequest httpServletRequest) {

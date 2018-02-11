@@ -14,6 +14,9 @@
         ${textContainer.text['groupViewPermissionsNoAssignedPermissions']}
       </c:when>
       <c:otherwise>
+      <form class="form-horizontal" id="attributePermissionsFormId" name="attributePermissionsFormName" onsubmit="return false;">
+       <input type="hidden" name="permissionAssignType"
+                value="${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}" />
         <table class="table table-hover table-bordered table-striped table-condensed data-table">
             <c:forEach items="${grouperRequestContainer.permissionUpdateRequestContainer.guiPermissionEntryActionsContainers}" var="guiPermissionEntryActionsContainer">
               <c:set var="row" value="0" />
@@ -52,11 +55,11 @@
   				
                   <tr style="vertical-align: top">
                   <td style="white-space: nowrap;">
-                    ${grouper:escapeHtml(guiPermissionEntryContainer.role.displayExtension)}
+                    ${guiPermissionEntryContainer.guiRole.shortLinkWithIcon}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                  	${grouper:escapeJavascript(guiPermissionEntryContainer.permissionResource.displayName)}
+                  	${guiPermissionEntryContainer.guiPermissionResource.shortLinkWithIcon}
                   </td>
                   
                   <c:forEach items="${grouperRequestContainer.permissionUpdateRequestContainer.allActions}" var="action">
@@ -80,7 +83,7 @@
                           type="checkbox" ${guiPermissionEntryChecked ? 'checked="checked"' : '' } 
                         /><c:set var="confirmNavName" value="simplePermissionUpdate.permissionImageConfirm${guiPermissionEntryChecked ? 'Allow' : 'Deny'}" />
                         <a href="#" style="margin-left: 5px"
-                        onclick="if (confirm('${grouper:message(confirmNavName, true, true) }')) {ajax('../app/SimplePermissionUpdate.permissionPanelImageClick?guiPermissionId=${guiPermissionId}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'});} return false;"
+                        onclick="if (confirm('${grouper:message(confirmNavName, true, true) }')) {ajax('../app/UiV2Permission.permissionPanelImageClick?permissionAssignType=${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}&guiPermissionId=${guiPermissionId}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'});} return false;"
                         ><c:choose><c:when test="${guiPermissionEntry.allowed}"
                           ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
                             onmouseover="Tip('${grouper:escapeJavascript(navMap[tooltipName])}')" 
@@ -98,7 +101,7 @@
                     </td>
                   </c:forEach>
                   <td>
-                    ${grouper:escapeJavascript(guiPermissionEntryContainer.permissionDefinition.name)}
+                    ${guiPermissionEntryContainer.guiPermissionDefinition.shortLinkWithIcon}
                   </td>
                   </tr>
                   
@@ -212,5 +215,9 @@
             contextZoneJqueryHandle=".limitAssignValueButton" contextMenu="true" />
           
         </table>
+        <div>
+          <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Permission.saveMultiplePermissionSubmit', {formIds: 'attributePermissionsFormId'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
+        </div>
+        </form>
       </c:otherwise>
     </c:choose>

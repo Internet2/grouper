@@ -55,7 +55,7 @@
       
       <div class="form-actions">
         <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Permission.limitValueEditSubmit', {formIds: 'simplePermissionLimitValueEditForm'}); return false;">${textContainer.text['simplePermissionUpdate.limitValueEditSubmitButton'] }</a> 
-        <a href="#" class="btn btn-cancel" role="button" onclick="ajax('../app/UiV2Permission.groupViewPermissions', {formIds: 'simplePermissionLimitValueEditForm'}); return false;">${textContainer.text['simplePermissionUpdate.limitValueEditCancelButton'] }</a>
+        <a href="#" class="btn btn-cancel" role="button" onclick="ajax('../app/UiV2Permission.groupPermission', {formIds: 'simplePermissionLimitValueEditForm'}); return false;">${textContainer.text['simplePermissionUpdate.limitValueEditCancelButton'] }</a>
       </div>
       
     </form>
