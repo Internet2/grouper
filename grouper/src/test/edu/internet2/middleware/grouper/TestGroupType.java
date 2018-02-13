@@ -70,7 +70,7 @@ public class TestGroupType extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupType("testUseCustomAttribute"));
+    TestRunner.run(new TestGroupType("testDeleteGroupWithAttrsAndList"));
   }
   
   // Private Static Class Constants
@@ -1092,6 +1092,42 @@ public class TestGroupType extends GrouperTest {
     return groupType;
   }
 
+  public void testDeleteGroupWithAttrsAndList() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TUCL";
+    String          name  = "customField.TUCL";
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      Field f = custom.addList(s, name, read, write);
+      AttributeDefName     attr    = custom.addAttribute(s, "custom a", true);
+      Assert.assertTrue("added LIST field", true);
   
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  edu   = root.addChildStem("edu", "edu");
+      Group g     = edu.addChildGroup("g", "g");
+  
+      Assert.assertTrue("no custom type", !g.hasType(custom));
+  
+      g.addType(custom);
+      Assert.assertTrue("custom type", g.hasType(custom));
+  
+      g.addMember(SubjectTestHelper.SUBJ0, f);
+      Assert.assertTrue("has member", g.hasMember(SubjectTestHelper.SUBJ0, f));
+    
+      g.setAttribute(attr.getLegacyAttributeName(true), "blah");
+      g.store();
+      
+      g.delete();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  }
 }
 
