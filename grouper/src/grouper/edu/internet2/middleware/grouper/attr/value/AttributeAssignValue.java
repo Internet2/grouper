@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.BySql;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -451,6 +452,11 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
   
   /**
+   * keep a count for junit
+   */
+  public static long testingUseSqlCount = 0;
+  
+  /**
    * save or update this object
    */
   public void saveOrUpdate() {
@@ -469,6 +475,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            
+            AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
+            AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
 
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
@@ -481,13 +490,73 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
             boolean isLegacyAttributeUpdate = false;
             Attribute attribute = Attribute.internal_getAttribute(AttributeAssignValue.this, null, false);
             
-            if (!isInsert) {
-              // delete and re-add the row if values change
-              if (AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_INTEGER) ||
+            boolean useSqlOnUpdate = (GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getId())
+                || GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId())
+                )
+                && GrouperConfig.retrieveConfig().propertyValueBoolean("grouperAllowSqlOnAttributeValueUpdate", true);
+            
+            // delete and re-add the row if values change
+            boolean someValueFieldIsDifferent = true;
+            
+            if (AttributeAssignValue.this.dbVersion() != null) {
+              someValueFieldIsDifferent = AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_INTEGER) ||
                   AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_FLOATING) ||
                   AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_STRING) ||
-                  AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_MEMBER_ID)) {
+                  AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_MEMBER_ID);
+            }
+
+            if (!isInsert && useSqlOnUpdate) {
+              if (someValueFieldIsDifferent) {
+                
+                return HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean2) throws GrouperDAOException {
+                    
+                    HibernateSession hibernateSession = hibernateHandlerBean2.getHibernateSession();
+                    
+                    BySql bySql = hibernateSession.bySql();
+
+                    String sql = "UPDATE grouper_attribute_assign_value SET hibernate_version_number = ?, context_id = ?, last_updated = ?, "
+                        + "value_integer = ?, value_floating = ?, value_string = ?, value_member_id = ? WHERE id = ?" ;
+                    int rows = bySql.executeSql(sql, 
+                        GrouperUtil.toListObject(AttributeAssignValue.this.getHibernateVersionNumber()+1, GrouperUuid.getUuid(), System.currentTimeMillis(),
+                            AttributeAssignValue.this.valueInteger, AttributeAssignValue.this.valueFloating, AttributeAssignValue.this.valueString, 
+                            AttributeAssignValue.this.valueMemberId, AttributeAssignValue.this.id));
+                    if (rows != 1) {
+                      if (rows == 0) {
+                        //try not to get errors...
+                        LOG.warn("NON-FATAL warning: Update attribute value gave 0 rows???? id: " + AttributeAssignValue.this.id
+                            + ", valueString: '" + AttributeAssignValue.this.valueString  + "', valueInteger: '" 
+                            + AttributeAssignValue.this.valueInteger  + "', valueFloating: '" 
+                            + AttributeAssignValue.this.valueFloating   + "', valueMemberId: '" 
+                            + AttributeAssignValue.this.valueMemberId + "'");
+                      } else {
+                        throw new RuntimeException("Why is rows not 1? " + rows + ", id: " + AttributeAssignValue.this.id
+                            + ", valueString: '" + AttributeAssignValue.this.valueString  + "', valueInteger: '" 
+                            + AttributeAssignValue.this.valueInteger  + "', valueFloating: '" 
+                            + AttributeAssignValue.this.valueFloating   + "', valueMemberId: '" 
+                            + AttributeAssignValue.this.valueMemberId + "'");
+                      }
+                    }
+                    AttributeAssignValue.this.dbVersionReset();
+                    
+                    // this is only for testing
+                    testingUseSqlCount++;
+                    
+                    return null;
+                  }
+                });
+
+              }
+              //nothing changed, and using SQL, just ignore
+              return null;
+            }
+            
+            if (!isInsert) {
+              
+              if (someValueFieldIsDifferent) {
                
+                
                 if (attribute != null) {
                   isLegacyAttributeUpdate = true;
                 }
@@ -517,9 +586,6 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
                   AttributeHooks.METHOD_ATTRIBUTE_POST_UPDATE, HooksAttributeBean.class,
                   attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_UPDATE, true, false);
             }
-            
-            AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
-            AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
             
             if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId()) && 
                 !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getId())) {
@@ -1238,7 +1304,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion().valueString(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion() == null ? null : this.dbVersion().valueString(),
           ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
     }
     

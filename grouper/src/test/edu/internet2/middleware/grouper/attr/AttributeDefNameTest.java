@@ -184,6 +184,7 @@ public class AttributeDefNameTest extends GrouperTest {
       
       if (attributeDef == null) {
         attributeDef = stem.addChildAttributeDef(extension + "Def", attributeDefType);
+        attributeDef.setValueType(AttributeDefValueType.string);
         attributeDef.setAssignToGroup(true);
         attributeDef.store();
       }
