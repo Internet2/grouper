@@ -19,21 +19,23 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import edu.vt.middleware.ldap.Ldap;
+
+
 
 /**
  * bean with reference to the ldap object
- * @param <T> 
  */
-public class LdapHandlerBean<T> {
+public class LdapHandlerBean {
     
   /** ldap object */
-  private T ldap;
+  private Ldap ldap;
 
   /**
    * ldap object
    * @return ldap object
    */
-  public T getLdap() {
+  public Ldap getLdap() {
     return this.ldap;
   }
 
@@ -41,7 +43,10 @@ public class LdapHandlerBean<T> {
    * ldap object
    * @param ldap1
    */
-  public void setLdap(T ldap1) {
+  public void setLdap(Ldap ldap1) {
     this.ldap = ldap1;
   }
+
+
+
 }

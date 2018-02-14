@@ -307,6 +307,7 @@ public class LoaderLdapUtils {
     return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSubjectAttributeName(), true);
   }
 
+  
   /** extension of the attribute def name for the source id of all subjects inside */
   public static final String ATTR_DEF_EXTENSION_SOURCE_ID = "grouperLoaderLdapSourceId";
 
@@ -443,6 +444,33 @@ public class LoaderLdapUtils {
    */
   public static AttributeDefName grouperLoaderLdapGroupAttributeAttributeDefName() {
     return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttributeName(), true);
+  }
+
+
+
+  /** Attribute name of the processing expression filter object result that holds the group name  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE_PROCESSING_EXPRESSION = "grouperLoaderLdapGroupAttributeProcessingExpression";
+
+  /** attribute def name of group attribute processing expression */
+  private static String grouperLoaderLdapGroupAttributeProcessingExpressionName;
+
+  /**
+   * attribute def name of group attribute processing expression
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupAttributeProcessingExpressionName() {
+    if (grouperLoaderLdapGroupAttributeProcessingExpressionName == null) {
+      grouperLoaderLdapGroupAttributeProcessingExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE_PROCESSING_EXPRESSION;
+    }
+    return grouperLoaderLdapGroupAttributeProcessingExpressionName;
+  }
+  
+  /**
+   * return attribute def name for attribute group attribute processing expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupAttributeProcessingExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttributeProcessingExpressionName(), true);
   }
 
 
