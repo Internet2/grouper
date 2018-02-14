@@ -529,6 +529,8 @@ public class AttributeAssignValueDelegate {
       attributeAssignValuesResult.getAttributeAssignValueResults().addAll(currentResult.getAttributeAssignValueResults());
 
     }
+    
+    this.allAttributeAssignValuesCache = null;
 
     return attributeAssignValuesResult;
   }
@@ -652,6 +654,8 @@ public class AttributeAssignValueDelegate {
       
       attributeAssignValueResults.add(new AttributeAssignValueResult(true, false, attributeAssignValue));
     }
+    
+    this.allAttributeAssignValuesCache = null;
     
     return new AttributeAssignValuesResult(attributeAssignValueResults.size() > 0, attributeAssignValueResults);
   }
@@ -1473,6 +1477,8 @@ public class AttributeAssignValueDelegate {
       current.delete();
     }
     
+    this.allAttributeAssignValuesCache = null;
+
     return new AttributeAssignValuesResult(changed, attributeAssignValueResults);
   }
   
