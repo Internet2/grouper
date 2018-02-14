@@ -2067,17 +2067,20 @@ public enum GrouperLoaderType {
    */
   private static void updateLoaderMetadataForGroupsNoLongerInLoader(Set<Group> groupsNoLongerManagedByLoader) {
     
-    String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-   
-    AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
-        +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
-
-    for (Group groupWithMetadata: groupsNoLongerManagedByLoader) {
-      AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
-    }
-    
+      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+     
+      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
+          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+  
+      for (Group groupWithMetadata: groupsNoLongerManagedByLoader) {
+        try {
+          AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+          attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
+        } catch (Exception e) {
+          LOG.warn("Non-fatal error removing metadata on group: " + groupWithMetadata.getName(), e);
+        }
+      }
   }
     
   /**
@@ -3227,29 +3230,34 @@ public enum GrouperLoaderType {
    * @param loaderGroup
    */
   private static void updateLoaderMetadataAttributes(Hib3GrouperLoaderLog hib3GrouploaderLog, Group groupBeingManaged, Group loaderGroup) {
+
+    try {
+      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+      if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+        groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
+      }
+      AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
+          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+          
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
+      
+      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroup.getId());
+      
+      AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
+      
+      AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
+          "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
+          + " updated: "+ hib3GrouploaderLog.getUpdateCount());
     
-    String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-    if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
-      groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
+    } catch (Exception e) {
+      LOG.warn("Non-fatal error updating metadata on group: " + groupBeingManaged.getName(), e);
     }
-    AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-    AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
-        +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
-        
-    attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
-    
-    AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-    attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroup.getId());
-    
-    AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, false);
-    attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
-    
-    AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, false);
-    attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
-        "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
-        + " updated: "+ hib3GrouploaderLog.getUpdateCount());
-    
+
   }
   
   
