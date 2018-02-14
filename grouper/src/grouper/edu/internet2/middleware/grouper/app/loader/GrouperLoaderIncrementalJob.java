@@ -374,7 +374,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         }
         
         AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-        
+
         AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
             +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
         attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
@@ -385,29 +385,10 @@ public class GrouperLoaderIncrementalJob implements Job {
         AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
         attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
         
-        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE,
-            "groupId", group.getId(), "groupName", group.getName());
-        auditEntry.setDescription("Update group laoder metadata attributes: " + group.getName());
-        loaderMetadataSaveAudit(auditEntry);
       }
       
     }
     
-  }
-  
-  /**
-   * @param auditEntry
-   */
-  private static void loaderMetadataSaveAudit(final AuditEntry auditEntry) {
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
-              public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                  throws GrouperDAOException {
-                auditEntry.saveOrUpdate(true);
-                return null;
-              }
-        });
   }
   
   private static void setRowCompleted(Connection connection, String tableName, long id) throws SQLException {

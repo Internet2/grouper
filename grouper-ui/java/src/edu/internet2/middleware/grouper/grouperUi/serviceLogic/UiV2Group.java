@@ -15,10 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
-import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -95,6 +91,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -4576,7 +4573,7 @@ public class UiV2Group {
     GrouperSession grouperSession = null;
   
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
-    Set<GuiLoaderManagedGroup> guiLoaderManagedGroups = new HashSet<GuiLoaderManagedGroup>();
+    Set<GuiLoaderManagedGroup> guiLoaderManagedGroups = new LinkedHashSet<GuiLoaderManagedGroup>();
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -4587,19 +4584,23 @@ public class UiV2Group {
         return;
       }
       
-      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
 
       //get all groups with settings
+      int maxPageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.grouperLoader.maxGroupsShown", 200);
       Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
           .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
           .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(group.getId()))
+          .assignIdOfAttributeDefName2(loaderMetadataLoadedAttributeDefName.getId())
+          .assignAttributeValuesOnAssignment2(GrouperUtil.toSetObjectType("true"))
           .assignAttributeCheckReadOnAttributeDef(false)
-          .assignQueryOptions(QueryOptions.create(null, null, 1, 100))
+          .assignQueryOptions(QueryOptions.create("displayName", true, 1, maxPageSize))
           .findGroups();
       
       if (GrouperUtil.length(groupsWithLoaderMetadata) > 0) {
         
-        String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+        String loaderMetadataAttributeName = GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF;
         AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
         
         AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
@@ -4608,7 +4609,7 @@ public class UiV2Group {
             .assignAttributeCheckReadOnAttributeDef(false)
             .findAttributeAssignValuesResult();
         
-        guiLoaderManagedGroups.addAll(GuiLoaderManagedGroup.convertGroupIntoGuiAttestation(groupsWithLoaderMetadata, attributeAssignValueFinderResult));
+        guiLoaderManagedGroups.addAll(GuiLoaderManagedGroup.convertGroupIntoGuiLoaderManagedGroups(groupsWithLoaderMetadata, attributeAssignValueFinderResult));
         
       }
       
@@ -4616,6 +4617,12 @@ public class UiV2Group {
   
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/group/loaderManagedGroupsTab.jsp"));
+      
+      if (GrouperUtil.length(groupsWithLoaderMetadata) == maxPageSize) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("loaderGroupMaxSize")));
+
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

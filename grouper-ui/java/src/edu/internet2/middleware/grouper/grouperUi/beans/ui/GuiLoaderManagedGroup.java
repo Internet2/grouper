@@ -71,7 +71,7 @@ public class GuiLoaderManagedGroup {
    * @param attributeAssignValueFinderResult
    * @return the list of gui loader managed groups
    */
-  public static List<GuiLoaderManagedGroup> convertGroupIntoGuiAttestation(
+  public static List<GuiLoaderManagedGroup> convertGroupIntoGuiLoaderManagedGroups(
       Set<Group> groups,
       AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
     

@@ -84,8 +84,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -93,14 +91,11 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
@@ -1393,6 +1388,188 @@ public enum GrouperLoaderType {
       
   }
   
+    /**
+   * 
+   * @param members - members to be removed
+   * @param group - group from which members need to be removed
+   * @return true if at least one member was removed, false otherwise
+   */
+  private static boolean removeMembers(Set<Member> members, Group group) {
+    
+    boolean didSomething = false;
+    
+    for (Member member : members) {
+      didSomething = true;
+      GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+
+      try {
+
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", group.getName());
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(member.getSubject()));
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "groupNoLongerManaged");
+
+        group.deleteMember(member);
+
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+      } catch (RuntimeException re) {
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "success", false);
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "exception", ExceptionUtils.getFullStackTrace(re));
+        throw re;
+      } finally {
+        GrouperLoaderLogger.doTheLogging("membershipManagement");
+      }
+      
+    }
+    
+    return didSomething;
+    
+  }
+  
+  /**
+   * remove members and delete groups only if all the conditions are met
+   * @param grouperSession
+   * @param groupsToBeDeleted
+   * @param groupNamesFromGroupQuery
+   * @param hib3GrouploaderLogOverall
+   * @return set of deleted group names
+   */
+  private static Set<String> potentiallyDeleteGroups(final GrouperSession grouperSession, Set<Group> groupsToBeDeleted,
+      final Set<String> groupNamesFromGroupQuery, final Hib3GrouperLoaderLog hib3GrouploaderLogOverall) {
+    
+    Set<String> deletedGroupNames = new HashSet<String>();
+    
+    for (Group group: groupsToBeDeleted) {
+      // don't do anything to include/exclude, system of record groups
+      if (GroupTypeTupleIncludeExcludeHook.nameIsIncludeExcludeRequireGroup(group.getName())) {
+        continue;
+      }
+      
+      long groupStartedMillis = System.currentTimeMillis();
+      GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
+      StringBuilder jobDescription = new StringBuilder();
+      boolean didSomething = false;
+      String groupName = group.getName();
+      int memberCount = 0;
+      long millisGetData = 0L;
+      long millisSetData = 0L;
+      
+      GrouperLoaderLogger.initializeThreadLocalMap("groupManagement");
+
+      try {
+
+        GrouperLoaderLogger.addLogEntry("groupManagement", "groupNoLongerManaged", true);
+        GrouperLoaderLogger.addLogEntry("groupManagement", "groupName", groupName);
+      
+        millisGetData = System.currentTimeMillis();
+        Set<Member> members = GrouperUtil.nonNull(group.getImmediateMembers());
+        millisGetData = System.currentTimeMillis() - millisGetData;
+        memberCount = members.size();
+        
+        millisSetData = System.currentTimeMillis();
+        didSomething = removeMembers(members, group);
+        
+        GrouperLoaderLogger.addLogEntry("groupManagement", "removeMemberCount", memberCount);
+        
+        boolean groupQueryContainsGroup = GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupName);
+        GrouperLoaderLogger.addLogEntry("groupManagement", "groupQueryContainsGroup", true);
+        
+        if (!groupQueryContainsGroup) {
+          GrouperLoaderLogger.addLogEntry("groupManagement", "deleteGroup", true);
+
+          //see if we need to log
+          didSomething = true;
+          StringBuilder theLog = new StringBuilder();
+          int groupsDeleted = GroupTypeTupleIncludeExcludeHook.deleteGroupsIfNotUsed(grouperSession, 
+              groupName, theLog, true);
+          if (groupsDeleted == 0) {
+            //this is a problem, something is being used...  warning
+            status = GrouperLoaderStatus.WARNING;
+          } else {
+            deletedGroupNames.add(groupName);
+          }
+        } else {
+          GrouperLoaderLogger.addLogEntry("groupManagement", "deleteGroup", false);
+        }
+        millisSetData = System.currentTimeMillis() - millisSetData;
+        
+      } catch(Exception e) {
+        didSomething = true;
+        status = GrouperLoaderStatus.ERROR;
+        LOG.error("Error on group: " + groupName, e);
+        GrouperUtil.append(jobDescription, "\n", "Error: " + ExceptionUtils.getFullStackTrace(e));
+      } finally {
+        GrouperLoaderLogger.doTheLogging("groupManagement");
+      }
+      
+      //if we did something, log it
+      if (didSomething) {
+        logPotentialGroupDelete(hib3GrouploaderLogOverall, groupStartedMillis, status, jobDescription,
+            groupName, memberCount, millisGetData, millisSetData);
+      }
+      
+    }
+    return deletedGroupNames;
+    
+  }
+
+  /**
+   * @param hib3GrouploaderLogOverall
+   * @param groupStartedMillis
+   * @param status
+   * @param jobDescription
+   * @param groupName
+   * @param memberCount
+   * @param millisGetData
+   * @param millisSetData
+   */
+  private static void logPotentialGroupDelete(final Hib3GrouperLoaderLog hib3GrouploaderLogOverall,
+      long groupStartedMillis, GrouperLoaderStatus status, StringBuilder jobDescription,
+      String groupName, int memberCount, long millisGetData, long millisSetData) {
+    try {
+      GrouperLoaderLogger.initializeThreadLocalMap("subjobLog");
+
+      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+      //make a new log object for this one subgroup
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setJobName("subjobFor_" + groupName);
+      hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
+      hib3GrouploaderLog.setStatus(status.name());
+      hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
+      hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
+      hib3GrouploaderLog.setJobDescription(jobDescription.toString());
+      hib3GrouploaderLog.setDeleteCount(memberCount);
+      long endTime = System.currentTimeMillis();
+      hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+      hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
+      hib3GrouploaderLog.setMillisGetData(new Integer((int)millisGetData));
+      hib3GrouploaderLog.setMillisLoadData(new Integer((int)millisSetData));
+      
+      hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
+      hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
+      hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
+      hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
+      hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
+      
+      
+      hib3GrouploaderLog.store();
+      
+      GrouperLoaderLogger.addLogEntry("subjobLog", "success", true);
+    } catch (RuntimeException re) {
+      GrouperLoaderLogger.addLogEntry("subjobLog", "success", false);
+      GrouperLoaderLogger.addLogEntry("subjobLog", "exception", ExceptionUtils.getFullStackTrace(re));
+      
+      throw re;
+    
+    } finally {              
+      GrouperLoaderLogger.doTheLogging("subjobLog");
+    }            
+    
+    hib3GrouploaderLogOverall.addDeleteCount(memberCount);
+    hib3GrouploaderLogOverall.store();
+  }
+  
+  
   /**
    * sync a group list  
    * @param grouperLoaderResultsetOverall
@@ -1432,13 +1609,23 @@ public enum GrouperLoaderType {
   
       Set<String> groupNames = grouperLoaderResultsetOverall.groupNames();
       
-      updateLoaderMetadataForGroupsNoLongerInLoader(groupNames);
-      
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
       }
       GrouperLoaderLogger.addLogEntry("overallLog", "groupSizeExternal", groupNames.size());
       
+      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(groupNames, hib3GrouploaderLogOverall.getGroupUuid());
+      
+      updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
+      
+      if (StringUtils.isBlank(groupLikeString) &&
+          
+          // TODO have more options here
+          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", false)) {
+        potentiallyDeleteGroups(grouperSession, groupsNoLongerManagedByLoader,
+            groupNamesFromGroupQuery, hib3GrouploaderLogOverall);
+        //groupNames.removeAll(deletedGroupNames);
+      }
       
       //#######################################
       //Delete records in groups not there anymore.  maybe delete group too
@@ -1550,29 +1737,8 @@ public enum GrouperLoaderType {
             //first of all remove members
             millisSetData = System.currentTimeMillis();
             memberCount = members.size();
-            for (Member member : members) {
-              didSomething = true;
-              GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
 
-              try {
-
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", groupEmpty.getName());
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(member.getSubject()));
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "groupNoLongerManaged");
-
-                groupEmpty.deleteMember(member);
-
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
-              } catch (RuntimeException re) {
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "success", false);
-                GrouperLoaderLogger.addLogEntry("membershipManagement", "exception", ExceptionUtils.getFullStackTrace(re));
-                throw re;
-              } finally {
-                GrouperLoaderLogger.doTheLogging("membershipManagement");
-              }
-              
-            }
+            didSomething = removeMembers(members, groupEmpty);
 
             GrouperLoaderLogger.addLogEntry("groupManagement", "removeMemberCount", memberCount);
 
@@ -1613,49 +1779,9 @@ public enum GrouperLoaderType {
           //if we did something, log it
           if (didSomething) {
             
-            try {
-              GrouperLoaderLogger.initializeThreadLocalMap("subjobLog");
-
-              Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-              //make a new log object for this one subgroup
-              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-              hib3GrouploaderLog.setJobName("subjobFor_" + groupNameEmpty);
-              hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
-              hib3GrouploaderLog.setStatus(status.name());
-              hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
-              hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
-              hib3GrouploaderLog.setJobDescription(jobDescription.toString());
-              hib3GrouploaderLog.setDeleteCount(memberCount);
-              long endTime = System.currentTimeMillis();
-              hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
-              hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
-              hib3GrouploaderLog.setMillisGetData(new Integer((int)millisGetData));
-              hib3GrouploaderLog.setMillisLoadData(new Integer((int)millisSetData));
+            logPotentialGroupDelete(hib3GrouploaderLogOverall, groupStartedMillis, status, jobDescription,
+                groupNameEmpty, memberCount, millisGetData, millisSetData);
               
-              hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
-              hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
-              hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
-              hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
-              hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
-              
-              
-              hib3GrouploaderLog.store();
-              
-              GrouperLoaderLogger.addLogEntry("subjobLog", "success", true);
-            } catch (RuntimeException re) {
-              GrouperLoaderLogger.addLogEntry("subjobLog", "success", false);
-              GrouperLoaderLogger.addLogEntry("subjobLog", "exception", ExceptionUtils.getFullStackTrace(re));
-              
-              throw re;
-            
-            } finally {              
-              GrouperLoaderLogger.doTheLogging("subjobLog");
-            }            
-            
-            hib3GrouploaderLogOverall.addDeleteCount(memberCount);
-            hib3GrouploaderLogOverall.store();
-            
-
           }
         }
         
@@ -1909,17 +2035,35 @@ public enum GrouperLoaderType {
   }
   
   /**
-   * update ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED to false for groups which are no longer in grouper loader.
-   * @param groupNamesInLoader
+   * get groups that are not managed by loader anymore.
+   * @param groupNamesInLoader - group names that came back from loader query
+   * @return
    */
-  private static void updateLoaderMetadataForGroupsNoLongerInLoader(Set<String> groupNamesInLoader) {
-    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+  private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader, String groupIdConfigured) {
+    
+    Set<Group> groupsNoLongerManagedByLoader = new HashSet<Group>();
+    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
     //get all groups with settings
     Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
         .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
-        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(groupIdConfigured))
         .assignAttributeCheckReadOnAttributeDef(false)
         .findGroups();
+    
+    for (Group groupWithMetadata: groupsWithLoaderMetadata) {
+      if (!groupNamesInLoader.contains(groupWithMetadata.getName())) {
+        groupsNoLongerManagedByLoader.add(groupWithMetadata);
+      }
+    }
+    
+    return groupsNoLongerManagedByLoader;
+  }
+  
+  /**
+   * update ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED to false for groups which are no longer in grouper loader.
+   * @param groupsNoLongerManagedByLoader
+   */
+  private static void updateLoaderMetadataForGroupsNoLongerInLoader(Set<Group> groupsNoLongerManagedByLoader) {
     
     String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
@@ -1927,11 +2071,9 @@ public enum GrouperLoaderType {
     AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
         +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
     
-    for (Group groupWithMetadata: groupsWithLoaderMetadata) {
-      if (!groupNamesInLoader.contains(groupWithMetadata.getName())) {
-        AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
-      }
+    for (Group groupWithMetadata: groupsNoLongerManagedByLoader) {
+      AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
     }
   }
     
@@ -2477,7 +2619,7 @@ public enum GrouperLoaderType {
     
   /**
    * @param groupName 
-   * @param loaderGroupName - it's the same as groupName for SQL_SIMPLE and LDAP_SIMPLE. For SQL_GROUP_LIST, it's the loader group name.
+   * @param loaderGroupName - it's the same as groupName for SQL_SIMPLE and LDAP_SIMPLE. For SQL_GROUP_LIST, it's the group name that stores the loader definition.
    * @param groupDisplayNameForInsert can be null to default to group name or extension.  This is display names
    * if a group needs to be created.  But the display extension will be changed if different
    * @param groupDescription can be null to default to generated description, or the description of the group
@@ -3105,26 +3247,6 @@ public enum GrouperLoaderType {
         "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
         + " updated: "+ hib3GrouploaderLog.getUpdateCount());
     
-    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE,
-        "groupId", groupBeingManaged.getId(), "groupName", groupBeingManaged.getName());
-    auditEntry.setDescription("Update group laoder metadata attributes: " + groupBeingManaged.getName());
-    loaderMetadataSaveAudit(auditEntry);
-  }
-  
-  
-  /**
-   * @param auditEntry
-   */
-  private static void loaderMetadataSaveAudit(final AuditEntry auditEntry) {
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
-              public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                  throws GrouperDAOException {
-                auditEntry.saveOrUpdate(true);
-                return null;
-              }
-        });
   }
   
   
