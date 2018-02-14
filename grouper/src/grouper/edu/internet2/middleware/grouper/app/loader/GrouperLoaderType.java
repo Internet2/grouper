@@ -2076,8 +2076,12 @@ public enum GrouperLoaderType {
         +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
     
     for (Group groupWithMetadata: groupsNoLongerManagedByLoader) {
-      AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
+      try {
+        AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
+      } catch (Exception e) {
+        LOG.warn("Non-fatal error removing metadata on group: " + groupWithMetadata.getName(), e);
+      }
     }
   }
     
@@ -3229,6 +3233,7 @@ public enum GrouperLoaderType {
    */
   private static void updateLoaderMetadataAttributes(Hib3GrouperLoaderLog hib3GrouploaderLog, Group groupBeingManaged, Group loaderGroup) {
     
+    try {
     String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
     if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
@@ -3251,6 +3256,10 @@ public enum GrouperLoaderType {
         "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
         + " updated: "+ hib3GrouploaderLog.getUpdateCount());
     
+    } catch (Exception e) {
+      LOG.warn("Non-fatal error updating metadata on group: " + groupBeingManaged.getName(), e);
+    }
+
   }
   
   
