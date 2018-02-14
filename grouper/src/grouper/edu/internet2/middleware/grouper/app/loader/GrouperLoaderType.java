@@ -2035,16 +2035,20 @@ public enum GrouperLoaderType {
   /**
    * get groups that are not managed by loader anymore.
    * @param groupNamesInLoader - group names that came back from loader query
-   * @return
+   * @param groupIdConfigured
+   * @return the groups
    */
   private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader, String groupIdConfigured) {
     
     Set<Group> groupsNoLongerManagedByLoader = new HashSet<Group>();
     AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+    AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
     //get all groups with settings
     Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
         .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
         .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(groupIdConfigured))
+        .assignIdOfAttributeDefName(loaderMetadataLoadedAttributeDefName.getId())
+        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
         .assignAttributeCheckReadOnAttributeDef(false)
         .findGroups();
     
