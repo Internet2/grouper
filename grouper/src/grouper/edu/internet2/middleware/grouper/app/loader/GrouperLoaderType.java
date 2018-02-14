@@ -84,8 +84,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -93,14 +91,11 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
@@ -1616,12 +1611,14 @@ public enum GrouperLoaderType {
       }
       GrouperLoaderLogger.addLogEntry("overallLog", "groupSizeExternal", groupNames.size());
       
-      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(groupNames);
+      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(groupNames, hib3GrouploaderLogOverall.getGroupUuid());
       
       updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
       
       if (StringUtils.isBlank(groupLikeString) &&
-          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", true)) {
+          
+          // TODO have more options here
+          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", false)) {
         potentiallyDeleteGroups(grouperSession, groupsNoLongerManagedByLoader,
             groupNamesFromGroupQuery, hib3GrouploaderLogOverall);
         //groupNames.removeAll(deletedGroupNames);
@@ -2040,14 +2037,14 @@ public enum GrouperLoaderType {
    * @param groupNamesInLoader - group names that came back from loader query
    * @return
    */
-  private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader) {
+  private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader, String groupIdConfigured) {
     
     Set<Group> groupsNoLongerManagedByLoader = new HashSet<Group>();
-    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
     //get all groups with settings
     Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
         .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
-        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(groupIdConfigured))
         .assignAttributeCheckReadOnAttributeDef(false)
         .findGroups();
     
@@ -2071,11 +2068,12 @@ public enum GrouperLoaderType {
    
     AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
         +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
-    
+
     for (Group groupWithMetadata: groupsNoLongerManagedByLoader) {
       AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
       attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "false");
     }
+    
   }
     
   /**
@@ -3232,9 +3230,9 @@ public enum GrouperLoaderType {
       groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
     }
     AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-    
     AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
         +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+        
     attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
     
     AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
@@ -3248,26 +3246,6 @@ public enum GrouperLoaderType {
         "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
         + " updated: "+ hib3GrouploaderLog.getUpdateCount());
     
-    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE,
-        "groupId", groupBeingManaged.getId(), "groupName", groupBeingManaged.getName());
-    auditEntry.setDescription("Update group laoder metadata attributes: " + groupBeingManaged.getName());
-    loaderMetadataSaveAudit(auditEntry);
-  }
-  
-  
-  /**
-   * @param auditEntry
-   */
-  private static void loaderMetadataSaveAudit(final AuditEntry auditEntry) {
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
-              public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                  throws GrouperDAOException {
-                auditEntry.saveOrUpdate(true);
-                return null;
-              }
-        });
   }
   
   
