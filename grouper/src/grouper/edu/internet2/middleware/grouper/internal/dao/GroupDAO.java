@@ -908,6 +908,43 @@ public interface GroupDAO extends GrouperDAO {
       Set<Object> attributeValuesOnAssignment, Boolean attributeCheckReadOnAttributeDef);  
   
   /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroup or null for all
+   * @param splitScope
+   * @param membershipSubject 
+   * @param field
+   * @param parentStemId
+   * @param stemScope
+   * @param findByUuidOrName
+   * @param subjectNotInGroup is a subject which does not have a membership in the group
+   * @param groupIds are the group ids to search for
+   * @param groupNames are the group names to search for
+   * @param compositeOwner if we are filtering for groups which are or are not composite owners
+   * @param idOfAttributeDefName if looking for groups that have this attribute def name
+   * @param attributeValue if looking for groups that have this attribute value on the attribute def name
+   * @param attributeValuesOnAssignment if looking for an attribute value on an assignment, could be multiple values
+   * @param attributeCheckReadOnAttributeDef use security around attribute def?  default is true
+   * @param idOfAttributeDefName2 if looking for groups that have this attribute def name2
+   * @param attributeValue2 if looking for groups that have this attribute value2 on the attribute def name2
+   * @param attributeValuesOnAssignment2 if looking for an attribute value on an assignment2, could be multiple values
+   * @return set of group
+   * @since v2.3.1
+   */
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroup, boolean splitScope, 
+      Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
+      Collection<String> groupNames, Boolean compositeOwner, String idOfAttributeDefName, Object attributeValue,
+      Set<Object> attributeValuesOnAssignment, Boolean attributeCheckReadOnAttributeDef
+      , String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2);  
+  
+  /**
    * find by uuid secure
    * @param uuids
    * @param exceptionIfNotFound

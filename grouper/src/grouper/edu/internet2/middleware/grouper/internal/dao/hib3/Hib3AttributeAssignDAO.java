@@ -824,6 +824,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   public static void queryByValueAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
       AttributeDefValueType attributeDefValueType, Object theValue) {
 
+    String bindVariableName = GrouperUtil.uniqueId();
+    
     if (theValue != null && attributeDefValueType == null) {
       throw new RuntimeException("Why is attributeDefValueType null if you are querying by value???");
     }
@@ -840,14 +842,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sqlWhereClause.append(" aa.id = aav.attributeAssignId ");
       switch(attributeDefValueType) {
         case floating:
-          sqlWhereClause.append(" and aav.valueFloating = :theValue ");
+          sqlWhereClause.append(" and aav.valueFloating = :" + bindVariableName + " ");
           Double theDouble = (Double)attributeDefValueType.convertToObject(theValue);
-          byHqlStatic.setDouble("theValue", theDouble);
+          byHqlStatic.setDouble(bindVariableName, theDouble);
           break;
         case integer:
-          sqlWhereClause.append(" and aav.valueInteger = :theValue ");
+          sqlWhereClause.append(" and aav.valueInteger = :" + bindVariableName + " ");
           Long theLong = (Long)attributeDefValueType.convertToObject(theValue);
-          byHqlStatic.setLong("theValue", theLong);
+          byHqlStatic.setLong(bindVariableName, theLong);
           break;
           
         case marker:
@@ -855,25 +857,25 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
           throw new RuntimeException("Why are you querying by value on a marker attribute???");
         case memberId:
           theValue = attributeDefValueType.convertToObject(theValue);
-          sqlWhereClause.append(" and aav.valueMemberId = :theValue ");
-          byHqlStatic.setString("theValue", (String)theValue);
+          sqlWhereClause.append(" and aav.valueMemberId = :" + bindVariableName + " ");
+          byHqlStatic.setString(bindVariableName, (String)theValue);
           break;
           
         case string:
           theValue = attributeDefValueType.convertToObject(theValue);
-          sqlWhereClause.append(" and aav.valueString = :theValue ");
-          byHqlStatic.setString("theValue", (String)theValue);
+          sqlWhereClause.append(" and aav.valueString = :" + bindVariableName + " ");
+          byHqlStatic.setString(bindVariableName, (String)theValue);
           break;
           
         case timestamp:
           
-          sqlWhereClause.append(" and aav.valueInteger = :theValue ");
+          sqlWhereClause.append(" and aav.valueInteger = :" + bindVariableName + " ");
           theValue = attributeDefValueType.convertToObject(theValue);
           
           if (theValue != null) {
             theValue = ((Timestamp)theValue).getTime();
           }
-          byHqlStatic.setLong("theValue", (Long)theValue);
+          byHqlStatic.setLong(bindVariableName, (Long)theValue);
           break;
           
           
@@ -890,11 +892,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param sqlTables
    * @param sqlWhereClause should not be empty
    * @param attributeDefValueType
-   * @param theValue
+   * @param theValues
    * @param attributeAssignAlias is usually "aa"
    */
   public static void queryByValuesAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
       AttributeDefValueType attributeDefValueType, Set<Object> theValues, String attributeAssignAlias) {
+
+    String bindVariableName = GrouperUtil.uniqueId();
 
     if (theValues != null && attributeDefValueType == null) {
       throw new RuntimeException("Why is attributeDefValueType null if you are querying by value???");
@@ -950,7 +954,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         if (i!=0) {
           sqlWhereClause.append(", ");
         }
-        sqlWhereClause.append(" :theValue");
+        sqlWhereClause.append(" :" + bindVariableName);
         sqlWhereClause.append(i);
         
       }
@@ -958,7 +962,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
         Object theValueLocal = theValuesList.get(i);
-        String alias = "theValue" + i;
+        String alias = bindVariableName + i;
         switch(attributeDefValueType) {
           case floating:
             
