@@ -859,7 +859,7 @@ public class GroupFinder {
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
             this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
             this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment, 
-            this.attributeCheckReadOnAttributeDef);
+            this.attributeCheckReadOnAttributeDef, this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2);
     
   }
 
@@ -968,7 +968,22 @@ public class GroupFinder {
    * if we are looking up a group, only look by uuid or name
    */
   private boolean findByUuidOrName;
-  
+
+  /**
+   * find groups that have this attribute def name id, note could be an assignment on an assignment
+   */
+  private String attributeDefNameId2;
+
+  /**
+   * find groups with this value
+   */
+  private Object attributeValue2;
+
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   */
+  private Set<Object> attributeValuesOnAssignment2;
+
   /**
    * if we are looking up a group, only look by uuid or name
    * @param theFindByUuidOrName
@@ -989,6 +1004,65 @@ public class GroupFinder {
     Set<Group> groups = this.findGroups();
 
     return GrouperUtil.setPopOne(groups);
+  }
+
+  /**
+   * find objects with this value2
+   * @param theValue
+   * @return this for chaining
+   */
+  public GroupFinder assignAttributeValue2(Object theValue) {
+    if (theValue == null) {
+      throw new RuntimeException("Cant look for a null value");
+    }
+    this.attributeValue2 = theValue;
+    return this;
+  }
+
+  /**
+   * find groups that have this attribute def name id, note could be an assignment on an assignment
+   * @param theAttributeDefNameId
+   * @return this for chaining
+   */
+  public GroupFinder assignIdOfAttributeDefName2(String theAttributeDefNameId) {
+    this.attributeDefNameId2 = theAttributeDefNameId;
+    return this;
+  }
+
+  /**
+   * find groups that have this attribute assigned
+   * @param theNameOfAttributeDefName
+   * @return this for chaining
+   */
+  public GroupFinder assignNameOfAttributeDefName2(String theNameOfAttributeDefName) {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(theNameOfAttributeDefName, true);
+    
+    this.attributeDefNameId2 = attributeDefName.getId();
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment2, could be multiple values
+   * @param value
+   * @return this for chaining
+   */
+  public GroupFinder addAttributeValuesOnAssignment2(Object value) {
+    if (this.attributeValuesOnAssignment2 == null) {
+      this.attributeValuesOnAssignment2 = new HashSet<Object>();
+    }
+    this.attributeValuesOnAssignment2.add(value);
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment2, could be multiple values
+   * @param theValues
+   * @return this for chaining
+   */
+  public GroupFinder assignAttributeValuesOnAssignment2(Set<Object> theValues) {
+    this.attributeValuesOnAssignment2 = theValues;
+    return this;
   }
 
 }
