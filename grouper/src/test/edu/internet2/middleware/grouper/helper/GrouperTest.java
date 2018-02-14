@@ -192,7 +192,37 @@ public class GrouperTest extends TestCase {
   }
 
   /**
+   * @param <T> 
+   * @param strings
+   * @param string
+   */
+  public void assertContainsString(Collection<String> strings, String string) {
+    assertContainsString(strings, string, null);
+  }
+
+  /**
    * @param message
+   * @param strings
+   * @param string
+   */
+  public void assertContainsString(Collection<String> strings, String string, String message) {
+    
+    if (strings == null || strings.size() == 0) {
+      fail("Empty set does not contain object: " + string);
+    }
+
+    for (String current : strings) {
+      if (StringUtils.equals(current, string)) {
+        return;
+      }
+      
+    }
+    
+    fail(StringUtils.defaultString(message) + ", expected strings to contain string '" + string + "' but contains: " + GrouperUtil.collectionToString(strings));
+
+  }
+
+  /** 
    * @param groups
    * @param group
    */
