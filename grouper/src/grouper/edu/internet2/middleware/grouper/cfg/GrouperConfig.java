@@ -512,7 +512,10 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   public void clearCachedCalculatedValues() {
-    //nothing to do
+    this.attributeDefIdsToIgnoreChangeLogAndAuditSet = null;
+    this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet = null;
+    attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.clear();
+    attributeDefIdsToIgnoreChangeLogAndAuditSetCache.clear();
   }
 
   /**
