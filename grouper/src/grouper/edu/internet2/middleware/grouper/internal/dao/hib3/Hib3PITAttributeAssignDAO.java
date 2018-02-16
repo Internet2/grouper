@@ -306,13 +306,15 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
+  public long deleteInactiveRecords(Timestamp time) {
     
-    HibernateSession.byHqlStatic()
+    long result = 0;
+    
+    result += HibernateSession.byHqlStatic()
       .createQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is not null " +
       		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)")
       .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+      .executeUpdateInt();
     
     Set<PITAttributeAssign> assignments = HibernateSession.byHqlStatic()
       .createQuery("select a from PITAttributeAssign a where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is null " +
@@ -323,11 +325,14 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
       .listSet(PITAttributeAssign.class);
     
     for (PITAttributeAssign assignment : assignments) {
-      HibernateSession.byHqlStatic()
+      result += HibernateSession.byHqlStatic()
         .createQuery("delete from PITAttributeAssign where id = :id")
         .setString("id", assignment.getId())
-        .executeUpdate();
+        .executeUpdateInt();
+      
     }
+    
+    return result;
   }
   
   /**

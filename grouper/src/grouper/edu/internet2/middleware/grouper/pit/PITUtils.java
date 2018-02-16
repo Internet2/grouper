@@ -37,90 +37,110 @@ public class PITUtils {
    * Delete point in time records that ended before the given date.
    * @param date
    * @param printOutput
+   * @return the number of records
    */
-  public static void deleteInactiveRecords(Date date, final boolean printOutput) {
+  public static long deleteInactiveRecords(Date date, final boolean printOutput) {
     
     final Timestamp time = new Timestamp(date.getTime());
 
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    return (Long)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             
+            long records = 0;
+            
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-
-            GrouperDAOFactory.getFactory().getPITAttributeAssignValue().deleteInactiveRecords(time);
+            
+            long tempRecords = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeAssignValues from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeAssignValues from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITRoleSet().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITRoleSet().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting roleSets from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " roleSets from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeAssignActionSets from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeAssignActionSets from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITAttributeAssign().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITAttributeAssign().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeAssigns from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeAssigns from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITAttributeAssignAction().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeAssignActions from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeAssignActions from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeDefNameSets from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeDefNameSets from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITAttributeDefName().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITAttributeDefName().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeDefNames from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeDefNames from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITMembership().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITMembership().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting memberships from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " memberships from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITGroupSet().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITGroupSet().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting groupSets from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " groupSets from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITGroup().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITGroup().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting groups from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " groups from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITAttributeDef().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITAttributeDef().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting attributeDefs from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " attributeDefs from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITStem().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITStem().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting stems from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " stems from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITField().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITField().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting fields from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " fields from point in time that ended before: " + time.toString());
             }
             
-            GrouperDAOFactory.getFactory().getPITMember().deleteInactiveRecords(time);
+            tempRecords = GrouperDAOFactory.getFactory().getPITMember().deleteInactiveRecords(time);
+            records += tempRecords;
             if (printOutput) {
-              System.out.println("Done deleting members from point in time that ended before: " + time.toString());
+              System.out.println("Done deleting " + tempRecords + " members from point in time that ended before: " + time.toString());
             }
             
-            return null;
+            if (printOutput) {
+              System.out.println("Done deleting total " + records + " records from point in time that ended before: " + time.toString());
+            }
+            return records;
           }
         });
   }
