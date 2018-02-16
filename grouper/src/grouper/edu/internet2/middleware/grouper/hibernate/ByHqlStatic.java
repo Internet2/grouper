@@ -521,15 +521,29 @@ public class ByHqlStatic implements HqlQuery {
    * </pre>
    *
    * @throws GrouperDAOException
-   * @return number of records affected
+   * TODO remove this in a new version of Grouper
    */
   public void executeUpdate() throws GrouperDAOException {
+    this.executeUpdateInt();
+  }
+
+  /**
+   * <pre>
+   * call hql executeUpdate, e.g. delete or update statement
+   * 
+   * </pre>
+   *
+   * @throws GrouperDAOException
+   * @return number of records affected
+   * @TODO remove this in a new version of Grouper
+   */
+  public int executeUpdateInt() throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(
+      return (Integer)HibernateSession.callbackHibernateSession(
           grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
@@ -538,8 +552,7 @@ public class ByHqlStatic implements HqlQuery {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              byHql.executeUpdate();
-              return null;
+              return byHql.executeUpdateInt();
             }
         
       });

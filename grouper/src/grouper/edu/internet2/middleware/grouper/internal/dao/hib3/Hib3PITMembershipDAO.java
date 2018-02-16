@@ -156,12 +156,12 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
-    HibernateSession.byHqlStatic()
+  public long deleteInactiveRecords(Timestamp time) {
+    return HibernateSession.byHqlStatic()
       .createQuery("delete from PITMembership m where m.endTimeDb is not null and m.endTimeDb < :time " +
       		"and not exists (select 1 from PITAttributeAssign a where a.ownerMembershipId = m.id)")
       .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+      .executeUpdateInt();
   }
   
   /**

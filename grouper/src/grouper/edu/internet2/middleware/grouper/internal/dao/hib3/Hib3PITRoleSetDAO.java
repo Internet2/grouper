@@ -128,18 +128,22 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
+  public long deleteInactiveRecords(Timestamp time) {
+    
+    long result = 0;
     
     //do this since mysql cant handle self-referential foreign keys
-    HibernateSession.byHqlStatic()
+    result += HibernateSession.byHqlStatic()
       .createQuery("update PITRoleSet set parentRoleSetId = null where endTimeDb is not null and endTimeDb < :time and parentRoleSetId is not null")
       .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+      .executeUpdateInt();
     
-    HibernateSession.byHqlStatic()
+    result += HibernateSession.byHqlStatic()
       .createQuery("delete from PITRoleSet where endTimeDb is not null and endTimeDb < :time and parentRoleSetId is null")
       .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+      .executeUpdateInt();
+    
+    return result;
   }
 
   /**

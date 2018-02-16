@@ -86,8 +86,9 @@ public interface PITMembershipDAO extends GrouperDAO {
   /**
    * Delete records that ended before the given date.
    * @param time
+   * @return the number of records deleted
    */
-  public void deleteInactiveRecords(Timestamp time);
+  public long deleteInactiveRecords(Timestamp time);
   
   /**
    * Get memberships by owner.
