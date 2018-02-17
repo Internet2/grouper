@@ -23,7 +23,7 @@
                   <div class="control-group">
                     <label class="control-label">${textContainer.text['attributeDefNameEditAttributeDefLabel'] }</label>
                     <div class="controls">
-                      <span>${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.name)}</span>
+                      <span>${grouperRequestContainer.attributeDefContainer.guiAttributeDef.shortLinkWithIcon}</span>
                       <span class="help-block">${textContainer.text['attributeDefNameEditIntoAttributeDefDescription'] }</span>
                     </div>
                   </div>
@@ -31,7 +31,7 @@
                   <div class="control-group">
                     <label for="folder-path" class="control-label">${textContainer.text['attributeDefNameEditFolderLabel'] }</label>
                     <div class="controls">
-                      <span>${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.stem.name)}</span>
+                      <span>${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.guiStem.shortLinkWithIcon}</span>
                       <span class="help-block">${textContainer.text['attributeDefNameEditIntoFolderDescription'] }</span>
                     </div>
                   </div>
