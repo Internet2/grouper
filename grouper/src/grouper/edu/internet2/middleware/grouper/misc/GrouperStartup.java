@@ -21,7 +21,9 @@ package edu.internet2.middleware.grouper.misc;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -128,6 +130,8 @@ public class GrouperStartup {
 
     StringBuilder resultString = new StringBuilder();
     resultString.append(grouperStartup + "\n");
+    
+    appendPatchLevelsToStartupString(resultString);
     String propertiesFileLocation = GrouperUtil.getLocationFromResourceName("grouper.properties");
     if (propertiesFileLocation == null) {
       propertiesFileLocation = "not found";
@@ -177,6 +181,54 @@ public class GrouperStartup {
       System.err.println(GrouperUtil.LOG_ERROR);
       re.printStackTrace();
       throw new RuntimeException(GrouperUtil.LOG_ERROR, re);
+    }
+  }
+
+
+  /**
+   * @param resultString
+   */
+  private static void appendPatchLevelsToStartupString(StringBuilder resultString) {
+    try {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.print.patches.on.startup", true)) {
+  
+        File grouperPatchStatusFile = GrouperVersion.grouperPatchStatusFile(false);
+        String grouperPatchStatusFileLocation = grouperPatchStatusFile == null ? "not found" 
+            : GrouperUtil.fileCanonicalPath(grouperPatchStatusFile); 
+        resultString.append("grouperPatchStatus read from: " + grouperPatchStatusFileLocation + "\n");
+  
+        Map<String, Set<Integer>> patchesInstalled = GrouperVersion.patchesInstalled();
+        if (GrouperUtil.length(patchesInstalled) == 0) {
+          resultString.append("No patches detected to be installed\n");
+        } else {
+          for (String engine : GrouperUtil.nonNull(patchesInstalled).keySet()) {
+            String engineLabel = engine + " patches installed: ";
+            resultString.append(engineLabel);
+            //get things to line up
+            if (engineLabel.length() < 30) {
+              resultString.append(GrouperUtil.repeat(" ", 30-engineLabel.length()));
+            }
+            boolean first = true;
+            for (Integer patchNumber : patchesInstalled.get(engine)) {
+              if (!first) {
+                resultString.append(", ");
+              }
+                
+              resultString.append(patchNumber);
+              
+              first = false;
+            }
+            resultString.append("\n");
+          }
+        }
+      }
+    } catch (Exception e) {
+      try {
+        LOG.error("Cant print patch info", e);
+      } catch (Exception e2) {
+        System.out.println("Cant print patch info");
+        e.printStackTrace();
+      }
     }
   }
 
