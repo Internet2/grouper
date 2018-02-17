@@ -490,9 +490,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
             boolean isLegacyAttributeUpdate = false;
             Attribute attribute = Attribute.internal_getAttribute(AttributeAssignValue.this, null, false);
             
-            boolean useSqlOnUpdate = (GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getId())
-                || GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId())
-                )
+            boolean attributeDefNameIdIgnoreChangeLog = GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getId());
+            boolean attributeDefIdIgnoreChangeLog = GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId());
+            boolean useSqlOnUpdate = (attributeDefNameIdIgnoreChangeLog || attributeDefIdIgnoreChangeLog)
                 && GrouperConfig.retrieveConfig().propertyValueBoolean("grouperAllowSqlOnAttributeValueUpdate", true);
             
             // delete and re-add the row if values change
