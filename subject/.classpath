@@ -17,6 +17,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
 	<classpathentry kind="lib" path="lib/commons-digester3-3.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java7"/>
-	<classpathentry kind="lib" path="lib/README.txt"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
