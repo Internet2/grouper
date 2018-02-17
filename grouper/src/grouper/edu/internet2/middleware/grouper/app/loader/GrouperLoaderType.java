@@ -1611,8 +1611,14 @@ public enum GrouperLoaderType {
       }
       GrouperLoaderLogger.addLogEntry("overallLog", "groupSizeExternal", groupNames.size());
       
-      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(groupNames, hib3GrouploaderLogOverall.getGroupUuid());
+      Set<String> groupNamesFromGroupQueryAndMembershipQuery = new HashSet<String>();
+      groupNamesFromGroupQueryAndMembershipQuery.addAll(GrouperUtil.nonNull(groupNames));
+      groupNamesFromGroupQueryAndMembershipQuery.addAll(GrouperUtil.nonNull(groupNamesFromGroupQuery));
       
+      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(groupNamesFromGroupQueryAndMembershipQuery, hib3GrouploaderLogOverall.getGroupUuid());
+
+      GrouperLoaderLogger.addLogEntry("overallLog", "groupsNoLongerManagedByLoaderCount", GrouperUtil.length(groupsNoLongerManagedByLoader));
+
       updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
       
       if (StringUtils.isBlank(groupLikeString) &&
