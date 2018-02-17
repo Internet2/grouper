@@ -179,6 +179,25 @@ public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
     return this.attributeDefName;
   }
 
+  /** stem this attribute def name is in**/
+  private GuiStem guiStem;
+  
+  /**
+   * get stem this attribute def is in
+   * @return guiStem
+   */
+  public GuiStem getGuiStem() {
+    return guiStem;
+  }
+
+  /**
+   * set stem this attribute def name is in
+   * @param guiStem1
+   */
+  public void setGuiStem(GuiStem guiStem1) {
+    this.guiStem = guiStem1;
+  }
+
   /**
    * 
    */
@@ -192,6 +211,7 @@ public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
    */
   public GuiAttributeDefName(AttributeDefName theAttributeDefName) {
     this.attributeDefName = theAttributeDefName;
+    this.guiStem = new GuiStem(theAttributeDefName.getStem());
   }
   
   /**

@@ -3,19 +3,20 @@
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" />
 
-            <%@ include file="attributeDefHeader.jsp" %>
+            <%@ include file="../attributeDef/attributeDefHeader.jsp" %>
 
             <div class="row-fluid">
               <div class="span12">
                 <div id="messages"></div>
 
                 <ul class="nav nav-tabs">
-                  <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['attributeDefAttributeDefNameTab'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefAttributeDefNameTab'] }</a></li>
+                  <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['attributeDefAttributeDefActionTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin}">
                     <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefPrivilegesTab'] }</a></li>
                   </c:if>
                   <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">
-                    <%@ include file="attributeDefMoreTab.jsp" %>
+                    <%@ include file="../attributeDef/attributeDefMoreTab.jsp" %>
                   </c:if>
                 </ul>
 
@@ -31,7 +32,7 @@
                     </div>
 
                     <div class="span3"><input type="submit" class="btn" aria-controls="attributeDefFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2AttributeDef.filterAction?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2AttributeDefAction.filterAction?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['attributeDefResetButton'] }</a>
                     </div>
                     

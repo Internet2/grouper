@@ -6,7 +6,7 @@
                   <thead>
                     <c:if test="${isAdmin}" >
                       <tr>
-                        <td colspan="3" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2AttributeDef.deleteAttributeDefActions?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefActionsToDeleteFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefActionsButton'] }</a></td>
+                        <td colspan="3" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2AttributeDefAction.deleteAttributeDefActions?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefActionsToDeleteFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefActionsButton'] }</a></td>
                       </tr>
                     </c:if>
                     <tr>
@@ -43,18 +43,13 @@
                             
                               <c:if test="${isAdmin}">
                               	<li><a href="#"
-                              	 		onclick="return guiV2link('operation=UiV2AttributeDef.editAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;">
+                              	 		onclick="return guiV2link('operation=UiV2AttributeDefAction.editAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;">
                               		${textContainer.text['attributeDefEditAttributeDefActionButton'] }</a>
                               	</li>                                	
                                 <li><a href="#"
-                                    onclick="return guiV2link('operation=UiV2AttributeDef.deleteAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;" class="actions-delete-attributeDefAction">
+                                    onclick="return guiV2link('operation=UiV2AttributeDefAction.deleteAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;" class="actions-delete-attributeDefAction">
                                   ${textContainer.text['attributeDefDeleteAttributeDefActionButton'] }</a></li>
                               </c:if>
-                              <li><a href="#"
-                              	   onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDefActionInheritanceGraph&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;">
-                              		${textContainer.text['attributeDefViewAttributeDefActionInheritanceButton'] }
-                              	</a>
-                              </li>
                             </ul>
                           </div>
                         </td>
