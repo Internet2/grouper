@@ -159,40 +159,9 @@ public class GrouperDaemonDeleteOldRecords {
   /**
    * @param jobMessage
    * @param daysToKeepLogs
+   * @return records deleted
    */
-  public static void deleteOldAuditEntry(StringBuilder jobMessage, int daysToKeepLogs) {
-    
-    //GrouperLoaderLogger.addLogEntry(LOG_LABEL, "success", false);
-    
-    if (daysToKeepLogs != -1) {
-      //lets get a date
-      Calendar calendar = GregorianCalendar.getInstance();
-      //get however many days in the past
-      calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
-      //note, this is *1000 so that we can differentiate conflicting records
-      long time = calendar.getTimeInMillis();
-      //run a query to delete (note, dont retrieve records to java, just delete)
-      long records = -1; 
-      
-      records = HibernateSession.byHqlStatic().createQuery(
-          "select ae.id from AuditEntry ae where cle.createdOnDb < :createdOn").setLong("createdOn", time)
-          .deleteInBatches(String.class, "AuditEntry", "id");
-    
-      if (jobMessage != null) {
-        jobMessage.append("Deleted " + records + " records from audit_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
-      }
-    } else {
-      if (jobMessage != null) {
-        jobMessage.append("Configured to not delete records from audit_entry table older than a certain number of days");
-      }
-    }
-  }
-
-  /**
-   * @param jobMessage
-   * @param daysToKeepLogs
-   */
-  public static void deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage,
+  public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage,
       int daysToKeepLogs) {
     if (daysToKeepLogs != -1) {
       //lets get a date
@@ -207,13 +176,15 @@ public class GrouperDaemonDeleteOldRecords {
       records = edu.internet2.middleware.grouper.pit.PITUtils.deleteInactiveRecords(new Date(), false);
       
       jobMessage.append("Deleted " + records + " deleted point in time records older than " + daysToKeepLogs + " days old. (" + time + ")  ");
-    } else {
-      jobMessage.append("Configured to not remove deleted point in time records older than a certain number of days");
+      return records;
     }
+    jobMessage.append("Configured to not remove deleted point in time records older than a certain number of days");
+    return -1;
   }
 
   /**
    * @param daysToKeepLogs
+   * @return records deleted
    */
   public static long deleteOldAuditEntryNoLoggedInUser(int daysToKeepLogs) {
     return deleteOldAuditEntryNoLoggedInUser(null, daysToKeepLogs);
@@ -227,7 +198,7 @@ public class GrouperDaemonDeleteOldRecords {
   public static long deleteOldAuditEntryNoLoggedInUser(StringBuilder jobMessage,
       int daysToKeepLogs) {
     
-    boolean initted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
     
     try {
       GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditNotLoggedInDays", daysToKeepLogs);
@@ -260,8 +231,79 @@ public class GrouperDaemonDeleteOldRecords {
       
       return records;
     } finally {
-      if (initted) {
-        GrouperLoaderLogger.skipLogging(LOG_LABEL);
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
+      }
+    }
+  }
+
+  /**
+   * @return records deleted
+   */
+  public static long deleteOldAuditEntry() {
+    return deleteOldAuditEntry(null);
+  }
+
+  /**
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldAuditEntry(int daysToKeepLogs) {
+    return deleteOldAuditEntry(null, daysToKeepLogs);
+  }
+
+  /**
+   * @param jobMessage
+   * @return recordsDeleted
+   */
+  public static long deleteOldAuditEntry(StringBuilder jobMessage) {
+    int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.audit_entry.days", -1);
+    return deleteOldAuditEntry(jobMessage, daysToKeepLogs);
+  }
+
+  /**
+   * @param jobMessage
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldAuditEntry(StringBuilder jobMessage,
+      int daysToKeepLogs) {
+    
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+    
+    try {
+      GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditDays", daysToKeepLogs);
+      
+      long records = -1; 
+  
+      if (daysToKeepLogs != -1) {
+        //lets get a date
+        Calendar calendar = GregorianCalendar.getInstance();
+        //get however many days in the past
+        calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+        //note, this is *1000 so that we can differentiate conflicting records
+        long time = calendar.getTimeInMillis();
+
+        //run a query to delete (note, dont retrieve records to java, just delete)
+        records = HibernateSession.byHqlStatic().createQuery(
+            "select ae.id from AuditEntry ae where ae.createdOnDb < :createdOn").setLong("createdOn", time)
+            .deleteInBatches(String.class, "AuditEntry", "id");
+      
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditCount", records);
+  
+        if (jobMessage != null) {
+          jobMessage.append("Deleted " + records + " records from audit_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+        }
+      } else {
+        if (jobMessage != null) {
+          jobMessage.append("Configured to not delete records from audit_entry table");
+        }
+      }
+      
+      return records;
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
       }
     }
   }
