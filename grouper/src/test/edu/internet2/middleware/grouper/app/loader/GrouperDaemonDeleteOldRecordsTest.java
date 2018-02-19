@@ -4,7 +4,9 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +27,7 @@ import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -52,6 +55,15 @@ public class GrouperDaemonDeleteOldRecordsTest extends GrouperTest {
    */
   public static void main(String[] args) {
     TestRunner.run(new GrouperDaemonDeleteOldRecordsTest("testDeleteOldDeletedPointInTime"));
+    
+//    //lets get a date
+//    Calendar calendar = GregorianCalendar.getInstance();
+//    //get however many days in the past
+//    calendar.add(Calendar.DAY_OF_YEAR, -1 * 7);
+//    //note, this is *1000 so that we can differentiate conflicting records
+//    long timeInMillis = calendar.getTimeInMillis();
+//
+//    GrouperDAOFactory.getFactory().getPITGroup().deleteInactiveRecords(new Timestamp(timeInMillis));
   }
 
   /**
@@ -322,12 +334,27 @@ public class GrouperDaemonDeleteOldRecordsTest extends GrouperTest {
     pitGroup1.setEndTimeDb(sixDaysAgoMillisTime1000);
     pitGroup1.saveOrUpdate();
     
+    Set<PITMembership> pitMemberships1 = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwner(pitGroup1.getId());
+    for (PITMembership pitMembership : pitMemberships1) {
+      pitMembership.setStartTimeDb(tenDaysAgoMillisTime1000);
+      pitMembership.setEndTimeDb(sixDaysAgoMillisTime1000);
+      pitMembership.update();
+    }
+    
     Set<PITGroup> pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
     assertEquals(1, GrouperUtil.length(pitGroups2));
     PITGroup pitGroup2 = pitGroups2.iterator().next();
     pitGroup2.setStartTimeDb(tenDaysAgoMillisTime1000);
     pitGroup2.setEndTimeDb(eightDaysAgoMillisTime1000);
     pitGroup2.saveOrUpdate();
+
+    Set<PITMembership> pitMemberships2 = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwner(pitGroup2.getId());
+    for (PITMembership pitMembership : pitMemberships2) {
+      pitMembership.setStartTimeDb(tenDaysAgoMillisTime1000);
+      pitMembership.setEndTimeDb(eightDaysAgoMillisTime1000);
+      pitMembership.update();
+    }
+    
 
     //  ############################################
     //  ## After you delete an object in grouper, it is still in point in time.  So if you want to know who was in a group a year ago, you need this info
@@ -351,37 +378,52 @@ public class GrouperDaemonDeleteOldRecordsTest extends GrouperTest {
     pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
     assertEquals(1, GrouperUtil.length(pitGroups2));
     
-    
+    ////////////////////////////////////////
     // try 9 days ago
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.audit_entry.days", "9");
-    assertEquals(0, GrouperDaemonDeleteOldRecords.deleteOldAuditEntry());
-//    
-//    assertNotNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryLoggedIn1.getId(), false));
-//    assertNotNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryLoggedIn2.getId(), false));
-//    assertNotNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryNotLoggedIn1.getId(), false));
-//    assertNotNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryNotLoggedIn2.getId(), false));
-//
-//    // try 7 days ago
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.audit_entry.days", "7");
-//    assertEquals(2, GrouperDaemonDeleteOldRecords.deleteOldAuditEntry());
-//    
-//    assertNotNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryLoggedIn1.getId(), false));
-//    assertNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryLoggedIn2.getId(), false));
-//    assertNotNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryNotLoggedIn1.getId(), false));
-//    assertNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryNotLoggedIn2.getId(), false));
-//
-//    // try 5 days ago
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.audit_entry.days", "5");
-//    assertEquals(2, GrouperDaemonDeleteOldRecords.deleteOldAuditEntry());
-//    
-//    assertNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryLoggedIn1.getId(), false));
-//    assertNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryLoggedIn2.getId(), false));
-//    assertNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryNotLoggedIn1.getId(), false));
-//    assertNull(GrouperDAOFactory.getFactory().getAuditEntry().findById(auditEntryNotLoggedIn2.getId(), false));
-//
-//    //clear out
-//    auditTypeDao.deleteEntriesAndTypesByCategoryAndAction("a", "b");
+    pitGroupsCountOrig = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_groups");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.point_in_time_deleted_objects.days", "9");
+    assertEquals(0, GrouperDaemonDeleteOldRecords.deleteOldDeletedPointInTimeObjects());
 
+    pitGroupsCountNew = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_groups");
+    assertEquals(pitGroupsCountOrig, pitGroupsCountNew);
+    
+    pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+    assertEquals(1, GrouperUtil.length(pitGroups1));
+    
+    pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+    assertEquals(1, GrouperUtil.length(pitGroups2));
+    
+    
+    ////////////////////////////////////////
+    // try 7 days ago
+    pitGroupsCountOrig = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_groups");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.point_in_time_deleted_objects.days", "7");
+    assertEquals(3, GrouperDaemonDeleteOldRecords.deleteOldDeletedPointInTimeObjects());
+
+    pitGroupsCountNew = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_groups");
+    assertEquals(pitGroupsCountOrig, pitGroupsCountNew+1);
+    
+    pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+    assertEquals(1, GrouperUtil.length(pitGroups1));
+    
+    pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+    assertEquals(0, GrouperUtil.length(pitGroups2));
+    
+    ////////////////////////////////////////
+    // try 5 days ago
+    pitGroupsCountOrig = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_groups");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.point_in_time_deleted_objects.days", "5");
+    assertEquals(3, GrouperDaemonDeleteOldRecords.deleteOldDeletedPointInTimeObjects());
+
+    pitGroupsCountNew = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_groups");
+    assertEquals(pitGroupsCountOrig, pitGroupsCountNew+1);
+    
+    pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+    assertEquals(0, GrouperUtil.length(pitGroups1));
+    
+    pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+    assertEquals(0, GrouperUtil.length(pitGroups2));
+    
     GrouperSession.stopQuietly(grouperSession);
 
   }

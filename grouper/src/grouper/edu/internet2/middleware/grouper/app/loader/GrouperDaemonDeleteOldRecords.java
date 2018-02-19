@@ -119,15 +119,12 @@ public class GrouperDaemonDeleteOldRecords {
       }
   
       {
-        int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.audit_entry.days", -1);
-        deleteOldAuditEntry(jobMessage, daysToKeepLogs);
+        deleteOldAuditEntry(jobMessage);
         
       }
   
       {
-        int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.point_in_time_deleted_object.days", -1);
-        //deleteOldDeletedPointInTimeObjects(jobMessage, daysToKeepLogs);
-        
+        deleteOldDeletedPointInTimeObjects(jobMessage);
       }
   
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
