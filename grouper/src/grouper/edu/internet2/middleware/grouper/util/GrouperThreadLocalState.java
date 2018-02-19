@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
@@ -111,6 +113,7 @@ public class GrouperThreadLocalState {
     GrouperContextTypeBuiltIn.setThreadLocalContext(null);
     GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
     GrouperLoaderLogger.removeThreadLocalMaps();
+    HibUtils.clearDisallowCacheThreadLocal();
     NDC.remove();
 
     for (Class theClass : new Class[]{edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, Crypto.class}) {
