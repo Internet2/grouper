@@ -8,11 +8,20 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.gsh.obliterateStem;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -443,6 +452,152 @@ public class GrouperDaemonDeleteOldRecords {
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperDaemonDeleteOldRecords.class);
+
+
+  /**
+   * @return records deleted
+   */
+  public static long obliterateOldStemsDirectlyInStem() {
+    return obliterateOldStemsDirectlyInStem((StringBuilder)null);
+  }
+
+  /**
+   * @param parentFolderToDaysKeepMap
+   * @return records deleted
+   */
+  public static long obliterateOldStemsDirectlyInStem(Map<String, Integer> parentFolderToDaysKeepMap) {
+    return obliterateOldStemsDirectlyInStem(null, parentFolderToDaysKeepMap);
+  }
+
+  /**
+   * @param jobMessage
+   * @return recordsDeleted
+   */
+  public static long obliterateOldStemsDirectlyInStem(StringBuilder jobMessage) {
+    
+    Pattern daysPattern = Pattern.compile("^loader\\.retain\\.db\\.folder\\.(.*)\\.days$");
+
+    //  loader.retain.db.folder.courses.days=1825
+    //  loader.retain.db.folder.courses.parentFolderName=my:folder:for:courses
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+    Map<String, String> daysMap = grouperLoaderConfig.propertiesMap( daysPattern );
+    
+    Map<String, Integer> parentFolderToDaysKeepMap = new LinkedHashMap<String, Integer>();
+    
+    for(String daysKey: daysMap.keySet()) {
+
+      try {
+        Matcher matcher = daysPattern.matcher(daysKey);
+        matcher.matches();
+        String variableName = matcher.group(1);
+        
+        int days = grouperLoaderConfig.propertyValueInt(daysKey);
+        String folder = grouperLoaderConfig.propertyValueStringRequired("loader.retain.db.folder." + variableName + ".parentFolderName");
+  
+        parentFolderToDaysKeepMap.put(folder, days);
+      } catch (Exception e) {
+        LOG.error("Error with obliterate folder key: " + daysKey, e);
+      }
+      
+    }
+    
+    return obliterateOldStemsDirectlyInStem(jobMessage, parentFolderToDaysKeepMap);
+  }
+
+  /**
+   * @param jobMessage
+   * @param parentFolderToDaysKeepMap
+   * @return records deleted
+   */
+  public static long obliterateOldStemsDirectlyInStem(StringBuilder jobMessage,
+      Map<String, Integer> parentFolderToDaysKeepMap) {
+    return obliterateOldStemsDirectlyInStem(jobMessage,
+        parentFolderToDaysKeepMap, null);
+  }
+
+  /**
+   * @param jobMessage
+   * @param parentFolderToDaysKeepMap
+   * @param error put if error if something there
+   * @return folders deleted
+   */
+  public static long obliterateOldStemsDirectlyInStem(StringBuilder jobMessage,
+      Map<String, Integer> parentFolderToDaysKeepMap, boolean[] error) {
+    
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+    
+    int foldersDeleted = 0;
+    
+    try {
+      
+      GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStemsCount", GrouperUtil.length(parentFolderToDaysKeepMap));
+
+      int index = 0;
+      
+      for (String folderName : GrouperUtil.nonNull(parentFolderToDaysKeepMap).keySet()) {
+        
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem", folderName);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".days", parentFolderToDaysKeepMap.get(folderName));
+        
+        Integer daysToKeep = parentFolderToDaysKeepMap.get(folderName);
+        if (daysToKeep == null || daysToKeep < 1) {
+          
+          GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.daysToKeepCorrupt", true);
+          continue;
+        }
+            
+        
+        try {
+
+          Stem parentStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), folderName, true);
+          
+          //get child stems
+          Set<Stem> stems = new StemFinder().assignParentStemId(parentStem.getId()).findStems();
+          GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.subFolderCount", GrouperUtil.length(stems));
+          
+          for (Stem stem : GrouperUtil.nonNull(stems)) {
+            
+            long stemCreateTime = stem.getCreateTimeLong();
+            if (stemCreateTime < 1) {
+              GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.createTimeCorrupt", true);
+              continue;
+            }
+                
+            //lets get a date
+            Calendar calendar = GregorianCalendar.getInstance();
+            //get however many days in the past
+            calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeep);
+            if (stemCreateTime < calendar.getTimeInMillis()) {
+
+              GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.deleting", true);
+              GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.folderCreatedOn", new Timestamp(stemCreateTime));
+              
+              stem.obliterate(false, false, true);
+              
+              foldersDeleted++;
+            }
+          }
+          
+        } catch (Exception e) {
+          LOG.error("Error obliterating: " + folderName, e);
+          if (GrouperUtil.length(error) == 1) {
+            error[0] = true;
+          }
+          if (jobMessage != null) {
+            jobMessage.append("Error in folder: " + folderName + ", " + ExceptionUtils.getFullStackTrace(e));
+          }
+        }
+        
+        index++;
+      }
+      
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
+      }
+    }
+    return foldersDeleted;
+  }
 
 
 }

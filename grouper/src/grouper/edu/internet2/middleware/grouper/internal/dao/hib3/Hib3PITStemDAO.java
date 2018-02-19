@@ -198,7 +198,7 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
   public Set<PITStem> findByParentPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
-        .createQuery("select pitStem from PITStem as pitStem where pitStem.parentStemId = :id")
+        .createQuery("select pitStem from PITStem as pitStem where pitStem.parentStemId = :id order by pitStem.nameDb")
         .setCacheable(false).setCacheRegion(KLASS + ".FindByParentPITStemId")
         .setString("id", id)
         .listSet(PITStem.class);

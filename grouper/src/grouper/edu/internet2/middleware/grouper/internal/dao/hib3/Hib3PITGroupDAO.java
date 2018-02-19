@@ -369,7 +369,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   public Set<PITGroup> findByPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
-        .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.stemId = :id")
+        .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.stemId = :id order by pitGroup.nameDb")
         .setCacheable(false).setCacheRegion(KLASS + ".FindByPITStemId")
         .setString("id", id)
         .listSet(PITGroup.class);

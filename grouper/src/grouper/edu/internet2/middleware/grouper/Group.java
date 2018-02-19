@@ -1784,6 +1784,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 Group.this.deleteCompositeMember();
               }
               
+              // ... And delete composite mship if it exists if this group is a member
+              // GRP-1704: when deleting a group, delete any composites that is a member of
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.delete.compositeMembershipsOnGroupDelete", true)) {
+                for (Composite composite : GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getComposite().findAsFactor( Group.this ))) {
+                  composite.getOwnerGroup().deleteCompositeMember();
+                }
+              }
+              
               // ... And delete all memberships - as root
               // Deletes (and saves) now happen within internal_deleteAllFieldType().  See GRP-254.
                 Membership.internal_deleteAllFieldType( 
