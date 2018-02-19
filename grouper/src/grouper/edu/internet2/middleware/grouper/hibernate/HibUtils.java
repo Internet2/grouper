@@ -177,6 +177,25 @@ public class HibUtils {
     }
     return value == null ? " is null " : (" = :" + bindVar + " ");
   }
+
+  /**
+   * if should allow cache
+   */
+  private static InheritableThreadLocal<Boolean> cachingEnabledThreadLocal = new InheritableThreadLocal<Boolean>();
+
+  /**
+   * if should disallow cache
+   */
+  public static void assignDisallowCacheThreadLocal() {
+    cachingEnabledThreadLocal.set(Boolean.FALSE);
+  }
+
+  /**
+   * dont disallow cache anymore
+   */
+  public static void clearDisallowCacheThreadLocal() {
+    cachingEnabledThreadLocal.remove();
+  }
   
   /**
    * 
@@ -186,6 +205,15 @@ public class HibUtils {
    */
   public static boolean secondLevelCaching(Boolean cacheable, QueryOptions queryOptions) {
 
+    {
+      //if set in threadlocal then dont cache
+      Boolean cachingEnabled = cachingEnabledThreadLocal.get();
+      if (cachingEnabled != null && !cachingEnabled) {
+        return false;
+      }
+      
+    }
+    
     HibernateSession hibernateSession = HibernateSession._internal_hibernateSession();
     
     //if hibernate session says no, then no
