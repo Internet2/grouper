@@ -129,20 +129,13 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
   public long deleteInactiveRecords(Timestamp time) {
+        
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITAttributeAssignActionSet where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
+        //do this since mysql cant handle self-referential foreign keys
+        .assignBatchPreExecuteUpdateQuery("update PITAttributeAssignActionSet set parentAttrAssignActionSetId = null where parentAttrAssignActionSetId is not null")
+        .deleteInBatches(String.class, "PITAttributeAssignActionSet", "id");
     
-    long result = 0;
-    //do this since mysql cant handle self-referential foreign keys
-    result += HibernateSession.byHqlStatic()
-      .createQuery("update PITAttributeAssignActionSet set parentAttrAssignActionSetId = null where endTimeDb is not null and endTimeDb < :time and parentAttrAssignActionSetId is not null")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdateInt();
-    
-    result += HibernateSession.byHqlStatic()
-      .createQuery("delete from PITAttributeAssignActionSet where endTimeDb is not null and endTimeDb < :time and parentAttrAssignActionSetId is null")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdateInt();
-    
-    return result;
   }
 
   /**

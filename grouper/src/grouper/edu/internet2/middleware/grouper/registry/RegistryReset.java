@@ -172,8 +172,12 @@ public class RegistryReset {
       registrySubject.getAttributes(false).put("loginid", GrouperUtil.toSet("id." + id));
       registrySubject.getAttributes(false).put("description", GrouperUtil.toSet("description." + id));
       registrySubject.getAttributes(false).put("email", GrouperUtil.toSet(id + "@somewhere.someSchool.edu"));
-      
-      GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
+      try {
+        GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "registrySubject: " + registrySubject.getId());
+        throw re;
+      }
     }
   } 
 

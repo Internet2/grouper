@@ -174,10 +174,12 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
   public long deleteInactiveRecords(Timestamp time) {
-    return HibernateSession.byHqlStatic()
-      .createQuery("delete from PITMember where endTimeDb is not null and endTimeDb < :time")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdateInt();
+    
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITMember where endTimeDb is not null and endTimeDb < :time")
+        .setLong("time", time.getTime() * 1000)
+        .deleteInBatches(String.class, "PITMember", "id");
+
   }
   
   /**

@@ -407,20 +407,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
    */
   public long deleteInactiveRecords(Timestamp time) {
     
-    long result = 0;
-    
-    //do this since mysql cant handle self-referential foreign keys
-    result += HibernateSession.byHqlStatic()
-      .createQuery("update PITGroupSet set parentId = null where endTimeDb is not null and endTimeDb < :time and parentId is not null")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdateInt();
-    
-    result += HibernateSession.byHqlStatic()
-      .createQuery("delete from PITGroupSet where endTimeDb is not null and endTimeDb < :time and parentId is null")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdateInt();
-    
-    return result;
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITGroupSet where endTimeDb is not null and endTimeDb < :time")
+        .setLong("time", time.getTime() * 1000)
+        //do this since mysql cant handle self-referential foreign keys
+        .assignBatchPreExecuteUpdateQuery("update PITGroupSet set parentId = null where parentId is not null")
+        .deleteInBatches(String.class, "PITGroupSet", "id");
+
   }
   
   /**
