@@ -186,7 +186,7 @@ public class PITUtils {
         }
       });
     
-      
+      return;
     }
       
     deleteInactiveGroupHelper(groupName);
@@ -234,7 +234,7 @@ public class PITUtils {
         }
       });
     
-      
+      return;
     }
       
     deleteInactiveGroupHelper(pitGroup);
@@ -275,7 +275,7 @@ public class PITUtils {
         }
       });
     
-      
+      return;
     }
       
     deleteInactiveStemHelper(stemName, printOutput);
@@ -328,7 +328,7 @@ public class PITUtils {
         }
       });
     
-      
+      return;
     }
       
     deleteInactiveStemHelper(pitStem, printOutput);
@@ -371,7 +371,7 @@ public class PITUtils {
         }
       });
     
-      
+      return;
     }
       
     deleteInactiveObjectsInStemHelper(stemName, printOutput);
@@ -419,7 +419,7 @@ public class PITUtils {
         }
       });
     
-      
+      return;
     }
       
     deleteInactiveObjectsInStemHelper(pitStem, printOutput);

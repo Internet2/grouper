@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
@@ -125,6 +126,8 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
+import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -4612,20 +4615,126 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     return "Stem: " + this.uuid + ", " + this.name;
   }
 
+  /**
+   * obliterate this stem name (which might not exist) from point in time
+   * @param stemName
+   * @param printOutput
+   */
+  public static void obliterateFromPointInTime(String stemName, final boolean printOutput) {
+    Stem ns = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+    obliterateFromPointInTimeHelper(stemName, ns, printOutput);
+  }
+
+  /**
+   * obliterate this stem name (which might not exist) from point in time
+   * @param stemName
+   * @param printOutput
+   * @param testOnly 
+   * @param deletePointInTime 
+   */
+  public static void obliterate(String stemName,final boolean printOutput, boolean testOnly, boolean deletePointInTime) {
+    Stem ns = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+    if (ns != null) {
+      ns.obliterate(printOutput, testOnly);
+    }
+    if (!testOnly && deletePointInTime) {
+      obliterateFromPointInTimeHelper(stemName, ns, printOutput);
+    }
+  }
+
+  /**
+   * obliterate this stem name (which might not exist) from point in time
+   * @param stemName
+   * @param printOutput
+   * @param ns
+   */
+  private static void obliterateFromPointInTimeHelper(String stemName,Stem ns,final boolean printOutput) {
+
+    //make sure something in changelog temp
+    if (HibernateSession.bySqlStatic().select(int.class, "SELECT count(1) FROM grouper_change_log_entry_temp") > 0) {
+      
+      //see if we are making progress
+      long maxCreatedOn = HibernateSession.bySqlStatic().select(long.class, "SELECT max(created_on) FROM grouper_change_log_entry_temp");
+      int changeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", GrouperUtil.toListObject(maxCreatedOn));
+
+      int loops = 0;
+      
+      OUTER:
+      while (true) {
+        if (ns != null) {
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(ns.getUuid(), false);
+          if (pitStem != null && !pitStem.isActive()) {
+            break;
+          }
+        } else {
+          Set<PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByName(stemName, false);
+          if (pitStems.size() > 0 && !pitStems.iterator().next().isActive()) {
+            break;
+          } 
+        }
+        
+        if (printOutput) {
+          System.out.println("Waiting for Grouper Daemon to process before obliterating from point in time data. "
+              + " This is expected to take a few minutes.  Be sure the Grouper Daemon is running.");
+        }
+        GrouperUtil.sleep(15000);
+
+        int hasCreatedOn = HibernateSession.bySqlStatic().select(int.class, 
+            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", GrouperUtil.toListObject(maxCreatedOn));
+        
+        //nothing to do
+        if (hasCreatedOn == 0) {
+          break;
+        }
+        
+        int currentChangeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, 
+            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", GrouperUtil.toListObject(maxCreatedOn));
+          
+        int loopsLimit = testingRunChangeLogSooner ? 2 : 100;
+        
+        if (loops > loopsLimit && changeLogEntryCount == currentChangeLogEntryCount) {
+          //  daemon is not running, run the temp to change log
+          int recordsChanged = ChangeLogTempToEntity.convertRecords();
+          while (recordsChanged > 0) {
+            hasCreatedOn = HibernateSession.bySqlStatic().select(int.class, 
+                "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", GrouperUtil.toListObject(maxCreatedOn));
+            if (hasCreatedOn == 0) {
+              break OUTER;
+            }
+            recordsChanged = ChangeLogTempToEntity.convertRecords();
+          }
+          break;
+        }
+        loops++;
+      }
+    }      
+    PITUtils.deleteInactiveStem(stemName, true);
+
+  }
+  
+  /**
+   * run the change log sooner for test
+   */
+  static boolean testingRunChangeLogSooner = false;
+  
+  /**
+   * Delete this stem from the Groups Registry including all sub objects.
+   * @param printOutput
+   * @param testOnly
+   * @param deleteFromPointInTime needs to wait for change log entries to be processed, then delete those too
+   */
+  public void obliterate(final boolean printOutput, final boolean testOnly, final boolean deleteFromPointInTime) {
+
+    this.obliterate(printOutput, testOnly);
+    
+    if (!testOnly && deleteFromPointInTime) {
+      obliterateFromPointInTimeHelper(this.getName(), this, printOutput);
+    }
+
+  }
 
   /**
    * Delete this stem from the Groups Registry including all sub objects.
-   * <pre class="eg">
-   * try {
-   *   ns.delete();
-   * }
-   * catch (InsufficientPrivilegeException eIP) {
-   *   // not privileged to delete stem
-   * }
-   * catch (StemDeleteException eSD) {
-   *   // unable to delete stem
-   * }
-   * </pre>
    * @param printOutput 
    * @param testOnly 
    * @throws  InsufficientPrivilegeException

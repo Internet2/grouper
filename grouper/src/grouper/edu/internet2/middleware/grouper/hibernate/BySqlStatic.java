@@ -162,11 +162,17 @@ public class BySqlStatic {
           
           T result = null;
           boolean isInt = int.class.equals(returnClassType);
-          boolean isPrimitive = isInt;
+          boolean isLong = long.class.equals(returnClassType);
+          boolean isPrimitive = isInt || isLong;
           if (isInt || Integer.class.equals(returnClassType)) {
             BigDecimal bigDecimal = resultSet.getBigDecimal(1);
             if (bigDecimal != null) {
               result = (T)(Object)bigDecimal.intValue();
+            }
+          } else if (isLong || Long.class.equals(returnClassType)) {
+            BigDecimal bigDecimal = resultSet.getBigDecimal(1);
+            if (bigDecimal != null) {
+              result = (T)(Object)bigDecimal.longValue();
             }
           } else if (String.class.equals(returnClassType)) {
             result = (T)resultSet.getString(1);
