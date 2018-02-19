@@ -104,7 +104,7 @@ public class GrouperDaemonDeleteOldRecords {
                 "select aav.id from AttributeAssignValue aav, AttributeAssign aa, AttributeDefName adn where aav.attributeAssignId = aa.id and adn.id = aa.attributeDefNameId and adn.nameDb = :attributeDefNameName and aav.createdOnDb < :createdOn ")
                 .setLong("createdOn", calendar.getTimeInMillis())
                 .setString("attributeDefNameName", attributeDefNameName)
-                .deleteInBatches(long.class, "AttributeAssignValue", "id");
+                .deleteInBatches(String.class, "AttributeAssignValue", "id");
   
   
           jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ")  ");
@@ -163,23 +163,41 @@ public class GrouperDaemonDeleteOldRecords {
    */
   public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage,
       int daysToKeepLogs) {
-    if (daysToKeepLogs != -1) {
-      //lets get a date
-      Calendar calendar = GregorianCalendar.getInstance();
-      //get however many days in the past
-      calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
-      //note, this is *1000 so that we can differentiate conflicting records
-      long time = calendar.getTimeInMillis();
-      //run a query to delete (note, dont retrieve records to java, just delete)
+    
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+    
+    try {
+      GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteDeletedPointInTimeObjectsDays", daysToKeepLogs);
+      
       long records = -1; 
+  
+      if (daysToKeepLogs != -1) {
+        //lets get a date
+        Calendar calendar = GregorianCalendar.getInstance();
+        //get however many days in the past
+        calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+        //note, this is *1000 so that we can differentiate conflicting records
+        long time = calendar.getTimeInMillis();
+
+        records = edu.internet2.middleware.grouper.pit.PITUtils.deleteInactiveRecords(new Date(time), false);
       
-      records = edu.internet2.middleware.grouper.pit.PITUtils.deleteInactiveRecords(new Date(), false);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteDeletedPointInTimeObjectsCount", records);
+  
+        if (jobMessage != null) {
+          jobMessage.append("Deleted " + records + " records from DeletedPointInTimeObjects older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+        }
+      } else {
+        if (jobMessage != null) {
+          jobMessage.append("Configured to not delete records from DeletedPointInTimeObjects");
+        }
+      }
       
-      jobMessage.append("Deleted " + records + " deleted point in time records older than " + daysToKeepLogs + " days old. (" + time + ")  ");
       return records;
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
+      }
     }
-    jobMessage.append("Configured to not remove deleted point in time records older than a certain number of days");
-    return -1;
   }
 
   /**
@@ -306,6 +324,30 @@ public class GrouperDaemonDeleteOldRecords {
         GrouperLoaderLogger.doTheLogging(LOG_LABEL);
       }
     }
+  }
+
+  /**
+   * @return records deleted
+   */
+  public static long deleteOldDeletedPointInTimeObjects() {
+    return deleteOldDeletedPointInTimeObjects(null);
+  }
+
+  /**
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldDeletedPointInTimeObjects(int daysToKeepLogs) {
+    return deleteOldDeletedPointInTimeObjects(null, daysToKeepLogs);
+  }
+
+  /**
+   * @param jobMessage
+   * @return recordsDeleted
+   */
+  public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage) {
+    int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.point_in_time_deleted_objects.days", -1);
+    return deleteOldDeletedPointInTimeObjects(jobMessage, daysToKeepLogs);
   }
 
 

@@ -308,31 +308,12 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
    */
   public long deleteInactiveRecords(Timestamp time) {
     
-    long result = 0;
-    
-    result += HibernateSession.byHqlStatic()
-      .createQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is not null " +
-      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdateInt();
-    
-    Set<PITAttributeAssign> assignments = HibernateSession.byHqlStatic()
-      .createQuery("select a from PITAttributeAssign a where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is null " +
-      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)" +
-          "and not exists (select 1 from PITAttributeAssign a2 where a2.ownerAttributeAssignId = a.id)")
-      .setCacheable(false)
-      .setLong("time", time.getTime() * 1000)
-      .listSet(PITAttributeAssign.class);
-    
-    for (PITAttributeAssign assignment : assignments) {
-      result += HibernateSession.byHqlStatic()
-        .createQuery("delete from PITAttributeAssign where id = :id")
-        .setString("id", assignment.getId())
-        .executeUpdateInt();
-      
-    }
-    
-    return result;
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITAttributeAssign a where a.endTimeDb is not null and a.endTimeDb < :time " +
+          "and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)").setLong("time", time.getTime() * 1000)
+        //do this since mysql cant handle self-referential foreign keys
+        .assignBatchPreExecuteUpdateQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.ownerAttributeAssignId is not null")
+        .deleteInBatches(String.class, "PITAttributeAssign", "id");
   }
   
   /**
