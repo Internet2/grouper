@@ -4708,14 +4708,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         loops++;
       }
     }      
-    PITUtils.deleteInactiveStem(stemName, true);
+    PITUtils.deleteInactiveStem(stemName, printOutput);
 
   }
   
   /**
    * run the change log sooner for test
    */
-  static boolean testingRunChangeLogSooner = false;
+  public static boolean testingRunChangeLogSooner = false;
   
   /**
    * Delete this stem from the Groups Registry including all sub objects.

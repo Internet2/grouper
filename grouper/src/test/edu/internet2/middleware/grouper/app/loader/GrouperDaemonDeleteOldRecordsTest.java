@@ -4,19 +4,19 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
@@ -54,7 +54,8 @@ public class GrouperDaemonDeleteOldRecordsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDaemonDeleteOldRecordsTest("testDeleteOldDeletedPointInTime"));
+    
+    TestRunner.run(new GrouperDaemonDeleteOldRecordsTest("testObliterateOldStemsWithPointInTime"));
     
 //    //lets get a date
 //    Calendar calendar = GregorianCalendar.getInstance();
@@ -64,6 +65,7 @@ public class GrouperDaemonDeleteOldRecordsTest extends GrouperTest {
 //    long timeInMillis = calendar.getTimeInMillis();
 //
 //    GrouperDAOFactory.getFactory().getPITGroup().deleteInactiveRecords(new Timestamp(timeInMillis));
+    
   }
 
   /**
@@ -426,6 +428,164 @@ public class GrouperDaemonDeleteOldRecordsTest extends GrouperTest {
     
     GrouperSession.stopQuietly(grouperSession);
 
+  }
+
+  /**
+   * 
+   */
+  public void testObliterateOldStemsWithPointInTime() {
+    
+    Stem.testingRunChangeLogSooner = true;
+    
+    try {
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      //clear out
+      Group group1 = new GroupSave(grouperSession).assignName("test:test1:testGroup1").assignCreateParentStemsIfNotExist(true).save();
+      Stem stem1 = group1.getParentStem();
+      
+      Group group2 = new GroupSave(grouperSession).assignName("test:test2:testGroup2").assignCreateParentStemsIfNotExist(true).save();
+      Stem stem2 = group2.getParentStem();
+    
+      Group anotherTestGroup = new GroupSave(grouperSession).assignName("anotherStem:anotherTestGroup").assignCreateParentStemsIfNotExist(true).save();
+      Stem anotherStem = anotherTestGroup.getParentStem();
+      
+      long sixDaysAgoMillisTime = -1;
+      
+      {
+        Calendar sixDaysAgo = new GregorianCalendar();
+        sixDaysAgo.setTimeInMillis(System.currentTimeMillis());
+        sixDaysAgo.add(Calendar.DAY_OF_YEAR, -6);
+        sixDaysAgoMillisTime = sixDaysAgo.getTimeInMillis();
+      }
+      
+      long eightDaysAgoMillisTime = -1;
+    
+      {
+        Calendar eightDaysAgo = new GregorianCalendar();
+        eightDaysAgo.setTimeInMillis(System.currentTimeMillis());
+        eightDaysAgo.add(Calendar.DAY_OF_YEAR, -8);
+        eightDaysAgoMillisTime = eightDaysAgo.getTimeInMillis();
+      }
+      
+      long tenDaysAgoMillisTime = -1;
+    
+      {
+        Calendar tenDaysAgo = new GregorianCalendar();
+        tenDaysAgo.setTimeInMillis(System.currentTimeMillis());
+        tenDaysAgo.add(Calendar.DAY_OF_YEAR, -10);
+        tenDaysAgoMillisTime = tenDaysAgo.getTimeInMillis();
+      }
+  
+      stem1.setCreateTimeLong(sixDaysAgoMillisTime);
+      stem1.store();
+      
+      //set the parent folder as old to make sure it doesnt delete that!
+      stem1.getParentStem().setCreateTimeLong(tenDaysAgoMillisTime);
+      stem1.getParentStem().store();
+  
+      stem2.setCreateTimeLong(eightDaysAgoMillisTime);
+      stem2.store();
+      
+      anotherStem.setCreateTimeLong(tenDaysAgoMillisTime);
+      anotherStem.store();
+      
+      // try turned off
+      assertEquals(0, GrouperDaemonDeleteOldRecords.obliterateOldStemsDirectlyInStem());
+  
+      ////////////////////////////////////////
+      // try 9 days ago
+      //  #loader.retain.db.folder.courses.days=1825
+      //  #loader.retain.db.folder.courses.parentFolderName=my:folder:for:courses
+      //  #loader.retain.db.folder.courses.deletePointInTime=true
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.folder.test.days", "9");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.folder.test.parentFolderName", "test");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.folder.test.deletePointInTime", "true");
+  
+      assertEquals(0, GrouperDaemonDeleteOldRecords.obliterateOldStemsDirectlyInStem());
+  
+      assertNotNull(GroupFinder.findByName(grouperSession, group1.getName(), false));
+      assertNotNull(StemFinder.findByName(grouperSession, group1.getParentStemName(), false));
+      assertNotNull(GroupFinder.findByName(grouperSession, group2.getName(), false));
+      assertNotNull(StemFinder.findByName(grouperSession, group2.getParentStemName(), false));
+      assertNotNull(GroupFinder.findByName(grouperSession, anotherTestGroup.getName(), false));
+  
+      //run the temp to change log
+      ChangeLogTempToEntity.convertRecords();
+  
+      Set<PITGroup> pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitGroups1));
+  
+      Set<PITGroup> pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitGroups2));
+  
+      Set<PITGroup> pitAnotherTestGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(anotherTestGroup.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitAnotherTestGroups));
+  
+      ////////////////////////////////////////
+      // try 7 days ago
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.folder.test.days", "7");
+      assertEquals(1, GrouperDaemonDeleteOldRecords.obliterateOldStemsDirectlyInStem());
+    
+      assertNotNull(GroupFinder.findByName(grouperSession, group1.getName(), false));
+      assertNull(GroupFinder.findByName(grouperSession, group2.getName(), false));
+      assertNotNull(GroupFinder.findByName(grouperSession, anotherTestGroup.getName(), false));
+  
+      pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitGroups1));
+  
+      pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+      assertEquals(0, GrouperUtil.length(pitGroups2));
+  
+      pitAnotherTestGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(anotherTestGroup.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitAnotherTestGroups));
+      
+      //run the temp to change log
+      ChangeLogTempToEntity.convertRecords();
+  
+      pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitGroups1));
+  
+      pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+      assertEquals(0, GrouperUtil.length(pitGroups2));
+  
+      pitAnotherTestGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(anotherTestGroup.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitAnotherTestGroups));
+  
+      ////////////////////////////////////////
+      // try 5 days ago
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.retain.db.folder.test.days", "5");
+      assertEquals(1, GrouperDaemonDeleteOldRecords.obliterateOldStemsDirectlyInStem());
+    
+      assertNull(GroupFinder.findByName(grouperSession, group1.getName(), false));
+      assertNull(GroupFinder.findByName(grouperSession, group2.getName(), false));
+      assertNotNull(GroupFinder.findByName(grouperSession, anotherTestGroup.getName(), false));
+  
+      pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+      assertEquals(0, GrouperUtil.length(pitGroups1));
+  
+      pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+      assertEquals(0, GrouperUtil.length(pitGroups2));
+  
+      pitAnotherTestGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(anotherTestGroup.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitAnotherTestGroups));
+      
+      //run the temp to change log
+      ChangeLogTempToEntity.convertRecords();
+  
+      pitGroups1 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group1.getName(), true);
+      assertEquals(0, GrouperUtil.length(pitGroups1));
+  
+      pitGroups2 = GrouperDAOFactory.getFactory().getPITGroup().findByName(group2.getName(), true);
+      assertEquals(0, GrouperUtil.length(pitGroups2));
+  
+      pitAnotherTestGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(anotherTestGroup.getName(), true);
+      assertEquals(1, GrouperUtil.length(pitAnotherTestGroups));
+      
+      GrouperSession.stopQuietly(grouperSession);
+    } finally {
+      Stem.testingRunChangeLogSooner = false;
+    }
   }
 
   
