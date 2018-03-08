@@ -133,7 +133,7 @@ public class LdapPEMSocketFactory {
               kmf.init(ks, pw);
               keyManagers = kmf.getKeyManagers();
            } catch (Exception e) {
-              log.error("ldap source cert/key error: " + e);
+              log.error("ldap source cert/key error", e);
            }
        }
 

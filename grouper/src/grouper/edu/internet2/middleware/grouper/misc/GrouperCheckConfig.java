@@ -1336,6 +1336,7 @@ public class GrouperCheckConfig {
     checkJar("joda-time-2.9.9.jar", 634048, "org.joda.time.base.AbstractDateTime", "2.9.9");
     checkJar("json-lib-2.4-jdk15.jar", 159123, "net.sf.json.JSON", "null");
     checkJar("jta-1.1.jar", 15071, "javax.transaction.HeuristicCommitException", "null");
+    checkJar("ldaptive-1.1.0.jar", 779848, "org.ldaptive.AbstractConfig", "null");
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");
     checkJar("mailapi-1.4.3.jar", 250233, "com.sun.mail.handlers.text_html", "1.4.3");
     checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
@@ -1345,7 +1346,6 @@ public class GrouperCheckConfig {
     checkJar("slf4j-api-1.7.25.jar", 41203, "org.slf4j.event.EventConstants", "1.7.25");
     checkJar("slf4j-log4j12-1.7.25.jar", 12244, "org.apache.log4j.MDCFriend", "1.7.25");
     checkJar("smack-3.1.0.jar", 285035, "org.jivesoftware.smack.AccountManager", "null");
-    checkJar("subject.jar", GrouperUtil.toSet(271917L, 266056L), "edu.internet2.middleware.subject.InvalidQueryException", "2.3.0");
     checkJar("vt-ldap-3.3.9.jar", 255330, "edu.vt.middleware.ldap.AbstractCli", "null");
     checkJar("xmlpull-1.1.3.1.jar", 7188, "org.xmlpull.v1.XmlPullParserFactory", "null");
     checkJar("xstream-1.4.10.jar", 589803, "com.thoughtworks.xstream.XStreamException", "1.4.10");

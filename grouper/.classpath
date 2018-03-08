@@ -28,7 +28,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/morphString.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/p6spy-3.6.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz-2.3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/subject.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/hsqldb-2.3.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/mysql-connector-java-5.1.45.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql-42.1.4.jar"/>

@@ -38,8 +38,10 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateCrtKeySpec;
 
+import org.apache.commons.codec.binary.Base64;
+
 // import sun.misc.BASE64Decoder;
-import org.bouncycastle.util.encoders.Base64;
+// import org.bouncycastle.util.encoders.Base64;
 
 
 import org.apache.commons.logging.Log;
