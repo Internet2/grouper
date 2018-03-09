@@ -86,7 +86,7 @@ public class GuiLoaderManagedGroup {
       String lastIncrementalMillisKey = loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS;
       String summaryKey = loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY;
       String groupIdKey = loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
-      String grouperLoaderMetadataLoadedKey = loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
+      String grouperLoaderMetadataLoadedKey = loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED;
       
       String summaryLoaderPerGroup = attributes.get(summaryKey);
       Long lastFullMillisLoaded = GrouperUtil.longObjectValue(attributes.get(lastFullMillisKey), true);

@@ -4585,7 +4585,7 @@ public class UiV2Group {
       }
       
       AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-      AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+      AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, false);
 
       //get all groups with settings
       int maxPageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.grouperLoader.maxGroupsShown", 200);
