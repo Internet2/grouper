@@ -4,8 +4,6 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
 import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
 
 import java.sql.Timestamp;
@@ -699,13 +697,13 @@ public class UiV2GrouperLoader {
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
       
-      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF, false);
+      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
 
       AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, loaderMetadataAttributeDefName, false, false);
       
       if (groupAttributeAssign != null) {
         
-        String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED);
+        String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED);
         String loaderGroupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
         String lastFullMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS);
         String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
