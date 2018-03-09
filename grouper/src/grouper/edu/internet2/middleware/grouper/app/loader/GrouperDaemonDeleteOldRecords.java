@@ -157,7 +157,7 @@ public class GrouperDaemonDeleteOldRecords {
    
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldInstrumentationDataCount", records);
    
-        jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ")  ");
+        jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ").  ");
       } else {
         jobMessage.append("Configured to not delete old instrumentation data.  ");
       }
@@ -203,7 +203,7 @@ public class GrouperDaemonDeleteOldRecords {
         }
       
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldChangeLogEntriesCount", records);
-        jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+        jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ").  ");
       } else {
         jobMessage.append("Configured to not delete records from grouper_change_log_entry table.  ");
       }
@@ -299,11 +299,11 @@ public class GrouperDaemonDeleteOldRecords {
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteDeletedPointInTimeObjectsCount", records);
   
         if (jobMessage != null) {
-          jobMessage.append("Deleted " + records + " records from DeletedPointInTimeObjects older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+          jobMessage.append("Deleted " + records + " records from DeletedPointInTimeObjects older than " + daysToKeepLogs + " days old. (" + time + ").  ");
         }
       } else {
         if (jobMessage != null) {
-          jobMessage.append("Configured to not delete records from DeletedPointInTimeObjects");
+          jobMessage.append("Configured to not delete records from DeletedPointInTimeObjects. ");
         }
       }
       
@@ -354,11 +354,11 @@ public class GrouperDaemonDeleteOldRecords {
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditNotLoggedInCount", records);
   
         if (jobMessage != null) {
-          jobMessage.append("Deleted " + records + " records from audit_entry with null logged in member id and older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+          jobMessage.append("Deleted " + records + " records from audit_entry with null logged in member id and older than " + daysToKeepLogs + " days old. (" + time + ").  ");
         }
       } else {
         if (jobMessage != null) {
-          jobMessage.append("Configured to not delete records from audit_entry table with null logged in member id");
+          jobMessage.append("Configured to not delete records from audit_entry table with null logged in member id.  ");
         }
       }
       
@@ -425,11 +425,11 @@ public class GrouperDaemonDeleteOldRecords {
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditCount", records);
   
         if (jobMessage != null) {
-          jobMessage.append("Deleted " + records + " records from audit_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+          jobMessage.append("Deleted " + records + " records from audit_entry older than " + daysToKeepLogs + " days old. (" + time + ").  ");
         }
       } else {
         if (jobMessage != null) {
-          jobMessage.append("Configured to not delete records from audit_entry table");
+          jobMessage.append("Configured to not delete records from audit_entry table.  ");
         }
       }
       

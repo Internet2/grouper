@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
@@ -94,7 +95,7 @@ public class PITAttributeDefNameFinder {
       }
       
       if (pitAttributeDefName.isActive()) {
-        if (GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(pitAttributeDefName.getSourceId(), false) == null) {
+        if (AttributeDefNameFinder.findById(pitAttributeDefName.getSourceId(), false) == null) {
           continue;
         }
       }

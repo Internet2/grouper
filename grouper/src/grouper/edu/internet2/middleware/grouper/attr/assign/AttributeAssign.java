@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -991,7 +992,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeDefName getAttributeDefName() {
     if (this.attributeDefName == null ) {
-      this.attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(this.attributeDefNameId, null, true);
+      this.attributeDefName = AttributeDefNameFinder.findByIdAsRoot(this.attributeDefNameId, true);
     }
     return this.attributeDefName;
   }
@@ -1282,7 +1283,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public AttributeDef getOwnerAttributeDef() {
     
     //I think the current grouper session isnt really relevant here, I think we just need to produce the attribute def without security
-    return this.ownerAttributeDefId == null ? null : GrouperDAOFactory.getFactory().getAttributeDef().findById(this.ownerAttributeDefId, true);
+    return this.ownerAttributeDefId == null ? null : AttributeDefFinder.findByIdAsRoot(this.ownerAttributeDefId, true);
 
   }
 
@@ -1531,7 +1532,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       }
       if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
         toStringBuilder.append("attributeDef", 
-            GrouperDAOFactory.getFactory().getAttributeDef().findById(
+            AttributeDefFinder.findByIdAsRoot(
                 this.ownerAttributeDefId, true));
       }
       if (!StringUtils.isBlank(this.ownerAttributeAssignId)) {
@@ -1659,8 +1660,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         
       } else if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
 
-        AttributeDef ownerAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-          .findById(this.ownerAttributeDefId, true);
+        AttributeDef ownerAttributeDef = AttributeDefFinder.findByIdAsRoot(this.ownerAttributeDefId, true);
         attributeAssignResult = ownerAttributeDef.getAttributeDelegate()
           .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
       

@@ -61,6 +61,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -85,13 +87,15 @@ import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
-import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
@@ -160,6 +164,7 @@ public class GrouperCheckConfig {
         if (GrouperUtil.length(groupResult) >= 1) {
           groupResult[0] = group;
         }
+        GroupFinder.groupCacheAsRootAddSystemGroup(group);
         return CheckGroupResult.EXISTS;
       }
     } catch (Exception e) {
@@ -184,6 +189,7 @@ public class GrouperCheckConfig {
         Group group = Group.saveGroup(grouperSession, null, null, groupName, displayExtension, groupDescription, null, true);
         if (GrouperUtil.length(groupResult) >= 1) {
           groupResult[0] = group;
+          GroupFinder.groupCacheAsRootAddSystemGroup(group);
         }
         if (logAutocreate) {
           String error = "auto-created " + propertyDescription + ": " + groupName;
@@ -1738,6 +1744,10 @@ public class GrouperCheckConfig {
     return rootStemName;
   }
   
+  /**
+   * 
+   * @return the stem name
+   */
   public static String loaderMetadataStemName() {
     return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:loaderMetadata";
   }
@@ -1767,6 +1777,9 @@ public class GrouperCheckConfig {
         startedGrouperSession = true;
       }
       
+      //clear this for tests
+      ExpirableCache.clearAll();
+        
       legacyAttributeBaseStem(grouperSession);
       
       {
@@ -1786,6 +1799,8 @@ public class GrouperCheckConfig {
         AttributeDef externalSubjectInviteType = new AttributeDefSave(grouperSession).assignName(externalSubjectInviteDefName)
           .assignToStem(true).assignMultiAssignable(true).assignAttributeDefType(AttributeDefType.type).save();
           
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(externalSubjectInviteType);
+        
         //add a name
         AttributeDefName externalSubjectInvite = checkAttribute(externalSubjectStem, externalSubjectInviteType, "externalSubjectInvite", "is an invite", wasInCheckConfig);
         
@@ -1800,6 +1815,9 @@ public class GrouperCheckConfig {
           externalSubjectInviteAttrType.setValueType(AttributeDefValueType.string);
           externalSubjectInviteAttrType.store();
         }
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(externalSubjectInviteAttrType);
+        
 
         //the attributes can only be assigned to the type def
         // try an attribute def dependent on an attribute def name
@@ -1847,14 +1865,15 @@ public class GrouperCheckConfig {
           Group groupMessagingRoleGroup = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
               grouperMessageNameOfRole, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.role));
           if (groupMessagingRoleGroup == null) {
-            Role groupMessagingRole = messagesStem.addChildRole(GrouperUtil.extensionFromName(grouperMessageNameOfRole), 
+            groupMessagingRoleGroup = (Group)messagesStem.addChildRole(GrouperUtil.extensionFromName(grouperMessageNameOfRole), 
                 GrouperUtil.extensionFromName(grouperMessageNameOfRole));
             if (wasInCheckConfig) {
-              String error = "auto-created role: " + groupMessagingRole.getName();
+              String error = "auto-created role: " + groupMessagingRoleGroup.getName();
               System.err.println("Grouper note: " + error);
               LOG.warn(error);
             }
           }
+          GroupFinder.groupCacheAsRootAddSystemGroup(groupMessagingRoleGroup);
         }
 
         {
@@ -1874,6 +1893,10 @@ public class GrouperCheckConfig {
             }
             
           }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(grouperMessageTopicDef);
+          
+
           grouperMessageTopicDef.getAttributeDefActionDelegate().configureActionList(GrouperBuiltinMessagingSystem.actionSendToTopic);
         }
 
@@ -1893,6 +1916,8 @@ public class GrouperCheckConfig {
               LOG.warn(error);
             }
           }
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(grouperMessageQueueDef);
+
           grouperMessageQueueDef.getAttributeDefActionDelegate().configureActionList(
               GrouperBuiltinMessagingSystem.actionSendToQueue + "," + GrouperBuiltinMessagingSystem.actionReceive);
         }
@@ -1941,9 +1966,6 @@ public class GrouperCheckConfig {
             .save();
         }
 
-        //clear this for tests
-        GrouperAttestationJob.clearCaches();
-
         //see if attributeDef is there
         String attestationTypeDefName = attestationRootStemName + ":attestationDef";
         AttributeDef attestationType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
@@ -1955,6 +1977,9 @@ public class GrouperCheckConfig {
           attestationType.store();
         }
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attestationType);
+        
+
         //add a name
         AttributeDefName attribute = checkAttribute(attestationStem, attestationType, "attestation", "has attestation attributes", wasInCheckConfig);
         
@@ -1969,6 +1994,8 @@ public class GrouperCheckConfig {
           attestationAttrType.setValueType(AttributeDefValueType.string);
           attestationAttrType.store();
         }
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attestationAttrType);
 
         //the attributes can only be assigned to the type def
         // try an attribute def dependent on an attribute def name
@@ -2016,6 +2043,8 @@ public class GrouperCheckConfig {
           loaderMetadataType.store();
         }
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(loaderMetadataType);
+
         //add a name
         AttributeDefName attribute = checkAttribute(loaderMetadataStem, loaderMetadataType, "loaderMetadata", "has metadata attributes", wasInCheckConfig);
         
@@ -2030,12 +2059,14 @@ public class GrouperCheckConfig {
           loaderMetadataAttrType.store();
         }
 
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(loaderMetadataAttrType);
+
         //the attributes can only be assigned to the type def
         // try an attribute def dependent on an attribute def name
         loaderMetadataAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
 
         //add some names
-        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, 
+        checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, 
             "True means the group was loaded from loader", wasInCheckConfig);
         checkAttribute(loaderMetadataStem, loaderMetadataAttrType, GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID,
             "Group id which is being populated from the loader", wasInCheckConfig);
@@ -2070,6 +2101,8 @@ public class GrouperCheckConfig {
           ruleType.store();
         }
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(ruleType);
+
         //add a name
         AttributeDefName rule = checkAttribute(rulesStem, ruleType, "rule", "is a rule", wasInCheckConfig);
         
@@ -2085,6 +2118,8 @@ public class GrouperCheckConfig {
           ruleAttrType.setValueType(AttributeDefValueType.string);
           ruleAttrType.store();
         }
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(ruleAttrType);
 
         //if not configured properly, configure it properly
         if (!ruleAttrType.isAssignToAttributeDefAssn()) {
@@ -2180,6 +2215,8 @@ public class GrouperCheckConfig {
           
         }
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(limitDef);
+
         //add an el
         {
           String elDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitExpression"), "Expression");
@@ -2229,6 +2266,8 @@ public class GrouperCheckConfig {
           }
         }
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(limitDefInt);
+
         {
           String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThan"), "amount less than");
           checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN, limitAmountLessThanDisplayExtension, 
@@ -2266,6 +2305,8 @@ public class GrouperCheckConfig {
             limitDefMarker.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
           }
         }
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(limitDefMarker);
         
         {
           String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitWeekday9to5"), "Weekday 9 to 5");
@@ -2298,6 +2339,8 @@ public class GrouperCheckConfig {
           attributeDefType.store();
         }
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attributeDefType);
+        
         //add a name
         attributeLoaderTypeName = checkAttribute(loaderStem, attributeDefType, "attributeLoader", 
             "is a loader based attribute def, the loader attributes will be available to be assigned", wasInCheckConfig);
@@ -2312,6 +2355,8 @@ public class GrouperCheckConfig {
           attributeDef.setValueType(AttributeDefValueType.string);
           attributeDef.store();
         }
+        
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attributeDef);
         
         //make sure the other def means this one is allowed
         attributeDef.getAttributeDefScopeDelegate().assignTypeDependence(attributeLoaderTypeName);
@@ -2363,6 +2408,8 @@ public class GrouperCheckConfig {
             loaderLdapDef.store();
           }
           
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(loaderLdapDef);
+          
           //add an attribute for the loader ldap marker
           {
             checkAttribute(loaderLdapStem, loaderLdapDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MARKER, "Grouper loader LDAP", 
@@ -2380,6 +2427,8 @@ public class GrouperCheckConfig {
             loaderLdapValueDef.setValueType(AttributeDefValueType.string);
             loaderLdapValueDef.store();
           }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(loaderLdapValueDef);
           
           //add an attribute for the loader ldap marker
           {
@@ -2560,6 +2609,9 @@ public class GrouperCheckConfig {
             instancesDef.setValueType(AttributeDefValueType.marker);
             instancesDef.store();
           }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(instancesDef);
+          
         }
         
         {
@@ -2573,6 +2625,9 @@ public class GrouperCheckConfig {
             collectorsDef.setValueType(AttributeDefValueType.marker);
             collectorsDef.store();
           }
+
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(collectorsDef);
+          
         }
         
         {
@@ -2587,6 +2642,8 @@ public class GrouperCheckConfig {
             countsDef.setMultiValued(true);
             countsDef.store();
           }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(countsDef);
           
           String countsDefNameName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR;
           
@@ -2609,6 +2666,8 @@ public class GrouperCheckConfig {
             detailsDef.setValueType(AttributeDefValueType.string);
             detailsDef.store();
           }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(detailsDef);
           
           {
             String lastUpdateName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR;
@@ -2656,6 +2715,8 @@ public class GrouperCheckConfig {
             detailsDef.store();
           }
           
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(detailsDef);
+          
           {
             String lastUpdateName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR;
             
@@ -2685,7 +2746,8 @@ public class GrouperCheckConfig {
           Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
               groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
           if (group == null) {
-            instrumentationDataRootStem.addChildGroup(InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP);
+            group = instrumentationDataRootStem.addChildGroup(InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_GROUP);
+            GroupFinder.groupCacheAsRootAddSystemGroup(group);
           }
         }
         
@@ -2695,7 +2757,8 @@ public class GrouperCheckConfig {
           Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
               groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
           if (group == null) {
-            instrumentationDataRootStem.addChildGroup(InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP);
+            group = instrumentationDataRootStem.addChildGroup(InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_GROUP);
+            GroupFinder.groupCacheAsRootAddSystemGroup(group);
           }
         }
       }
@@ -2722,6 +2785,8 @@ public class GrouperCheckConfig {
             userDataDef.store();
           }
           
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(userDataDef);
+          
           //add an attribute for the loader ldap marker
           {
             checkAttribute(userDataStem, userDataDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_MARKER, "Grouper user data", 
@@ -2739,6 +2804,8 @@ public class GrouperCheckConfig {
             userDataValueDef.setValueType(AttributeDefValueType.string);
             userDataValueDef.store();
           }
+          
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(userDataValueDef);
           
           //add an attribute for the loader ldap marker
           {
@@ -2801,6 +2868,8 @@ public class GrouperCheckConfig {
           .assignAttributeDefPublic(true).assignAttributeDefType(AttributeDefType.attr)
           .assignMultiAssignable(false).assignMultiValued(false).assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
         
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(entityIdDef);
+        
         if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.allow.everyEntity.privileges", true)) {
           
           //this is publicly assignable and readable
@@ -2821,7 +2890,18 @@ public class GrouperCheckConfig {
         }
         
       }
-      
+      {
+        // if ignored from change log then it should be cached if not already
+        for (String attributeDefId : GrouperUtil.nonNull(GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit())) {
+          AttributeDef attributeDef = AttributeDefFinder.findByIdAsRoot(attributeDefId, false);
+          Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attributeDef);
+        }
+        // if ignored from change log then it should be cached if not already
+        for (String attributeDefNameId : GrouperUtil.nonNull(GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit())) {
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
+          Hib3AttributeDefNameDAO.attributeDefNameCacheAsRootIdsAndNamesAdd(attributeDefName);
+        }
+      }
     } catch (SessionException se) {
       throw new RuntimeException(se);
     } finally {

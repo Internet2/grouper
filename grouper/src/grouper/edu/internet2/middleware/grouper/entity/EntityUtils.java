@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.entity;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
@@ -60,7 +61,7 @@ public class EntityUtils {
    * @return attribute def name
    */
   public static AttributeDefName entitySubjectIdentifierAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(entitySubjectIdentifierName(), true);
+    return AttributeDefNameFinder.findByName(entitySubjectIdentifierName(), true);
   }
 
 

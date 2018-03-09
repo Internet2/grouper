@@ -48,8 +48,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
@@ -77,27 +79,26 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
-  private static        GrouperCache<String, Boolean>    existsCache     =  null;
-  
-  
-    
-
-  
   
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
-
-  private static        GrouperCache<String, Member>  uuid2dtoCache   = null;
-
-
-
-
-
 
   /**
    * number of subjects to put in member query
    */
   public static int MEMBER_SUBJECT_BATCH_SIZE = 80;
-  
+
+  /**
+   * config key for caching
+   */
+  private static final String GROUPER_FLASHCACHE_MEMBERS_IN_FINDER = "grouper.flashcache.members.in.finder";
+
+  /**
+   *  multikey is either:
+   *  uuid / <theUuid>
+   *  sourceIdSubjectId / <theSourceId> / <theSubjectId>
+   */
+  private static GrouperCache<MultiKey, Member> membersFlashCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.memberFlashCache");
 
   /**
    * @since   @HEAD@
@@ -114,30 +115,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   public boolean exists(String uuid) 
     throws  GrouperDAOException
   {
-    if ( getExistsCache().containsKey(uuid) ) {
-      return getExistsCache().get(uuid).booleanValue();
-    }
-    Object id = null;
-    try {
-      id = HibernateSession.byHqlStatic()
-        .createQuery("select m.id from Member as m where m.uuid = :uuid")
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".Exists")
-        .setString("uuid", uuid).uniqueResult(Object.class);
-    } catch (GrouperDAOException gde) {
-      Throwable throwable = gde.getCause();
-      //CH 20080218 this was legacy error handling
-      if (throwable instanceof HibernateException) {
-        LOG.fatal( throwable.getMessage() );
-      }
-      throw gde;
-    }
-    boolean rv  = false;
-    if ( id != null ) {
-      rv = true; 
-    }
-    getExistsCache().put(uuid, rv);
-    return rv;
+    return findByUuid(uuid, false) != null;
   } 
   
   /**
@@ -291,32 +269,37 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    */
   public Member findBySubject(String id, String src, String type, boolean exceptionIfNull, QueryOptions queryOptions)
       throws GrouperDAOException, MemberNotFoundException {
-    Member member = null;
     
-    member = HibernateSession.byHqlStatic()
-      .createQuery("from Member as m where "
-        + "     m.subjectIdDb       = :sid    "  
-        + "and  m.subjectSourceIdDb = :source "
-        + "and  m.subjectTypeId   = :type")
-        .setCacheable(true)
-        .setCacheRegion(KLASS + ".FindBySubject")
-        .options(queryOptions)
-        .setString( "sid",    id   )
-        .setString( "type",   type )
-        .setString( "source", src  )
-        .uniqueResult(Member.class);
+    Member member = membersFlashCacheRetrieveBySubjectId(src, id, queryOptions);
+    
+    if (member == null) {
+      member = HibernateSession.byHqlStatic()
+          .createQuery("from Member as m where "
+            + "     m.subjectIdDb       = :sid    "  
+            + "and  m.subjectSourceIdDb = :source "
+            + "and  m.subjectTypeId   = :type")
+            .setCacheable(true)
+            .setCacheRegion(KLASS + ".FindBySubject")
+            .options(queryOptions)
+            .setString( "sid",    id   )
+            .setString( "type",   type )
+            .setString( "source", src  )
+            .uniqueResult(Member.class);
+          
+      if (exceptionIfNull && member == null) {
+        throw new MemberNotFoundException();
+      }
       
-    if (exceptionIfNull && member == null) {
-      throw new MemberNotFoundException();
+      //dont cache this
+      if (!exceptionIfNull && member == null) {
+        return null;
+      }
+
+      membersFlashCacheAddIfSupposedTo(member);
+        
     }
-    
-    //dont cache this
-    if (!exceptionIfNull && member == null) {
-      return null;
-    }
-    
-    getUuid2dtoCache().put( member.getUuid(), member );
     return member;
+    
   }
 
 
@@ -338,30 +321,30 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       throws GrouperDAOException, MemberNotFoundException {
     Member memberDto = null;
     if (!StringUtils.isBlank(uuid)) {
-      if ( getUuid2dtoCache().containsKey(uuid) ) {
-        return getUuid2dtoCache().get(uuid);
-      }
-      
-      try {
-        memberDto = HibernateSession.byHqlStatic()
-        .createQuery("from Member as m where m.uuid = :uuid")
-        .setCacheable(false) // but i probably should - or at least permit it
-        //.setCacheRegion(KLASS + ".FindByUuid")
-        .setString("uuid", uuid).uniqueResult(Member.class);
-      } catch (GrouperDAOException gde) {
-        Throwable throwable = gde.getCause();
-        //CH 20080218 this was legacy error handling
-        if (throwable instanceof HibernateException) {
-          LOG.fatal( throwable.getMessage() );
+      memberDto = membersFlashCacheRetrieveById(uuid, null);
+
+      if (memberDto == null) {
+        try {
+          memberDto = HibernateSession.byHqlStatic()
+            .createQuery("from Member as m where m.uuid = :uuid")
+            .setCacheable(false) // but i probably should - or at least permit it
+            //.setCacheRegion(KLASS + ".FindByUuid")
+            .setString("uuid", uuid).uniqueResult(Member.class);
+
+          membersFlashCacheAddIfSupposedTo(memberDto);
+
+        } catch (GrouperDAOException gde) {
+          Throwable throwable = gde.getCause();
+          //CH 20080218 this was legacy error handling
+          if (throwable instanceof HibernateException) {
+            LOG.fatal( throwable.getMessage() );
+          }
+          throw gde;
         }
-        throw gde;
       }
     }
     if (memberDto == null && exceptionIfNull) {
       throw new MemberNotFoundException();
-    }
-    if (memberDto != null && uuid != null) {
-      getUuid2dtoCache().put(uuid, memberDto);
     }
     return memberDto;
   }
@@ -374,16 +357,22 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @param uuid
    * @param exists
    */
+  @Deprecated
   public void existsCachePut(String uuid, boolean exists) {
-	  getExistsCache().put( uuid, exists );
   }
   
   /**
    * remove from cache
    * @param uuid
    */
+  @Deprecated
   public void uuid2dtoCacheRemove(String uuid) {
-	  getUuid2dtoCache().remove(uuid);
+    
+    Member member = membersFlashCacheRetrieveById(uuid, null);
+    if (member != null) {
+      membersFlashCache.remove(membersFlashCacheMultikeyById(uuid));
+      membersFlashCache.remove(membersFlashCacheMultikeyBySubjectId(member.getSubjectSourceId(), member.getSubjectId()));
+    }
   }
   
   /**
@@ -393,7 +382,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     throws  GrouperDAOException {
     
     HibernateSession.byObjectStatic().update(_m);
-    
+    uuid2dtoCacheRemove(_m.getId());
   } 
 
 
@@ -406,7 +395,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     hibernateSession.byHql().createQuery("delete from Member as m where m.subjectSourceIdDb != 'g:isa'")
       .executeUpdate();
     
-    getExistsCache().clear();
+    membersFlashCache.clear();
   }
 
   /**
@@ -439,7 +428,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       throw new MemberNotUniqueException("Subject id '" + subjectId + "' is not unique in the members table");
     }
     Member member = members.get(0);
-    getUuid2dtoCache().put(member.getUuid(), member);
+    membersFlashCacheAddIfSupposedTo(member);
     return member;
   }
 
@@ -458,43 +447,21 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    */
   public Member findBySubject(String subjectId, String src, boolean exceptionIfNull)
       throws GrouperDAOException, MemberNotFoundException {
-    Member member = HibernateSession.byHqlStatic().createQuery(
-        "from Member as m where " + "     m.subjectIdDb       = :sid    "
-            + "and  m.subjectSourceIdDb = :source ").setCacheable(true).setCacheRegion(
-        KLASS + ".FindBySubjectIdSrc").setString("sid", subjectId).setString("source",
-        src).uniqueResult(Member.class);
-    if (member == null && exceptionIfNull) {
-      throw new MemberNotFoundException();
+    
+    Member member = membersFlashCacheRetrieveBySubjectId(src, subjectId, null);
+    
+    if (member == null) {
+      member = HibernateSession.byHqlStatic().createQuery(
+          "from Member as m where " + "     m.subjectIdDb       = :sid    "
+              + "and  m.subjectSourceIdDb = :source ").setCacheable(true).setCacheRegion(
+          KLASS + ".FindBySubjectIdSrc").setString("sid", subjectId).setString("source",
+          src).uniqueResult(Member.class);
+      membersFlashCacheAddIfSupposedTo(member);
     }
-    if (member != null) {
-      getUuid2dtoCache().put(member.getUuid(), member);
+    if (member == null && exceptionIfNull) {
+      throw new MemberNotFoundException("Cant find member by source '" + src + "' and subjectId '" + subjectId + "'");
     }
     return member;
-  }
-
-  
-  private static GrouperCache<String, Boolean> getExistsCache() {
-    if(existsCache==null) {
-      synchronized(Hib3MemberDAO.class) {
-    	  if(existsCache==null) {
-    		  existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
-    	          1000, false, 30, 120, false); 
-    	  }
-      }
-    }
-	  return existsCache;
-  }
-  
-  private static GrouperCache<String, Member> getUuid2dtoCache() {
-    if(uuid2dtoCache==null) {
-      synchronized(Hib3MemberDAO.class) {
-    	  if(uuid2dtoCache==null) {
-    		  uuid2dtoCache=new GrouperCache<String, Member>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.uuid2dtoCache",
-    	          1000, false, 30, 120, false); 
-    	  }
-      }
-    }
-	  return uuid2dtoCache;
   }
 
   /**
@@ -583,66 +550,81 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @return the members
    */
   public Set<Member> findBySubjects(
-      Collection<Subject> subjects, boolean createIfNotExists) {
+      Collection<Subject> subjectsOrig, boolean createIfNotExists) {
     
     Set<Member> result = new TreeSet<Member>();
     
-    if (GrouperUtil.length(subjects) == 0) {
+    if (GrouperUtil.length(subjectsOrig) == 0) {
       return result;
     }
     
-    //lets do this in batches
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, MEMBER_SUBJECT_BATCH_SIZE);
-
-    List<Subject> subjectsList = subjects instanceof List ? (List)subjects : new ArrayList<Subject>(subjects);
-    
-    for (int i=0;i<numberOfBatches;i++) {
-
-      List<Subject> subjectBatch = GrouperUtil.batchList(subjectsList, MEMBER_SUBJECT_BATCH_SIZE, i);
-
-//      select distinct gm.* 
-//      from grouper_members gm
-//      where (gm.subject_id = '123' and gm.subject_source = 'jdbc') 
-//          or (gm.subject_id = '234' and gm.subject_source = 'jdbc' )
-
-      //lets turn the subjects into subjectIds
-      if (GrouperUtil.length(subjectBatch) == 0) {
-        continue;
+    List<Subject> subjectsNeedQuery = new ArrayList<Subject>();
+    for (Subject subject : subjectsOrig) {
+      Member member = membersFlashCacheRetrieveBySubjectId(subject.getSourceId(), subject.getId(), null);
+      if (member != null) {
+        result.add(member);
+      } else {
+        subjectsNeedQuery.add(subject);
       }
-
-      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-      StringBuilder query = new StringBuilder("select distinct gm " +
-          "from Member gm " +
-          "where ");
+    }
+    if (GrouperUtil.length(subjectsNeedQuery) > 0) {
+      //lets do this in batches
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectsNeedQuery, MEMBER_SUBJECT_BATCH_SIZE);
+  
+      List<Subject> subjectsList = subjectsNeedQuery instanceof List ? (List)subjectsNeedQuery : new ArrayList<Subject>(subjectsNeedQuery);
       
-      //add all the uuids
-      query.append(HibUtils.convertToSubjectInClause(subjectBatch, byHqlStatic, "gm"));
-      List<Member> currentMemberList = byHqlStatic.createQuery(query.toString())
-        .list(Member.class);
-      result.addAll(currentMemberList);
-      
-      if (createIfNotExists) {
+      for (int i=0;i<numberOfBatches;i++) {
+  
+        List<Subject> subjectBatch = GrouperUtil.batchList(subjectsList, MEMBER_SUBJECT_BATCH_SIZE, i);
+  
+  //      select distinct gm.* 
+  //      from grouper_members gm
+  //      where (gm.subject_id = '123' and gm.subject_source = 'jdbc') 
+  //          or (gm.subject_id = '234' and gm.subject_source = 'jdbc' )
+  
+        //lets turn the subjects into subjectIds
+        if (GrouperUtil.length(subjectBatch) == 0) {
+          continue;
+        }
+  
+        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+        StringBuilder query = new StringBuilder("select distinct gm " +
+            "from Member gm " +
+            "where ");
         
-        //see which ones we've got
-        Set<MultiKey> subjectsRetrieved = new HashSet<MultiKey>();
+        //add all the uuids
+        query.append(HibUtils.convertToSubjectInClause(subjectBatch, byHqlStatic, "gm"));
+        List<Member> currentMemberList = byHqlStatic.createQuery(query.toString())
+          .list(Member.class);
         
-        for (Member member : currentMemberList) {
-          MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
-          subjectsRetrieved.add(multiKey);
+        for (Member member : GrouperUtil.nonNull(currentMemberList)) {
+          membersFlashCacheAddIfSupposedTo(member);
         }
         
-        //loop through what we were supposed to get
-        for (Subject subject : subjectBatch) {
-          MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
-          if (!subjectsRetrieved.contains(multiKey)) {
-            //create and add to results
-            Member member = MemberFinder.internal_createMember(subject, null);
-            result.add(member);
+        result.addAll(currentMemberList);
+        
+        if (createIfNotExists) {
+          
+          //see which ones we've got
+          Set<MultiKey> subjectsRetrieved = new HashSet<MultiKey>();
+          
+          for (Member member : currentMemberList) {
+            MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+            subjectsRetrieved.add(multiKey);
+          }
+          
+          //loop through what we were supposed to get
+          for (Subject subject : subjectBatch) {
+            MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
+            if (!subjectsRetrieved.contains(multiKey)) {
+              //create and add to results
+              Member member = MemberFinder.internal_createMember(subject, null);
+              result.add(member);
+              membersFlashCacheAddIfSupposedTo(member);
+            }
           }
         }
       }
-      
-      
     }
     return result;
 
@@ -720,6 +702,10 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       List<Member> currentMemberList = byHqlStatic.createQuery(query.toString())
         .list(Member.class);
       result.addAll(currentMemberList);
+      for (Member member : GrouperUtil.nonNull(currentMemberList)) {
+        membersFlashCacheAddIfSupposedTo(member);
+      }
+
     }
     return result;
 
@@ -730,7 +716,15 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    */
   public Member findByUuidOrSubject(String uuid, String subjectId, String source,
       boolean exceptionIfNull) {
-    Member member = HibernateSession.byHqlStatic().createQuery(
+    Member member = null;
+    if (member == null && !StringUtils.isBlank(uuid)) {
+      member = membersFlashCacheRetrieveById(uuid, null);
+    }
+    if (member == null && !StringUtils.isBlank(source) && !StringUtils.isBlank(subjectId)) {
+      member = membersFlashCacheRetrieveBySubjectId(source, subjectId, null);
+    }
+    if (member == null && !StringUtils.isBlank(uuid) && !StringUtils.isBlank(source) && !StringUtils.isBlank(subjectId)) {
+      member = HibernateSession.byHqlStatic().createQuery(
         "from Member as m where (m.subjectIdDb = :sid    "
             + "and  m.subjectSourceIdDb = :source) or m.uuid = :uuid ")
         .setCacheable(true)
@@ -739,8 +733,10 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .setString("source", source)
         .setString("uuid", uuid)
         .uniqueResult(Member.class);
+      membersFlashCacheAddIfSupposedTo(member);
+    }
     if (member == null && exceptionIfNull) {
-      throw new MemberNotFoundException();
+      throw new MemberNotFoundException("Cant find member by id '" + uuid + "', source '" + source + "' and subjectId '" + subjectId + "'");
     }
     return member;
   }
@@ -789,42 +785,207 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @see MemberDAO#findByIds(Collection, QueryOptions)
    */
   @Override
-  public Set<Member> findByIds(Collection<String> ids,
+  public Set<Member> findByIds(Collection<String> idsOrig,
       QueryOptions queryOptions) {
 
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 180);
-    
     Set<Member> members = new HashSet<Member>();
     
-    List<String> idsList = GrouperUtil.listFromCollection(ids);
+    if (GrouperUtil.length(idsOrig) == 0) {
+      return members;
+    }
     
-    for (int i=0;i<numberOfBatches;i++) {
-      
-      List<String> uuidsBatch = GrouperUtil.batchList(idsList, 180, i);
-      
-      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    List<String> idsNeedQuery = new ArrayList<String>();
 
-      StringBuilder sql = new StringBuilder("select distinct theMember from Member as theMember ");
+    for (String id : idsOrig) {
+      Member member = membersFlashCacheRetrieveById(id, queryOptions);
+      if (member != null) {
+        members.add(member);
+      } else {
+        idsNeedQuery.add(id);
+      }
+    }
+
+    if (GrouperUtil.length(idsNeedQuery) > 0) {
       
-      sql.append(" where ");
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsNeedQuery, 180);
       
-      sql.append(" theMember.id in ( ");
+      List<String> idsList = GrouperUtil.listFromCollection(idsNeedQuery);
       
-      sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
-      
-      byHqlStatic
-        .createQuery(sql.toString())
-        .setCacheable(true)
-        .options(queryOptions)
-        .setCacheRegion(KLASS + ".FindByUuidsSecure");
-      
-      Set<Member> membersBatch = byHqlStatic.listSet(Member.class);
-      
-      members.addAll(GrouperUtil.nonNull(membersBatch));
-      
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<String> uuidsBatch = GrouperUtil.batchList(idsList, 180, i);
+        
+        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+        StringBuilder sql = new StringBuilder("select distinct theMember from Member as theMember ");
+        
+        sql.append(" where ");
+        
+        sql.append(" theMember.id in ( ");
+        
+        sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
+        
+        byHqlStatic
+          .createQuery(sql.toString())
+          .setCacheable(true)
+          .options(queryOptions)
+          .setCacheRegion(KLASS + ".FindByUuidsSecure");
+        
+        Set<Member> membersBatch = byHqlStatic.listSet(Member.class);
+        
+        members.addAll(GrouperUtil.nonNull(membersBatch));
+        
+        for (Member member : membersBatch) {
+          membersFlashCacheAddIfSupposedTo(member);
+        }
+      }
     }
     
     return members;
+  }
+
+  /**
+   * see if this is cacheable
+   * @param sourceId
+   * @param subjectId
+   * @param queryOptions 
+   * @return if cacheable
+   */
+  private static boolean membersFlashCacheableBySubjectId(String sourceId, String subjectId, QueryOptions queryOptions) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_MEMBERS_IN_FINDER, true)) {
+      return false;
+    }
+  
+    if (StringUtils.isBlank(sourceId) || StringUtils.isBlank(subjectId)) {
+      return false;
+    }
+  
+    if (queryOptions != null 
+        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+      return false;
+    }
+    
+    return true;
+
+  }
+
+  /**
+   * see if this is cacheable
+   * @param id
+   * @param queryOptions 
+   * @return if cacheable
+   */
+  private static boolean membersFlashCacheableById(Object id, QueryOptions queryOptions) {
+  
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_MEMBERS_IN_FINDER, true)) {
+      return false;
+    }
+  
+    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+      return false;
+    }
+  
+    if (queryOptions != null 
+        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * add group to cache if not null
+   * @param member
+   */
+  private static void membersFlashCacheAddIfSupposedTo(Member member) {
+    if (member == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_MEMBERS_IN_FINDER, true)) {
+      return;
+    }
+
+    MultiKey multiKey = membersFlashCacheMultikeyById(member.getId());
+    if (multiKey != null) {
+      membersFlashCache.put(multiKey, member);
+    }
+    
+    multiKey = membersFlashCacheMultikeyBySubjectId(member.getSubjectSourceId(), member.getSubjectId());
+    if (multiKey != null) {
+      membersFlashCache.put(multiKey, member);
+    }
+    
+  }
+
+  /**
+   * multikey
+   * @param id
+   * @return if cacheable
+   */
+  private static MultiKey membersFlashCacheMultikeyById(Object id) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_MEMBERS_IN_FINDER, true)) {
+      return null;
+    }
+  
+    //return new MultiKey("sourceIdSubjectId", sourceId, subjectId);
+    return new MultiKey("uuid", id);
+  }
+
+  /**
+   * multikey
+   * @param sourceId
+   * @param subjectId
+   * @return if cacheable
+   */
+  private static MultiKey membersFlashCacheMultikeyBySubjectId(String sourceId, String subjectId) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_MEMBERS_IN_FINDER, true)) {
+      return null;
+    }
+  
+    return new MultiKey("sourceIdSubjectId", sourceId, subjectId);
+  }
+
+  /**
+   * get a member fom flash cache
+   * @param id
+   * @param queryOptions
+   * @return the stem or null
+   */
+  private static Member membersFlashCacheRetrieveById(Object id, QueryOptions queryOptions) {
+    if (membersFlashCacheableById(id, queryOptions)) {
+      MultiKey membersFlashKey = membersFlashCacheMultikeyById(id);
+      //see if its already in the cache
+      Member member = membersFlashCache.get(membersFlashKey);
+      if (member != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from member flash cache by id: " + member.getName());
+        }
+        return member;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get a member fom flash cache
+   * @param sourceId
+   * @param subjectId
+   * @param queryOptions
+   * @return the stem or null
+   */
+  private static Member membersFlashCacheRetrieveBySubjectId(String sourceId, String subjectId, QueryOptions queryOptions) {
+    if (membersFlashCacheableBySubjectId(sourceId, subjectId, queryOptions)) {
+      MultiKey membersFlashKey = membersFlashCacheMultikeyBySubjectId(sourceId, subjectId);
+      //see if its already in the cache
+      Member member = membersFlashCache.get(membersFlashKey);
+      if (member != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from member flash cache by subjectId: " + sourceId + ", " + subjectId);
+        }
+        return member;
+      }
+    }
+    return null;
   }
 
 } 

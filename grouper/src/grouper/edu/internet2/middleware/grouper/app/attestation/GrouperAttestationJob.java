@@ -34,14 +34,11 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -66,8 +63,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameEmailedDate() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_LAST_EMAILED_DATE);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_LAST_EMAILED_DATE, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation emailed date attribute def name be found?");
@@ -87,8 +84,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameCalculatedDaysLeft() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_CALCULATED_DAYS_LEFT);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_CALCULATED_DAYS_LEFT, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation calculated days attribute def name be found?");
@@ -97,9 +94,13 @@ public class GrouperAttestationJob extends OtherJobBase {
 
   }
   
+  /**
+   * 
+   * @return the def
+   */
   public static AttributeDef retrieveAttributeDef() {
-    AttributeDef attributeDef = retrieveAttributeDefFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DEF);
+    AttributeDef attributeDef = AttributeDefFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DEF, false);
     
     if (attributeDef == null) {
       throw new RuntimeException("Why cant attestation attributeDef not be found?");
@@ -119,8 +120,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameSendEmail() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_SEND_EMAIL);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_SEND_EMAIL, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation send email attribute def name be found?");
@@ -140,8 +141,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameHasAttestation() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_HAS_ATTESTATION);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_HAS_ATTESTATION, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation has attestation attribute def name be found?");
@@ -162,7 +163,7 @@ public class GrouperAttestationJob extends OtherJobBase {
           + GrouperAttestationJob.attestationStemName() + ":' ???? '" + nameOfAttributeDefName + "'");
     }
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(nameOfAttributeDefName);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(nameOfAttributeDefName, true);
     
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation attribute def name be found?");
@@ -182,7 +183,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameDateCertified() {
 
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DATE_CERTIFIED);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DATE_CERTIFIED, true);
     
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation date certified attribute def name be found?");
@@ -191,78 +192,6 @@ public class GrouperAttestationJob extends OtherJobBase {
 
   }  
 
-  /** attribute def name cache */
-  private static ExpirableCache<String, AttributeDefName> attributeDefNameCache = new ExpirableCache<String, AttributeDefName>(5);
-  
-  /**
-   * clear caches
-   */
-  public static void clearCaches() {
-    attributeDefCache.clear();
-    attributeDefNameCache.clear();
-  }
-  
-  /**
-   * cache this.  note, not sure if its necessary
-   */
-  private static AttributeDefName retrieveAttributeDefNameFromDbOrCache(final String name) {
-    
-    AttributeDefName attributeDefName = attributeDefNameCache.get(name);
-
-    if (attributeDefName == null) {
-      
-      attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-
-        @Override
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          
-          return AttributeDefNameFinder.findByName(name, false);
-          
-        }
-        
-      });
-      if (attributeDefName == null) {
-        return null;
-      }
-      attributeDefNameCache.put(name, attributeDefName);
-    }
-    
-    return attributeDefName;
-  }
-  
-  /** attribute def cache */
-  private static ExpirableCache<String, AttributeDef> attributeDefCache = new ExpirableCache<String, AttributeDef>(5);
-  
-  /**
-   * cache this.  note, not sure if its necessary
-   */
-  private static AttributeDef retrieveAttributeDefFromDbOrCache(final String name) {
-    
-    AttributeDef attributeDef = attributeDefCache.get(name);
-
-    if (attributeDef == null) {
-      
-      attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-
-        @Override
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          
-          return AttributeDefFinder.findByName(name, false);
-          
-        }
-        
-      });
-      if (attributeDef == null) {
-        return null;
-      }
-      attributeDefCache.put(name, attributeDef);
-    }
-    
-    return attributeDef;
-  }
-  
   /**
    * 
    */
@@ -278,8 +207,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameDaysUntilRecertify() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation days until recertify attribute def name be found?");
@@ -300,8 +229,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameDaysBeforeToRemind() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation days before to remind attribute def name be found?");
@@ -321,8 +250,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameEmailAddresses() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation email addresses attribute def name be found?");
@@ -343,8 +272,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameDirectAssignment() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DIRECT_ASSIGNMENT);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DIRECT_ASSIGNMENT, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation direct assignment attribute def name be found?");
@@ -364,8 +293,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameValueDef() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation value def attribute def name be found?");
@@ -385,8 +314,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameStemScope() {
 
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_STEM_SCOPE);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_STEM_SCOPE, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation def name for stem scope be found?");

@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
@@ -213,18 +215,14 @@ public class TestStemApi extends GrouperTest {
     top2.store();
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child:child attr def2", true);
     
-    AttributeDefName topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    AttributeDefName childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name", true);
-    AttributeDefName childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2a", true);
-    AttributeDefName childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2b", true);
+    AttributeDefName topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    AttributeDefName childAttributeDefName = AttributeDefNameFinder.findByName("top:child:child attr def name", true);
+    AttributeDefName childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child:child attr def name2a", true);
+    AttributeDefName childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -253,18 +251,14 @@ public class TestStemApi extends GrouperTest {
     top2.move(top);
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child:child attr def2", true);
     
-    AttributeDefName topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    AttributeDefName childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name", true);
-    AttributeDefName childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2a", true);
-    AttributeDefName childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2b", true);
+    AttributeDefName topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    AttributeDefName childAttributeDefName = AttributeDefNameFinder.findByName("top:child:child attr def name", true);
+    AttributeDefName childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child:child attr def name2a", true);
+    AttributeDefName childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -291,18 +285,14 @@ public class TestStemApi extends GrouperTest {
     child.store();
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child2:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child2:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child2:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child2:child attr def2", true);
     
-    AttributeDefName topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    AttributeDefName childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child2:child attr def name", true);
-    AttributeDefName childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child2:child attr def name2a", true);
-    AttributeDefName childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child2:child attr def name2b", true);
+    AttributeDefName topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    AttributeDefName childAttributeDefName = AttributeDefNameFinder.findByName("top:child2:child attr def name", true);
+    AttributeDefName childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child2:child attr def name2a", true);
+    AttributeDefName childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child2:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child2 display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -314,18 +304,14 @@ public class TestStemApi extends GrouperTest {
     child.store();
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child3:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child3:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child3:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child3:child attr def2", true);
     
-    topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child3:child attr def name", true);
-    childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child3:child attr def name2a", true);
-    childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child3:child attr def name2b", true);
+    topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    childAttributeDefName = AttributeDefNameFinder.findByName("top:child3:child attr def name", true);
+    childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child3:child attr def name2a", true);
+    childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child3:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child2 display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -337,18 +323,14 @@ public class TestStemApi extends GrouperTest {
     child.store();
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child3:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child3:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child3:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child3:child attr def2", true);
     
-    topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child3:child attr def name", true);
-    childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child3:child attr def name2a", true);
-    childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child3:child attr def name2b", true);
+    topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    childAttributeDefName = AttributeDefNameFinder.findByName("top:child3:child attr def name", true);
+    childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child3:child attr def name2a", true);
+    childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child3:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child3 display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -361,18 +343,14 @@ public class TestStemApi extends GrouperTest {
     top.store();
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top3:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top3:child3:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top3:child3:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top3:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top3:child3:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top3:child3:child attr def2", true);
     
-    topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top3:top attr def name", true);
-    childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top3:child3:child attr def name", true);
-    childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top3:child3:child attr def name2a", true);
-    childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top3:child3:child attr def name2b", true);
+    topAttributeDefName = AttributeDefNameFinder.findByName("top3:top attr def name", true);
+    childAttributeDefName = AttributeDefNameFinder.findByName("top3:child3:child attr def name", true);
+    childAttributeDefName2a = AttributeDefNameFinder.findByName("top3:child3:child attr def name2a", true);
+    childAttributeDefName2b = AttributeDefNameFinder.findByName("top3:child3:child attr def name2b", true);
     
     assertEquals("top3 display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top3 display name:child3 display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -400,18 +378,14 @@ public class TestStemApi extends GrouperTest {
     child.move(newLocation);
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("new:child:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("new:child:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("new:child:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("new:child:child attr def2", true);
     
-    AttributeDefName topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    AttributeDefName childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:child:child attr def name", true);
-    AttributeDefName childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:child:child attr def name2a", true);
-    AttributeDefName childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:child:child attr def name2b", true);
+    AttributeDefName topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    AttributeDefName childAttributeDefName = AttributeDefNameFinder.findByName("new:child:child attr def name", true);
+    AttributeDefName childAttributeDefName2a = AttributeDefNameFinder.findByName("new:child:child attr def name2a", true);
+    AttributeDefName childAttributeDefName2b = AttributeDefNameFinder.findByName("new:child:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("new display name:child display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -422,18 +396,14 @@ public class TestStemApi extends GrouperTest {
     child.move(top);
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child:child attr def2", true);
     
-    topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name", true);
-    childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2a", true);
-    childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2b", true);
+    topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    childAttributeDefName = AttributeDefNameFinder.findByName("top:child:child attr def name", true);
+    childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child:child attr def name2a", true);
+    childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -444,18 +414,14 @@ public class TestStemApi extends GrouperTest {
     top.move(newLocation);
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("new:top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("new:top:child:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("new:top:child:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("new:top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("new:top:child:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("new:top:child:child attr def2", true);
     
-    topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:top:top attr def name", true);
-    childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:top:child:child attr def name", true);
-    childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:top:child:child attr def name2a", true);
-    childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("new:top:child:child attr def name2b", true);
+    topAttributeDefName = AttributeDefNameFinder.findByName("new:top:top attr def name", true);
+    childAttributeDefName = AttributeDefNameFinder.findByName("new:top:child:child attr def name", true);
+    childAttributeDefName2a = AttributeDefNameFinder.findByName("new:top:child:child attr def name2a", true);
+    childAttributeDefName2b = AttributeDefNameFinder.findByName("new:top:child:child attr def name2b", true);
     
     assertEquals("new display name:top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("new display name:top display name:child display name:child attr def name display name", childAttributeDefName.getDisplayName());
@@ -466,18 +432,14 @@ public class TestStemApi extends GrouperTest {
     top.move(root);
     
     // verify attr def and attr def
-    topAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:top attr def", true);
-    childAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def", true);
-    childAttributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:child:child attr def2", true);
+    topAttributeDef = AttributeDefFinder.findByName("top:top attr def", true);
+    childAttributeDef = AttributeDefFinder.findByName("top:child:child attr def", true);
+    childAttributeDef2 = AttributeDefFinder.findByName("top:child:child attr def2", true);
     
-    topAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:top attr def name", true);
-    childAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name", true);
-    childAttributeDefName2a = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2a", true);
-    childAttributeDefName2b = GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByNameSecure("top:child:child attr def name2b", true);
+    topAttributeDefName = AttributeDefNameFinder.findByName("top:top attr def name", true);
+    childAttributeDefName = AttributeDefNameFinder.findByName("top:child:child attr def name", true);
+    childAttributeDefName2a = AttributeDefNameFinder.findByName("top:child:child attr def name2a", true);
+    childAttributeDefName2b = AttributeDefNameFinder.findByName("top:child:child attr def name2b", true);
     
     assertEquals("top display name:top attr def name display name", topAttributeDefName.getDisplayName());
     assertEquals("top display name:child display name:child attr def name display name", childAttributeDefName.getDisplayName());

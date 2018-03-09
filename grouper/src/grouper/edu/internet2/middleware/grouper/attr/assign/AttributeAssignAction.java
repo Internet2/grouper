@@ -222,7 +222,7 @@ public class AttributeAssignAction extends GrouperAPI
    * @return the attributeDef
    */
   public AttributeDef getAttributeDef() {
-    return GrouperDAOFactory.getFactory().getAttributeDef().findById(this.attributeDefId, true);
+    return AttributeDefFinder.findByIdAsRoot(this.attributeDefId, true);
   }
 
   

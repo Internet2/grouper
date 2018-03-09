@@ -19,7 +19,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -39,6 +38,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -206,8 +207,8 @@ public class PITSyncTests extends GrouperTest {
     edu.setExtension(edu.getExtension() + "-a");
     edu.store();
     
-    attributeDef1 = GrouperDAOFactory.getFactory().getAttributeDef().findById(attributeDef1.getId(), true);    
-    attributeDefName1 = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(attributeDefName1.getId(), true);
+    attributeDef1 = AttributeDefFinder.findByIdAsRoot(attributeDef1.getId(), true);    
+    attributeDefName1 = AttributeDefNameFinder.findById(attributeDefName1.getId(), true);
     role = GrouperDAOFactory.getFactory().getRole().findById(role.getId(), true);
   }
   

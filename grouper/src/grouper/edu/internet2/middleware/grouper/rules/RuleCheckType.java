@@ -840,7 +840,7 @@ public enum RuleCheckType {
                     if (member == null) {
                       continue;
                     }
-                    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
                     if (attributeDefName == null) {
                       continue;
                     }
@@ -2297,7 +2297,7 @@ public enum RuleCheckType {
             if (member == null) {
               continue;
             }
-            AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
             if (attributeDefName == null) {
               continue;
             }
@@ -2374,7 +2374,7 @@ public enum RuleCheckType {
                 if (member == null) {
                   continue;
                 }
-                AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
                 if (attributeDefName == null) {
                   continue;
                 }
