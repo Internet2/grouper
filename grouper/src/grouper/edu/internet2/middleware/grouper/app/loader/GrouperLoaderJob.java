@@ -548,8 +548,7 @@ public class GrouperLoaderJob implements Job {
       String grouperLoaderLdapGroupAttrUpdaters = null;
       String grouperLoaderLdapGroupsLike = null;
       
-      AttributeDefName grouperLoaderLdapTypeAttributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+      AttributeDefName grouperLoaderLdapTypeAttributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
       AttributeAssign attributeAssign = grouperLoaderLdapTypeAttributeDefName == null ? null : 
         jobGroup.getAttributeDelegate().retrieveAssignment(
           null, grouperLoaderLdapTypeAttributeDefName, false, false);

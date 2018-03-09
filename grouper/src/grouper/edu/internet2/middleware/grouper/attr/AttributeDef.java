@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefD
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -66,6 +67,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -2032,6 +2034,8 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription(),
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType.name(), this.getAttributeDefTypeDb()).save();
 
+    Hib3AttributeDefDAO.attributeDefCacheRemove(this);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
         AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_DELETE, HooksAttributeDefBean.class, 
         this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_PRE_DELETE, false, false);
@@ -2101,6 +2105,8 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
       }
     }
     
+    Hib3AttributeDefDAO.attributeDefCacheRemove(this);
+
     //change log into temp table
     ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE, 
         this, this.dbVersion(),

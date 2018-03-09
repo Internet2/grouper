@@ -5839,6 +5839,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public boolean onDelete(Session hs) 
     throws  CallbackException {
     GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), false );
+    GroupFinder.groupCacheRemove(this);
     return Lifecycle.NO_VETO;
   }
 
@@ -6196,9 +6197,18 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public boolean onSave(Session hs) throws  CallbackException {
     GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), true );
-    return Lifecycle.NO_VETO;
+        return Lifecycle.NO_VETO;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onUpdate(org.hibernate.Session)
+   */
+  @Override
+  public boolean onUpdate(Session s) throws CallbackException {
+    GroupFinder.groupCacheRemove(this);
+    return super.onUpdate(s);
+  }
+
   /**
    * 
    * @param attributes

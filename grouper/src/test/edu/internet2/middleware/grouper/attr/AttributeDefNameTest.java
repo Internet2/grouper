@@ -98,12 +98,12 @@ public class AttributeDefNameTest extends GrouperTest {
     assertNotNull(attributeDefName.getId());
 
     //lets retrieve by id
-    AttributeDefName attributeDefName2 = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(attributeDefName.getId(), true);
+    AttributeDefName attributeDefName2 = AttributeDefNameFinder.findById(attributeDefName.getId(), true);
 
     assertEquals(attributeDefName.getId(), attributeDefName2.getId());
     
     //lets retrieve by name
-    attributeDefName2 = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure("top:testName", true);
+    attributeDefName2 = AttributeDefNameFinder.findByName("top:testName", true);
     
     assertEquals("top:testName", attributeDefName2.getName());
     assertEquals("top display name:test name", attributeDefName2.getDisplayName());

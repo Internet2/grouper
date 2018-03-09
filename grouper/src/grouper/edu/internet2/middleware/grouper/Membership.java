@@ -954,8 +954,7 @@ public class Membership extends GrouperAPI implements
     if (attributeDef != null) {
       return attributeDef;
     }
-    attributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-      .findById(uuid, true);
+    attributeDef = AttributeDefFinder.findByIdAsRoot(uuid, true);
     putAttributeDefInCache(attributeDef);
     return attributeDef;
   }

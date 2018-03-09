@@ -19,13 +19,6 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
-import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
-
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -1967,8 +1960,10 @@ public enum GrouperLoaderType {
   private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader, String groupIdConfigured) {
     
     Set<Group> groupsNoLongerManagedByLoader = new HashSet<Group>();
-    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-    AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED, false);
+    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(
+        GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true);
+    AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(
+        GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
     //get all groups with settings
     Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
         .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
@@ -1993,11 +1988,12 @@ public enum GrouperLoaderType {
    */
   private static void updateLoaderMetadataForGroupsNoLongerInLoader(Set<Group> groupsNoLongerManagedByLoader) {
     
-      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, true);
      
-      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
-          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()
+          +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
   
       for (Group groupWithMetadata: groupsNoLongerManagedByLoader) {
         try {
@@ -3158,28 +3154,37 @@ public enum GrouperLoaderType {
   private static void updateLoaderMetadataAttributes(Hib3GrouperLoaderLog hib3GrouploaderLog, Group groupBeingManaged, Group loaderGroup) {
 
     try {
-      String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-      if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+      
+      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperLoader.updateLoaderMetadataAttributes", true)) {
+        return;
+      }
+      
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, true);
+      if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(attributeDefName.getName())) {
         groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
       }
       AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
-          +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()
+          +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
           
       attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
       
-      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true);
       attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroup.getId());
       
-      AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, false);
+      AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, true);
       attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
       
-      AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, false);
+      AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, true);
       attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
           "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
           + " updated: "+ hib3GrouploaderLog.getUpdateCount());
-    
+      loaderGroup = null;  
+      
     } catch (Exception e) {
       LOG.warn("Non-fatal error updating metadata on group: " + groupBeingManaged.getName(), e);
     }

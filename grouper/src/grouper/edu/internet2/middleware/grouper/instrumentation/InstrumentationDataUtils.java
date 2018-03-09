@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -123,12 +125,12 @@ public class InstrumentationDataUtils {
 
     String instanceDefNameName = grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_FOLDER + ":" + uuid;
     
-    AttributeDefName instanceDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(instanceDefNameName, false, null);
+    AttributeDefName instanceDefName = AttributeDefNameFinder.findByName(instanceDefNameName, false);
     
     if (instanceDefName == null) {
       Stem instrumentationDataInstancesFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_FOLDER, true);
       String instancesDefName = grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_DEF;
-      AttributeDef instancesDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(instancesDefName, true, null);
+      AttributeDef instancesDef = AttributeDefFinder.findByName(instancesDefName, true);
       instanceDefName = instrumentationDataInstancesFolder.addChildAttributeDefName(instancesDef, uuid, uuid);
     }
         
@@ -157,12 +159,12 @@ public class InstrumentationDataUtils {
 
     String collectorDefNameName = grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_FOLDER + ":" + jobName;
     
-    AttributeDefName collectorDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(collectorDefNameName, false, null);
+    AttributeDefName collectorDefName = AttributeDefNameFinder.findByName(collectorDefNameName, false);
     
     if (collectorDefName == null) {
       Stem instrumentationDataCollectorsFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_FOLDER, true);
       String collectorsDefName = grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_DEF;
-      AttributeDef collectorsDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(collectorsDefName, true, null);
+      AttributeDef collectorsDef = AttributeDefFinder.findByName(collectorsDefName, true);
       collectorDefName = instrumentationDataCollectorsFolder.addChildAttributeDefName(collectorsDef, jobName, jobName);
     }
         

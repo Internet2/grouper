@@ -296,10 +296,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveBfromA() {
     setupStructure();
-    AttributeDefName orgA = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgA", true);
-    AttributeDefName orgB = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgB", true);
+    AttributeDefName orgA = AttributeDefNameFinder.findByName("top:orgA", true);
+    AttributeDefName orgB = AttributeDefNameFinder.findByName("top:orgB", true);
     orgA.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgB);
 
     //lets look at them all
@@ -2211,10 +2209,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveHfromA() {
     setupStructure();
-    AttributeDefName orgA = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgA", true);
-    AttributeDefName orgH = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgH", true);
+    AttributeDefName orgA = AttributeDefNameFinder.findByName("top:orgA", true);
+    AttributeDefName orgH = AttributeDefNameFinder.findByName("top:orgH", true);
     orgA.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgH);
 
     //lets look at them all
@@ -3029,10 +3025,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveIfromA() {
     setupStructure();
-    AttributeDefName orgA = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgA", true);
-    AttributeDefName orgI = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgI", true);
+    AttributeDefName orgA = AttributeDefNameFinder.findByName("top:orgA", true);
+    AttributeDefName orgI = AttributeDefNameFinder.findByName("top:orgI", true);
     orgA.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgI);
 
     //lets look at them all
@@ -3847,10 +3841,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveCfromB() {
     setupStructure();
-    AttributeDefName orgB = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgB", true);
-    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgC", true);
+    AttributeDefName orgB = AttributeDefNameFinder.findByName("top:orgB", true);
+    AttributeDefName orgC = AttributeDefNameFinder.findByName("top:orgC", true);
     assertFalse(orgC.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgB));
     assertTrue(orgB.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgC));
 
@@ -4678,10 +4670,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
      */
   public void testComplexRemoveDfromB() {
     setupStructure();
-    AttributeDefName orgB = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgB", true);
-    AttributeDefName orgD = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgD", true);
+    AttributeDefName orgB = AttributeDefNameFinder.findByName("top:orgB", true);
+    AttributeDefName orgD = AttributeDefNameFinder.findByName("top:orgD", true);
     assertFalse(orgD.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgB));
     assertTrue(orgB.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgD));
 
@@ -5509,10 +5499,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
        */
   public void testComplexRemoveEfromC() {
     setupStructure();
-    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgC", true);
-    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgE", true);
+    AttributeDefName orgC = AttributeDefNameFinder.findByName("top:orgC", true);
+    AttributeDefName orgE = AttributeDefNameFinder.findByName("top:orgE", true);
     assertTrue(orgC.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgE));
 
     //lets look at them all
@@ -6339,10 +6327,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveGfromC() {
     setupStructure();
-    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgC", true);
-    AttributeDefName orgG = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgG", true);
+    AttributeDefName orgC = AttributeDefNameFinder.findByName("top:orgC", true);
+    AttributeDefName orgG = AttributeDefNameFinder.findByName("top:orgG", true);
     assertTrue(orgC.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgG));
 
     //lets look at them all
@@ -7169,10 +7155,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
      */
   public void testComplexRemoveEfromD() {
     setupStructure();
-    AttributeDefName orgD = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgD", true);
-    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgE", true);
+    AttributeDefName orgD = AttributeDefNameFinder.findByName("top:orgD", true);
+    AttributeDefName orgE = AttributeDefNameFinder.findByName("top:orgE", true);
     assertTrue(orgD.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgE));
 
     //lets look at them all
@@ -7999,10 +7983,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
        */
   public void testComplexRemoveFfromE() {
     setupStructure();
-    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgE", true);
-    AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgF", true);
+    AttributeDefName orgE = AttributeDefNameFinder.findByName("top:orgE", true);
+    AttributeDefName orgF = AttributeDefNameFinder.findByName("top:orgF", true);
     assertTrue(orgE.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgF));
 
     //lets look at them all
@@ -8829,10 +8811,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveLfromE() {
     setupStructure();
-    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgE", true);
-    AttributeDefName orgL = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgL", true);
+    AttributeDefName orgE = AttributeDefNameFinder.findByName("top:orgE", true);
+    AttributeDefName orgL = AttributeDefNameFinder.findByName("top:orgL", true);
     assertTrue(orgE.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgL));
 
     //lets look at them all
@@ -9659,10 +9639,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
      */
   public void testComplexRemoveFfromG() {
     setupStructure();
-    AttributeDefName orgG = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgG", true);
-    AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgF", true);
+    AttributeDefName orgG = AttributeDefNameFinder.findByName("top:orgG", true);
+    AttributeDefName orgF = AttributeDefNameFinder.findByName("top:orgF", true);
     assertTrue(orgG.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgF));
 
     //lets look at them all
@@ -12149,10 +12127,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveFfromJ() {
     setupStructure();
-    AttributeDefName orgJ = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgJ", true);
-    AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgF", true);
+    AttributeDefName orgJ = AttributeDefNameFinder.findByName("top:orgJ", true);
+    AttributeDefName orgF = AttributeDefNameFinder.findByName("top:orgF", true);
     assertTrue(orgJ.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgF));
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -12978,10 +12954,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
    */
   public void testComplexRemoveHfromJ() {
     setupStructure();
-    AttributeDefName orgJ = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgJ", true);
-    AttributeDefName orgH = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgH", true);
+    AttributeDefName orgJ = AttributeDefNameFinder.findByName("top:orgJ", true);
+    AttributeDefName orgH = AttributeDefNameFinder.findByName("top:orgH", true);
     assertTrue(orgJ.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgH));
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -13807,10 +13781,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
      */
   public void testComplexRemoveCfromK() {
     setupStructure();
-    AttributeDefName orgK = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgK", true);
-    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("top:orgC", true);
+    AttributeDefName orgK = AttributeDefNameFinder.findByName("top:orgK", true);
+    AttributeDefName orgC = AttributeDefNameFinder.findByName("top:orgC", true);
     assertTrue(orgK.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgC));
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(

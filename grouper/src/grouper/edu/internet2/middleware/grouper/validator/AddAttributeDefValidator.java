@@ -33,8 +33,8 @@
 package edu.internet2.middleware.grouper.validator;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.internal.util.U;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author mchyzer
@@ -49,7 +49,6 @@ public class AddAttributeDefValidator extends GrouperValidator {
    * 
    * @param parent
    * @param extn
-   * @param dExtn
    * @return self for chaining
    */
   public static AddAttributeDefValidator validate(Stem parent, String extn) {
@@ -64,7 +63,7 @@ public class AddAttributeDefValidator extends GrouperValidator {
       return v;
     }
     String attributeName = U.constructName( parent.getName(), extn );
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure( attributeName, false );
+    AttributeDef attributeDef = AttributeDefFinder.findByName( attributeName, false );
     if (attributeDef != null) {
       v.setErrorMessage(ATTRIBUTE_DEF_ALREADY_EXISTS_WITH_NAME_PREFIX + attributeName + "'");
       return v;

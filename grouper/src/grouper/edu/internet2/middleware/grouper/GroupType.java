@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
@@ -1036,7 +1037,11 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
     AttributeDefName attributeDefName = attributeDefNameFromTypeIdCache().get(this.uuid);
     
     if (attributeDefName == null) {
-      attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findById(this.uuid, true);
+      attributeDefName = AttributeDefNameFinder.findByIdAsRoot(this.uuid, true);
+      if (attributeDefName != null) {
+        //put this in the root cache
+        Hib3AttributeDefNameDAO.attributeDefNameCacheAsRootIdsAndNamesAdd(attributeDefName);
+      }
       attributeDefNameFromTypeIdCache().put(this.uuid, attributeDefName);
     }
     

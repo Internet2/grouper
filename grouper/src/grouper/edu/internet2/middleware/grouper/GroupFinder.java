@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -53,6 +54,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -62,6 +64,237 @@ import edu.internet2.middleware.subject.Subject;
  * @version $Id: GroupFinder.java,v 1.62 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class GroupFinder {
+
+  /**
+   * config key for caching
+   */
+  private static final String GROUPER_CACHE_GROUPS_IN_FINDER = "grouper.cache.groups.in.finder";
+
+  /**
+   * config key for caching
+   */
+  private static final String GROUPER_FLASHCACHE_GROUPS_IN_FINDER = "grouper.flashcache.groups.in.finder";
+
+  /**
+   * names and ids and indexes of attribute defs which should cache as root
+   */
+  private static Set<Object> groupCacheAsRootIdsNamesAndIndexes = new HashSet<Object>();
+
+  /**
+   * 
+   * @param group
+   */
+  public static void groupCacheAsRootAddSystemGroup(Group group) {
+    groupCacheAsRootIdsNamesAndIndexes.add(group.getId());
+    groupCacheAsRootIdsNamesAndIndexes.add(group.getName());
+    groupCacheAsRootIdsNamesAndIndexes.add(group.getIdIndex());
+    groupCacheAsRootAddIfSupposedTo(group);
+  }
+
+  /**
+   * remove this from all caches
+   * @param group
+   */
+  public static void groupCacheRemove(Group group) {
+    groupRootCache.remove(group.getUuid());
+    groupRootCache.remove(group.getName());
+    groupRootCache.remove(group.getIdIndex());
+
+    groupFlashCache.clear();
+  }
+  
+  /**
+   * add group to cache if not null
+   * @param groups
+   */
+  private static void groupCacheAsRootAddIfSupposedTo(Collection<Group> groups) {
+    
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      groupCacheAsRootAddIfSupposedTo(group);
+    }
+  }
+
+  /**
+   * add group to cache if not null
+   * @param group
+   */
+  private static void groupFlashCacheAddIfSupposedTo(Group group) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_GROUPS_IN_FINDER, true)) {
+      return;
+    }
+    
+    for (Object id : new Object[]{group.getUuid(), group.getName(), group.getIdIndex()}) {
+      MultiKey multiKey = groupFlashCacheMultikey(id);
+      if (multiKey == null) {
+        continue;
+      }
+      groupFlashCache.put(multiKey, group);
+    }
+    
+  }
+
+  /**
+   * add group to cache if not null
+   * @param group
+   */
+  private static void groupCacheAsRootAddIfSupposedTo(Group group) {
+    if (group != null && groupCacheableAsRoot(group.getUuid(), null, false)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("adding to group cache: " + group.getName());
+      }
+      groupRootCache.put(group.getId(), group);
+      groupRootCache.put(group.getName(), group);
+      groupRootCache.put(group.getIdIndex(), group);
+    }
+  }
+
+  /**
+   * see if this is cacheable
+   * @param id
+   * @param queryOptions 
+   * @param checkGrouperSession 
+   * @return if cacheable
+   */
+  private static boolean groupCacheableAsRoot(Object id, QueryOptions queryOptions, boolean checkGrouperSession) {
+
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_CACHE_GROUPS_IN_FINDER, true)) {
+      return false;
+    }
+
+    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+      return false;
+    }
+
+    if (checkGrouperSession) {
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      
+      if (grouperSession == null) {
+        return false;
+      }
+      
+      Subject grouperSessionSubject = grouperSession.getSubject();
+
+      if (grouperSessionSubject == null || !PrivilegeHelper.isWheelOrRoot(grouperSessionSubject)) {
+        return false; 
+      }
+    }
+
+    if (queryOptions != null 
+        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+      return false;
+    }
+    
+    if (!groupCacheAsRootIdsNamesAndIndexes.contains(id)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * multikey
+   * @param id
+   * @return if cacheable
+   */
+  private static MultiKey groupFlashCacheMultikey(Object id) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_GROUPS_IN_FINDER, true)) {
+      return null;
+    }
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    Subject grouperSessionSubject = null;
+    
+    if (grouperSession == null) {
+      grouperSessionSubject = SubjectFinder.findRootSubject();
+    } else {
+      grouperSessionSubject = grouperSession.getSubject();
+    }
+        
+    return new MultiKey(grouperSessionSubject.getSourceId(), grouperSessionSubject.getId(), id);
+  }
+
+  /**
+   * get a group fom root cache
+   * @param id
+   * @param queryOptions
+   * @return the group or null
+   */
+  private static Group groupCacheAsRootRetrieve(Object id, QueryOptions queryOptions) {
+
+    
+    if (groupCacheableAsRoot(id, queryOptions, true)) {
+      
+      //see if its already in the cache
+      Group group = groupRootCache.get(id);
+      if (group != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from group root cache by name: " + group.getName());
+        }
+        return group;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * get a group fom flash cache
+   * @param id
+   * @param queryOptions
+   * @return the group or null
+   */
+  private static Group groupFlashCacheRetrieve(Object id, QueryOptions queryOptions) {
+    if (groupFlashCacheable(id, queryOptions)) {
+      MultiKey groupFlashMultikey = groupFlashCacheMultikey(id);
+      //see if its already in the cache
+      Group group = groupFlashCache.get(groupFlashMultikey);
+      if (group != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from group flash cache by id: " + group.getName());
+        }
+        return group;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * see if this is cacheable
+   * @param id
+   * @param queryOptions 
+   * @return if cacheable
+   */
+  private static boolean groupFlashCacheable(Object id, QueryOptions queryOptions) {
+
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_GROUPS_IN_FINDER, true)) {
+      return false;
+    }
+
+    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+      return false;
+    }
+
+    if (queryOptions != null 
+        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * cache stuff in groups by name, uuid, idIndex
+   */
+  private static GrouperCache<Object, Group> groupRootCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.GroupFinder.groupCache");
+
+  /**
+   * cache stuff in groups by subjectSourceId, subjectId, name, uuid, idIndex
+   */
+  private static GrouperCache<MultiKey, Group> groupFlashCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.GroupFinder.groupFlashCache");
 
   /**
    * if we are filtering for groups which are composite owners or not
@@ -272,24 +505,36 @@ public class GroupFinder {
     
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Group g = null;
+    
+    Group g = groupCacheAsRootRetrieve(name, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+    
+    g = groupFlashCacheRetrieve(name, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+
     g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound, queryOptions) ;
     
-    if (g == null) {
+    if (g != null) {
+      groupCacheAsRootAddIfSupposedTo(g);
+      groupFlashCacheAddIfSupposedTo(g);
+      
+      //2007-10-16: Gary Brown
+      //https://bugs.internet2.edu/jira/browse/GRP-36
+      //Ugly... and probably breaks the abstraction but quick and easy to 
+      //remove when a more elegant solution found.
+      if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+        return g;
+      
+      if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
+        return g;
+      }
+      LOG.info(E.GF_FBNAME + E.CANNOT_VIEW + ", name: " + name);
       return g;
     }
-    
-    //2007-10-16: Gary Brown
-    //https://bugs.internet2.edu/jira/browse/GRP-36
-    //Ugly... and probably breaks the abstraction but quick and easy to 
-    //remove when a more elegant solution found.
-    if(s.getSubject().equals(SubjectFinder.findRootSubject()))
-      return g;
-    
-    if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
-      return g;
-    }
-    LOG.error(E.GF_FBNAME + E.CANNOT_VIEW + ", name: " + name);
     if (!exceptionIfNotFound) {
       return null;
     }
@@ -529,8 +774,23 @@ public class GroupFinder {
       throws GroupNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
+
+    Group g = groupCacheAsRootRetrieve(uuid, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+
+    g = groupFlashCacheRetrieve(uuid, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+    
     try {
-      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true, queryOptions);
+      g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true, queryOptions);
+      
+      groupCacheAsRootAddIfSupposedTo(g);
+      groupFlashCacheAddIfSupposedTo(g);
+      
       if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
         return g;
       }
@@ -538,6 +798,9 @@ public class GroupFinder {
       if (exceptionIfNotFound) {
         throw gnfe;
       }
+    }
+    if (exceptionIfNotFound) {
+      throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
     }
     return null;
   } 
@@ -554,8 +817,31 @@ public class GroupFinder {
       throws GroupNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(GrouperSession.staticGrouperSession());
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
-    return g;
+    
+    Group g = groupCacheAsRootRetrieve(idIndex, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+    
+    g = groupFlashCacheRetrieve(idIndex, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+
+    g = GrouperDAOFactory.getFactory().getGroup().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
+
+    if (g != null) {
+      groupCacheAsRootAddIfSupposedTo(g);
+      groupFlashCacheAddIfSupposedTo(g);
+    
+      return g;
+    }
+    
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by idIndex: " + idIndex);
+
   }
 
   /**

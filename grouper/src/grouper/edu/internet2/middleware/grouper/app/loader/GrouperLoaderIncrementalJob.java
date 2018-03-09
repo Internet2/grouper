@@ -15,12 +15,6 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS;
-import static edu.internet2.middleware.grouper.app.loader.GrouperLoader.LOADER_METADATA_VALUE_DEF;
-import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,16 +56,10 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -367,7 +355,7 @@ public class GrouperLoaderIncrementalJob implements Job {
     for (String loaderGroupName : groupsRequiringLoaderMetadataUpdates.keySet()) {
       
       for (Group group: groupsRequiringLoaderMetadataUpdates.get(loaderGroupName)) {
-        String loaderMetadataAttributeName = loaderMetadataStemName()+":"+LOADER_METADATA_VALUE_DEF;
+        String loaderMetadataAttributeName = GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF;
         AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
         if (!group.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
           group.getAttributeDelegate().assignAttribute(attributeDefName);
@@ -375,14 +363,14 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
 
-        AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(loaderMetadataStemName()
-            +":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED , false);
+        AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()
+            +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED , false);
         attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
         
-        AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+        AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
         attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroupName);
         
-        AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
+        AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
         attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
         
       }

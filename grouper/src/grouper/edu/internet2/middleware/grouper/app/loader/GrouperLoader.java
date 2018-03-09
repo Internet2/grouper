@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -279,8 +280,15 @@ public class GrouperLoader {
   /**
    * True means the group was loaded from loader
    */
-  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED = "grouperLoaderMetadataLoaded";
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED = "grouperLoaderMetadataLoaded";
   
+  /**
+   * True means the group was loaded from loader
+   * TODO remove in 2.4
+   */
+  @Deprecated
+  public static final String ATTRIBUTE_GROUPER_LOADER_METADATA_LAODED = ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED;
+
   /**
    * Group id which is being populated from the loader
    */
@@ -1535,8 +1543,7 @@ public class GrouperLoader {
       String grouperLoaderTypeString = null;
         
       if (!isSqlLoader) {
-        AttributeDefName grouperLoaderLdapTypeAttributeDefName = GrouperDAOFactory.getFactory()
-          .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+        AttributeDefName grouperLoaderLdapTypeAttributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
         AttributeAssign attributeAssign = grouperLoaderLdapTypeAttributeDefName == null ? null : 
           group.getAttributeDelegate().retrieveAssignment(
             null, grouperLoaderLdapTypeAttributeDefName, false, false);
