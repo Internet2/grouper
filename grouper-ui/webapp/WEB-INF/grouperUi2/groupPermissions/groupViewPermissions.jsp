@@ -83,7 +83,7 @@
                           type="checkbox" ${guiPermissionEntryChecked ? 'checked="checked"' : '' } 
                         /><c:set var="confirmNavName" value="simplePermissionUpdate.permissionImageConfirm${guiPermissionEntryChecked ? 'Allow' : 'Deny'}" />
                         <a href="#" style="margin-left: 5px"
-                        onclick="if (confirm('${grouper:message(confirmNavName, true, true) }')) {ajax('../app/UiV2Permission.permissionPanelImageClick?permissionAssignType=${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}&guiPermissionId=${guiPermissionId}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'});} return false;"
+                        onclick="ajax('../app/UiV2GroupPermission.permissionPanelImageClick?permissionAssignType=${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}&guiPermissionId=${guiPermissionId}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'}); return false;"
                         ><c:choose><c:when test="${guiPermissionEntry.allowed}"
                           ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
                             onmouseover="Tip('${grouper:escapeJavascript(navMap[tooltipName])}')" 
@@ -198,25 +198,25 @@
 
           <%-- attach a menu for each row --%>
           <grouper:menu menuId="permissionsMenu"
-            operation="SimplePermissionUpdateMenu.assignmentMenu"
-            structureOperation="SimplePermissionUpdateMenu.assignmentMenuStructureNewUi" 
+            operation="UiV2GroupPermission.assignmentMenu"
+            structureOperation="UiV2GroupPermission.assignmentMenuStructure" 
             contextZoneJqueryHandle=".permissionMenuButton" contextMenu="true" />
           
           <%-- attach a menu for each direct limit row --%>
           <grouper:menu menuId="limitMenu"
-            operation="SimplePermissionUpdateMenu.limitMenu" 
-            structureOperation="SimplePermissionUpdateMenu.limitMenuStructureNewUi" 
+            operation="UiV2GroupPermission.limitMenu" 
+            structureOperation="UiV2GroupPermission.limitMenuStructure" 
             contextZoneJqueryHandle=".limitMenuButton" contextMenu="true" />
             
           <%-- attach a menu for each limit value --%>
           <grouper:menu menuId="limitValueMenu"
-            operation="SimplePermissionUpdateMenu.limitValueMenu" 
-            structureOperation="SimplePermissionUpdateMenu.limitValueMenuStructure" 
+            operation="UiV2GroupPermission.limitValueMenu" 
+            structureOperation="UiV2GroupPermission.limitValueMenuStructure" 
             contextZoneJqueryHandle=".limitAssignValueButton" contextMenu="true" />
           
         </table>
         <div>
-          <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Permission.saveMultiplePermissionSubmit', {formIds: 'attributePermissionsFormId'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
+          <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2GroupPermission.saveMultiplePermissionSubmit', {formIds: 'attributePermissionsFormId'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
         </div>
         </form>
       </c:otherwise>

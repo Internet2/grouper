@@ -40,7 +40,7 @@
                     <div class="controls">
                     	                    	
                       <grouper:combobox2 idBase="permissionActionCombo" style="width: 30em"
-                        filterOperation="UiV2Permission.permissionActionNameFilter"
+                        filterOperation="UiV2GroupPermission.permissionActionNameFilter"
                         additionalFormElementNames="permissionDefComboName,permissionResourceNameComboName"
                         />
                       <span class="help-block">${textContainer.text['groupAssignPermissionActionDescription'] }</span>
@@ -61,8 +61,8 @@
                       </div>
                   </div>
                   
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Permission.assignGroupPermissionSubmit', {formIds: 'assignPermissionGroupForm'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Permission.groupPermission?groupId=${grouperRequestContainer.permissionContainer.guiGroup.group.id}');" class="btn btn-cancel" role="button">${textContainer.text['groupAssignPermissionCancelButton'] }</a></div>
+                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2GroupPermission.assignGroupPermissionSubmit', {formIds: 'assignPermissionGroupForm'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
+                  <a href="#" onclick="return guiV2link('operation=UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.permissionContainer.guiGroup.group.id}');" class="btn btn-cancel" role="button">${textContainer.text['groupAssignPermissionCancelButton'] }</a></div>
                 </form>
               </div>
             </div>
