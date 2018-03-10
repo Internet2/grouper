@@ -94,7 +94,7 @@
                         
                         <li class="divider"></li>
                         <li>
-                          <a href="#" onclick="ajax('../app/UiV2Permission.groupPermission?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
+                          <a href="#" onclick="ajax('../app/UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
                             ${textContainer.text['groupViewPermissionsButton'] }
                           </a>
                         </li>

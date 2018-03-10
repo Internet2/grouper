@@ -3,12 +3,8 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.util.Map;
-import java.util.Set;
-
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 
 /**
  * @author vsachdeva
@@ -21,24 +17,14 @@ public class PermissionContainer {
   private GuiGroup guiGroup;
   
   /**
+   * member who already has permission or to who permission needs to be assigned
+   */
+  private GuiMember guiMember;
+  
+  /**
    * can the permission be assigned by the logged in user
    */
   private boolean canAssignPermission;
-  
-  /**
-   * permissions assigned to role/subject
-   */
-  private Set<PermissionEntry> permissions;
-  
-  /**
-   * all actions (assigned + unassigned) available for the selected group
-   */
-  private Set<AttributeAssignAction> allActions;
-  
-  /**
-   * permissions with limits to show on the view permissions screen
-   */
-  private Map<PermissionDtoKey, Set<ActionWithLimits>> permissionsMap;
   
   /**
    * @return group already associated with permission or to which permission needs to be assigned
@@ -71,44 +57,20 @@ public class PermissionContainer {
   }
 
   /**
-   * @return permissions assigned to the selected group
+   * member who already has permission or to who permission needs to be assigned
+   * @return
    */
-  public Set<PermissionEntry> getPermissions() {
-    return permissions;
+  public GuiMember getGuiMember() {
+    return guiMember;
   }
 
   /**
-   * @param permissions assigned to the selected group
+   * member who already has permission or to who permission needs to be assigned
+   * @param guiMember1
    */
-  public void setPermissions(Set<PermissionEntry> permissions) {
-    this.permissions = permissions;
+  public void setGuiMember(GuiMember guiMember1) {
+    this.guiMember = guiMember1;
   }
-
-  /**
-   * @return all actions (assigned + unassigned) available for the selected group
-   */
-  public Set<AttributeAssignAction> getAllActions() {
-    return allActions;
-  }
-
-  /**
-   * @param allActions: all actions (assigned + unassigned) available for the selected group
-   */
-  public void setAllActions(Set<AttributeAssignAction> allActions) {
-    this.allActions = allActions;
-  }
-
-  
-  public Map<PermissionDtoKey, Set<ActionWithLimits>> getPermissionsMap() {
-    return permissionsMap;
-  }
-
-  
-  public void setPermissionsMap(
-      Map<PermissionDtoKey, Set<ActionWithLimits>> permissionsMap) {
-    this.permissionsMap = permissionsMap;
-  }
-  
   
   
 }
