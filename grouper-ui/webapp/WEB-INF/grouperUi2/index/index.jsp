@@ -52,8 +52,6 @@
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNameNewCreateNewAttributeDefNameMenuButton'] }</a></li>
                 <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefActionNewCreateNewAttributeDefActionMenuButton'] }</a></li>
-                <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>

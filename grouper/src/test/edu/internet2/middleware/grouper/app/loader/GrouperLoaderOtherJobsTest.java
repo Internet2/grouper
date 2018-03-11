@@ -132,6 +132,8 @@ public class GrouperLoaderOtherJobsTest extends GrouperTest {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("otherJob.test2.priority");
 
       GrouperLoader.scheduleOtherJobs();
+
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
 }

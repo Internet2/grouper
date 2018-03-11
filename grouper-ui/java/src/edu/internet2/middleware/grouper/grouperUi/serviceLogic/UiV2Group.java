@@ -3721,10 +3721,17 @@ public class UiV2Group {
       @Override
       public Group lookup(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
-        Group theGroup = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
             .assignSubject(loggedInSubject).assignCompositeOwner(false)
-            .assignFindByUuidOrName(true).assignScope(query).findGroup();
-        return theGroup;
+            .assignFindByUuidOrName(true).assignScope(query);
+        
+        String typeOfGroup = localRequest.getParameter("typeOfGroup");
+        if (StringUtils.isNotBlank(typeOfGroup)) {
+          TypeOfGroup groupType = TypeOfGroup.valueOfIgnoreCase(typeOfGroup, true);
+          groupFinder.addTypeOfGroup(groupType);
+        }
+        
+        return groupFinder.findGroup();
       }
   
       /**
@@ -3733,11 +3740,23 @@ public class UiV2Group {
       @Override
       public Collection<Group> search(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
+        
         int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
-        return new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
             .assignScope(query).assignSubject(loggedInSubject).assignCompositeOwner(false)
-            .assignSplitScope(true).assignQueryOptions(queryOptions).findGroups();
+            .assignSplitScope(true).assignQueryOptions(queryOptions);
+        
+        String typeOfGroup = localRequest.getParameter("typeOfGroup");
+        if (StringUtils.isNotBlank(typeOfGroup)) {
+          TypeOfGroup groupType = TypeOfGroup.valueOfIgnoreCase(typeOfGroup, true);
+          Set<TypeOfGroup> typesOfGroup = new HashSet<TypeOfGroup>();
+          typesOfGroup.add(groupType);
+          groupFinder.assignTypeOfGroups(typesOfGroup);
+        }
+        
+        return groupFinder.findGroups();
+        
       }
   
       /**
@@ -4790,7 +4809,7 @@ public class UiV2Group {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Permission.groupPermission&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GroupPermission.groupPermission&groupId=" + group.getId() + "')"));
       
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 

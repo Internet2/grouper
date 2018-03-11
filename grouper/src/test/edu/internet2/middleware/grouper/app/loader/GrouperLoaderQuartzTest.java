@@ -80,6 +80,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
   
@@ -122,6 +123,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
   
@@ -187,6 +189,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
   
@@ -244,6 +247,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
   
@@ -301,6 +305,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
   
@@ -358,6 +363,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
   
@@ -415,6 +421,7 @@ public class GrouperLoaderQuartzTest extends GrouperTest {
       
     } finally {
       GrouperLoader.schedulerFactory().getScheduler().unscheduleJob(TriggerKey.triggerKey("triggerOtherJob_OTHER_JOB_1"));
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
   }
 }

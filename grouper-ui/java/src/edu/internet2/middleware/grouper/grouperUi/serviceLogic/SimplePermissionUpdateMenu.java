@@ -39,23 +39,19 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntryUtils;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristic;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristicBetter;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristics;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -93,17 +89,11 @@ public class SimplePermissionUpdateMenu {
     String menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
   
     if (StringUtils.equals(menuItemId, "editAssignment")) {
-      this.assignmentMenuEditAssignment(false);
+      this.assignmentMenuEditAssignment();
     } else if (StringUtils.equals(menuItemId, "analyzeAssignment")) {
-      this.assignmentMenuAnalyzeAssignment(false);
+      this.assignmentMenuAnalyzeAssignment();
     } else if (StringUtils.equals(menuItemId, "addLimit")) {
-      this.assignmentMenuAddLimit(false);
-    } else if (StringUtils.equals(menuItemId, "addLimitNewUi")) {
-      this.assignmentMenuAddLimit(true);
-    } else if (StringUtils.equals(menuItemId, "analyzeAssignmentNewUi")) {
-      this.assignmentMenuAnalyzeAssignment(true);
-    } else if (StringUtils.equals(menuItemId, "editAssignmentNewUi")) {
-      this.assignmentMenuEditAssignment(true);
+      this.assignmentMenuAddLimit();
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
@@ -113,9 +103,8 @@ public class SimplePermissionUpdateMenu {
 
   /**
    * add a limit on an assignment
-   * @param newUi: true when this method called for new ui and false for lite ui.
    */
-  public void assignmentMenuAddLimit(boolean newUi) {
+  public void assignmentMenuAddLimit() {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
@@ -141,6 +130,7 @@ public class SimplePermissionUpdateMenu {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
+      
       //<c:set var="guiPermissionId" value="${firstPermissionEntry.roleId}__${firstPermissionEntry.memberId}__${firstPermissionEntry.attributeDefNameId}__${firstPermissionEntry.action}" />
       Pattern pattern = Pattern.compile("^(.*)__(.*)__(.*)__(.*)__(.*)$");
       Matcher matcher = pattern.matcher(guiPermissionId);
@@ -154,12 +144,7 @@ public class SimplePermissionUpdateMenu {
         String roleId = matcher.group(1);
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
         if (!((Group)role).hasAdmin(loggedInSubject)) {
-          if (newUi) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-                TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          } else {            
-            guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
       }
@@ -182,12 +167,7 @@ public class SimplePermissionUpdateMenu {
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
         if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
-          if (newUi) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-                TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
-          } else {            
-            guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
         
@@ -206,31 +186,15 @@ public class SimplePermissionUpdateMenu {
       PermissionEntry permissionEntry = permissionFinder.findPermission(false);
       
       if (permissionEntry == null || permissionEntry.isDisallowed()) {
-        if (newUi) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.noImmediatePermissionFoundForLimit")));
-        } else {          
-          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.noImmediatePermissionFoundForLimit", false)));
-        }
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.noImmediatePermissionFoundForLimit", false)));
         return;
       }
 
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
-      String ownerGroupId = permissionEntry.getRole().getId();
-      Group ownerGroup = GroupFinder.findByUuid(grouperSession, ownerGroupId, true);
-      GuiGroup guiRole = new GuiGroup(ownerGroup);
-      guiPermissionEntry.setGuiRole(guiRole);
       guiPermissionEntry.setPermissionEntry(permissionEntry);
       guiPermissionEntry.setPermissionType(permissionType);
-      guiPermissionEntry.setGuiAttributeDefName(new GuiAttributeDefName(permissionEntry.getAttributeDefName()));
       
       permissionUpdateRequestContainer.setGuiPermissionEntry(guiPermissionEntry);
-      
-      if (newUi) {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPermission",
-            "/WEB-INF/grouperUi2/permission/permissionAddLimit.jsp"));
-        return;
-      }
 
       //set the permissions panel
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#permissionAssignAssignments", 
@@ -252,9 +216,8 @@ public class SimplePermissionUpdateMenu {
 
   /**
    * edit the enabled disabled
-   * @param newUi: true when this method called for new ui and false for lite ui. 
    */
-  public void assignmentMenuEditAssignment(boolean newUi) {
+  public void assignmentMenuEditAssignment() {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
@@ -294,12 +257,7 @@ public class SimplePermissionUpdateMenu {
         String roleId = matcher.group(1);
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
         if (!((Group)role).hasAdmin(loggedInSubject)) {
-          if (newUi) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-                TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          } else {            
-            guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
       }
@@ -322,12 +280,7 @@ public class SimplePermissionUpdateMenu {
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
         if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
-          if (newUi) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-                TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
-          } else {            
-            guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
         
@@ -346,32 +299,15 @@ public class SimplePermissionUpdateMenu {
       PermissionEntry permissionEntry = permissionFinder.findPermission(false);
       
       if (permissionEntry == null) {
-        if (newUi) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.noImmediatePermissionFound")));
-        } else {          
-          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.noImmediatePermissionFound", false)));
-        }
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.noImmediatePermissionFound", false)));
         return;
       }
 
-      Group ownerGroup = GroupFinder.findByUuid(grouperSession, permissionEntry.getRoleId(), true);
-      
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
       guiPermissionEntry.setPermissionEntry(permissionEntry);
       guiPermissionEntry.setPermissionType(permissionType);
-      GuiGroup guiRole = new GuiGroup(ownerGroup);
-      guiPermissionEntry.setGuiRole(guiRole);
-      guiPermissionEntry.setGuiAttributeDefName(new GuiAttributeDefName(permissionEntry.getAttributeDefName()));
-      guiPermissionEntry.setGuiAttributeDef(new GuiAttributeDef(permissionEntry.getAttributeDef()));
       
       permissionUpdateRequestContainer.setGuiPermissionEntry(guiPermissionEntry);
-      
-      if (newUi) {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPermission", 
-            "/WEB-INF/grouperUi2/permission/permissionEdit.jsp"));
-        return;
-      }
             
       guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
         "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionEdit.jsp"));
@@ -392,9 +328,8 @@ public class SimplePermissionUpdateMenu {
 
   /**
    * analyze assignment
-   * @param newUi- true when this method is called for new ui and false for lite ui
    */
-  public void assignmentMenuAnalyzeAssignment(boolean newUi) {
+  public void assignmentMenuAnalyzeAssignment() {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
@@ -434,12 +369,7 @@ public class SimplePermissionUpdateMenu {
         String roleId = matcher.group(1);
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
         if (!((Group)role).hasAdmin(loggedInSubject)) {
-          if (newUi) {            
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-                TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          } else {            
-            guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
       }
@@ -462,12 +392,7 @@ public class SimplePermissionUpdateMenu {
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
         if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
-          if (newUi) {            
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-                TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
-          } else {            
-            guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
         
@@ -494,12 +419,7 @@ public class SimplePermissionUpdateMenu {
       }
 
       if (GrouperUtil.length(permissionEntries) == 0) {
-        if (newUi) {            
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.analyzeNoPermissionFound")));
-        } else {          
-          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.analyzeNoPermissionFound", false)));
-        }
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.analyzeNoPermissionFound", false)));
         return;
       }
       
@@ -532,14 +452,8 @@ public class SimplePermissionUpdateMenu {
      
       permissionEntry = permissionEntriesList.get(0);
       
-      Group ownerGroup = GroupFinder.findByUuid(grouperSession, permissionEntry.getRoleId(), true);
-      
       guiPermissionEntry.setPermissionEntry(permissionEntry);
       guiPermissionEntry.setPermissionType(permissionType);
-      GuiGroup guiRole = new GuiGroup(ownerGroup);
-      guiPermissionEntry.setGuiRole(guiRole);
-      guiPermissionEntry.setGuiAttributeDefName(new GuiAttributeDefName(permissionEntry.getAttributeDefName()));
-      guiPermissionEntry.setGuiAttributeDef(new GuiAttributeDef(permissionEntry.getAttributeDef()));
 
       List<GuiPermissionEntry> rawGuiPermissionEntries = new ArrayList<GuiPermissionEntry>();
       
@@ -550,16 +464,8 @@ public class SimplePermissionUpdateMenu {
       String isBetterThan =  GrouperUiUtils.message("simplePermissionAssign.analyzeIsBetterThan", false); 
       
       for (PermissionEntry current : permissionEntriesList) {
-
-        Group currentOwnerGroup = GroupFinder.findByUuid(grouperSession, current.getRoleId(), true);
-        GuiGroup currentGuiRole = new GuiGroup(currentOwnerGroup);
-        
         GuiPermissionEntry guiCurrent = new GuiPermissionEntry();
         guiCurrent.setPermissionEntry(current);
-        guiCurrent.setGuiRole(currentGuiRole);
-        guiCurrent.setGuiAttributeDefName(new GuiAttributeDefName(permissionEntry.getAttributeDefName()));
-        guiCurrent.setGuiAttributeDef(new GuiAttributeDef(permissionEntry.getAttributeDef()));
-        
         rawGuiPermissionEntries.add(guiCurrent);
         
         if (!isFirst) {
@@ -620,13 +526,9 @@ public class SimplePermissionUpdateMenu {
       guiPermissionEntry.processRawEntries();
 
       permissionUpdateRequestContainer.setGuiPermissionEntry(guiPermissionEntry);
-      
-      if (newUi) {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPermission", 
-            "/WEB-INF/grouperUi2/permission/permissionAnalyze.jsp"));
-        return;
-      }
             
+      
+      
       guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
         "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionAnalyze.jsp"));
   
@@ -681,48 +583,9 @@ public class SimplePermissionUpdateMenu {
   
     throw new ControllerDone();
   }
-  
-  /**
-   * make the structure of the attribute assignment for new ui
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void assignmentMenuStructureNewUi(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addLimitMenuItem = new DhtmlxMenuItem();
-      addLimitMenuItem.setId("addLimitNewUi");
-      addLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.addLimit"));
-      addLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.addLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addLimitMenuItem);
-    }    
-  
-    {
-      DhtmlxMenuItem analyzeAssignmentMenuItem = new DhtmlxMenuItem();
-      analyzeAssignmentMenuItem.setId("analyzeAssignmentNewUi");
-      analyzeAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignment"));
-      analyzeAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(analyzeAssignmentMenuItem);
-    }    
-  
-    {
-      DhtmlxMenuItem editAssignmentMenuItem = new DhtmlxMenuItem();
-      editAssignmentMenuItem.setId("editAssignmentNewUi");
-      editAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.editAssignment"));
-      editAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.editAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editAssignmentMenuItem);
-    }    
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
-  }
 
   /**
-   * make the structure of the limit menu for lite ui
+   * make the structure of the limit menu
    * @param httpServletRequest
    * @param httpServletResponse
    */
@@ -736,53 +599,14 @@ public class SimplePermissionUpdateMenu {
       addValueMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValue"));
       addValueMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValueTooltip"));
       dhtmlxMenu.addDhtmlxItem(addValueMenuItem);
-    }
-    
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
-  }
-  
-  /**
-   * make the structure of the limit menu for the new ui
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void limitMenuStructureNewUi(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addValueMenuItem = new DhtmlxMenuItem();
-      addValueMenuItem.setId("addValueNewUi");
-      addValueMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValue"));
-      addValueMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addValueMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem editLimitMenuItem = new DhtmlxMenuItem();
-      editLimitMenuItem.setId("editLimitNewUi");
-      editLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditLimit"));
-      editLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editLimitMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem deleteLimitMenuItem = new DhtmlxMenuItem();
-      deleteLimitMenuItem.setId("deleteLimitNewUi");
-      deleteLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteLimit"));
-      deleteLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(deleteLimitMenuItem);
-    }
+    }    
   
     GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
         dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
   
     throw new ControllerDone();
   }
-  
+
   /**
    * handle a click or select from the limit menu
    * @param httpServletRequest
@@ -801,103 +625,16 @@ public class SimplePermissionUpdateMenu {
     String menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
   
     if (StringUtils.equals(menuItemId, "addValue")) {
-      this.limitMenuAddValue(false);
-    } else if (StringUtils.equals(menuItemId, "addValueNewUi")) {
-      this.limitMenuAddValue(true);
-    } else if (StringUtils.equals(menuItemId, "editLimitNewUi")) {
-      httpServletRequest.setAttribute("newUi", true);
-      httpServletRequest.setAttribute("limitAssignId", retrieveLimitAssignId(httpServletRequest));
-      new SimplePermissionUpdate().assignLimitEdit(httpServletRequest, httpServletResponse);
-    } else if (StringUtils.equals(menuItemId, "deleteLimitNewUi")) {
-      httpServletRequest.setAttribute("limitAssignId", retrieveLimitAssignId(httpServletRequest));
-      new UiV2Permission().limitDelete(httpServletRequest, httpServletResponse);
-    }  
-    
-    else {
-      throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
-    }
-  }
-  
-  /**
-   * @param httpServletRequest
-   * @return limitAssignId from request
-   */
-  private String retrieveLimitAssignId(HttpServletRequest httpServletRequest) {
-    String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
-    
-    if (StringUtils.isBlank(menuIdOfMenuTarget)) {
-      throw new RuntimeException("Missing id of menu target");
-    }
-    if (!menuIdOfMenuTarget.startsWith("limitMenuButton_")) {
-      throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
-    }
-    String limitAssignId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "limitMenuButton_", false);
-    return limitAssignId;
-  }
-  
-  /**
-   * make the structure of the limit value menu for the new ui
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void limitValueMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-       
-    {
-      DhtmlxMenuItem editLimitMenuItem = new DhtmlxMenuItem();
-      editLimitMenuItem.setId("editLimitValueNewUi");
-      editLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditValue"));
-      editLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editLimitMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem deleteLimitMenuItem = new DhtmlxMenuItem();
-      deleteLimitMenuItem.setId("deleteLimitValueNewUi");
-      deleteLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteValue"));
-      deleteLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(deleteLimitMenuItem);
-    }
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
-  }
-  
-  /**
-   * handle a click or select from the limit menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  @SuppressWarnings("unused")
-  public void limitValueMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-  
-    GrouperSession grouperSession = null;
-      
-    String menuItemId = httpServletRequest.getParameter("menuItemId");
-    String menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
-  
-    if (StringUtils.equals(menuItemId, "editLimitValueNewUi")) {
-      new UiV2Permission().limitValueEdit(httpServletRequest, httpServletResponse);
-    } else if (StringUtils.equals(menuItemId, "deleteLimitValueNewUi")) {
-      new UiV2Permission().limitValueDelete(httpServletRequest, httpServletResponse);
+      this.limitMenuAddValue();
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
   }
 
-  
   /**
    * add a value
-   * @param newUi: true when this method is called from new ui false for lite ui
    */
-  public void limitMenuAddValue(boolean newUi) {
+  public void limitMenuAddValue() {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
@@ -945,11 +682,6 @@ public class SimplePermissionUpdateMenu {
       permissionUpdateRequestContainer.setAttributeAssignType(underlyingPermissionAssignType);
       permissionUpdateRequestContainer.setAttributeAssignAssignType(limitAssignType);
         
-      if (newUi) {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPermission", 
-            "/WEB-INF/grouperUi2/permission/permissionLimitAddValue.jsp"));
-        return;
-      }
             
       guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
         "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionLimitAddValue.jsp"));
