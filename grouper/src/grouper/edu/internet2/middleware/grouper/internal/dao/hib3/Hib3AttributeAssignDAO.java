@@ -4767,7 +4767,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param attributeAssigns
    */
   private static void attributeAssignFlashCacheAddIfSupposedTo(MultiKey multiKey, Set<AttributeAssign> attributeAssigns) {
-    if (multiKey == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE, true)) {
+    if (multiKey == null || attributeAssigns == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE, true)) {
       return;
     }
     

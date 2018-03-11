@@ -317,7 +317,7 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
    * @param attributeAssignActions 
    */
   private static void attributeAssignActionFlashCacheAddIfSupposedToByAttributeDef(String attributeDefId, Set<AttributeAssignAction> attributeAssignActions) {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_ATTRIBUTE_ASSIGN_ACTION, true)) {
+    if (StringUtils.isBlank(attributeDefId) || attributeAssignActions == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_ATTRIBUTE_ASSIGN_ACTION, true)) {
       return;
     }
     

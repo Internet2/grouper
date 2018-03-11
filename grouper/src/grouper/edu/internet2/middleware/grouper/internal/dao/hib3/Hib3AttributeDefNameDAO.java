@@ -1281,6 +1281,9 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param attributeDefName
    */
   public static void attributeDefNameCacheAsRootIdsAndNamesAdd(AttributeDefName attributeDefName) {
+    if (attributeDefName == null) {
+      return;
+    }
     //say this is cached since might be attributedef.id
     attributeDefNameCacheAsRootIdsAndNames.add(attributeDefName.getId());
     attributeDefNameCacheAsRootIdsAndNames.add(attributeDefName.getName());
@@ -1363,7 +1366,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param attributeDefName
    */
   private static void attributeDefNameFlashCacheAddIfSupposedTo(AttributeDefName attributeDefName) {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_NAME_CACHE, true)) {
+    if (attributeDefName == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_NAME_CACHE, true)) {
       return;
     }
     
