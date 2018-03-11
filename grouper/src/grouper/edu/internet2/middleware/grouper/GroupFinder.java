@@ -85,10 +85,12 @@ public class GroupFinder {
    * @param group
    */
   public static void groupCacheAsRootAddSystemGroup(Group group) {
-    groupCacheAsRootIdsNamesAndIndexes.add(group.getId());
-    groupCacheAsRootIdsNamesAndIndexes.add(group.getName());
-    groupCacheAsRootIdsNamesAndIndexes.add(group.getIdIndex());
-    groupCacheAsRootAddIfSupposedTo(group);
+    if (group != null) {
+      groupCacheAsRootIdsNamesAndIndexes.add(group.getId());
+      groupCacheAsRootIdsNamesAndIndexes.add(group.getName());
+      groupCacheAsRootIdsNamesAndIndexes.add(group.getIdIndex());
+      groupCacheAsRootAddIfSupposedTo(group);
+    }
   }
 
   /**
@@ -96,6 +98,9 @@ public class GroupFinder {
    * @param group
    */
   public static void groupCacheRemove(Group group) {
+    if (group == null) {
+      return;
+    }
     groupRootCache.remove(group.getUuid());
     groupRootCache.remove(group.getName());
     groupRootCache.remove(group.getIdIndex());
@@ -119,7 +124,7 @@ public class GroupFinder {
    * @param group
    */
   private static void groupFlashCacheAddIfSupposedTo(Group group) {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_GROUPS_IN_FINDER, true)) {
+    if (group == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_GROUPS_IN_FINDER, true)) {
       return;
     }
     

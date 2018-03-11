@@ -1110,6 +1110,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @param attributeDef
    */
   public static void attributeDefCacheAsRootIdsAndNamesAdd(AttributeDef attributeDef) {
+    if (attributeDef == null) {
+      return;
+    }
     attributeDefCacheAsRootIdsAndNames.add(attributeDef.getId());
     attributeDefCacheAsRootIdsAndNames.add(attributeDef.getName());
   
@@ -1211,7 +1214,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @param attributeDef
    */
   private static void attributeDefFlashCacheAddIfSupposedTo(AttributeDef attributeDef) {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
+    if (attributeDef == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
       return;
     }
     

@@ -864,7 +864,7 @@ public class StemFinder {
    * @param stem
    */
   private static void stemFlashCacheAddIfSupposedTo(Stem stem) {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_STEMS_IN_FINDER, true)) {
+    if (stem == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_STEMS_IN_FINDER, true)) {
       return;
     }
     
