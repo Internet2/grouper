@@ -64,7 +64,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupTypeIncludeExclude("testRequireGroup1"));
+    TestRunner.run(new TestGroupTypeIncludeExclude("testRequireGroup"));
     //TestRunner.run(TestGroupTypeIncludeExclude.class);
   }
   
@@ -360,6 +360,10 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ5));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ6));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ7));
+
+    aGroup = GroupFinder.findByName(grouperSession, aGroup.getName(), true);
+
+    aGroup.delete();
 
   }
 
@@ -1404,6 +1408,11 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ5));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ6));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ7));
+    
+    aGroup = GroupFinder.findByName(grouperSession, aGroup.getName(), true);
+
+    aGroup.delete();
+    
   }
 
   /**

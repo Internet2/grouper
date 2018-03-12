@@ -322,6 +322,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public void saveOrUpdate(AttributeAssign attributeAssign) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssign);
+    attributeAssignFlashCache.clear();
   }
 
   /**
@@ -379,6 +380,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public void delete(AttributeAssign attributeAssign) {
     HibernateSession.byObjectStatic().delete(attributeAssign);
+    attributeAssignFlashCache.clear();
   }
 
   /**

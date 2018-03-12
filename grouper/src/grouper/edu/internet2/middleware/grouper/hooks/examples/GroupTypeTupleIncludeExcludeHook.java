@@ -567,6 +567,10 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   private static void manageIncludesExcludesAndGroupsHelper(Group typedGroup, boolean isIncludeExclude, 
       Set<Group> andGroups, String calledFromForLog) {
 
+//    if (Group.deleteOccuring()) {
+//      return;
+//    }
+    
     String groupUuid = null;
     
     if (LOG.isDebugEnabled()) {
