@@ -65,6 +65,31 @@ import edu.internet2.middleware.subject.Subject;
 public class StemFinder {
 
   /**
+   * remove this from all caches
+   * @param id
+   */
+  public static void stemCacheRemoveById(String id) {
+    if (id == null) {
+      return;
+    }
+    Stem stem = stemFlashCacheRetrieve(id, null);
+    stemCacheRemove(stem);
+  }
+
+  /**
+   * remove this from all caches
+   * @param stem
+   */
+  public static void stemCacheRemove(Stem stem) {
+    if (stem == null) {
+      return;
+    }
+    stemFlashCache.remove(stem.getUuid());
+    stemFlashCache.remove(stem.getName());
+    stemFlashCache.remove(stem.getIdIndex());
+  }
+
+  /**
    * find stems where the user has these fields in a group
    */
   private Collection<Field> userHasInGroupFields;

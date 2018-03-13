@@ -113,7 +113,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("testCopyPrivs"));
+    TestRunner.run(new TestStemApi("test_copy_minimum_nonadmin"));
   }
 
   /** size before getting started */

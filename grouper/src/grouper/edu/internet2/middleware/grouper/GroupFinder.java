@@ -154,6 +154,11 @@ public class GroupFinder {
   }
 
   /**
+   * avoid a loop
+   */
+  private static InheritableThreadLocal<Boolean> grouperCacheableAsRootThreadLocal = new InheritableThreadLocal<Boolean>();
+  
+  /**
    * see if this is cacheable
    * @param id
    * @param queryOptions 
@@ -162,39 +167,51 @@ public class GroupFinder {
    */
   private static boolean groupCacheableAsRoot(Object id, QueryOptions queryOptions, boolean checkGrouperSession) {
 
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_CACHE_GROUPS_IN_FINDER, true)) {
+    Boolean grouperCacheableAsRootThreadLocalBoolean = grouperCacheableAsRootThreadLocal.get();
+    if (grouperCacheableAsRootThreadLocalBoolean != null && grouperCacheableAsRootThreadLocalBoolean) {
+      //get the group, already in this method
       return false;
     }
 
-    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
-      return false;
-    }
+    grouperCacheableAsRootThreadLocal.set(true);
 
-    if (checkGrouperSession) {
-      
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-      
-      if (grouperSession == null) {
+    try {
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_CACHE_GROUPS_IN_FINDER, true)) {
+        return false;
+      }
+  
+      if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+        return false;
+      }
+  
+      if (checkGrouperSession) {
+        
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+        
+        if (grouperSession == null) {
+          return false;
+        }
+        
+        Subject grouperSessionSubject = grouperSession.getSubject();
+  
+        if (grouperSessionSubject == null || !PrivilegeHelper.isWheelOrRoot(grouperSessionSubject)) {
+          return false; 
+        }
+      }
+  
+      if (queryOptions != null 
+          && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
         return false;
       }
       
-      Subject grouperSessionSubject = grouperSession.getSubject();
-
-      if (grouperSessionSubject == null || !PrivilegeHelper.isWheelOrRoot(grouperSessionSubject)) {
-        return false; 
+      if (!groupCacheAsRootIdsNamesAndIndexes.contains(id)) {
+        return false;
       }
+      
+      return true;
+    } finally {
+      grouperCacheableAsRootThreadLocal.remove();
     }
-
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
-      return false;
-    }
-    
-    if (!groupCacheAsRootIdsNamesAndIndexes.contains(id)) {
-      return false;
-    }
-    
-    return true;
   }
 
   /**

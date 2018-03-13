@@ -47,7 +47,7 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipAttributeSecurityTest("testGrouperSystem"));
+    TestRunner.run(new MembershipAttributeSecurityTest("testSecuritySubj0"));
     //TestRunner.run(MembershipAttributeSecurityTest.class);
 
   }

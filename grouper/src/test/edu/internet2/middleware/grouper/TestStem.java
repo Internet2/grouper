@@ -99,7 +99,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testObliterateAndPointInTimeComposite"));
+    TestRunner.run(new TestStem("testCache"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -185,7 +185,7 @@ public class TestStem extends GrouperTest {
     
     stem.obliterate(false, false);
     
-    stem = StemFinder.findByName(grouperSession, "test", false);
+    stem = StemFinder.findByName(grouperSession, "test", false, new QueryOptions().secondLevelCache(false));
     
     assertNull(stem);
     
@@ -1197,7 +1197,6 @@ public class TestStem extends GrouperTest {
     StemHelper.addChildGroup(edu, "i2", "internet2");
     edu = StemFinder.findByName(s, edu.getName(), true);
   
-    
     try {
       Subject modifier = edu.getModifySubject();
       Assert.fail("no exception thrown");
@@ -1208,7 +1207,11 @@ public class TestStem extends GrouperTest {
     Date  d       = edu.getModifyTime();
     Assert.assertTrue("modify time null", d.getTime() == 0);
     
+    edu.grantPriv(SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
+    edu = StemFinder.findByName(s, edu.getName(), true, new QueryOptions().secondLevelCache(false));
+    
     d = edu.getLastMembershipChange();
+    
     Assert.assertNotNull("last membership change !null: " + d, d);
     Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
     
@@ -1242,6 +1245,9 @@ public class TestStem extends GrouperTest {
     Date  d       = edu.getModifyTime();
     Assert.assertTrue("modify time null", d.getTime() == 0);
     
+    edu.grantPriv(SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
+    edu = StemFinder.findByName(s, edu.getName(), true, new QueryOptions().secondLevelCache(false));
+
     d = edu.getLastMembershipChange();
     Assert.assertNotNull("last membership change !null: " + d, d);
     Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
@@ -1263,8 +1269,8 @@ public class TestStem extends GrouperTest {
   
   
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins before grant", 1, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers before grant", 0, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins before grant", 0, r.ns.getStemAdmins().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
   
       GrouperSession.callbackGrouperSession(r.rs, new GrouperSessionHandler() {
@@ -1282,8 +1288,8 @@ public class TestStem extends GrouperTest {
       });
   
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins after grant" , 2, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers after grant" , 1, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins after grant" , 1, r.ns.getStemAdmins().size()  );
       T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
   
       s.stop();
@@ -1300,13 +1306,13 @@ public class TestStem extends GrouperTest {
       R       r     = R.populateRegistry(0, 0, 1);
       Subject subjA = r.getSubject("a");
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins before grant", 1, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers before grant", 0, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins before grant", 0, r.ns.getStemAdmins().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
       r.ns.grantPriv(subjA, NamingPrivilege.STEM);
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins after grant" , 2, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers after grant" , 1, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins after grant" , 1, r.ns.getStemAdmins().size()  );
       T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
       r.rs.stop();
     }
@@ -1404,14 +1410,20 @@ public class TestStem extends GrouperTest {
       Stem    nsA   = r.getStem("a");
       
       Thread.sleep(1);
+
+      nsA.grantPriv(SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
+      nsA = StemFinder.findByName(GrouperSession.staticGrouperSession(), nsA.getName(), true, new QueryOptions().secondLevelCache(false));
+
       long    orig  = nsA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
       Thread.sleep(1);
       nsA.setDescription("test");
       nsA.store();
       Thread.sleep(1);
-      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      nsA = StemFinder.findByName(GrouperSession.staticGrouperSession(), nsA.getName(), true, new QueryOptions().secondLevelCache(false));
       long    mtime = nsA.getModifyTime().getTime();
+
+
       long    mtime_mem = nsA.getLastMembershipChange().getTime();
   
       assertTrue( "nsA modify time updated (" + mtime + " > " + orig + ")", mtime > orig );

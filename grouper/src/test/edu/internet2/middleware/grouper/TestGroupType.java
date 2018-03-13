@@ -70,7 +70,7 @@ public class TestGroupType extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupType("testDeleteGroupWithAttrsAndList"));
+    TestRunner.run(new TestGroupType("testDelete_FieldsDeletedWhenGroupTypeIsDeleted"));
   }
   
   // Private Static Class Constants

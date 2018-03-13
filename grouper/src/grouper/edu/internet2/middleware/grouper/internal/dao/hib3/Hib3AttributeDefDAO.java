@@ -39,7 +39,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -147,7 +146,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (!exceptionIfNotFound) {
       return null;
     }
-    throw new AttributeDefNameNotFoundException("AttributeDef not found: " + id);
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + id);
   }
 
   /**

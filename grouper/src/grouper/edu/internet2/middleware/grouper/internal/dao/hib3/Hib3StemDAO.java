@@ -149,6 +149,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             }
         
       });
+      GroupFinder.groupCacheRemove(_group);
     } catch (GrouperDAOException e) {
       String error = "Problem create child group: " + GrouperUtil.toStringSafe(_stem)
         + ", child: " + GrouperUtil.toStringSafe(_group) + ", memberDto: " 
@@ -207,6 +208,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             }
         
       });
+      Hib3AttributeDefDAO.attributeDefCacheRemove(attributeDef);
+
     } catch (GrouperDAOException e) {
       String error = "Problem create child attributeDef: " + GrouperUtil.toStringSafe(_stem)
         + ", child: " + GrouperUtil.toStringSafe(attributeDef) + ", " + e.getMessage();
@@ -225,6 +228,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     _child.validate();
     
     HibernateSession.byObjectStatic().save(_child);
+    
+    StemFinder.stemCacheRemove(_child);
     
     createGroupSetsForStem(_child);
     
@@ -457,6 +462,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
+    StemFinder.stemCacheRemove(_ns);
   } 
 
   /**
@@ -1145,7 +1151,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperUtil.injectInException(e, error);
       throw e;
     }
-          
+         
+    StemFinder.stemCacheRemove(_ns);
    }
 
 
@@ -1912,6 +1919,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             }
         
       });
+      Hib3AttributeDefNameDAO.attributeDefNameCacheRemove(attributeDefName);
+      
     } catch (GrouperDAOException e) {
       String error = "Problem create child attributeDef: " + GrouperUtil.toStringSafe(_parent)
         + ", child: " + GrouperUtil.toStringSafe(attributeDefName) + ", " + e.getMessage();
@@ -1927,6 +1936,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     HibernateSession.bySqlStatic().executeSql(
         "update grouper_stems set last_membership_change = ? where id = ?",
         GrouperUtil.toList((Object) System.currentTimeMillis(), stemId));
+    StemFinder.stemCacheRemoveById(stemId);
   }
   
 
