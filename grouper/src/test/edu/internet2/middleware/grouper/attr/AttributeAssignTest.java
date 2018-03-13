@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
@@ -72,7 +73,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindAnyMembershipAttributeAssignmentsAssignmentsByValue"));
+    TestRunner.run(new AttributeAssignTest("testXmlDifferentUpdateProperties"));
   }
   
   /**
@@ -327,7 +328,7 @@ public class AttributeAssignTest extends GrouperTest {
   public static AttributeAssign exampleRetrieveAttributeAssignDb() {
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:testAttributeAssignDefName", true);
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:groupTestAttrAssign", true);
-    return group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    return new AttributeAssignFinder().addOwnerGroupId(group.getId()).addAttributeDefNameId(attributeDefName.getId()).findAttributeAssigns().iterator().next();
   }
 
   

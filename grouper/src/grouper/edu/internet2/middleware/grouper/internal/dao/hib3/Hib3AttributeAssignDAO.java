@@ -713,6 +713,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameIdToAssign, attrAssignIdToAssignTo, null, null, null, null, null);
     Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
     if (attributeAssigns != null) {
+      //caching might not work here, need option to not use cache from AttributeAssignBaseDelegate.retrieveAssignment
       return attributeAssigns;
     }      
     

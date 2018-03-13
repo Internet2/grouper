@@ -2395,6 +2395,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         
 
                 GrouperDAOFactory.getFactory().getStem().createChildGroup(Stem.this, _g, _m);
+                hibernateHandlerBean.getHibernateSession().misc().flush();
+                
                 if (addDefaultGroupPrivileges) {
                   _grantDefaultPrivsUponCreate(_g);
                 }
