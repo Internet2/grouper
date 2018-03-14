@@ -191,6 +191,12 @@ public class GoogleGrouperConnector {
     public User fetchGooUser(String userKey) {
         User user = GoogleCacheManager.googleUsers().get(userKey);
         if (user == null) {
+            if (!userKey.endsWith(properties.getGoogleDomain())) {
+                user = new User();
+                user.setPrimaryEmail(userKey);
+                return user;
+            }
+
             try {
                 user = GoogleAppsSdkUtils.retrieveUser(directoryClient, userKey);
             } catch (IOException e) {
@@ -232,14 +238,14 @@ public class GoogleGrouperConnector {
     }
 
     public User createGooUser(Subject subject) throws IOException {
-        final String email = subject.getAttributeValue("email");
         final String subjectName = subject.getName();
+        final String email = addressFormatter.qualifySubjectAddress(subject);
 
-        User newUser = null;
-        if (properties.shouldProvisionUsers()) {
+        User newUser;
+        if (properties.shouldProvisionUsers() && email.endsWith(properties.getGoogleDomain())) {
             newUser = new User();
             newUser.setPassword(new BigInteger(130, new SecureRandom()).toString(32))
-                    .setPrimaryEmail(email != null ? email : addressFormatter.qualifySubjectAddress(subject))
+                    .setPrimaryEmail(email)
                     .setIncludeInGlobalAddressList(properties.shouldIncludeUserInGlobalAddressList())
                     .setName(new UserName())
                     .getName().setFullName(subjectName);
@@ -256,6 +262,9 @@ public class GoogleGrouperConnector {
 
             newUser = GoogleAppsSdkUtils.addUser(directoryClient, newUser);
             GoogleCacheManager.googleUsers().put(newUser);
+        } else {
+            newUser = new User();
+            newUser.setPrimaryEmail(email);
         }
 
         return newUser;
@@ -293,36 +302,40 @@ public class GoogleGrouperConnector {
             recentlyManipulatedObjectsList.add(groupKey);
 
             recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
-            final Groups groupSettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
-            final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
-            groupSettings.setWhoCanJoin(defaultGroupSettings.getWhoCanJoin())
-                    .setWhoCanViewMembership(defaultGroupSettings.getWhoCanViewMembership())
-                    .setWhoCanViewGroup(defaultGroupSettings.getWhoCanViewGroup())
-                    .setWhoCanInvite(defaultGroupSettings.getWhoCanInvite())
-                    .setWhoCanAdd(defaultGroupSettings.getWhoCanAdd())
-                    .setAllowExternalMembers(defaultGroupSettings.getAllowExternalMembers())
-                    .setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage())
-                    .setAllowWebPosting(defaultGroupSettings.getAllowWebPosting())
-                    .setPrimaryLanguage(defaultGroupSettings.getPrimaryLanguage())
-                    .setMaxMessageBytes(defaultGroupSettings.getMaxMessageBytes())
-                    .setIsArchived(defaultGroupSettings.getIsArchived())
-                    .setMessageModerationLevel(defaultGroupSettings.getMessageModerationLevel())
-                    .setSpamModerationLevel(defaultGroupSettings.getSpamModerationLevel())
-                    .setReplyTo(defaultGroupSettings.getReplyTo())
-                    .setCustomReplyTo(defaultGroupSettings.getCustomReplyTo())
-                    .setIncludeCustomFooter(defaultGroupSettings.getIncludeCustomFooter())
-                    .setCustomFooterText(defaultGroupSettings.getCustomFooterText())
-                    .setSendMessageDenyNotification(defaultGroupSettings.getSendMessageDenyNotification())
-                    .setDefaultMessageDenyNotificationText(defaultGroupSettings.getDefaultMessageDenyNotificationText())
-                    .setShowInGroupDirectory(defaultGroupSettings.getShowInGroupDirectory())
-                    .setAllowGoogleCommunication(defaultGroupSettings.getAllowGoogleCommunication())
-                    .setMembersCanPostAsTheGroup(defaultGroupSettings.getMembersCanPostAsTheGroup())
-                    .setMessageDisplayFont(defaultGroupSettings.getMessageDisplayFont())
-                    .setIncludeInGlobalAddressList(defaultGroupSettings.getIncludeInGlobalAddressList())
-                    .setWhoCanLeaveGroup(defaultGroupSettings.getWhoCanLeaveGroup())
-                    .setWhoCanContactOwner(defaultGroupSettings.getWhoCanContactOwner());
-            GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupSettings);
-            recentlyManipulatedObjectsList.add(groupKey);
+
+            if (properties.useGroupSettings()) {
+
+                final Groups groupSettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
+                final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
+                groupSettings.setWhoCanJoin(defaultGroupSettings.getWhoCanJoin())
+                        .setWhoCanViewMembership(defaultGroupSettings.getWhoCanViewMembership())
+                        .setWhoCanViewGroup(defaultGroupSettings.getWhoCanViewGroup())
+                        .setWhoCanInvite(defaultGroupSettings.getWhoCanInvite())
+                        .setWhoCanAdd(defaultGroupSettings.getWhoCanAdd())
+                        .setAllowExternalMembers(defaultGroupSettings.getAllowExternalMembers())
+                        .setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage())
+                        .setAllowWebPosting(defaultGroupSettings.getAllowWebPosting())
+                        .setPrimaryLanguage(defaultGroupSettings.getPrimaryLanguage())
+                        .setMaxMessageBytes(defaultGroupSettings.getMaxMessageBytes())
+                        .setIsArchived(defaultGroupSettings.getIsArchived())
+                        .setMessageModerationLevel(defaultGroupSettings.getMessageModerationLevel())
+                        .setSpamModerationLevel(defaultGroupSettings.getSpamModerationLevel())
+                        .setReplyTo(defaultGroupSettings.getReplyTo())
+                        .setCustomReplyTo(defaultGroupSettings.getCustomReplyTo())
+                        .setIncludeCustomFooter(defaultGroupSettings.getIncludeCustomFooter())
+                        .setCustomFooterText(defaultGroupSettings.getCustomFooterText())
+                        .setSendMessageDenyNotification(defaultGroupSettings.getSendMessageDenyNotification())
+                        .setDefaultMessageDenyNotificationText(defaultGroupSettings.getDefaultMessageDenyNotificationText())
+                        .setShowInGroupDirectory(defaultGroupSettings.getShowInGroupDirectory())
+                        .setAllowGoogleCommunication(defaultGroupSettings.getAllowGoogleCommunication())
+                        .setMembersCanPostAsTheGroup(defaultGroupSettings.getMembersCanPostAsTheGroup())
+                        .setMessageDisplayFont(defaultGroupSettings.getMessageDisplayFont())
+                        .setIncludeInGlobalAddressList(defaultGroupSettings.getIncludeInGlobalAddressList())
+                        .setWhoCanLeaveGroup(defaultGroupSettings.getWhoCanLeaveGroup())
+                        .setWhoCanContactOwner(defaultGroupSettings.getWhoCanContactOwner());
+                GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupSettings);
+                recentlyManipulatedObjectsList.add(groupKey);
+            }
 
         } else {
           unarchiveGooGroupIfNecessary(googleGroup);
@@ -364,7 +377,7 @@ public class GoogleGrouperConnector {
         } else if ((properties.getWhoCanManage().equalsIgnoreCase("BOTH") && member.canUpdate(group))
                 || (properties.getWhoCanManage().equalsIgnoreCase("ADMIN") && member.canAdmin(group))
                 || (properties.getWhoCanManage().equalsIgnoreCase("UPDATE") && member.canUpdate(group) && !member.canAdmin(group))
-           ) {
+                ) {
             return "MANAGER";
         } else if (member.isMember(group)) {
             return "MEMBER";
@@ -374,19 +387,23 @@ public class GoogleGrouperConnector {
     }
     
     public void unarchiveGooGroupIfNecessary(Group group) throws IOException {
-      String groupKey = group.getEmail();
-      final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
+        if (!properties.useGroupSettings()) {
+            return;
+        }
 
-      recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
-      Groups groupssettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
+        String groupKey = group.getEmail();
+        final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
 
-      if (groupssettings.getArchiveOnly().equalsIgnoreCase("true")) {
-          groupssettings.setArchiveOnly("false");
-          groupssettings.setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage());
+        recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
+        Groups groupssettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
 
-          GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupssettings);
-          recentlyManipulatedObjectsList.add(groupKey);
-      }
+        if (groupssettings.getArchiveOnly().equalsIgnoreCase("true")) {
+            groupssettings.setArchiveOnly("false");
+            groupssettings.setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage());
+
+            GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupssettings);
+            recentlyManipulatedObjectsList.add(groupKey);
+        }
     }
 
     public void deleteGooGroup(edu.internet2.middleware.grouper.Group group) throws IOException {
@@ -597,7 +614,6 @@ public class GoogleGrouperConnector {
             createGooMember(gooGroup, user, role);
         }
     }
-
 
     public void updateGooMember(edu.internet2.middleware.grouper.Group group, Subject subject, String role) throws IOException {
         User user = fetchGooUser(addressFormatter.qualifySubjectAddress(subject));

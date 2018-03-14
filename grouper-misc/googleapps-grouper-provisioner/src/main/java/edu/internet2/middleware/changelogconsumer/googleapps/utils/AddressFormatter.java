@@ -38,7 +38,12 @@ public class AddressFormatter {
         context.set("subject", subject);
         context.set("subjectId", subject.getId());
 
-        String address = subjectIdentifierExp.evaluate(context).toString();
+        String address = subject.getId();
+        try {
+            address = subjectIdentifierExp.evaluate(context).toString();
+        } catch(Exception ex) {
+
+        }
 
         if (!address.contains("@")) {
             address = String.format("%s@%s", address, this.domain);

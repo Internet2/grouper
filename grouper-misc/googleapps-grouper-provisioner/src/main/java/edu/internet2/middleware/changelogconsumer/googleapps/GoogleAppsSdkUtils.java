@@ -18,16 +18,18 @@ package edu.internet2.middleware.changelogconsumer.googleapps;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryRequest;
 import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.admin.directory.model.*;
-import com.google.api.services.admin.directory.model.Groups;
 import com.google.api.services.groupssettings.Groupssettings;
 import com.google.api.services.groupssettings.GroupssettingsRequest;
 import com.google.api.services.groupssettings.GroupssettingsScopes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -35,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * GoogleAppsSdkUtils is a helper class that interfaces with the Google SDK Admin API and handles exponential back-off.
@@ -370,7 +370,7 @@ public class GoogleAppsSdkUtils {
         Directory.Members.Get request = null;
 
         try {
-            request = directoryClient.members().get(groupKey,userKey);
+            request = directoryClient.members().get(groupKey, userKey);
         } catch (IOException e) {
             LOG.error("An unknown error occurred: " + e);
         }

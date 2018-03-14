@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Grouper's subject resolver configuration
+$Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
+-->
+
+<sources>
+
+    <!-- Group Subject Resolver -->
+
+    <!--
+       You can flag a source as not throwing exception on a findAll (general search) i.e. if it is
+       ok if it is down.  Generally you probably won't want to do this.  It defaults to true if omitted.
+
+       <init-param>
+         <param-name>throwErrorOnFindAllFailure</param-name>
+         <param-value>false</param-value>
+       </init-param>
+     -->
+
+    <!--
+        You can make virtual attributes (attributes with formatting or based on other attributes) like this:
+        init-param name is subjectVirtualAttribute_<index>_<name> where index is the order to be processed
+        if some depend on others (0 to 99).  The value is the jexl expression language.  You can use subjectUtils
+        methods (aliased with "subjectUtils", or you can register your own class (must have default constructor).
+        Here are examples:
+
+       <init-param>
+         <param-name>subjectVirtualAttribute_0_loginIdLfName</param-name>
+         <param-value>Hey ${subject.getAttributeValue('LOGINID')} and ${subject.getAttributeValue('LFNAME')}</param-value>
+       </init-param>
+       <init-param>
+         <param-name>subjectVirtualAttribute_1_loginIdLfNameLoginId</param-name>
+         <param-value>${subject.getAttributeValue('loginIdLfName')} Hey ${subject.getAttributeValue('LOGINID')} and ${subject.getAttributeValue('LFNAME')}</param-value>
+       </init-param>
+       <init-param>
+         <param-name>subjectVirtualAttributeVariable_JDBCSourceAdapterTest</param-name>
+         <param-value>edu.internet2.middleware.subject.provider.JDBCSourceAdapterTest</param-value>
+       </init-param>
+       <init-param>
+         <param-name>subjectVirtualAttribute_2_loginIdSquared</param-name>
+         <param-value>${JDBCSourceAdapterTest.appendToSelf(subject.getAttributeValue('LOGINID'))}</param-value>
+       </init-param>
+
+      The first virtual attribute is accessible via: subject.getAttributeValue("loginIdLfNameLoginId");
+
+      you can set these c3p0 settings: maxConnectionAge (seconds), testConnectionOnCheckout (true|false),
+         preferredTestQuery (e.g. select 1 from dual), idleConnectionTestPeriod (seconds)
+
+     -->
+
+    <!--
+      NOTE: It is recommended that you **not** change the default
+            values for this source adapter.
+    -->
+    <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
+        <id>g:gsa</id>
+        <name>Grouper: Group Source Adapter</name>
+        <type>group</type>
+
+        <init-param>
+            <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+            <param-value>${subject.getAttributeValue('name')},${subject.getAttributeValue('displayName')},${subject.getAttributeValue('alternateName')}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sortAttribute0</param-name>
+            <param-value>displayExtension</param-value>
+        </init-param>
+        <init-param>
+            <param-name>searchAttribute0</param-name>
+            <param-value>searchAttribute0</param-value>
+        </init-param>
+        <!-- on a findPage() this is the most results returned -->
+        <init-param>
+            <param-name>maxPageSize</param-name>
+            <param-value>100</param-value>
+        </init-param>
+        <internal-attribute>searchAttribute0</internal-attribute>
+    </source>
+    <!-- Group Subject Resolver -->
+
+    <!--
+      NOTE: It is recommended that you **not** change the default
+            values for this source adapter.
+    -->
+    <source adapterClass="edu.internet2.middleware.grouper.entity.EntitySourceAdapter">
+        <id>grouperEntities</id>
+        <name>Grouper: Entity Source Adapter</name>
+        <type>application</type>
+
+        <init-param>
+            <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+            <!-- TODO add attribute for subject identifier -->
+            <param-value>${subject.getAttributeValue('name')},${subject.getAttributeValue('displayName')},${subject.getAttributeValue('alternateName')}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sortAttribute0</param-name>
+            <param-value>name</param-value>
+        </init-param>
+        <init-param>
+            <param-name>searchAttribute0</param-name>
+            <param-value>searchAttribute0</param-value>
+        </init-param>
+        <internal-attribute>searchAttribute0</internal-attribute>
+    </source>
+
+
+    <!-- Entity Subject Resolver -->
+    <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter">
+        <id>ldap</id>
+        <name>EDU Ldap</name>
+        <type>person</type>
+        <init-param>
+            <param-name>INITIAL_CONTEXT_FACTORY</param-name>
+            <param-value>com.sun.jndi.ldap.LdapCtxFactory</param-value>
+        </init-param>
+        <init-param>
+            <param-name>PROVIDER_URL</param-name>
+            <param-value>ldap://localhost</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SECURITY_AUTHENTICATION</param-name>
+            <param-value>simple</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SECURITY_PRINCIPAL</param-name>
+            <param-value>cn=admin,dc=example,dc=edu</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SECURITY_CREDENTIALS</param-name>
+            <param-value>password</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SubjectID_AttributeType</param-name>
+            <param-value>uid</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SubjectID_formatToLowerCase</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Name_AttributeType</param-name>
+            <param-value>cn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Description_AttributeType</param-name>
+            <param-value>cn</param-value>
+        </init-param>
+
+        /// Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
+        /// For filter use
+
+        <search>
+            <searchType>searchSubject</searchType>
+            <param>
+                <param-name>filter</param-name>
+                <param-value>
+                    (&amp;(uid=%TERM%)(objectclass=person))
+                </param-value>
+            </param>
+            <param>
+                <param-name>scope</param-name>
+                <param-value>
+                    SUBTREE_SCOPE
+                </param-value>
+            </param>
+            <param>
+                <param-name>base</param-name>
+                <param-value>
+                    ou=people,dc=example,dc=edu
+                </param-value>
+            </param>
+        </search>
+
+        <search>
+            <searchType>searchSubjectByIdentifier</searchType>
+            <param>
+                <param-name>filter</param-name>
+                <param-value>
+                    (&amp;(uid=%TERM%)(objectclass=person))
+                </param-value>
+            </param>
+            <param>
+                <param-name>scope</param-name>
+                <param-value>
+                    SUBTREE_SCOPE
+                </param-value>
+            </param>
+            <param>
+                <param-name>base</param-name>
+                <param-value>
+                    ou=people,dc=example,dc=edu
+                </param-value>
+            </param>
+        </search>
+
+        <search>
+            <searchType>search</searchType>
+            <param>
+                <param-name>filter</param-name>
+                <param-value>
+                    (&amp;(|(|(uid=%TERM%)(cn=*%TERM%*))(uid=%TERM%*))(objectclass=person))
+                </param-value>
+            </param>
+            <param>
+                <param-name>scope</param-name>
+                <param-value>
+                    SUBTREE_SCOPE
+                </param-value>
+            </param>
+            <param>
+                <param-name>base</param-name>
+                <param-value>
+                    ou=people,dc=example,dc=edu
+                </param-value>
+            </param>
+        </search>
+        <init-param>
+            <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+            <param-value>${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('uid'), "")},${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('cn'), "")},${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('exampleEduRegId'), "")}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sortAttribute0</param-name>
+            <param-value>cn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>searchAttribute0</param-name>
+            <param-value>searchAttribute0</param-value>
+        </init-param>
+
+        <!-- ##########################  STATUS SECTION for searches to filter out inactives and allow
+                                                        the user to filter by status with e.g. status=all
+                                                        this is optional, and advanced - ->
+        <!- - column or attribute which represents the status - - >
+        <!- -
+        <init-param>
+          <param-name>statusDatastoreFieldName</param-name>
+          <param-value>status</param-value>
+        </init-param> - - >
+        <!- - search string from user which represents the status.  e.g. status=active - - >
+        <!- -
+        <init-param>
+          <param-name>statusLabel</param-name>
+          <param-value>status</param-value>
+        </init-param> - - >
+        <!- - available statuses from screen (if not specified, any will be allowed). comma separated list.
+             Note, this is optional and you probably dont want to configure it, it is mostly necessary
+             when you have multiple sources with statuses...  if someone types an invalid status
+             and you have this configured, it will not filter by it - - >
+        <!- -
+        <init-param>
+          <param-name>statusesFromUser<param-name>
+          <param-value>Active, Inactive, Pending, All</param-value>
+        </init-param> - - >
+        <!- - all label from the user - - >
+        <!- -
+        <init-param>
+          <param-name>statusAllFromUser</param-name>
+          <param-value>All</param-value>
+        </init-param> - - >
+        <!- - if no status is specified, this will be used (e.g. for active only).  Note, the value should be of the
+             form the user would type in - - >
+        <!- -
+        <init-param>
+          <param-name>statusSearchDefault</param-name>
+          <param-value>status=active</param-value>
+        </init-param> - - >
+        <!- - translate between screen values of status, and the data store value.  Increment the 0 to 1, 2, etc for more translations.
+             so the user could enter: status=active, and that could translate to status_col=A.  The 'user' is what the user types in,
+             the 'datastore' is what is in the datastore.  The user part is not case-sensitive.  Note, this could be a many to one - - >
+        <!- -
+        <init-param>
+          <param-name>statusTranslateUser0</param-name>
+          <param-value>active</param-value>
+        </init-param>
+        <init-param>
+          <param-name>statusTranslateDatastore0</param-name>
+          <param-value>A</param-value>
+        </init-param> - - >
+        <!- - ########################## END STATUS SECTION -->
+
+
+        <internal-attribute>searchAttribute0</internal-attribute>
+
+        ///Attributes you would like to display when doing a search
+        <attribute>givenName</attribute>
+        <attribute>sn</attribute>
+        <attribute>uid</attribute>
+        <attribute>mail</attribute>
+
+    </source>
+
+
+</sources>

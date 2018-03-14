@@ -85,6 +85,8 @@ public class GoogleAppsSyncProperties {
     
     private boolean ignoreExtraGoogleGroups;
 
+    private boolean useGroupSettings;
+
     /** Newly deleted objects aren't always removed ASAP, nor are newly created/updated object ready immediately */
     private int recentlyManipulatedQueueSize;
     private int recentlyManipulatedQueueDelay;
@@ -176,6 +178,9 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "recentlyManipulatedQueueDelay", 2);
         LOG.debug("Google Apps Consumer - Setting recentlyManipulatedQueueDelay to {}", recentlyManipulatedQueueDelay);
 
+        useGroupSettings =
+                GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "useGroupSettings", true);
+        LOG.debug("Google Apps Consumer - Setting useGroupSettings to {}", useGroupSettings);
 
 
         defaultGroupSettings.setWhoCanJoin(
@@ -385,6 +390,8 @@ public class GoogleAppsSyncProperties {
     public boolean shouldIgnoreExtraGoogleMembers() { return ignoreExtraGoogleMembers; }
     
     public boolean shouldIgnoreExtraGoogleGroups() { return ignoreExtraGoogleGroups; }
+
+    public boolean useGroupSettings() { return useGroupSettings; }
 
     public int getRecentlyManipulatedQueueSize() {
         return recentlyManipulatedQueueSize;

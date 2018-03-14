@@ -6,9 +6,11 @@ COPY GoogleProvisioner.p12 /
 COPY testInit.gsh /
 
 RUN set -x; \
-    service mysql start \
-    && service slapd start \
-    && cd /opt/grouper.apiBinary-2.3.0/ \
+    (/usr/sbin/ns-slapd -D /etc/dirsrv/slapd-dir &); \
+    (/usr/bin/mysqld_safe &); \
+    while ! curl -s localhost:3306 > /dev/null; do echo waiting for mysql to start; sleep 3; done; \
+    while ! curl -s ldap://localhost:389 > /dev/null; do echo waiting for ldap to start; sleep 3; done; \
+    cd /opt/grouper.apiBinary-2.3.0/ \
     && bin/gsh /testInit.gsh \
     && rm /testInit.gsh \
     && bin/gsh -main edu.internet2.middleware.changelogconsumer.googleapps.GoogleAppsFullSync courses
