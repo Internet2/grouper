@@ -270,6 +270,13 @@ public class GuiAttributeAssign implements Serializable {
   }
   
   /**
+   * @return guiAttributeDefName
+   */
+  public GuiAttributeDefName getGuiAttributeDefName() {
+    return new GuiAttributeDefName(attributeAssign.getAttributeDefName());
+  }
+  
+  /**
    * format on screen of config for milestone: yyyy/MM/dd (not hh:mm aa)
    */
   public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd";
