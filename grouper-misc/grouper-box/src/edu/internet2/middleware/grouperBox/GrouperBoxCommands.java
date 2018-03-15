@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouperBox;
 
 import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,6 +26,7 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * commands against the box api
@@ -118,6 +121,13 @@ public class GrouperBoxCommands {
           GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperBox.clientId"), 
           clientSecret, jwtEncryptionPreferences,
           iAccessTokenCache);
+      
+      String proxyHost = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.proxyHost");
+      Integer proxyPort = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperBox.proxyPort");
+
+      if (StringUtils.isNotEmpty(proxyHost) && (proxyPort != null && proxyPort > 0)) {
+        boxAPIConnection.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
+      }
       
       boxApiConnectionCache.put(Boolean.TRUE, boxAPIConnection);
     }        
