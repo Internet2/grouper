@@ -50,6 +50,8 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportAttributeAssignTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);
     suite.addTestSuite(XmlExportAttributeDefScopeTest.class);
+    suite.addTestSuite(XmlExportAuditEntryTest.class);
+    suite.addTestSuite(XmlExportAuditTypeTest.class);
     //$JUnit-END$
     return suite;
   }

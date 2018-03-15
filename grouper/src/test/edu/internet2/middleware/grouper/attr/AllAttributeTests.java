@@ -19,6 +19,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.attr.assign.AllAttrAssignTests;
 import edu.internet2.middleware.grouper.attr.finder.AllAttrFinderTests;
+import edu.internet2.middleware.grouper.attr.value.AllAttributeValueTests;
 
 /**
  * 
@@ -54,7 +55,7 @@ public class AllAttributeTests {
     suite.addTestSuite(AttributeDefAttributeSecurityTest.class);
     //$JUnit-END$
 
-    suite.addTest(AllAttrAssignTests.suite());
+    suite.addTest(AllAttributeValueTests.suite());
 
     return suite;
   }

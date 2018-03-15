@@ -18,10 +18,10 @@
  */
 package edu.internet2.middleware.grouper.hooks;
 
-import edu.internet2.middleware.grouper.hooks.examples.AllHooksExamplesTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.hooks.examples.AllHooksExamplesTests;
 
 /**
  *
@@ -64,6 +64,9 @@ public class AllHooksTests {
     suite.addTestSuite(GroupTypeHooksTest.class);
     suite.addTestSuite(LifecycleHooksTest.class);
     suite.addTestSuite(AttributeDefNameHooksTest.class);
+    suite.addTestSuite(AttributeAssignValueHooksTest.class);
+    suite.addTestSuite(AttributeDefHooksTest.class);
+    suite.addTestSuite(ExternalSubjectHooksTest.class);
     //$JUnit-END$
     suite.addTest(AllHooksExamplesTests.suite());
     return suite;
