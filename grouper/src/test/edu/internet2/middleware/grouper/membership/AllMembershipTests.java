@@ -33,7 +33,8 @@ public class AllMembershipTests {
     suite.addTestSuite(TestMembership1.class);
     suite.addTestSuite(TestMembership12.class);
     suite.addTestSuite(TestMembership10.class);
-    suite.addTestSuite(Test_Unit_API_ImmediateMembershipValidator_validate.class);
+    /* Already called by validator.Suite_Unit_API_ImmediateMembershipValidator */
+    // suite.addTestSuite(Test_Unit_API_ImmediateMembershipValidator_validate.class);
     suite.addTestSuite(TestFindBadMemberships.class);
     suite.addTestSuite(TestMembership4.class);
     suite.addTestSuite(TestDisabledMembership.class);
@@ -60,6 +61,7 @@ public class AllMembershipTests {
     suite.addTestSuite(TestMembershipDeletes3.class);
     suite.addTestSuite(TestMembershipDeletes5.class);
     suite.addTestSuite(TestInvalidGrouperAllMemberships.class);
+    suite.addTestSuite(MembershipPathGroupTest.class);
     //$JUnit-END$
     return suite;
   }

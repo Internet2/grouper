@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.app;
 import edu.internet2.middleware.grouper.app.attestation.AllAttestationTests;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
+import edu.internet2.middleware.grouper.app.messaging.MessageConsumerDaemonTest;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import junit.framework.Test;
@@ -36,7 +37,7 @@ public class AllAppTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app");
     //$JUnit-BEGIN$
-
+    suite.addTestSuite(MessageConsumerDaemonTest.class);
     //$JUnit-END$
     if (GrouperConfig.getPropertyBoolean("junit.test.gsh", false)) {
       suite.addTest(AllGshTests.suite());
