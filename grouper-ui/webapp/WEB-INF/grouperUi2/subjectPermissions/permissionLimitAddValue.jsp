@@ -9,6 +9,8 @@
     <form id="simplePermissionLimitAddValueForm" name="simplePermissionLimitAddValueFormName" class="form-horizontal">
       <input name="limitAssignId" type="hidden" value="${permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
       
+      <input name="memberId" type="hidden" value="${permissionUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMemberId}" />
+      
       <div class="control-group">
         <c:set var="attributeAssignTypeLabelKey" value="${permissionUpdateRequestContainer.attributeAssignTypeLabelKey}"></c:set>
         <label class="control-label no-padding">${textContainer.text[attributeAssignTypeLabelKey] }</label>
@@ -53,8 +55,8 @@
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2GroupPermission.limitAddValueSubmit', {formIds: 'simplePermissionLimitAddValueForm'}); return false;">${textContainer.text['simplePermissionAssign.limitAddValueSubmitButton'] }</a> 
-        <a href="#" class="btn btn-cancel" role="button" onclick="ajax('../app/UiV2GroupPermission.groupPermission', {formIds: 'simplePermissionLimitAddValueForm'}); return false;">${textContainer.text['groupAssignPermissionCancelButton'] }</a>
+        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectPermission.limitAddValueSubmit', {formIds: 'simplePermissionLimitAddValueForm'}); return false;">${textContainer.text['simplePermissionAssign.limitAddValueSubmitButton'] }</a> 
+        <a href="#" class="btn btn-cancel" role="button" onclick="ajax('../app/UiV2SubjectPermission.subjectPermission', {formIds: 'simplePermissionLimitAddValueForm'}); return false;">${textContainer.text['groupAssignPermissionCancelButton'] }</a>
       </div>
       
     </form>

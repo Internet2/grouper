@@ -13,13 +13,13 @@
                    </div>
                    <div class="row-fluid">
                     <div id="assign-permission-block-container" class="well hide">
-                      <form id="assignPermissionGroupForm" class="form-horizontal">
+                      <form id="assignPermissionGroupForm" class="form-horizontal form-highlight" target="#">
 			                  <input type="hidden" name="groupId" value="${grouperRequestContainer.permissionContainer.guiGroup.group.id}" />
 			                  
 			                  <div class="control-group">
-			                    <label class="control-label">${textContainer.text['groupAssignPermissionPermissionDefLabel'] }</label>
+			                    <label for="permissionDefComboID" class="control-label">${textContainer.text['groupAssignPermissionPermissionDefLabel'] }</label>
 			                    <div class="controls">
-			                      <input type="hidden" name="attributeDefType" value="perm" /> 	                    	
+			                      <input type="hidden" name="attributeDefType" value="perm" />            	
 			                      <grouper:combobox2 idBase="permissionDefCombo" style="width: 30em"
 			                        filterOperation="UiV2AttributeDef.attributeDefFilter"
 			                        additionalFormElementNames="attributeDefType"
@@ -29,7 +29,7 @@
 			                    </div>
 			                  </div>
 			                  <div class="control-group">
-			                    <label class="control-label">${textContainer.text['groupAssignPermissionResourceLabel'] }</label>
+			                    <label for="permissionResourceNameComboID" class="control-label">${textContainer.text['groupAssignPermissionResourceLabel'] }</label>
 			                    <div class="controls">
 			                    	                    	
 			                      <grouper:combobox2 idBase="permissionResourceNameCombo" style="width: 30em"
@@ -42,7 +42,7 @@
 			                  </div>
 			                  
 			                  <div class="control-group">
-			                    <label class="control-label">${textContainer.text['groupAssignPermissionActionLabel'] }</label>
+			                    <label for="permissionActionComboID" class="control-label">${textContainer.text['groupAssignPermissionActionLabel'] }</label>
 			                    <div class="controls">
 			                    	                    	
 			                      <grouper:combobox2 idBase="permissionActionCombo" style="width: 30em"

@@ -680,6 +680,9 @@ public class UiV2GroupPermission {
    
    permissionUpdateRequestContainer.setGuiPermissionEntryActionsContainers(guiPermissionEntryActionsContainers);
    
+   PermissionContainer permissionContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getPermissionContainer();   
+   permissionContainer.setGuiGroup(new GuiGroup((Group)role));
+   
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewPermissions",
         "/WEB-INF/grouperUi2/groupPermissions/groupViewPermissions.jsp"));
     
