@@ -346,8 +346,7 @@ public class PITSyncTests extends GrouperTest {
 
     assertEquals(0, changeLogTempCount);
     
-    // 1 group membership, 2 imm stem privilege, 1 eff stem privilege, 3 group privileges, 2 attribute def privileges, 1 permission,
-    // 1 attribute def privilege for a legacy custom list, and 1 attribute def privilege for a legacy group type
+    // 1 group membership, 1 imm stem privilege, 1 eff stem privilege, 2 group privileges, and 1 permission
     // the change log entries are being added by code that's tested elsewhere (not by the sync script) 
     // so we are just verifying the number of entries...
     assertEquals(6, changeLogCount);
