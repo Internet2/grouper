@@ -385,7 +385,9 @@ public class ChangeLogConsumerBaseImpl extends ChangeLogConsumerBase {
             Group group = GroupFinder.findByUuid(
                 GrouperSession.staticGrouperSession(false), ownerId1, false);
             if (group != null) {
-              consumer.debugLog.put("groupName", group.getName());
+              if (consumer.debugLog != null) {
+                consumer.debugLog.put("groupName", group.getName());
+              }
               // case when group had a direct syncAttribute marker assignment removed, does it still have a parent marker?
               // need to flush edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate.objectHasAttributeCache to make sure syncAttribute is cleared
               EhcacheController
