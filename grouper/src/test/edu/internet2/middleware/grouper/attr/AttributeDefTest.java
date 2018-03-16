@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -54,7 +55,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateSecurity"));
+    TestRunner.run(new AttributeDefTest("testHibernateSecurity2"));
   }
   
   /**
@@ -400,7 +401,7 @@ public class AttributeDefTest extends GrouperTest {
     int newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
     assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
-    assertEquals("Should make a memberships for owner", grouperMembershipCount + 1, newGrouperMembershipCount);
+    assertEquals("Should not make membership for grouper system", grouperMembershipCount + 0, newGrouperMembershipCount);
 
     //#############################################
     
@@ -420,7 +421,7 @@ public class AttributeDefTest extends GrouperTest {
     newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
     assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
-    assertEquals("Should make a memberships for owner, and 2 for grouperAll", grouperMembershipCount + 3, newGrouperMembershipCount);
+    assertEquals("Should not make a memberships for owner, and 2 for grouperAll", grouperMembershipCount + 2, newGrouperMembershipCount);
     
     //################################################
     // make sure user can admin to same an attribute
@@ -630,7 +631,7 @@ public class AttributeDefTest extends GrouperTest {
    * @return an example attribute def
    */
   public static AttributeDef exampleRetrieveAttributeDefDb() {
-    AttributeDef attributeDef = AttributeDefFinder.findByName("test:testAttributeDef", true);
+    AttributeDef attributeDef = AttributeDefFinder.findByName("test:testAttributeDef", true, new QueryOptions().secondLevelCache(false));
     return attributeDef;
   }
 

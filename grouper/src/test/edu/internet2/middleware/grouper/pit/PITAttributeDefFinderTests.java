@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -41,6 +42,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 public class PITAttributeDefFinderTests extends GrouperTest {
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new PITAttributeDefFinderTests("testFindByName"));
+  }
   
   /** top level stem */
   private Stem edu;

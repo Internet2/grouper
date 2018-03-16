@@ -230,12 +230,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       QueryOptions queryOptions) throws GrouperDAOException,
       AttributeDefNameNotFoundException {
     
-    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(name, null);
+    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(name, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
     
-    attributeDefName = attributeDefNameFlashCacheRetrieve(name, null);
+    attributeDefName = attributeDefNameFlashCacheRetrieve(name, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
@@ -918,12 +918,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   public AttributeDefName findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNameNotFoundException {
     
-    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(idIndex, null);
+    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(idIndex, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
     
-    attributeDefName = attributeDefNameFlashCacheAsRootRetrieve(idIndex, null);
+    attributeDefName = attributeDefNameFlashCacheAsRootRetrieve(idIndex, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
@@ -959,12 +959,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   public AttributeDefName findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNameNotFoundException {
     
-    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(idIndex, null);
+    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(idIndex, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
     
-    attributeDefName = attributeDefNameFlashCacheRetrieve(idIndex, null);
+    attributeDefName = attributeDefNameFlashCacheRetrieve(idIndex, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
@@ -1431,12 +1431,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   public AttributeDefName findByName(String name, boolean exceptionIfNotFound,
       QueryOptions queryOptions) throws GrouperDAOException,
       AttributeDefNameNotFoundException {
-    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(name, null);
+    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(name, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
     
-    attributeDefName = attributeDefNameFlashCacheAsRootRetrieve(name, null);
+    attributeDefName = attributeDefNameFlashCacheAsRootRetrieve(name, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
