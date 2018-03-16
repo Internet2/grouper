@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -54,6 +55,9 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestGQGroupExactName extends TestCase {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestGQGroupExactName("testSecurity"));
+  }
   
   /**
    * @param name

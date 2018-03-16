@@ -1301,6 +1301,66 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
     return null;
   }
+
+  /**
+   * get a attributeDef from flash cache
+   * @param id
+   * @param queryOptions
+   * @return the group or null
+   */
+  private static AttributeDef attributeDefFlashCacheRetrieveAsRoot(Object id, QueryOptions queryOptions) {
+    if (attributeDefFlashCacheable(id, queryOptions)) {
+      MultiKey groupFlashMultikey = attributeDefFlashCacheMultikeyAsRoot(id);
+      //see if its already in the cache
+      AttributeDef attributeDef = attributeDefFlashCache.get(groupFlashMultikey);
+      if (attributeDef != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from attribute def flash cache by id: " + attributeDef.getName());
+        }
+        return attributeDef;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByName(java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public AttributeDef findByName(String name, boolean exceptionIfNotFound,
+      QueryOptions queryOptions) throws GrouperDAOException,
+      AttributeDefNotFoundException {
+    
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(name, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+    
+    attributeDef = attributeDefFlashCacheRetrieveAsRoot(name, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+
+    if (queryOptions != null) {
+      // why would the caller be sorting here?
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    attributeDef = HibernateSession.byHqlStatic()
+      .createQuery("select theAttributeDef from AttributeDef as theAttributeDef where theAttributeDef.nameDb = :value")
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByName")
+      .options(queryOptions)
+      .setString("value", name).uniqueResult(AttributeDef.class);
+
+    //handle exceptions out of data access method...
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def with name: '" + name + "'");
+    }
+    
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
+    
+    return attributeDef;
+  }
   
 
 

@@ -116,6 +116,18 @@ public interface AttributeDefDAO extends GrouperDAO {
     throws GrouperDAOException, AttributeDefNotFoundException;
   
   /**
+   * find an attribute def by name.  this is a secure method, a grouperSession needs to be open
+   * @param name 
+   * @param exceptionIfNotFound 
+   * @param queryOptions
+   * @return attribute def
+   * @throws GrouperDAOException 
+   * @throws AttributeDefNotFoundException 
+   */
+  public AttributeDef findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws GrouperDAOException, AttributeDefNotFoundException;
+  
+  /**
    * Find all that have the given stem id.
    * @param id
    * @return set of stems

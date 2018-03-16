@@ -78,7 +78,7 @@ public class AuditTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AuditTest("testGroupPrivileges"));
-    TestRunner.run(new AuditTest("testFields"));
+    TestRunner.run(new AuditTest("testAttributeAssignValueExcludeAudits"));
   }
   
   /**
@@ -1652,7 +1652,8 @@ public class AuditTest extends GrouperTest {
     AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefName.getName());
-
+    GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
+    
     Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
     
     group.getAttributeDelegate().assignAttribute(attributeDefName);

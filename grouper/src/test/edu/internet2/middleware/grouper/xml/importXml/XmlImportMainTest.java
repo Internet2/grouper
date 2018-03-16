@@ -73,7 +73,7 @@ public class XmlImportMainTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new XmlImportMainTest("testMembershipAssignments"));
+    TestRunner.run(new XmlImportMainTest("testImport_v1_6_0"));
   }
 
   /**
@@ -92,87 +92,87 @@ public class XmlImportMainTest extends GrouperTest {
     
   }
 
-  /**
-   * test an import
-   */
-  public void testImport_v1_6_0() {
-    
-    File importFileXml = GrouperUtil.fileFromResourceName("edu/internet2/middleware/grouper/xml/importXml/xmlImport_v1_6_0.xml");
-    
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    GrouperCheckConfig.checkGroups();
-
-    Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .assignName("etc").save();
-    AttributeDef studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
-    studentsAttrDef.setAssignToAttributeDef(true);
-    studentsAttrDef.store();
-    studentsAttrDef.setAssignToAttributeDef(false);
-    studentsAttrDef.store();
-    studentsAttrDef.setAssignToStem(true);
-    studentsAttrDef.store();
-    String studentsAttrDefUuid = studentsAttrDef.getUuid();
-    studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
-    
-    XmlImportMain xmlImportMain = new XmlImportMain();
-    
-    
-    xmlImportMain.setRecordReport(true);
-
-    xmlImportMain.processXml(importFileXml);
-
-    File readonlyImportFile = new File(xmlImportMain.getRecordReportFileCanonicalPath());
-    assertTrue(readonlyImportFile.exists() || readonlyImportFile.length() > 0);
-    readonlyImportFile.delete();
-
-    assertEquals(134,xmlImportMain.getTotalImportFileCount());
-    
-    //probably at least 2 to get started
-    assertTrue(2 < xmlImportMain.getOriginalDbCount());
-
-    assertsFor_v1_6_0(grouperSession, studentsAttrDefUuid);
-
-    assertTrue(0 < xmlImportMain.getInsertCount());
-    assertTrue(0 < xmlImportMain.getUpdateCount());
-
-    //now, lets do it again
-    xmlImportMain = new XmlImportMain();
-
-    xmlImportMain.processXml(importFileXml);
-
-    assertEquals(134,xmlImportMain.getTotalImportFileCount());
-    
-    //probably at least 2 to get started
-    assertTrue(2 < xmlImportMain.getOriginalDbCount());
-
-    assertsFor_v1_6_0(grouperSession, studentsAttrDefUuid);
-
-    assertEquals(0, xmlImportMain.getInsertCount());
-    assertEquals(0, xmlImportMain.getUpdateCount());
-    assertEquals(134, xmlImportMain.getSkipCount());
-
-    //############################
-    //try record report again, should not find anything
-    xmlImportMain = new XmlImportMain();
-    
-    xmlImportMain.setRecordReport(true);
-    
-    xmlImportMain.processXml(importFileXml);
-
-    assertEquals(134,xmlImportMain.getTotalImportFileCount());
-
-    assertTrue(2 < xmlImportMain.getOriginalDbCount());
-
-    assertEquals(0, xmlImportMain.getInsertCount());
-    assertEquals(0, xmlImportMain.getUpdateCount());
-
-    readonlyImportFile = new File(xmlImportMain.getRecordReportFileCanonicalPath());
-    assertTrue(!readonlyImportFile.exists());
-    
-    GrouperSession.stopQuietly(grouperSession);
-    
-  }
+//  /**
+//   * test an import
+//   */
+//  public void testImport_v1_6_0() {
+//    
+//    File importFileXml = GrouperUtil.fileFromResourceName("edu/internet2/middleware/grouper/xml/importXml/xmlImport_v1_6_0.xml");
+//    
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+//    
+//    GrouperCheckConfig.checkGroups();
+//
+//    Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+//      .assignName("etc").save();
+//    AttributeDef studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
+//    studentsAttrDef.setAssignToAttributeDef(true);
+//    studentsAttrDef.store();
+//    studentsAttrDef.setAssignToAttributeDef(false);
+//    studentsAttrDef.store();
+//    studentsAttrDef.setAssignToStem(true);
+//    studentsAttrDef.store();
+//    String studentsAttrDefUuid = studentsAttrDef.getUuid();
+//    studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
+//    
+//    XmlImportMain xmlImportMain = new XmlImportMain();
+//    
+//    
+//    xmlImportMain.setRecordReport(true);
+//
+//    xmlImportMain.processXml(importFileXml);
+//
+//    File readonlyImportFile = new File(xmlImportMain.getRecordReportFileCanonicalPath());
+//    assertTrue(readonlyImportFile.exists() || readonlyImportFile.length() > 0);
+//    readonlyImportFile.delete();
+//
+//    assertEquals(134,xmlImportMain.getTotalImportFileCount());
+//    
+//    //probably at least 2 to get started
+//    assertTrue(2 < xmlImportMain.getOriginalDbCount());
+//
+//    assertsFor_v1_6_0(grouperSession, studentsAttrDefUuid);
+//
+//    assertTrue(0 < xmlImportMain.getInsertCount());
+//    assertTrue(0 < xmlImportMain.getUpdateCount());
+//
+//    //now, lets do it again
+//    xmlImportMain = new XmlImportMain();
+//
+//    xmlImportMain.processXml(importFileXml);
+//
+//    assertEquals(134,xmlImportMain.getTotalImportFileCount());
+//    
+//    //probably at least 2 to get started
+//    assertTrue(2 < xmlImportMain.getOriginalDbCount());
+//
+//    assertsFor_v1_6_0(grouperSession, studentsAttrDefUuid);
+//
+//    assertEquals(0, xmlImportMain.getInsertCount());
+//    assertEquals(0, xmlImportMain.getUpdateCount());
+//    assertEquals(134, xmlImportMain.getSkipCount());
+//
+//    //############################
+//    //try record report again, should not find anything
+//    xmlImportMain = new XmlImportMain();
+//    
+//    xmlImportMain.setRecordReport(true);
+//    
+//    xmlImportMain.processXml(importFileXml);
+//
+//    assertEquals(134,xmlImportMain.getTotalImportFileCount());
+//
+//    assertTrue(2 < xmlImportMain.getOriginalDbCount());
+//
+//    assertEquals(0, xmlImportMain.getInsertCount());
+//    assertEquals(0, xmlImportMain.getUpdateCount());
+//
+//    readonlyImportFile = new File(xmlImportMain.getRecordReportFileCanonicalPath());
+//    assertTrue(!readonlyImportFile.exists());
+//    
+//    GrouperSession.stopQuietly(grouperSession);
+//    
+//  }
 
   /**
    * 

@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -50,7 +51,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameTest("testFindByIdsSecure"));
+    TestRunner.run(new AttributeDefNameTest("testXmlDifferentUpdateProperties"));
   }
   
   /**
@@ -204,7 +205,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @return an example attribute def
    */
   public static AttributeDefName exampleRetrieveAttributeDefNameDb() {
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:testAttributeDefName", true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:testAttributeDefName", true, new QueryOptions().secondLevelCache(false));
     return attributeDefName;
   }
 
