@@ -73,7 +73,7 @@ public class XmlImportMainTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new XmlImportMainTest("testMembershipAssignments"));
+    TestRunner.run(new XmlImportMainTest("testImport_v1_6_0"));
   }
 
   /**
