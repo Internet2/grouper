@@ -96,7 +96,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testTypes"));
+    TestRunner.run(new ChangeLogTest("testAttributeAssignValue"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -771,7 +771,7 @@ public class ChangeLogTest extends GrouperTest {
     int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have added exactly zero change log temp", 1, newChangeLogTempCount);
+    assertEquals("Should have added exactly zero change log temp", 0, newChangeLogTempCount);
     assertEquals("Should be the same", 0, newChangeLogCount);
 
     // no pit fixes
@@ -785,7 +785,7 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
 
-    assertEquals("Should have nothing in temp table", 3, newChangeLogTempCount);
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
     assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
     
     ChangeLogTempToEntity.convertRecords();
@@ -800,8 +800,8 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     
-    assertEquals("Should have nothing in temp table", 1, newChangeLogTempCount);
-    assertEquals("Should have zero records in the change log table", 3, newChangeLogCount);
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
     
     // no pit fixes
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
