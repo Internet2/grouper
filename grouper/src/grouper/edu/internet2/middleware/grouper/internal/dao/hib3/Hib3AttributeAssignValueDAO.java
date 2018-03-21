@@ -96,12 +96,22 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
   public AttributeAssignValue findByUuidOrKey(Collection<String> idsToIgnore, String id,
       String attributeAssignId, boolean exceptionIfNull, Long valueInteger,
       String valueMemberId, String valueString) throws GrouperDAOException {
+    return findByUuidOrKey(idsToIgnore, id, attributeAssignId, exceptionIfNull, valueInteger, valueMemberId, valueString, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#findByUuidOrKey(java.util.Collection, java.lang.String, java.lang.String, boolean, java.lang.Long, java.lang.String, java.lang.String)
+   */
+  public AttributeAssignValue findByUuidOrKey(Collection<String> idsToIgnore, String id,
+      String attributeAssignId, boolean exceptionIfNull, Long valueInteger,
+      String valueMemberId, String valueString, QueryOptions queryOptions) throws GrouperDAOException {
     try {
       Set<AttributeAssignValue> attributeAssignValues = HibernateSession.byHqlStatic()
         .createQuery("from AttributeAssignValue as theAttributeAssignValue where " +
             "theAttributeAssignValue.id = :theId or theAttributeAssignValue.attributeAssignId = :theAttributeAssignId")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("theId", id)
         .setString("theAttributeAssignId", attributeAssignId)
         .listSet(AttributeAssignValue.class);

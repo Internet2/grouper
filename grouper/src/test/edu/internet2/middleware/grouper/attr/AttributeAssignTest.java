@@ -316,8 +316,12 @@ public class AttributeAssignTest extends GrouperTest {
     Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description").save();
-    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-    return attributeAssignResult.getAttributeAssign();
+    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+    if (attributeAssign == null) {
+      AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+      attributeAssign = attributeAssignResult.getAttributeAssign();
+    }
+    return attributeAssign;
   }
 
   

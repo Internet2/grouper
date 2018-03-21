@@ -54,7 +54,7 @@ public class MembershipPathGroupTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipPathGroupTest("testCompositePrivilege"));
+    TestRunner.run(new MembershipPathGroupTest("testMembershipPathGroup"));
   }
   
   /**
