@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -266,8 +267,7 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     
@@ -290,8 +290,7 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     

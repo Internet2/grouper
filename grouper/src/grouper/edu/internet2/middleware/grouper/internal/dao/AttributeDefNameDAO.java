@@ -61,6 +61,14 @@ public interface AttributeDefNameDAO extends GrouperDAO {
   /**
    * @param id
    * @param exceptionIfNotFound
+   * @param queryOptions
+   * @return the attribute def name or null if not there
+   */
+  public AttributeDefName findByIdSecure(String id, boolean exceptionIfNotFound, QueryOptions queryOptions);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound
    * @return the attribute def name or null if not there
    */
   public AttributeDefName findById(String id, boolean exceptionIfNotFound);

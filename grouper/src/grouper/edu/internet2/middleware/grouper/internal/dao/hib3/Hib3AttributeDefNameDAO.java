@@ -114,13 +114,21 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByIdSecure(java.lang.String, boolean)
    */
   public AttributeDefName findByIdSecure(String id, boolean exceptionIfNotFound) {
+    return findByIdSecure(id, exceptionIfNotFound, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByIdSecure(java.lang.String, boolean, QueryOptions)
+   */
+  public AttributeDefName findByIdSecure(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
     
-    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(id, null);
+    AttributeDefName attributeDefName = attributeDefNameCacheAsRootRetrieve(id, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
     
-    attributeDefName = attributeDefNameFlashCacheRetrieve(id, null);
+    attributeDefName = attributeDefNameFlashCacheRetrieve(id, queryOptions);
     if (attributeDefName != null) {
       return attributeDefName;
     }      
@@ -1250,8 +1258,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       }
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     
@@ -1353,8 +1360,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     

@@ -2705,12 +2705,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                 "and groupTypeAssign.ownerGroupId  = theGroup.uuid"
               );
             
-            if (queryOptions != null && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+            if (!HibUtils.secondLevelCaching(true, queryOptions)) {
               byHql.setCacheable(false);
             } else {
               byHql.setCacheable(true);
             }
-            
+
             Set<Group> groups = byHql.setCacheRegion(KLASS + ".FindAllByType")
               .setString( "type", _gt.getUuid() ).listSet(Group.class);
 

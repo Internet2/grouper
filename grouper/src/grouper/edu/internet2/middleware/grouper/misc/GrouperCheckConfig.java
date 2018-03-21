@@ -159,7 +159,7 @@ public class GrouperCheckConfig {
       return CheckGroupResult.DIDNT_CHECK;
     }
     try {
-      Group group = GroupFinder.findByName(grouperSession, groupName, true);
+      Group group = GroupFinder.findByName(grouperSession, groupName, true, new QueryOptions().secondLevelCache(false));
       if (group != null) {
         if (GrouperUtil.length(groupResult) >= 1) {
           groupResult[0] = group;
@@ -1800,7 +1800,7 @@ public class GrouperCheckConfig {
       {
         String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
         
-        Stem externalSubjectStem = StemFinder.findByName(grouperSession, externalSubjectStemName, false);
+        Stem externalSubjectStem = StemFinder.findByName(grouperSession, externalSubjectStemName, false, new QueryOptions().secondLevelCache(false));
         if (externalSubjectStem == null) {
           externalSubjectStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in external subject invite attributes, and holds the data via attributes for invites.  Dont delete this folder")
@@ -1812,7 +1812,7 @@ public class GrouperCheckConfig {
         String externalSubjectInviteDefName = externalSubjectStemName + ":externalSubjectInviteDef";
         
         AttributeDef externalSubjectInviteType = new AttributeDefSave(grouperSession).assignName(externalSubjectInviteDefName)
-          .assignToStem(true).assignMultiAssignable(true).assignAttributeDefType(AttributeDefType.type).save();
+          .assignToStem(true).assignMultiAssignable(true).assignAttributeDefType(AttributeDefType.type).assignCreateParentStemsIfNotExist(true).save();
           
         Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(externalSubjectInviteType);
         
@@ -1861,7 +1861,7 @@ public class GrouperCheckConfig {
       {
         String messagesRootStemName = GrouperBuiltinMessagingSystem.messageRootStemName();
 
-        Stem messagesStem = StemFinder.findByName(grouperSession, messagesRootStemName, false);
+        Stem messagesStem = StemFinder.findByName(grouperSession, messagesRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (messagesStem == null) {
           messagesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for message queues and topics, topic to queue relationships and permissions")
@@ -1939,7 +1939,7 @@ public class GrouperCheckConfig {
 
         {
           String topicStemName = GrouperBuiltinMessagingSystem.topicStemName();
-          Stem topicStem = StemFinder.findByName(grouperSession, topicStemName, false);
+          Stem topicStem = StemFinder.findByName(grouperSession, topicStemName, false, new QueryOptions().secondLevelCache(false));
           if (topicStem == null) {
             topicStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
               .assignDescription("folder for message topics, add a permission here for a topic, imply queues by the topic")
@@ -2041,7 +2041,7 @@ public class GrouperCheckConfig {
       
       {
         
-        Stem loaderMetadataStem = StemFinder.findByName(grouperSession, loaderMetadataStemName(), false);
+        Stem loaderMetadataStem = StemFinder.findByName(grouperSession, loaderMetadataStemName(), false, new QueryOptions().secondLevelCache(false));
         if (loaderMetadataStem == null) {
           loaderMetadataStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper Loader Metadata attributes").assignName(loaderMetadataStemName())
@@ -2096,7 +2096,7 @@ public class GrouperCheckConfig {
       {
         String rulesRootStemName = RuleUtils.attributeRuleStemName();
         
-        Stem rulesStem = StemFinder.findByName(grouperSession, rulesRootStemName, false);
+        Stem rulesStem = StemFinder.findByName(grouperSession, rulesRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (rulesStem == null) {
           rulesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper rules attributes").assignName(rulesRootStemName)
@@ -2201,7 +2201,7 @@ public class GrouperCheckConfig {
       {
         String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
         
-        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, false);
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (limitsStem == null) {
           limitsStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper permission limits").assignName(limitsRootStemName)
@@ -2258,7 +2258,7 @@ public class GrouperCheckConfig {
       
       {
         String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
-        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true);
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true, new QueryOptions().secondLevelCache(false));
 
         //see if attributeDef is there
         String limitDefIntName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_INT;
@@ -2298,7 +2298,7 @@ public class GrouperCheckConfig {
 
       {
         String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
-        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true);
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true, new QueryOptions().secondLevelCache(false));
 
         //see if attributeDef is there
         String limitDefMarkerName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_MARKER;
@@ -2337,7 +2337,7 @@ public class GrouperCheckConfig {
       {
         String loaderRootStemName = attributeLoaderStemName();
         
-        Stem loaderStem = StemFinder.findByName(grouperSession, loaderRootStemName, false);
+        Stem loaderStem = StemFinder.findByName(grouperSession, loaderRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (loaderStem == null) {
           loaderStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper loader attributes").assignName(loaderRootStemName)
@@ -2404,7 +2404,7 @@ public class GrouperCheckConfig {
       {
         String loaderLdapRootStemName = LoaderLdapUtils.attributeLoaderLdapStemName();
         
-        Stem loaderLdapStem = StemFinder.findByName(grouperSession, loaderLdapRootStemName, false);
+        Stem loaderLdapStem = StemFinder.findByName(grouperSession, loaderLdapRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (loaderLdapStem == null) {
           loaderLdapStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper loader ldap attributes").assignName(loaderLdapRootStemName)
@@ -2582,7 +2582,7 @@ public class GrouperCheckConfig {
       {
         String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
         
-        Stem instrumentationDataRootStem = StemFinder.findByName(grouperSession, instrumentationDataRootStemName, false);
+        Stem instrumentationDataRootStem = StemFinder.findByName(grouperSession, instrumentationDataRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (instrumentationDataRootStem == null) {
           instrumentationDataRootStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper instrumentation data attributes").assignName(instrumentationDataRootStemName)
@@ -2593,7 +2593,7 @@ public class GrouperCheckConfig {
           // check instances folder
                     
           String instancesStemName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_FOLDER;
-          Stem instancesStem = StemFinder.findByName(grouperSession, instancesStemName, false);
+          Stem instancesStem = StemFinder.findByName(grouperSession, instancesStemName, false, new QueryOptions().secondLevelCache(false));
           if (instancesStem == null) {
             new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
               .assignDescription("folder for Grouper instances").assignName(instancesStemName)
@@ -2605,7 +2605,7 @@ public class GrouperCheckConfig {
           // check collectors folder
                     
           String collectorsStemName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTORS_FOLDER;
-          Stem collectorsStem = StemFinder.findByName(grouperSession, collectorsStemName, false);
+          Stem collectorsStem = StemFinder.findByName(grouperSession, collectorsStemName, false, new QueryOptions().secondLevelCache(false));
           if (collectorsStem == null) {
             new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
               .assignDescription("folder for Grouper collectors").assignName(collectorsStemName)
@@ -2781,7 +2781,7 @@ public class GrouperCheckConfig {
       {
         String userDataRootStemName = GrouperUserDataUtils.grouperUserDataStemName();
         
-        Stem userDataStem = StemFinder.findByName(grouperSession, userDataRootStemName, false);
+        Stem userDataStem = StemFinder.findByName(grouperSession, userDataRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (userDataStem == null) {
           userDataStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper user data attributes").assignName(userDataRootStemName)
@@ -2870,7 +2870,7 @@ public class GrouperCheckConfig {
       {
         String entitiesRootStemName = EntityUtils.attributeEntityStemName();
         
-        Stem entitiesStem = StemFinder.findByName(grouperSession, entitiesRootStemName, false);
+        Stem entitiesStem = StemFinder.findByName(grouperSession, entitiesRootStemName, false, new QueryOptions().secondLevelCache(false));
         if (entitiesStem == null) {
           entitiesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper entities attributes").assignName(entitiesRootStemName)
@@ -2937,7 +2937,7 @@ public class GrouperCheckConfig {
    */
   public static Stem legacyAttributeBaseStem(GrouperSession grouperSession) {
     String legacyAttributesStemName =  GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
-    Stem legacyAttributesStem = StemFinder.findByName(grouperSession, legacyAttributesStemName, false);
+    Stem legacyAttributesStem = StemFinder.findByName(grouperSession, legacyAttributesStemName, false, new QueryOptions().secondLevelCache(false));
     if (legacyAttributesStem == null) {
       legacyAttributesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignDescription("Folder for legacy attributes.  Do not delete.")

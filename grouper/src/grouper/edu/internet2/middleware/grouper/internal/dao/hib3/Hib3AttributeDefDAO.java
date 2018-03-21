@@ -1078,8 +1078,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       }
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     
@@ -1200,8 +1199,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     
