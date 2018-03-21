@@ -68,7 +68,7 @@ public class RuleNameChangeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleNameChangeTest("testCheckOwnerDisabledDate"));
+    TestRunner.run(new RuleNameChangeTest("testCheckOwnerNameUpdateOnAttributeDefNameChange"));
   }
   
   /**

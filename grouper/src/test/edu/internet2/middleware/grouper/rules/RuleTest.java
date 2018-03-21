@@ -845,7 +845,7 @@ public class RuleTest extends GrouperTest {
     //count rule firings
     assertEquals(initialFirings, RuleEngine.ruleFirings);
 
-    assertTrue(PrivilegeHelper.hasImmediatePrivilege(stem1testStem, SubjectTestHelper.SUBJ0, NamingPrivilege.STEM));
+    assertFalse(PrivilegeHelper.hasImmediatePrivilege(stem1testStem, SubjectTestHelper.SUBJ0, NamingPrivilege.STEM));
 
 
     stem1testStem.delete();
@@ -1165,7 +1165,7 @@ public class RuleTest extends GrouperTest {
     //count rule firings
     assertEquals(initialFirings, RuleEngine.ruleFirings);
 
-    assertTrue(PrivilegeHelper.hasImmediatePrivilege(stem1testGroup, SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN));
+    assertFalse(PrivilegeHelper.hasImmediatePrivilege(stem1testGroup, SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN));
 
     stem1testGroup.delete();
 
@@ -5144,7 +5144,7 @@ public class RuleTest extends GrouperTest {
     //count rule firings
     assertEquals(initialFirings, RuleEngine.ruleFirings);
   
-    assertTrue(PrivilegeHelper.hasImmediatePrivilege(stem1testAttributeDef, SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN));
+    assertFalse(PrivilegeHelper.hasImmediatePrivilege(stem1testAttributeDef, SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN));
   
     stem1testAttributeDef.delete();
   
