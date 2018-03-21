@@ -119,7 +119,7 @@ public class UserDataList {
     UserDataObject[] newList = new UserDataObject[Math.min(GrouperUtil.length(uuids), maxSize)];
     
     //lets see if there are no changes needed, this assumes there are no duplicates
-    if (GrouperUtil.length(uuids) == GrouperUtil.length(this.getList())) {
+    if (GrouperUtil.length(uuids) == GrouperUtil.length(this.getList()) && GrouperUtil.length(uuids) <= maxSize) {
       boolean hasMismatch = false;
       for (UserDataObject userDataObject : GrouperUtil.nonNull(this.getList(), UserDataObject.class)) {
         if (!uuids.contains(userDataObject.getUuid())) {

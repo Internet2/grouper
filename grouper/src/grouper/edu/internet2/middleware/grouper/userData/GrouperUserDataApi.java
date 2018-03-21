@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.userData;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
@@ -165,6 +166,15 @@ public class GrouperUserDataApi {
         return GrouperUserDataUtils.grouperUserDataRecentAttributeDefNamesAttributeDefName();
       }
       
+      /**
+       * if should sort by name by default
+       * @return true if should sort by name
+       */
+      @Override
+      public boolean isSortByName() {
+        return false;
+      }
+
     },
     
     recentAttributeDef {
@@ -176,9 +186,28 @@ public class GrouperUserDataApi {
         return GrouperUserDataUtils.grouperUserDataRecentAttributeDefsAttributeDefName();
       }
       
+      /**
+       * if should sort by name by default
+       * @return true if should sort by name
+       */
+      @Override
+      public boolean isSortByName() {
+        return false;
+      }
+
     },
     
     recentGroup {
+      
+      /**
+       * if should sort by name by default
+       * @return true if should sort by name
+       */
+      @Override
+      public boolean isSortByName() {
+        return false;
+      }
+
       /**
        * @see GrouperUserDataType#attributeDefName()
        */
@@ -198,6 +227,15 @@ public class GrouperUserDataApi {
       public AttributeDefName attributeDefName() {
         return GrouperUserDataUtils.grouperUserDataRecentStemsAttributeDefName();
       }
+
+      /**
+       * if should sort by name by default
+       * @return true if should sort by name
+       */
+      @Override
+      public boolean isSortByName() {
+        return false;
+      }
     },
 
     /**
@@ -211,6 +249,15 @@ public class GrouperUserDataApi {
       @Override
       public AttributeDefName attributeDefName() {
         return GrouperUserDataUtils.grouperUserDataRecentSubjectsAttributeDefName();
+      }
+
+      /**
+       * if should sort by name by default
+       * @return true if should sort by name
+       */
+      @Override
+      public boolean isSortByName() {
+        return false;
       }
     };
     
@@ -353,6 +400,14 @@ public class GrouperUserDataApi {
         attributeAssignValue.saveOrUpdate();
       }
       
+    }
+    
+    /**
+     * if should sort by name by default
+     * @return true if should sort by name
+     */
+    public boolean isSortByName() {
+      return true;
     }
     
     /**
@@ -538,9 +593,14 @@ public class GrouperUserDataApi {
           GrouperSession.stopQuietly(userSession);
         }
         
-        //reorder them to be in id order
-        groups = GrouperUtil.sortByIds(uuids, groups);
-        
+        if (groupUserDataType.isSortByName()) {
+          Set<Group> newResult = new TreeSet<Group>();
+          newResult.addAll(groups);
+          groups = newResult;
+        } else {
+          //reorder them to be in id order
+          groups = GrouperUtil.sortByIds(uuids, groups);
+        }        
       }
       
       //remove the not allowed ones?
@@ -1054,8 +1114,14 @@ public class GrouperUserDataApi {
           GrouperSession.stopQuietly(userSession);
         }
         
-        //reorder them to be in id order
-        attributeDefs = GrouperUtil.sortByIds(uuids, attributeDefs);
+        if (attributeDefUserDataType.isSortByName()) {
+          Set<AttributeDef> newResult = new TreeSet<AttributeDef>();
+          newResult.addAll(attributeDefs);
+          attributeDefs = newResult;
+        } else {
+          //reorder them to be in id order
+          attributeDefs = GrouperUtil.sortByIds(uuids, attributeDefs);
+        }        
 
       }
       
@@ -1198,9 +1264,14 @@ public class GrouperUserDataApi {
           GrouperSession.stopQuietly(userSession);
         }
 
-        //reorder them to be in id order
-        attributeDefNames = GrouperUtil.sortByIds(uuids, attributeDefNames);
-
+        if (attributeDefNameUserDataType.isSortByName()) {
+          Set<AttributeDefName> newResult = new TreeSet<AttributeDefName>();
+          newResult.addAll(attributeDefNames);
+          attributeDefNames = newResult;
+        } else {
+          //reorder them to be in id order
+          attributeDefNames = GrouperUtil.sortByIds(uuids, attributeDefNames);
+        }        
       }
       
       //remove the not allowed ones?
@@ -1391,8 +1462,14 @@ public class GrouperUserDataApi {
           GrouperSession.stopQuietly(userSession);
         }
 
-        //reorder them to be in id order
-        stems = GrouperUtil.sortByIds(uuids, stems);
+        if (stemDataType.isSortByName()) {
+          Set<Stem> newResult = new TreeSet<Stem>();
+          newResult.addAll(stems);
+          stems = newResult;
+        } else {
+          //reorder them to be in id order
+          stems = GrouperUtil.sortByIds(uuids, stems);
+        }        
 
       }
       
@@ -1572,8 +1649,14 @@ public class GrouperUserDataApi {
             }
           });
           
-          //reorder them to be in id order
-          members = GrouperUtil.sortByIds(uuids, members);
+          if (memberUserDataType.isSortByName()) {
+            Set<Member> newResult = new TreeSet<Member>();
+            newResult.addAll(members);
+            members = newResult;
+          } else {
+            //reorder them to be in id order
+            members = GrouperUtil.sortByIds(uuids, members);
+          }        
 
         } finally {
           GrouperSession.stopQuietly(userSession);

@@ -3842,7 +3842,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     String currentName = stems[0];
     for (int i=0;i<stems.length;i++) {
       try {
-        currentStem = StemFinder.findByName(grouperSession, currentName, true);
+        currentStem = StemFinder.findByName(grouperSession, currentName, true, new QueryOptions().secondLevelCache(false));
       } catch (StemNotFoundException snfe1) {
         //this isnt ideal, but just use the extension as the display extension
         currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);

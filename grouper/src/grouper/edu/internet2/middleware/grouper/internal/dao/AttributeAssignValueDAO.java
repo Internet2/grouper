@@ -103,6 +103,23 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
       Long valueInteger, String valueMemberId, String valueString) throws GrouperDAOException;
 
   /**
+   * @param id if find by id, that is it
+   * @param idsToIgnore dont return anything in this list, already used or will be used
+   * @param attributeAssignId to get values from
+   * @param exceptionIfNull 
+   * @param valueInteger try to match this if possible
+   * @param valueMemberId 
+   * @param valueString 
+   * @param queryOptions
+   * @return the attribute assign value or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  AttributeAssignValue findByUuidOrKey(Collection<String> idsToIgnore,
+      String id, String attributeAssignId, boolean exceptionIfNull, 
+      Long valueInteger, String valueMemberId, String valueString, QueryOptions queryOptions) throws GrouperDAOException;
+
+  /**
    * find values by value string
    * @param value
    * @return the values
