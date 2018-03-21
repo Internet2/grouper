@@ -4756,8 +4756,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     

@@ -861,8 +861,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     
@@ -886,8 +885,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     

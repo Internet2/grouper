@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -199,8 +200,7 @@ public class GroupFinder {
         }
       }
   
-      if (queryOptions != null 
-          && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+      if (!HibUtils.secondLevelCaching(true, queryOptions)) {
         return false;
       }
       
@@ -298,8 +298,7 @@ public class GroupFinder {
       return false;
     }
 
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     

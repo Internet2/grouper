@@ -71,7 +71,7 @@ public class XmlLegacyTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new XmlLegacyTest("testFullExportFullImportCustomTypes"));
+    TestRunner.run(new XmlLegacyTest("testStemUpdateDescription"));
   }
   
   /** */

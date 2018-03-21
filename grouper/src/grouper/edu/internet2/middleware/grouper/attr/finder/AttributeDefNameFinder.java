@@ -243,12 +243,26 @@ public class AttributeDefNameFinder {
    * find an attributeDefName by id.  This is a secure method, a GrouperSession must be open
    * @param id of attributeDefName
    * @param exceptionIfNotFound true if exception should be thrown if null
+   * @param queryOptions 
+   * @return the attribute def or null
+   * @throws AttributeDefNameNotFoundException
+   */
+  public static AttributeDefName findById(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(id, exceptionIfNotFound, queryOptions);
+    
+  }
+  
+  /**
+   * find an attributeDefName by id.  This is a secure method, a GrouperSession must be open
+   * @param id of attributeDefName
+   * @param exceptionIfNotFound true if exception should be thrown if null
    * @return the attribute def or null
    * @throws AttributeDefNameNotFoundException
    */
   public static AttributeDefName findById(String id, boolean exceptionIfNotFound) {
     
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(id, exceptionIfNotFound);
+    return findById(id, exceptionIfNotFound, null);
     
   }
   

@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -876,8 +877,7 @@ public class StemFinder {
       return false;
     }
   
-    if (queryOptions != null 
-        && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }
     

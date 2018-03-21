@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -230,7 +231,7 @@ public class StemSave {
 
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.stemNameToEdit) && !StringUtils.isBlank(this.uuid)) {
-      Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false);
+      Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false, new QueryOptions().secondLevelCache(false));
       if (stem != null) {
         this.stemNameToEdit = stem.getName();
       }
