@@ -306,6 +306,7 @@ public class ChangeLogTest extends GrouperTest {
     AttributeDefName attributeDefNameExcludeAudits = edu.addChildAttributeDefName(attributeDef, "testAttributeExcludeAudits", "testAttributeExcludeAudits");
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefNameExcludeAudits.getName());
+    GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 
     AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
@@ -755,7 +756,9 @@ public class ChangeLogTest extends GrouperTest {
     attributeDef.store();
     AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
     
+    
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefName.getName());
+    GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 
     AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
