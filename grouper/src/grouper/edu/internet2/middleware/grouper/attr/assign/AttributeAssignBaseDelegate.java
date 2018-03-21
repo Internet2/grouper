@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -472,7 +473,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the result including if added or already there
    */
   public AttributeAssignResult internal_assignAttributeHelper(String action, 
-      AttributeDefName attributeDefName, boolean checkSecurity, String uuid, PermissionAllowed permissionAllowed) {
+      AttributeDefName attributeDefName, final boolean checkSecurity, String uuid, PermissionAllowed permissionAllowed) {
     
     if (permissionAllowed == null) {
       permissionAllowed = PermissionAllowed.ALLOWED;
@@ -491,18 +492,18 @@ public abstract class AttributeAssignBaseDelegate {
     }
 
     
-    AttributeAssign attributeAssign = retrieveAssignment(action, attributeDefName, false, false);
+    AttributeAssign attributeAssignExisting = retrieveAssignment(action, attributeDefName, false, false);
     
-    if (attributeAssign != null) {
-      if (permissionAllowed != null && permissionAllowed.isDisallowed() != attributeAssign.isDisallowed()) {
+    if (attributeAssignExisting != null) {
+      if (permissionAllowed != null && permissionAllowed.isDisallowed() != attributeAssignExisting.isDisallowed()) {
         throw new RuntimeException("Assigning disallowed: " + permissionAllowed.isDisallowed() 
-            + ", but the existing assignment " + attributeAssign.getId() 
-            + " has: " + attributeAssign.isDisallowed() + ", you need to delete assignment and reassign.");
+            + ", but the existing assignment " + attributeAssignExisting.getId() 
+            + " has: " + attributeAssignExisting.isDisallowed() + ", you need to delete assignment and reassign.");
       }
-      return new AttributeAssignResult(false, attributeAssign);
+      return new AttributeAssignResult(false, attributeAssignExisting);
     }
     
-    attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
+    final AttributeAssign attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
     
     attributeAssign.setDisallowed(permissionAllowed == null ? false : permissionAllowed.isDisallowed());
     
@@ -515,7 +516,19 @@ public abstract class AttributeAssignBaseDelegate {
 
     attributeAssign.internalSetAttributeDef(attributeDef);
     attributeAssign.internalSetAttributeDefName(attributeDefName);
-    attributeAssign.saveOrUpdate(checkSecurity);
+    
+    if (checkSecurity || PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
+      attributeAssign.saveOrUpdate(checkSecurity);
+    } else {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          attributeAssign.saveOrUpdate(checkSecurity);
+          return null;
+        }
+      });
+    }
+    
     return new AttributeAssignResult(true, attributeAssign);
 
   }
