@@ -152,7 +152,7 @@ sub printSub {
     my ($class, $level) = @_;
     print "    "x$level, $classMap{$class} || '?'.$class, "\t", $testCount{$class}||0, "\n";
     foreach my $test (@{$tests{$class}}) {
-        print "    "x($level+1), "* $test\t\n";
+        print "    "x($level+1), "* $test\n";
     }
     foreach my $suite (@{$suites{$class}}) {
         #print "    "x($level+1), "$suite\n";
