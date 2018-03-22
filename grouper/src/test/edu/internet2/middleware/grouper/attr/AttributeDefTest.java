@@ -391,6 +391,8 @@ public class AttributeDefTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToInheritedAdminsOnCreate", "false");
 
     int grouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     int grouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
@@ -400,29 +402,40 @@ public class AttributeDefTest extends GrouperTest {
     int newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     int newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
-    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
-    assertEquals("Should not make membership for grouper system", grouperMembershipCount + 0, newGrouperMembershipCount);
+    assertEquals("Should make 8 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
+    assertEquals("Default should not make membership for owner", grouperMembershipCount, newGrouperMembershipCount);
 
     //#############################################
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "true");
-    
-    grouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
-    grouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
-    
-    attributeDef = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
+
+    grouperGroupSetCount = newGrouperGroupSetCount;
+    grouperMembershipCount = newGrouperMembershipCount;
+
+    AttributeDef attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
     
     newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
-    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
-    assertEquals("Should not make a memberships for owner, and 2 for grouperAll", grouperMembershipCount + 2, newGrouperMembershipCount);
-    
+    assertEquals("Should make 8 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
+    assertEquals("Default attrRead+attrView should add 2 memberships for grouperAll", grouperMembershipCount + 2, newGrouperMembershipCount);
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "true");
+
+    grouperGroupSetCount = newGrouperGroupSetCount;
+    grouperMembershipCount = newGrouperMembershipCount;
+
+    AttributeDef attributeDef3 = this.top.addChildAttributeDef("test3", AttributeDefType.attr);
+
+    newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
+    newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
+
+    assertEquals("Should make 8 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
+    assertEquals("assignAdminToWheelOrRootOnCreate should add 1 membership for creator GrouperSystem", grouperMembershipCount + 1, newGrouperMembershipCount);
+
     //################################################
     // make sure user can admin to same an attribute
     
