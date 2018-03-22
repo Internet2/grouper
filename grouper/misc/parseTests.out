@@ -1,0 +1,3138 @@
+File summary (Thu Mar 22 15:55:14 2018)
+---------------------------------------
+
+Filename	Class	TestId (can be used as param to AllTests)	Number of Tests	Number of Suites	Number of manual Suites	Parent Class	has JUnit-BEGIN
+../src/test/edu/internet2/middleware/grouper/AllTests.java	AllTests	AllTests	0	15	32	GrouperTest	1
+../src/test/edu/internet2/middleware/grouper/MembershipFinderTest.java	MembershipFinderTest	MembershipFinderTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestComposite.java	TestComposite	TestComposite	49	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestCompositeI.java	TestCompositeI	TestCompositeI	41	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestCompositeModel.java	TestCompositeModel	TestCompositeModel	15	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestCompositeU.java	TestCompositeU	TestCompositeU	37	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestField.java	TestField	TestField	4	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/TestGrouperSession.java	TestGrouperSession	TestGrouperSession	8	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestGrouperVersion.java	TestGrouperVersion	TestGrouperVersion	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/TestGroupType.java	TestGroupType	TestGroupType	36	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestGroupTypeIncludeExclude.java	TestGroupTypeIncludeExclude	TestGroupTypeIncludeExclude	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestSession.java	TestSession	TestSession	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestStem.java	TestStem	TestStem	59	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestStemApi.java	TestStemApi	TestStemApi	110	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestStemFinder.java	TestStemFinder	TestStemFinder	11	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestStemIntegration.java	TestStemIntegration	TestStemIntegration	14	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/AllAppTests.java	AllAppTests	app.AllAppTests	0	1	4	?	1
+../src/test/edu/internet2/middleware/grouper/app/attestation/AllAttestationTests.java	AllAttestationTests	app.attestation.AllAttestationTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/app/attestation/GrouperAttestationJobTest.java	GrouperAttestationJobTest	app.attestation.GrouperAttestationJobTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/gsh/AllGshTests.java	AllGshTests	app.gsh.AllGshTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/app/gsh/TestGsh.java	TestGsh	app.gsh.TestGsh	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/gsh/Test_Unit.java	Test_Unit	app.gsh.Test_Unit	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/AllLoaderTests.java	AllLoaderTests	app.loader.AllLoaderTests	0	6	2	?	1
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperDaemonDeleteOldRecordsTest.java	GrouperDaemonDeleteOldRecordsTest	app.loader.GrouperDaemonDeleteOldRecordsTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderCleanLogsTest.java	GrouperLoaderCleanLogsTest	app.loader.GrouperLoaderCleanLogsTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderOtherJobsTest.java	GrouperLoaderOtherJobsTest	app.loader.GrouperLoaderOtherJobsTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderQuartzTest.java	GrouperLoaderQuartzTest	app.loader.GrouperLoaderQuartzTest	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderSecurityTest.java	GrouperLoaderSecurityTest	app.loader.GrouperLoaderSecurityTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderTest.java	GrouperLoaderTest	app.loader.GrouperLoaderTest	25	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/TestgrouperIncrementalLoader.java	TestgrouperIncrementalLoader	app.loader.TestgrouperIncrementalLoader	0	0	0	GrouperAPI	0
+../src/test/edu/internet2/middleware/grouper/app/loader/TestgrouperLoader.java	TestgrouperLoader	app.loader.TestgrouperLoader	0	0	0	GrouperAPI	0
+../src/test/edu/internet2/middleware/grouper/app/loader/TestgrouperLoaderGroups.java	TestgrouperLoaderGroups	app.loader.TestgrouperLoaderGroups	0	0	0	GrouperAPI	0
+../src/test/edu/internet2/middleware/grouper/app/loader/db/AllLoaderDbTests.java	AllLoaderDbTests	app.loader.db.AllLoaderDbTests	0	3	0	?	1
+../src/test/edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDbTest.java	GrouperLoaderDbTest	app.loader.db.GrouperLoaderDbTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdlTest.java	Hib3GrouperDdlTest	app.loader.db.Hib3GrouperDdlTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/app/loader/db/Hib3GrouploaderLogTest.java	Hib3GrouploaderLogTest	app.loader.db.Hib3GrouploaderLogTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/app/loader/ldap/AllLoaderLdapTests.java	AllLoaderLdapTests	app.loader.ldap.AllLoaderLdapTests	0	1	0	?	1
+WARNING: public static void isn't a valid signature for a unit test (../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java#testConvertDnToSpecificValue)
+WARNING: public static void isn't a valid signature for a unit test (../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java#testConvertGroupNameAttributes)
+WARNING: public static void isn't a valid signature for a unit test (../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java#testConvertDnToSubpath)
+../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java	LoaderLdapElUtilsTest	app.loader.ldap.LoaderLdapElUtilsTest	0	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/app/messaging/MessageConsumerDaemonTest.java	MessageConsumerDaemonTest	app.messaging.MessageConsumerDaemonTest	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/app/usdu/AllUsduTests.java	AllUsduTests	app.usdu.AllUsduTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/app/usdu/TestUSDU.java	TestUSDU	app.usdu.TestUSDU	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AllAttributeTests.java	AllAttributeTests	attr.AllAttributeTests	0	15	3	?	1
+../src/test/edu/internet2/middleware/grouper/attr/AttrAssignAttributeSecurityTest.java	AttrAssignAttributeSecurityTest	attr.AttrAssignAttributeSecurityTest	11	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeAssignTest.java	AttributeAssignTest	attr.AttributeAssignTest	27	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefAttributeSecurityTest.java	AttributeDefAttributeSecurityTest	attr.AttributeDefAttributeSecurityTest	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefNameFinderTest.java	AttributeDefNameFinderTest	attr.AttributeDefNameFinderTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefNameSaveTest.java	AttributeDefNameSaveTest	attr.AttributeDefNameSaveTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefNameSetTest.java	AttributeDefNameSetTest	attr.AttributeDefNameSetTest	20	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefNameTest.java	AttributeDefNameTest	attr.AttributeDefNameTest	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefSaveTest.java	AttributeDefSaveTest	attr.AttributeDefSaveTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefScopeTest.java	AttributeDefScopeTest	attr.AttributeDefScopeTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeDefTest.java	AttributeDefTest	attr.AttributeDefTest	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/EffMshipAttributeSecurityTest.java	EffMshipAttributeSecurityTest	attr.EffMshipAttributeSecurityTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/GroupAttributeSecurityTest.java	GroupAttributeSecurityTest	attr.GroupAttributeSecurityTest	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/MemberAttributeSecurityTest.java	MemberAttributeSecurityTest	attr.MemberAttributeSecurityTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/MembershipAttributeSecurityTest.java	MembershipAttributeSecurityTest	attr.MembershipAttributeSecurityTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/StemAttributeSecurityTest.java	StemAttributeSecurityTest	attr.StemAttributeSecurityTest	12	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/assign/AllAttrAssignTests.java	AllAttrAssignTests	attr.assign.AllAttrAssignTests	0	3	0	?	1
+../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSetTest.java	AttributeAssignActionSetTest	attr.assign.AttributeAssignActionSetTest	20	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionTest.java	AttributeAssignActionTest	attr.assign.AttributeAssignActionTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignSaveTest.java	AttributeAssignSaveTest	attr.assign.AttributeAssignSaveTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/finder/AllAttrFinderTests.java	AllAttrFinderTests	attr.finder.AllAttrFinderTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/attr/finder/AttributeDefFinderTest.java	AttributeDefFinderTest	attr.finder.AttributeDefFinderTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/value/AllAttributeValueTests.java	AllAttributeValueTests	attr.value.AllAttributeValueTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/attr/value/AttributeAssignValueTest.java	AttributeAssignValueTest	attr.value.AttributeAssignValueTest	31	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/audit/AllAuditTests.java	AllAuditTests	audit.AllAuditTests	0	4	0	?	1
+../src/test/edu/internet2/middleware/grouper/audit/AuditEntryTest.java	AuditEntryTest	audit.AuditEntryTest	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/audit/AuditTest.java	AuditTest	audit.AuditTest	20	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/audit/AuditTypeTest.java	AuditTypeTest	audit.AuditTypeTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/audit/UserAuditQueryTest.java	UserAuditQueryTest	audit.UserAuditQueryTest	4	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/cfg/AllConfigTests.java	AllConfigTests	cfg.AllConfigTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/cfg/Test_api_GrouperConfig.java	Test_api_GrouperConfig	cfg.Test_api_GrouperConfig	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/cfg/Test_cfg_ApiConfig.java	Test_cfg_ApiConfig	cfg.Test_cfg_ApiConfig	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/changeLog/AllChangeLogTests.java	AllChangeLogTests	changeLog.AllChangeLogTests	0	5	1	?	1
+../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImplTest.java	ChangeLogConsumerBaseImplTest	changeLog.ChangeLogConsumerBaseImplTest	18	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogEntryTest.java	ChangeLogEntryTest	changeLog.ChangeLogEntryTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogIdTest.java	ChangeLogIdTest	changeLog.ChangeLogIdTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogTest.java	ChangeLogTest	changeLog.ChangeLogTest	42	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogTypeTest.java	ChangeLogTypeTest	changeLog.ChangeLogTypeTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/changeLog/esb/consumer/AllEsbConsumerTests.java	AllEsbConsumerTests	changeLog.esb.consumer.AllEsbConsumerTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/changeLog/esb/consumer/EsbConsumerTest.java	EsbConsumerTest	changeLog.esb.consumer.EsbConsumerTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/client/AllClientTests.java	AllClientTests	client.AllClientTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/client/GroupSyncDaemonTest.java	GroupSyncDaemonTest	client.GroupSyncDaemonTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/ddl/AllDdlTests.java	AllDdlTests	ddl.AllDdlTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/ddl/GrouperDdlUtilsTest.java	GrouperDdlUtilsTest	ddl.GrouperDdlUtilsTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/entity/AllEntityTests.java	AllEntityTests	entity.AllEntityTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/entity/EntityFinderTest.java	EntityFinderTest	entity.EntityFinderTest	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/externalSubjects/AllExternalSubjectTests.java	AllExternalSubjectTests	externalSubjects.AllExternalSubjectTests	0	4	0	?	1
+../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttrFrameworkTest.java	ExternalSubjectAttrFrameworkTest	externalSubjects.ExternalSubjectAttrFrameworkTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttributeTest.java	ExternalSubjectAttributeTest	externalSubjects.ExternalSubjectAttributeTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectSaveTest.java	ExternalSubjectSaveTest	externalSubjects.ExternalSubjectSaveTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectTest.java	ExternalSubjectTest	externalSubjects.ExternalSubjectTest	11	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/AllFilterTests.java	AllFilterTests	filter.AllFilterTests	0	24	0	?	1
+../src/test/edu/internet2/middleware/grouper/filter/TestGQComplementFilter.java	TestGQComplementFilter	filter.TestGQComplementFilter	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAlternateNameExactFilter.java	TestGQGroupAlternateNameExactFilter	filter.TestGQGroupAlternateNameExactFilter	4	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAlternateNameFilter.java	TestGQGroupAlternateNameFilter	filter.TestGQGroupAlternateNameFilter	8	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAnyAttribute.java	TestGQGroupAnyAttribute	filter.TestGQGroupAnyAttribute	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAttribute.java	TestGQGroupAttribute	filter.TestGQGroupAttribute	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAttributeExact.java	TestGQGroupAttributeExact	filter.TestGQGroupAttributeExact	5	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCreatedAfter.java	TestGQGroupCreatedAfter	filter.TestGQGroupCreatedAfter	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCreatedBefore.java	TestGQGroupCreatedBefore	filter.TestGQGroupCreatedBefore	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCurrentNameExactFilter.java	TestGQGroupCurrentNameExactFilter	filter.TestGQGroupCurrentNameExactFilter	4	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCurrentNameFilter.java	TestGQGroupCurrentNameFilter	filter.TestGQGroupCurrentNameFilter	8	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupExactName.java	TestGQGroupExactName	filter.TestGQGroupExactName	4	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupName.java	TestGQGroupName	filter.TestGQGroupName	13	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQIntersectionFilter.java	TestGQIntersectionFilter	filter.TestGQIntersectionFilter	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQNull.java	TestGQNull	filter.TestGQNull	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQStemCreatedAfter.java	TestGQStemCreatedAfter	filter.TestGQStemCreatedAfter	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQStemCreatedBefore.java	TestGQStemCreatedBefore	filter.TestGQStemCreatedBefore	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQStemName.java	TestGQStemName	filter.TestGQStemName	13	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQUnionFilter.java	TestGQUnionFilter	filter.TestGQUnionFilter	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGroupTypeFilter.java	TestGroupTypeFilter	filter.TestGroupTypeFilter	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestQuery.java	TestQuery	filter.TestQuery	20	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestQueryMembershipModifiedAfter.java	TestQueryMembershipModifiedAfter	filter.TestQueryMembershipModifiedAfter	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestQueryMembershipModifiedBefore.java	TestQueryMembershipModifiedBefore	filter.TestQueryMembershipModifiedBefore	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/Test_api_ChildGroupFilter.java	Test_api_ChildGroupFilter	filter.Test_api_ChildGroupFilter	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/Test_api_ChildStemFilter.java	Test_api_ChildStemFilter	filter.Test_api_ChildStemFilter	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/AllGroupTests.java	AllGroupTests	group.AllGroupTests	0	15	0	?	1
+../src/test/edu/internet2/middleware/grouper/group/GroupDataTest.java	GroupDataTest	group.GroupDataTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGAttr.java	TestGAttr	group.TestGAttr	18	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroup.java	TestGroup	group.TestGroup	29	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroup1.java	TestGroup1	group.TestGroup1	50	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroupAddDeleteMember.java	TestGroupAddDeleteMember	group.TestGroupAddDeleteMember	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroupFinder.java	TestGroupFinder	group.TestGroupFinder	22	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroupModifyAttributes.java	TestGroupModifyAttributes	group.TestGroupModifyAttributes	20	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestWrongFieldType.java	TestWrongFieldType	group.TestWrongFieldType	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/group/Test_api_Group.java	Test_api_Group	group.Test_api_Group	55	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/Test_api_GrouperAPI.java	Test_api_GrouperAPI	group.Test_api_GrouperAPI	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/Test_Integration_HibernateGroupDAO_delete.java	Test_Integration_HibernateGroupDAO_delete	group.Test_Integration_HibernateGroupDAO_delete	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/Test_I_API_Group_addCompositeMember.java	Test_I_API_Group_addCompositeMember	group.Test_I_API_Group_addCompositeMember	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/Test_I_API_Group_delete.java	Test_I_API_Group_delete	group.Test_I_API_Group_delete	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/Test_I_API_Group_deleteAttribute.java	Test_I_API_Group_deleteAttribute	group.Test_I_API_Group_deleteAttribute	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/Test_I_API_Group_deleteMember.java	Test_I_API_Group_deleteMember	group.Test_I_API_Group_deleteMember	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/helper/GrouperTest.java	GrouperTest	helper.GrouperTest	0	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/hibernate/AllHibernateTests.java	AllHibernateTests	hibernate.AllHibernateTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/hibernate/HibernateSessionTest.java	HibernateSessionTest	hibernate.HibernateSessionTest	13	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hibernate/HibUtilsTest.java	HibUtilsTest	hibernate.HibUtilsTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/AllHooksTests.java	AllHooksTests	hooks.AllHooksTests	0	20	1	?	1
+../src/test/edu/internet2/middleware/grouper/hooks/AttributeAssignHooksTest.java	AttributeAssignHooksTest	hooks.AttributeAssignHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/AttributeAssignValueHooksTest.java	AttributeAssignValueHooksTest	hooks.AttributeAssignValueHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/AttributeDefHooksTest.java	AttributeDefHooksTest	hooks.AttributeDefHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/AttributeDefNameHooksTest.java	AttributeDefNameHooksTest	hooks.AttributeDefNameHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/AttributeHooksTest.java	AttributeHooksTest	hooks.AttributeHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/CompositeHooksTest.java	CompositeHooksTest	hooks.CompositeHooksTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/ESCOGroupHooksTest.java	ESCOGroupHooksTest	hooks.ESCOGroupHooksTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/ExternalSubjectHooksTest.java	ExternalSubjectHooksTest	hooks.ExternalSubjectHooksTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/FieldHooksTest.java	FieldHooksTest	hooks.FieldHooksTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupHooksAddTypePostCommitTest.java	GroupHooksAddTypePostCommitTest	hooks.GroupHooksAddTypePostCommitTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupHooksAddTypeTest.java	GroupHooksAddTypeTest	hooks.GroupHooksAddTypeTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupHooksDbVersionTest.java	GroupHooksDbVersionTest	hooks.GroupHooksDbVersionTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupHooksTest.java	GroupHooksTest	hooks.GroupHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupHookUniqueTest.java	GroupHookUniqueTest	hooks.GroupHookUniqueTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupTypeHooksTest.java	GroupTypeHooksTest	hooks.GroupTypeHooksTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/GroupTypeTupleHooksTest.java	GroupTypeTupleHooksTest	hooks.GroupTypeTupleHooksTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/LifecycleHooksTest.java	LifecycleHooksTest	hooks.LifecycleHooksTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/MemberHooksTest.java	MemberHooksTest	hooks.MemberHooksTest	12	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/MembershipHooksTest.java	MembershipHooksTest	hooks.MembershipHooksTest	14	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/StemHooksTest.java	StemHooksTest	hooks.StemHooksTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/AllHooksExamplesTests.java	AllHooksExamplesTests	hooks.examples.AllHooksExamplesTests	0	8	0	?	1
+../src/test/edu/internet2/middleware/grouper/hooks/examples/AttributeSecurityFromTypeHookTest.java	AttributeSecurityFromTypeHookTest	hooks.examples.AttributeSecurityFromTypeHookTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/GroupAttributeNameValidationHookTest.java	GroupAttributeNameValidationHookTest	hooks.examples.GroupAttributeNameValidationHookTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/GroupUniqueExtensionHookTest.java	GroupUniqueExtensionHookTest	hooks.examples.GroupUniqueExtensionHookTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/GroupUniqueNameCaseInsensitiveHookTest.java	GroupUniqueNameCaseInsensitiveHookTest	hooks.examples.GroupUniqueNameCaseInsensitiveHookTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/LDAPProvisioningHookTest.java	LDAPProvisioningHookTest	hooks.examples.LDAPProvisioningHookTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/MembershipOneInFolderMaxHookTest.java	MembershipOneInFolderMaxHookTest	hooks.examples.MembershipOneInFolderMaxHookTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/StemUniqueNameCaseInsensitiveHookTest.java	StemUniqueNameCaseInsensitiveHookTest	hooks.examples.StemUniqueNameCaseInsensitiveHookTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/hooks/examples/UniqueObjectHookTest.java	UniqueObjectHookTest	hooks.examples.UniqueObjectHookTest	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/internal/dao/AllInternalDaoTests.java	AllInternalDaoTests	internal.dao.AllInternalDaoTests	0	3	1	?	1
+../src/test/edu/internet2/middleware/grouper/internal/dao/QueryPagingTest.java	QueryPagingTest	internal.dao.QueryPagingTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/internal/dao/QuerySortTest.java	QuerySortTest	internal.dao.QuerySortTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/internal/dao/TestGrouperDAOFactory.java	TestGrouperDAOFactory	internal.dao.TestGrouperDAOFactory	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/internal/dao/hib3/AllDaoHib3Tests.java	AllDaoHib3Tests	internal.dao.hib3.AllDaoHib3Tests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/internal/dao/hib3/Hib3MembershipDAOTest.java	Hib3MembershipDAOTest	internal.dao.hib3.Hib3MembershipDAOTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/AllMemberTests.java	AllMemberTests	member.AllMemberTests	0	7	0	?	1
+../src/test/edu/internet2/middleware/grouper/member/TestAddMember.java	TestAddMember	member.TestAddMember	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/TestMember.java	TestMember	member.TestMember	56	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/TestMember1.java	TestMember1	member.TestMember1	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/TestMemberAttributes.java	TestMemberAttributes	member.TestMemberAttributes	21	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/TestMemberChangeSubject.java	TestMemberChangeSubject	member.TestMemberChangeSubject	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/TestMemberFinder.java	TestMemberFinder	member.TestMemberFinder	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/member/TestMemberToGroup.java	TestMemberToGroup	member.TestMemberToGroup	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/membership/AddMissingGroupSetsTest.java	AddMissingGroupSetsTest	membership.AddMissingGroupSetsTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/AllMembershipTests.java	AllMembershipTests	membership.AllMembershipTests	0	30	0	?	1
+../src/test/edu/internet2/middleware/grouper/membership/MembershipPathGroupTest.java	MembershipPathGroupTest	membership.MembershipPathGroupTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestDisabledMembership.java	TestDisabledMembership	membership.TestDisabledMembership	24	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestFindBadMemberships.java	TestFindBadMemberships	membership.TestFindBadMemberships	23	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestInvalidGrouperAllMemberships.java	TestInvalidGrouperAllMemberships	membership.TestInvalidGrouperAllMemberships	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMemberChangeInMembership.java	TestMemberChangeInMembership	membership.TestMemberChangeInMembership	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf.java	TestMemberOf	membership.TestMemberOf	11	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf0.java	TestMemberOf0	membership.TestMemberOf0	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf1.java	TestMemberOf1	membership.TestMemberOf1	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership.java	TestMembership	membership.TestMembership	9	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership0.java	TestMembership0	membership.TestMembership0	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership1.java	TestMembership1	membership.TestMembership1	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership10.java	TestMembership10	membership.TestMembership10	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership11.java	TestMembership11	membership.TestMembership11	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership12.java	TestMembership12	membership.TestMembership12	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership2.java	TestMembership2	membership.TestMembership2	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership3.java	TestMembership3	membership.TestMembership3	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership4.java	TestMembership4	membership.TestMembership4	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership5.java	TestMembership5	membership.TestMembership5	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership6.java	TestMembership6	membership.TestMembership6	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership7.java	TestMembership7	membership.TestMembership7	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership8.java	TestMembership8	membership.TestMembership8	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership9.java	TestMembership9	membership.TestMembership9	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipDeletes0.java	TestMembershipDeletes0	membership.TestMembershipDeletes0	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipDeletes1.java	TestMembershipDeletes1	membership.TestMembershipDeletes1	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipDeletes2.java	TestMembershipDeletes2	membership.TestMembershipDeletes2	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipDeletes3.java	TestMembershipDeletes3	membership.TestMembershipDeletes3	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipDeletes4.java	TestMembershipDeletes4	membership.TestMembershipDeletes4	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipDeletes5.java	TestMembershipDeletes5	membership.TestMembershipDeletes5	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembershipFinder.java	TestMembershipFinder	membership.TestMembershipFinder	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/membership/Test_Unit_API_ImmediateMembershipValidator_validate.java	Test_Unit_API_ImmediateMembershipValidator_validate	membership.Test_Unit_API_ImmediateMembershipValidator_validate	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/messaging/AllMessagingTests.java	AllMessagingTests	messaging.AllMessagingTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/messaging/GrouperBuiltinMessagingSystemTest.java	GrouperBuiltinMessagingSystemTest	messaging.GrouperBuiltinMessagingSystemTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/messaging/GrouperMessageHibernateTest.java	GrouperMessageHibernateTest	messaging.GrouperMessageHibernateTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/misc/AllMiscTests.java	AllMiscTests	misc.AllMiscTests	0	3	0	?	1
+../src/test/edu/internet2/middleware/grouper/misc/GrouperObjectFinderTest.java	GrouperObjectFinderTest	misc.GrouperObjectFinderTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/misc/GrouperReportTest.java	GrouperReportTest	misc.GrouperReportTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/misc/GrouperSessionTest.java	GrouperSessionTest	misc.GrouperSessionTest	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/AllPermissionsTests.java	AllPermissionsTests	permissions.AllPermissionsTests	0	4	1	?	1
+../src/test/edu/internet2/middleware/grouper/permissions/PermissionDisallowTest.java	PermissionDisallowTest	permissions.PermissionDisallowTest	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/PermissionEntryTest.java	PermissionEntryTest	permissions.PermissionEntryTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/PermissionHeuristicTest.java	PermissionHeuristicTest	permissions.PermissionHeuristicTest	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/permissions/RoleSetTest.java	RoleSetTest	permissions.RoleSetTest	21	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/limits/AllPermissionsLimitsTests.java	AllPermissionsLimitsTests	permissions.limits.AllPermissionsLimitsTests	0	1	1	?	1
+../src/test/edu/internet2/middleware/grouper/permissions/limits/PermissionLimitTest.java	PermissionLimitTest	permissions.limits.PermissionLimitTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/limits/impl/AllPermissionsLimitsImplTests.java	AllPermissionsLimitsImplTests	permissions.limits.impl.AllPermissionsLimitsImplTests	0	5	0	?	1
+../src/test/edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitAmountLogicTest.java	PermissionLimitAmountLogicTest	permissions.limits.impl.PermissionLimitAmountLogicTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitElLogicTest.java	PermissionLimitElLogicTest	permissions.limits.impl.PermissionLimitElLogicTest	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitIpNetworkLogicTest.java	PermissionLimitIpNetworkLogicTest	permissions.limits.impl.PermissionLimitIpNetworkLogicTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitLabelsContainTest.java	PermissionLimitLabelsContainTest	permissions.limits.impl.PermissionLimitLabelsContainTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitTimeLogicTest.java	PermissionLimitTimeLogicTest	permissions.limits.impl.PermissionLimitTimeLogicTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/AllPITTests.java	AllPITTests	pit.AllPITTests	0	13	0	?	0
+../src/test/edu/internet2/middleware/grouper/pit/PITAttributeAssignFinderTests.java	PITAttributeAssignFinderTests	pit.PITAttributeAssignFinderTests	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITAttributeAssignTests.java	PITAttributeAssignTests	pit.PITAttributeAssignTests	15	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITAttributeAssignValueFinderTests.java	PITAttributeAssignValueFinderTests	pit.PITAttributeAssignValueFinderTests	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITAttributeAssignValueTests.java	PITAttributeAssignValueTests	pit.PITAttributeAssignValueTests	18	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITAttributeDefFinderTests.java	PITAttributeDefFinderTests	pit.PITAttributeDefFinderTests	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITAttributeDefNameFinderTests.java	PITAttributeDefNameFinderTests	pit.PITAttributeDefNameFinderTests	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITGroupFinderTests.java	PITGroupFinderTests	pit.PITGroupFinderTests	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITGroupTests.java	PITGroupTests	pit.PITGroupTests	8	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITMembershipTests.java	PITMembershipTests	pit.PITMembershipTests	15	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITMemberTests.java	PITMemberTests	pit.PITMemberTests	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITPermissionTests.java	PITPermissionTests	pit.PITPermissionTests	19	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITSyncTests.java	PITSyncTests	pit.PITSyncTests	13	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITUtilsTests.java	PITUtilsTests	pit.PITUtilsTests	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/poc/TestCronFormat.java	TestCronFormat	poc.TestCronFormat	0	0	0	?	0
+../src/test/edu/internet2/middleware/grouper/privs/AllPrivsTests.java	AllPrivsTests	privs.AllPrivsTests	0	25	0	?	1
+../src/test/edu/internet2/middleware/grouper/privs/TestAccessPrivilege.java	TestAccessPrivilege	privs.TestAccessPrivilege	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestAttributeDefPriv.java	TestAttributeDefPriv	privs.TestAttributeDefPriv	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestNamingPrivilege.java	TestNamingPrivilege	privs.TestNamingPrivilege	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivADMIN.java	TestPrivADMIN	privs.TestPrivADMIN	36	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivAdmin0.java	TestPrivAdmin0	privs.TestPrivAdmin0	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivCREATE.java	TestPrivCREATE	privs.TestPrivCREATE	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivileges.java	TestPrivileges	privs.TestPrivileges	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivOPTIN.java	TestPrivOPTIN	privs.TestPrivOPTIN	6	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivOPTOUT.java	TestPrivOPTOUT	privs.TestPrivOPTOUT	6	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivREAD.java	TestPrivREAD	privs.TestPrivREAD	11	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivSTEM.java	TestPrivSTEM	privs.TestPrivSTEM	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivSTEM_ADMIN.java	TestPrivSTEM_ADMIN	privs.TestPrivSTEM_ADMIN	10	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivUPDATE.java	TestPrivUPDATE	privs.TestPrivUPDATE	24	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivVIEW.java	TestPrivVIEW	privs.TestPrivVIEW	26	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_AccessResolver.java	Test_privs_AccessResolver	privs.Test_privs_AccessResolver	17	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_AccessResolverFactory.java	Test_privs_AccessResolverFactory	privs.Test_privs_AccessResolverFactory	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_AccessWrapper.java	Test_privs_AccessWrapper	privs.Test_privs_AccessWrapper	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_CachingAccessResolver.java	Test_privs_CachingAccessResolver	privs.Test_privs_CachingAccessResolver	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_CachingNamingResolver.java	Test_privs_CachingNamingResolver	privs.Test_privs_CachingNamingResolver	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_NamingResolver.java	Test_privs_NamingResolver	privs.Test_privs_NamingResolver	17	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_NamingResolverFactory.java	Test_privs_NamingResolverFactory	privs.Test_privs_NamingResolverFactory	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_privs_NamingWrapper.java	Test_privs_NamingWrapper	privs.Test_privs_NamingWrapper	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_uc_NamingPrivs.java	Test_uc_NamingPrivs	privs.Test_uc_NamingPrivs	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_uc_WheelGroup.java	Test_uc_WheelGroup	privs.Test_uc_WheelGroup	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/Test_util_ParameterHelper.java	Test_util_ParameterHelper	privs.Test_util_ParameterHelper	18	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/rules/AllRulesTests.java	AllRulesTests	rules.AllRulesTests	0	5	0	?	1
+../src/test/edu/internet2/middleware/grouper/rules/RuleApiTest.java	RuleApiTest	rules.RuleApiTest	45	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/rules/RuleDefinitionTest.java	RuleDefinitionTest	rules.RuleDefinitionTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/rules/RuleHookTest.java	RuleHookTest	rules.RuleHookTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/rules/RuleNameChangeTest.java	RuleNameChangeTest	rules.RuleNameChangeTest	8	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/rules/RuleTest.java	RuleTest	rules.RuleTest	53	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/service/AllServiceTests.java	AllServiceTests	service.AllServiceTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/service/ServiceTest.java	ServiceTest	service.ServiceTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/stem/AllStemTests.java	AllStemTests	stem.AllStemTests	0	1	0	?	0
+../src/test/edu/internet2/middleware/grouper/stem/StemSetTests.java	StemSetTests	stem.StemSetTests	8	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/stress/AllStressTests.java	AllStressTests	stress.AllStressTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/stress/GroupDeleteTest.java	GroupDeleteTest	stress.GroupDeleteTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/stress/PermissionPerformanceTest.java	PermissionPerformanceTest	stress.PermissionPerformanceTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/AllSubjectTests.java	AllSubjectTests	subj.AllSubjectTests	0	11	0	?	1
+../src/test/edu/internet2/middleware/grouper/subj/LdapSubjectTest.java	LdapSubjectTest	subj.LdapSubjectTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/TestGrouperSourceAdapter.java	TestGrouperSourceAdapter	subj.TestGrouperSourceAdapter	7	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/TestgrouperSubjAttr.java	TestgrouperSubjAttr	subj.TestgrouperSubjAttr	0	0	0	GrouperAPI	0
+../src/test/edu/internet2/middleware/grouper/subj/TestGrouperSubject.java	TestGrouperSubject	subj.TestGrouperSubject	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/subj/TestInternalSourceAdapter.java	TestInternalSourceAdapter	subj.TestInternalSourceAdapter	12	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/subj/TestSubject.java	TestSubject	subj.TestSubject	18	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/TestSubjectCustomizer.java	TestSubjectCustomizer	subj.TestSubjectCustomizer	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/TestSubjectDecorator.java	TestSubjectDecorator	subj.TestSubjectDecorator	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/TestSubjectFinder.java	TestSubjectFinder	subj.TestSubjectFinder	44	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/Test_I_API_RegistrySubject_delete.java	Test_I_API_RegistrySubject_delete	subj.Test_I_API_RegistrySubject_delete	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/Test_subj_CachingResolver.java	Test_subj_CachingResolver	subj.Test_subj_CachingResolver	15	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/Test_subj_SubjectResolver.java	Test_subj_SubjectResolver	subj.Test_subj_SubjectResolver	14	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/Test_subj_SubjectResolverFactory.java	Test_subj_SubjectResolverFactory	subj.Test_subj_SubjectResolverFactory	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/tableIndex/AllTableIndexTests.java	AllTableIndexTests	tableIndex.AllTableIndexTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/tableIndex/TableIndexTest.java	TableIndexTest	tableIndex.TableIndexTest	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/userData/AllUserDataTests.java	AllUserDataTests	userData.AllUserDataTests	0	3	0	TestCase	1
+../src/test/edu/internet2/middleware/grouper/userData/GrouperFavoriteFinderTest.java	GrouperFavoriteFinderTest	userData.GrouperFavoriteFinderTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/userData/GrouperUserDataApiTest.java	GrouperUserDataApiTest	userData.GrouperUserDataApiTest	12	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/userData/UserDataListTest.java	UserDataListTest	userData.UserDataListTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/util/AllUtilTests.java	AllUtilTests	util.AllUtilTests	0	7	1	?	1
+../src/test/edu/internet2/middleware/grouper/util/GrouperCacheTest.java	GrouperCacheTest	util.GrouperCacheTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/util/GrouperHtmlFilterTest.java	GrouperHtmlFilterTest	util.GrouperHtmlFilterTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/util/GrouperThreadLocalStateTest.java	GrouperThreadLocalStateTest	util.GrouperThreadLocalStateTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/util/GrouperUtilElSafeTest.java	GrouperUtilElSafeTest	util.GrouperUtilElSafeTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/util/GrouperUtilTest.java	GrouperUtilTest	util.GrouperUtilTest	28	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/util/JsonIndenterTest.java	JsonIndenterTest	util.JsonIndenterTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/util/XmlIndenterTest.java	XmlIndenterTest	util.XmlIndenterTest	6	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/util/rijndael/AllRijndaelTests.java	AllRijndaelTests	util.rijndael.AllRijndaelTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/util/rijndael/MorphTest.java	MorphTest	util.rijndael.MorphTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/AllValidatorTests.java	AllValidatorTests	validator.AllValidatorTests	0	2	5	?	1
+../src/test/edu/internet2/middleware/grouper/validator/Suite_Integration_CompositeValidator.java	Suite_Integration_CompositeValidator	validator.Suite_Integration_CompositeValidator	0	1	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Suite_Integration_ImmediateMembershipValidator.java	Suite_Integration_ImmediateMembershipValidator	validator.Suite_Integration_ImmediateMembershipValidator	0	1	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Suite_Unit_API_CompositeMembershipValidator.java	Suite_Unit_API_CompositeMembershipValidator	validator.Suite_Unit_API_CompositeMembershipValidator	0	1	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Suite_Unit_API_EffectiveMembershipValidator.java	Suite_Unit_API_EffectiveMembershipValidator	validator.Suite_Unit_API_EffectiveMembershipValidator	0	1	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Suite_Unit_API_ImmediateMembershipValidator.java	Suite_Unit_API_ImmediateMembershipValidator	validator.Suite_Unit_API_ImmediateMembershipValidator	0	1	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Test_Integration_CompositeValidator_validate.java	Test_Integration_CompositeValidator_validate	validator.Test_Integration_CompositeValidator_validate	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Test_Integration_ImmediateMembershipValidator_validate.java	Test_Integration_ImmediateMembershipValidator_validate	validator.Test_Integration_ImmediateMembershipValidator_validate	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Test_subj_ValidatingResolver.java	Test_subj_ValidatingResolver	validator.Test_subj_ValidatingResolver	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Test_Unit_API_CompositeMembershipValidator_validate.java	Test_Unit_API_CompositeMembershipValidator_validate	validator.Test_Unit_API_CompositeMembershipValidator_validate	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Test_Unit_API_CompositeValidator_validate.java	Test_Unit_API_CompositeValidator_validate	validator.Test_Unit_API_CompositeValidator_validate	11	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/validator/Test_Unit_API_EffectiveMembershipValidator_validate.java	Test_Unit_API_EffectiveMembershipValidator_validate	validator.Test_Unit_API_EffectiveMembershipValidator_validate	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/AllXmlTests.java	AllXmlTests	xml.AllXmlTests	0	8	3	?	1
+../src/test/edu/internet2/middleware/grouper/xml/TestXml.java	TestXml	xml.TestXml	33	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/TestXmlExport.java	TestXmlExport	xml.TestXmlExport	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/TestXmlImport.java	TestXmlImport	xml.TestXmlImport	9	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/TestXmlReader.java	TestXmlReader	xml.TestXmlReader	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/Test_U_API_XmlExporter_internal_groupToXML.java	Test_U_API_XmlExporter_internal_groupToXML	xml.Test_U_API_XmlExporter_internal_groupToXML	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/Test_U_API_XmlExporter_internal_membershipToXML.java	Test_U_API_XmlExporter_internal_membershipToXML	xml.Test_U_API_XmlExporter_internal_membershipToXML	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/Test_U_API_XmlExporter_internal_subjectToXML.java	Test_U_API_XmlExporter_internal_subjectToXML	xml.Test_U_API_XmlExporter_internal_subjectToXML	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/Test_U_Util_XML_escape.java	Test_U_Util_XML_escape	xml.Test_U_Util_XML_escape	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/AllXmlExportTests.java	AllXmlExportTests	xml.export.AllXmlExportTests	0	18	0	?	1
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssignActionSetTest.java	XmlExportAttributeAssignActionSetTest	xml.export.XmlExportAttributeAssignActionSetTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssignActionTest.java	XmlExportAttributeAssignActionTest	xml.export.XmlExportAttributeAssignActionTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssignTest.java	XmlExportAttributeAssignTest	xml.export.XmlExportAttributeAssignTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeAssignValueTest.java	XmlExportAttributeAssignValueTest	xml.export.XmlExportAttributeAssignValueTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeDefNameSetTest.java	XmlExportAttributeDefNameSetTest	xml.export.XmlExportAttributeDefNameSetTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeDefNameTest.java	XmlExportAttributeDefNameTest	xml.export.XmlExportAttributeDefNameTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeDefScopeTest.java	XmlExportAttributeDefScopeTest	xml.export.XmlExportAttributeDefScopeTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAttributeDefTest.java	XmlExportAttributeDefTest	xml.export.XmlExportAttributeDefTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAuditEntryTest.java	XmlExportAuditEntryTest	xml.export.XmlExportAuditEntryTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportAuditTypeTest.java	XmlExportAuditTypeTest	xml.export.XmlExportAuditTypeTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportCompositeTest.java	XmlExportCompositeTest	xml.export.XmlExportCompositeTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportFieldTest.java	XmlExportFieldTest	xml.export.XmlExportFieldTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportGroupTest.java	XmlExportGroupTest	xml.export.XmlExportGroupTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportMainTest.java	XmlExportMainTest	xml.export.XmlExportMainTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportMembershipTest.java	XmlExportMembershipTest	xml.export.XmlExportMembershipTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportMemberTest.java	XmlExportMemberTest	xml.export.XmlExportMemberTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportRoleSetTest.java	XmlExportRoleSetTest	xml.export.XmlExportRoleSetTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/export/XmlExportStemTest.java	XmlExportStemTest	xml.export.XmlExportStemTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/importXml/AllXmlImportTests.java	AllXmlImportTests	xml.importXml.AllXmlImportTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/xml/importXml/XmlImportMainTest.java	XmlImportMainTest	xml.importXml.XmlImportMainTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/importXml/XmlLegacyTest.java	XmlLegacyTest	xml.importXml.XmlLegacyTest	15	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xml/userAudit/AllXmlUserAuditTests.java	AllXmlUserAuditTests	xml.userAudit.AllXmlUserAuditTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditExportTest.java	XmlUserAuditExportTest	xml.userAudit.XmlUserAuditExportTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/xmpp/AllXmppTests.java	AllXmppTests	xmpp.AllXmppTests	0	1	0	?	1
+../src/test/edu/internet2/middleware/grouper/xmpp/XmppConnectionBeanTest.java	XmppConnectionBeanTest	xmpp.XmppConnectionBeanTest	1	0	0	GrouperTest	0
+
+
+Call hierarchy
+--------------
+
+AllTests	2392
+    MembershipFinderTest	2
+        * testMembershipSize
+        * testFindMembership
+    TestStemFinder	11
+        * testFindByIdIndex
+        * testFindByName
+        * testFindByCurrentName
+        * testFindByAlternateName
+        * testFindRootStem
+        * testFindRootByName
+        * testFindAllByApproximateDisplayExtension_whenUpperCaseInRegistry
+        * testFindAllByApproximateDisplayName_whenUpperCaseInRegistry
+        * testFindAllByApproximateExtension_whenUpperCaseInRegistry
+        * testFindByAttributeDefName
+        * testFindAllByApproximateName_whenUpperCaseInRegistry
+    TestComposite	49
+        * testCompositeFinderFindAsFactor
+        * testCompositeFinderFindAsOwner
+        * testCompositeGetType
+        * testCompositeGetOwnerGroup
+        * testCompositeGetLeftGroup
+        * testCompositeGetRightGroup
+        * testFailNotPrivilegedToAddCompositeMember
+        * testFailNotPrivilegedToDeleteCompositeMember
+        * testDelUnionWithNoChildrenAndNoParents
+        * testAddUnionWithOneChildAndNoParents
+        * testDelUnionWithOneChildAndNoParents
+        * testAddUnionWithCompositeChildAndNoParents
+        * testDelUnionWithCompositeChildAndNoParents
+        * testAddUnionWithTwoChildrenAndNoParents
+        * testDelUnionWithTwoChildrenAndNoParents
+        * testAddUnionWithTwoCompositeChildrenAndNoParents
+        * testDelUnionWithTwoCompositeChildrenAndNoParents
+        * testAddUnionWithNoChildrenAndParent
+        * testFailHasCompositeWhenNot
+        * testDelUnionWithNoChildrenAndParent
+        * testAddUnionWithNoChildrenAndCompositeParent
+        * testDelUnionWithNoChildrenAndCompositeParent
+        * testAddUnionWithOneChildAndParent
+        * testDelUnionWithOneChildAndParent
+        * testAddUnionWithOneChildAndCompositeParent
+        * testDelUnionWithOneChildAndCompositeParent
+        * testAddUnionWithTwoChildrenAndParent
+        * testDelUnionWithTwoChildrenAndParent
+        * testAddUnionWithTwoChildrenAndCompositeParent
+        * testFailIsCompositeWhenNot
+        * testDelUnionWithTwoChildrenAndCompositeParent
+        * testAddUnionWithOneCompositeChildAndCompositeParent
+        * testDelUnionWithOneCompositeChildAndCompositeParent
+        * testAddUnionWithChildAndCompositeChildAndParent
+        * testDelUnionWithChildAndCompositeChildAndParent
+        * testAddUnionWithChildAndCompositeChildAndCompositeParent
+        * testDelUnionWithChildAndCompositeChildAndCompositeParent
+        * testAddUnionWithTwoCompositeChildrenAndCompositeParent
+        * testDelUnionWithTwoCompositeChildrenAndCompositeParent
+        * testAddMemberToChildOfComposite
+        * testFailToAddMemberWhenHasComposite
+        * testDelMemberFromChildofComposite
+        * testFailToDeleteMemberWhenHasComposite
+        * testFailToAddCompositeMemberWhenHasMember
+        * testFailToDeleteCompositeWhenHasMember
+        * testFailToDeleteCompositeWhenNotComposite
+        * testAddUnionWithNoChildrenAndNoParents
+        * testXmlInsert
+        * testXmlDifferentUpdateProperties
+    TestGroupType	36
+        * testFindAllTypes
+        * testAddAndDeleteCustomTypeAsNonRoot
+        * testDeleteType2
+        * testDeleteType
+        * testFailToAddFieldAsNonRoot
+        * testFailToDeleteWhenInUse
+        * testFailToDeleteWhenNotRoot
+        * testFindAllAssignableTypes
+        * testFindAllAssignableTypesAfterAddition
+        * testFindAllTypesAfterAddition
+        * testUseCustomAttributeAsNonRoot
+        * testAddFieldAttribute
+        * testAddFieldDuplicateName
+        * testAddAttributeDuplicateName
+        * testAddFieldThenAttributeSameName
+        * testAddAttributeThenFieldSameName
+        * testAddFieldList
+        * testAddFieldReadNotAccess
+        * testAddFieldWriteNotAccess
+        * testAddRemoveType
+        * testCreateExistingType
+        * testCreateNewTypeAsNonRoot
+        * testCreateNewTypeAsRoot
+        * testDeleteAsNonRoot
+        * testDeleteUnusedCustomList
+        * testFailToDeleteUsedCustomList
+        * testFailToFindCustomField
+        * testFailToFindCustomType
+        * testFindCustomField
+        * testFindCustomType
+        * testGetAttributeReturnTypes
+        * testUseCustomAttribute
+        * testUseCustomList
+        * testDelete_FieldsDeletedWhenGroupTypeIsDeleted
+        * testDelete_FieldsDeletedWhenRegistryIsReset
+        * testDeleteGroupWithAttrsAndList
+    TestSession	7
+        * testStartSessionBadSubject
+        * testCanGetInnerSessionWithinInnerSession
+        * testGetStartTime
+        * testNotEqual
+        * testStartSessionGoodSubject
+        * testStopSession
+        * testUseStoppedSession
+    TestGrouperVersion	1
+        * testVersions
+    TestStem	59
+        * testGetAllStemsSplitScopeSecure
+        * testObliterate
+        * testFindParentStems
+        * testRoot
+        * testRootAsNonRoot
+        * testStemModifyAttributesAfterDisablingMembership
+        * testStemModifyAttributesAfterEnablingMembership
+        * testStemModifyAttributesAfterDisablingMembership2
+        * testStemModifyAttributesAfterEnablingMembership2
+        * testStemModifyAttributesAfterDisablingMembership3
+        * testStemModifyAttributesAfterEnablingMembership3
+        * testGetParentStemAtRoot
+        * testGetParentStem
+        * testGetChildStems
+        * testGetChildGroups2
+        * testGetChildGroups
+        * testPropagateDisplayExtensionChangeAsRoot
+        * testPropagateDisplayExtensionChangeAsNonRoot
+        * testChildStemsAndGroupsLazyInitialization
+        * testParentChildStemsAndGroupsLazyInitialization
+        * testAddChildStemWithBadExtnOrDisplayExtn
+        * testSetBadStemDisplayExtension
+        * testDeleteEmptyStem
+        * testDeleteWithAttrPrivs
+        * testDeleteEmptyStemInNewSession
+        * testFailToDeleteRootStem
+        * testFailToDeleteStemWithChildGroups
+        * testFailToDeleteStemWithChildStems
+        * testFailToDeleteStemWithoutSTEM
+        * testGetCreateAttrs
+        * testGetModifyAttrsModified
+        * testGetModifyAttrsNotModified
+        * testGetPrivsStemmersAndCreatorsAsNonRoot
+        * testGetPrivsStemmersAndCreatorsAsRoot
+        * testStaticSaveStem
+        * testStemModifyAttributesAfterUpdatingAttributes
+        * testStemModifyAttributesUpdatedAfterGrantingEffectivePriv
+        * testStemModifyAttributesUpdatedAfterGrantingImmediatePriv
+        * testStemModifyAttributesUpdatedAfterRevokingEffectivePriv
+        * testStemModifyAttributesUpdatedAfterRevokingImmediatePriv
+        * testAddChildGroup
+        * testAddChildGroupAtRootFail
+        * testAddChildStem
+        * testAddChildStemAtRoot
+        * testAddDuplicateChildGroup
+        * testAddDuplicateChildStem
+        * testSetExtension_EmptyValue
+        * testSetExtension_NullValue
+        * testSetExtension_ValueContainsColon
+        * testSetExtension_WhitespaceOnlyValue
+        * testIsRootStem_DoNotThrowNullPointerException
+        * testSetStemDisplayName
+        * testChildStemsLazyInitializationException
+        * testCache
+        * testGetChildMembershipGroups
+        * testXmlInsert
+        * testXmlDifferentUpdateProperties
+        * testObliterateAndPointInTime
+        * testObliterateAndPointInTimeComposite
+    TestField	4
+        * testFields
+        * testCache
+        * testXmlInsert
+        * testXmlDifferentUpdateProperties
+    TestCompositeU	37
+        * testFailNotPrivilegedToAddCompositeMember
+        * testAddUnionWithCompositeChildAndNoParents
+        * testAddUnionWithNoChildrenAndCompositeParent
+        * testAddUnionWithNoChildrenAndParent
+        * testAddUnionWithOneChildAndNoParents
+        * testAddUnionWithOneChildAndParent
+        * testAddUnionWithTwoChildrenAndNoParents
+        * testAddUnionWithTwoCompositeChildrenAndNoParents
+        * testDelUnionWithCompositeChildAndNoParents
+        * testDelUnionWithNoChildrenAndCompositeParent
+        * testDelUnionWithNoChildrenAndNoParents
+        * testDelUnionWithNoChildrenAndParent
+        * testDelUnionWithOneChildAndNoParents
+        * testDelUnionWithTwoChildrenAndNoParents
+        * testDelUnionWithTwoCompositeChildrenAndNoParents
+        * testFailHasCompositeWhenNot
+        * testFailNotPrivilegedToDeleteCompositeMember
+        * testAddUnionWithChildAndCompositeChildAndParent
+        * testAddUnionWithOneChildAndCompositeParent
+        * testAddUnionWithOneCompositeChildAndCompositeParent
+        * testAddUnionWithTwoChildrenAndCompositeParent
+        * testAddUnionWithTwoChildrenAndParent
+        * testDelUnionWithOneChildAndCompositeParent
+        * testDelUnionWithOneChildAndParent
+        * testDelUnionWithOneCompositeChildAndCompositeParent
+        * testDelUnionWithTwoChildrenAndCompositeParent
+        * testDelUnionWithTwoChildrenAndParent
+        * testFailIsCompositeWhenNot
+        * testAddMemberToChildOfComposite
+        * testAddUnionWithChildAndCompositeChildAndCompositeParent
+        * testAddUnionWithTwoCompositeChildrenAndCompositeParent
+        * testDelMemberFromChildofComposite
+        * testDelUnionWithChildAndCompositeChildAndCompositeParent
+        * testDelUnionWithChildAndCompositeChildAndParent
+        * testDelUnionWithTwoCompositeChildrenAndCompositeParent
+        * testFailToAddMemberWhenHasComposite
+        * testFailToDeleteMemberWhenHasComposite
+    TestStemApi	110
+        * test_rename_no_attr_changes
+        * test_move_no_attr_changes
+        * test_rename_with_attr_changes
+        * test_move_with_attr_changes
+        * test_copy_with_disabled_memberships
+        * test_getChildGroups_fromRoot
+        * test_getChildGroups_fromTop
+        * test_getChildGroups_fromChild
+        * test_getChildGroups_Scope_nullScope
+        * test_getChildGroups_PrivilegeArrayAndScope_nullArray
+        * test_getChildGroups_PrivilegeArrayAndScope_nullScope
+        * test_getChildGroups_PrivilegeArrayAndScope_createPrivAndOneScope
+        * test_getChildGroups_PrivilegeArrayAndScope_createPrivAndSubScope
+        * test_getChildGroups_PrivilegeArrayAndScope_viewPrivAndOneScope
+        * test_getChildGroups_PrivilegeArrayAndScope_viewPrivAndSubScope
+        * test_getChildGroups_PrivilegeArrayAndScope_createAndViewPrivsAndOneScope
+        * test_getChildGroups_PrivilegeArrayAndScope_createAndViewPrivsAndSubScope
+        * test_getChildGroups_Scope_fromRootScopeONE
+        * test_getChildGroups_Scope_fromRootScopeSUB
+        * test_getChildGroups_Scope_fromTopScopeONE
+        * test_getChildGroups_Scope_fromTopScopeSUB
+        * test_getChildGroups_Scope_fromChildScopeONE
+        * test_getChildGroups_Scope_fromChildScopeSUB
+        * test_getChildStems_fromRoot
+        * test_getChildStems_fromTop
+        * test_getChildStems_fromChild
+        * test_getChildStems_Scope_nullScope
+        * test_getChildStems_Scope_fromRootScopeONE
+        * test_getChildStems_Scope_fromRootScopeSUB
+        * test_getChildStems_Scope_fromTopScopeONE
+        * test_getChildStems_Scope_fromTopScopeSUB
+        * test_getChildStems_Scope_fromChildScopeONE
+        * test_getChildStems_Scope_fromChildScopeSUB
+        * test_getChildStems_PrivilegeArrayAndScope_nullArray
+        * test_getChildStems_PrivilegeArrayAndScope_nullScope
+        * test_getChildStems_PrivilegeArrayAndScope_createPrivAndOneScope
+        * test_getChildStems_PrivilegeArrayAndScope_createPrivAndSubScope
+        * test_getChildStems_PrivilegeArrayAndScope_viewPrivAndOneScope
+        * test_getChildStems_PrivilegeArrayAndScope_viewPrivAndSubScope
+        * test_getChildStems_PrivilegeArrayAndScope_createAndViewPrivsAndOneScope
+        * test_getChildStems_PrivilegeArrayAndScope_createAndViewPrivsAndSubScope
+        * test_getChildStems_PrivilegeArrayAndScope_OneScopeDoNotReturnThisStem
+        * test_isChildGroup_nullChild
+        * test_isChildGroup_rootAsPotentialParent
+        * test_isChildGroup_immediateChild
+        * test_isChildGroup_notChild
+        * test_isChildStem_nullChild
+        * test_isChildStem_rootAsPotentialParent
+        * test_isChildStem_rootAsChild
+        * test_isChildStem_selfAsChild
+        * test_isChildStem_isChild
+        * test_isChildStem_notChild
+        * test_isRootStem_root
+        * test_isRootStem_notRootStem
+        * test_revokePriv_Priv_accessPrivilege
+        * test_copy_group_name_exists
+        * test_copy_stem_name_exists
+        * test_move_group_name_exists
+        * test_move_stem_name_exists
+        * test_move_rootStem
+        * test_move_toSubStem
+        * test_move_insufficientPrivileges_without_admin_or_wheel_group
+        * test_rename_insufficientPrivileges_with_admin_group
+        * test_rename_insufficientPrivileges_with_wheel_group
+        * test_move_insufficientPrivileges_with_admin_group
+        * test_move_insufficientPrivileges_with_wheel_group
+        * test_move_insufficientPrivileges_with_wheel_group_in_self_mode
+        * testStemMoveAudit
+        * test_move
+        * test_move2
+        * test_move_alternate_name
+        * test_move_no_alternate_name
+        * test_move_alternate_name_when_alternate_name_already_exists
+        * test_move_no_alternate_name_when_alternate_name_already_exists
+        * test_rename_alternate_name
+        * test_rename_alternate_name_same_name
+        * test_rename_and_displayname_alternate_name
+        * test_rename_and_displayname_no_alternate_name
+        * test_rename_no_alternate_name
+        * test_rename_alternate_name_when_alternate_name_already_exists
+        * test_rename_no_alternate_name_when_alternate_name_already_exists
+        * test_rename_with_duplicate_name
+        * test_copy_all
+        * test_copy_should_not_copy_alternate_name
+        * testStemCopyAudit
+        * test_copy_all2
+        * test_copy_stem_privs_only
+        * test_copy_group_privs_only
+        * test_copy_members_only
+        * test_copy_attrs_only
+        * test_copy_minimum_nonadmin
+        * test_copy_with_roles
+        * test_copy_with_entities
+        * test_move_with_entities
+        * test_copy_insufficient_privilege_listGroupAsMember
+        * test_copy_insufficient_privilege_groupAsPrivilege_naming
+        * test_copy_insufficient_privilege_groupAsPrivilege_access
+        * test_copy_no_create_priv
+        * test_copy_insufficientPrivileges_with_admin_group
+        * test_copy_insufficientPrivileges_with_wheel_group
+        * test_option_to_disable_last_membership_change
+        * test_option_to_assign_admin_to_root
+        * test_option_to_assign_admin_to_inherited_admins
+        * test_alternateName
+        * test_alternateNameSecurityCheck
+        * testCopyPrivs
+        * testCreateGroupPrivs
+        * testCreateStemPrivs
+        * testCreateAttributeDefPrivs
+        * testCreateAttributeDefNamePrivs
+    TestStemIntegration	14
+        * testSetExtension_NotPrivileged
+        * testSetExtension_ChangeAsRoot
+        * testSetExtension_ChangeAsNonRoot
+        * testSetExtension_ChangeAsRootAndPersistAcrossSessions
+        * testSetExtension_ChangeAsNonRootAndPersistAcrossSessions
+        * testSetExtension_ChangeAndPropagateAsRoot
+        * testSetExtensionAndDisplayExtension_ChangeAndPropagateAsNonRoot
+        * testSetExtension_ChangeAndPropagateAsNonRoot
+        * testInternal_AddChildGroup_CreateNewMemberAfterRegistryReset
+        * testInternal_AddChildGroup_ReuseExistingMemberAfterGroupDeletion
+        * test_internal_addChildStem_assignUuidIfBlankUuidArgument
+        * test_internal_addChildStem_assignUuidIfNullUuidArgument
+        * test_internal_addChildGroup_assignUuidIfBlankUuidArgument
+        * test_internal_addChildGroup_assignUuidIfNullUuidArgument
+    TestGroupTypeIncludeExclude	6
+        * testIncludeExcludeOverall
+        * testIncludeExcludeSystemOfRecord
+        * testTransaction
+        * testRequireGroup1
+        * testRequireGroup2
+        * testRequireGroup
+    TestCompositeI	41
+        * testFailNotPrivilegedToAddCompositeMember
+        * testFailNotPrivilegedToDeleteCompositeMember
+        * testDelUnionWithNoChildrenAndNoParents
+        * testAddUnionWithOneChildAndNoParents
+        * testDelUnionWithOneChildAndNoParents
+        * testAddUnionWithCompositeChildAndNoParents
+        * testDelUnionWithCompositeChildAndNoParents
+        * testAddUnionWithTwoChildrenAndNoParents
+        * testDelUnionWithTwoChildrenAndNoParents
+        * testAddUnionWithTwoCompositeChildrenAndNoParents
+        * testDelUnionWithTwoCompositeChildrenAndNoParents
+        * testAddUnionWithNoChildrenAndParent
+        * testFailHasCompositeWhenNot
+        * testDelUnionWithNoChildrenAndParent
+        * testAddUnionWithNoChildrenAndCompositeParent
+        * testAddUnionWithOneChildAndCompositeParent
+        * testAddUnionWithOneChildAndParent
+        * testAddUnionWithTwoChildrenAndParent
+        * testDelUnionWithNoChildrenAndCompositeParent
+        * testDelUnionWithOneChildAndCompositeParent
+        * testDelUnionWithOneChildAndParent
+        * testDelUnionWithTwoChildrenAndParent
+        * testAddUnionWithTwoChildrenAndCompositeParent
+        * testDelUnionWithTwoChildrenAndCompositeParent
+        * testFailIsCompositeWhenNot
+        * testAddMemberToChildOfComposite
+        * testAddUnionWithChildAndCompositeChildAndCompositeParent
+        * testAddUnionWithChildAndCompositeChildAndParent
+        * testAddUnionWithOneCompositeChildAndCompositeParent
+        * testAddUnionWithTwoCompositeChildrenAndCompositeParent
+        * testDelMemberFromChildofComposite
+        * testDelUnionWithChildAndCompositeChildAndCompositeParent
+        * testDelUnionWithChildAndCompositeChildAndParent
+        * testDelUnionWithOneCompositeChildAndCompositeParent
+        * testDelUnionWithTwoCompositeChildrenAndCompositeParent
+        * testFailToAddMemberWhenHasComposite
+        * testAddUnionWithNoChildrenAndNoParents
+        * testFailToAddCompositeMemberWhenHasMember
+        * testFailToDeleteCompositeWhenHasMember
+        * testFailToDeleteCompositeWhenNotComposite
+        * testFailToDeleteMemberWhenHasComposite
+    TestCompositeModel	15
+        * testFailInvalidSession
+        * testFailNullOwner
+        * testIntersectionComposite
+        * testComplementComposite
+        * testFailInvalidType
+        * testFailLeftEqualsRight
+        * testFailLeftNotGroup
+        * testFailNullLeft
+        * testFailNullRight
+        * testFailNullType
+        * testFailOwnerEqualsLeftFactor
+        * testFailOwnerEqualsRightFactor
+        * testFailOwnerNotGroupOrStem
+        * testFailRightNotGroup
+        * testUnionComposite
+    TestGrouperSession	8
+        * test_getAccessClass_notNull
+        * test_getAccessClass_defaultAccessAdapter
+        * test_getAccessResolver_notNull
+        * test_getAccessResolver_equals
+        * test_getNamingClass_notNull
+        * test_getNamingClass_defaultAccessAdapter
+        * test_getNamingResolver_notNull
+        * test_getNamingResolver_equals
+    app.AllAppTests	68
+        app.messaging.MessageConsumerDaemonTest	2
+            * testProcessMessagesHappyPath
+            * testProcessMessagesInvalidInputMessages
+        app.gsh.AllGshTests	9
+            app.gsh.TestGsh	7
+                * testGshTest
+                * testGshStems
+                * testGshGroups
+                * testGshPrivs
+                * testGshComposites
+                * testGshGroupTypes
+                * testGshXml
+            app.gsh.Test_Unit	2
+                * testUnit_SimpleCommandReader_Instantiate
+                * testUnit_SimpleCommandReader_AddAndRemove
+        app.loader.AllLoaderTests	48
+            app.loader.GrouperDaemonDeleteOldRecordsTest	4
+                * testDeleteOldAuditEntryNoLoggedInUser
+                * testDeleteOldAuditEntry
+                * testDeleteOldDeletedPointInTime
+                * testObliterateOldStemsWithPointInTime
+            app.loader.GrouperLoaderCleanLogsTest	1
+                * testCleanLogs
+            app.loader.GrouperLoaderOtherJobsTest	1
+                * testScheduleJobs
+            app.loader.GrouperLoaderQuartzTest	7
+                * testQuartzStoringCronTrigger
+                * testQuartzStoringSimpleTrigger
+                * testQuartzScheduleUpdateInterval
+                * testQuartzScheduleUpdateCronExpression
+                * testQuartzScheduleUpdateClass
+                * testQuartzScheduleUpdatePriority
+                * testQuartzScheduleUpdateJobData
+            app.loader.GrouperLoaderSecurityTest	6
+                * testGroupAutoCreate
+                * testSecurityUserEditType
+                * testSecurityUserEditTypeNonGroupFail
+                * testSecurityUserEditTypeGroupSucceed
+                * testSecurityUserEditTypeWheelFail
+                * testSecurityUserEditTypeWheelSucceed
+            app.loader.GrouperLoaderTest	25
+                * testLoaderTypesGroupMeta
+                * testLoaderTypes
+                * testLoaderAttributeDef
+                * testLoaderAttributeDefActions
+                * testLoaderSubjectIdentifier
+                * testLoaderShouldAbortWithoutChangingMemberships
+                * testLoaderShouldEmptyTheGroup
+                * testLoaderDisplayNameChangeForAddIncludeExclueGroup
+                * testLoaderDisplayNameChangeForRequireInGroups
+                * testLoaderUnresolvable
+                * testLoaderUnresolvablesInLoaderDBOneGroup
+                * testLoaderUnresolvablesInLoaderDBGroupList
+                * testLoaderFailsafeGroupListManagedGroupsOK1
+                * testLoaderFailsafeGroupListManagedGroupsOK2
+                * testLoaderFailsafeGroupListManagedGroupsFail1
+                * testLoaderFailsafeGroupListManagedGroupsFail2
+                * testLoaderFailsafeGroupListManagedGroupsOK3
+                * testIncrementalLoaderSimpleSubjectId
+                * testIncrementalLoaderSimpleSubjectIdWithAndGroups
+                * testIncrementalLoaderSimpleSubjectIdAndSource
+                * testIncrementalLoaderSimpleSubjectIdentifier
+                * testIncrementalLoaderSimpleSubjectIdOrIdentifier
+                * testIncrementalLoaderListSubjectIdAndSourceId
+                * testIncrementalLoaderListSubjectIdentifierWithAndGroups
+                * testIncrementalLoaderSimpleFullSyncThreshold
+            app.loader.db.AllLoaderDbTests	4
+                app.loader.db.GrouperLoaderDbTest	2
+                    * testFindGrouperConnection
+                    * testFindConfigName
+                app.loader.db.Hib3GrouperDdlTest	1
+                    * testPersistence
+                app.loader.db.Hib3GrouploaderLogTest	1
+                    * testPersistence
+            app.loader.ldap.AllLoaderLdapTests	0
+                app.loader.ldap.LoaderLdapElUtilsTest	0
+        app.attestation.AllAttestationTests	4
+            app.attestation.GrouperAttestationJobTest	4
+                * testAttestationUpgrade
+                * testGrouperAttestationPrivileges
+                * testDaemonUpdatingCalculatedDates
+                * testBuildAttestationGroupEmails
+        app.usdu.AllUsduTests	5
+            app.usdu.TestUSDU	5
+                * testMemberships
+                * testCustomList
+                * testAccessPrivilege
+                * testNamingPrivilege
+                * testFailsafe
+    attr.AllAttributeTests	197
+        attr.AttributeDefScopeTest	6
+            * testHibernate
+            * testTypeScope
+            * testTypeScopeAttrAssign
+            * testRetrieveMultiple
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        attr.EffMshipAttributeSecurityTest	9
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubj1
+            * testSecuritySubj2
+            * testSecuritySubj3
+            * testSecuritySubj4
+            * testSecuritySubj5
+            * testSecuritySubj6
+            * testSecuritySubj7
+        attr.AttributeDefNameSetTest	20
+            * testHibernate
+            * testSetLogic
+            * testComplexRemoveBfromA
+            * testComplexRemoveHfromA
+            * testComplexRemoveIfromA
+            * testComplexRemoveCfromB
+            * testComplexRemoveDfromB
+            * testComplexRemoveEfromC
+            * testComplexRemoveGfromC
+            * testComplexRemoveEfromD
+            * testComplexRemoveFfromE
+            * testComplexRemoveLfromE
+            * testComplexRemoveFfromG
+            * testComplexRemoveIfromH
+            * testComplexRemoveJfromI
+            * testComplexRemoveFfromJ
+            * testComplexRemoveHfromJ
+            * testComplexRemoveCfromK
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        attr.MemberAttributeSecurityTest	4
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubj2
+            * testSecuritySubj3
+        attr.MembershipAttributeSecurityTest	9
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubj1
+            * testSecuritySubj2
+            * testSecuritySubj3
+            * testSecuritySubj4
+            * testSecuritySubj5
+            * testSecuritySubj6
+            * testSecuritySubj7
+        attr.AttributeDefNameFinderTest	3
+            * testFindByIdIndexSecure
+            * testFinder
+            * testFinderByStem
+        attr.AttributeDefNameSaveTest	1
+            * testAttributeDefNameSave
+        attr.AttributeDefTest	10
+            * testHibernateSecurity
+            * testHibernateSecurityAdmin
+            * testHibernateSecurity2
+            * testHibernate
+            * testHibernateGroup
+            * testHibernateSecurityWheel
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+            * testFindByIdsSecure
+            * testDeleteWithPrivileges
+        attr.AttrAssignAttributeSecurityTest	11
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubj1
+            * testSecuritySubj2
+            * testSecuritySubj3
+            * testSecuritySubj4
+            * testSecuritySubj5
+            * testSecuritySubj6
+            * testSecuritySubj7
+            * testSecuritySubj8
+            * testSecuritySubj9
+        attr.AttributeAssignTest	27
+            * testHibernateFail
+            * testHibernate
+            * testDelegation
+            * testHibernateDelegate
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+            * testRetrieveMultiple
+            * testFindGroupAttributeAssignments
+            * testFindStemAttributeAssignments
+            * testFindMemberAttributeAssignments
+            * testFindAttrDefAttributeAssignments
+            * testFindMembershipAttributeAssignments
+            * testFindAnyMembershipAttributeAssignments
+            * testFindGroupAttributeAssignmentsByValue2
+            * testFindByIds
+            * testFindStemAttributeAssignmentsByValue
+            * testFindStemAttributeAssignmentsAssignmentsByValue
+            * testFindMemberAttributeAssignmentsByValue
+            * testFindMemberAttributeAssignmentsAssignmentsByValue
+            * testFindGroupAttributeAssignmentsByValue
+            * testFindGroupAttributeAssignmentsAssignmentsByValue
+            * testFindAttrDefAttributeAssignmentsByValue
+            * testFindAttrDefAttributeAssignmentsAssignmentsByValue
+            * testFindMembershipAttributeAssignmentsByValue
+            * testFindMembershipAttributeAssignmentsAssignmentsByValue
+            * testFindAnyMembershipAttributeAssignmentsByValue
+            * testFindAnyMembershipAttributeAssignmentsAssignmentsByValue
+        attr.AttributeDefNameTest	5
+            * testHibernate
+            * testFindAll
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+            * testFindByIdsSecure
+        attr.AttributeDefSaveTest	1
+            * testAttributeDefSave
+        attr.GroupAttributeSecurityTest	10
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubj1
+            * testSecuritySubj2
+            * testSecuritySubj3
+            * testSecuritySubj4
+            * testSecuritySubj5
+            * testSecuritySubj6
+            * testSecuritySubj7
+            * testSecuritySubj8
+        attr.StemAttributeSecurityTest	12
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubjOrig
+            * testSecuritySubj1
+            * testSecuritySubj2
+            * testSecuritySubj3
+            * testSecuritySubj4
+            * testSecuritySubj5
+            * testSecuritySubj6
+            * testSecuritySubj7
+            * testSecuritySubj8
+            * testSecuritySubj9
+        attr.AttributeDefAttributeSecurityTest	10
+            * testGrouperSystem
+            * testSecuritySubj0
+            * testSecuritySubj1
+            * testSecuritySubj2
+            * testSecuritySubj3
+            * testSecuritySubj4
+            * testSecuritySubj5
+            * testSecuritySubj6
+            * testSecuritySubj7
+            * testSecuritySubj8
+        attr.assign.AllAttrAssignTests	27
+            attr.assign.AttributeAssignActionSetTest	20
+                * testHibernate
+                * testComplexRemoveBfromA
+                * testComplexRemoveCfromB
+                * testComplexRemoveCfromK
+                * testComplexRemoveDfromB
+                * testComplexRemoveEfromC
+                * testComplexRemoveEfromD
+                * testComplexRemoveFfromE
+                * testComplexRemoveFfromG
+                * testComplexRemoveFfromJ
+                * testComplexRemoveGfromC
+                * testComplexRemoveHfromA
+                * testComplexRemoveHfromJ
+                * testComplexRemoveIfromA
+                * testComplexRemoveIfromH
+                * testComplexRemoveJfromI
+                * testComplexRemoveLfromE
+                * testSetLogic
+                * testXmlInsert
+                * testXmlDifferentUpdateProperties
+            attr.assign.AttributeAssignActionTest	3
+                * testHibernate
+                * testXmlInsert
+                * testXmlDifferentUpdateProperties
+            attr.assign.AttributeAssignSaveTest	4
+                * testMarkerGroupWithMarkersOnAssignment
+                * testGroupWithSingleAssignValuesOnAssignment
+                * testGroupWithMultipleAssignValuesOnAssignmentOfAssignment
+                * testSingleMarkerGroup
+        attr.finder.AllAttrFinderTests	1
+            attr.finder.AttributeDefFinderTest	1
+                * testFindByIdIndex
+        attr.value.AllAttributeValueTests	31
+            attr.value.AttributeAssignValueTest	31
+                * testHibernate
+                * testRetrieveMultiple
+                * testRetrieveMultiple2
+                * testRetrieveMultiple3
+                * testXmlInsert
+                * testXmlDifferentUpdateProperties
+                * testMultiAttributeAssign
+                * testAttributeValueSecurity
+                * testAttributeValue
+                * testExceptions
+                * testExceptions2
+                * testAttributeValueInteger
+                * testValueEquals
+                * testAttributeValueAddSecurity
+                * testAttributeValueFloating
+                * testValueFloating
+                * testAttributeValueString
+                * testAttributeValueMember
+                * testAttributeValueMemberId
+                * testAttributeValueTimestamp
+                * testValueInteger
+                * testValueString
+                * testValueTimestamp
+                * testValueMember
+                * testValueMemberId
+                * testAttributeValueDeleteCascade
+                * testAttributeValueDeleteCascade2
+                * testMarkersOneQuery
+                * testAttrsOneQuery
+                * testValuesOneQuery
+                * testAttributeValueStringSql
+    audit.AllAuditTests	32
+        audit.AuditTest	20
+            * testTypes
+            * testTypeTuples
+            * testStems
+            * testGroups
+            * testComposites
+            * testMemberships
+            * testGroupPrivileges
+            * testStemPrivileges
+            * testFields
+            * testAttributeDefs
+            * testAttributeDefNames
+            * testAttributeAssignsGroup
+            * testAttributeAssignsStem
+            * testAttributeAssignsMember
+            * testAttributeAssignsAttributeDef
+            * testAttributeAssignsImmMship
+            * testAttributeAssignsAnyMship
+            * testAttributeAssignsAssign
+            * testAttributeAssignValue
+            * testAttributeAssignValueExcludeAudits
+        audit.AuditTypeTest	3
+            * testPersistence
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        audit.AuditEntryTest	5
+            * testFindByActingUserId
+            * testLength
+            * testWhatever
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        audit.UserAuditQueryTest	4
+            * testQueries
+            * testMembershipQuery
+            * testMembershipMemberQuery
+            * testStemQuery
+    changeLog.AllChangeLogTests	66
+        changeLog.ChangeLogEntryTest	1
+            * testJson
+        changeLog.ChangeLogTypeTest	1
+            * testPersistence
+        changeLog.ChangeLogIdTest	2
+            * testStress
+            * testHibernate
+        changeLog.ChangeLogTest	42
+            * testStemRenameOrder
+            * testAttributeAssignValue
+            * testAttributeAssignValueExcludeAudits
+            * testAttributeAssign
+            * testAttributeDefName
+            * testAttributeDefNameSet
+            * testRoleSet
+            * testAttributeAssignActionSet
+            * testAttributeAssignAction
+            * testRolePermissionEnableDisable
+            * testSubjectRolePermissionEnableDisable
+            * testPermissionsByMembership
+            * testPermissionsByAction
+            * testPermissionsByAttributeDefName
+            * testPermissionsByRoleSets
+            * testPermissionsByRoleAssignment
+            * testPermissionsBySubjectRoleAssignment
+            * testTypeAssignment
+            * testTypeUnassignmentAndTypeDeleteTogether
+            * testMembers
+            * testMembersOutOfOrder
+            * testStemsOutOfOrder
+            * testGroupsOutOfOrder
+            * testAttributeDefs
+            * testTypes
+            * testFields
+            * testGroups
+            * testEntities
+            * testStems
+            * testMemberships
+            * testAccessPrivileges
+            * testNamingPrivileges
+            * testAttributeDefPrivileges
+            * testCustomListMemberships
+            * testCompositeMemberships
+            * testNonFlattenedMemberships
+            * testNonFlattenedAccessPrivileges
+            * testNonFlattenedAttributeDefPrivileges
+            * testNonFlattenedNamingPrivileges
+            * testRolePermissionAddAfterMembershipEnable
+            * testSubjectRolePermissionAddAfterMembershipEnable
+            * testMembershipsNoPrivileges
+        changeLog.ChangeLogConsumerBaseImplTest	18
+            * testMarkParentFolder
+            * testRemoveAttributeFromFolder
+            * testAddParentChildRemoveParent
+            * testMarkGroupRemoveParent
+            * testMarkGroup
+            * testRemoveMarkerFromGroup
+            * testRemoveGroupMarkerKeepFolderMarker
+            * testAddGroupToMarkedFolder
+            * testMoveGroupToFolder
+            * testMoveMarkedGroupToUnarkedFolder
+            * testRemoveGroup
+            * testDeleteGroupMarkedFromFolder
+            * testAddMembershipToDirectlyMarkedGroup
+            * testAddMembershipToIndirectlyMarkedGroup
+            * testRemoveSubgroupFromMarkedGroup
+            * testAddGroupToMarkedGroup
+            * testRemoveMembershipFromDirectGroup
+            * testRemoveMembershipFromIndirectlyMarkedGroup
+        changeLog.esb.consumer.AllEsbConsumerTests	2
+            changeLog.esb.consumer.EsbConsumerTest	2
+                * testFilter
+                * testJsonSubject
+    client.AllClientTests	3
+        client.GroupSyncDaemonTest	3
+            * testSyncGroupPush
+            * testSyncGroupPull
+            * testSyncGroupPushIncremental
+    cfg.AllConfigTests	7
+        cfg.Test_cfg_ApiConfig	3
+            * test_getProperty_nonExistentProperty
+            * test_getProperty_validProperty
+            * test_setProperty_settingPropertyReturnsSetValue
+        cfg.Test_api_GrouperConfig	4
+            * test_getHibernateProperty_nonExistentProperty
+            * test_getHibernateProperty_validProperty
+            * test_getProperty_nonExistentProperty
+            * test_getProperty_validProperty
+    entity.AllEntityTests	5
+        entity.EntityFinderTest	5
+            * testEntityAudits
+            * testFinder
+            * testFinderByName
+            * testSubjectFinder
+            * testFinderNotGroup
+    ddl.AllDdlTests	6
+        ddl.GrouperDdlUtilsTest	6
+            * testDdl
+            * testBootstrapHelper
+            * testIdUpgrade
+            * testGroupAttributeUpgrade
+            * testFieldIdUpgrade
+            * testGrouperSessionDrop
+    externalSubjects.AllExternalSubjectTests	16
+        externalSubjects.ExternalSubjectTest	11
+            * testPersistence
+            * testEnabledDisabled
+            * testSecurity
+            * testRequiredFieldsAttributesName
+            * testRequiredFieldsAttributesEmail
+            * testRequiredFieldsAttributesInstitution
+            * testRequiredFieldsAttributesJabber
+            * testDynamicDescription
+            * testDynamicSearchString
+            * testNonDynamicDescription
+            * testDynamicFieldsDaemon
+        externalSubjects.ExternalSubjectAttributeTest	2
+            * testPersistence
+            * testInvalidAttribute
+        externalSubjects.ExternalSubjectAttrFrameworkTest	2
+            * testSendInviteOne
+            * testSendInviteFinite
+        externalSubjects.ExternalSubjectSaveTest	1
+            * testSave
+    filter.AllFilterTests	130
+        filter.TestQueryMembershipModifiedAfter	3
+            * testFindSomething
+            * testFindSomethingScoped
+            * testFindNothing
+        filter.TestGQGroupAttributeExact	5
+            * testGroupAttributeExactFilterNothing
+            * testGroupAttributeExactFilterSomething
+            * testGroupAttributeExactFilterSomethingScoped
+            * testFindByAttributeLegacyAttributeRoot
+            * testSecurity
+        filter.TestGQGroupName	13
+            * testGroupNameFilterNothing
+            * testGroupNameFilterSomethingDisplayExtension
+            * testGroupNameFilterSomethingDisplayName
+            * testGroupNameFilterSomethingExtension
+            * testGroupNameFilterSomethingName
+            * testGroupNameFilterSomethingDisplayExtensionScoped
+            * testGroupNameFilterSomethingDisplayNameScoped
+            * testGroupNameFilterSomethingExtensionScoped
+            * testGroupNameFilterSomethingNameScoped
+            * testGroupNameFilterAlternateName
+            * testGroupNameFilterAlternateNameScoped
+            * testGroupNameFilterSomethingNamePaged
+            * testGroupsInStemFilterSomethingNamePaged
+        filter.TestGQUnionFilter	3
+            * testUnionFilterNothing
+            * testUnionFilterSomething
+            * testUnionFilterSomethingScoped
+        filter.TestGQStemCreatedAfter	3
+            * testStemCreatedAfterFilterNothing
+            * testStemCreatedAfterFilterSomething
+            * testStemCreatedAfterFilterSomethingScoped
+        filter.TestGQGroupCreatedAfter	3
+            * testGroupCreatedAfterFilterNothing
+            * testGroupCreatedAfterFilterSomething
+            * testGroupCreatedAfterFilterSomethingScoped
+        filter.TestGQIntersectionFilter	3
+            * testIntersectionFilterNothing
+            * testIntersectionFilterSomething
+            * testIntersectionFilterSomethingScoped
+        filter.Test_api_ChildStemFilter	5
+            * test_Constructor_nullStem
+            * test_getResults_nullSession
+            * test_getResults_fromRoot
+            * test_getResults_fromTop
+            * test_getResults_fromChild
+        filter.TestGQGroupAlternateNameExactFilter	4
+            * testDisplayName
+            * testName
+            * testAlternateName
+            * testSecurity
+        filter.TestGQGroupExactName	4
+            * testDisplayName
+            * testName
+            * testAlternateName
+            * testSecurity
+        filter.TestQueryMembershipModifiedBefore	3
+            * testFindSomething
+            * testFindSomethingScoped
+            * testFindNothing
+        filter.TestQuery	20
+            * testStemDisplayExtensionFilterFindNothing
+            * testGroupModifiedAfterFilterFindNothing
+            * testGroupModifiedAfterFilterFindSomething
+            * testGroupModifiedAfterFilterFindSomethingScoped
+            * testGroupModifiedBeforeFilterFindNothing
+            * testGroupModifiedBeforeFilterFindSomething
+            * testGroupModifiedBeforeFilterFindSomethingScoped
+            * testMembershipCreatedAfterFilter
+            * testMembershipCreatedBeforeFilter
+            * testStemDisplayExtensionFilterFindSomething
+            * testStemDisplayExtensionFilterFindSomethingScoped
+            * testStemDisplayNameFilterFindNothing
+            * testStemDisplayNameFilterFindSomething
+            * testStemDisplayNameFilterFindSomethingScoped
+            * testStemExtensionFilterFindNothing
+            * testStemExtensionFilterFindSomething
+            * testStemExtensionFilterFindSomethingScoped
+            * testStemNameFilterFindSomething
+            * testStemNameFilterFindSomethingScoped
+            * testStemNameFilterFindNothing
+        filter.TestGQStemCreatedBefore	3
+            * testStemCreatedBeforeFilterNothing
+            * testStemCreatedBeforeFilterSomething
+            * testStemCreatedBeforeFilterSomethingScoped
+        filter.TestGQGroupAttribute	3
+            * testGroupAttributeFilterNothing
+            * testGroupAttributeFilterSomething
+            * testGroupAttributeFilterSomethingScoped
+        filter.TestGQComplementFilter	3
+            * testComplementFilterNothing
+            * testComplementFilterSomething
+            * testComplementFilterSomethingScoped
+        filter.TestGQGroupAnyAttribute	3
+            * testGroupAnyAttributeFilterNothing
+            * testGroupAnyAttributeFilterSomething
+            * testGroupAnyAttributeFilterSomethingScoped
+        filter.TestGQGroupCurrentNameExactFilter	4
+            * testDisplayName
+            * testName
+            * testAlternateName
+            * testSecurity
+        filter.TestGQNull	3
+            * testNullFilterNothing
+            * testNullFilterSomething
+            * testNullFilterSomethingScoped
+        filter.TestGQGroupCreatedBefore	3
+            * testGroupCreatedBeforeFilterNothing
+            * testGroupCreatedBeforeFilterSomething
+            * testGroupCreatedBeforeFilterSomethingScoped
+        filter.TestGQGroupAlternateNameFilter	8
+            * testDisplayName
+            * testDisplayNameScoped
+            * testName
+            * testNameScoped
+            * testAlternateName
+            * testAlternateNameScoped
+            * testSecurity
+            * testSecurityScoped
+        filter.TestGQStemName	13
+            * testStemNameAnyFilterAlternateName
+            * testStemAttributeFilterAlternateName
+            * testStemNameAnyFilterNothing
+            * testStemNameAnyFilterSomethingDisplayExtension
+            * testStemNameAnyFilterSomethingDisplayName
+            * testStemNameAnyFilterSomethingDisplayNamePaged
+            * testStemInStemPaged
+            * testStemNameAnyFilterSomethingExtension
+            * testStemNameAnyFilterSomethingName
+            * testStemNameAnyFilterSomethingDisplayExtensionScoped
+            * testStemNameAnyFilterSomethingDisplayNameScoped
+            * testStemNameAnyFilterSomethingExtensionScoped
+            * testStemNameAnyFilterSomethingNameScoped
+        filter.TestGroupTypeFilter	5
+            * testQueryByGroupTypeFilterNothing
+            * testQueryByGroupTypeFilterSomething
+            * testQueryByGroupTypeFilterSomethingCustomType
+            * testQueryByGroupTypeFilterSomethingScoped
+            * testQueryByGroupTypeFilterSomethingScopedCustomType
+        filter.Test_api_ChildGroupFilter	5
+            * test_Constructor_nullStem
+            * test_getResults_nullSession
+            * test_getResults_fromRoot
+            * test_getResults_fromTop
+            * test_getResults_fromChild
+        filter.TestGQGroupCurrentNameFilter	8
+            * testDisplayName
+            * testDisplayNameScoped
+            * testName
+            * testNameScoped
+            * testAlternateName
+            * testAlternateNameScoped
+            * testSecurity
+            * testSecurityScoped
+    group.AllGroupTests	216
+        group.TestGroupFinder	22
+            * testChainingGroupsManageMemberships
+            * testChainingGroupsManage
+            * testFailToFindGroupByAttributeNullSession
+            * testFailToFindGroupByAttributeNullAttribute
+            * testFailToFindGroupByAttributeNullAttributeValue
+            * testFailToFindGroupByAttribute
+            * testFindGroupByAttribute
+            * testFailToFindGroupByCustomTypeNotUnique
+            * testFailToFindGroupByType
+            * testFailToFindGroupByTypeInvalidType
+            * testFailToFindGroupByTypeNotUnique
+            * testFailToFindGroupByTypeNullSession
+            * testFailToFindGroupByTypeNullType
+            * testFindGroupByCustomType
+            * testFindGroupByType
+            * testFindByName
+            * testFindByIdIndex
+            * testFindByUuid
+            * testFindNonByEmptySetNameOrId
+            * testFindByAttributeDefName
+            * testFindByAttribute
+            * testFindByAttributeAssignOnAssignValuesAndPrivilege
+        group.TestGroup1	50
+            * testReplaceMembers
+            * testDeleteGroupMemberWithNonGroupMember
+            * testCanReadFieldValidField
+            * testCanReadFieldValidFieldNotRoot
+            * testCanReadFieldValidSubjectValidField
+            * testCanReadFieldValidSubjectValidFieldNotRoot
+            * testDeleteMemberFromGroupThatIsMember
+            * testFailCanReadFieldNullSubjectInvalidField
+            * testFailCanReadFieldNullSubjectNullField
+            * testFailCanReadFieldNullSubjectValidField
+            * testFailCanReadFieldValidSubjectValidFieldNotRoot
+            * testFailCanWriteFieldInvalidField
+            * testFailCanWriteFieldNullField
+            * testFailCanWriteFieldValidSubjectInvalidField
+            * testFailCanWriteFieldValidSubjectNullField
+            * testCanWriteFieldValidField
+            * testCanWriteFieldValidFieldNotRoot
+            * testCanWriteFieldValidSubjectValidField
+            * testCanWriteFieldValidSubjectValidFieldNotRoot
+            * testCompositeIsDeletedWhenGroupIsDeleted
+            * testFailCanReadFieldInvalidField
+            * testFailCanReadFieldNullField
+            * testFailCanReadFieldValidSubjectInvalidField
+            * testFailCanReadFieldValidSubjectNullField
+            * testFailCanWriteFieldNullSubjectInvalidField
+            * testFailCanWriteFieldNullSubjectNullField
+            * testFailCanWriteFieldNullSubjectValidField
+            * testFailCanWriteFieldValidFieldNotRoot
+            * testFailCanWriteFieldValidSubjectValidFieldNotRoot
+            * testFailToGetViaGroupWhenComposite
+            * testGetTypesAndRemovableTypesDefault
+            * testGetTypesAndRemovableTypesWithCustomType
+            * testGetTypesAndRemovableTypesWithCustomTypeAsNonRootSubject
+            * testGetTypesAndRemovableTypesWithCustomTypeAsNonRootSubjectWithADMIN
+            * testGroupDelete
+            * testGroupDeleteWhenHasMemberViaTwoPaths
+            * testGroupDeleteWhenMemberAndHasMembers
+            * testRevokeDefaultPrivilege
+            * testRevokeDefaultPrivilegeForEntireGroup
+            * testSetAttributeIsPersistedAcrossSessions
+            * testThrowIPNotGModifyException
+            * testThrowIPNotGModifyExceptionWhenDeleting
+            * testFailCanReadFieldValidFieldNotRoot
+            * testAddGroupAsMemberAndThenDeleteAsMember
+            * testCompositeMemberRead
+            * testMemberRead
+            * testStaticSaveGroup
+            * testStaticSaveGroupTransactions
+            * testStaticSaveGroupWithDisplayNames
+            * testTransaction
+        group.TestWrongFieldType	2
+            * testGroupAttrs
+            * testGroupLists
+        group.TestGAttr	18
+            * testFailGetAttributeNotSet
+            * testFailGetAttributeNullAttribute
+            * testFailDeleteAttributeNullAttribute
+            * testFailDeleteAttributeBlankAttribute
+            * testDeleteAttribute
+            * testDeleteAttributeNotRootButHasAdmin
+            * testFailDeleteAttributeBlankAttributeNotRootButHasAdmin
+            * testFailDeleteAttributeNullAttributeNotRootButHasAdmin
+            * testFailDeleteAttributeUnset
+            * testFailDeleteAttributeUnsetNotRootButHasAdmin
+            * testFailGetAttributeBlankAttribute
+            * testFailSetAttributeBlankAttribute
+            * testFailSetAttributeBlankAttributeValue
+            * testFailSetAttributeNullAttribute
+            * testFailSetAttributeNullValue
+            * testGetAttribute
+            * testGetAttributeNotYetSetAttribute
+            * testSetAttribute
+        group.Test_I_API_Group_deleteAttribute	3
+            * test_deleteAttribute_description_ANFwhenNoDesc
+            * test_deleteAttribute_description_whenSet
+            * test_deleteAttribute_description_emptyStringAfterDeletion
+        group.TestGroupModifyAttributes	20
+            * testGroupModifyAttributesUpdatedAfterAddingImmediateMember
+            * testGroupModifyAttributesUpdatedAfterDeletingImmediateMember
+            * testGroupModifyAttributesUpdatedAfterAddingEffectiveMember
+            * testGroupModifyAttributesUpdatedAfterDeletingEffectiveMember
+            * testGroupModifyAttributesUpdatedAfterUpdatingComplement
+            * testGroupModifyAttributesUpdatedAfterGrantingImmediatePriv
+            * testGroupModifyAttributesUpdatedAfterRevokingImmediatePriv
+            * testGroupModifyAttributesNotUpdatedAfterGrantingEffectivePriv
+            * testGroupModifyAttributesNotUpdatedAfterRevokingEffectivePriv
+            * testGroupModifyAttributesAfterGrantingEffectivePriv
+            * testGroupModifyAttributesAfterRevokingEffectivePriv
+            * testGroupModifyAttributesAfterUpdatingAttributes
+            * testGroupModifyAttributesAfterAddingComplementWithNoMembers
+            * testGroupModifyAttributesAfterAddingComplementWithMembers
+            * testGroupModifyAttributesAfterDeletingComplementWithNoMembers
+            * testGroupModifyAttributesAfterDeletingComplementWithMembers
+            * testGroupModifyAttributesAfterDisablingMembership
+            * testGroupModifyAttributesAfterDisablingMembership2
+            * testGroupModifyAttributesAfterEnablingMembership
+            * testGroupModifyAttributesAfterEnablingMembership2
+        group.TestGroup	29
+            * testDeleteGroupWithUpdateOnAttribute
+            * testFindGroupsReadonly
+            * testDeleteWhenAdminButNotUpdateOnOtherOwnerGroup
+            * testFindGroupsInStemWithoutPrivilege
+            * testDeleteMemberAudit
+            * testDeleteComposite
+            * testReadonlyViewonlyAdmin
+            * testAddOrEditMember
+            * testGroupSave
+            * testCreateAssignTypesAttributes
+            * testGetMembersAccess
+            * testAttributeDef
+            * testEntity
+            * testOptimisticLocking
+            * testNoLocking
+            * testGetParentStem
+            * testGetTypes
+            * testGetTypesSecurity
+            * testAddChildGroupWithBadExtnOrDisplayExtn
+            * testSetBadGroupExtension
+            * testSetBadGroupDisplayExtension
+            * testGetAndHasPrivs
+            * testSetDescription
+            * testSetInvalidDescription
+            * testToMember
+            * testSetExtensionSame
+            * testGetAllGroupsSecure
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        group.Test_I_API_Group_addCompositeMember	1
+            * test_addCompositeMember_propogateEffectiveChangesOnCompositeTypeChange
+        group.TestGroupAddDeleteMember	5
+            * testAddMember
+            * testAddGroupMemberWithNonGroupMember
+            * testAddMember2
+            * testAddMemberToGroupThatIsMember
+            * testDeleteMember
+        group.Test_api_Group	55
+            * testRemoveRequiredAttributeType
+            * test_group_to_role
+            * test_role_to_group
+            * test_delete_where_group_has_privileges
+            * test_copy_with_disabled_memberships
+            * test_copy_with_disabled_memberships2
+            * test_delete_which_causes_membership_add
+            * test_revokePriv_Privilege_namingPrivilege
+            * test_revokePriv_SubjectAndPrivilege_namingPrivilege
+            * test_move_name_exists
+            * test_copy_name_exists
+            * test_move
+            * testGroupMoveAudit
+            * test_move2
+            * test_move_alternate_name
+            * test_move_no_alternate_name
+            * test_move_alternate_name_when_alternate_name_already_exists
+            * test_move_no_alternate_name_when_alternate_name_already_exists
+            * test_rename_alternate_name
+            * test_rename_with_duplicate_name
+            * test_rename_no_alternate_name
+            * test_rename_alternate_name_when_alternate_name_already_exists
+            * test_rename_no_alternate_name_when_alternate_name_already_exists
+            * test_rename_same_name
+            * test_move_toRootStem
+            * test_move_toRootStem2
+            * test_copy_toRootStem
+            * test_move_insufficientPrivileges
+            * test_copy_all
+            * test_copy_should_not_copy_alternate_name
+            * testGroupCopyAudit
+            * test_copy_all_2
+            * test_copy_minimum
+            * test_copy_new_extension
+            * test_copy_new_display_extension
+            * test_copy_new_extension_and_display_extension
+            * test_copy_same_stem
+            * test_copy_role_with_members
+            * test_copy_entity
+            * test_move_entity
+            * test_copy_members_only
+            * test_copy_privs_only
+            * test_copy_attrs_only
+            * test_copy_group_exists
+            * test_copy_group_is_factor
+            * test_copy_group_is_composite
+            * test_copy_no_read_priv
+            * test_copy_no_create_priv
+            * test_copy_minimum_as_nonadmin
+            * test_copy_all_as_nonadmin
+            * test_copy_minimum_as_nonadmin_insufficient_privileges
+            * test_option_to_disable_last_membership_change
+            * test_option_to_disable_last_imm_membership_change
+            * test_alternateName
+            * test_alternateNameSecurityCheck
+        group.Test_Integration_HibernateGroupDAO_delete	2
+            * testDelete_AttributesDeletedWhenGroupIsDeleted
+            * testDelete_AttributesDeletedWhenRegistryIsReset
+        group.GroupDataTest	2
+            * testDbVersionDifferent
+            * testDbRetrieve
+        group.Test_I_API_Group_delete	3
+            * test_delete_withSubjectThatCanNoLongerBeResolved
+            * test_delete_causesAnEffectiveSubjectWhenSubjectNoLongerExists
+            * test_delete_withAnEffectiveSubjectWhenSubjectNoLongerExists
+        group.Test_I_API_Group_deleteMember	2
+            * test_DeleteSubjectsRemovedFromFactorsFromWhereTheyAreEffective
+            * test_DeleteUnresolvableSubject
+        group.Test_api_GrouperAPI	2
+            * test_getSession_nullSession
+            * test_getSession_equalsSetSession
+    hibernate.AllHibernateTests	15
+        hibernate.HibernateSessionTest	13
+            * testSelectFromSqlQuery
+            * testSelectFromHqlQuery
+            * testRollback
+            * testNestedTransactionsAndSavepoints
+            * testCachingPropagate
+            * testCachingPropagateGrouperTransaction
+            * testResultSort
+            * testEnabledDisabledInline
+            * testEnabledDisabled
+            * testEnabledDisabledDaemon
+            * testReadonly
+            * testResultSize
+            * testPagingSorting
+        hibernate.HibUtilsTest	2
+            * testConvertToSubjectInClause
+            * testFindBySubjectsInGroup
+    hooks.AllHooksTests	139
+        hooks.ESCOGroupHooksTest	1
+            * testOperations
+        hooks.GroupTypeTupleHooksTest	6
+            * testGroupTypeTuplePreInsert
+            * testGroupTypeTuplePreDelete
+            * testGroupTypeTuplePostDelete
+            * testGroupTypeTuplePostInsert
+            * testGroupTypeTuplePostCommitDelete
+            * testGroupTypeTuplePostCommitInsert
+        hooks.GroupHooksTest	9
+            * testGroupPostCommitInsert
+            * testGroupPostCommitUpdate
+            * testGroupPostCommitDelete
+            * testGroupPreInsert
+            * testGroupPreUpdate
+            * testGroupPostUpdate
+            * testGroupPostInsert
+            * testGroupPostDelete
+            * testGroupPreDelete
+        hooks.GroupHookUniqueTest	1
+            * testGroupAdd
+        hooks.GroupHooksAddTypePostCommitTest	1
+            * testGroupHooksAddType
+        hooks.GroupHooksAddTypeTest	1
+            * testGroupHooksAddType
+        hooks.MembershipHooksTest	14
+            * testMemberPreAddMember
+            * testMemberPostCommitAddMember
+            * testMemberPreAddMemberAsync
+            * testMemberPreAddMemberAsync2
+            * testMemberPreInsert
+            * testMemberPostInsert
+            * testMemberPostCommitInsert
+            * testMemberPreDelete
+            * testMemberPreRemove
+            * testMemberPostDelete
+            * testMemberPostCommitDelete
+            * testMemberPostRemoveMember
+            * testMemberPostCommitRemoveMember
+            * testMemberPostAddMember
+        hooks.CompositeHooksTest	6
+            * testCompositePreInsert
+            * testCompositePostInsert
+            * testCompositePostCommitInsert
+            * testCompositePostDelete
+            * testCompositePostCommitDelete
+            * testCompositePreDelete
+        hooks.StemHooksTest	9
+            * testStemPreInsert
+            * testStemPreUpdate
+            * testStemPostUpdate
+            * testStemPostInsert
+            * testStemPostDelete
+            * testStemPreDelete
+            * testStemPostCommitDelete
+            * testStemPostCommitInsert
+            * testStemPostCommitUpdate
+        hooks.AttributeHooksTest	9
+            * testAttributePostCommitInsert
+            * testAttributePostCommitUpdate
+            * testAttributePostCommitDelete
+            * testAttributePreInsert
+            * testAttributePreUpdate
+            * testAttributePostUpdate
+            * testAttributePostInsert
+            * testAttributePostDelete
+            * testAttributePreDelete
+        hooks.AttributeAssignHooksTest	9
+            * testAttributeAssignPostCommitInsert
+            * testAttributeAssignPostCommitUpdate
+            * testAttributeAssignPostCommitDelete
+            * testAttributeAssignPreInsert
+            * testAttributeAssignPreUpdate
+            * testAttributeAssignPostUpdate
+            * testAttributeAssignPostInsert
+            * testAttributeAssignPostDelete
+            * testAttributeAssignPreDelete
+        hooks.FieldHooksTest	6
+            * testFieldPreInsert
+            * testFieldPreDelete
+            * testFieldPostDelete
+            * testFieldPostInsert
+            * testFieldPostCommitDelete
+            * testFieldPostCommitInsert
+        hooks.MemberHooksTest	12
+            * testMemberPreInsert
+            * testMemberPreUpdate
+            * testMemberPostUpdate
+            * testMemberPostInsert
+            * testMemberPostDelete
+            * testMemberPostCommitInsert
+            * testMemberPostCommitUpdate
+            * testMemberPostCommitDelete
+            * testMemberPostCommitChange
+            * testMemberPreDelete
+            * testMemberPreChange
+            * testMemberPostChange
+        hooks.GroupHooksDbVersionTest	1
+            * testGroupHooksDbVersion
+        hooks.GroupTypeHooksTest	6
+            * testGroupTypePreInsert
+            * testGroupTypePreDelete
+            * testGroupTypePostDelete
+            * testGroupTypePostInsert
+            * testGroupTypePostCommitDelete
+            * testGroupTypePostCommitInsert
+        hooks.LifecycleHooksTest	1
+            * testLifecycle
+        hooks.AttributeDefNameHooksTest	9
+            * testAttributeDefNamePostCommitInsert
+            * testAttributeDefNamePostCommitUpdate
+            * testAttributeDefNamePostCommitDelete
+            * testAttributeDefNamePreInsert
+            * testAttributeDefNamePreUpdate
+            * testAttributeDefNamePostUpdate
+            * testAttributeDefNamePostInsert
+            * testAttributeDefNamePostDelete
+            * testAttributeDefNamePreDelete
+        hooks.AttributeAssignValueHooksTest	9
+            * testAttributeAssignValuePostCommitInsert
+            * testAttributeAssignValuePostCommitUpdate
+            * testAttributeAssignValuePostCommitDelete
+            * testAttributeAssignValuePreInsert
+            * testAttributeAssignValuePreUpdate
+            * testAttributeAssignValuePostUpdate
+            * testAttributeAssignValuePostInsert
+            * testAttributeAssignValuePostDelete
+            * testAttributeAssignValuePreDelete
+        hooks.AttributeDefHooksTest	9
+            * testAttributeDefPostCommitInsert
+            * testAttributeDefPostCommitUpdate
+            * testAttributeDefPostCommitDelete
+            * testAttributeDefPreInsert
+            * testAttributeDefPreUpdate
+            * testAttributeDefPostUpdate
+            * testAttributeDefPostInsert
+            * testAttributeDefPostDelete
+            * testAttributeDefPreDelete
+        hooks.ExternalSubjectHooksTest	1
+            * testExternalSubject
+        hooks.examples.AllHooksExamplesTests	19
+            hooks.examples.AttributeSecurityFromTypeHookTest	2
+                * testAttributeSecurity
+                * testAttributeSecurityByGroup
+            hooks.examples.GroupAttributeNameValidationHookTest	1
+                * testBuiltInAttributeValidator
+            hooks.examples.GroupUniqueNameCaseInsensitiveHookTest	1
+                * testHook
+            hooks.examples.LDAPProvisioningHookTest	3
+                * testIncludedGroup
+                * testExcludedGroup
+                * testIncludeExcludeHook
+            hooks.examples.MembershipOneInFolderMaxHookTest	3
+                * testGroupRemovesMembership
+                * testVetoIfNotAllowed
+                * testGroupRemovesMultipleMemberships
+            hooks.examples.StemUniqueNameCaseInsensitiveHookTest	1
+                * testHook
+            hooks.examples.UniqueObjectHookTest	5
+                * testUniqueGroupObjectHook
+                * testUniqueStemObjectHook
+                * testUniqueAttributeDefObjectHook
+                * testUniqueAttributeDefNameObjectHook
+                * testNonUniqueNames
+            hooks.examples.GroupUniqueExtensionHookTest	3
+                * testHookCaseSensitive
+                * testHookCaseInsensitive
+                * testMove
+    internal.dao.AllInternalDaoTests	7
+        internal.dao.TestGrouperDAOFactory	3
+            * test_getFactory_defaultNotNull
+            * test_getFactory_defaultInstanceOfRightClass
+            * test_getFactory_factoryIsReused
+        internal.dao.QuerySortTest	1
+            * testQuerySort
+        internal.dao.QueryPagingTest	2
+            * testCalculateIndexes
+            * testPaging
+        internal.dao.hib3.AllDaoHib3Tests	1
+            internal.dao.hib3.Hib3MembershipDAOTest	1
+                * testRetrieveMembershipsByMember
+    member.AllMemberTests	93
+        member.TestMemberToGroup	1
+            * testToGroup
+        member.TestMember	56
+            * testResolveSubjects
+            * testGetSource
+            * testGetMembersBySource
+            * testNonImmediateMembershipsAndGroups
+            * testGetGroupsWithField
+            * testGetGroupsComplex
+            * testGetMembershipsComplex2
+            * testGetMembershipsSources
+            * testGetMembershipsComplex
+            * testGetMembershipsAndGroups
+            * testGetAndHasPrivs
+            * testFailCanAdminWhenNoPriv
+            * testFailCanAdminWhenNull
+            * testFailCanCreateWhenNoPriv
+            * testFailCanStemAttrReadWhenNoPriv
+            * testFailCanStemAttrUpdateWhenNoPriv
+            * testFailCanCreateWhenNull
+            * testFailCanOptinWhenNoPriv
+            * testFailCanOptinWhenNull
+            * testFailCanOptoutWhenNoPriv
+            * testFailCanOptoutWhenNull
+            * testFailCanGroupAttrReadWhenNoPriv
+            * testFailCanGroupAttrUpdateWhenNoPriv
+            * testFailCanReadWhenNoPriv
+            * testFailCanReadWhenNull
+            * testFailCanStemWhenNoPriv
+            * testFailCanStemWhenNull
+            * testFailCanStemAdminWhenNull
+            * testFailCanUpdateWhenNoPriv
+            * testFailCanUpdateWhenNull
+            * testFailCanViewWhenNoPriv
+            * testFailCanViewWhenNull
+            * testFindBySubjectId
+            * testPassCanAdminWhenRoot
+            * testPassCanCreateWhenRoot
+            * testPassCanStemAttrReadWhenRoot
+            * testPassCanStemAttrUpdateWhenRoot
+            * testPassCanOptinWhenRoot
+            * testPassCanOptoutWhenRoot
+            * testPassCanGroupAttrReadWhenRoot
+            * testPassCanGroupAttrUpdateWhenRoot
+            * testPassCanReadWhenRoot
+            * testPassCanStemWhenRoot
+            * testPassCanUpdateWhenRoot
+            * testPassCanViewWhenRoot
+            * testSetAllSubjectId
+            * testSetRootSubjectId
+            * testSetSubjectIdNotRoot
+            * testSetSubjectIdRoot
+            * testSetSubjectSourceIdFailAsNonRoot
+            * testSetSubjectSourceIdFailNullValue
+            * testSetSubjectSourceIdFailOnGrouperAll
+            * testSetSubjectSourceIdFailOnGrouperSystem
+            * testSetSubjectSourceIdOk
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        member.TestMember1	1
+            * testStemGroupPrivs
+        member.TestAddMember	5
+            * testAddMember
+            * testAddGroupAsMember
+            * testAddGroupMemberWithNonGroupMember
+            * testAddMemberToGroupThatIsMember
+            * testNoListRecursion
+        member.TestMemberChangeSubject	4
+            * testChangeSubjectSameSubject
+            * testChangeSubjectDidntExist
+            * testChangeSubjectDidExist
+            * testChangeSubjectDidExistAudit
+        member.TestMemberFinder	5
+            * testFindAll
+            * testFailToFindByNullSubject
+            * testFailToFindByNullUuid
+            * testFindGrouperSystemBySubject
+            * testFindGrouperSystemByUuid
+        member.TestMemberAttributes	21
+            * testPersonMember
+            * testPersonMemberNonDefault
+            * testInternalMembers
+            * testInternalMembersNonDefaultAttributes
+            * testGroupAdd
+            * testGroupAddNonDefault
+            * testGroupUpdateDescription
+            * testGroupUpdateDisplayExtension
+            * testGroupRename
+            * testGroupMove
+            * testStemRename
+            * testStemDisplayExtensionUpdate
+            * testBasicNonSecureSearchAndSort
+            * testGetDefaultSearchIndex
+            * testGetDefaultSortIndex
+            * testSearchSecurity
+            * testSortSecurity
+            * testNonDefaultSearchAndSort
+            * testEntityAdd
+            * testVirtualAttributeInName
+            * testVirtualAttributeInDescription
+    membership.AllMembershipTests	120
+        membership.TestMembership1	1
+            * testParentsAndChildren
+        membership.TestMembership12	1
+            * testCircularWithComposites
+        membership.TestMembership10	1
+            * testComplementComposite
+        membership.TestFindBadMemberships	23
+            * testDuplicates
+            * testGrouperAllMembership
+            * testGrouperAllGroupAttrUpdatePrivilege
+            * testGrouperAllUpdatePrivilege
+            * testGrouperAllAdminPrivilege
+            * testWithoutComposites
+            * testWithGoodComposites
+            * testCircular
+            * testWithMissingComposite
+            * testWithExtraComposite
+            * testWithWrongComposite
+            * testWithWrongType
+            * testWithWrongType2
+            * testWithWrongViaCompositeId
+            * testWithWrongGroupSetType
+            * testWithBadGroupSetsForComposites
+            * testWithIncompleteGroupSetHierarchyAttrDefPrivs
+            * testWithIncompleteGroupSetHierarchyStemPrivs
+            * testWithIncompleteGroupSetHierarchyGroupMembers
+            * testWithIncompleteGroupSetHierarchyGroupPrivs
+            * testWithIncompleteGroupSetHierarchyAllTypes
+            * testDeletedGroupAsMember
+            * testDeletedGroupAsMember2
+        membership.TestMembership4	1
+            * testEffectiveMembershipsWithComposites
+        membership.TestDisabledMembership	24
+            * testAddingDisabledMembership
+            * testAddingMembershipWhenDisabledMembershipExistsInPath
+            * testAddingUnionCompositeWithDisabledMemberships
+            * testAddingIntersectionCompositeWithDisabledMemberships
+            * testAddingComplementCompositeWithDisabledMemberships
+            * testDisablingMembership
+            * testAddGroupMemberWhenDisabled
+            * testDeleteGroupMemberWhenDisabled
+            * testAddStemMemberWhenDisabled
+            * testDeleteStemMemberWhenDisabled
+            * testGroupCanReadFieldWhenDisabled
+            * testGroupCanWriteFieldWhenDisabled
+            * testGroupDeleteWhenDisabled
+            * testGroupGetAdminsWhenDisabled
+            * testGroupGetEffectiveMembersWhenDisabled
+            * testGroupGetImmediateMembersWhenDisabled
+            * testGroupGetMembersWhenDisabled
+            * testGroupGetPrivsWhenDisabled
+            * testGroupHasAdminWhenDisabled
+            * testStemDeleteWhenDisabled
+            * testStemGetChildMembershipGroupsWhenDisabled
+            * testStemGetPrivsWhenDisabled
+            * testStemGetCreatorsWhenDisabled
+            * testStemHasCreateWhenDisabled
+        membership.TestMemberOf	11
+            * testNoEffMshipsDefaultList
+            * testNoEffMshipsCustomList
+            * testHasMemberDefaultList
+            * testHasMemberCustomList
+            * testIsMemberDefaultList
+            * testIsMemberCustomList
+            * testIsMemberDefaultListHasMemberDefaultList
+            * testIsMemberDefaultListHasMemberCustomList
+            * testIsMemberCustomListHasMemberCustomList
+            * testHasMemberDefaultListIsMemberCustomListSelf
+            * testHasMemberViaTwoPaths
+        membership.TestMembership	9
+            * testNoParentAndNoChildMemberships
+            * testParentAndChildMemberships
+            * testEqualNotEqual
+            * testBadEffMshipDepthCalcExposedByGroupDelete
+            * testChildrenOfViaInMofDeletion
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+            * testDisabledDateRange
+            * testIllegalEffectiveDelete
+        membership.TestMembershipDeletes2	1
+            * testMembershipDeletes2
+        membership.TestMemberOf0	1
+            * testFullLoop
+        membership.TestMembership7	1
+            * testCircularMembershipsWithoutComposites
+        membership.TestMembership2	1
+            * testCreationTimesAndCreators
+        membership.TestMembershipDeletes4	9
+            * testMembershipDeletes4a
+            * testMembershipDeletes4b
+            * testMembershipDeletes4c
+            * testMembershipDeletes4d
+            * testMembershipDeletes4e
+            * testMembershipDeletes4f
+            * testMembershipDeletes4g
+            * testMembershipDeletes4h
+            * testMembershipDeletes4i
+        membership.TestMembershipDeletes1	1
+            * testMembershipDeletes1
+        membership.TestMembership0	1
+            * testEffectiveUuidDoesNotChange
+        membership.TestMembership6	1
+            * testEffectiveMembershipsWithPrivilegesAndComposites
+        membership.TestMembership9	1
+            * testIntersectionComposite
+        membership.AddMissingGroupSetsTest	1
+            * testAddMissingGroupSets
+        membership.TestMembershipDeletes0	1
+            * testMembershipDeletes0
+        membership.TestMembershipFinder	9
+            * testFindStemPrivileges
+            * testFindUpdatePrivileges
+            * test_findMembers_nullGroup
+            * test_findMembers_nullField
+            * test_findMembers_findZeroMembers
+            * test_findMembers_findOneMember
+            * testFindCreatePrivileges
+            * testFindAttrUpdatePrivileges
+            * testPrivileges
+        membership.TestMembership3	1
+            * testEffectiveMemberships
+        membership.TestMembership5	1
+            * testEffectiveMembershipsWithPrivileges
+        membership.TestMemberChangeInMembership	1
+            * testChangingMember
+        membership.TestMembership11	1
+            * testNestedComposites
+        membership.TestMembership8	1
+            * testCircularMembershipsWithoutComposites2
+        membership.TestMemberOf1	1
+            * testForwardMemberOfDeletion
+        membership.TestMembershipDeletes3	1
+            * testMembershipDeletes3
+        membership.TestMembershipDeletes5	6
+            * testMembershipDeletes5a
+            * testMembershipDeletes5b
+            * testMembershipDeletes5c
+            * testMembershipDeletes5d
+            * testMembershipDeletes5e
+            * testMembershipDeletes5f
+        membership.TestInvalidGrouperAllMemberships	6
+            * testAdminPrivilege
+            * testUpdatePrivilege
+            * testGroupAttrUpdatePrivilege
+            * testGroupAttrReadPrivilege
+            * testMember
+            * testMemberChange
+        membership.MembershipPathGroupTest	2
+            * testCompositePrivilege
+            * testMembershipPathGroup
+    messaging.AllMessagingTests	5
+        messaging.GrouperBuiltinMessagingSystemTest	4
+            * testMessageSecurity
+            * testCleanMessages
+            * testSend
+            * testPerformance
+        messaging.GrouperMessageHibernateTest	1
+            * testInsertDelete
+    misc.AllMiscTests	10
+        misc.GrouperObjectFinderTest	2
+            * testFindFoldersAllowed
+            * testFindObjects
+        misc.GrouperReportTest	1
+            * testReport
+        misc.GrouperSessionTest	7
+            * testCaches
+            * testShorthandById
+            * testClosedSession
+            * testShorthandByIdNoThreadLocal
+            * testShorthandByIdAndSource
+            * testShorthandByIdentifier
+            * testShorthandByIdentifierAndSource
+    permissions.AllPermissionsTests	57
+        permissions.RoleSetTest	21
+            * testHibernate
+            * testComplexRemoveBfromA
+            * testComplexRemoveCfromB
+            * testComplexRemoveCfromK
+            * testComplexRemoveDfromB
+            * testRolesHierarchy
+            * testComplexRemoveEfromC
+            * testComplexRemoveEfromD
+            * testComplexRemoveFfromE
+            * testComplexRemoveFfromG
+            * testComplexRemoveFfromJ
+            * testComplexRemoveGfromC
+            * testComplexRemoveHfromA
+            * testComplexRemoveHfromJ
+            * testComplexRemoveIfromA
+            * testComplexRemoveIfromH
+            * testComplexRemoveJfromI
+            * testComplexRemoveLfromE
+            * testSetLogic
+            * testXmlInsert
+            * testXmlDifferentUpdateProperties
+        permissions.PermissionEntryTest	6
+            * testHibernate
+            * testAddLookup
+            * testPermissionRetrieveSecurity
+            * testPermissionAssignUnassignSecurity
+            * testHierarchies
+            * testDisabledDateRange
+        permissions.PermissionHeuristicTest	2
+            * testMaxScore
+            * testNumbers
+        permissions.PermissionDisallowTest	10
+            * testActionDirectedGraphPriority
+            * testResourceDirectedGraphPriorityWithTieAndDifferentActions
+            * testResourceDirectedGraphPriorityWithTie
+            * testResourceDirectedGraphPriority
+            * testFindPermissionsInStem
+            * testRoleAssignmentVsIndividualAssignmentHierarchy2
+            * testRoleAssignmentVsIndividualAssignmentHierarchy
+            * testVariousRoleAssignments
+            * testRoleInheritance
+            * testNotChangeDisallow
+        permissions.limits.AllPermissionsLimitsTests	18
+            permissions.limits.PermissionLimitTest	6
+                * testLimit
+                * testLimitCustom
+                * testLimitCache
+                * testLimitRole
+                * testLimitMembership
+                * testBestLimit
+            permissions.limits.impl.AllPermissionsLimitsImplTests	12
+                permissions.limits.impl.PermissionLimitElLogicTest	6
+                    * testAmount
+                    * testTime
+                    * testIpAddress
+                    * testIpAddresses
+                    * testIpAddressFromConfig
+                    * testLabelsContain
+                permissions.limits.impl.PermissionLimitLabelsContainTest	1
+                    * testLabelsContain
+                permissions.limits.impl.PermissionLimitTimeLogicTest	1
+                    * testTime
+                permissions.limits.impl.PermissionLimitAmountLogicTest	2
+                    * testLessThan
+                    * testLessThanOrEqual
+                permissions.limits.impl.PermissionLimitIpNetworkLogicTest	2
+                    * testIpNetworks
+                    * testIpNetworkRealm
+    pit.AllPITTests	113
+        pit.PITMembershipTests	15
+            * testGroupSetAddDeleteAdd
+            * testImmediateMemberships
+            * testImmediateAccessPrivileges
+            * testImmediateNamingPrivileges
+            * testImmediateAttributeDefPrivileges
+            * testEffectiveMemberships
+            * testEffectiveAccessPrivileges
+            * testEffectiveNamingPrivileges
+            * testEffectiveAttributeDefPrivileges
+            * testCompositeMemberships
+            * testOtherDateOptions
+            * testGroupTypeAssignmentDelete
+            * testFieldDelete
+            * testRequireInGroups
+            * testGroupSetAddDeleteAddSameTransaction
+        pit.PITAttributeAssignTests	15
+            * testStartTime
+            * testEndTime
+            * testByAttributeDefName
+            * testByAction
+            * testByOwnerGroup
+            * testByOwnerStem
+            * testByOwnerAttributeDef
+            * testByOwnerMember
+            * testByOwnerImmediateMembership
+            * testByOwnerAttributeAssign
+            * testByOwnerEffectiveMembership
+            * testFindAssignmentsOnAssignmentsWithFromDate
+            * testFindAssignmentsOnAssignmentsWithToDate
+            * testFindAssignmentsOnAssignmentsAtPointInTime
+            * testFindAssignmentsOnAssignmentsPrivs
+        pit.PITAttributeAssignValueTests	18
+            * testStartTime
+            * testEndTime
+            * testByValueInteger
+            * testByValueFloating
+            * testByValueMemberId
+            * testByValueString
+            * testByAttributeAssign
+            * testByAttributeDefName
+            * testByAction
+            * testByOwnerGroup
+            * testByOwnerStem
+            * testByOwnerAttributeDef
+            * testByOwnerMember
+            * testByOwnerImmediateMembership
+            * testByOwnerAttributeAssign
+            * testByOwnerEffectiveMembership
+            * testAttributeAssignEnableDisable
+            * testMembershipEnableDisable
+        pit.PITPermissionTests	19
+            * testStartTime
+            * testEndTime
+            * testPermissionEnableDisable
+            * testPermissionByRoleAssign
+            * testPermissionByRoleAssignAndRemove
+            * testPermissionBySubjectRoleAssign
+            * testPermissionByMembership
+            * testPermissionByGroupSet
+            * testPermissionByActionSet
+            * testPermissionByAttributeDefNameSet
+            * testPermissionByRoleSet
+            * testMultiplePermissionsByRoleSet
+            * testFindPermissionsWithFromDate
+            * testFindPermissionsWithToDate
+            * testFindPermissionsAtPointInTime
+            * testFindPermissionsPrivs
+            * testFindPermissionsWithDisallowAndRoleInheritance
+            * testRolePermissionObject
+            * testSubjectRolePermissionObject
+        pit.PITUtilsTests	4
+            * testDeleteInactiveRecords
+            * testDeleteInactiveGroup
+            * testDeleteInactiveStem
+            * testDeleteInactiveObjectsInStem
+        pit.PITGroupFinderTests	3
+            * testFindById
+            * testFindByName
+            * testFindByNameInDateRange
+        pit.PITAttributeDefFinderTests	3
+            * testFindById
+            * testFindByName
+            * testFindByNameInDateRange
+        pit.PITAttributeDefNameFinderTests	3
+            * testFindById
+            * testFindByName
+            * testFindByNameInDateRange
+        pit.PITAttributeAssignValueFinderTests	1
+            * testFindByAttributeAssign
+        pit.PITGroupTests	8
+            * testHasMemberAtPointInTime
+            * testHasMemberWithFromDate
+            * testHasMemberWithToDate
+            * testGetMembersAtPointInTime
+            * testGetMembersWithFromDate
+            * testGetMembersWithToDate
+            * testGetMembersPrivs
+            * testGetMembersWithSources
+        pit.PITMemberTests	10
+            * testGetGroupsAtPointInTime
+            * testGetGroupsWithFromDate
+            * testGetGroupsWithToDate
+            * testGetGroupsWithScope
+            * testGetGroupsWithStemScopeSub
+            * testGetGroupsWithStemScopeOne
+            * testGetGroupsSort
+            * testGetGroupsPaging
+            * testGetGroupsReadersField
+            * testGetGroupsPrivs
+        pit.PITSyncTests	13
+            * testNoChanges
+            * testNoChanges2
+            * testNoUpdates
+            * testNoNotifications
+            * testNotifications
+            * testInserts
+            * testDeletes
+            * testUpdates
+            * testDisabledMembership
+            * testDisabledAttributeAssignment
+            * testDuplicateMemberships
+            * testMissingEffectiveGroupSet
+            * testSubjectIdentifierUpdate
+        pit.PITAttributeAssignFinderTests	1
+            * testFindByOwnerPITGroupAndPITAttributeDefName
+    privs.AllPrivsTests	229
+        privs.TestAttributeDefPriv	6
+            * testRetrieveAll
+            * testRetrievePaging
+            * testRetrieveReadView
+            * testRetrieveSecurity
+            * testRetrievePagingWithAdditional
+            * testRetrieveMembershipType
+        privs.TestPrivOPTIN	6
+            * testAddSelfAsMemberWithoutADMIN
+            * testAddSelfAsMemberWithADMIN
+            * testAddSelfAsMemberWithoutOPTIN
+            * testAddSelfAsMemberWithOPTIN
+            * testAddSelfAsMemberWithoutUPDATE
+            * testAddSelfAsMemberWithUPDATE
+        privs.Test_privs_NamingWrapper	2
+            * test_constructor_nullSession
+            * test_constructor_nullAdapter
+        privs.TestPrivADMIN	36
+            * testGrantedToCreator
+            * testGrantAdminWithoutADMIN
+            * testGrantAdminWithADMIN
+            * testGrantOptinWithoutADMIN
+            * testGrantOptinWithADMIN
+            * testGrantOptoutWithoutADMIN
+            * testGrantOptoutWithADMIN
+            * testGrantReadWithoutADMIN
+            * testGrantReadWithADMIN
+            * testGrantUpdateWithoutADMIN
+            * testGrantUpdateWithADMIN
+            * testGrantViewWithoutADMIN
+            * testGrantViewWithADMIN
+            * testRevokeAdminWithoutADMIN
+            * testRevokeAdminWithADMIN
+            * testRevokeOptinWithoutADMIN
+            * testRevokeOptinWithADMIN
+            * testRevokeOptoutWithoutADMIN
+            * testRevokeOptoutWithADMIN
+            * testRevokeReadWithoutADMIN
+            * testRevokeReadWithADMIN
+            * testRevokeUpdateWithoutADMIN
+            * testRevokeUpdateWithADMIN
+            * testRevokeViewWithoutADMIN
+            * testRevokeViewWithADMIN
+            * testDeleteGroupWithoutADMIN
+            * testDeleteGroupWithADMIN
+            * testDeleteGroupWithMemberWithoutADMIN
+            * testDeleteGroupWithMemberWithADMIN
+            * testDeleteGroupIsMemberWithoutADMIN
+            * testDeleteGroupIsMemberWithADMIN
+            * testSetAttrsWithoutADMIN
+            * testSetAttrsWithADMIN
+            * testDelAttrsWithoutADMIN
+            * testRenameGroupWithoutADMIN
+            * testRenameGroupWithADMIN
+        privs.Test_privs_NamingResolverFactory	2
+            * test_getInstance_twoInstancesNotEqual
+            * test_getResolver_twoResolversEqual
+        privs.Test_privs_AccessResolver	17
+            * test_getGroupsWhereSubjectHasPrivilege_nullSubject
+            * test_getGroupsWhereSubjectHasPrivilege_nullPrivilege
+            * test_getPrivileges_nullGroup
+            * test_getPrivileges_nullSubject
+            * test_getSubjectsWithPrivilege_nullGroup
+            * test_getSubjectsWithPrivilege_nullPrivilege
+            * test_grantPrivilege_nullGroup
+            * test_grantPrivilege_nullSubject
+            * test_grantPrivilege_nullPrivilege
+            * test_hasPrivilege_nullGroup
+            * test_hasPrivilege_nullSubject
+            * test_hasPrivilege_nullPrivilege
+            * test_revokePrivilege_groupAndPrivilege_nullGroup
+            * test_revokePrivilege_groupAndPrivilege_nullPrivilege
+            * test_revokePrivilege_groupAndSubjectAndPrivilege_nullGroup
+            * test_revokePrivilege_groupAndSubjectAndPrivilege_nullSubject
+            * test_revokePrivilege_groupAndSubjectAndPrivilege_nullPrivilege
+        privs.Test_privs_CachingAccessResolver	4
+            * test_constructor_nullDecoratedResolver
+            * test_hasPrivilege_cacheMiss
+            * test_hasPrivilege_cacheHit
+            * test_hasPrivilege_cacheSize
+        privs.Test_privs_AccessResolverFactory	2
+            * test_getInstance_twoInstancesNotEqual
+            * test_getResolver_twoResolversEqual
+        privs.TestPrivAdmin0	1
+            * testShouldStillHaveViewAfterHavingPrivRevokedBecauseOfGrouperAll
+        privs.TestPrivOPTOUT	6
+            * testDelSelfAsMemberWithoutADMIN
+            * testDelSelfAsMemberWithADMIN
+            * testDelSelfAsMemberWithoutOPTOUT
+            * testDelSelfAsMemberWithOPTOUT
+            * testDelSelfAsMemberWithoutUPDATE
+            * testDelSelfAsMemberWithUPDATE
+        privs.Test_uc_WheelGroup	7
+            * test_presenceOfWheelGroupDoesNotAutomaticallyGrantPrivs
+            * test_canAdminWhenMemberOfWheel
+            * test_addingMemberToWheelGroupShouldElevatePrivilegesWithinSession
+            * test_preventAdminWhenMemberOfWheelAndSelfMode
+            * test_preventStemWhenMemberOfWheelAndSelfMode
+            * test_canAdminWhenMemberOfWheelAndSelfMode
+            * test_canStemWhenMemberOfWheelAndSelfMode
+        privs.TestPrivVIEW	26
+            * testFindGroupWithoutADMIN
+            * testFindGroupWithADMIN
+            * testFindGroupWithoutOPTIN
+            * testFindGroupWithOPTIN
+            * testFindGroupWithAllOPTIN
+            * testFindGroupWithoutREAD
+            * testFindGroupWithREAD
+            * testFindGroupWithAllREAD
+            * testFindGroupWithoutUPDATE
+            * testFindGroupWithUPDATE
+            * testFindChildGroupWithoutVIEW
+            * testFindChildGroupWithVIEW
+            * testFindChildGroupWithAllVIEW
+            * testFindGroupWithoutVIEW
+            * testFindGroupWithVIEW
+            * testFindGroupWithAllVIEW
+            * testAddGroupAsMemberWithADMIN
+            * testAddGroupAsMemberWithOPTIN
+            * testAddGroupAsMemberWithAllOPTIN
+            * testAddGroupAsMemberWithOPTOUT
+            * testAddGroupAsMemberWithAllOPTOUT
+            * testAddGroupAsMemberWithREAD
+            * testAddGroupAsMemberWithAllREAD
+            * testAddGroupAsMemberWithUPDATE
+            * testAddGroupAsMemberWithVIEW
+            * testAddGroupAsMemberWithAllVIEW
+        privs.TestPrivileges	5
+            * testGrantAllAccessPriv
+            * testGrantAllNamingPriv
+            * testGrantStemToGroup
+            * testHasAccessPrivButCannotReadPriv
+            * testHasNamingPrivButCannotReadPriv
+        privs.TestPrivCREATE	4
+            * testCreateChildGroupWithoutCREATE
+            * testCreateChildGroupWithCREATE
+            * testCreateChildGroupWithAllCREATE
+            * testCreateChildGroupWithGroupCREATE
+        privs.Test_privs_NamingResolver	17
+            * test_getStemsWhereSubjectHasPrivilege_nullSubject
+            * test_getStemsWhereSubjectHasPrivilege_nullPrivilege
+            * test_getPrivileges_nullStem
+            * test_getPrivileges_nullSubject
+            * test_getSubjectsWithPrivilege_nullStem
+            * test_getSubjectsWithPrivilege_nullPrivilege
+            * test_grantPrivilege_nullStem
+            * test_grantPrivilege_nullSubject
+            * test_grantPrivilege_nullPrivilege
+            * test_hasPrivilege_nullStem
+            * test_hasPrivilege_nullSubject
+            * test_hasPrivilege_nullPrivilege
+            * test_revokePrivilege_groupAndPrivilege_nullStem
+            * test_revokePrivilege_groupAndPrivilege_nullPrivilege
+            * test_revokePrivilege_groupAndSubjectAndPrivilege_nullStem
+            * test_revokePrivilege_groupAndSubjectAndPrivilege_nullSubject
+            * test_revokePrivilege_groupAndSubjectAndPrivilege_nullPrivilege
+        privs.Test_privs_AccessWrapper	2
+            * test_constructor_nullSession
+            * test_constructor_nullAdapter
+        privs.Test_util_ParameterHelper	18
+            * test_notNull_accessAdapterNull
+            * test_notNull_accessAdapterNotNull
+            * test_notNull_accessResolverNull
+            * test_notNull_accessResolverNotNull
+            * test_notNull_groupNull
+            * test_notNull_groupNotNull
+            * test_notNull_grouperSessionNull
+            * test_notNull_grouperSessionNotNull
+            * test_notNull_namingAdapterNull
+            * test_notNull_namingAdapterNotNull
+            * test_notNull_namingResolverNull
+            * test_notNull_namingResolverNotNull
+            * test_notNull_privilegeNull
+            * test_notNull_privilegeNotNull
+            * test_notNull_stemNull
+            * test_notNull_stemNotNull
+            * test_notNull_subjectNull
+            * test_notNull_subjectNotNull
+        privs.TestPrivREAD	11
+            * testReadAttrsWithoutADMIN
+            * testReadAttrsWithADMIN
+            * testReadAttrsWithAllGroupAttrRead
+            * testReadAttrsWithoutREAD
+            * testReadAttrsWithREAD
+            * testReadAttrsWithAllREAD
+            * testReadMembersWithoutADMIN
+            * testReadMembersWithADMIN
+            * testReadMembersWithoutREAD
+            * testReadMembersWithREAD
+            * testReadMembersWithAllREAD
+        privs.Test_uc_NamingPrivs	7
+            * test_grant_stemGrantedToCreator
+            * test_grant_cannotGrantCreateWithoutStem
+            * test_grant_cannotGrantStemWithoutStem
+            * test_revokeAll_cannotRevokeAllCreateWithoutStem
+            * test_revokeAll_cannotRevokeAllStemWithoutStem
+            * test_revoke_cannotRevokeCreateWithoutStem
+            * test_revoke_cannotRevokeStemWithoutStem
+        privs.TestPrivSTEM	10
+            * testGrantCreate
+            * testGrantStem
+            * testRevokeAllCreate
+            * testRevokeAllStem
+            * testRevokeCreate
+            * testRevokeStem
+            * testCreateChildStemFail
+            * testCreateChildStem
+            * testModifyAttrsFail
+            * testModifyttrs
+        privs.TestPrivSTEM_ADMIN	10
+            * testGrantCreate
+            * testGrantStemAdmin
+            * testRevokeAllCreate
+            * testRevokeAllStemAdmin
+            * testRevokeCreate
+            * testRevokeStemAdmin
+            * testCreateChildStemFail
+            * testCreateChildStem
+            * testModifyAttrsFail
+            * testModifyttrs
+        privs.Test_privs_CachingNamingResolver	4
+            * test_constructor_nullDecoratedResolver
+            * test_hasPrivilege_cacheMiss
+            * test_hasPrivilege_cacheHit
+            * test_hasPrivilege_cacheSize
+        privs.TestPrivUPDATE	24
+            * testAddMembersWithoutADMIN
+            * testAddMembersWithADMIN
+            * testAddMembersWithoutUPDATE
+            * testAddMembersWithUPDATE
+            * testDelMembersWithoutADMIN
+            * testDelMembersWithADMIN
+            * testDelMembersWithoutUPDATE
+            * testDelMembersWithUPDATE
+            * testGrantOptinWithoutADMIN
+            * testGrantOptinWithADMIN
+            * testGrantOptinWithoutUPDATE
+            * testGrantOptinWithUPDATE
+            * testGrantOptoutWithoutADMIN
+            * testGrantOptoutWithADMIN
+            * testGrantOptoutWithoutUPDATE
+            * testGrantOptoutWithUPDATE
+            * testRevokeOptinWithoutADMIN
+            * testRevokeOptinWithADMIN
+            * testRevokeOptinWithoutUPDATE
+            * testRevokeOptinWithUPDATE
+            * testRevokeOptoutWithoutADMIN
+            * testRevokeOptoutWithADMIN
+            * testRevokeOptoutWithoutUPDATE
+            * testRevokeOptoutWithUPDATE
+        privs.TestAccessPrivilege	1
+            * testGetPrivs
+        privs.TestNamingPrivilege	1
+            * testGetPrivs
+    rules.AllRulesTests	109
+        rules.RuleApiTest	45
+            * testReassignAttributeDefPrivilegesIfFromGroup
+            * testReassignStemPrivilegesIfFromGroup
+            * testGroupIntersection
+            * testReassignGroupPrivilegesIfFromGroup
+            * testRuleApiEmailTemplate
+            * testGroupIntersectionDate
+            * testRuleVeto
+            * testRuleVetoSubjectAssignInFolderIfNotInGroup
+            * testRuleVetoSubjectAssignInFolderIfNotInGroupPenn
+            * testRuleVetoSubjectAssignInFolderInherit
+            * testInheritGroupPrivileges
+            * testInheritGroupPrivilegesFindManage
+            * testInheritFolderPrivileges
+            * testGroupIntersectionFolder
+            * testInheritAttributeDefPrivileges
+            * testPermissionAssignment
+            * testPermissionAssignmentIntersectFolder
+            * testPermissionAssignmentDisabledDate
+            * testRuleVetoInOrg
+            * testRuleVetoPermissions
+            * testRuleEmailFlattenedRemove
+            * testRuleEmailFlattenedAddFromStem
+            * testRuleEmailDisabledDate
+            * testRuleEmailPermissionsDisabledDate
+            * testGroupIntersectionDaemon
+            * testGroupIntersectionDateDaemon
+            * testGroupIntersectionFolderDaemon
+            * testInheritAttributeDefPrivilegesDaemon
+            * testInheritGroupPrivilegesDaemon
+            * testInheritFolderPrivilegesDaemon
+            * testPermissionAssignmentDaemon
+            * testPermissionAssignmentDisabledDateDaemon
+            * testPermissionAssignmentIntersectFolderDaemon
+            * testRuleVetoDaemon
+            * testRuleVetoInOrgDaemon
+            * testRuleVetoPermissionsDaemon
+            * testInheritGroupPrivilegesPattern
+            * testInheritGroupPrivilegesPatternDaemon
+            * testInheritGroupPrivilegesRemove
+            * testInheritGroupPrivilegesRemoveWithLikeString
+            * testInheritGroupPrivilegesRemoveWithLikeStringNotMatch
+            * testInheritFolderPrivilegesRemove
+            * testInheritAttributeDefPrivilegesRemove
+            * testNoNeedForWheelOrRootPrivileges
+            * testNoNeedForInheritedAdminPrivileges
+        rules.RuleTest	53
+            * testElOnSafeSubject
+            * testRuleLonghand
+            * testRuleLonghandPermissionAssignment
+            * testRuleLonghandVeto
+            * testRuleLonghandElCustomClass
+            * testRuleLonghandIfElMoreApi
+            * testRuleLonghandIfEl
+            * testRuleLonghandStemScopeOne
+            * testRuleLonghandStemScopeSub
+            * testRuleLonghandStemScopeSubCreateStemNormalizePrivileges
+            * testRuleLonghandStemScopeSubCreateGroupNormalizePrivileges
+            * testRuleLonghandStemScopeSubCreateGroup
+            * testRuleLonghandStemScopeSubIfNotInFolder
+            * testRuleLonghandDaemon
+            * testRuleLonghandRulesRefresh
+            * testRuleLonghandValidations
+            * testRuleLonghandRemove
+            * testRuleLonghandDaemonFixer
+            * testRuleLonghandDisabledDate
+            * testRuleLonghandThenEnum
+            * testRuleLonghandStemScopeOneCreateGroupEl
+            * testRuleLonghandStemScopeSubCreateStem
+            * testRuleLonghandStemScopeOneCreateStem
+            * testRuleLonghandPrint
+            * testRuleLonghandGshFixer
+            * testRuleLonghandStemScopeSubCreateGroupAsGrouperSystem
+            * testRuleLonghandStemScopeSubCreateStemAsGrouperSystem
+            * testRuleLonghandStemScopeSubCreateAttributeDef
+            * testRuleLonghandStemScopeSubCreateAttributeDefAsGrouperSystem
+            * testRuleLonghandStemScopeSubCreateGroupDaemon
+            * testRuleLonghandStemScopeOneCreateGroup
+            * testRuleLonghandStemScopeSubCreateStemDaemon
+            * testRuleLonghandStemScopeSubCreateAttributeDefDaemon
+            * testRuleLonghandPrintAll
+            * testRuleLonghandEmail
+            * testRuleLonghandEmailTemplate
+            * testRuleLonghandPermissionAssignmentIntersectFolder
+            * testRuleLonghandPermissionAssignmentDisabledDate
+            * testRuleLonghandVetoInOrg
+            * testRuleLonghandVetoPermissions
+            * testRuleLonghandEmailFlattenedRemove
+            * testRuleLonghandEmailFlattenedAddFromStem
+            * testRuleLonghandEmailDisabledDate
+            * testRuleLonghandEmailPermissionsDisabledDate
+            * testRuleLonghandPermissionAssignmentDaemon
+            * testRuleLonghandStemScopeSubDaemon
+            * testRuleLonghandStemScopeSubCreateGroupNamePattern
+            * testRuleLonghandVetoInFolder
+            * testRuleLonghandVetoInFolderStemPrivilege
+            * testRuleLonghandVetoInFolderGroupPrivilege
+            * testRuleLonghandVetoInFolderAttributeDefPrivilege
+            * testRuleLonghandVetoInFolderPermission
+            * testRuleLonghandStemScopeSubCreateAttributeDefNormalizePrivileges
+        rules.RuleDefinitionTest	1
+            * testJson
+        rules.RuleHookTest	2
+            * testHook
+            * testHookActAs
+        rules.RuleNameChangeTest	8
+            * testCheckOwnerNameUpdateOnAttributeDefNameChange
+            * testCheckOwnerDisabledDate
+            * testIfOwnerNameUpdateOnStemNameChange
+            * testCheckOwnerNameUpdateOnStemNameChange
+            * testPackedSubjectUpdateOnGroupNameChange
+            * testNameMatchesSqlLikeStringUpdateOnStemNameChange
+            * testIfOwnerNameUpdateOnGroupNameChange
+            * testCheckOwnerNameUpdateOnGroupNameChange
+    service.AllServiceTests	4
+        service.ServiceTest	4
+            * testListServicesForUser
+            * testServicePrivileges
+            * testCreateService
+            * testListUsersForService
+    stem.AllStemTests	8
+        stem.StemSetTests	8
+            * testStemAdd
+            * testStemDelete
+            * testStemMoveNoChildren
+            * testStemMoveWithChildren
+            * testStemSetFullRefresh
+            * testStemSetMissingStems
+            * testStemSetMissingEffectiveStemSets
+            * testStemSetWithBadStemSets
+    stress.AllStressTests	2
+        stress.GroupDeleteTest	1
+            * testDeleteGroupWithManyMembers
+        stress.PermissionPerformanceTest	1
+            * testPerformance
+    subj.AllSubjectTests	121
+        subj.LdapSubjectTest	1
+            * testSearch
+        subj.TestGrouperSubject	2
+            * testGetDescription
+            * testGetAttributeValues
+        subj.TestGrouperSourceAdapter	7
+            * testAdapter
+            * testAdapterTypes
+            * testAdapterBadSubject
+            * testAdapterBadSubjectByIdentifier
+            * testSearch_BlankParameter
+            * testSearch_NullParameter
+            * testSearch_PercentageParameter
+        subj.Test_subj_SubjectResolverFactory	2
+            * test_getInstance_twoInstancesNotEqual
+            * test_getResolver_twoResolversEqual
+        subj.Test_subj_CachingResolver	15
+            * test_find_Id_cacheMiss
+            * test_find_Id_cacheHit
+            * test_find_IdOrIdentifier_cacheHit
+            * test_find_Id_emptyCache
+            * test_find_Id_cacheSize
+            * test_findAll_Query_cacheMiss
+            * test_findAll_Query_cacheHit
+            * test_findAll_Query_emptyCache
+            * test_findAll_Query_cacheSize
+            * test_findByIdentifier_Id_cacheMiss
+            * test_findByIdentifier_Id_cacheHit
+            * test_findByIdentifier_Id_emptyCache
+            * test_findByIdentifier_Id_cacheSize
+            * test_find_IdOrIdentifier_cacheMiss
+            * test_find_IdOrIdentifier_cacheSize
+        subj.Test_subj_SubjectResolver	14
+            * test_find_SubjectId_nullId
+            * test_find_SubjectIdAndSource_nullId
+            * test_find_SubjectIdAndSource_nullSource
+            * test_findAll_Query_nullQuery
+            * test_findAll_QueryAndSource_nullQuery
+            * test_findAll_QueryAndSource_nullSource
+            * test_findByIdentifier_SubjectId_nullId
+            * test_findByIdentifier_SubjectIdAndSource_nullId
+            * test_findByIdentifier_SubjectIdAndSource_nullSource
+            * test_getSource_nullSource
+            * test_getSource_invalidSource
+            * test_getSource_getGrouperSourceAdapter
+            * test_getSource_getJDBCSourceAdapter
+            * test_getSources_defaultNumberOfSources
+        subj.Test_I_API_RegistrySubject_delete	3
+            * test_delete_failOnNullSession
+            * test_delete_failToDeleteWhenNotRoot
+            * test_delete_ok
+        subj.TestSubjectDecorator	3
+            * testHideStudentData
+            * testFilterAnotherCollabGroup
+            * testDecoratorExtraAttributes
+        subj.TestSubjectFinder	44
+            * testFindGroupsCanRead
+            * testSubjectDecorator
+            * testFindByIds
+            * testSubjectCachePrivileges
+            * testSubjectCachePage
+            * testGroupQueries
+            * testFindByIdentifierGoodId
+            * testFindByIdentifierGoodIdGoodType
+            * testFindByIdGoodId
+            * testFindByIdGoodIdGoodType
+            * testFindByIdBadId
+            * testFindByIdentifierBadId
+            * testFindByIdentifierGoodIdGoodTypeRoot
+            * testFindByIdentifierGoodIdRoot
+            * testFindByIdGoodIdAll
+            * testFindByIdGoodIdGoodTypeAll
+            * testFindByIdGoodIdGoodTypeRoot
+            * testFindByIdGoodIdRoot
+            * testSearchBad
+            * testSearchBadSearch
+            * testSearchGood
+            * testSearchPageMax
+            * testSearchGoodAllId
+            * testSearchGoodAllIdentifier
+            * testSearchGoodRootId
+            * testSearchGoodRootIdentifier
+            * testFinderBadSubject
+            * testFinderBadSubjectByIdentifier
+            * testFinderBadSubjectByIdentifierWithBadType
+            * testFinderBadSubjectByIdentifierWithGoodType
+            * testFinderGrouperSystemSubject
+            * testFinderGrouperSystemSubjectByIdentifier
+            * testFinderGrouperSystemSubjectByIdentifierWithGoodType
+            * testFinderGrouperSystemSubjectWithGoodType
+            * testFindAll
+            * testFindAllMultipleInAllSources
+            * testFindPageMultipleInAllSources
+            * testFindAllSourceException
+            * testFindByOptionalArguments
+            * testFindByPackedSubjectString
+            * testFindByIdentifiers
+            * testFindByIdsOrIdentifiers
+            * testFindAllMultipleInSomeSources
+            * testFindPageMultipleInSomeSources
+        subj.TestSubject	18
+            * testFindAllInternal
+            * testGetSources
+            * testFailToFindAllBySource
+            * testFailToFindByIdAndTypeAndSource
+            * testFailToFindByIdentifierAndTypeAndSource
+            * testFindAllBySource
+            * testFindByIdAndTypeAndSource
+            * testFindByIdentifierAndTypeAndSource
+            * testFindGrouperAllByIdentifier
+            * testFindGrouperAllByIdentifierAndType
+            * testFindGrouperAllByIdentifierAndTypeAndSource
+            * testFindRootSubject
+            * testGetSource2
+            * testGetSource
+            * testGrouperSubjectEqual
+            * testAddRegistrySubjectAsRoot
+            * testFailToAddAlreadyExistingSubject
+            * testFailToAddRegistrySubjectAsNonRoot
+        subj.TestInternalSourceAdapter	12
+            * testAdapter
+            * testAdapterTypes
+            * testAdapterBadSubject
+            * testAdapterBadSubjectByIdentifier
+            * testAdapterBadSubjectBySearch
+            * testAdapterGrouperAllSubject
+            * testAdapterGrouperAllSubjectByIdentifier
+            * testAdapterGrouperAllSubjectBySearch
+            * testAdapterGrouperSystemSubject
+            * testAdapterGrouperSystemSubjectByIdentifier
+            * testAdapterGrouperSystemSubjectBySearch
+            * testGrouperAllAttributes
+    tableIndex.AllTableIndexTests	9
+        tableIndex.TableIndexTest	9
+            * testSaveGroup
+            * testHibernate
+            * testIndexesGroup
+            * testIndexesStem
+            * testIndexesAttributeDef
+            * testIndexesAttributeDefName
+            * testSaveStem
+            * testSaveAttributeDef
+            * testSaveAttributeDefName
+    userData.AllUserDataTests	15
+        userData.GrouperFavoriteFinderTest	1
+            * testFavoriteFinder
+        userData.GrouperUserDataApiTest	12
+            * testFavoriteGroupsTimes
+            * testFavoriteGroups
+            * testRecentlyUsedGroups2
+            * testRecentlyUsedGroups
+            * testFavoriteAttributeDefs
+            * testFavoriteAttributeDefNames
+            * testFavoriteStems
+            * testRecentlyUsedStems
+            * testRecentlyUsedAttributeDefs
+            * testRecentlyUsedAttributeDefNames
+            * testFavoriteMembers
+            * testRecentlyUsedMembers
+        userData.UserDataListTest	2
+            * testReplaceWithSubset
+            * testJsonMarshal
+    util.AllUtilTests	40
+        util.GrouperHtmlFilterTest	1
+            * testFilter
+        util.GrouperUtilTest	28
+            * testSubstituteExpressionLanguageExternal
+            * testAppendIfNotBlankString
+            * testTruncateAscii
+            * testMail
+            * testLogNextException
+            * testStringToDate2
+            * testMatchSqlString
+            * testFormatNumberWithCommas
+            * testEncryptSha
+            * testParentStemNames
+            * testParentStemNames2
+            * testStringSuffix
+            * testConvertMillisToFriendlyString
+            * testFixHibernateConnectionUrl
+            * testArgAfter
+            * testCopyObjectFields
+            * testMapEquals
+            * testMapDifferences
+            * testInjectException
+            * testReplace
+            * testIndent
+            * testIndentDoctype
+            * testIndentJson
+            * testConvertJson
+            * testBatching
+            * testSubstituteExpressionLanguage
+            * testCallMethodWithMoreParams
+            * testVersioning
+        util.GrouperCacheTest	1
+            * testCache
+        util.XmlIndenterTest	6
+            * testFindNextStartTagIndex
+            * testFindNextEndTagIndex
+            * testTagName
+            * testSelfClosedTag
+            * testCloseTag
+            * testTextTag
+        util.JsonIndenterTest	1
+            * testFindNextEndTagIndex
+        util.GrouperUtilElSafeTest	1
+            * testSplitCurlyColons
+        util.GrouperThreadLocalStateTest	1
+            * testCryptoThreadlocal
+        util.rijndael.AllRijndaelTests	1
+            util.rijndael.MorphTest	1
+                * testMorph
+    validator.AllValidatorTests	32
+        validator.Test_subj_ValidatingResolver	1
+            * test_constructor_nullSourceManager
+        validator.Test_Unit_API_CompositeValidator_validate	11
+            * testValidate_NullComposite
+            * testValidate_InvalidCreateTime
+            * testValidate_InvalidCreatorUuid
+            * testValidate_InvalidUuid
+            * testValidate_InvalidType
+            * testValidate_InvalidFactorOwnerUuid
+            * testValidate_InvalidLeftFactorUuid
+            * testValidate_InvalidRightFactorUuid
+            * testValidate_InvalidLeftAndRightCycle
+            * testValidate_InvalidOwnerAndLeftCycle
+            * testValidate_InvalidOwnerAndRightCycle
+        validator.Suite_Integration_ImmediateMembershipValidator	4
+            validator.Test_Integration_ImmediateMembershipValidator_validate	4
+                * testValidate_InvalidGroupInCircularCheck
+                * testValidate_InvalidMemberInCircularCheck
+                * testValidate_Circular
+                * testValidate_InvalidMembership
+        validator.Suite_Unit_API_ImmediateMembershipValidator	4
+            membership.Test_Unit_API_ImmediateMembershipValidator_validate	4
+                * testValidate_NullMembership
+                * testValidate_InvalidType
+                * testValidate_InvalidDepth
+                * testValidate_InvalidViaUuid
+        validator.Suite_Unit_API_EffectiveMembershipValidator	4
+            validator.Test_Unit_API_EffectiveMembershipValidator_validate	4
+                * testValidate_NullMembership
+                * testValidate_InvalidType
+                * testValidate_InvalidDepth
+                * testValidate_InvalidViaUuid
+        validator.Suite_Unit_API_CompositeMembershipValidator	5
+            validator.Test_Unit_API_CompositeMembershipValidator_validate	5
+                * testValidate_NullMembership
+                * testValidate_InvalidType
+                * testValidate_InvalidDepth
+                * testValidate_InvalidViaUuid
+                * testValidate_InvalidMembership
+        validator.Suite_Integration_CompositeValidator	3
+            validator.Test_Integration_CompositeValidator_validate	3
+                * testValidate_OwnerDoesNotExist
+                * testValidate_LeftFactorDoesNotExist
+                * testValidate_RightFactorDoesNotExist
+    xml.AllXmlTests	117
+        xml.Test_U_API_XmlExporter_internal_groupToXML	2
+            * test_internal_groupToXML_escapeName
+            * test_internal_groupToXML_escapeDisplayName
+        xml.TestXmlReader	3
+            * testGetDocumentFromString
+            * testGetDocumentFromFile
+            * testGetDocumentFromURL
+        xml.Test_U_API_XmlExporter_internal_subjectToXML	1
+            * test_internal_subjectToXML_escapeIdentifier
+        xml.TestXmlImport	9
+            * testGetDefaultOptions
+            * testMinimalOkArgHandling
+            * testMinimalPlusNameAndUuidArgHandling
+            * testMinimalPlusNameOkArgHandling
+            * testMinimalPlusPropsOkArgHandling
+            * testMinimalPlusUuidOkArgHandling
+            * testNullArgHandling
+            * testSetCustomOptions
+            * testTooManyPositionalArgsArgHandling
+        xml.Test_U_API_XmlExporter_internal_membershipToXML	1
+            * test_internal_membershipToXML_escapeName
+        xml.TestXmlExport	9
+            * testGetDefaultOptions
+            * testMinimalOkArgHandling
+            * testMinimalPlusNameAndUuidArgHandling
+            * testMinimalPlusNameOkArgHandling
+            * testMinimalPlusPropsOkArgHandling
+            * testMinimalPlusUuidOkArgHandling
+            * testNullArgHandling
+            * testSetCustomOption
+            * testTooManyPositionalArgsArgHandling
+        xml.Test_U_Util_XML_escape	6
+            * test_escape_null
+            * test_escape_amp
+            * test_escape_apos
+            * test_escape_gt
+            * test_escape_lt
+            * test_escape_quot
+        xml.TestXml	33
+            * testFullExportWithEscapedCharactersAndFullImportFullStem
+            * testCollectionExport
+            * testFullExportFullImportCustomTypes
+            * testFullExportFullImportFullAccessPrivs
+            * testFullExportFullImportFullGroup
+            * testFullExportFullImportFullGroupInternational
+            * testFullExportFullImportFullMemberships
+            * testFullExportFullImportFullNamingPrivs
+            * testFullExportFullImportFullStem
+            * testGroupExportFalseFalseFullImportFullGroup
+            * testGroupExportFalseTrueFullImportFullGroup
+            * testGroupExportTrueFalseFullImportFullGroup
+            * testGroupExportTrueTrueFullImportFullGroup
+            * testStemExportChildFalseFullImportFullStem
+            * testStemExportChildTrueFullImportFullStem
+            * testStemExportRootFalseFullImportFullStem
+            * testStemExportRootTrueFullImportFullStem
+            * testUpdateOkAccessPrivsInAddMode
+            * testUpdateOkDoNotAddMissingGroups
+            * testUpdateOkDoNotAddMissingStems
+            * testUpdateOkDoNotUpdateStemAttrs
+            * testUpdateOkMembershipsInAddMode
+            * testUpdateOkMembershipsInIgnoreMode
+            * testUpdateOkMembershipsInReplaceMode
+            * testUpdateOkNamingPrivsInAddMode
+            * testUpdateOkNamingPrivsInIgnoreMode2
+            * testUpdateOkNamingPrivsInIgnoreMode
+            * testUpdateOkNamingPrivsInReplaceMode2
+            * testUpdateOkNamingPrivsInReplaceMode
+            * testGroupCreateDescription
+            * testGroupUpdateDescription
+            * testStemCreateDescription
+            * testStemUpdateDescription
+        xml.userAudit.AllXmlUserAuditTests	1
+            xml.userAudit.XmlUserAuditExportTest	1
+                * testExportImport
+        xml.export.AllXmlExportTests	36
+            xml.export.XmlExportStemTest	2
+                * testConvertToXml
+                * testConvertToStem
+            xml.export.XmlExportFieldTest	2
+                * testConvertToXml
+                * testConvertToField
+            xml.export.XmlExportAttributeAssignActionSetTest	2
+                * testConvertToXml
+                * testConvertToAttributeAssignActionSet
+            xml.export.XmlExportAttributeAssignValueTest	2
+                * testConvertToXml
+                * testConvertToAttributeAssignValue
+            xml.export.XmlExportGroupTest	2
+                * testConvertToXml
+                * testConvertToGroup
+            xml.export.XmlExportMembershipTest	2
+                * testConvertToXml
+                * testConvertToMembership
+            xml.export.XmlExportMainTest	2
+                * testConvertToXml
+                * testConvertToXmlStem
+            xml.export.XmlExportAttributeDefTest	2
+                * testConvertToXml
+                * testConvertToAttributeDef
+            xml.export.XmlExportAttributeDefNameTest	2
+                * testConvertToXml
+                * testConvertToAttributeDefName
+            xml.export.XmlExportAttributeDefNameSetTest	2
+                * testConvertToXml
+                * testConvertToAttributeDefNameSet
+            xml.export.XmlExportRoleSetTest	2
+                * testConvertToXml
+                * testConvertToRoleSet
+            xml.export.XmlExportAttributeAssignActionTest	2
+                * testConvertToXml
+                * testConvertToAttributeAssignAction
+            xml.export.XmlExportCompositeTest	2
+                * testConvertToXml
+                * testConvertToComposite
+            xml.export.XmlExportAttributeAssignTest	2
+                * testConvertToXml
+                * testConvertToAttributeAssign
+            xml.export.XmlExportMemberTest	2
+                * testConvertToXml
+                * testConvertToMember
+            xml.export.XmlExportAttributeDefScopeTest	2
+                * testConvertToXml
+                * testConvertToAttributeDefScope
+            xml.export.XmlExportAuditEntryTest	2
+                * testConvertToXml
+                * testConvertToAuditEntry
+            xml.export.XmlExportAuditTypeTest	2
+                * testConvertToXml
+                * testConvertToAuditType
+        xml.importXml.AllXmlImportTests	16
+            xml.importXml.XmlImportMainTest	1
+                * testMembershipAssignments
+            xml.importXml.XmlLegacyTest	15
+                * testFullExportWithEscapedCharactersAndFullImportFullStem
+                * testFullExportFullImportCustomTypes
+                * testFullExportFullImportFullAccessPrivs
+                * testFullExportFullImportFullGroup
+                * testFullExportFullImportFullGroupInternational
+                * testFullExportFullImportFullMemberships
+                * testFullExportFullImportFullNamingPrivs
+                * testFullExportFullImportFullStem
+                * testUpdateOkAccessPrivsInAddMode
+                * testUpdateOkDoNotAddMissingGroups
+                * testUpdateOkDoNotAddMissingStems
+                * testGroupCreateDescription
+                * testGroupUpdateDescription
+                * testStemCreateDescription
+                * testStemUpdateDescription
+    xmpp.AllXmppTests	1
+        xmpp.XmppConnectionBeanTest	1
+            * testEqualsHashcode
+
+
+Unreferenced classes
+--------------------
+
+app.loader.TestgrouperIncrementalLoader	0
+app.loader.TestgrouperLoader	0
+app.loader.TestgrouperLoaderGroups	0
+helper.GrouperTest	0
+poc.TestCronFormat	0
+subj.TestgrouperSubjAttr	0
+subj.TestSubjectCustomizer	0
+    * testCustomizer

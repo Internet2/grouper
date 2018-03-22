@@ -49,7 +49,7 @@ my %fileMap = ();
 
 my @classes = ();
 
-print "File summary\n", '-'x12, "\n\n";
+print "File summary (" . scalar(gmtime) . ")\n", '-'x39, "\n\n";
 
 print join("\t", 'Filename', 'Class', 'TestId (can be used as param to AllTests)', 'Number of Tests', 'Number of Suites', 'Number of manual Suites', 'Parent Class', 'has JUnit-BEGIN'), "\n";
 

@@ -35,6 +35,7 @@ package edu.internet2.middleware.grouper;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import edu.internet2.middleware.grouper.rules.RuleApi;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -2573,7 +2574,107 @@ public class TestStemApi extends GrouperTest {
     assertNotNull(second.getLastMembershipChange());
     assertNull(test.getLastMembershipChange());
   }
-  
+
+  /**
+   * @throws Exception
+   */
+  public void test_option_to_assign_admin_to_root() throws Exception {
+    R r = R.populateRegistry(2, 0, 0);
+
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    Field adminField = FieldFinder.find(Field.FIELD_NAME_ADMINS, true);
+
+    /* Don't add admin to objects */
+    Stem stemA = r.getStem("a");
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "false");
+
+    Stem a1 = stemA.addChildStem("a1", "stem a1");
+
+    assertEquals("Did not add stem admin for root", 0, s.getNamingResolver().getPrivileges(a1, rootSubject).size());
+
+    Group ga1 = a1.addChildGroup("ga1", "group a1");
+
+    assertEquals("Did not add group admin for root", 0, ga1.getMemberships(adminField).size());
+
+    /* Add admin to objects */
+    Stem stemB = r.getStem("b");
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "true");
+
+    Stem b1 = stemB.addChildStem("b1", "stem b1");
+
+    assertEquals("Added stem admin for root", 1, s.getNamingResolver().getPrivileges(b1, rootSubject).size()); // has admin
+
+    Group gb1 = b1.addChildGroup("gb1", "group b1");
+
+    assertEquals("Added group admin for root", 1, gb1.getMemberships(adminField).size()); // has admin
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void test_option_to_assign_admin_to_inherited_admins() throws Exception {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optout", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.groupAttrRead", "false");
+
+    R r = R.populateRegistry(2, 0, 1);
+
+    /* create admin group and put user into it */
+    Group gw = new GroupSave(s).assignName("etc:admins").save();
+    gw.addMember(r.getSubject("a"));
+
+    Field adminField = FieldFinder.find(Field.FIELD_NAME_ADMINS, true);
+    Field stemAdminField = FieldFinder.find("stemAdmins", true);
+
+    /* Create folders with inherited admin privs for the admin group */
+    Stem stemA = r.getStem("a");
+    stemA.grantPriv(gw.toSubject(), NamingPrivilege.STEM_ADMIN);
+
+    RuleApi.inheritGroupPrivileges(s.getSubject(), stemA, Scope.SUB, gw.toSubject(), Privilege.getInstances("admin"));
+    RuleApi.inheritFolderPrivileges(s.getSubject(), stemA, Scope.SUB, gw.toSubject(), Privilege.getInstances("stemAdmin"));
+    RuleApi.inheritAttributeDefPrivileges(s.getSubject(), stemA, Scope.SUB, gw.toSubject(), Privilege.getInstances("attrAdmin"));
+
+    Stem stemB = r.getStem("b");
+    stemB.grantPriv(gw.toSubject(), NamingPrivilege.STEM_ADMIN);
+
+    RuleApi.inheritGroupPrivileges(s.getSubject(), stemB, Scope.SUB, gw.toSubject(), Privilege.getInstances("admin"));
+    RuleApi.inheritFolderPrivileges(s.getSubject(), stemB, Scope.SUB, gw.toSubject(), Privilege.getInstances("stemAdmin"));
+    RuleApi.inheritAttributeDefPrivileges(s.getSubject(), stemB, Scope.SUB, gw.toSubject(), Privilege.getInstances("attrAdmin"));
+
+    Subject user = r.getSubject("a");
+    GrouperSession nrs = GrouperSession.start(user);
+
+    /* don't assign admin to inherited */
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToInheritedAdminsOnCreate", "false");
+
+    Stem a1 = stemA.addChildStem("a1", "stem a1");
+    assertNull("Did not add stem admin for user", MembershipFinder.findImmediateMembership(nrs, a1, user, stemAdminField, false));
+    //assertEquals("Did not add stem admin for user", 0, s.getNamingResolver().getPrivileges(a1, user).size());
+
+    Group ga1 = a1.addChildGroup("aa", "Group aa");
+    assertNull("No immediate privilege for user in group", MembershipFinder.findImmediateMembership(nrs, ga1, user, adminField, false));
+    assertTrue("User has admin privilege for group", ga1.hasAdmin(user));
+
+
+    /* assign admin to inherited */
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToInheritedAdminsOnCreate", "true");
+
+    Stem b1 = stemB.addChildStem("b1", "stem b1");
+    assertNotNull("Add stem admin for user", MembershipFinder.findImmediateMembership(nrs, b1, user, stemAdminField, false));
+    //assertEquals("Add stem admin for user", 1, s.getNamingResolver().getPrivileges(b1, user));
+
+    Group gb1 = b1.addChildGroup("ba", "Group ba");
+    assertNotNull("Immediate privilege for user in group", MembershipFinder.findImmediateMembership(nrs, gb1, user, adminField, false));
+
+    nrs.stop();
+  }
+
   /**
    * @throws Exception
    */
