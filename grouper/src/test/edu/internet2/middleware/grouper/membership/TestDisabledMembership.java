@@ -949,7 +949,7 @@ public class TestDisabledMembership extends GrouperTest {
     Group group = top.addChildGroup("group", "group");
     group.grantPriv(a, AccessPrivilege.ADMIN);
     
-    assertEquals(2, group.getAdmins().size());
+    assertEquals(1, group.getAdmins().size());
     
     // now disable SA -> group
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
@@ -962,7 +962,7 @@ public class TestDisabledMembership extends GrouperTest {
     
     GrouperCacheUtils.clearAllCaches();
     
-    assertEquals(1, group.getAdmins().size());
+    assertEquals(0, group.getAdmins().size());
   }
   
   /**
@@ -1033,8 +1033,8 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(1, group.getImmediateMembers().size());
     assertEquals(1, group.getImmediateMemberships().size());
-    assertEquals(2, group.getImmediateMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
-    assertEquals(2, group.getImmediateMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group.getImmediateMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group.getImmediateMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertTrue(group.hasImmediateMember(a));
     assertTrue(group.hasImmediateMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertTrue(member.isImmediateMember(group));
@@ -1060,8 +1060,8 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(0, group.getImmediateMembers().size());
     assertEquals(0, group.getImmediateMemberships().size());
-    assertEquals(1, group.getImmediateMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
-    assertEquals(1, group.getImmediateMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(0, group.getImmediateMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(0, group.getImmediateMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertFalse(group.hasImmediateMember(a));
     assertFalse(group.hasImmediateMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertFalse(member.isImmediateMember(group));
@@ -1088,8 +1088,8 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(1, group.getMembers().size());
     assertEquals(1, group.getMemberships().size());
-    assertEquals(2, group.getMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
-    assertEquals(2, group.getMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group.getMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group.getMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertTrue(group.hasMember(a));
     assertTrue(group.hasMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertTrue(member.isMember(group));
@@ -1115,8 +1115,8 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(0, group.getMembers().size());
     assertEquals(0, group.getMemberships().size());
-    assertEquals(1, group.getMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
-    assertEquals(1, group.getMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(0, group.getMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(0, group.getMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertFalse(group.hasMember(a));
     assertFalse(group.hasMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertFalse(member.isMember(group));
