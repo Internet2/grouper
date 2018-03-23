@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -175,6 +177,8 @@ public class PITAttributeDefNameFinderTests extends GrouperTest {
     // revoke subj1 priv on attribute def 3
     s = GrouperSession.startRootSession();
     attributeDef3.getPrivilegeDelegate().revokePriv(member1.getSubject(), AttributeDefPrivilege.ATTR_VIEW, true);
+    Hib3AttributeDefDAO.attributeDefCacheRemove(attributeDef3);
+    Hib3AttributeDefNameDAO.attributeDefNameCacheRemove(attributeDefName3);
     ChangeLogTempToEntity.convertRecords();
 
     // root can still see all 3
