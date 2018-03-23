@@ -107,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_same_stem"));
+    TestRunner.run(new Test_api_Group("test_option_to_disable_last_imm_membership_change"));
   }
   
   private Group           top_group, child_group;
@@ -277,12 +277,12 @@ public class Test_api_Group extends GrouperTest {
     
     assertTrue(stem.hasCreate(a));
     assertTrue(stem.hasCreate(groupToDeleteSubject));
-    assertEquals(1, stem.getStemmers().size());
-    assertEquals(1, stem.getStemAdmins().size());
+    assertEquals(0, stem.getStemmers().size());
+    assertEquals(0, stem.getStemAdmins().size());
     assertTrue(group.hasUpdate(a));
     assertTrue(group.hasUpdate(groupToDeleteSubject));
     assertTrue(group.hasGroupAttrRead(groupToDeleteSubject));
-    assertEquals(1, group.getAdmins().size());
+    assertEquals(0, group.getAdmins().size());
     
     GrouperSession session = GrouperSession.start(b);
     groupToDelete.delete();
@@ -292,12 +292,12 @@ public class Test_api_Group extends GrouperTest {
 
     assertTrue(stem.hasCreate(a));
     assertFalse(stem.hasCreate(groupToDeleteSubject));
-    assertEquals(1, stem.getStemmers().size());
-    assertEquals(1, stem.getStemAdmins().size());
+    assertEquals(0, stem.getStemmers().size());
+    assertEquals(0, stem.getStemAdmins().size());
     assertTrue(group.hasUpdate(a));
     assertFalse(group.hasUpdate(groupToDeleteSubject));
     assertFalse(group.hasGroupAttrUpdate(groupToDeleteSubject));
-    assertEquals(1, group.getAdmins().size());
+    assertEquals(0, group.getAdmins().size());
     
     session.stop();
   }
@@ -969,7 +969,7 @@ public class Test_api_Group extends GrouperTest {
 
     group_copy_setup(r, false);
     Group newGroup = child_group.copy(top);
-    verify_copy(r, newGroup, true, true, true, true, true);
+    verify_copy(r, newGroup, true, true, true, true, true, true);
     
     r.rs.stop();
   }
@@ -1038,7 +1038,7 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
         .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true)
         .save();
-    verify_copy(r, newGroup, true, true, true, true, true);
+    verify_copy(r, newGroup, true, true, true, true, true, true);
     
     r.rs.stop();
   }
@@ -1053,7 +1053,7 @@ public class Test_api_Group extends GrouperTest {
     GroupCopy groupCopy = new GroupCopy(child_group, top);
     Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
     .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(false).save();
-    verify_copy(r, newGroup, false, false, false, false, false);
+    verify_copy(r, newGroup, false, false, false, false, false, true);
     
     r.rs.stop();
   }
@@ -1224,7 +1224,7 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
         .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(false)
         .save();    
-    verify_copy(r, newGroup, false, false, true, true, false);
+    verify_copy(r, newGroup, false, false, true, true, false, true);
     
     r.rs.stop();
   }
@@ -1240,7 +1240,7 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
         .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(false)
         .save();
-    verify_copy(r, newGroup, true, true, false, false, false);
+    verify_copy(r, newGroup, true, true, false, false, false, true);
     
     r.rs.stop();
   }
@@ -1256,7 +1256,7 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
         .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(true)
         .save();
-    verify_copy(r, newGroup, false, false, false, false, true);
+    verify_copy(r, newGroup, false, false, false, false, true, true);
     
     r.rs.stop();
   }
@@ -1294,7 +1294,7 @@ public class Test_api_Group extends GrouperTest {
     composite.addCompositeMember(CompositeType.UNION, child_group, right);
     
     Group newGroup = child_group.copy(top);
-    verify_copy(r, newGroup, true, true, true, true, true);
+    verify_copy(r, newGroup, true, true, true, true, true, true);
     
     assertTrue(composite.getComposite(true).getRightGroup().getName().equals("top:right"));
     assertTrue(composite.getComposite(true).getLeftGroup().getName().equals("top:child:child group"));
@@ -1320,7 +1320,7 @@ public class Test_api_Group extends GrouperTest {
     group_copy_setup(r, true);
     
     Group newGroup = child_group.copy(top);
-    verify_copy(r, newGroup, true, true, true, true, true);
+    verify_copy(r, newGroup, true, true, true, true, true, true);
     
     assertTrue(child_group.getComposite(true).getRightGroup().getName().equals("top:right"));
     assertTrue(child_group.getComposite(true).getLeftGroup().getName().equals("top:left"));
@@ -1404,7 +1404,7 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    verify_copy(r, newGroup, false, false, false, false, false);
+    verify_copy(r, newGroup, false, false, false, false, false, false);
     nrs.stop();
     
     r.rs.stop();
@@ -1711,7 +1711,7 @@ public class Test_api_Group extends GrouperTest {
 
   private void verify_copy(R r, Group newGroup, boolean privilegesOfGroup,
       boolean groupAsPrivilege, boolean listMembersOfGroup,
-      boolean listGroupAsMember, boolean attributes) throws Exception {
+      boolean listGroupAsMember, boolean attributes, boolean wasCopiedByWheelOrRoot) throws Exception {
 
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
@@ -1801,7 +1801,7 @@ public class Test_api_Group extends GrouperTest {
       assertGroupHasAdmin(newGroup, a, true);
       assertGroupHasAdmin(newGroup, c, true);
       assertGroupHasAdmin(newGroup, SubjectFinder.findRootSubject(), true);
-      assertTrue(newGroup.getAdmins().size() == 3);
+      assertTrue(newGroup.getAdmins().size() == 2);
       assertGroupHasUpdate(newGroup, d, true);
       assertTrue(newGroup.getUpdaters().size() == 1);
       assertGroupHasOptin(newGroup, e, true);
@@ -1822,7 +1822,11 @@ public class Test_api_Group extends GrouperTest {
       assertGroupHasAdmin(newGroup, a, false);
       assertGroupHasAdmin(newGroup, c, false);
       assertGroupHasAdmin(newGroup, SubjectFinder.findRootSubject(), true);
-      assertTrue(newGroup.getAdmins().size() == 1);
+      if (wasCopiedByWheelOrRoot) {
+        assertTrue(newGroup.getAdmins().size() == 0);
+      } else {
+        assertTrue(newGroup.getAdmins().size() == 1);
+      }
       assertGroupHasUpdate(newGroup, d, false);
       assertTrue(newGroup.getUpdaters().size() == 0);
       assertGroupHasOptin(newGroup, e, false);
@@ -1889,14 +1893,16 @@ public class Test_api_Group extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
     
-    R r = R.populateRegistry(0, 0, 2);
+    R r = R.populateRegistry(0, 0, 3);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
     
     Group owner = top.addChildGroup("owner", "owner");
     Group first = top.addChildGroup("first", "first");
     Group second = top.addChildGroup("second", "second");
     Stem test = top.addChildStem("test", "test");
+    test.grantPriv(c, NamingPrivilege.STEM_ATTR_READ);
     
     owner.addCompositeMember(CompositeType.UNION, first, second);
     
@@ -1938,14 +1944,16 @@ public class Test_api_Group extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
     
-    R r = R.populateRegistry(0, 0, 2);
+    R r = R.populateRegistry(0, 0, 3);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
     
     Group owner = top.addChildGroup("owner", "owner");
     Group first = top.addChildGroup("first", "first");
     Group second = top.addChildGroup("second", "second");
     Stem test = top.addChildStem("test", "test");
+    test.grantPriv(c, NamingPrivilege.STEM_ATTR_READ);
     
     owner.addCompositeMember(CompositeType.UNION, first, second);
     

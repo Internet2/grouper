@@ -554,7 +554,7 @@ public class GroupFinder {
         return g;
       }
       LOG.info(E.GF_FBNAME + E.CANNOT_VIEW + ", name: " + name);
-      return g;
+      // return g;  why was this returning the group when there was no access??
     }
     if (!exceptionIfNotFound) {
       return null;
