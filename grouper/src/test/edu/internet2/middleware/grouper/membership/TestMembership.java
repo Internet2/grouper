@@ -318,7 +318,7 @@ public class TestMembership extends TestCase {
       MembershipTestHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
       MembershipTestHelper.testEff(s, all_staff, iata, "readers", staff, 2);
       MembershipTestHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
-      MembershipTestHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+      MembershipTestHelper.testNumMship(all_staff, "readers", 5, 2, 3);
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11.1");
   
       MembershipTestHelper.testImm(s, staff, iata , "members");
@@ -345,7 +345,7 @@ public class TestMembership extends TestCase {
       MembershipTestHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
       MembershipTestHelper.testEff(s, all_staff, iata, "readers", staff, 2);
       MembershipTestHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
-      MembershipTestHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+      MembershipTestHelper.testNumMship(all_staff, "readers", 5, 2, 3);
       MembershipTestHelper.testImm(s, all_staff, subj, Field.FIELD_NAME_ADMINS);
       MembershipTestHelper.testImm(s, all_staff, admins.toSubject(), Field.FIELD_NAME_ADMINS);
       MembershipTestHelper.testEff(s, all_staff, kebe, Field.FIELD_NAME_ADMINS, admins, 1);
