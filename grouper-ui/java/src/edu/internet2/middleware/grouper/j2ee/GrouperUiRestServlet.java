@@ -60,11 +60,13 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntities;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupPermission;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Public;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2StemAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2SubjectPermission;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -151,6 +153,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",
+      UiV2StemAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
+      UiV2GroupAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
       UiV2AttributeDef.class.getSimpleName() + ".attributeDefFilter",
       UiV2AttributeDefName.class.getSimpleName() + ".attributeDefNameFilter",
       UiV2GroupPermission.class.getSimpleName() + ".permissionActionNameFilter",

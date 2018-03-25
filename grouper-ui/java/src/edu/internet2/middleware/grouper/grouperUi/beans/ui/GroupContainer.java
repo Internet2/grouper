@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -821,6 +822,27 @@ public class GroupContainer {
    */
   public void setGuiGroups(Set<GuiGroup> guiGroupsAddMember1) {
     this.guiGroups = guiGroupsAddMember1;
+  }
+  
+  /**
+   * attributes assigned to this group.
+   */
+  private Set<GuiAttributeAssign> guiAttributeAssigns;
+  
+  /**
+   * attributes assigned to this group.
+   * @return
+   */
+  public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return guiAttributeAssigns;
+  }
+  
+  /**
+   * attributes assigned to this group.
+   * @param guiAttributeAssigns
+   */
+  public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
+    this.guiAttributeAssigns = guiAttributeAssigns;
   }
     
 }
