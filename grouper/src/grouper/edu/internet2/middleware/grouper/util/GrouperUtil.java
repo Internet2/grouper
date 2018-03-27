@@ -254,7 +254,7 @@ public class GrouperUtil {
    * @return true if valid, false if not
    */
   public static boolean validEmail(String email) {
-    return EmailValidator.getInstance().isValid(email);
+    return EmailValidator.getInstance(false, true).isValid(email);
   }
 
   /**
