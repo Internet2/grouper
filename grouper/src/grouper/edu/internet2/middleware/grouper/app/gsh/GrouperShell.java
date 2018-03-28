@@ -276,7 +276,7 @@ private static boolean handleSpecialCase(String[] args) {
           commands = commands.replace("\\n", "\n");
           body.append("\n" + commands);
         } else {
-          body.append("\n" + ":gshFileLoad " + args[0]);
+          body.append("\n" + ":gshFileLoad '" + args[0] + "'");
         }
         
         body.append("\n:exit");
