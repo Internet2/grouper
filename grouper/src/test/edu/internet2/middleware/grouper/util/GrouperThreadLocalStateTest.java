@@ -39,6 +39,12 @@ public class GrouperThreadLocalStateTest extends GrouperTest {
    * 
    */
   public void testCryptoThreadlocal() {
+    
+    //dont try if dont have a morphString
+    if (GrouperUtil.propertiesFromResourceName("/morphString.properties", true, false) == null) {
+      return;
+    }
+    
     ThreadLocal threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
     threadLocalCrypto.remove();
     if (threadLocalCrypto.get() != null) {

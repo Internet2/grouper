@@ -108,7 +108,12 @@ import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuilt
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -3631,6 +3636,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    //delete some caches
+    Hib3MemberDAO.membersCacheClear();
+    Hib3AttributeDefDAO.attributeDefCacheClear();
+    Hib3AttributeDefNameDAO.attributeDefNameCacheClear();
+    StemFinder.stemCacheClear();
+    GroupFinder.groupCacheClear();
+    Hib3AttributeAssignActionDAO.attributeAssignActionCacheClear();
+    Hib3AttributeAssignDAO.attributeAssignCacheClear();
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_DELETE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_DELETE, false, false);
@@ -3682,6 +3696,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    //delete some caches
+    Hib3MemberDAO.membersCacheClear();
+    Hib3AttributeDefDAO.attributeDefCacheClear();
+    Hib3AttributeDefNameDAO.attributeDefNameCacheClear();
+    StemFinder.stemCacheClear();
+    GroupFinder.groupCacheClear();
+    Hib3AttributeAssignActionDAO.attributeAssignActionCacheClear();
+    Hib3AttributeAssignDAO.attributeAssignCacheClear();
+
     // If the stem name is changing, verify that the new name is not in use.
     // (The new name could be an alternate name).
     if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {

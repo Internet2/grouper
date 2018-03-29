@@ -20,3 +20,4 @@ test.log
 /grouperHSQL.lck
 /grouperHSQL.properties
 /grouperHSQL.script
+/grouperImportRecord*

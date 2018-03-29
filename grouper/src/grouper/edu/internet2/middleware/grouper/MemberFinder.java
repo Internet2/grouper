@@ -225,6 +225,22 @@ public class MemberFinder {
    * @return  A {@link Member} object.
    */
   public static Member findBySubject(GrouperSession s, Subject subj, boolean createIfNotExist) {
+    return findBySubject(s, subj, createIfNotExist, null);
+  }
+
+  /**
+   * Convert a {@link Subject} to a {@link Member}.
+   * <pre class="eg">
+   * // Convert a subject to a Member object, create if not exist
+   *   Member m = MemberFinder.findBySubject(s, subj, true);
+   * </pre>
+   * @param   s   Find {@link Member} within this session context.
+   * @param   subj  {@link Subject} to convert.
+   * @param createIfNotExist true if the member should be created if not there
+   * @param queryOptions 
+   * @return  A {@link Member} object.
+   */
+  public static Member findBySubject(GrouperSession s, Subject subj, boolean createIfNotExist, QueryOptions queryOptions) {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Member m = internal_findBySubject(subj, null, createIfNotExist && !(subj instanceof UnresolvableSubject));
@@ -311,11 +327,22 @@ public class MemberFinder {
    * @return the member or null if not found
    */
   public static Member internal_findBySubject(Subject subj, String uuidIfCreate, boolean createIfNotExist) {
+    return internal_findBySubject(subj, uuidIfCreate, createIfNotExist, null);
+  } // public static Member internal_findBySubject(subj)
+
+  /**
+   * find a member, perhaps create a new one if not there
+   * @param subj
+   * @param uuidIfCreate uuid to use if creating
+   * @param createIfNotExist 
+   * @return the member or null if not found
+   */
+  public static Member internal_findBySubject(Subject subj, String uuidIfCreate, boolean createIfNotExist, QueryOptions queryOptions) {
     if (subj == null) {
       throw new NullPointerException("Subject is null");
     }
     
-    Member m = internal_findOrCreateBySubject(subj, uuidIfCreate, createIfNotExist);
+    Member m = internal_findOrCreateBySubject(subj, uuidIfCreate, createIfNotExist, queryOptions);
     
     //Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
@@ -386,9 +413,10 @@ public class MemberFinder {
    * @param subj 
    * @param memberUuidIfCreate 
    * @param createIfNotExist 
+   * @param queryOptions 
    * @return the member or null
    */
-  private static Member internal_findOrCreateBySubject(final Subject subj, String memberUuidIfCreate, boolean createIfNotExist) {
+  private static Member internal_findOrCreateBySubject(final Subject subj, String memberUuidIfCreate, boolean createIfNotExist, QueryOptions queryOptions) {
     
     String sourceId = null;
     if (subj instanceof LazySubject) {
@@ -398,13 +426,12 @@ public class MemberFinder {
     }
     
     try {
-      return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, subj.getType().getName(), true);
+      return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, subj.getType().getName(), true, queryOptions);
     }
     catch (MemberNotFoundException eMNF) {
       
       if (createIfNotExist) {
-        
-        
+                
         MultiKey multiKey = new MultiKey(sourceId, subj.getId());
         
         synchronized (MemberFinder.class) {
@@ -429,7 +456,7 @@ public class MemberFinder {
             for (int i=0;i<20;i++) {
               
               //in transaction
-              member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false);
+              member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false, new QueryOptions().secondLevelCache(false));
               
               if (member != null) {
 
@@ -441,7 +468,7 @@ public class MemberFinder {
                 
                 public Object callback(GrouperTransaction grouperTransaction)
                     throws GrouperDAOException {
-                  return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false);
+                  return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false, new QueryOptions().secondLevelCache(false));
                 }
               });
               
@@ -465,7 +492,7 @@ public class MemberFinder {
             memberCreatedCache().put(multiKey, Boolean.TRUE);
   
             if (!StringUtils.isBlank(memberUuidIfCreate)) {
-              member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberUuidIfCreate, false);
+              member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberUuidIfCreate, false, new QueryOptions().secondLevelCache(false));
               if (member != null) {
                 throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
               }
@@ -555,7 +582,7 @@ public class MemberFinder {
       String memberUuidIfCreate, boolean createIfNotExist) {
 
     Subject subj = SubjectFinder.findByIdAndSource(id, src, true);
-    return internal_findOrCreateBySubject(subj, memberUuidIfCreate, createIfNotExist);
+    return internal_findOrCreateBySubject(subj, memberUuidIfCreate, createIfNotExist, null);
   } 
 
   /**

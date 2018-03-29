@@ -68,6 +68,13 @@ import edu.internet2.middleware.subject.Subject;
 public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDAO {
   
   /**
+   * remove all caches
+   */
+  public static void attributeAssignCacheClear() {
+    attributeAssignFlashCache.clear();
+  }
+
+  /**
    * 
    */
   private static final String KLASS = Hib3AttributeAssignDAO.class.getName();

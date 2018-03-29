@@ -4963,6 +4963,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public void store() {    
 
+    GroupFinder.groupCacheRemove(this);
+    
     validate();
     
     if (GrouperLoader.isDryRun()) {

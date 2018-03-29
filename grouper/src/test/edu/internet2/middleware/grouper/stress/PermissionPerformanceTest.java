@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.stress;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,8 +36,8 @@ import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.subject.Subject;
 
@@ -50,7 +51,7 @@ public class PermissionPerformanceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionPerformanceTest(""));
+    TestRunner.run(new PermissionPerformanceTest("testPerformance"));
   }
 
   /**
@@ -73,7 +74,7 @@ public class PermissionPerformanceTest extends GrouperTest {
    */
   public void testPerformance() {
     
-    System.out.println("Starting permission performance testing");
+    System.out.println("Starting permission performance testing: " + new Date());
 
     try {
       GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findRootSubject());
@@ -93,14 +94,18 @@ public class PermissionPerformanceTest extends GrouperTest {
         dao.create(subject);
         subjectIds.add(id);
       }
-      
+
+      System.out.println("Done loading registry subjects: " + new Date());
+
       Set<Subject> subjects = new LinkedHashSet<Subject>(SubjectFinder.findByIds(subjectIds).values());
       assertEquals(10000, subjects.size());
       
       for (Subject subject : subjects) {
         group.addMember(subject, true);
       }
-      
+
+      System.out.println("Done adding members: " + new Date());
+
       AttributeDef permissionDef = top.addChildAttributeDef("attribute def", AttributeDefType.perm);
       permissionDef.setAssignToGroup(true);
       permissionDef.store();
@@ -112,18 +117,24 @@ public class PermissionPerformanceTest extends GrouperTest {
       for (int i = 0; i < 5000; i++) {
         top.addChildAttributeDefName(permissionDef, "attr-" + i, "attr-" + i);
       }
-      
+
+      System.out.println("Done loading attribute def names: " + new Date());
+
       AttributeDefName parentAttributeDefName = top.addChildAttributeDefName(permissionDef, "parent", "parent");
       for (int i = 0; i < 1000; i++) {
         AttributeDefName childAttributeDefName = top.addChildAttributeDefName(permissionDef, "child-" + i, "child-" + i);
         parentAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(childAttributeDefName);
       }
-      
+
+      System.out.println("Done loading child attribute def names: " + new Date());
+
       group.getPermissionRoleDelegate().assignRolePermission("read", parentAttributeDefName, PermissionAllowed.ALLOWED).getAttributeAssign(); 
-      
+
+      System.out.println("Done adding role permissions: " + new Date());
+
       ChangeLogTempToEntity.convertRecords();
       
-      System.out.println("Done populating data.  Now testing");
+      System.out.println("Done populating data.  Now testing: " + new Date());
 
       long start = System.currentTimeMillis();
       Set<PermissionEntry> permissions = new PermissionFinder()

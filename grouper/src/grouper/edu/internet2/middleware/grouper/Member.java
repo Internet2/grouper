@@ -92,6 +92,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
@@ -578,7 +579,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     Member theNewMember = null;
     boolean theMemberDidntExist = false;
     try {
-      theNewMember = GrouperDAOFactory.getFactory().getMember().findBySubject(newSubject, true);
+      theNewMember = MemberFinder.findBySubject(grouperSession, newSubject, false, new QueryOptions().secondLevelCache(false));
+      if (theNewMember == null) {
+        theMemberDidntExist = true;
+      }
     } catch (MemberNotFoundException mnfe) {
       theMemberDidntExist = true;
     }
@@ -909,7 +913,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       this.setSubjectIdDb(newSubjectId);
       this.setSubjectSourceIdDb(newSourceId);
       this.setSubjectTypeId(newSubject.getType().getName());
-    }      
+    }
+    Hib3MemberDAO.membersCacheClear();
   }
 
   /**
@@ -2850,7 +2855,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     
     //if testing, dont think we just created this object
     MemberFinder.memberCreatedCacheDelete(this.subjectSourceID, this.subjectID);
-    
+    Hib3MemberDAO.membersCacheRemove(this);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_DELETE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_PRE_DELETE, false, false);
@@ -2892,7 +2898,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
-    
+
+    Hib3MemberDAO.membersCacheRemove(this);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_UPDATE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_PRE_UPDATE, false, false);

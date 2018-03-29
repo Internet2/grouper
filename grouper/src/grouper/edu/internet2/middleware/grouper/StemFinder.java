@@ -66,6 +66,13 @@ import edu.internet2.middleware.subject.Subject;
 public class StemFinder {
 
   /**
+   * remove all caches
+   */
+  public static void stemCacheClear() {
+    stemFlashCache.clear();
+  }
+
+  /**
    * remove this from all caches
    * @param id
    */
