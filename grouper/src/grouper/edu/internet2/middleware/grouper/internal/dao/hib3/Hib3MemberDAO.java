@@ -48,7 +48,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -315,13 +314,21 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   } 
 
   /**
-   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findByUuid(java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
   public Member findByUuid(String uuid, boolean exceptionIfNull)
       throws GrouperDAOException, MemberNotFoundException {
+    return findByUuid(uuid, exceptionIfNull, null);
+  }
+  
+  /**
+   * 
+   */
+  public Member findByUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions)
+      throws GrouperDAOException, MemberNotFoundException {
     Member memberDto = null;
     if (!StringUtils.isBlank(uuid)) {
-      memberDto = membersFlashCacheRetrieveById(uuid, null);
+      memberDto = membersFlashCacheRetrieveById(uuid, queryOptions);
 
       if (memberDto == null) {
         try {
@@ -360,7 +367,40 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   @Deprecated
   public void existsCachePut(String uuid, boolean exists) {
   }
-  
+
+  /**
+   * remove all caches
+   */
+  public static void membersCacheClear() {
+    membersFlashCache.clear();
+  }
+  /**
+   * remove this from all caches
+   * @param member
+   */
+  public static void membersCacheRemove(Member member) {
+    if (member != null) {
+      membersFlashCache.remove(membersFlashCacheMultikeyById(member.getId()));
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("removing member from flash cache by id: " + member.getId());
+      }
+
+      membersFlashCache.remove(membersFlashCacheMultikeyBySubjectId(member.getSubjectSourceId(), member.getSubjectId()));
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("removing member to flash cache by source and subjectId: " + member.getSubjectSourceId() + ", " + member.getSubjectId());
+      }
+      // maybe the subjectId in the member changed, remove everything
+      Member member2 = membersFlashCacheRetrieveById(member.getId(), null);
+      if (member2 != null) {
+        if (!StringUtils.equals(member.getSubjectSourceId(), member2.getSubjectSourceId()) && !StringUtils.equals(member.getSubjectSourceId(), member2.getSubjectSourceId())) {
+          membersFlashCache.remove(membersFlashCacheMultikeyBySubjectId(member2.getSubjectSourceId(), member2.getSubjectId()));
+        }
+      }
+    }
+  }
+
   /**
    * remove from cache
    * @param uuid
@@ -369,10 +409,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   public void uuid2dtoCacheRemove(String uuid) {
     
     Member member = membersFlashCacheRetrieveById(uuid, null);
-    if (member != null) {
-      membersFlashCache.remove(membersFlashCacheMultikeyById(uuid));
-      membersFlashCache.remove(membersFlashCacheMultikeyBySubjectId(member.getSubjectSourceId(), member.getSubjectId()));
-    }
+    membersCacheRemove(member);
   }
   
   /**
@@ -382,7 +419,6 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     throws  GrouperDAOException {
     
     HibernateSession.byObjectStatic().update(_m);
-    uuid2dtoCacheRemove(_m.getId());
   } 
 
 
@@ -903,11 +939,18 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
     MultiKey multiKey = membersFlashCacheMultikeyById(member.getId());
     if (multiKey != null) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("adding member to flash cache by id: " + member.getId());
+      }
+
       membersFlashCache.put(multiKey, member);
     }
     
     multiKey = membersFlashCacheMultikeyBySubjectId(member.getSubjectSourceId(), member.getSubjectId());
     if (multiKey != null) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("adding member to flash cache by source and subjectId: " + member.getSubjectSourceId() + ", " + member.getSubjectId());
+      }
       membersFlashCache.put(multiKey, member);
     }
     

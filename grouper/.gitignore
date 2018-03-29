@@ -1,7 +1,7 @@
 build
 conf/ehcache.xml
-conf/grouper.client.properties
 conf/grouper.cache.properties
+conf/grouper.client.properties
 conf/grouper.hibernate.properties
 conf/grouper.properties
 conf/grouper-loader.properties
@@ -17,3 +17,7 @@ misc/server/i2midev1
 spy.log
 temp
 test.log
+/grouperHSQL.lck
+/grouperHSQL.properties
+/grouperHSQL.script
+/grouperImportRecord*

@@ -221,6 +221,14 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
+  Member findByUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions) 
+    throws  GrouperDAOException,
+            MemberNotFoundException
+            ;
+
+  /**
+   * @since   1.2.0
+   */
   void update(Member _m) 
     throws  GrouperDAOException;
 

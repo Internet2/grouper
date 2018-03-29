@@ -39,6 +39,13 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAssignActionDAO {
   
   /**
+   * remove all caches
+   */
+  public static void attributeAssignActionCacheClear() {
+    attributeAssignActionFlashCache.clear();
+  }
+
+  /**
    * 
    */
   @SuppressWarnings("unused")

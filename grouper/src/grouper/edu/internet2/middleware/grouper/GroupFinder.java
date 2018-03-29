@@ -95,6 +95,14 @@ public class GroupFinder {
   }
 
   /**
+   * remove all caches
+   */
+  public static void groupCacheClear() {
+    groupFlashCache.clear();
+    groupRootCache.clear();
+  }
+
+  /**
    * remove this from all caches
    * @param group
    */

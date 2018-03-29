@@ -72,6 +72,14 @@ import edu.internet2.middleware.subject.Subject;
 public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefNameDAO {
   
   /**
+   * remove all caches
+   */
+  public static void attributeDefNameCacheClear() {
+    attributeDefNameFlashCache.clear();
+    attributeDefNameRootCache.clear();
+  }
+
+  /**
    * 
    */
   private static final String KLASS = Hib3AttributeDefNameDAO.class.getName();

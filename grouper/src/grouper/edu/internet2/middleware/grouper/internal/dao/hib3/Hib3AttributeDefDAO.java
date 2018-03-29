@@ -84,6 +84,14 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   }
 
   /**
+   * remove all caches
+   */
+  public static void attributeDefCacheClear() {
+    attributeDefFlashCache.clear();
+    attributeDefRootCache.clear();
+  }
+
+  /**
    * names and ids of attribute defs which should cache as root
    */
   private static Set<String> attributeDefCacheAsRootIdsAndNames = new HashSet<String>();
