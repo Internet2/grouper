@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -410,6 +411,10 @@ public class GoogleGrouperConnector {
         deleteGooGroupByName(group.getName());
     }
 
+    public void deleteGooGroup(PITGroup group) throws IOException {
+        deleteGooGroupByName(group.getName());
+    }
+
     public void deleteGooGroupByName(String groupName) throws IOException {
         final String groupKey = addressFormatter.qualifyGroupAddress(groupName);
         deleteGooGroupByEmail(groupKey);
@@ -518,6 +523,12 @@ public class GoogleGrouperConnector {
         }
 
         return result;
+    }
+
+    public boolean shouldSyncStem(String stemName) {
+        Stem stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+
+        return shouldSyncStem(stem);
     }
 
     public void cacheSyncedGroupsAndStems() {
