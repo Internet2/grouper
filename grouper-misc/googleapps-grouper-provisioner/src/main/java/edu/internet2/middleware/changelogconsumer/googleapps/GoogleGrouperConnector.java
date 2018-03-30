@@ -15,10 +15,12 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
+import com.google.api.client.googleapis.GoogleUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.admin.directory.Directory;
@@ -53,6 +55,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -102,7 +106,25 @@ public class GoogleGrouperConnector {
         this.consumerName = consumerName;
         this.properties = properties;
 
-        final HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        // we check for proxy configuration. if it exists, we set up a proxy. otherwise, just use a default transport
+        final HttpTransport httpTransport;
+        if (this.properties.getProxyHost() != null && this.properties.getProxyPort() != 0) {
+            httpTransport = new NetHttpTransport
+                    .Builder()
+                    .trustCertificates(GoogleUtils.getCertificateTrustStore())
+                    .setProxy(
+                            new Proxy(
+                                    Proxy.Type.HTTP,
+                                    new InetSocketAddress(
+                                            properties.getProxyHost(),
+                                            properties.getProxyPort()
+                                    )
+                            )
+                    )
+                    .build();
+        } else {
+            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        }
 
         final GoogleCredential googleDirectoryCredential = GoogleAppsSdkUtils.getGoogleDirectoryCredential(
                 properties.getServiceAccountEmail(), properties.getServiceAccountPKCS12FilePath(), properties.getServiceImpersonationUser(),

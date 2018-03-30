@@ -91,6 +91,16 @@ public class GoogleAppsSyncProperties {
     private int recentlyManipulatedQueueSize;
     private int recentlyManipulatedQueueDelay;
 
+    /**
+     * Host to use for proxy, if necessary
+     */
+    private String proxyHost;
+
+    /**
+     * Port to use for proxy, if necessary
+     */
+    private int proxyPort;
+
     public GoogleAppsSyncProperties(String consumerName) {
         final String qualifiedParameterNamespace = PARAMETER_NAMESPACE + consumerName + ".";
 
@@ -299,6 +309,12 @@ public class GoogleAppsSyncProperties {
 
         ignoreExtraGoogleGroups = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "ignoreExtraGoogleGroups", false);
         LOG.debug("Google Apps Consumer - Setting ignoreExtraGoogleGroups to {}", ignoreExtraGoogleGroups);
+
+        this.proxyHost = GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "proxyHost", null);
+        this.proxyPort = GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "proxyPort", 0);
+        if (this.proxyHost != null && this.proxyPort != 0) {
+            LOG.debug("Google Apps Consumer - Setting proxy to {}:{}", this.proxyHost, this.proxyPort);
+        }
     }
 
     public boolean isRetryOnError() {
@@ -399,5 +415,13 @@ public class GoogleAppsSyncProperties {
 
     public int getRecentlyManipulatedQueueDelay() {
         return recentlyManipulatedQueueDelay;
+    }
+
+    public String getProxyHost() {
+        return proxyHost;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
     }
 }
