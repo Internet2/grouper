@@ -19,7 +19,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -39,7 +38,10 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -123,7 +125,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testSubjectIdentifierUpdate"));
+    TestRunner.run(new PITSyncTests("testNotifications"));
   }
 
   
@@ -206,8 +208,8 @@ public class PITSyncTests extends GrouperTest {
     edu.setExtension(edu.getExtension() + "-a");
     edu.store();
     
-    attributeDef1 = GrouperDAOFactory.getFactory().getAttributeDef().findById(attributeDef1.getId(), true);    
-    attributeDefName1 = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(attributeDefName1.getId(), true);
+    attributeDef1 = AttributeDefFinder.findByIdAsRoot(attributeDef1.getId(), true);    
+    attributeDefName1 = AttributeDefNameFinder.findById(attributeDefName1.getId(), true);
     role = GrouperDAOFactory.getFactory().getRole().findById(role.getId(), true);
   }
   
@@ -344,11 +346,10 @@ public class PITSyncTests extends GrouperTest {
 
     assertEquals(0, changeLogTempCount);
     
-    // 1 group membership, 2 imm stem privilege, 1 eff stem privilege, 3 group privileges, 2 attribute def privileges, 1 permission,
-    // 1 attribute def privilege for a legacy custom list, and 1 attribute def privilege for a legacy group type
+    // 1 group membership, 1 imm stem privilege, 1 eff stem privilege, 2 group privileges, and 1 permission
     // the change log entries are being added by code that's tested elsewhere (not by the sync script) 
     // so we are just verifying the number of entries...
-    assertEquals(12, changeLogCount);
+    assertEquals(6, changeLogCount);
 
     // now delete data, clear temp change log, and check again
     grouperSession = GrouperSession.startRootSession();
@@ -363,7 +364,7 @@ public class PITSyncTests extends GrouperTest {
     changeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
 
     assertEquals(0, changeLogTempCount);
-    assertEquals(24, changeLogCount);
+    assertEquals(12, changeLogCount);
   }
   
   /**
@@ -1408,6 +1409,10 @@ public class PITSyncTests extends GrouperTest {
     // ok now put a bad value in the db.
     HibernateSession.byHqlStatic().createQuery("update Member set subject_identifier0='bad' where subject_identifier0='id.test.subject.1'").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("update PITMember set subject_identifier0='bad' where subject_identifier0='id.test.subject.1'").executeUpdate();
+    
+    //clear cache
+    EhcacheController.ehcacheController().flushCache();
+    
     member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
 
     // sync still good

@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -234,7 +235,7 @@ public class PermissionEntryImpl extends PermissionEntryBase {
    */
   public AttributeDefName getAttributeDefName() {
     return this.getAttributeDefNameId() == null ? null 
-      : GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(this.getAttributeDefNameId(), null, true);
+      : AttributeDefNameFinder.findByIdAsRoot(this.getAttributeDefNameId(), true);
   }
   
   /**

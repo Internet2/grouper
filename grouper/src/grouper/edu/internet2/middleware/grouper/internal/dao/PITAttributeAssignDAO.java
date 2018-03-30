@@ -141,8 +141,9 @@ public interface PITAttributeAssignDAO extends GrouperDAO {
   /**
    * Delete records that ended before the given date.
    * @param time
+   * @return the number of records deleted
    */
-  public void deleteInactiveRecords(Timestamp time);
+  public long deleteInactiveRecords(Timestamp time);
   
   /**
    * @param attributeAssigns

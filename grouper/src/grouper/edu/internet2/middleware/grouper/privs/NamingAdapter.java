@@ -34,7 +34,6 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -304,6 +303,39 @@ public interface NamingAdapter {
    * @return if the query was changed
    */
   public boolean hqlFilterStemsNotWithPrivWhereClause(GrouperSession grouperSession, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String stemColumn, Privilege privilege, boolean considerAllSubject);
+
+
+  /**
+   * find the stems which do have a certain privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the stems
+   */
+  Set<Stem> getStemsWhereSubjectDoesHavePrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
+
+
+  /**
+   * for a stem query, check to make sure the privs are there
+   * @param grouperSession 
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param stemColumn is the name of the stem column to join to
+   * @param privilege find a privilege which is in this set 
+   * (e.g. naming privs).  
+   * @param considerAllSubject if true, then consider GrouperAll when seeing if doesnt have privilege, else do consider
+   * @return if the query was changed
+   */
+  public boolean hqlFilterStemsWithPrivWhereClause(GrouperSession grouperSession, 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
       String stemColumn, Privilege privilege, boolean considerAllSubject);
 

@@ -22,7 +22,7 @@
   <!-- ant contrib allows conditionals in the ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
     <classpath>
-      <pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
+      <pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
     </classpath>
   </taskdef>
   
@@ -207,13 +207,13 @@
     >
       <sysproperty key="grouper.home" value="${grouper.home}"/>
       <arg value="-driver"/>
-      <arg value="${hibernate.connection.driver_class}"/>
+      <arg value="org.hsqldb.jdbcDriver"/>
       <arg value="-url"/>
       <arg value="${hibernate.connection.url}"/>
       <arg value="-user"/>
       <arg value="${hibernate.connection.username}"/>
       <arg value="-password"/>
-      <arg value="${hibernate.connection.password}"/>
+      <arg value='""'/>
     </java>
   </target>
   <!-- target: db -->
@@ -668,7 +668,7 @@
         <include name="**/*.jar"/>
       </fileset>
     	<!-- we need this for at least status servlet -->
-      <pathelement  location="${lib.dir}/jetty/servlet-api.jar"/>
+      <pathelement  location="${lib.dir}/grouper/javax.servlet-api-3.1.0.jar"/>
       <!--<fileset dir="dist/lib">
         <include name="**/*.jar"/>
       </fileset>-->

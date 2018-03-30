@@ -147,11 +147,6 @@ public class LdapSession {
             ldapConfig.setPagedResultsSize(grouperLoaderLdapServer.getPagedResultsSize());
           }
 
-          //#ldap.personLdap.searchResultHandlers
-          if (grouperLoaderLdapServer.getSearchResultHandlers() != null) {
-            ldapConfig.setSearchResultHandlers(grouperLoaderLdapServer.getSearchResultHandlers());
-          }
-
           //#ldap.personLdap.referral
           if (!StringUtils.isBlank(grouperLoaderLdapServer.getReferral())) {
             ldapConfig.setReferral(grouperLoaderLdapServer.getReferral());
@@ -199,10 +194,7 @@ public class LdapSession {
           }
           
           DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
-          factory.setLdapValidator(grouperLoaderLdapServer.getValidator());
-
           blockingLdapPool = new BlockingLdapPool(ldapPoolConfig, factory);
-          blockingLdapPool.initialize();
           poolMap.put(ldapServerId, blockingLdapPool);
         }
       }

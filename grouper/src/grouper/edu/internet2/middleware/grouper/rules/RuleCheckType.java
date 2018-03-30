@@ -840,7 +840,7 @@ public enum RuleCheckType {
                     if (member == null) {
                       continue;
                     }
-                    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
                     if (attributeDefName == null) {
                       continue;
                     }
@@ -1245,6 +1245,17 @@ public enum RuleCheckType {
           }
           stem.grantPriv(subject, privilege, false);
           
+        }
+        
+        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+        if (stem!=null) {
+          if (stem.grantPriv(subject, privilege, false)){
+            RuleEngine.ruleFirings++;
+
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Daemon granting privilege: " + privilege + " to subject: " + GrouperUtil.subjectToString(subject) + " to stem: " + stem);
+            }
+          }
         }
         
       }
@@ -2286,7 +2297,7 @@ public enum RuleCheckType {
             if (member == null) {
               continue;
             }
-            AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
             if (attributeDefName == null) {
               continue;
             }
@@ -2363,7 +2374,7 @@ public enum RuleCheckType {
                 if (member == null) {
                   continue;
                 }
-                AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
                 if (attributeDefName == null) {
                   continue;
                 }

@@ -40,6 +40,8 @@ public class AllUtilTests {
     suite.addTestSuite(GrouperCacheTest.class);
     suite.addTestSuite(XmlIndenterTest.class);
     suite.addTestSuite(JsonIndenterTest.class);
+    suite.addTestSuite(GrouperUtilElSafeTest.class);
+    suite.addTestSuite(GrouperThreadLocalStateTest.class);
     //$JUnit-END$
     suite.addTest(AllRijndaelTests.suite());
     return suite;

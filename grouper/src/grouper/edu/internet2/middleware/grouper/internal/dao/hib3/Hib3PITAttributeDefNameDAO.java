@@ -138,11 +138,11 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
-    HibernateSession.byHqlStatic()
-      .createQuery("delete from PITAttributeDefName where endTimeDb is not null and endTimeDb < :time")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+  public long deleteInactiveRecords(Timestamp time) {
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITAttributeDefName where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
+        .deleteInBatches(String.class, "PITAttributeDefName", "id");
+
   }
   
   /**
@@ -183,7 +183,7 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
   public Set<PITAttributeDefName> findByPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
-        .createQuery("select pitAttributeDefName from PITAttributeDefName as pitAttributeDefName where pitAttributeDefName.stemId = :id")
+        .createQuery("select pitAttributeDefName from PITAttributeDefName as pitAttributeDefName where pitAttributeDefName.stemId = :id order by pitAttributeDefName.nameDb")
         .setCacheable(false).setCacheRegion(KLASS + ".FindByPITStemId")
         .setString("id", id)
         .listSet(PITAttributeDefName.class);

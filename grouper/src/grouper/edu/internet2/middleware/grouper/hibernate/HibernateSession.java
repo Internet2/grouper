@@ -335,9 +335,11 @@ public class HibernateSession {
   public boolean isCachingEnabled() {
     return this.cachingEnabled;
   }
-  
+
   /**
    * provide ability to turn off all caching for this session
+   * note, you can also use a try/finally with HibUtils.assignDisallowCacheThreadLocal() and 
+   * HibUtils.clearDisallowCacheThreadLocal()
    * @param enabledCaching1 the enabledCaching to set
    */
   public void setCachingEnabled(boolean enabledCaching1) {

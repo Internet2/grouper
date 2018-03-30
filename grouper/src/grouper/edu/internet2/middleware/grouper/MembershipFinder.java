@@ -792,7 +792,7 @@ public class MembershipFinder {
    */
   public Membership findMembership(boolean exceptionIfNotFound) {
 
-    Set<Object[]> memberships = findMembershipsGroupsMembers();
+    Set<Object[]> memberships = findMembershipsMembers();
     
     //this should find one if it is there...
     Membership membership = null;

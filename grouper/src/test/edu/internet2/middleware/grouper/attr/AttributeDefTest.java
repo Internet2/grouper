@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -54,7 +55,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateSecurity"));
+    TestRunner.run(new AttributeDefTest("testHibernateSecurity2"));
   }
   
   /**
@@ -390,6 +391,8 @@ public class AttributeDefTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToInheritedAdminsOnCreate", "false");
 
     int grouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     int grouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
@@ -399,29 +402,40 @@ public class AttributeDefTest extends GrouperTest {
     int newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     int newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
-    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
-    assertEquals("Should make a memberships for owner", grouperMembershipCount + 1, newGrouperMembershipCount);
+    assertEquals("Should make 8 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
+    assertEquals("Default should not make membership for owner", grouperMembershipCount, newGrouperMembershipCount);
 
     //#############################################
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "true");
-    
-    grouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
-    grouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
-    
-    attributeDef = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
+
+    grouperGroupSetCount = newGrouperGroupSetCount;
+    grouperMembershipCount = newGrouperMembershipCount;
+
+    AttributeDef attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
     
     newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
-    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
-    assertEquals("Should make a memberships for owner, and 2 for grouperAll", grouperMembershipCount + 3, newGrouperMembershipCount);
-    
+    assertEquals("Should make 8 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
+    assertEquals("Default attrRead+attrView should add 2 memberships for grouperAll", grouperMembershipCount + 2, newGrouperMembershipCount);
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("privileges.assignAdminToWheelOrRootOnCreate", "true");
+
+    grouperGroupSetCount = newGrouperGroupSetCount;
+    grouperMembershipCount = newGrouperMembershipCount;
+
+    AttributeDef attributeDef3 = this.top.addChildAttributeDef("test3", AttributeDefType.attr);
+
+    newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
+    newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
+
+    assertEquals("Should make 8 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
+    assertEquals("assignAdminToWheelOrRootOnCreate should add 1 membership for creator GrouperSystem", grouperMembershipCount + 1, newGrouperMembershipCount);
+
     //################################################
     // make sure user can admin to same an attribute
     
@@ -465,12 +479,12 @@ public class AttributeDefTest extends GrouperTest {
     assertNotNull(attributeDef.getId());
 
     //lets retrieve by id
-    AttributeDef attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(attributeDef.getId(), true);
+    AttributeDef attributeDef2 = AttributeDefFinder.findById(attributeDef.getId(), true);
 
     assertEquals(attributeDef.getId(), attributeDef2.getId());
     
     //lets retrieve by name
-    attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:test", true);
+    attributeDef2 = AttributeDefFinder.findByName("top:test", true);
     
     assertEquals("top:test", attributeDef2.getName());
     assertEquals(attributeDef.getId(), attributeDef2.getId());
@@ -630,7 +644,7 @@ public class AttributeDefTest extends GrouperTest {
    * @return an example attribute def
    */
   public static AttributeDef exampleRetrieveAttributeDefDb() {
-    AttributeDef attributeDef = AttributeDefFinder.findByName("test:testAttributeDef", true);
+    AttributeDef attributeDef = AttributeDefFinder.findByName("test:testAttributeDef", true, new QueryOptions().secondLevelCache(false));
     return attributeDef;
   }
 

@@ -182,18 +182,14 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
+  public long deleteInactiveRecords(Timestamp time) {
     
-    //do this since mysql cant handle self-referential foreign keys    
-    HibernateSession.byHqlStatic()
-      .createQuery("update PITStem set parentStemId = null where endTimeDb is not null and endTimeDb < :time")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
-      
-    HibernateSession.byHqlStatic()
-      .createQuery("delete from PITStem where endTimeDb is not null and endTimeDb < :time")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITStem where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
+        //do this since mysql cant handle self-referential foreign keys
+        .assignBatchPreExecuteUpdateQuery("update PITStem set parentStemId = null")
+        .deleteInBatches(String.class, "PITStem", "id");
+    
   }
 
   /**
@@ -202,7 +198,7 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
   public Set<PITStem> findByParentPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
-        .createQuery("select pitStem from PITStem as pitStem where pitStem.parentStemId = :id")
+        .createQuery("select pitStem from PITStem as pitStem where pitStem.parentStemId = :id order by pitStem.nameDb")
         .setCacheable(false).setCacheRegion(KLASS + ".FindByParentPITStemId")
         .setString("id", id)
         .listSet(PITStem.class);

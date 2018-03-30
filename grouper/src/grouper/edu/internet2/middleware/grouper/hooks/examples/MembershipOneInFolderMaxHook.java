@@ -233,7 +233,7 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
    */
   public static AttributeDefName membershipOneInFolderAttributeDefName() {
     initObjectsOnce(false);
-    return AttributeDefNameFinder.findByNameCache(membershipOneFolderStemName() + ":" + membershipOneFolderExtensionOfAttributeDefName, true);
+    return AttributeDefNameFinder.findByName(membershipOneFolderStemName() + ":" + membershipOneFolderExtensionOfAttributeDefName, true);
   }
 
   /**

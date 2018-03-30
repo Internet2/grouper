@@ -2301,6 +2301,57 @@ function showHideMemberAddBlock() {
 }
 
 /**
+ * show/hide the assign permission block on click of Assign permission button
+ * Also add attributes for accessibility
+ * */
+function showHideAssignPermissionBlock() {
+	
+  $('#assign-permission-block-container').toggle('slow');
+  if ($("#assign-permission-block-container").attr("aria-expanded") === 'true') {
+	  $("#assign-permission-block-container").attr("aria-expanded","false");
+	  $("#assign-permission-block-container").removeAttr("role");
+  } else {	  
+	  $("#assign-permission-block-container").attr("aria-expanded","true");
+	  $("assign-permission-block-container").attr("role", "alert");
+	  $("#permissionDefComboId").focus();
+  }	
+}
+
+/**
+ * show/hide stem assign attribute block on click of Assign attribute button
+ * Also add attributes for accessibility
+ * */
+function showHideStemAssignAttributeBlock() {
+	
+  $('#assign-stem-attribute-block-container').toggle('slow');
+  if ($("#assign-stem-attribute-block-container").attr("aria-expanded") === 'true') {
+	  $("#assign-stem-attribute-block-container").attr("aria-expanded","false");
+	  $("#assign-stem-attribute-block-container").removeAttr("role");
+  } else {	  
+	  $("#assign-stem-attribute-block-container").attr("aria-expanded","true");
+	  $("assign-stem-attribute-block-container").attr("role", "alert");
+	  $("#parentFolderComboId").focus();
+  }	
+}
+
+/**
+ * show/hide group assign attribute block on click of Assign attribute button
+ * Also add attributes for accessibility
+ * */
+function showHideGroupAssignAttributeBlock() {
+	
+  $('#assign-group-attribute-block-container').toggle('slow');
+  if ($("#assign-group-attribute-block-container").attr("aria-expanded") === 'true') {
+	  $("#assign-group-attribute-block-container").attr("aria-expanded","false");
+	  $("#assign-group-attribute-block-container").removeAttr("role");
+  } else {	  
+	  $("#assign-group-attribute-block-container").attr("aria-expanded","true");
+	  $("assign-group-attribute-block-container").attr("role", "alert");
+	  $("#parentFolderComboId").focus();
+  }	
+}
+
+/**
  * show the privileges block on click of Custom Privileges radio button
  * Also add attributes for accessibility
  * */

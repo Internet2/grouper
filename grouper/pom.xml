@@ -36,11 +36,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>subject</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>morphString</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -60,46 +55,26 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <exclusions>
+                <!-- we already include dom4j 2.1.0, don't need a copy of an earlier version (?) -->
+                <exclusion>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                </exclusion>
+                <!-- we are pulling javax jta as a direct dep -->
+                <exclusion>
+                    <artifactId>org.apache.geronimo.specs</artifactId>
+                    <groupId>geronimo-jta_1.1_spec</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-c3p0</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.common</groupId>
-            <artifactId>hibernate-commons-annotations</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jandex</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>oro</groupId>
-            <artifactId>oro</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-util</artifactId>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent</groupId>
@@ -110,24 +85,16 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-betwixt</groupId>
-            <artifactId>commons-betwixt</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-digester3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -150,10 +117,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-          <groupId>net.redhogs.cronparser</groupId>
-          <artifactId>cron-parser-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
@@ -162,32 +125,46 @@
             <artifactId>commons-math</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
+            <exclusions>
+                <!-- xpp3_min replaced by xmlpull -->
+                <exclusion>
+                    <groupId>xpp3</groupId>
+                    <artifactId>xpp3_min</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>mchange-commons-java</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.maven-play-plugin.com.mchange</groupId>
             <artifactId>c3p0-oracle-thin-extras</artifactId>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
+            <exclusions>
+                <exclusion>
+                    <!-- we haven't supplied this before, so maybe not needed? -->
+                    <groupId>jaxen</groupId>
+                    <artifactId>jaxen</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -198,16 +175,8 @@
             <artifactId>jta</artifactId>
         </dependency>
         <dependency>
-            <groupId>jug</groupId>
-            <artifactId>jug</artifactId>
-        </dependency>
-        <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ezmorph</groupId>
-            <artifactId>ezmorph</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.json-lib</groupId>
@@ -215,20 +184,15 @@
             <classifier>jdk15</classifier>
         </dependency>
         <dependency>
-            <groupId>net.sf.jsr107cache</groupId>
-            <artifactId>jsr107cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>odmg</groupId>
-            <artifactId>odmg</artifactId>
-        </dependency>
-        <dependency>
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.quartz-scheduler</groupId>
-          <artifactId>quartz-jobs</artifactId>
+            <exclusions>
+                <!-- ? quartz pool is using c3p0, not using hikariCP -->
+                <exclusion>
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP-java6</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
@@ -237,10 +201,53 @@
         <dependency>
             <groupId>org.apache.ddlutils</groupId>
             <artifactId>ddlutils</artifactId>
+            <exclusions>
+                <!-- pulls in beanutils-core 1.7.0 which we don't need; let's see if we even need betwixt at all -->
+                <exclusion>
+                    <groupId>commons-betwixt</groupId>
+                    <artifactId>commons-betwixt</artifactId>
+                </exclusion>
+                <!-- dbcp hasn't been a supplied jar so far so maybe we don't need it -->
+                <exclusion>
+                    <groupId>commons-dbcp</groupId>
+                    <artifactId>commons-dbcp</artifactId>
+                </exclusion>
+                <!-- already have dep on commons-logging itself so don't need the api too -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging-api</artifactId>
+                </exclusion>
+                <!-- testing whether oro can be fully eliminated from the project; does ddlUtils use it? -->
+                <exclusion>
+                    <groupId>oro</groupId>
+                    <artifactId>oro</artifactId>
+                </exclusion>
+                <!-- We already pull a higher version of dom4j -->
+                <exclusion>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                </exclusion>
+                <!-- pooling to create ddl? not sure why they called this a dep -->
+                <exclusion>
+                    <artifactId>commons-pool</artifactId>
+                    <groupId>commons-pool</groupId>
+                </exclusion>
+                <!-- we haven't needed this dep to functions, maybe ok to leave out -->
+                <exclusion>
+                    <artifactId>stax</artifactId>
+                    <groupId>stax-api</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.beanshell</groupId>
-            <artifactId>bsh</artifactId>
+            <groupId>edu.vt.middleware</groupId>
+            <artifactId>vt-ldap</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>dom4j</artifactId>
+                    <groupId>dom4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- custom Penn -->
         <dependency>
@@ -249,8 +256,8 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3_min</artifactId>
+            <groupId>xmlpull</groupId>
+            <artifactId>xmlpull</artifactId>
         </dependency>
         <dependency>
             <groupId>jivesoftware</groupId>
@@ -259,19 +266,20 @@
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>                
-        </dependency>
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>smtp</artifactId>
-            <version>${smtp.version}</version>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
@@ -290,33 +298,35 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- needed for tests only -->
         <dependency>
             <groupId>com.jamonapi</groupId>
             <artifactId>jamon</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
-        </dependency>
-
-<!--
-        <dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.core</artifactId>
+            <exclusions>
+                <!-- don't think we need hazelcast -->
+                <exclusion>
+                    <groupId>com.hazelcast</groupId>
+                    <artifactId>hazelcast-all</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-          <groupId>org.apache.wink</groupId>
-          <artifactId>wink-client</artifactId>
+            <groupId>jug</groupId>
+            <artifactId>jug</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.samples</artifactId>
+            <groupId>net.redhogs.cronparser</groupId>
+            <artifactId>cron-parser-core</artifactId>
+            <scope>test</scope>
         </dependency>
--->
 
         <!-- used by gsh -->
+        <dependency>
+            <groupId>org.beanshell</groupId>
+            <artifactId>bsh</artifactId>
+        </dependency>
         <dependency>
           <groupId>jline</groupId>
           <artifactId>jline</artifactId>

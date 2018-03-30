@@ -56,6 +56,7 @@ import java.util.regex.Pattern;
 import javassist.util.proxy.ProxyObject;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.logging.Log;
@@ -6370,5 +6371,173 @@ public class GrouperUtilElSafe {
    */
   public static String hostname() {
     return GrouperUtil.hostname();
+  }
+  
+  /**
+   * see if a regex matches a char, cache it
+   */
+  private static Map<MultiKey, Boolean> characterMatchesRegexCache = new HashMap<MultiKey, Boolean>();
+  
+  /**
+   * 
+   * @param character
+   * @param regex
+   * @return if regex
+   */
+  public static boolean characterMatchesRegex(Character character, String regex) {
+    
+    MultiKey key = new MultiKey(regex, character);
+    
+    Boolean result = characterMatchesRegexCache.get(key);
+    
+    if (result == null) {
+    
+      Pattern pattern = Pattern.compile(regex);
+      
+      if (pattern.matcher(character.toString()).matches()) {
+        
+        result = true;
+        
+      } else {
+        
+        result = false;
+        
+      }
+      
+      characterMatchesRegexCache.put(key, result);
+      
+    }
+    
+    return result;
+  }
+  
+  
+  /**
+   * split by curly colons.  only keep specific attribute values.  if a regexAllowedChars is specified, then whitelist chars by regex.
+   * character to replace (e.g. underscore), default is underscore.  if there isnt a value, dont put it in the list
+   * @param input 
+   * @param commaSeparatedAttributes 
+   * @param regexAllowedChars 
+   * @param replaceChar 
+   * @return the list of attributes
+   * 
+   */
+  public static List<String> splitTrimCurlyColons(String input, String commaSeparatedAttributes, String regexAllowedChars, String replaceChar) {
+
+    // {jobCategory=Staff}:{campus=UM_ANN-ARBOR}:{deptId=316033}:{deptGroup=UM_HOSPITAL}:{deptDescription=MEDICAL SHORT STAY UNIT}:{deptGroupDescription=Univ Hospitals & Health Center}
+    // :{deptVPArea=EXEC_VP_MED_AFF}:{jobcode=278040}:{jobFamily=31}:{emplStatus=A}:{regTemp=R}:{supervisorId=44272654}:{tenureStatus=NA}:{jobIndicator=P}
+
+    Set<String> attributeNames = GrouperUtil.splitTrimToSet(commaSeparatedAttributes, ",");
+    
+    List<String> results = new ArrayList<String>();
+
+    if (!StringUtils.isBlank(input)) {
+      
+      Set<String> entries = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(input, ":"));
+      
+      for (String entry : entries) {
+        
+        if (GrouperUtil.isBlank(entry)) {
+          continue;
+        }
+        
+        entry = GrouperUtil.stripStart(entry, "{");
+        entry = GrouperUtil.stripEnd(entry, "}");
+        
+        String name = GrouperUtil.prefixOrSuffix(entry, "=", true);
+        
+        if (!attributeNames.contains(name)) {
+          continue;
+        }
+        
+        String value = GrouperUtil.prefixOrSuffix(entry, "=", false);
+        
+        if (!StringUtils.isBlank(regexAllowedChars)) {
+          
+          StringBuilder valueBuilder = new StringBuilder();
+          
+          for (char curChar : value.toCharArray()) {
+            
+            if (!StringUtils.isBlank(regexAllowedChars)) {
+              if (!characterMatchesRegex(curChar, regexAllowedChars)) {
+                curChar = replaceChar.charAt(0);
+              }
+            }
+
+            valueBuilder.append(curChar);
+          }
+         
+          value = valueBuilder.toString();
+        }
+        
+        results.add(value);
+        
+      }
+
+    }
+    
+    return results;
+  }
+  /**
+   * split by commas.  only keep specific attribute values.  if a regexAllowedChars is specified, then whitelist chars by regex.
+   * character to replace (e.g. underscore), default is underscore.  if there isnt a value, dont put it in the list
+   * @param input 
+   * @param commaSeparatedAttributes 
+   * @param regexAllowedChars 
+   * @param replaceChar 
+   * @return the list of attributes
+   * 
+   */
+  public static List<String> splitTrimCommas(String input, String commaSeparatedAttributes, String regexAllowedChars, String replaceChar) {
+
+    // uid=sw4p,ou=Account,dc=andrew,dc=cmu,dc=edu
+
+    Set<String> attributeNames = GrouperUtil.splitTrimToSet(commaSeparatedAttributes, ",");
+    
+    List<String> results = new ArrayList<String>();
+
+    if (!StringUtils.isBlank(input)) {
+      
+      Set<String> entries = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(input, ","));
+      
+      for (String entry : entries) {
+        
+        if (GrouperUtil.isBlank(entry)) {
+          continue;
+        }
+                
+        String name = GrouperUtil.prefixOrSuffix(entry, "=", true);
+        
+        if (!attributeNames.contains(name)) {
+          continue;
+        }
+        
+        String value = GrouperUtil.prefixOrSuffix(entry, "=", false);
+        
+        if (!StringUtils.isBlank(regexAllowedChars)) {
+          
+          StringBuilder valueBuilder = new StringBuilder();
+          
+          for (char curChar : value.toCharArray()) {
+            
+            if (!StringUtils.isBlank(regexAllowedChars)) {
+              if (!characterMatchesRegex(curChar, regexAllowedChars)) {
+                curChar = replaceChar.charAt(0);
+              }
+            }
+
+            valueBuilder.append(curChar);
+          }
+         
+          value = valueBuilder.toString();
+        }
+        
+        results.add(value);
+        
+      }
+
+    }
+    
+    return results;
   }
 }

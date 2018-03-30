@@ -41,46 +41,9 @@
                             >${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewNewAttributeDefNameButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                            >${textContainer.text['attributeDefViewNewAttributeDefActionButton'] }</a></li>
                         </c:if>
-
-
-
-<%--
-                        <c:if test="${grouperRequestContainer.attributeDefContainer.canAdminPrivileges || grouperRequestContainer.attributeDefContainer.canCreateGroups }">
-
-                          <li class="divider"></li>
-                        </c:if>  
-                        <c:if test="${grouperRequestContainer.attributeDefContainer.canAdminPrivileges }">
-                          <li><a href="#" 
-                          onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNewCreateNewStemMenuButton'] }</a></li>
-
-                        </c:if>  
-                        <c:if test="${grouperRequestContainer.attributeDefContainer.canCreateGroups }">
-
-                          <li><a href="#" 
-                            onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
-
-                        </c:if>  
-
-                        <c:if test="${grouperRequestContainer.attributeDefContainer.canAdminPrivileges }">
-  
-                          <li class="divider"></li>
-
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.attributeDefCopy&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
-                              >${textContainer.text['attributeDefViewCopyStemButton'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.attributeDefDelete&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
-                              >${textContainer.text['attributeDefViewDeleteStemButton'] }</a></li>
-
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
-                              >${textContainer.text['attributeDefViewEditStemButton'] }</a></li>
-
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.attributeDefMove&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
-                              >${textContainer.text['attributeDefViewMoveStemButton'] }</a></li>
-                          <li class="divider"></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewAudits&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
-                              >${textContainer.text['attributeDefViewAuditButton'] }</a></li>
-                        </c:if>
---%>
                       </ul>
                     </div>
 

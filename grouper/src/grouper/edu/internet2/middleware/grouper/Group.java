@@ -1778,7 +1778,25 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             try {
 
               threadLocalInGroupDelete.set(true);
+
+              // ... And delete composite mship if it exists
+              if (Group.this.hasComposite()) {
+                Group.this.deleteCompositeMember();
+              }
               
+              // ... And delete composite mship if it exists if this group is a member
+              // GRP-1704: when deleting a group, delete any composites that is a member of
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.delete.compositeMembershipsOnGroupDelete", true)) {
+                for (Composite composite : GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getComposite().findAsFactor( Group.this ))) {
+                  composite.getOwnerGroup().deleteCompositeMember();
+                }
+              }
+              
+              // ... And delete all memberships - as root
+              // Deletes (and saves) now happen within internal_deleteAllFieldType().  See GRP-254.
+                Membership.internal_deleteAllFieldType( 
+                  GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST );
+
               //delete any attributes on this group, this is done as root
               GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
                 
@@ -1790,17 +1808,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   }
                   return null;
                 }
-              });
-
-              // ... And delete composite mship if it exists
-              if (Group.this.hasComposite()) {
-                Group.this.deleteCompositeMember();
-              }
-              
-              // ... And delete all memberships - as root
-              // Deletes (and saves) now happen within internal_deleteAllFieldType().  See GRP-254.
-                Membership.internal_deleteAllFieldType( 
-                  GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST );
+              });  
                 
               // Delete privileges where this group is the member.  This is done as root..
               Subject groupSubject = Group.this.toSubject();
@@ -4955,6 +4963,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public void store() {    
 
+    GroupFinder.groupCacheRemove(this);
+    
     validate();
     
     if (GrouperLoader.isDryRun()) {
@@ -5831,6 +5841,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public boolean onDelete(Session hs) 
     throws  CallbackException {
     GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), false );
+    GroupFinder.groupCacheRemove(this);
     return Lifecycle.NO_VETO;
   }
 
@@ -6188,9 +6199,18 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public boolean onSave(Session hs) throws  CallbackException {
     GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), true );
-    return Lifecycle.NO_VETO;
+        return Lifecycle.NO_VETO;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onUpdate(org.hibernate.Session)
+   */
+  @Override
+  public boolean onUpdate(Session s) throws CallbackException {
+    GroupFinder.groupCacheRemove(this);
+    return super.onUpdate(s);
+  }
+
   /**
    * 
    * @param attributes

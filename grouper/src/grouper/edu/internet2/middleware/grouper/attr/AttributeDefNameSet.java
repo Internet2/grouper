@@ -26,6 +26,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -328,8 +329,7 @@ public class AttributeDefNameSet extends GrouperAPI
    */
   public AttributeDefName getIfHasAttributeDefName() {
     AttributeDefName ifHasAttributeDefName = 
-      GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByIdSecure(this.getIfHasAttributeDefNameId(), true) ;
+      AttributeDefNameFinder.findById(this.getIfHasAttributeDefNameId(), true) ;
     return ifHasAttributeDefName;
   }
   
@@ -338,8 +338,7 @@ public class AttributeDefNameSet extends GrouperAPI
    */
   public AttributeDefName getThenHasAttributeDefName() {
     AttributeDefName thenHasAttributeDefName = 
-      GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findByIdSecure(this.getThenHasAttributeDefNameId(), true) ;
+        AttributeDefNameFinder.findById(this.getThenHasAttributeDefNameId(), true) ;
     return thenHasAttributeDefName;
   }
   
@@ -696,8 +695,8 @@ public class AttributeDefNameSet extends GrouperAPI
         throw new RuntimeException("Why are we doing a depth not equal to 1????");
       }
       
-      AttributeDefName ifHasAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(this.ifHasAttributeDefNameId, true);
-      AttributeDefName thenHasAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(this.thenHasAttributeDefNameId, true);
+      AttributeDefName ifHasAttributeDefName = AttributeDefNameFinder.findById(this.ifHasAttributeDefNameId, true);
+      AttributeDefName thenHasAttributeDefName = AttributeDefNameFinder.findById(this.thenHasAttributeDefNameId, true);
       
       ifHasAttributeDefName.getAttributeDefNameSetDelegate().internal_addToAttributeDefNameSet(thenHasAttributeDefName, this.id);
       

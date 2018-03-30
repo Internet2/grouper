@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
@@ -107,7 +108,12 @@ import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuilt
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -125,11 +131,14 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
+import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -2391,6 +2400,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         
 
                 GrouperDAOFactory.getFactory().getStem().createChildGroup(Stem.this, _g, _m);
+                hibernateHandlerBean.getHibernateSession().misc().flush();
+                
                 if (addDefaultGroupPrivileges) {
                   _grantDefaultPrivsUponCreate(_g);
                 }
@@ -2878,10 +2889,19 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     throws  GroupAddException
   {
     try {
-      GrouperSession.staticGrouperSession().internal_getRootSession().getAccessResolver().grantPrivilege(
-        g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, null   
-      );
-
+      boolean assignAdminToWheelOrRootOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToWheelOrRootOnCreate", false);
+      
+      if (assignAdminToWheelOrRootOnCreate || !PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
+        
+        boolean assignAdminToInheritedAdminsOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToInheritedAdminsOnCreate", false);
+        if (assignAdminToInheritedAdminsOnCreate || !RuleApi.hasInheritedPrivilege(g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, true)) {
+        
+          GrouperSession.staticGrouperSession().internal_getRootSession().getAccessResolver().grantPrivilege(
+            g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, null   
+          );
+        }
+      }
+      
       // Now optionally grant other privs
       if (g.getTypeOfGroup() != TypeOfGroup.entity) {
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
@@ -2916,10 +2936,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   private void _grantDefaultPrivsUponCreate(AttributeDef attributeDef) throws  AttributeDefAddException {
     try {
-      //whoever created this is an admin
-      GrouperSession.staticGrouperSession().internal_getRootSession().getAttributeDefResolver().grantPrivilege(
-        attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, null);
-
+      boolean assignAdminToWheelOrRootOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToWheelOrRootOnCreate", false);
+      
+      if (assignAdminToWheelOrRootOnCreate || !PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
+        boolean assignAdminToInheritedAdminsOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToInheritedAdminsOnCreate", false);
+        if (assignAdminToInheritedAdminsOnCreate || !RuleApi.hasInheritedPrivilege(attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, true)) {
+          //whoever created this is an admin
+          GrouperSession.staticGrouperSession().internal_getRootSession().getAttributeDefResolver().grantPrivilege(
+            attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, null);
+        }
+      }
+      
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
         attributeDef, AttributeDefPrivilege.ATTR_ADMIN, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_ADMIN
@@ -2976,10 +3003,19 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     throws  StemAddException
   {
     try {
-      GrouperSession.staticGrouperSession().internal_getRootSession().getNamingResolver().grantPrivilege(
-        ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, null
-      );
+      boolean assignAdminToWheelOrRootOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToWheelOrRootOnCreate", false);
+      
+      if (assignAdminToWheelOrRootOnCreate || !PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
+        
+        boolean assignAdminToInheritedAdminsOnCreate = GrouperConfig.retrieveConfig().propertyValueBoolean("privileges.assignAdminToInheritedAdminsOnCreate", false);
+        if (assignAdminToInheritedAdminsOnCreate || !RuleApi.hasInheritedPrivilege(ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, true)) {
 
+          GrouperSession.staticGrouperSession().internal_getRootSession().getNamingResolver().grantPrivilege(
+            ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, null
+          );
+        }
+      }
+      
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
         ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
@@ -3600,6 +3636,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    //delete some caches
+    Hib3MemberDAO.membersCacheClear();
+    Hib3AttributeDefDAO.attributeDefCacheClear();
+    Hib3AttributeDefNameDAO.attributeDefNameCacheClear();
+    StemFinder.stemCacheClear();
+    GroupFinder.groupCacheClear();
+    Hib3AttributeAssignActionDAO.attributeAssignActionCacheClear();
+    Hib3AttributeAssignDAO.attributeAssignCacheClear();
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_DELETE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_DELETE, false, false);
@@ -3651,6 +3696,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    //delete some caches
+    Hib3MemberDAO.membersCacheClear();
+    Hib3AttributeDefDAO.attributeDefCacheClear();
+    Hib3AttributeDefNameDAO.attributeDefNameCacheClear();
+    StemFinder.stemCacheClear();
+    GroupFinder.groupCacheClear();
+    Hib3AttributeAssignActionDAO.attributeAssignActionCacheClear();
+    Hib3AttributeAssignDAO.attributeAssignCacheClear();
+
     // If the stem name is changing, verify that the new name is not in use.
     // (The new name could be an alternate name).
     if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
@@ -3811,7 +3865,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     String currentName = stems[0];
     for (int i=0;i<stems.length;i++) {
       try {
-        currentStem = StemFinder.findByName(grouperSession, currentName, true);
+        currentStem = StemFinder.findByName(grouperSession, currentName, true, new QueryOptions().secondLevelCache(false));
       } catch (StemNotFoundException snfe1) {
         //this isnt ideal, but just use the extension as the display extension
         currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);
@@ -4586,20 +4640,126 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     return "Stem: " + this.uuid + ", " + this.name;
   }
 
+  /**
+   * obliterate this stem name (which might not exist) from point in time
+   * @param stemName
+   * @param printOutput
+   */
+  public static void obliterateFromPointInTime(String stemName, final boolean printOutput) {
+    Stem ns = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+    obliterateFromPointInTimeHelper(stemName, ns, printOutput);
+  }
+
+  /**
+   * obliterate this stem name (which might not exist) from point in time
+   * @param stemName
+   * @param printOutput
+   * @param testOnly 
+   * @param deletePointInTime 
+   */
+  public static void obliterate(String stemName,final boolean printOutput, boolean testOnly, boolean deletePointInTime) {
+    Stem ns = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+    if (ns != null) {
+      ns.obliterate(printOutput, testOnly);
+    }
+    if (!testOnly && deletePointInTime) {
+      obliterateFromPointInTimeHelper(stemName, ns, printOutput);
+    }
+  }
+
+  /**
+   * obliterate this stem name (which might not exist) from point in time
+   * @param stemName
+   * @param printOutput
+   * @param ns
+   */
+  private static void obliterateFromPointInTimeHelper(String stemName,Stem ns,final boolean printOutput) {
+
+    //make sure something in changelog temp
+    if (HibernateSession.bySqlStatic().select(int.class, "SELECT count(1) FROM grouper_change_log_entry_temp") > 0) {
+      
+      //see if we are making progress
+      long maxCreatedOn = HibernateSession.bySqlStatic().select(long.class, "SELECT max(created_on) FROM grouper_change_log_entry_temp");
+      int changeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", GrouperUtil.toListObject(maxCreatedOn));
+
+      int loops = 0;
+      
+      OUTER:
+      while (true) {
+        if (ns != null) {
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(ns.getUuid(), false);
+          if (pitStem != null && !pitStem.isActive()) {
+            break;
+          }
+        } else {
+          Set<PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByName(stemName, false);
+          if (pitStems.size() > 0 && !pitStems.iterator().next().isActive()) {
+            break;
+          } 
+        }
+        
+        if (printOutput) {
+          System.out.println("Waiting for Grouper Daemon to process before obliterating from point in time data. "
+              + " This is expected to take a few minutes.  Be sure the Grouper Daemon is running.");
+        }
+        GrouperUtil.sleep(15000);
+
+        int hasCreatedOn = HibernateSession.bySqlStatic().select(int.class, 
+            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", GrouperUtil.toListObject(maxCreatedOn));
+        
+        //nothing to do
+        if (hasCreatedOn == 0) {
+          break;
+        }
+        
+        int currentChangeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, 
+            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", GrouperUtil.toListObject(maxCreatedOn));
+          
+        int loopsLimit = testingRunChangeLogSooner ? 2 : 100;
+        
+        if (loops > loopsLimit && changeLogEntryCount == currentChangeLogEntryCount) {
+          //  daemon is not running, run the temp to change log
+          int recordsChanged = ChangeLogTempToEntity.convertRecords();
+          while (recordsChanged > 0) {
+            hasCreatedOn = HibernateSession.bySqlStatic().select(int.class, 
+                "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", GrouperUtil.toListObject(maxCreatedOn));
+            if (hasCreatedOn == 0) {
+              break OUTER;
+            }
+            recordsChanged = ChangeLogTempToEntity.convertRecords();
+          }
+          break;
+        }
+        loops++;
+      }
+    }      
+    PITUtils.deleteInactiveStem(stemName, printOutput);
+
+  }
+  
+  /**
+   * run the change log sooner for test
+   */
+  public static boolean testingRunChangeLogSooner = false;
+  
+  /**
+   * Delete this stem from the Groups Registry including all sub objects.
+   * @param printOutput
+   * @param testOnly
+   * @param deleteFromPointInTime needs to wait for change log entries to be processed, then delete those too
+   */
+  public void obliterate(final boolean printOutput, final boolean testOnly, final boolean deleteFromPointInTime) {
+
+    this.obliterate(printOutput, testOnly);
+    
+    if (!testOnly && deleteFromPointInTime) {
+      obliterateFromPointInTimeHelper(this.getName(), this, printOutput);
+    }
+
+  }
 
   /**
    * Delete this stem from the Groups Registry including all sub objects.
-   * <pre class="eg">
-   * try {
-   *   ns.delete();
-   * }
-   * catch (InsufficientPrivilegeException eIP) {
-   *   // not privileged to delete stem
-   * }
-   * catch (StemDeleteException eSD) {
-   *   // unable to delete stem
-   * }
-   * </pre>
    * @param printOutput 
    * @param testOnly 
    * @throws  InsufficientPrivilegeException

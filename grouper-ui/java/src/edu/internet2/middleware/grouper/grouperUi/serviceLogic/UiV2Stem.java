@@ -15,7 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,19 +49,12 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
@@ -80,9 +72,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -1213,6 +1202,8 @@ public class UiV2Stem {
         }
       }
       
+      final Set<GuiRuleDefinition> guiRuleDefinitionsToDelete = new HashSet<GuiRuleDefinition>();
+      
       //subject has update, so this operation as root in case removing affects the membership
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -1227,7 +1218,8 @@ public class UiV2Stem {
                 failures[0]++;
                 continue;
               }
-
+              
+              guiRuleDefinitionsToDelete.add(guiRuleDefinition);
               guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
 
               successes[0]++;
@@ -1241,6 +1233,59 @@ public class UiV2Stem {
         }
       });
       
+      // run the daemon so these privs bubble down to the sub objects
+      final boolean[] DONE = new boolean[]{false};
+      
+      final GrouperSession GROUPER_SESSION = grouperSession;
+      
+      Thread thread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          
+          GrouperSession grouperSession = GrouperSession.start(GROUPER_SESSION.getSubject());
+          try {
+            
+            if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.grouperRule.removeInheritedPrivileges.whenUnassigned", true)) {
+              
+              //remove the assignments...
+              for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitionsToDelete) {
+                
+                boolean actAsRoot = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.grouperRule.removeInheritedPrivileges.asRoot", true);
+                RuleDefinition ruleDefinition = guiRuleDefinition.getRuleDefinition();
+                
+                Set<Privilege> privilegeSet = Privilege.convertNamesToPrivileges(GrouperUtil.splitTrimToList(ruleDefinition.getThen().getThenEnumArg1(), ","));
+                Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getCheck().getCheckStemScope(), true);
+                
+                String subjectString = ruleDefinition.getThen().getThenEnumArg0();
+                
+                Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+                
+                RuleApi.removePrivilegesIfNotAssignedByRule(actAsRoot, ruleDefinition.getAttributeAssignType().getOwnerStem(), 
+                    stemScope, subject, privilegeSet, 
+                    ruleDefinition.getIfCondition() == null ? null : ruleDefinition.getIfCondition().getIfConditionEnumArg0());
+
+              }
+            }                          
+            DONE[0] = true;
+          } catch (RuntimeException re) {
+            failures[0]++;
+            LOG.error("Error in running daemon", re);
+          } finally {
+            GrouperSession.stopQuietly(grouperSession);
+          }
+        }
+        
+      });
+
+      thread.start();
+      
+      try {
+        thread.join(45000);
+      } catch (Exception e) {
+        throw new RuntimeException("Exception in thread");
+      }
+
       GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setSuccessCount(successes[0]);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setFailureCount(failures[0]);
 
@@ -1251,12 +1296,26 @@ public class UiV2Stem {
       privilegesInheritedToObjectsHelper(request, response, stem);
       
       //put this after redirect
-      if (failures[0] > 0) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+
+      if (DONE[0]) {
+
+        if (failures[0] > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccesses")));
+        }
+
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccesses")));
+
+        if (failures[0] > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrorsNotDone")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccessesNotDone")));
+        }
       }
 
     } catch (RuntimeException re) {
@@ -2702,6 +2761,17 @@ public class UiV2Stem {
             
             RuleApi.runRulesForOwner(stem);
             
+            // TODO change to:
+            
+            //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign.getId());
+            //
+            //if (ruleDefinition.validate() == null) {
+            //  if (ruleDefinition.runDaemonOnDefinitionIfShould()) {
+            //    i++;
+            //  }
+            //}
+
+            
             DONE[0] = true;
           } catch (RuntimeException re) {
             LOG.error("Error in running daemon", re);
@@ -2839,264 +2909,6 @@ public class UiV2Stem {
   }
   
   /**
-   * view attributes assigned to this folder.
-   * @param request
-   * @param response
-   */
-  public void viewAttributeAssignments(final HttpServletRequest request, final HttpServletResponse response) {
-    
-    if (true) {
-      throw new RuntimeException("Not implemented yet");
-    }
-
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-    
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      final Stem stem = retrieveStemHelper(request, true, false, true).getStem();
-      
-      if (stem == null) {
-        return;
-      }
-      
-      Set<AttributeAssign> attributeAssigns = stem.getAttributeDelegate().getAttributeAssigns();
-      
-      Set<GuiAttributeAssign> guiAttributeAssigns = new HashSet<GuiAttributeAssign>();
-      
-      for (AttributeAssign attributeAssign : attributeAssigns) {
-        GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
-        guiAttributeAssign.setAttributeAssign(attributeAssign);
-        guiAttributeAssigns.add(guiAttributeAssign);
-      }
-      
-      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      grouperRequestContainer.getStemContainer().setGuiAttributeAssigns(guiAttributeAssigns);
-      
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/stem/viewStemAttributeAssigns.jsp"));
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemAttributeAssignmentsResultsId", 
-          "/WEB-INF/grouperUi2/stem/stemViewAttributeAssignsContents.jsp"));
-      
-      //if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
-        //filterHelper(request, response, stem);
-  
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-    
-  }
-  
-  /**
-   * show assign attribute screen for the current folder.
-   * @param request
-   * @param response
-   */
-  public void assignAttribute(final HttpServletRequest request, final HttpServletResponse response) {
-    
-    if (true) {
-      throw new RuntimeException("Not implemented yet");
-    }
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-    
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      //see if there is a stem id for this
-      String objectStemId = request.getParameter("objectStemId");
-      
-      Pattern pattern = Pattern.compile("^[a-zA-Z0-9-_]+$");
-      
-      if (!StringUtils.isBlank(objectStemId) && pattern.matcher(objectStemId).matches()) {
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setObjectStemId(objectStemId);
-      }
-      
-      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
-      
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/stem/stemAssignAttribute.jsp"));
-      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-  }
-  
-
-  /**
-   * assign attribute to the given folder.
-   * @param request
-   * @param response
-   */
-  public void assignAttributeSubmit(final HttpServletRequest request, final HttpServletResponse response) {
-    
-    if (true) {
-      throw new RuntimeException("Not implemented yet");
-    }
-
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-    
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      final String parentFolderId = request.getParameter("parentFolderComboName");
-      final String attributeDefId = request.getParameter("attributeDefComboName");
-      final String attributeDefNameId = request.getParameter("attributeDefNameComboName");
-      final String enabledDate = request.getParameter("enabledDate");
-      final String disabledDate = request.getParameter("disabledDate");
-      
-      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      //TODO: change the keys for error messages.
-      if (StringUtils.isBlank(attributeDefId)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeDefRequired")));
-        return;
-      }
-      
-      if (StringUtils.isBlank(parentFolderId)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#parentFolderComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeStemIdRequired")));
-        return;
-      }
-      
-      if (StringUtils.isBlank(attributeDefNameId)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#attributeDefNameComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeAttributeDefNameRequired")));
-        return;
-      }
-      
-      Timestamp enabledTimestamp = null;
-      if (StringUtils.isNotBlank(enabledDate)) {
-        try {
-          //must be yyyy/mm/dd
-          enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
-        } catch (Exception e) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-              "#enabled-date",
-              TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeAttributeStartDateNotValid")));
-          return;
-        }
-      }
-      
-      Timestamp disabledTimestamp = null;
-      if (StringUtils.isNotBlank(disabledDate)) {
-        try {
-          //must be yyyy/mm/dd
-          disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
-        } catch (Exception e) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-              "#disabled-date",
-              TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeAttributeEndDateNotValid")));
-          return;
-        }
-      }
-      
-      final Stem stem = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
-          .assignSubject(loggedInSubject)
-          .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
-
-      if (stem == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#parentFolderComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeCantFindStemId")));
-        return;
-      }
-      
-      AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
-      if (attributeDef == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeDefRequired")));
-        return;
-      }
-      
-      final AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
-      if (attributeDefName == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefNameComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeAttributeDefNameRequired")));
-        return;
-      }
-         
-      final boolean multiAssignable = attributeDefName.getAttributeDef().isMultiAssignable();
-      if (!multiAssignable) {
-        if (GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName)) > 0) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-              "#attributeDefComboErrorId",
-              TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeNotMultiAssignableError")));
-          return;
-        }
-        
-      }
-      
-      final Timestamp ENABLED_TIMESTAMP = enabledTimestamp;
-      final Timestamp DISABLED_TIMESTAMP = disabledTimestamp;
-         
-      //do this in a transaction
-      try {
-        GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
-
-          @Override
-          public Object callback(GrouperTransaction grouperTransaction) throws GrouperDAOException {
-            AttributeAssignResult attributeAssignResult = null;
-            if (multiAssignable) {
-              attributeAssignResult = stem.getAttributeDelegate().addAttribute(attributeDefName);
-            } else {
-              attributeAssignResult = stem.getAttributeDelegate().assignAttribute(attributeDefName);
-            }
-            
-            AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
-            boolean changed = false;
-            if (ENABLED_TIMESTAMP != null) {
-              attributeAssign.setEnabledTime(ENABLED_TIMESTAMP);
-              changed = true;
-            }
-            if (DISABLED_TIMESTAMP != null) {
-              attributeAssign.setDisabledTime(DISABLED_TIMESTAMP);
-              changed = true;
-            }
-            if (changed) {
-              attributeAssign.saveOrUpdate();
-            }
-            
-            return null;
-          }
-          
-        });
-      } catch (Exception e) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeError")));
-        return;
-      }
-      
-      
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewAttributeAssignments&stemId=" + stem.getId() + "')"));
-      //lets show a success message on the new screen
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeSuccess")));
-      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-    
-  }
-
-  /**
    * submit button on parent folder search model dialog for create attribute defs
    * @param request
    * @param response
@@ -3124,8 +2936,7 @@ public class UiV2Stem {
    * @param response
    */
   public void createAttributeDefParentFolderFilter(final HttpServletRequest request, HttpServletResponse response) {
-  
     createGroupParentFolderFilter(request, response);
   }
-
+  
 }

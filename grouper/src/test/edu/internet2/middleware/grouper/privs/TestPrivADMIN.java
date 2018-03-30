@@ -70,8 +70,8 @@ public class TestPrivADMIN extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    //TestRunner.run(new TestPrivADMIN("testRenameGroupWithoutADMIN"));
-    TestRunner.run(TestPrivADMIN.class);
+    TestRunner.run(new TestPrivADMIN("testRenameGroupWithoutADMIN"));
+    //TestRunner.run(TestPrivADMIN.class);
   }
   
   /**
@@ -496,6 +496,15 @@ public class TestPrivADMIN extends TestCase {
 
   public void testRenameGroupWithoutADMIN() {
     LOG.info("testRenameGroupWithoutADMIN");
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        i2.grantPriv(nrs.getSubject(), AccessPrivilege.READ);
+        return null;
+      }
+    });
+    
     a = GroupHelper.findByName(nrs, i2.getName());
     String orig = a.getExtension();
     try {

@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
@@ -57,7 +58,7 @@ public class MemberHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MemberHooksTest("testMemberPostInsert"));
+    TestRunner.run(new MemberHooksTest("testMemberPostUpdate"));
     //TestRunner.run(new MemberHooksTest(""));
     //TestRunner.run(MemberHooksTest.class);
   }
@@ -130,6 +131,8 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be whatever2", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_PRE_UPDATE, hookVeto.getVetoType());
     }
+    EhcacheController.ehcacheController().flushCache();
+
     member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
     assertEquals(SubjectTestHelper.SUBJ2.getId(), member2.getSubjectId());
     
@@ -165,6 +168,9 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be whatever4", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_POST_UPDATE, hookVeto.getVetoType());
     }
+    
+    EhcacheController.ehcacheController().flushCache();
+    
     member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
     assertEquals(SubjectTestHelper.SUBJ2.getId(), member2.getSubjectId());
     
@@ -462,6 +468,8 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ8.getId(), hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT, hookVeto.getVetoType());
     }
+    EhcacheController.ehcacheController().flushCache();
+
     member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, true);
     assertEquals(SubjectTestHelper.SUBJ8_ID, member.getSubjectId());
     Set<Membership> memberships = group.getMemberships();
@@ -501,6 +509,8 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ7.getId(), hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_POST_CHANGE_SUBJECT, hookVeto.getVetoType());
     }
+    EhcacheController.ehcacheController().flushCache();
+
     member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7, true);
     assertEquals(SubjectTestHelper.SUBJ7_ID, member.getSubjectId());
     Set<Membership> memberships = group.getMemberships();

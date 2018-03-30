@@ -49,16 +49,25 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-digester3</artifactId>
+            <exclusions>
+                <!-- cglib and beanutils haven't historically been in the grouper module's supplied
+                     jars, so it doesn't seem to be needed
+                 -->
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>cglib</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -72,30 +81,31 @@
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-        </dependency>
--->
         <dependency>
             <groupId>edu.vt.middleware</groupId>
             <artifactId>vt-ldap</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
+            <exclusions>
+                <!-- commons-cli not needed here? -->
+                <exclusion>
+                    <groupId>commons-cli</groupId>
+                    <artifactId>commons-cli</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
         </dependency>
 
-        <!-- custom Penn -->
         <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <scope>runtime</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -148,15 +158,31 @@
                         <exclude>conf/*.example</exclude>
                         <exclude>doc/**/*.html</exclude>
                         <exclude>doc/api/stylesheet.css</exclude>
+                        <exclude>doc/api/script.js</exclude>
                         <exclude>doc/api/package-list</exclude>
-                        <exclude>testDB/ldap/*.ldif</exclude>
-                        <exclude>testDB/ldap/*.schema</exclude>
-                        <exclude>testDB/hsqldb/*.log</exclude>
-                        <exclude>testDB/hsqldb/*.script</exclude>
-                        <exclude>testDB/hsqldb/*.lck</exclude>
-                        <exclude>testDB/hsqldb/*.properties</exclude>
+                        <exclude>testDB/**/*</exclude>
+                        <exclude>tests/TEST-*</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

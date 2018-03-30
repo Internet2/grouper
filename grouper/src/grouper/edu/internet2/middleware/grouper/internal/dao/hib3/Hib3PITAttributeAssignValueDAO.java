@@ -151,11 +151,10 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
-    HibernateSession.byHqlStatic()
-      .createQuery("delete from PITAttributeAssignValue where endTimeDb is not null and endTimeDb < :time")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+  public long deleteInactiveRecords(Timestamp time) {
+    return HibernateSession.byHqlStatic().createQuery("select id from PITAttributeAssignValue where endTimeDb is not null and endTimeDb < :time")
+        .setLong("time", time.getTime() * 1000)
+        .deleteInBatches(String.class, "PITAttributeAssignValue", "id");
   }
 
   /**

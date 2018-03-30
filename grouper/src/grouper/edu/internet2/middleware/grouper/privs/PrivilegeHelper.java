@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
@@ -1327,7 +1328,7 @@ public class PrivilegeHelper {
       if (!canGroupAttrRead(grouperSession, group, grouperSession.getSubject())) {
         continue;
       }      
-      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(permissionEntry.getAttributeDefId(), true);
+      AttributeDef attributeDef = AttributeDefFinder.findByIdAsRoot(permissionEntry.getAttributeDefId(), true);
       if (!canAttrRead(grouperSession, attributeDef, grouperSession.getSubject())) {
         continue;
       }

@@ -33,9 +33,11 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -196,6 +198,9 @@ public class AttributeUpdateRequestContainer implements Serializable {
 
   /** attribute def we are editing */
   private AttributeDef attributeDefToEdit;
+  
+  /** gui attribute def we are editing */
+  private GuiAttributeDef guiAttributeDefToEdit;
   
   /** list of actions for the attribute def */
   private List<String> actions;
@@ -439,6 +444,25 @@ public class AttributeUpdateRequestContainer implements Serializable {
   public void setAction(String action1) {
     this.action = action1;
   }
+  
+  /** attribute assign action we are editing */
+  private AttributeAssignAction attributeAssignAction;
+  
+  /**
+   * attribute assign action we are editing
+   * @return the attributeAssignAction
+   */
+  public AttributeAssignAction getAttributeAssignAction() {
+    return this.attributeAssignAction;
+  }
+  
+  /**
+   * attribute assign action we are editing
+   * @param attributeAssignAction1 the action to set
+   */
+  public void setAttributeAssignAction(AttributeAssignAction attributeAssignAction1) {
+    this.attributeAssignAction = attributeAssignAction1;
+  }
 
   /**
    * list of actions for the attribute def
@@ -470,6 +494,22 @@ public class AttributeUpdateRequestContainer implements Serializable {
    */
   public void setAttributeDefToEdit(AttributeDef attributeDefToEdit1) {
     this.attributeDefToEdit = attributeDefToEdit1;
+  }
+  
+  /**
+   * gui attribute def we are editing
+   * @return the gui attribute def
+   */
+  public GuiAttributeDef getGuiAttributeDefToEdit() {
+    return this.guiAttributeDefToEdit;
+  }
+
+  /**
+   * gui attribute def we are editing
+   * @param guiAttributeDefToEdit1
+   */
+  public void setGuiAttributeDefToEdit(GuiAttributeDef guiAttributeDefToEdit1) {
+    this.guiAttributeDefToEdit = guiAttributeDefToEdit1;
   }
 
   /** if this is a create as opposed to update */

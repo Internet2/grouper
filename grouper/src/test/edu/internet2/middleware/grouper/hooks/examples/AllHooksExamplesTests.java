@@ -39,6 +39,7 @@ public class AllHooksExamplesTests {
     suite.addTestSuite(MembershipOneInFolderMaxHookTest.class);
     suite.addTestSuite(StemUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(UniqueObjectHookTest.class);
+    suite.addTestSuite(GroupUniqueExtensionHookTest.class);
     //$JUnit-END$
     return suite;
   }

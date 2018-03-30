@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -50,7 +51,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameTest("testFindByIdsSecure"));
+    TestRunner.run(new AttributeDefNameTest("testXmlDifferentUpdateProperties"));
   }
   
   /**
@@ -98,12 +99,12 @@ public class AttributeDefNameTest extends GrouperTest {
     assertNotNull(attributeDefName.getId());
 
     //lets retrieve by id
-    AttributeDefName attributeDefName2 = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(attributeDefName.getId(), true);
+    AttributeDefName attributeDefName2 = AttributeDefNameFinder.findById(attributeDefName.getId(), true);
 
     assertEquals(attributeDefName.getId(), attributeDefName2.getId());
     
     //lets retrieve by name
-    attributeDefName2 = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure("top:testName", true);
+    attributeDefName2 = AttributeDefNameFinder.findByName("top:testName", true);
     
     assertEquals("top:testName", attributeDefName2.getName());
     assertEquals("top display name:test name", attributeDefName2.getDisplayName());
@@ -184,6 +185,7 @@ public class AttributeDefNameTest extends GrouperTest {
       
       if (attributeDef == null) {
         attributeDef = stem.addChildAttributeDef(extension + "Def", attributeDefType);
+        attributeDef.setValueType(AttributeDefValueType.string);
         attributeDef.setAssignToGroup(true);
         attributeDef.store();
       }
@@ -203,7 +205,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @return an example attribute def
    */
   public static AttributeDefName exampleRetrieveAttributeDefNameDb() {
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:testAttributeDefName", true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:testAttributeDefName", true, new QueryOptions().secondLevelCache(false));
     return attributeDefName;
   }
 

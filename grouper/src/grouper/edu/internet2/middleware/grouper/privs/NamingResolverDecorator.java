@@ -236,5 +236,24 @@ public abstract class NamingResolverDecorator implements NamingResolver {
   }
 
 
+  /**
+   * @see NamingResolver#getStemsWhereSubjectDoesHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
+   */
+  public Set<Stem> getStemsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.getDecoratedResolver().getStemsWhereSubjectDoesHavePrivilege(stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterStemsWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().hqlFilterStemsWithPrivWhereClause(subject, hqlQuery, hql, stemColumn, privilege, considerAllSubject);
+  }
+
+
 }
 

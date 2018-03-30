@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -192,10 +193,11 @@ public class TestMembership extends TestCase {
   
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
       GrouperSession s = GrouperSession.startRootSession();
-      Subject subj = SubjectFinder.findById("GrouperSystem", true);
+      Subject subj = SubjectTestHelper.SUBJ3;
       Stem root = StemFinder.findRootStem(s);
   		Stem qsuob = root.addChildStem("qsuob","qsuob");
       Group admins = qsuob.addChildGroup(Field.FIELD_NAME_ADMINS,Field.FIELD_NAME_ADMINS);
+      admins.grantPriv(subj, AccessPrivilege.ADMIN);
   
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
       admins.addMember(kebe);
@@ -204,7 +206,8 @@ public class TestMembership extends TestCase {
   
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.1");
       Group staff = qsuob.addChildGroup("staff","staff");
-  
+      staff.grantPriv(subj, AccessPrivilege.ADMIN);
+
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.2");
       staff.addMember(iata);
       MembershipTestHelper.testImm(s, admins, kebe, "members");
@@ -222,7 +225,8 @@ public class TestMembership extends TestCase {
   
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.4");
       Group all_staff = qsuob.addChildGroup("all_staff","all staff");
-  
+      all_staff.grantPriv(subj, AccessPrivilege.ADMIN);
+
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.5");
       all_staff.addMember(staff.toSubject());
       MembershipTestHelper.testImm(s, admins, kebe, "members");

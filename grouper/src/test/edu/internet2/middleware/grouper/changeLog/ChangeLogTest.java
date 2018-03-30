@@ -96,7 +96,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeAssignValueExcludeAudits"));
+    TestRunner.run(new ChangeLogTest("testAttributeAssignValue"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -306,6 +306,7 @@ public class ChangeLogTest extends GrouperTest {
     AttributeDefName attributeDefNameExcludeAudits = edu.addChildAttributeDefName(attributeDef, "testAttributeExcludeAudits", "testAttributeExcludeAudits");
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefNameExcludeAudits.getName());
+    GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 
     AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
@@ -755,7 +756,9 @@ public class ChangeLogTest extends GrouperTest {
     attributeDef.store();
     AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
     
+    
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit.elConfig", attributeDefName.getName());
+    GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 
     AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
@@ -785,6 +788,8 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
     assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
     
+    ChangeLogTempToEntity.convertRecords();
+
     // no pit fixes
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     grouperSession = GrouperSession.startRootSession();
@@ -3706,8 +3711,8 @@ public class ChangeLogTest extends GrouperTest {
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    // 4 temp change log changes - attributeDef, action, actionSet, privilege
-    assertEquals("Should have added exactly four change log temp", 4, newChangeLogTempCount);
+    // 4 temp change log changes - attributeDef, action, actionSet
+    assertEquals("Should have added exactly four change log temp", 3, newChangeLogTempCount);
     assertEquals("Should be the same", 0, newChangeLogCount);
 
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
@@ -3752,7 +3757,7 @@ public class ChangeLogTest extends GrouperTest {
       "select count(1) from grouper_change_log_entry");
   
     assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
-    assertEquals("Should have four records in the change log table", 4, newChangeLogCount);
+    assertEquals("Should have four records in the change log table", 3, newChangeLogCount);
   
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
@@ -3814,7 +3819,7 @@ public class ChangeLogTest extends GrouperTest {
       "select count(1) from grouper_change_log_entry");
   
     assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
-    assertEquals("Should have four records in the change log table", 4, newChangeLogCount);
+    assertEquals("Should have four records in the change log table", 3, newChangeLogCount);
   
     ChangeLogTempToEntity.convertRecords();
     
@@ -3855,8 +3860,8 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have four in temp table", 4, newChangeLogTempCount);
-    assertEquals("Should have five records in the change log table", 5, newChangeLogCount);
+    assertEquals("Should have four in temp table", 3, newChangeLogTempCount);
+    assertEquals("Should have five records in the change log table", 4, newChangeLogCount);
 
     ChangeLogTempToEntity.convertRecords();
     
@@ -3947,7 +3952,7 @@ public class ChangeLogTest extends GrouperTest {
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have 6 temp change log entries", 6, newChangeLogTempCount);
+    assertEquals("Should have 6 temp change log entries", 5, newChangeLogTempCount);
     assertEquals("Should be the same", changeLogCount, newChangeLogCount);
   
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
@@ -4015,7 +4020,7 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have 6 temp change log entries", 6, newChangeLogTempCount);
+    assertEquals("Should have 5 temp change log entries", 5, newChangeLogTempCount);
   
     ChangeLogTempToEntity.convertRecords();
     
@@ -6092,7 +6097,7 @@ public class ChangeLogTest extends GrouperTest {
       .list(ChangeLogEntry.class);
     
     
-    assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    assertEquals("Should have 6 change log entries", 6, changeLogEntries.size());
     
     group.revokePriv(newMember1.getSubject(), AccessPrivilege.UPDATE);
     group.revokePriv(newMember2.getSubject(), AccessPrivilege.UPDATE);
@@ -6106,7 +6111,7 @@ public class ChangeLogTest extends GrouperTest {
       .list(ChangeLogEntry.class);
     
     
-    assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    assertEquals("Should have 6 change log entries", 6, changeLogEntries.size());
     
     //##################################
     // try disabling privileges in change log
@@ -6456,7 +6461,7 @@ public class ChangeLogTest extends GrouperTest {
       .list(ChangeLogEntry.class);
     
     
-    assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    assertEquals("Should have 6 change log entries", 6, changeLogEntries.size());
     
     stem.revokePriv(newMember1.getSubject(), NamingPrivilege.STEM);
     stem.revokePriv(newMember2.getSubject(), NamingPrivilege.STEM);
@@ -6470,7 +6475,7 @@ public class ChangeLogTest extends GrouperTest {
       .list(ChangeLogEntry.class);
     
     
-    assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    assertEquals("Should have 6 change log entries", 6, changeLogEntries.size());
     
     
     //##################################
@@ -6843,7 +6848,7 @@ public class ChangeLogTest extends GrouperTest {
       .list(ChangeLogEntry.class);
     
     
-    assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    assertEquals("Should have 7 change log entries", 6, changeLogEntries.size());
     
     attrDef.getPrivilegeDelegate().revokePriv(newMember1.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
     attrDef.getPrivilegeDelegate().revokePriv(newMember2.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
@@ -6857,7 +6862,7 @@ public class ChangeLogTest extends GrouperTest {
       .list(ChangeLogEntry.class);
     
     
-    assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    assertEquals("Should have 7 change log entries", 6, changeLogEntries.size());
     
     //##################################
     // try disabling privileges in change log

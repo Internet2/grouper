@@ -304,7 +304,19 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       }
     }    
   }
-  
+
+  /**
+   * <pre>
+   * call hql executeUpdate, e.g. delete or update statement
+   * 
+   * </pre>
+   * @throws GrouperDAOException 
+   * TODO remove in new grouper version
+   */
+  public void executeUpdate() throws GrouperDAOException {
+    this.executeUpdateInt();
+  }
+
   /**
    * <pre>
    * call hql executeUpdate, e.g. delete or update statement
@@ -312,13 +324,14 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * </pre>
    * @return number of records affected
    * @throws GrouperDAOException 
+   * TODO remove in new grouper version
    */
-  public void executeUpdate() throws GrouperDAOException {
+  public int executeUpdateInt() throws GrouperDAOException {
     GrouperContext.incrementQueryCount();
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);
-    query.executeUpdate();
+    return query.executeUpdate();
   }
   
   /** query count exec queries, used for testing */

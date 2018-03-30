@@ -35,7 +35,7 @@
                     <div class="controls">
                     	                    	
                       <grouper:combobox2 idBase="attributeDefCombo" style="width: 30em" 
-                        filterOperation="UiV2AttributeDef.createAttributeDefNameParentAttributeDefFilter"
+                        filterOperation="UiV2AttributeDef.attributeDefFilter"
                         value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.objectAttributeDefId)}"
                         />
                       <span class="help-block">${textContainer.text['attributeDefNameCreateIntoAttributeDefDescription'] }</span>

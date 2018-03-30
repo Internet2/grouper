@@ -40,11 +40,15 @@ import org.apache.commons.logging.Log;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -111,9 +115,29 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
           
           if (tempResult == null) {
             
+            Set<String> namesOfAttributeDefs = new HashSet<String>();
+            
+            // GRP-1695: hard code built in ignore attribute defs and names
+            // $$grouper.attribute.rootStem$$:userData:grouperUserDataValueDef
+            namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_VALUE_DEF);
+            
+            // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceCountsDef
+            namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF);
+
+            // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceDetailsDef
+            namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF);
+
+            // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataCollectorDetailsDef
+            namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF);
+            
+            // $$grouper.attribute.rootStem$$:attribute:loaderMetadata:loaderMetadataValueDef
+            namesOfAttributeDefs.add(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataValueDef");
+            
             if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
-              String[] namesOfAttributeDefs = GrouperUtil.splitTrim(namesOfAttributeDefsCommaSeparated, ",");
-              
+              namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));
+            }
+            
+            if (GrouperUtil.length(namesOfAttributeDefs) > 0) {
               //get a root session, or use existing
               GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
               boolean startedSession = grouperSession == null;
@@ -195,15 +219,27 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
 
         if (this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet == null) {
           Set<String> result = new HashSet<String>();
+          
           String namesOfAttributeDefNamesCommaSeparated = this.propertyValueString("grouper.attribute.namesOfAttributeDefNamesToIgnoreAuditsChangeLogPit");
             
           Set<String> tempResult = attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.get(namesOfAttributeDefNamesCommaSeparated);
           
           if (tempResult == null) {
             
+            Set<String> namesOfAttributeDefNames = new HashSet<String>();
+            
+            // GRP-1695: hard code built in ignore attribute defs and names
+            // $$grouper.attribute.rootStem$$:attestation:attestationCalculatedDaysLeft
+            namesOfAttributeDefNames.add(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+            
+            // $$grouper.attribute.rootStem$$:attestation:attestationLastEmailedDate
+            namesOfAttributeDefNames.add(GrouperAttestationJob.retrieveAttributeDefNameEmailedDate().getName());
+            
             if (!StringUtils.isBlank(namesOfAttributeDefNamesCommaSeparated)) {
-              String[] namesOfAttributeDefNames = GrouperUtil.splitTrim(namesOfAttributeDefNamesCommaSeparated, ",");
-              
+              namesOfAttributeDefNames.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefNamesCommaSeparated, ","));
+            }
+
+            if (GrouperUtil.length(namesOfAttributeDefNames) > 0) {
               //get a root session, or use existing
               GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
               boolean startedSession = grouperSession == null;
@@ -260,6 +296,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
       }
       
     }
+
     return this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet;
     
   }
@@ -512,7 +549,10 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   public void clearCachedCalculatedValues() {
-    //nothing to do
+    this.attributeDefIdsToIgnoreChangeLogAndAuditSet = null;
+    this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet = null;
+    attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.clear();
+    attributeDefIdsToIgnoreChangeLogAndAuditSetCache.clear();
   }
 
   /**

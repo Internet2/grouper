@@ -7,7 +7,9 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * driver in right classloader
@@ -104,6 +106,15 @@ public abstract class DatabaseShimBase implements Driver {
   @Override
   public boolean jdbcCompliant() {
     return this.driver.jdbcCompliant();
+  }
+
+  // in JDK7 is an @override, due to new method added to CommonDataSource interface
+  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    try {
+      return (Logger) Driver.class.getDeclaredMethod("getParentLogger").invoke(this.driver);
+    } catch (Throwable e) {
+      return null;
+    }
   }
 
 }

@@ -36,6 +36,7 @@ public class AllPermissionsTests {
     suite.addTestSuite(RoleSetTest.class);
     suite.addTestSuite(PermissionEntryTest.class);
     suite.addTestSuite(PermissionHeuristicTest.class);
+    suite.addTestSuite(PermissionDisallowTest.class);
     //$JUnit-END$
     suite.addTest(AllPermissionsLimitsTests.suite());
     return suite;

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -146,7 +147,22 @@ public class ByHqlStatic implements HqlQuery {
    * query to execute
    */
   private String query = null;
-
+  
+  /**
+   * if batch deleting, run this execute update first
+   */
+  private String batchPreExecuteUpdateQuery = null;
+  
+  /**
+   * if batch deleting, run this execute update first
+   * @param theBatchPreExecuteUpdateQuery
+   * @return this for chaining
+   */
+  public ByHqlStatic assignBatchPreExecuteUpdateQuery(String theBatchPreExecuteUpdateQuery) {
+    this.batchPreExecuteUpdateQuery = theBatchPreExecuteUpdateQuery;
+    return this;
+  }
+  
   /**
    * if we are sorting, paging, resultSize, etc 
    */
@@ -482,6 +498,11 @@ public class ByHqlStatic implements HqlQuery {
     //loop until deleted
     while(true) {
 
+      //sanity that this is configured right
+      if (!this.query.contains(hqlClassNameToDelete)) {
+        throw new RuntimeException("This query: '" + this.query + "' should contain this hqlClassNameToDelete: '" + hqlClassNameToDelete + "'");
+      }
+      
       List<?> ids = this.options(new QueryOptions().paging(grouperBatchDeleteSelectSize, 1, false)).list(idType);
       
       if (GrouperUtil.length(ids) == 0) {
@@ -495,6 +516,22 @@ public class ByHqlStatic implements HqlQuery {
       for (int i=0;i<numberOfBatches;i++) {
         
         List<?> idsBatch = GrouperUtil.batchList(ids, grouperBatchDeleteDeleteSize, i);
+        
+        // if we are running an execute update before the delete (e.g. for foreign keys)
+        if (!StringUtils.isBlank(this.batchPreExecuteUpdateQuery)) {
+          ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+          
+          String hql = this.batchPreExecuteUpdateQuery;
+          if (this.batchPreExecuteUpdateQuery.contains(" where ")) {
+            hql += " and ";
+          } else {
+            hql += " where ";
+          }
+          hql += columnNameOfId + " in (" + HibUtils.convertToInClauseAnyType(idsBatch, byHqlStatic) +  ")";
+          
+          byHqlStatic.createQuery(hql).executeUpdate();
+          
+        }
         
         ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
         
@@ -521,15 +558,29 @@ public class ByHqlStatic implements HqlQuery {
    * </pre>
    *
    * @throws GrouperDAOException
-   * @return number of records affected
+   * TODO remove this in a new version of Grouper
    */
   public void executeUpdate() throws GrouperDAOException {
+    this.executeUpdateInt();
+  }
+
+  /**
+   * <pre>
+   * call hql executeUpdate, e.g. delete or update statement
+   * 
+   * </pre>
+   *
+   * @throws GrouperDAOException
+   * @return number of records affected
+   * @TODO remove this in a new version of Grouper
+   */
+  public int executeUpdateInt() throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(
+      return (Integer)HibernateSession.callbackHibernateSession(
           grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
@@ -538,8 +589,7 @@ public class ByHqlStatic implements HqlQuery {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              byHql.executeUpdate();
-              return null;
+              return byHql.executeUpdateInt();
             }
         
       });

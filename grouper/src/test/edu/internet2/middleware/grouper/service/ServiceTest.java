@@ -534,7 +534,6 @@ public class ServiceTest extends GrouperTest {
         .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
       
       jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
-      jiraGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
       jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
       jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
       
@@ -557,7 +556,6 @@ public class ServiceTest extends GrouperTest {
         .assignName("apps:confluence:editors").assignCreateParentStemsIfNotExist(true).save();
   
       confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
-      confluenceGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
       confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
       confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
       confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN);

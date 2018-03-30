@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.internal.dao.AllInternalDaoTests;
 import edu.internet2.middleware.grouper.member.AllMemberTests;
 import edu.internet2.middleware.grouper.membership.AllMembershipTests;
+import edu.internet2.middleware.grouper.messaging.AllMessagingTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.permissions.AllPermissionsTests;
 import edu.internet2.middleware.grouper.pit.AllPITTests;
@@ -69,6 +70,7 @@ import edu.internet2.middleware.grouper.stem.AllStemTests;
 import edu.internet2.middleware.grouper.stress.AllStressTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
 import edu.internet2.middleware.grouper.tableIndex.AllTableIndexTests;
+import edu.internet2.middleware.grouper.userData.AllUserDataTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
@@ -227,6 +229,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllInternalDaoTests.suite());
     suite.addTest(AllMemberTests.suite());
     suite.addTest(AllMembershipTests.suite());
+    suite.addTest(AllMessagingTests.suite());
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllPermissionsTests.suite());
     suite.addTest(AllPITTests.suite());
@@ -244,9 +247,10 @@ public class AllTests extends GrouperTest {
     if (GrouperConfig.getPropertyBoolean("junit.test.stress", false)) {
       suite.addTest(AllStressTests.suite());
     }
-    
+
     suite.addTest(AllSubjectTests.suite());
     suite.addTest(AllTableIndexTests.suite());
+    suite.addTest(AllUserDataTests.suite());
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllValidatorTests.suite());
     suite.addTest(AllXmlTests.suite());

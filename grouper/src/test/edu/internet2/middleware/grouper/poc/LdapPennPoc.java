@@ -28,6 +28,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -79,7 +80,7 @@ public class LdapPennPoc {
    * @return the list
    */
   private static List<String> retrieveOnePennkey(List<String> pennids, int i) {
-    return LdapSession.list(String.class, "pennProd", "ou=pennnames", 
+    return LdapSessionUtils.ldapSession().list(String.class, "pennProd", "ou=pennnames", 
         LdapSearchScope.ONELEVEL_SCOPE, "(pennid=" + pennids.get(i) + ")", "pennname");
   }
   
@@ -109,7 +110,7 @@ public class LdapPennPoc {
     
     //System.out.println(filter);
     
-    return LdapSession.list(String.class, "pennProd", "ou=pennnames", 
+    return LdapSessionUtils.ldapSession().list(String.class, "pennProd", "ou=pennnames", 
         LdapSearchScope.ONELEVEL_SCOPE, filter.toString(), "pennname");
   }
   
@@ -169,7 +170,7 @@ public class LdapPennPoc {
     
     //System.out.println(filter);
     
-    return LdapSession.list(String.class, "pennProd", "ou=pennnames", 
+    return LdapSessionUtils.ldapSession().list(String.class, "pennProd", "ou=pennnames", 
         LdapSearchScope.ONELEVEL_SCOPE, filter.toString(), "pennname");
   }
   
@@ -228,7 +229,7 @@ public class LdapPennPoc {
     
     //System.out.println(filter);
     
-    return LdapSession.list(String.class, "pennProd", "ou=pennnames", 
+    return LdapSessionUtils.ldapSession().list(String.class, "pennProd", "ou=pennnames", 
         LdapSearchScope.ONELEVEL_SCOPE, filter.toString(), "pennname");
   }
   

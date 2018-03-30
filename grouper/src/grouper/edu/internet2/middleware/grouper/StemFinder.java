@@ -38,15 +38,18 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -61,6 +64,38 @@ import edu.internet2.middleware.subject.Subject;
  * @version $Id: StemFinder.java,v 1.54 2009-11-18 17:03:50 mchyzer Exp $
  */
 public class StemFinder {
+
+  /**
+   * remove all caches
+   */
+  public static void stemCacheClear() {
+    stemFlashCache.clear();
+  }
+
+  /**
+   * remove this from all caches
+   * @param id
+   */
+  public static void stemCacheRemoveById(String id) {
+    if (id == null) {
+      return;
+    }
+    Stem stem = stemFlashCacheRetrieve(id, null);
+    stemCacheRemove(stem);
+  }
+
+  /**
+   * remove this from all caches
+   * @param stem
+   */
+  public static void stemCacheRemove(Stem stem) {
+    if (stem == null) {
+      return;
+    }
+    stemFlashCache.remove(stem.getUuid());
+    stemFlashCache.remove(stem.getName());
+    stemFlashCache.remove(stem.getIdIndex());
+  }
 
   /**
    * find stems where the user has these fields in a group
@@ -146,13 +181,13 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @param   name  Find stem with this name.
-   * @param exceptionOnNotFound
+   * @param exceptionIfNotFound
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem findByName(GrouperSession s, String name, boolean exceptionOnNotFound)
+  public static Stem findByName(GrouperSession s, String name, boolean exceptionIfNotFound)
       throws StemNotFoundException {
-    return findByName(s, name, exceptionOnNotFound, null);
+    return findByName(s, name, exceptionIfNotFound, null);
   }
 
   
@@ -163,12 +198,12 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @param   name  Find stem with this name.
-   * @param exceptionOnNotFound
+   * @param exceptionIfNotFound
    * @param queryOptions
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem findByName(GrouperSession s, String name, boolean exceptionOnNotFound, QueryOptions queryOptions)
+  public static Stem findByName(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
@@ -176,8 +211,22 @@ public class StemFinder {
     if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionOnNotFound, queryOptions) ;
-    return ns;
+    
+    Stem ns = stemFlashCacheRetrieve(name, queryOptions);
+    if (ns != null) {
+      return ns;
+    }      
+    
+    ns = GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionIfNotFound, queryOptions) ;
+    
+    if (ns != null) {
+      stemFlashCacheAddIfSupposedTo(ns);
+      return ns;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new StemNotFoundException("Cant find stem: '" + name + "'");
   }
   
   /**
@@ -187,12 +236,12 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @param   name  Find stem with this alternate name.
-   * @param exceptionOnNotFound
+   * @param exceptionIfNotFound
    * @param queryOptions
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem findByAlternateName(GrouperSession s, String name, boolean exceptionOnNotFound, QueryOptions queryOptions)
+  public static Stem findByAlternateName(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
@@ -200,7 +249,7 @@ public class StemFinder {
     if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByAlternateName(name, exceptionOnNotFound, queryOptions) ;
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByAlternateName(name, exceptionIfNotFound, queryOptions) ;
     return ns;
   }
   
@@ -211,12 +260,12 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @param   name  Find stem with this name.
-   * @param exceptionOnNotFound
+   * @param exceptionIfNotFound
    * @param queryOptions
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem findByCurrentName(GrouperSession s, String name, boolean exceptionOnNotFound, QueryOptions queryOptions)
+  public static Stem findByCurrentName(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
@@ -224,7 +273,7 @@ public class StemFinder {
     if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByCurrentName(name, exceptionOnNotFound, queryOptions) ;
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByCurrentName(name, exceptionIfNotFound, queryOptions) ;
     return ns;
   }
 
@@ -284,13 +333,13 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @param   uuid  Get stem with this UUID.
-   * @param exceptionIfNull
+   * @param exceptionIfNotFound
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNull) 
+  public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound) 
     throws StemNotFoundException {
-    return findByUuid(s, uuid, exceptionIfNull, null);
+    return findByUuid(s, uuid, exceptionIfNotFound, null);
   }
   
   /**
@@ -306,17 +355,31 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @param   uuid  Get stem with this UUID.
-   * @param exceptionIfNull
+   * @param exceptionIfNotFound
    * @param queryOptions
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNull, QueryOptions queryOptions) 
+  public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, exceptionIfNull, queryOptions) ;
-    return ns;
+    Stem ns = stemFlashCacheRetrieve(uuid, queryOptions);
+    if (ns != null) {
+      return ns;
+    }      
+    
+    ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, exceptionIfNotFound, queryOptions) ;
+    
+    if (ns != null) {
+      stemFlashCacheAddIfSupposedTo(ns);
+      return ns;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new StemNotFoundException("Cant find stem: '" + uuid + "'");
+
   } // public static Stem findByUuid(s, uuid)
 
   /**
@@ -331,8 +394,7 @@ public class StemFinder {
    * }
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
-   * @param   uuid  Get stem with this UUID.
-   * @param exceptionIfNull
+   * @param   uuids  Get stem with this UUID.
    * @param queryOptions
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
@@ -342,6 +404,10 @@ public class StemFinder {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set<Stem> ns = GrouperDAOFactory.getFactory().getStem().findByUuids(uuids, queryOptions) ;
+    
+    for (Stem stem : GrouperUtil.nonNull(ns)) {
+      stemFlashCacheAddIfSupposedTo(stem);
+    }
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
@@ -460,17 +526,17 @@ public class StemFinder {
   /**
    * 
    * @param name
-   * @param exceptionIfNull
-   * @return
+   * @param exceptionIfNotFound
+   * @return the stem
    * @throws StemNotFoundException
    */
-  public static Stem internal_findByName(String name, boolean exceptionIfNull) 
+  public static Stem internal_findByName(String name, boolean exceptionIfNotFound) 
     throws  StemNotFoundException {
     // @session false
     if (name.equals(Stem.ROOT_NAME)) {
       name = Stem.ROOT_INT;
     }
-    return GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionIfNull);
+    return GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionIfNotFound);
   } // public static StemDTO internal_findByName(name)
 
   /**
@@ -483,8 +549,23 @@ public class StemFinder {
    */
   public static Stem findByIdIndex(Long idIndex, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
       throws StemNotFoundException {
-    Stem s = GrouperDAOFactory.getFactory().getStem().findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
-    return s;
+    
+    Stem ns = stemFlashCacheRetrieve(idIndex, queryOptions);
+    if (ns != null) {
+      return ns;
+    }      
+    
+    ns = GrouperDAOFactory.getFactory().getStem().findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
+    
+    if (ns != null) {
+      stemFlashCacheAddIfSupposedTo(ns);
+      return ns;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new StemNotFoundException("Cant find stem: '" + idIndex + "'");
+
   }
 
   /**
@@ -563,6 +644,17 @@ public class StemFinder {
    * if looking for an attribute value on an assignment, could be multiple values
    */
   private Set<Object> attributeValuesOnAssignment;
+
+  /**
+   * config key for caching
+   */
+  private static final String GROUPER_FLASHCACHE_STEMS_IN_FINDER = "grouper.flashcache.stems.in.finder";
+
+  /**
+   * cache stuff in stems by name, uuid, idIndex
+   */
+  private static GrouperCache<Object, Stem> stemFlashCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.StemFinder.stemFlashCache");
 
   /**
    * check read on attribute def when checking attribute def name
@@ -683,7 +775,13 @@ public class StemFinder {
   public Stem findStem() {
     Set<Stem> stems = this.findStems();
     
-    return GrouperUtil.setPopOne(stems);
+    Stem stem = GrouperUtil.setPopOne(stems);
+
+    if (stem != null) {
+      stemFlashCacheAddIfSupposedTo(stem);
+    }
+    
+    return stem;
   }
 
   /**
@@ -702,14 +800,19 @@ public class StemFinder {
 
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
-    return GrouperDAOFactory.getFactory().getStem()
+    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem()
         .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
             this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
             this.findByUuidOrName, this.userHasInGroupFields,
             this.userHasInAttributeFields, this.stemIds, 
             this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
             this.attributeValuesOnAssignment);
+   
+    for (Stem stem : GrouperUtil.nonNull(stems)) {
+      stemFlashCacheAddIfSupposedTo(stem);
+    }
     
+    return stems;
   }
 
   /**
@@ -763,6 +866,82 @@ public class StemFinder {
   public StemFinder assignAttributeValuesOnAssignment(Set<Object> theValues) {
     this.attributeValuesOnAssignment = theValues;
     return this;
+  }
+
+  /**
+   * see if this is cacheable
+   * @param id
+   * @param queryOptions 
+   * @return if cacheable
+   */
+  private static boolean stemFlashCacheable(Object id, QueryOptions queryOptions) {
+  
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_STEMS_IN_FINDER, true)) {
+      return false;
+    }
+  
+    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+      return false;
+    }
+  
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * add group to cache if not null
+   * @param stem
+   */
+  private static void stemFlashCacheAddIfSupposedTo(Stem stem) {
+    if (stem == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_STEMS_IN_FINDER, true)) {
+      return;
+    }
+    
+    for (Object id : new Object[]{stem.getUuid(), stem.getName(), stem.getIdIndex()}) {
+      if (id == null) {
+        continue;
+      }
+      stemFlashCache.put(id, stem);
+    }
+    
+  }
+
+  /**
+   * multikey
+   * @param id
+   * @return if cacheable
+   */
+  private static Object stemFlashCacheMultikey(Object id) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_STEMS_IN_FINDER, true)) {
+      return null;
+    }
+  
+    return id;
+  }
+
+  /**
+   * get a group fom flash cache
+   * @param id
+   * @param queryOptions
+   * @return the stem or null
+   */
+  private static Stem stemFlashCacheRetrieve(Object id, QueryOptions queryOptions) {
+    if (stemFlashCacheable(id, queryOptions)) {
+      Object stemFlashKey = stemFlashCacheMultikey(id);
+      //see if its already in the cache
+      Stem stem = stemFlashCache.get(stemFlashKey);
+      if (stem != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from stem flash cache by id: " + stem.getName());
+        }
+        return stem;
+      }
+    }
+    return null;
   }
 
 }

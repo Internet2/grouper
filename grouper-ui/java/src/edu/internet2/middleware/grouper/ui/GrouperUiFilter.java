@@ -840,8 +840,148 @@ public class GrouperUiFilter implements Filter {
     GrouperStartup.startup();
     
     InstrumentationThread.startThread(GrouperEngineBuiltin.UI, null);
+    
+    initOnce();
   }
 
+  /**
+   * if initted
+   */
+  private static boolean inittedOnce = false;
+
+  /**
+   * 
+   */
+  private static void initOnce() {
+    
+    if (!inittedOnce) {
+      synchronized (GrouperUiFilter.class) {
+        if (!inittedOnce) {
+
+          //  # If debug is on then restrict to named group. Disable if group does not exist
+          //  browser.debug.group=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("browser.debug.group"));
+          
+          //  # Display the link to the admin ui only if user is a member of this group.
+          //  # note this config item needs uiV2.quicklink.menu.adminui=true
+          //  uiV2.quicklink.menu.adminui.forGroup=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.quicklink.menu.adminui.forGroup"));
+
+          //  # Display the link to the lite ui only if user is a member of this group
+          //  # note this config item needs uiV2.quicklink.menu.liteui=true
+          //  uiV2.quicklink.menu.liteui.forGroup=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.quicklink.menu.liteui.forGroup"));
+
+          //  require.group.for.logins
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.logins"));
+
+          //  #users must be in this group to be able to login to the lite membership update UI (if not in require.group.for.logins)
+          //  require.group.for.membershipUpdateLite.logins=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.membershipUpdateLite.logins"));
+
+          //  #users must be in this group to be able to login to the subjectPicker UI (if not in require.group.for.logins or require.group.for.membershipUpdateLite.logins)
+          //  require.group.for.subjectPicker.logins=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.subjectPicker.logins"));
+
+          //  #users must be in this group to invite external users to grouper
+          //  require.group.for.inviteExternalSubjects.logins=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.inviteExternalSubjects.logins"));
+
+          //  #users must be in this group to assign/create/etc attributes in the UI (new attribute framework) (if not in require.group.for.logins)
+          //  require.group.for.attributeUpdateLite.logins=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.attributeUpdateLite.logins"));
+
+          //  grouperUi.autoCreateUserFolderName=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.autoCreateUserFolderName"));
+
+          //  #if results must be in a certain group, or blank for no check.  e.g. must be in employee group
+          //  simpleMembershipUpdate.subjectSearchRequireGroup = 
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("simpleMembershipUpdate.subjectSearchRequireGroup"));
+
+          //  #if results must be in group, or blank for no check.  e.g. put your active employee group here
+          //  subjectPicker.defaultSettings.resultsMustBeInGroup = 
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("subjectPicker.defaultSettings.resultsMustBeInGroup"));
+
+          //  # require admin (GrouperSysAdmin or wheel group) to update inherited privileges
+          //  uiV2.privilegeInheritanceUpdateRequireGroup = 
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.privilegeInheritanceUpdateRequireGroup"));
+
+          //  # require admin (GrouperSysAdmin or wheel group) to read inherited privileges
+          //  uiV2.privilegeInheritanceReadRequireGroup = 
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.privilegeInheritanceReadRequireGroup"));
+
+          //  ###################################
+          //  ## V2 UI provisioning settings
+          //  ###################################
+          //
+          //  # put in a group here if you want to restrict the provisioning tab to certin users.  
+          //  # note, admins can always see the tab
+          //  uiV2.provisioning.must.be.in.group=
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.provisioning.must.be.in.group"));
+
+          //  ###################################
+          //  ## V2 UI loader settings
+          //  ###################################
+          //
+          //  # put in a group here if you want to restrict the loader tab to certin users.  
+          //  # note, admins can always see the tab
+          //  uiV2.loader.must.be.in.group =
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"));
+
+          //  # put a group here if you want these users to be able to edit loader jobs
+          //  uiV2.loader.edit.if.in.group = 
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.edit.if.in.group"));
+
+          //  # restrict access based on this group, by default only admins can see
+          //  # note, admins can always see the screen
+          //  uiV2.admin.instrumentation.must.be.in.group =
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.instrumentation.must.be.in.group"));
+
+          //  ###################################
+          //  ## V2 UI admin settings
+          //  ###################################
+          //
+          //  # should show subject api diagnostics?
+          //  uiV2.admin.subjectApiDiagnostics.show = true
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.subjectApiDiagnostics.show"));
+
+          //  # put in a group here if you want to allow the subject API diagnostics to certin users.  
+          //  # note, admins can always see the screen
+          //  uiV2.admin.subjectApiDiagnostics.must.be.in.group =
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.subjectApiDiagnostics.must.be.in.group"));
+          
+          inittedOnce = true;
+        }
+      }
+    }
+  }
+  
+  /**
+   * mark group as cacheable
+   * should we auto-create?
+   * @param name
+   */
+  private static void initGroup(final String name) {
+    if (StringUtils.isBlank(name)) {
+      return;
+    }
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Group group = GroupFinder.findByName(grouperSession, name, false);
+        if (group != null) {
+          
+          GroupFinder.groupCacheAsRootAddSystemGroup(group);
+          
+        }
+        
+        return null;
+      }
+    });
+  }
+  
   /**
    * init request part 1
    * @param httpServletRequest 

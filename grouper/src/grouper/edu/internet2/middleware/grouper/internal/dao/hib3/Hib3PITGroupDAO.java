@@ -216,11 +216,12 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
-  public void deleteInactiveRecords(Timestamp time) {
-    HibernateSession.byHqlStatic()
-      .createQuery("delete from PITGroup where endTimeDb is not null and endTimeDb < :time")
-      .setLong("time", time.getTime() * 1000)
-      .executeUpdate();
+  public long deleteInactiveRecords(Timestamp time) {
+    
+    return HibernateSession.byHqlStatic().createQuery(
+        "select id from PITGroup where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
+        .deleteInBatches(String.class, "PITGroup", "id");
+
   }
 
   /**
@@ -368,7 +369,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   public Set<PITGroup> findByPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
-        .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.stemId = :id")
+        .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.stemId = :id order by pitGroup.nameDb")
         .setCacheable(false).setCacheRegion(KLASS + ".FindByPITStemId")
         .setString("id", id)
         .listSet(PITGroup.class);

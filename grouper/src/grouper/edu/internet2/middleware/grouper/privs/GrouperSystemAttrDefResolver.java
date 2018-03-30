@@ -107,6 +107,8 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
    */
   public boolean hasPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege)
       throws IllegalArgumentException {
+    
+    //TODO remove these!!!!
     if (SubjectHelper.eq(this.root, subject)) {
       if (!privilege.equals(AttributeDefPrivilege.ATTR_OPTIN)
           && !privilege.equals(AttributeDefPrivilege.ATTR_OPTOUT)) {
@@ -192,10 +194,6 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
    */
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
       StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
-
-    if (SubjectHelper.eq(this.root, subject)) {
-      return false;
-    }
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     //System.out.println(decoratedResolver.getClass().getName());

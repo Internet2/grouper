@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -383,7 +384,7 @@ public class GroupSave {
 
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.groupNameToEdit) && !StringUtils.isBlank(this.uuid)) {
-      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false);
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false, new QueryOptions().secondLevelCache(false));
       if (group != null) {
         this.groupNameToEdit = group.getName();
       }

@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -558,7 +559,7 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName1_1);
       fail("Not allowed");
-    } catch (AttributeDefNotFoundException ipe) {
+    } catch (AttributeDefNameNotFoundException ipe) {
       //good
     }
     //subj0 cant even update/admin the attribute, or admin the group
@@ -651,13 +652,13 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
       fail("Not allowed");
-    } catch (AttributeDefNotFoundException ipe) {
+    } catch (AttributeDefNameNotFoundException ipe) {
       //good
     }
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2);
       fail("Not allowed");
-    } catch (AttributeDefNotFoundException ipe) {
+    } catch (AttributeDefNameNotFoundException ipe) {
       //good
     }
     try {
@@ -675,7 +676,7 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
       fail("Not allowed");
-    } catch (AttributeDefNotFoundException ipe) {
+    } catch (AttributeDefNameNotFoundException ipe) {
       //good
     }
     try {

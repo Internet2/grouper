@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -292,8 +293,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the assignments for a def name
    */
   public Set<AttributeAssign> retrieveAssignmentsByAttributeDefId(String attributeDefId) {
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory()
-      .getAttributeDef().findByIdSecure(attributeDefId, true);
+    AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, true);
     return retrieveAssignments(attributeDef);
   }
   
@@ -302,8 +302,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the assignments for a def
    */
   public Set<AttributeDefName> retrieveAttributesByAttributeDefId(String attributeDefId) {
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory()
-      .getAttributeDef().findByIdSecure(attributeDefId, true);
+    AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, true);
     return retrieveAttributes(attributeDef);
   }
   
@@ -312,8 +311,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the attributes for a def
    */
   public Set<AttributeDefName> retrieveAttributesByAttributeDef(String nameOfAttributeDef) {
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory()
-      .getAttributeDef().findByNameSecure(nameOfAttributeDef, true);
+    AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, true);
     return retrieveAttributes(attributeDef);
   }
   
@@ -475,7 +473,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the result including if added or already there
    */
   public AttributeAssignResult internal_assignAttributeHelper(String action, 
-      AttributeDefName attributeDefName, boolean checkSecurity, String uuid, PermissionAllowed permissionAllowed) {
+      AttributeDefName attributeDefName, final boolean checkSecurity, String uuid, PermissionAllowed permissionAllowed) {
     
     if (permissionAllowed == null) {
       permissionAllowed = PermissionAllowed.ALLOWED;
@@ -494,18 +492,18 @@ public abstract class AttributeAssignBaseDelegate {
     }
 
     
-    AttributeAssign attributeAssign = retrieveAssignment(action, attributeDefName, false, false);
+    AttributeAssign attributeAssignExisting = retrieveAssignment(action, attributeDefName, false, false);
     
-    if (attributeAssign != null) {
-      if (permissionAllowed != null && permissionAllowed.isDisallowed() != attributeAssign.isDisallowed()) {
+    if (attributeAssignExisting != null) {
+      if (permissionAllowed != null && permissionAllowed.isDisallowed() != attributeAssignExisting.isDisallowed()) {
         throw new RuntimeException("Assigning disallowed: " + permissionAllowed.isDisallowed() 
-            + ", but the existing assignment " + attributeAssign.getId() 
-            + " has: " + attributeAssign.isDisallowed() + ", you need to delete assignment and reassign.");
+            + ", but the existing assignment " + attributeAssignExisting.getId() 
+            + " has: " + attributeAssignExisting.isDisallowed() + ", you need to delete assignment and reassign.");
       }
-      return new AttributeAssignResult(false, attributeAssign);
+      return new AttributeAssignResult(false, attributeAssignExisting);
     }
     
-    attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
+    final AttributeAssign attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
     
     attributeAssign.setDisallowed(permissionAllowed == null ? false : permissionAllowed.isDisallowed());
     
@@ -518,7 +516,19 @@ public abstract class AttributeAssignBaseDelegate {
 
     attributeAssign.internalSetAttributeDef(attributeDef);
     attributeAssign.internalSetAttributeDefName(attributeDefName);
-    attributeAssign.saveOrUpdate(checkSecurity);
+    
+    if (checkSecurity || PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
+      attributeAssign.saveOrUpdate(checkSecurity);
+    } else {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          attributeAssign.saveOrUpdate(checkSecurity);
+          return null;
+        }
+      });
+    }
+    
     return new AttributeAssignResult(true, attributeAssign);
 
   }
@@ -530,8 +540,7 @@ public abstract class AttributeAssignBaseDelegate {
    */
   public AttributeAssignResult assignAttributeById(String action, String attributeDefNameId) {
     
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
     return assignAttribute(action, attributeDefName);
 
   }
@@ -542,8 +551,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the result including if added or already there
    */
   public AttributeAssignResult assignAttributeByName(String action, String attributeDefNameName) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
     return assignAttribute(action, attributeDefName);
 
   }
@@ -563,8 +571,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return true if has attribute, false if not
    */
   public boolean hasAttributeById(String action, String attributeDefNameId) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
 
     return hasAttribute(action, attributeDefName);
 
@@ -577,8 +584,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return true if has attribute, false if not
    */
   public boolean hasAttributeByName(String action, String attributeDefNameName) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
     
     Set<AttributeAssign> attributeAssigns = retrieveAssignments(attributeDefName);
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
@@ -645,8 +651,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if added or already there
    */
   public AttributeAssignResult removeAttributeById(String action, String attributeDefNameId) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
     return removeAttribute(action, attributeDefName);
   }
 
@@ -676,8 +681,7 @@ public abstract class AttributeAssignBaseDelegate {
       return attributeAssignResult;
     }
     
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeAssign.getAttributeDefNameId(), true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeAssign.getAttributeDefNameId(), true);
     
     if (checkSecurity) {
       this.assertCanUpdateAttributeDefName(attributeDefName);
@@ -701,8 +705,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if added or already there
    */
   public AttributeAssignResult removeAttributeByName(String action, String attributeDefNameName) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
     return removeAttribute(action, attributeDefName);
   
   }
@@ -816,8 +819,7 @@ public abstract class AttributeAssignBaseDelegate {
   public AttributeAssignResult delegateAttributeById(String action, String attributeDefNameId, boolean assign, 
       AttributeAssignDelegateOptions attributeAssignDelegateOptions) {
     
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
     return delegateAttribute(action, attributeDefName, assign, attributeAssignDelegateOptions);
   
   }
@@ -843,8 +845,7 @@ public abstract class AttributeAssignBaseDelegate {
    */
   public AttributeAssignResult delegateAttributeByName(String action, String attributeDefNameName, boolean assign, 
       AttributeAssignDelegateOptions attributeAssignDelegateOptions) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
     return delegateAttribute(action, attributeDefName, assign, attributeAssignDelegateOptions);
   
   }
@@ -887,8 +888,7 @@ public abstract class AttributeAssignBaseDelegate {
    */
   public AttributeAssignResult addAttributeById(String action, String attributeDefNameId) {
     
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
     return addAttribute(action, attributeDefName);
   
   }
@@ -909,8 +909,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the result including if added or already there
    */
   public AttributeAssignResult addAttributeByName(String action, String attributeDefNameName) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, true);
     return addAttribute(action, attributeDefName);
   
   }

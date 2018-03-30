@@ -40,6 +40,7 @@ public class AllChangeLogTests {
     suite.addTestSuite(ChangeLogTypeTest.class);
     suite.addTestSuite(ChangeLogIdTest.class);
     suite.addTestSuite(ChangeLogTest.class);
+    suite.addTestSuite(ChangeLogConsumerBaseImplTest.class);
     //$JUnit-END$
     return suite;
   }

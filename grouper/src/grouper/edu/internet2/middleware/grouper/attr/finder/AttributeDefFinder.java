@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -44,31 +44,50 @@ public class AttributeDefFinder {
   /**
    * find an attributeDef by id.  This is a secure method, a GrouperSession must be open
    * @param id of attributeDef
-   * @param exceptionIfNull true if exception should be thrown if null
+   * @param exceptionIfNotFound true if exception should be thrown if null
+   * GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(id, exceptionIfNotFound, queryOptions);
+   * @param queryOptions
    * @return the attribute def or null
    * @throws AttributeDefNotFoundException
    */
-  public static AttributeDef findById(String id, boolean exceptionIfNull) {
+  public static AttributeDef findById(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
     
     
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(id, exceptionIfNull);
+    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(id, exceptionIfNotFound, queryOptions);
     
-    return attributeDef;
+    if (attributeDef != null) {
+      return attributeDef;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + id);
     
+  }
+
+  /**
+   * find an attributeDef by id.  This is a secure method, a GrouperSession must be open
+   * @param id of attributeDef
+   * @param exceptionIfNotFound true if exception should be thrown if null
+   * @return the attribute def or null
+   * @throws AttributeDefNotFoundException
+   */
+  public static AttributeDef findById(String id, boolean exceptionIfNotFound) {
+    
+    return findById(id, exceptionIfNotFound, null);
   }
   
   /**
    * find an attributeDef by id.  This is a secure method, a GrouperSession must be open
    * @param id of attributeDef
-   * @param exceptionIfNull true if exception should be thrown if null
-   * @param queryOptions
+   * @param exceptionIfNotFound true if exception should be thrown if null
    * @return the attribute def or null
    * @throws AttributeDefNotFoundException
    */
-  public static AttributeDef findById(String id, boolean exceptionIfNull, QueryOptions queryOptions) {
+  public static AttributeDef findByIdAsRoot(String id, boolean exceptionIfNotFound) {
     
-    
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(id, exceptionIfNull, queryOptions);
+
+    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(id, exceptionIfNotFound);
     
     return attributeDef;
     
@@ -77,15 +96,14 @@ public class AttributeDefFinder {
   /**
    * find an attributeDef by attribute def name id.  This is a secure method, a GrouperSession must be open
    * @param id of attributeDef
-   * @param exceptionIfNull true if exception should be thrown if null
+   * @param exceptionIfNotFound true if exception should be thrown if null
    * @return the attribute def or null
    * @throws AttributeDefNotFoundException
    */
-  public static AttributeDef findByAttributeDefNameId(String id, boolean exceptionIfNull) {
+  public static AttributeDef findByAttributeDefNameId(String id, boolean exceptionIfNotFound) {
     
-    
-    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByAttributeDefNameIdSecure(id, exceptionIfNull);
-    
+    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByAttributeDefNameIdSecure(id, exceptionIfNotFound);
+
     return attributeDef;
     
   }
@@ -93,24 +111,63 @@ public class AttributeDefFinder {
   /**
    * find an attributeDef by name.  This is a secure method, a GrouperSession must be open
    * @param name of attributeDef
-   * @param exceptionIfNull true if exception should be thrown if null
+   * @param exceptionIfNotFound true if exception should be thrown if null
    * @param queryOptions 
    * @return the attribute def or null
    * @throws AttributeDefNotFoundException
    */
-  public static AttributeDef findByName(String name, boolean exceptionIfNull, QueryOptions queryOptions) {
-    return GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(name, exceptionIfNull, queryOptions);
+  public static AttributeDef findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    
+    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(name, exceptionIfNotFound, queryOptions);
+    
+    if (attributeDef != null) {
+      
+      LOG.info("AttributeDef not found: " + name);
+      
+      return attributeDef;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + name);
+
   }
 
   /**
    * find an attributeDef by name.  This is a secure method, a GrouperSession must be open
    * @param name of attributeDef
-   * @param exceptionIfNull true if exception should be thrown if null
+   * @param exceptionIfNotFound true if exception should be thrown if null
+   * @param queryOptions 
    * @return the attribute def or null
    * @throws AttributeDefNotFoundException
    */
-  public static AttributeDef findByName(String name, boolean exceptionIfNull) {
-    return GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(name, exceptionIfNull);
+  public static AttributeDef findByNameAsRoot(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    
+    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByName(name, exceptionIfNotFound, queryOptions);
+    
+    if (attributeDef != null) {
+      
+      LOG.info("AttributeDef not found: " + name);
+      
+      return attributeDef;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + name);
+
+  }
+
+
+  /**
+   * find an attributeDef by name.  This is a secure method, a GrouperSession must be open
+   * @param name of attributeDef
+   * @param exceptionIfNotFound true if exception should be thrown if null
+   * @return the attribute def or null
+   * @throws AttributeDefNotFoundException
+   */
+  public static AttributeDef findByName(String name, boolean exceptionIfNotFound) {
+    return findByName(name, exceptionIfNotFound, null);
   }
 
   /**
@@ -123,10 +180,17 @@ public class AttributeDefFinder {
    */
   public static AttributeDef findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
       throws AttributeDefNotFoundException {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(GrouperSession.staticGrouperSession());
-    AttributeDef a = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
-    return a;
+    AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
+    
+    if (attributeDef != null) {
+      
+      LOG.info("AttributeDef not found: " + idIndex);
+      return attributeDef;
+    }
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + idIndex);
   }
 
   /**
@@ -170,6 +234,9 @@ public class AttributeDefFinder {
    * group ids to find
    */
   private Collection<String> attributeDefIds;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(AttributeDefFinder.class);
 
   /**
    * add a privilege to filter by that the subject has on the attribute definition
@@ -271,10 +338,12 @@ public class AttributeDefFinder {
       }
     }
     
-    return GrouperDAOFactory.getFactory().getAttributeDef()
+    Set<AttributeDef> results = GrouperDAOFactory.getFactory().getAttributeDef()
       .findAllAttributeDefsSecure(this.scope, this.splitScope, 
           this.subject, this.privileges, 
           this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefIds);
+    
+    return results;
   }
 
   /**

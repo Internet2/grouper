@@ -48,19 +48,6 @@ if [ -r "$FILE" ]; then
         -Dpackaging=jar
 fi
 
-# Install subject.jar if it exists
-ARTIFACT=subject
-FILE=work/GROUPER_${BRANCH_DIR}_BRANCH/grouper-GROUPER_${BRANCH_DIR}_BRANCH/grouper/lib/grouper/$ARTIFACT.jar
-if [ -r "$FILE" ]; then
-  echo Installing $ARTIFACT.jar to HOME maven repository
-  mvn -q install:install-file \
-        "-Dfile=$FILE" \
-        -DgroupId=edu.internet2.middleware.grouper \
-        -Dversion=${BRANCH}-SNAPSHOT \
-        -DartifactId=$ARTIFACT \
-        -Dpackaging=jar
-fi
-
 # Install grouperClient.jar if it exists
 # work/GROUPER_2_3_BRANCH/grouper-GROUPER_2_3_BRANCH/grouper/lib/grouper/grouperClient.jar
 ARTIFACT=grouperClient

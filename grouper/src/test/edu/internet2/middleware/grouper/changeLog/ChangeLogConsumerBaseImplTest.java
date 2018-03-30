@@ -37,7 +37,7 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogConsumerBaseImplTest("testDeleteGroupMarkedFromFolder"));
+    TestRunner.run(new ChangeLogConsumerBaseImplTest("testRemoveMarkerFromGroup"));
   }
   
   /**
@@ -137,7 +137,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
 
     //wait for grouper_debug.log: changeLog.consumer.print skipping addMembership for subject Bill Brown 
     //since group testFolder:parentFolder:subFolder:group2 is not marked for sync
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     assertEquals(0, PrintChangeLogConsumer.eventsProcessed.size());
     
@@ -150,8 +151,9 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     // wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships");
     // wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships");
     // print("end of Test 1.0.1 Marking a parent folder");
-    runJobs();
-    
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
+
     assertEquals(2, PrintChangeLogConsumer.eventsProcessed.size());
     assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
         PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " add group " + group1.getName() + " and memberships"));
@@ -205,12 +207,15 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
+
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     parentFolder.getAttributeDelegate().removeAttribute(syncAttr);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -268,12 +273,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     parentFolder.getAttributeDelegate().removeAttribute(syncAttr);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -330,12 +337,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     parentFolder.getAttributeDelegate().removeAttribute(syncAttr);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -385,7 +394,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
 
@@ -393,7 +403,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     AttributeDefName syncAttr = AttributeDefNameFinder.findByName(this.provisioningMarkerAttributeName.getName(), true);
     group1.getAttributeDelegate().assignAttribute(syncAttr);
 
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -448,12 +459,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.getAttributeDelegate().removeAttribute(syncAttr);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -507,12 +520,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.getAttributeDelegate().removeAttribute(syncAttr);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -549,7 +564,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // add group1 and membership to parent folder
@@ -559,7 +575,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     
     // remove syncAttribute mark
     group1.getAttributeDelegate().removeAttribute(syncAttr);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -600,7 +617,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // add group1 and membership to parent folder
@@ -611,12 +629,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     group1.addMember(ann);
     group1.addMember(bill);
 
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     assertEquals(0, PrintChangeLogConsumer.eventsProcessed.size());
 
     // remove syncAttribute mark
     group1.move(subFolder);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -659,7 +679,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // add group1 and membership to parent folder
@@ -670,12 +691,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     group1.addMember(ann);
     group1.addMember(bill);
 
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     assertEquals(0, PrintChangeLogConsumer.eventsProcessed.size());
 
     // remove syncAttribute mark
     group1.move(subFolder);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -719,7 +742,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // add group1 and membership to parent folder
@@ -731,13 +755,15 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     group1.addMember(bill);
     
     group1.getAttributeDelegate().assignAttribute(syncAttr);
-    
-    runJobs();
+
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.move(subFolder);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -787,7 +813,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // add group1 and membership to parent folder
@@ -797,13 +824,15 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     group1.addMember(bob);
     group1.addMember(ann);
     group1.addMember(bill);
-    
-    runJobs();
+
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.move(subFolder2);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -854,12 +883,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.delete();
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -911,12 +942,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.delete();
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -965,12 +998,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.addMember(bill);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -1024,12 +1059,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.addMember(bill);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -1079,12 +1116,14 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     // remove syncAttribute mark
     group1.deleteMember(group2.toSubject());
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -1135,11 +1174,13 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     group1.addMember(group2.toSubject());
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -1187,11 +1228,13 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     group1.deleteMember(bill);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -1243,11 +1286,13 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships
     //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships
     //hit return to continue
-    runJobs();
+    Hib3GrouperLoaderLog hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
     PrintChangeLogConsumer.eventsProcessed.clear();
 
     group2.deleteMember(bill);
-    runJobs();
+    hib3GrouploaderLog  = runJobs();
+    assertEquals("SUCCESS", hib3GrouploaderLog.getStatus());
 
     //removed syncAttribute mark");
     //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
@@ -1261,7 +1306,7 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
   /**
    * 
    */
-  private void runJobs() {
+  private Hib3GrouperLoaderLog runJobs() {
     
     ChangeLogTempToEntity.convertRecords();
     
@@ -1270,7 +1315,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_" + JOB_NAME);
     hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
     ChangeLogHelper.processRecords(JOB_NAME, hib3GrouploaderLog, new PrintChangeLogConsumer());
-    
+
+    return hib3GrouploaderLog;
   }
   
 }

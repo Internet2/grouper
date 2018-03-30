@@ -3,7 +3,7 @@
 	<tstamp/>
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
-			<pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
+			<pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
 		</classpath>
 	</taskdef>
     <if><not><available file="conf/grouper-ws.properties" /></not>
@@ -103,14 +103,14 @@
       </then>
     </if>
   
-    <available file="${grouper.lib.dir}/commons-lang.jar" property="grouper.lib.dir.exists" value="true" />
+    <available file="${grouper.lib.dir}/commons-lang-2.6.jar" property="grouper.lib.dir.exists" value="true" />
   
     <if>
       <not>
         <isset property="grouper.lib.dir.exists" />
       </not>      
       <then>
-        <fail message="Cant find grouper lib dir jars (e.g. commons-lang.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
+        <fail message="Cant find grouper lib dir jars (e.g. commons-lang-2.6.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
       </then>
     </if>
   

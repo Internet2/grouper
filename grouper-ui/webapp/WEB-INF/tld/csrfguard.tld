@@ -27,123 +27,62 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  -->
-<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" version="2.0">
-	<tlib-version>1.2</tlib-version>
-	<jsp-version>2.0</jsp-version>
-	<short-name>Owasp CsrfGuard Tag Library</short-name>
-	<uri>http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld</uri>
-	<tag>
-		<name>token</name>
-		<tag-class>org.owasp.csrfguard.tag.TokenTag</tag-class>
-		<body-content>empty</body-content>
-		<attribute>
-			<name>uri</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-	</tag>
-	<tag>
-		<name>tokenname</name>
-		<tag-class>org.owasp.csrfguard.tag.TokenNameTag</tag-class>
-		<body-content>empty</body-content>
-	</tag>
-	<tag>
-		<name>tokenvalue</name>
-		<tag-class>org.owasp.csrfguard.tag.TokenValueTag</tag-class>
-		<body-content>empty</body-content>
-		<attribute>
-			<name>uri</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-	</tag>
-  <!-- backwards compatible before hyphen was taken out -->
-  <tag>
-    <name>token-name</name>
-    <tag-class>org.owasp.csrfguard.tag.TokenNameTag</tag-class>
-    <body-content>empty</body-content>
-  </tag>
-  <!-- backwards compatible before hyphen was taken out -->
-  <tag>
-    <name>token-value</name>
-    <tag-class>org.owasp.csrfguard.tag.TokenValueTag</tag-class>
-    <body-content>empty</body-content>
-    <attribute>
-      <name>uri</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-  </tag>
-	<tag>
-		<name>a</name>
-		<tag-class>org.owasp.csrfguard.tag.ATag</tag-class>
-		<dynamic-attributes>true</dynamic-attributes>
-	</tag>
-	<tag>
-		<name>form</name>
-		<tag-class>org.owasp.csrfguard.tag.FormTag</tag-class>
-		<dynamic-attributes>true</dynamic-attributes>
-	</tag>
-  <function>
-    <description>
-      Print out a token name=value for use in params of a URL.  Note, this is for token per session.  For token per page use tokenForUri
-    </description>
-    <name>token</name>
-    <function-class>org.owasp.csrfguard.tag.CsrfFunctions
-    </function-class>
-    <function-signature>String token()</function-signature>
-    <example>
-      ${csrf:token()}
-    </example>
-  </function>
-  <function>
-    <description>
-      Print out a token name=value for use in params of a URL.  Note, this is for token per page.  For token per session use token
-    </description>
-    <name>tokenForUri</name>
-    <function-class>org.owasp.csrfguard.tag.CsrfFunctions
-    </function-class>
-    <function-signature>String tokenForUri(java.lang.String)</function-signature>
-    <example>
-      ${csrf:tokenForUri('/some/uri.html')}
-    </example>
-  </function>
-  <function>
-    <description>
-      Print out the token name
-    </description>
-    <name>tokenName</name>
-    <function-class>org.owasp.csrfguard.tag.CsrfFunctions
-    </function-class>
-    <function-signature>String tokenName()</function-signature>
-    <example>
-      ${csrf:tokenName()}
-    </example>
-  </function>
-  <function>
-    <description>
-      Print out a token value for use in params of a URL.  Note, this is for token per session.  For token per page use tokenValueForUri
-    </description>
-    <name>tokenValue</name>
-    <function-class>org.owasp.csrfguard.tag.CsrfFunctions
-    </function-class>
-    <function-signature>String tokenValue()</function-signature>
-    <example>
-      ${csrf:tokenValue()}
-    </example>
-  </function>
-  <function>
-    <description>
-      Print out a token value for use in params of a URL.  Note, this is for token per page.  For token per session use tokenValue
-    </description>
-    <name>tokenValueForUri</name>
-    <function-class>org.owasp.csrfguard.tag.CsrfFunctions
-    </function-class>
-    <function-signature>String tokenValueForUri(java.lang.String)</function-signature>
-    <example>
-      ${csrf:tokenValueForUri('/some/uri.html')}
-    </example>
-  </function>
-  
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" version="2.0">
+    <tlib-version>1.2</tlib-version>
+    <jsp-version>2.0</jsp-version>
+    <short-name>Owasp CsrfGuard Tag Library</short-name>
+    <uri>http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld</uri>
+    <tag>
+        <name>token</name>
+        <tag-class>org.owasp.csrfguard.tag.TokenTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>uri</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>tokenname</name>
+        <tag-class>org.owasp.csrfguard.tag.TokenNameTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+    <tag>
+        <name>tokenvalue</name>
+        <tag-class>org.owasp.csrfguard.tag.TokenValueTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>uri</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <!-- backwards compatible before hyphen was taken out -->
+    <tag>
+        <name>token-name</name>
+        <tag-class>org.owasp.csrfguard.tag.TokenNameTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+    <!-- backwards compatible before hyphen was taken out -->
+    <tag>
+        <name>token-value</name>
+        <tag-class>org.owasp.csrfguard.tag.TokenValueTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>uri</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>a</name>
+        <tag-class>org.owasp.csrfguard.tag.ATag</tag-class>
+        <dynamic-attributes>true</dynamic-attributes>
+    </tag>
+    <tag>
+        <name>form</name>
+        <tag-class>org.owasp.csrfguard.tag.FormTag</tag-class>
+        <dynamic-attributes>true</dynamic-attributes>
+    </tag>
 </taglib>

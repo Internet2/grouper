@@ -30,16 +30,12 @@ public class AllValidatorTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.validator");
     //$JUnit-BEGIN$
     suite.addTestSuite(Test_subj_ValidatingResolver.class);
-    suite.addTestSuite(Test_Unit_API_CompositeMembershipValidator_validate.class);
-    suite.addTestSuite(Test_Integration_ImmediateMembershipValidator_validate.class);
     suite.addTest(Suite_Integration_ImmediateMembershipValidator.suite());
     suite.addTest(Suite_Unit_API_ImmediateMembershipValidator.suite());
     suite.addTest(Suite_Unit_API_EffectiveMembershipValidator.suite());
-    suite.addTestSuite(Test_Unit_API_EffectiveMembershipValidator_validate.class);
     suite.addTest(Suite_Unit_API_CompositeMembershipValidator.suite());
     suite.addTest(Suite_Integration_CompositeValidator.suite());
     suite.addTestSuite(Test_Unit_API_CompositeValidator_validate.class);
-    suite.addTestSuite(Test_Integration_CompositeValidator_validate.class);
     //$JUnit-END$
     return suite;
   }

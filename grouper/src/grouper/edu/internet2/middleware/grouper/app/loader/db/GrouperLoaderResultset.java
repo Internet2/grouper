@@ -1047,7 +1047,7 @@ public class GrouperLoaderResultset {
                               if (LOG.isDebugEnabled()) {
                                 LOG.debug("Attribute '" + attributeValue + "' is allowed to be used based on expression? " 
                                     + attributeResultBoolean + ", '" + ldapAttributeFilterExpression + "', note the attributeValue is" +
-                                    		" in a variable called attributeValue");
+                                        " in a variable called attributeValue");
                               }
                               
                               validAttributes.put((String)attributeValue, attributeResultBoolean);

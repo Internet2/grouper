@@ -45,7 +45,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -79,15 +79,15 @@
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz-jobs</artifactId>
           <scope>provided</scope>
-        </dependency>   
+        </dependency>
         <dependency>
             <groupId>jivesoftware</groupId>
             <artifactId>smack</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3_min</artifactId>
+            <groupId>xmlpull</groupId>
+            <artifactId>xmlpull</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

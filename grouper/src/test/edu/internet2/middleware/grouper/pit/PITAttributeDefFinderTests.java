@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -32,6 +33,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -41,6 +43,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 public class PITAttributeDefFinderTests extends GrouperTest {
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new PITAttributeDefFinderTests("testFindByName"));
+  }
   
   /** top level stem */
   private Stem edu;
@@ -168,6 +178,7 @@ public class PITAttributeDefFinderTests extends GrouperTest {
     // revoke subj1 priv on attribute def 3
     s = GrouperSession.startRootSession();
     attributeDef3.getPrivilegeDelegate().revokePriv(member1.getSubject(), AttributeDefPrivilege.ATTR_VIEW, true);
+    Hib3AttributeDefDAO.attributeDefCacheRemove(attributeDef3);
     ChangeLogTempToEntity.convertRecords();
 
     // root can still see all 3
@@ -176,6 +187,7 @@ public class PITAttributeDefFinderTests extends GrouperTest {
     
     // subj1 can't see anything now
     s = GrouperSession.start(member1.getSubject());
+
     try {
       pitAttributeDefs = PITAttributeDefFinder.findByName("edu:test", true, true);
       fail("Expected AttributeDefNotFoundException.");

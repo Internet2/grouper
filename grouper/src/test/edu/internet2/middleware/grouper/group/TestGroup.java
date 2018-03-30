@@ -122,7 +122,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testDeleteGroupWithUpdateOnAttribute"));
+    TestRunner.run(new TestGroup("testGetAndHasPrivs"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -260,7 +260,7 @@ public class TestGroup extends GrouperTest {
       assertContainsGroup(childrenGroups, group2, "subj 0 can view all, should be able to view 'test:test2Group'");
       
       Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
-        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree))
+        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree*3))
         .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
         .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributes();
@@ -270,7 +270,7 @@ public class TestGroup extends GrouperTest {
       assertContainsAttributeDef(childrenAttributeDefs, attributeDef3, "subj 0 can view all, should be able to view 'test:test3AttributeDef'");
 
       Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
-        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefsInTree))
+        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefsInTree*3))
         .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
         .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributeNames();
@@ -298,7 +298,7 @@ public class TestGroup extends GrouperTest {
       assertContainsGroup(childrenGroups, group2, "subj 1 can read all, should be able to view 'test:test2Group'");
       
       Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
-        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree))
+        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree*3))
         .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
         .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributes();
@@ -308,7 +308,7 @@ public class TestGroup extends GrouperTest {
       assertContainsAttributeDef(childrenAttributeDefs, attributeDef3, "subj 1 can read all, should be able to view 'test:test3AttributeDef'");
 
       Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
-        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefNamesInTree))
+        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefNamesInTree*3))
         .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
         .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributeNames();
@@ -1108,7 +1108,7 @@ public class TestGroup extends GrouperTest {
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
-          return GroupFinder.findByName(TestGroup.s, TestGroup.i2.getName(), true);
+          return GroupFinder.findByName(TestGroup.s, TestGroup.i2.getName(), true, new QueryOptions().secondLevelCache(false));
         }
         
       });
@@ -1410,7 +1410,7 @@ public class TestGroup extends GrouperTest {
       PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
 
       // Get access privs
-      Assert.assertTrue("admins/i2      == 1",  i2.getAdmins().size()   == 1);
+      Assert.assertTrue("admins/i2      == 0",  i2.getAdmins().size()   == 0);
       Assert.assertTrue("optins/i2      == 1",  i2.getOptins().size()   == 1);
       Assert.assertTrue("optouts/i2     == 0",  i2.getOptouts().size()  == 0);
       Assert.assertTrue("readers/i2     == 1",  i2.getReaders().size()  == 1);
@@ -1419,7 +1419,7 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("groupAttrReaders/i2    == 1",  i2.getGroupAttrReaders().size() == 1);
       Assert.assertTrue("groupAttrUpdaters/i2     == 1",  i2.getGroupAttrUpdaters().size()  == 1);
 
-      Assert.assertTrue("admins/uofc    == 1",  uofc.getAdmins().size()   == 1);
+      Assert.assertTrue("admins/uofc    == 0",  uofc.getAdmins().size()   == 0);
       Assert.assertTrue("optins/uofc    == 0",  uofc.getOptins().size()   == 0);
       Assert.assertTrue("optouts/uofc   == 0",  uofc.getOptouts().size()  == 0);
       Assert.assertTrue("readers/uofc   == 1",  uofc.getReaders().size()  == 1);

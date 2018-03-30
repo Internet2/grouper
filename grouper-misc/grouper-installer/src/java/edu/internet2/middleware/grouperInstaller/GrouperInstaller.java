@@ -1996,7 +1996,8 @@ public class GrouperInstaller {
       
       System.out.println("\nThe following could be filename if no dupes: Something.java.\n"
           + "Could be package path: edu/whatever/Something.java\n"
-          + "could be path in module: dist/build/edu/internet2/middleware/grouper/changeLog/esb/consumer/EsbEvent.java");
+          + "could be path in module: dist/build/edu/internet2/middleware/grouper/changeLog/esb/consumer/EsbEvent.java\n"
+          + "could be: webapp/WEB-INF/grouperUi2/index/index.jsp");
       System.out.println("Enter the comma separated list of files (dont use .class, use .java) to make a patch from: [required]\n");
       String filesToMakePatchFromCommaSeparated = readFromStdIn("grouperInstaller.autorun.patchFilesCommaSeparated");
       if (GrouperInstallerUtils.isBlank(filesToMakePatchFromCommaSeparated)) {
@@ -2027,21 +2028,21 @@ public class GrouperInstaller {
         if (grouperInstallerIndexFile.isHasMultipleFilesBySimpleName()
             && GrouperInstallerUtils.equals(fileKey, grouperInstallerIndexFile.getSimpleName())) {
           System.out.println("This name is in the index multiple times, please be more specific: '" 
-              + fileKey + "'");
+              + fileKey + "', " + grouperInstallerIndexFile.getErrors());
           continue OUTER;
         }
         
         if (grouperInstallerIndexFile.isHasMultipleFilesByRelativePath()
             && GrouperInstallerUtils.equals(fileKey, grouperInstallerIndexFile.getRelativePath())) {
           System.out.println("This relative path is in the index multiple times, please be more specific: '" 
-              + fileKey + "'");
+              + fileKey + "', " + grouperInstallerIndexFile.getErrors());
           continue OUTER;
         }
 
         if (grouperInstallerIndexFile.isHasMultipleFilesByPath()
             && GrouperInstallerUtils.equals(fileKey, grouperInstallerIndexFile.getPath())) {
           System.out.println("This path is in the index multiple times, please be more specific: '" 
-              + fileKey + "'");
+              + fileKey + "', " + grouperInstallerIndexFile.getErrors());
           continue OUTER;
         }
         
@@ -2826,21 +2827,33 @@ public class GrouperInstaller {
             if (patchCreateAddFileToIndex(indexOfFiles, grouperInstallerIndexFile, currentFileOrDirectory.getName())) {
               //different file
               indexOfFiles.get(currentFileOrDirectory.getName()).setHasMultipleFilesBySimpleName(true);
-              System.out.println("Note: duplicate file by name: " + currentFileOrDirectory.getAbsolutePath());
+              System.out.println("Note: duplicate file by name: " + currentFileOrDirectory.getAbsolutePath().replace('\\', '/') 
+                  + ", " + currentFileOrDirectory.getName() + ", " + newRelativePath.replace('\\', '/') + ", " 
+                  + indexOfFiles.get(currentFileOrDirectory.getName()).getRelativePath().replace('\\', '/')  + ", "
+                  + grouperInstallerIndexFile.getPath().replace('\\', '/') + ", "
+                  + indexOfFiles.get(currentFileOrDirectory.getName()).getPath().replace('\\', '/'));
             }
             
             //add by relative path
             if (patchCreateAddFileToIndex(indexOfFiles, grouperInstallerIndexFile, newRelativePath)) {
               //different file
               indexOfFiles.get(currentFileOrDirectory.getName()).setHasMultipleFilesByRelativePath(true);
-              System.out.println("Note: duplicate file by relative path: " + currentFileOrDirectory.getAbsolutePath());
+              System.out.println("Note: duplicate file by relative path: " + currentFileOrDirectory.getAbsolutePath().replace('\\', '/') 
+                  + ", " + currentFileOrDirectory.getName() + ", " + newRelativePath.replace('\\', '/') + ", " 
+                  + indexOfFiles.get(currentFileOrDirectory.getName()).getRelativePath().replace('\\', '/')  + ", "
+                  + grouperInstallerIndexFile.getPath().replace('\\', '/') + ", "
+                  + indexOfFiles.get(currentFileOrDirectory.getName()).getPath().replace('\\', '/'));
             }
   
             //add by path
             if (patchCreateAddFileToIndex(indexOfFiles, grouperInstallerIndexFile, grouperInstallerIndexFile.getPath())) {
               //different file
               indexOfFiles.get(currentFileOrDirectory.getName()).setHasMultipleFilesByPath(true);
-              System.out.println("Note: duplicate file by path: " + currentFileOrDirectory.getAbsolutePath());
+              System.out.println("Note: duplicate file by path: " + currentFileOrDirectory.getAbsolutePath() .replace('\\', '/') 
+                  + ", " + currentFileOrDirectory.getName() + ", " + newRelativePath.replace('\\', '/') + ", " 
+                  + indexOfFiles.get(currentFileOrDirectory.getName()).getRelativePath().replace('\\', '/')  + ", "
+                  + grouperInstallerIndexFile.getPath().replace('\\', '/') + ", "
+                  + indexOfFiles.get(currentFileOrDirectory.getName()).getPath().replace('\\', '/'));
             }
           }
           
@@ -2868,10 +2881,13 @@ public class GrouperInstaller {
     //convert slashes on key
     key = key.replace('\\', '/');
     
+    grouperInstallerIndexFile.getErrors().append("Key: ").append(key).append(", ");
+    
     GrouperInstallerIndexFile currentFileInIndex = indexOfFiles.get(key);
     if (currentFileInIndex == null) {
       indexOfFiles.put(key, grouperInstallerIndexFile);
     } else {
+      currentFileInIndex.getErrors().append("Key: ").append(key).append(",");
       //skip these, who cares, too many dupes
       if (!GrouperInstallerUtils.equals(grouperInstallerIndexFile.getSimpleName(), "package-info.java")
           && !GrouperInstallerUtils.equals(grouperInstallerIndexFile.getSimpleName(), "package.html")) {

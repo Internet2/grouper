@@ -62,6 +62,20 @@ public interface NamingResolver {
       String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
       String sqlLikeString);
   
+  /**
+   * find the stems which do have a certain privilege
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject 
+   * @param sqlLikeString
+   * @return the stems
+   */
+  Set<Stem> getStemsWhereSubjectDoesHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
+  
 
   /**
    * flush cache if caching resolver
@@ -236,7 +250,7 @@ public interface NamingResolver {
   public void revokeAllPrivilegesForSubject(Subject subject);
   
   /**
-   * for a stem query, check to make sure the subject cant see the records
+   * for a stem query, check to make sure the subject doesnt have privs
    * @param subject which needs view access to the groups
    * @param hqlQuery 
    * @param hql the select and current from part
@@ -246,6 +260,19 @@ public interface NamingResolver {
    * @return if the statement was changed
    */
   public boolean hqlFilterStemsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject);
+
+  /**
+   * for a stem query, check to make sure the subject has privs
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param stemColumn is the name of the group column to join to
+   * @param privilege find a privilege which is in this set (e.g. stem or create)
+   * @param considerAllSubject if true, then consider GrouperAll when seeign if subject has priv, else do not
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterStemsWithPrivWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject);
 
   

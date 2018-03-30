@@ -21,19 +21,13 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import java.util.Set;
-
 import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.pit.PITStem;
-import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * Obliterate a stem no matter what is in there.
@@ -78,7 +72,7 @@ public class obliterateStem {
     }
     return false;
   }
-  
+
   /**
    * Obliterate a stem.
    * @param session 
@@ -88,41 +82,9 @@ public class obliterateStem {
    * @return True if {@link Stem} was deleted.
    */
   public static boolean invoke(GrouperSession session, String name, boolean testOnly, boolean deleteFromPointInTime) {
-    Stem ns = StemFinder.findByName(session, name, false);
-    
-    if (ns == null) {
-      System.out.println("Stem " + name + " does not exist.");
-    } else {
-      ns.obliterate(true, testOnly);
-    }
-    
-    if (!testOnly && deleteFromPointInTime) {
-      while (true) {
-        if (ns != null) {
-          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(ns.getUuid(), false);
-          if (pitStem != null && !pitStem.isActive()) {
-            break;
-          }
-        } else {
-          Set<PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByName(name, false);
-          if (pitStems.size() > 0 && !pitStems.iterator().next().isActive()) {
-            break;
-          } 
-        }
-        
-        System.out.println("Waiting for Grouper Daemon to process before obliterating from point in time data.  This is expected to take a few minutes.  Be sure the Grouper Daemon is running.");
-        try {
-          Thread.sleep(15000);
-        } catch (InterruptedException e) {
-          // ignore
-        }
-      }
-      
-      PITUtils.deleteInactiveStem(name, true);
-    }
-    
+    Stem.obliterate(name, true, testOnly, deleteFromPointInTime);
     return true;    
   }
-  
+
 } // public class delStem
 

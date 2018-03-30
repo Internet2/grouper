@@ -33,8 +33,8 @@
 package edu.internet2.middleware.grouper.validator;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.internal.util.U;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author mchyzer
@@ -64,7 +64,7 @@ public class AddAttributeDefNameValidator extends GrouperValidator {
       return v;
     }
     String attributeName = U.constructName( parent.getName(), extn );
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure( attributeName, false );
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName( attributeName, false );
     if (attributeDefName != null) {
       v.setErrorMessage(ATTRIBUTE_DEF_NAME_ALREADY_EXISTS_WITH_NAME_PREFIX + attributeName + "'");
       return v;

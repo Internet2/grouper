@@ -52,9 +52,9 @@ public class AttributeHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new AttributeHooksTest("testAttributePostInsert"));
+    TestRunner.run(new AttributeHooksTest("testAttributePostInsert"));
     //TestRunner.run(new AttributeHooksTest("testAttributePreDelete"));
-    TestRunner.run(AttributeHooksTest.class);
+    //TestRunner.run(AttributeHooksTest.class);
   }
   
   /**

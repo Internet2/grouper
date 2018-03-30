@@ -116,6 +116,18 @@ public interface AttributeDefDAO extends GrouperDAO {
     throws GrouperDAOException, AttributeDefNotFoundException;
   
   /**
+   * find an attribute def by name.  this is a secure method, a grouperSession needs to be open
+   * @param name 
+   * @param exceptionIfNotFound 
+   * @param queryOptions
+   * @return attribute def
+   * @throws GrouperDAOException 
+   * @throws AttributeDefNotFoundException 
+   */
+  public AttributeDef findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws GrouperDAOException, AttributeDefNotFoundException;
+  
+  /**
    * Find all that have the given stem id.
    * @param id
    * @return set of stems
@@ -245,5 +257,21 @@ public interface AttributeDefDAO extends GrouperDAO {
       Subject subject, Set<Privilege> privileges, 
       QueryOptions queryOptions, String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<String> attributeDefIds);
+
+  /**
+   * see which attributeDefs do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @param sqlLikeString
+   * @return the attributeDefs
+   */
+  public Set<AttributeDef> findAttributeDefsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString);
 
 }

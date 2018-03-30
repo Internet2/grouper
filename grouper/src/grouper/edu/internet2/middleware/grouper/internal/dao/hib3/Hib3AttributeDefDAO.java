@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,18 +23,23 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -51,6 +57,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -60,6 +67,9 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(Hib3AttributeDefDAO.class);
+
   /**
    * 
    */
@@ -74,6 +84,37 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   }
 
   /**
+   * remove all caches
+   */
+  public static void attributeDefCacheClear() {
+    attributeDefFlashCache.clear();
+    attributeDefRootCache.clear();
+  }
+
+  /**
+   * names and ids of attribute defs which should cache as root
+   */
+  private static Set<String> attributeDefCacheAsRootIdsAndNames = new HashSet<String>();
+  /**
+   * cache stuff in attributeDef by subjectSourceId, subjectId, name, uuid, idIndex
+   */
+  private static GrouperCache<MultiKey, AttributeDef> attributeDefFlashCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder.attributeDefFinderFlashCache");
+  /**
+   * cache stuff in attribute defs by name, uuid, idIndex
+   */
+  private static GrouperCache<Object, AttributeDef> attributeDefRootCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder.attributeDefFinderCache");
+  /**
+   * 
+   */
+  private static final String GROUPER_CACHE_FIND_ATTRIBUTE_DEF_ROOT_BY_CACHE = "grouperCache.find.attributeDefRootByCache";
+  /**
+   * 
+   */
+  private static final String GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE = "grouperFlashCache.find.attributeDefCache";
+
+  /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByIdSecure(java.lang.String, boolean)
    */
@@ -86,16 +127,34 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByIdSecure(String, boolean, QueryOptions)
    */
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
-    AttributeDef attributeDef = findById(id, exceptionIfNotFound, queryOptions);
+    
+    
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(id, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+    
+    attributeDef = attributeDefFlashCacheRetrieve(id, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+
+    attributeDef = findById(id, exceptionIfNotFound, queryOptions);
 
     //make sure grouper session can view the attribute def
     attributeDef = filterSecurity(attributeDef);
     
-    if (attributeDef == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Not allowed to find AttributeDef by id: " + id);
+    if (attributeDef != null) {
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+      
+      return attributeDef;
     }
-    
-    return attributeDef;
+    LOG.info("AttributeDef not found: " + id);
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + id);
   }
 
   /**
@@ -110,11 +169,20 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findById(java.lang.String, boolean, QueryOptions)
    */
   public AttributeDef findById(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(id, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }
+    attributeDef = attributeDefFlashCacheAsRootRetrieve(id, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }
     if (queryOptions != null) {
       // why would the caller be sorting here?
       massageSortFields(queryOptions.getQuerySort());
     }
-    AttributeDef attributeDef = HibernateSession.byHqlStatic()
+    attributeDef = HibernateSession.byHqlStatic()
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindById")
       .createQuery(
@@ -125,7 +193,8 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (attributeDef == null && exceptionIfNotFound) {
       throw new AttributeDefNotFoundException("Cant find AttributeDef by id: " + id);
     }
-    
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
     return attributeDef;
   }
 
@@ -170,6 +239,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public void saveOrUpdate(AttributeDef attributeDef) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeDef);
+    
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCache.clear();
+
   }
 
   /**
@@ -187,11 +260,22 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public AttributeDef findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws GrouperDAOException, AttributeDefNotFoundException {
+
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(name, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+    
+    attributeDef = attributeDefFlashCacheRetrieve(name, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+
     if (queryOptions != null) {
       // why would the caller be sorting here?
       massageSortFields(queryOptions.getQuerySort());
     }
-    AttributeDef attributeDef = HibernateSession.byHqlStatic()
+    attributeDef = HibernateSession.byHqlStatic()
       .createQuery("select theAttributeDef from AttributeDef as theAttributeDef where theAttributeDef.nameDb = :value")
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByName")
@@ -205,6 +289,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (attributeDef == null && exceptionIfNotFound) {
       throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def with name: '" + name + "'");
     }
+    
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+    
     return attributeDef;
   }
 
@@ -213,24 +301,13 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public AttributeDef findByAttributeDefNameIdSecure(String attributeDefNameId,
       boolean exceptionIfNotFound) {
-    AttributeDef attributeDef = HibernateSession.byHqlStatic().createQuery(
-        "select theAttributeDef from AttributeDef as theAttributeDef, " +
-        "AttributeDefName as theAttributeDefName where theAttributeDefName.id = :theAttributeDefNameId" +
-        " and theAttributeDef.id = theAttributeDefName.attributeDefId")
-      .setString("theAttributeDefNameId", attributeDefNameId)
-      .setCacheable(true)
-      .setCacheRegion(KLASS + ".FindByAttributeDefNameIdSecure")
-      .uniqueResult(AttributeDef.class);
+
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, exceptionIfNotFound);
     
-    //make sure grouper session can view the attribute def
-    attributeDef = filterSecurity(attributeDef);
-    
-    if (attributeDef == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cant find (or not allowed to find) AttributeDef " +
-      		"by attributeDefNameId: " + attributeDefNameId);
+    if (attributeDefName != null) {
+      return findById(attributeDefName.getAttributeDefId(), true);
     }
-    
-    return attributeDef;
+    return null;
   }
 
   /**
@@ -244,6 +321,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         .setString("id", id)
         .listSet(AttributeDef.class);
     
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
+    }
+
     return attributeDefs;
   }
 
@@ -275,8 +357,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         .setString("theName", name)
         .uniqueResult(AttributeDef.class);
       if (attributeDef == null && exceptionIfNotFound) {
-        throw new GroupNotFoundException("Can't find attributeDef by id: '" + id + "' or name '" + name + "'");
+        throw new AttributeDefNotFoundException("Can't find attributeDef by id: '" + id + "' or name '" + name + "'");
       }
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
+
       return attributeDef;
     }
     catch (GrouperDAOException e) {
@@ -302,6 +387,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         .setLong("theCreatedOnDb", attributeDef.getCreatedOnDb())
         .setString("theContextId", attributeDef.getContextId())
         .setString("theId", attributeDef.getId()).executeUpdate();
+    
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCache.clear();
   }
 
   /**
@@ -327,6 +415,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerAttrDef(attributeDef.getId());
 
         hibernateHandlerBean.getHibernateSession().byObject().delete(attributeDef);
+        
+        attributeDefFlashCache.clear();
+        attributeDefRootCache.clear();
+        
         return null;
       }
     });
@@ -559,6 +651,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       overallResults.addAll(GrouperUtil.nonNull(tempResult));
     }
 
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(overallResults)) {
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+    }
+
     //if find by uuid or name, try to narrow down to one...
     if (findByUuidOrName) {
       
@@ -650,6 +747,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       .options(queryOptions)
       .listSet(AttributeDef.class);
           
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
+    }
+
     //if the hql didnt filter, this will
     Set<AttributeDef> filteredAttributeDefs = grouperSession.getAttributeDefResolver()
       .postHqlFilterAttrDefs(attributeDefs, grouperSession.getSubject(), adminSet);
@@ -720,7 +822,16 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   public AttributeDef findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNotFoundException {
     
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(idIndex, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }
+    attributeDef = attributeDefFlashCacheAsRootRetrieve(idIndex, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }
     if (queryOptions != null) {
+      // why would the caller be sorting here?
       massageSortFields(queryOptions.getQuerySort());
     }
     StringBuilder hql = new StringBuilder("select theAttributeDef from AttributeDef as theAttributeDef where (theAttributeDef.idIndex = :theIdIndex)");
@@ -729,12 +840,13 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     byHqlStatic.createQuery(hql.toString());
     
-    AttributeDef attributeDef = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(AttributeDef.class);
+    attributeDef = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(AttributeDef.class);
 
-    //handle exceptions out of data access method...
     if (attributeDef == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cannot find AttributeDef with idIndex: '" + idIndex + "'");
+      throw new AttributeDefNotFoundException("Cant find AttributeDef by id: " + idIndex);
     }
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
     return attributeDef;
     
   }
@@ -747,16 +859,32 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   public AttributeDef findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNotFoundException {
     
-    AttributeDef attributeDef = findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(idIndex, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+    
+    attributeDef = attributeDefFlashCacheRetrieve(idIndex, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+
+    attributeDef = findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
 
     //make sure grouper session can view the attribute def
     attributeDef = filterSecurity(attributeDef);
-
-    //handle exceptions out of data access method...
-    if (attributeDef == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cannot find AttributeDef with idIndex: '" + idIndex + "'");
+    
+    if (attributeDef != null) {
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedTo(attributeDef);
+      
+      return attributeDef;
     }
-    return attributeDef;
+    LOG.info("AttributeDef not found: " + idIndex);
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new AttributeDefNotFoundException("AttributeDef not found: " + idIndex);
     
   }
 
@@ -828,6 +956,416 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     return getAllAttributeDefsSecureHelper(scope, GrouperSession.staticGrouperSession(), 
         subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope, findByUuidOrName, totalAttributeDefIds);
     
+  }
+
+  /**
+   * @see AttributeDefDAO#findAttributeDefsInStemWithPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
+   */
+  public Set<AttributeDef> findAttributeDefsInStemWithPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    massageSortFields(queryOptions.getQuerySort());
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theAttributeDef.nameDb");
+    }
+  
+    StringBuilder sqlTables = new StringBuilder("select distinct theAttributeDef from AttributeDef theAttributeDef ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder sqlWhereClause = new StringBuilder();
+  
+    switch (scope) {
+      case ONE:
+        
+        sqlWhereClause.append(" theAttributeDef.stemId = :stemId ");
+        byHqlStatic.setString("stemId", stemId);
+        
+        break;
+        
+      case SUB:
+        
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
+        sqlWhereClause.append(" theAttributeDef.nameDb like :stemPattern ");
+        byHqlStatic.setString("stemPattern", stem.getName() + ":%");
+  
+        break;
+        
+      default:
+        throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
+    }
+    
+  
+    
+    //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
+    Set<Privilege> adminSet = GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN);
+  
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sqlTables, sqlWhereClause, "theAttributeDef.id", adminSet);
+  
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      if (sqlWhereClause.length() > 0) {
+        sqlWhereClause.append(" and ");
+      }
+      sqlWhereClause.append(" theAttributeDef.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
+  
+    StringBuilder sql = sqlTables.append(" where ").append(sqlWhereClause);
+  
+    boolean changedQueryNotWithPriv = grouperSession.getAttributeDefResolver().hqlFilterAttributeDefsWithPrivWhereClause(subject, byHqlStatic, 
+        sql, "theAttributeDef.id", privilege, considerAllSubject);
+  
+    Set<AttributeDef> attributeDefs = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAttributeDefsInStemWithPrivilege")
+      .options(queryOptions)
+      .listSet(AttributeDef.class);
+          
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+      attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
+    }
+
+    //if the hql didnt filter, this will
+    Set<AttributeDef> filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+      .postHqlFilterAttrDefs(attributeDefs, grouperSession.getSubject(), adminSet);
+  
+    if (!changedQueryNotWithPriv) {
+      
+      //didnt do this in the query
+      Set<AttributeDef> originalList = new LinkedHashSet<AttributeDef>(filteredAttributeDefs);
+      filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+        .postHqlFilterAttrDefs(originalList, subject, GrouperUtil.toSet(privilege));
+      
+      //we want the ones in the original list not in the new list
+      if (filteredAttributeDefs != null) {
+        originalList.removeAll(filteredAttributeDefs);
+      }
+      filteredAttributeDefs = originalList;
+    }
+    
+    return filteredAttributeDefs;
+    
+  }
+
+  /**
+   * see if this is cacheable
+   * @param id
+   * @param queryOptions 
+   * @param checkGrouperSession 
+   * @return if cacheable
+   */
+  private static boolean attributeDefCacheableAsRoot(Object id, QueryOptions queryOptions, boolean checkGrouperSession) {
+  
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_CACHE_FIND_ATTRIBUTE_DEF_ROOT_BY_CACHE, true)) {
+      return false;
+    }
+  
+    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+      return false;
+    }
+  
+    if (checkGrouperSession) {
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      
+      if (grouperSession == null) {
+        return false;
+      }
+      
+      Subject grouperSessionSubject = grouperSession.getSubject();
+  
+      if (grouperSessionSubject == null || !PrivilegeHelper.isWheelOrRoot(grouperSessionSubject)) {
+        return false; 
+      }
+    }
+  
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
+      return false;
+    }
+    
+    if (!attributeDefCacheAsRootIdsAndNames.contains(id)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * add attributeDef to cache if not null
+   * @param attributeDef
+   */
+  private static void attributeDefCacheAsRootAddIfSupposedTo(AttributeDef attributeDef) {
+    if (attributeDef != null && GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_CACHE_FIND_ATTRIBUTE_DEF_ROOT_BY_CACHE, true)
+        && !StringUtils.isBlank(attributeDef.getUuid()) && !StringUtils.isBlank(attributeDef.getName()) 
+        && attributeDefCacheAsRootIdsAndNames.contains(attributeDef.getId())
+        && attributeDef.getIdIndex() != null) {
+      attributeDefCacheAsRootIdsAndNamesAdd(attributeDef);
+    }
+    
+  }
+
+  /**
+   * mark an attribute def as supposed to be cached, and put it in the cache
+   * @param attributeDef
+   */
+  public static void attributeDefCacheAsRootIdsAndNamesAdd(AttributeDef attributeDef) {
+    if (attributeDef == null) {
+      return;
+    }
+    attributeDefCacheAsRootIdsAndNames.add(attributeDef.getId());
+    attributeDefCacheAsRootIdsAndNames.add(attributeDef.getName());
+  
+    attributeDefRootCache.put(attributeDef.getId(), attributeDef);
+    attributeDefRootCache.put(attributeDef.getName(), attributeDef);
+    attributeDefRootCache.put(attributeDef.getIdIndex(), attributeDef);
+  }
+
+  /**
+   * 
+   * @param attributeDefIdOrName or id index
+   * @return if this is cached
+   */
+  public static boolean attributeDefCacheAsRootIdsAndNamesContains(Object attributeDefIdOrName) {
+    return attributeDefCacheAsRootIdsAndNames.contains(attributeDefIdOrName);
+  }
+
+  /**
+   * get a attributeDef from root cache
+   * @param id
+   * @param queryOptions
+   * @return the attributeDef or null
+   */
+  private static AttributeDef attributeDefCacheAsRootRetrieve(Object id, QueryOptions queryOptions) {
+    
+    if (attributeDefCacheableAsRoot(id, queryOptions, true)) {
+      
+      //see if its already in the cache
+      AttributeDef attributeDef = attributeDefRootCache.get(id);
+      if (attributeDef != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from attributeDef root cache by name: " + attributeDef.getName());
+        }
+        return attributeDef;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get a attributeDef from flash root cache
+   * @param id
+   * @param queryOptions
+   * @return the attributeDef or null
+   */
+  private static AttributeDef attributeDefFlashCacheAsRootRetrieve(Object id, QueryOptions queryOptions) {
+
+    if (attributeDefFlashCacheable(id, queryOptions)) {
+      MultiKey flashCacheMultiKey = attributeDefFlashCacheMultikeyAsRoot(id);
+      AttributeDef attributeDef = attributeDefFlashCache.get(flashCacheMultiKey);
+      if (attributeDef != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from attributeDef flash root cache by id: " + id);
+        }
+        return attributeDef;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * remove this from all caches
+   * @param attributeDef
+   */
+  public static void attributeDefCacheRemove(AttributeDef attributeDef) {
+    attributeDefRootCache.remove(attributeDef.getUuid());
+    attributeDefRootCache.remove(attributeDef.getName());
+    attributeDefRootCache.remove(attributeDef.getIdIndex());
+  
+    attributeDefFlashCache.clear();
+  }
+
+  /**
+   * see if this is cacheable
+   * @param id
+   * @param queryOptions 
+   * @return if cacheable
+   */
+  private static boolean attributeDefFlashCacheable(Object id, QueryOptions queryOptions) {
+  
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
+      return false;
+    }
+  
+    if (id == null || ((id instanceof String) && StringUtils.isBlank((String)id))) {
+      return false;
+    }
+  
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * add attributeDef to cache if not null
+   * @param attributeDef
+   */
+  private static void attributeDefFlashCacheAddIfSupposedTo(AttributeDef attributeDef) {
+    if (attributeDef == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
+      return;
+    }
+    
+    for (Object id : new Object[]{attributeDef.getUuid(), attributeDef.getName(), attributeDef.getIdIndex()}) {
+      MultiKey multiKey = attributeDefFlashCacheMultikey(id);
+      if (multiKey == null) {
+        continue;
+      }
+      attributeDefFlashCache.put(multiKey, attributeDef);
+    }
+    
+  }
+
+  /**
+   * add attributeDef to cache if not null
+   * @param attributeDef
+   */
+  private static void attributeDefFlashCacheAddIfSupposedToAsRoot(AttributeDef attributeDef) {
+    if (attributeDef == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
+      return;
+    }
+    
+    for (Object id : new Object[]{attributeDef.getUuid(), attributeDef.getName(), attributeDef.getIdIndex()}) {
+      MultiKey multiKey = attributeDefFlashCacheMultikeyAsRoot(id);
+      attributeDefFlashCache.put(multiKey, attributeDef);
+    }
+    
+  }
+
+  /**
+   * multikey
+   * @param id
+   * @return if cacheable
+   */
+  private static MultiKey attributeDefFlashCacheMultikeyAsRoot(Object id) {
+    
+    if (id == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
+      return null;
+    }
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    return new MultiKey(rootSubject.getSourceId(), rootSubject.getId(), id);
+  }
+
+  /**
+   * multikey
+   * @param id
+   * @return if cacheable
+   */
+  private static MultiKey attributeDefFlashCacheMultikey(Object id) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_DEF_CACHE, true)) {
+      return null;
+    }
+  
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    Subject grouperSessionSubject = null;
+    
+    if (grouperSession == null) {
+      grouperSessionSubject = SubjectFinder.findRootSubject();
+    } else {
+      grouperSessionSubject = grouperSession.getSubject();
+    }
+        
+    return new MultiKey(grouperSessionSubject.getSourceId(), grouperSessionSubject.getId(), id);
+  }
+
+  /**
+   * get a attributeDef from flash cache
+   * @param id
+   * @param queryOptions
+   * @return the group or null
+   */
+  private static AttributeDef attributeDefFlashCacheRetrieve(Object id, QueryOptions queryOptions) {
+    if (attributeDefFlashCacheable(id, queryOptions)) {
+      MultiKey groupFlashMultikey = attributeDefFlashCacheMultikey(id);
+      //see if its already in the cache
+      AttributeDef attributeDef = attributeDefFlashCache.get(groupFlashMultikey);
+      if (attributeDef != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from attribute def flash cache by id: " + attributeDef.getName());
+        }
+        return attributeDef;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get a attributeDef from flash cache
+   * @param id
+   * @param queryOptions
+   * @return the group or null
+   */
+  private static AttributeDef attributeDefFlashCacheRetrieveAsRoot(Object id, QueryOptions queryOptions) {
+    if (attributeDefFlashCacheable(id, queryOptions)) {
+      MultiKey groupFlashMultikey = attributeDefFlashCacheMultikeyAsRoot(id);
+      //see if its already in the cache
+      AttributeDef attributeDef = attributeDefFlashCache.get(groupFlashMultikey);
+      if (attributeDef != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from attribute def flash cache by id: " + attributeDef.getName());
+        }
+        return attributeDef;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByName(java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public AttributeDef findByName(String name, boolean exceptionIfNotFound,
+      QueryOptions queryOptions) throws GrouperDAOException,
+      AttributeDefNotFoundException {
+    
+    AttributeDef attributeDef = attributeDefCacheAsRootRetrieve(name, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+    
+    attributeDef = attributeDefFlashCacheRetrieveAsRoot(name, queryOptions);
+    if (attributeDef != null) {
+      return attributeDef;
+    }      
+
+    if (queryOptions != null) {
+      // why would the caller be sorting here?
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    attributeDef = HibernateSession.byHqlStatic()
+      .createQuery("select theAttributeDef from AttributeDef as theAttributeDef where theAttributeDef.nameDb = :value")
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByName")
+      .options(queryOptions)
+      .setString("value", name).uniqueResult(AttributeDef.class);
+
+    //handle exceptions out of data access method...
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def with name: '" + name + "'");
+    }
+    
+    attributeDefCacheAsRootAddIfSupposedTo(attributeDef);
+    attributeDefFlashCacheAddIfSupposedToAsRoot(attributeDef);
+    
+    return attributeDef;
   }
   
 

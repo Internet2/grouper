@@ -29,10 +29,12 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -41,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -65,6 +68,13 @@ import edu.internet2.middleware.subject.Subject;
 public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDAO {
   
   /**
+   * remove all caches
+   */
+  public static void attributeAssignCacheClear() {
+    attributeAssignFlashCache.clear();
+  }
+
+  /**
    * 
    */
   private static final String KLASS = Hib3AttributeAssignDAO.class.getName();
@@ -78,6 +88,130 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     hibernateSession.byHql().createQuery("delete from AttributeAssign").executeUpdate();
   }
 
+  /**
+   * @param multiKey
+   * @return string multikey
+   */
+  private static String attributeAssignFlashCacheMultiKeyToString(MultiKey multiKey) {
+    
+    if (multiKey == null) {
+      return null;
+    }
+    
+    StringBuilder result = new StringBuilder();
+    
+    String type = (String)multiKey.getKey(0);
+
+    result.append("type: ").append(type).append(", source: ").append(multiKey.getKey(1)).append(", subjectId: ").append(multiKey.getKey(2));
+    
+    if (StringUtils.equals(type, "params")) {
+      
+      if (!StringUtils.isBlank((String)multiKey.getKey(3))) {
+        result.append(", attributeDefId: ").append(multiKey.getKey(3));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(4))) {
+        result.append(", attributeDefNameId: ").append(multiKey.getKey(4));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(5))) {
+        result.append(", ownerAttributeAssignId: ").append(multiKey.getKey(5));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(6))) {
+        result.append(", ownerAttributeDefId: ").append(multiKey.getKey(6));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(7))) {
+        result.append(", ownerGroupId: ").append(multiKey.getKey(7));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(8))) {
+        result.append(", ownerMemberId: ").append(multiKey.getKey(8));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(9))) {
+        result.append(", ownerMembershipId: ").append(multiKey.getKey(9));
+      }
+      if (!StringUtils.isBlank((String)multiKey.getKey(10))) {
+        result.append(", ownerStemId: ").append(multiKey.getKey(10));
+      }
+      
+    } else if (StringUtils.equals(type, "id")) {
+
+      result.append(", id: ").append(multiKey.getKey(3));
+      
+    }
+    return result.toString();
+  }
+  
+  /**
+   * @param attributeDefId 
+   * @param attributeDefNameId 
+   * @param ownerAttributeAssignId 
+   * @param ownerAttributeDefId 
+   * @param ownerGroupId 
+   * @param ownerMemberId 
+   * @param ownerMembershipId 
+   * @param ownerStemId 
+   * @return multikey
+   */
+  private static MultiKey attributeAssignFlashCacheMultiKey(String attributeDefId, String attributeDefNameId, 
+      String ownerAttributeAssignId, String ownerAttributeDefId,
+      String ownerGroupId, String ownerMemberId, String ownerMembershipId,
+      String ownerStemId) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE, true)) {
+      return null;
+    }
+  
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    Subject grouperSessionSubject = null;
+    
+    if (grouperSession != null) {
+      grouperSessionSubject = SubjectFinder.findRootSubject();
+    } else {
+      grouperSessionSubject = grouperSession.getSubject();
+    }
+
+    return new MultiKey(new Object[] {"params", grouperSessionSubject.getSourceId(), grouperSessionSubject.getId(), 
+        attributeDefId, attributeDefNameId, 
+        ownerAttributeAssignId, ownerAttributeDefId,
+        ownerGroupId, ownerMemberId, ownerMembershipId,
+        ownerStemId});
+  }
+  
+  /**
+   * @param id
+   * @return multikey
+   */
+  private static MultiKey attributeAssignFlashCacheMultiKey(String id) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE, true)) {
+      return null;
+    }
+  
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    Subject grouperSessionSubject = null;
+    
+    if (grouperSession != null) {
+      grouperSessionSubject = SubjectFinder.findRootSubject();
+    } else {
+      grouperSessionSubject = grouperSession.getSubject();
+    }
+
+    return new MultiKey(new Object[] {"id", grouperSessionSubject.getSourceId(), grouperSessionSubject.getId(), 
+        id});
+  }
+  
+  /**
+   * cache stuff in attributeAssign by subjectSourceId, subjectId, and all params
+   */
+  private static GrouperCache<MultiKey, Set<AttributeAssign>> attributeAssignFlashCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignDAO.attributeAssignFlashCache");
+
+  /**
+   * 
+   */
+  private static final String GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE = "grouperFlashCache.find.attributeAssignsCache";
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(Hib3AttributeAssignDAO.class);
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAllEnabledDisabledMismatch()
    */
@@ -195,6 +329,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public void saveOrUpdate(AttributeAssign attributeAssign) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssign);
+    attributeAssignFlashCache.clear();
   }
 
   /**
@@ -202,12 +337,20 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByGroupIdAndAttributeDefNameId(String groupId, String attributeDefNameId) {
     
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameId, null, null, groupId, null, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
       "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerGroupId = :theOwnerGroupId and attributeAssignTypeDb = 'group'")
       .setString("theAttributeDefNameId", attributeDefNameId)
       .setString("theOwnerGroupId", groupId)
       .listSet(AttributeAssign.class);
 
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
   }
 
@@ -216,15 +359,26 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByGroupIdAndAttributeDefId(String groupId,
       String attributeDefId) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
-      "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
-      "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerGroupId = :theOwnerGroupId")
-      .setString("theAttributeDefId", attributeDefId)
-      .setString("theOwnerGroupId", groupId)
-      .listSet(AttributeAssign.class);
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefId, null, null, null, groupId, null, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
+        "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
+        "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerGroupId = :theOwnerGroupId")
+        .setString("theAttributeDefId", attributeDefId)
+        .setString("theOwnerGroupId", groupId)
+        .listSet(AttributeAssign.class);
 
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
+
+    
   }
 
   /**
@@ -233,6 +387,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public void delete(AttributeAssign attributeAssign) {
     HibernateSession.byObjectStatic().delete(attributeAssign);
+    attributeAssignFlashCache.clear();
   }
 
   /**
@@ -272,7 +427,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByStemIdAndAttributeDefId(String stemId,
       String attributeDefId) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefId, null, null, null, null, null, null, stemId);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
         "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
         "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerStemId = :theOwnerStemId")
@@ -280,7 +442,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerStemId", stemId)
         .listSet(AttributeAssign.class);
 
-      return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -288,13 +453,23 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByStemIdAndAttributeDefNameId(String stemId,
       String attributeDefNameId) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-    "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerStemId = :theOwnerStemId")
-    .setString("theAttributeDefNameId", attributeDefNameId)
-    .setString("theOwnerStemId", stemId)
-    .listSet(AttributeAssign.class);
+  
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameId, null, null, null, null, null, stemId);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerStemId = :theOwnerStemId")
+        .setString("theAttributeDefNameId", attributeDefNameId)
+        .setString("theOwnerStemId", stemId)
+        .listSet(AttributeAssign.class);
 
-  return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -318,7 +493,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByMemberIdAndAttributeDefId(String memberId,
       String attributeDefId) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefId, null, null, null, null, memberId, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
         "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
         "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerMemberId = :theOwnerMemberId")
@@ -326,7 +508,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerMemberId", memberId)
         .listSet(AttributeAssign.class);
 
-      return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -334,12 +519,21 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByMemberIdAndAttributeDefNameId(String memberId,
       String attributeDefNameId) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMemberId = :theOwnerMemberId")
-      .setString("theAttributeDefNameId", attributeDefNameId)
-      .setString("theOwnerMemberId", memberId)
-      .listSet(AttributeAssign.class);
 
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameId, null, null, null, memberId, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMemberId = :theOwnerMemberId")
+        .setString("theAttributeDefNameId", attributeDefNameId)
+        .setString("theOwnerMemberId", memberId)
+        .listSet(AttributeAssign.class);
+
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
   }
 
@@ -364,7 +558,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByAttributeDefIdAndAttributeDefId(
       String attributeDefIdToAssignTo, String attributeDefIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefIdToAssign, null, null, attributeDefIdToAssignTo, null, null, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
         "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
         "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerAttributeDefId = :theOwnerAttributeDefId")
@@ -372,7 +573,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerAttributeDefId", attributeDefIdToAssignTo)
         .listSet(AttributeAssign.class);
 
-      return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -380,13 +584,23 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByAttributeDefIdAndAttributeDefNameId(
       String attributeDefIdToAssignTo, String attributeDefNameIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerAttributeDefId = :theOwnerAttributeDefId")
-      .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
-      .setString("theOwnerAttributeDefId", attributeDefIdToAssignTo)
-      .listSet(AttributeAssign.class);
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameIdToAssign, null, attributeDefIdToAssignTo, null, null, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerAttributeDefId = :theOwnerAttributeDefId")
+        .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
+        .setString("theOwnerAttributeDefId", attributeDefIdToAssignTo)
+        .listSet(AttributeAssign.class);
 
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
+
   }
 
   /**
@@ -410,7 +624,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByMembershipIdAndAttributeDefId(
       String membershipIdToAssignTo, String attributeDefIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+  
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefIdToAssign, null, null, null, null, null, membershipIdToAssignTo, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
         "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
         "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerMembershipId = :theOwnerMembershipId")
@@ -418,7 +639,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerMembershipId", membershipIdToAssignTo)
         .listSet(AttributeAssign.class);
 
-      return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -426,14 +650,24 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByMembershipIdAndAttributeDefNameId(
       String membershipIdToAssignTo, String attributeDefNameIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMembershipId = :theOwnerMembershipId")
-      .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
-      .setString("theOwnerMembershipId", membershipIdToAssignTo)
-      .listSet(AttributeAssign.class);
-  
+
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameIdToAssign, null, null, null, null, membershipIdToAssignTo, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMembershipId = :theOwnerMembershipId")
+        .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
+        .setString("theOwnerMembershipId", membershipIdToAssignTo)
+        .listSet(AttributeAssign.class);
+
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
   }
+
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefNamesByAttrAssignIdAndAttributeDefId(java.lang.String, java.lang.String)
@@ -456,7 +690,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByAttrAssignIdAndAttributeDefId(
       String attrAssignIdToAssignTo, String attributeDefIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefIdToAssign, null, attrAssignIdToAssignTo, null, null, null, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
         "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
         "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerAttributeAssignId = :theOwnerAttrAssignId")
@@ -464,7 +705,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerAttrAssignId", attrAssignIdToAssignTo)
         .listSet(AttributeAssign.class);
 
-      return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -472,13 +716,24 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByAttrAssignIdAndAttributeDefNameId(
       String attrAssignIdToAssignTo, String attributeDefNameIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerAttributeAssignId = :theOwnerAttrAssignId")
-      .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
-      .setString("theOwnerAttrAssignId", attrAssignIdToAssignTo)
-      .listSet(AttributeAssign.class);
-  
+
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameIdToAssign, attrAssignIdToAssignTo, null, null, null, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      //caching might not work here, need option to not use cache from AttributeAssignBaseDelegate.retrieveAssignment
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerAttributeAssignId = :theOwnerAttrAssignId")
+        .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
+        .setString("theOwnerAttrAssignId", attrAssignIdToAssignTo)
+        .listSet(AttributeAssign.class);
+
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
+
   }
 
   /**
@@ -506,7 +761,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByGroupIdMemberIdAndAttributeDefId(String groupId,
       String memberId, String attributeDefIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(attributeDefIdToAssign, null, null, null, groupId, memberId, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
         "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
         "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerMemberId = :theOwnerMemberId " +
@@ -516,7 +778,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerGroupId", groupId)
         .listSet(AttributeAssign.class);
 
-      return attributeAssigns;
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
+    return attributeAssigns;
+
   }
 
   /**
@@ -524,15 +789,25 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    */
   public Set<AttributeAssign> findByGroupIdMemberIdAndAttributeDefNameId(String groupId,
       String memberId, String attributeDefNameIdToAssign) {
-    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerGroupId = :theOwnerGroupId " +
-      "and ownerMemberId = :theOwnerMemberId")
-      .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
-      .setString("theOwnerGroupId", groupId)
-      .setString("theOwnerMemberId", memberId)
-      .listSet(AttributeAssign.class);
-  
+    
+    MultiKey multiKey = attributeAssignFlashCacheMultiKey(null, attributeDefNameIdToAssign, null, null, groupId, memberId, null, null);
+    Set<AttributeAssign> attributeAssigns = attributeAssignFlashCacheRetrieve(multiKey, null);
+    if (attributeAssigns != null) {
+      return attributeAssigns;
+    }      
+    
+    attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerGroupId = :theOwnerGroupId " +
+        "and ownerMemberId = :theOwnerMemberId")
+        .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
+        .setString("theOwnerGroupId", groupId)
+        .setString("theOwnerMemberId", memberId)
+        .listSet(AttributeAssign.class);
+
+    attributeAssignFlashCacheAddIfSupposedTo(multiKey, attributeAssigns);
+    
     return attributeAssigns;
+
   }
 
   /**
@@ -541,7 +816,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   public AttributeAssign findByUuidOrKey(Collection<String> idsToIgnore, String id,
       String attributeDefNameId, String attributeAssignActionId, String ownerAttributeAssignId,
       String ownerAttributeDefId, String ownerGroupId, String ownerMemberId,
-      String ownerMembershipId, String ownerStemId, boolean exceptionIfNull,
+      String ownerMembershipId, String ownerStemId, boolean exceptionIfNotFound,
       Long disabledTimeDb, Long enabledTimeDb, String notes, boolean disallowed) throws GrouperDAOException {
     try {
       Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic()
@@ -569,7 +844,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theDisallowedDb", disallowed ? "T" : "F")
         .listSet(AttributeAssign.class);
       if (GrouperUtil.length(attributeAssigns) == 0) {
-        if (exceptionIfNull) {
+        if (exceptionIfNotFound) {
           throw new RuntimeException("Can't find attributeAssign by id: '" + id + "' or attributeDefNameId '" + attributeDefNameId 
               + "', ownerAttributeAssignId: " + ownerAttributeAssignId
               + ", ownerAttributeDefId: " + ownerAttributeDefId
@@ -824,6 +1099,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   public static void queryByValueAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
       AttributeDefValueType attributeDefValueType, Object theValue) {
 
+    String bindVariableName = GrouperUtil.uniqueId();
+    
     if (theValue != null && attributeDefValueType == null) {
       throw new RuntimeException("Why is attributeDefValueType null if you are querying by value???");
     }
@@ -840,14 +1117,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sqlWhereClause.append(" aa.id = aav.attributeAssignId ");
       switch(attributeDefValueType) {
         case floating:
-          sqlWhereClause.append(" and aav.valueFloating = :theValue ");
+          sqlWhereClause.append(" and aav.valueFloating = :" + bindVariableName + " ");
           Double theDouble = (Double)attributeDefValueType.convertToObject(theValue);
-          byHqlStatic.setDouble("theValue", theDouble);
+          byHqlStatic.setDouble(bindVariableName, theDouble);
           break;
         case integer:
-          sqlWhereClause.append(" and aav.valueInteger = :theValue ");
+          sqlWhereClause.append(" and aav.valueInteger = :" + bindVariableName + " ");
           Long theLong = (Long)attributeDefValueType.convertToObject(theValue);
-          byHqlStatic.setLong("theValue", theLong);
+          byHqlStatic.setLong(bindVariableName, theLong);
           break;
           
         case marker:
@@ -855,25 +1132,25 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
           throw new RuntimeException("Why are you querying by value on a marker attribute???");
         case memberId:
           theValue = attributeDefValueType.convertToObject(theValue);
-          sqlWhereClause.append(" and aav.valueMemberId = :theValue ");
-          byHqlStatic.setString("theValue", (String)theValue);
+          sqlWhereClause.append(" and aav.valueMemberId = :" + bindVariableName + " ");
+          byHqlStatic.setString(bindVariableName, (String)theValue);
           break;
           
         case string:
           theValue = attributeDefValueType.convertToObject(theValue);
-          sqlWhereClause.append(" and aav.valueString = :theValue ");
-          byHqlStatic.setString("theValue", (String)theValue);
+          sqlWhereClause.append(" and aav.valueString = :" + bindVariableName + " ");
+          byHqlStatic.setString(bindVariableName, (String)theValue);
           break;
           
         case timestamp:
           
-          sqlWhereClause.append(" and aav.valueInteger = :theValue ");
+          sqlWhereClause.append(" and aav.valueInteger = :" + bindVariableName + " ");
           theValue = attributeDefValueType.convertToObject(theValue);
           
           if (theValue != null) {
             theValue = ((Timestamp)theValue).getTime();
           }
-          byHqlStatic.setLong("theValue", (Long)theValue);
+          byHqlStatic.setLong(bindVariableName, (Long)theValue);
           break;
           
           
@@ -890,11 +1167,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param sqlTables
    * @param sqlWhereClause should not be empty
    * @param attributeDefValueType
-   * @param theValue
+   * @param theValues
    * @param attributeAssignAlias is usually "aa"
    */
   public static void queryByValuesAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
       AttributeDefValueType attributeDefValueType, Set<Object> theValues, String attributeAssignAlias) {
+
+    String bindVariableName = GrouperUtil.uniqueId();
 
     if (theValues != null && attributeDefValueType == null) {
       throw new RuntimeException("Why is attributeDefValueType null if you are querying by value???");
@@ -950,7 +1229,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         if (i!=0) {
           sqlWhereClause.append(", ");
         }
-        sqlWhereClause.append(" :theValue");
+        sqlWhereClause.append(" :" + bindVariableName);
         sqlWhereClause.append(i);
         
       }
@@ -958,7 +1237,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       for (int i=0; i<GrouperUtil.length(theValuesList); i++) {
         Object theValueLocal = theValuesList.get(i);
-        String alias = "theValue" + i;
+        String alias = bindVariableName + i;
         switch(attributeDefValueType) {
           case floating:
             
@@ -3437,7 +3716,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     boolean changedQuery = false;
     
     if (attributeCheckReadOnAttributeDef) {
-      grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
+      changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
         grouperSessionSubject, byHqlStatic, 
         sqlTables, "aa.ownerStemId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
     }
@@ -4464,6 +4743,74 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         stemIds, actions, enabled, includeAssignmentsOnAssignments, 
         attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef);
   }
+
+  /**
+   * remove this from all caches
+   * @param attributeDef
+   */
+  public static void attributeDefNameCacheRemove(AttributeDef attributeDef) {
+    attributeAssignFlashCache.clear();
+  }
+
+  /**
+   * see if this is cacheable
+   * @param queryOptions 
+   * @return if cacheable
+   */
+  private static boolean attributeAssignFlashCacheable(QueryOptions queryOptions) {
+  
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE, true)) {
+      return false;
+    }
+  
+    if (!HibUtils.secondLevelCaching(true, queryOptions)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * add attributeAssign to cache if not null
+   * @param multiKey 
+   * @param attributeAssigns
+   */
+  private static void attributeAssignFlashCacheAddIfSupposedTo(MultiKey multiKey, Set<AttributeAssign> attributeAssigns) {
+    if (multiKey == null || attributeAssigns == null || !GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_FLASHCACHE_FIND_ATTRIBUTE_ASSIGNS_CACHE, true)) {
+      return;
+    }
+    
+    attributeAssignFlashCache.put(multiKey, attributeAssigns);
+    
+    for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssigns)) {
+
+      multiKey = attributeAssignFlashCacheMultiKey(attributeAssign.getId());
+      if (multiKey != null) {
+        attributeAssignFlashCache.put(multiKey, GrouperUtil.toSet(attributeAssign));
+      }
+    }
+  }
+
+  /**
+   * get a attributeDefName from flash cache
+   * @param multiKey 
+   * @param queryOptions
+   * @return the attributeAssigns or null
+   */
+  private static Set<AttributeAssign> attributeAssignFlashCacheRetrieve(MultiKey multiKey, QueryOptions queryOptions) {
+    if (multiKey != null && attributeAssignFlashCacheable(queryOptions)) {
+      //see if its already in the cache
+      Set<AttributeAssign> attributeAssigns = attributeAssignFlashCache.get(multiKey);
+      if (attributeAssigns != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("retrieving from attribute assigns flash cache: " + attributeAssignFlashCacheMultiKeyToString(multiKey));
+        }
+        return attributeAssigns;
+      }
+    }
+    return null;
+  }
+  
 } 
 
 

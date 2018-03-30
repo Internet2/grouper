@@ -54,7 +54,7 @@ public class MembershipPathGroupTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipPathGroupTest("testCompositePrivilege"));
+    TestRunner.run(new MembershipPathGroupTest("testMembershipPathGroup"));
   }
   
   /**
@@ -389,15 +389,15 @@ public class MembershipPathGroupTest extends GrouperTest {
     membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
     membershipPaths = new ArrayList<MembershipPath>(membershipPathGroup.getMembershipPaths());
     
-    assertEquals(9, GrouperUtil.length(membershipPaths));
-    assertFalse(membershipPaths.get(0).isPathAllowed());
-    assertEquals(1, membershipPaths.get(0).getMembershipPathNodes().size());
-    assertEquals("test:mpaths:overallGroup", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals(0, GrouperUtil.length(membershipPaths));
+//    assertFalse(membershipPaths.get(0).isPathAllowed());
+//    assertEquals(1, membershipPaths.get(0).getMembershipPathNodes().size());
+//    assertEquals("test:mpaths:overallGroup", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
     
-    assertEquals(2, membershipPaths.get(1).getMembershipPathNodes().size());
-    assertFalse(membershipPaths.get(1).isPathAllowed());
-    assertEquals("test:mpaths:intermediateGroup", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
-    assertEquals("test:mpaths:overallGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+//    assertEquals(2, membershipPaths.get(1).getMembershipPathNodes().size());
+//    assertFalse(membershipPaths.get(1).isPathAllowed());
+//    assertEquals("test:mpaths:intermediateGroup", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+//    assertEquals("test:mpaths:overallGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
 
     //System.out.prin tln(membershipPathGroup.toString());
 
@@ -411,8 +411,8 @@ public class MembershipPathGroupTest extends GrouperTest {
 
     membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
     membershipPaths = new ArrayList<MembershipPath>(membershipPathGroup.getMembershipPaths());
-    
-    assertEquals(9, GrouperUtil.length(membershipPaths));
+
+    assertEquals(3, GrouperUtil.length(membershipPaths));
     assertTrue(membershipPaths.get(0).isPathAllowed());
     assertEquals(1, membershipPaths.get(0).getMembershipPathNodes().size());
     assertEquals("test:mpaths:overallGroup", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
@@ -435,7 +435,7 @@ public class MembershipPathGroupTest extends GrouperTest {
     membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
     membershipPaths = new ArrayList<MembershipPath>(membershipPathGroup.getMembershipPaths());
     
-    assertEquals(9, GrouperUtil.length(membershipPaths));
+    assertEquals(3, GrouperUtil.length(membershipPaths));
     assertTrue(membershipPaths.get(0).isPathAllowed());
     assertEquals(1, membershipPaths.get(0).getMembershipPathNodes().size());
     assertEquals("test:mpaths:overallGroup", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());

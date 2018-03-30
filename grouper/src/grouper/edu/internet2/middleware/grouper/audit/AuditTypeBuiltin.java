@@ -553,13 +553,8 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /** 
    * update attestation for stem
    */
-  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName")),
+  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName"));
   
-  /** 
-   * update loader metadata attributes for group
-   */
-  GROUP_LOADER_METADATA_ATTRIBUTES_UPDATE(new AuditType("groupLoaderMetadata", "updateGroupLoaderMetadataAttributes", null, "groupId", "groupName"));
-
   /**
    * defaults for audit type, though doesnt hold the id
    */

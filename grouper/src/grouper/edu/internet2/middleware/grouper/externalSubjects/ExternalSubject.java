@@ -1006,7 +1006,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.validateIndentiferLikeEmail", true)) {
       if (!GrouperUtil.validEmail(this.identifier)) {
-        throw new RuntimeException("Not allowed to register this identifier, should be something like a@b.c: '" + this.identifier + "'");
+        throw new RuntimeException("Not allowed to register this identifier, should be in email format: '" + this.identifier + "'");
       }
     }
      

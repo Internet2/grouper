@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 
 
 /**
@@ -123,7 +124,8 @@ public class AttributeHooksImpl extends AttributeHooks {
     try {
 
     Attribute attribute = postInsertBean.getAttribute();
-      Group aGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attribute.getGroupUuid(), true);
+      Group aGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attribute.getGroupUuid(), true, new QueryOptions().secondLevelCache(false));
+      
       mostRecentPostInsertAttributeValue = aGroup.getAttributeValue(attribute.getAttrName(), false, false);
       if (StringUtils.equals("test8", mostRecentPostInsertAttributeValue)) {
         throw new HookVeto("hook.veto.attribute.insert.name.not.test8", "name cannot be test8");

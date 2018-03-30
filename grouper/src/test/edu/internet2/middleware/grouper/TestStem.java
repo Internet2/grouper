@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -70,6 +71,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -97,7 +99,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testGetChildGroups2"));
+    TestRunner.run(new TestStem("testCache"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -183,7 +185,7 @@ public class TestStem extends GrouperTest {
     
     stem.obliterate(false, false);
     
-    stem = StemFinder.findByName(grouperSession, "test", false);
+    stem = StemFinder.findByName(grouperSession, "test", false, new QueryOptions().secondLevelCache(false));
     
     assertNull(stem);
     
@@ -1195,7 +1197,6 @@ public class TestStem extends GrouperTest {
     StemHelper.addChildGroup(edu, "i2", "internet2");
     edu = StemFinder.findByName(s, edu.getName(), true);
   
-    
     try {
       Subject modifier = edu.getModifySubject();
       Assert.fail("no exception thrown");
@@ -1206,7 +1207,11 @@ public class TestStem extends GrouperTest {
     Date  d       = edu.getModifyTime();
     Assert.assertTrue("modify time null", d.getTime() == 0);
     
+    edu.grantPriv(SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
+    edu = StemFinder.findByName(s, edu.getName(), true, new QueryOptions().secondLevelCache(false));
+    
     d = edu.getLastMembershipChange();
+    
     Assert.assertNotNull("last membership change !null: " + d, d);
     Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
     
@@ -1240,6 +1245,9 @@ public class TestStem extends GrouperTest {
     Date  d       = edu.getModifyTime();
     Assert.assertTrue("modify time null", d.getTime() == 0);
     
+    edu.grantPriv(SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
+    edu = StemFinder.findByName(s, edu.getName(), true, new QueryOptions().secondLevelCache(false));
+
     d = edu.getLastMembershipChange();
     Assert.assertNotNull("last membership change !null: " + d, d);
     Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
@@ -1261,8 +1269,8 @@ public class TestStem extends GrouperTest {
   
   
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins before grant", 1, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers before grant", 0, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins before grant", 0, r.ns.getStemAdmins().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
   
       GrouperSession.callbackGrouperSession(r.rs, new GrouperSessionHandler() {
@@ -1280,8 +1288,8 @@ public class TestStem extends GrouperTest {
       });
   
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins after grant" , 2, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers after grant" , 1, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins after grant" , 1, r.ns.getStemAdmins().size()  );
       T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
   
       s.stop();
@@ -1298,13 +1306,13 @@ public class TestStem extends GrouperTest {
       R       r     = R.populateRegistry(0, 0, 1);
       Subject subjA = r.getSubject("a");
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins before grant", 1, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers before grant", 0, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins before grant", 0, r.ns.getStemAdmins().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
       r.ns.grantPriv(subjA, NamingPrivilege.STEM);
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
-      T.amount("stemAdmins after grant" , 2, r.ns.getStemAdmins().size()  );
+      T.amount("stemmers after grant" , 1, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins after grant" , 1, r.ns.getStemAdmins().size()  );
       T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
       r.rs.stop();
     }
@@ -1402,14 +1410,20 @@ public class TestStem extends GrouperTest {
       Stem    nsA   = r.getStem("a");
       
       Thread.sleep(1);
+
+      nsA.grantPriv(SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
+      nsA = StemFinder.findByName(GrouperSession.staticGrouperSession(), nsA.getName(), true, new QueryOptions().secondLevelCache(false));
+
       long    orig  = nsA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
       Thread.sleep(1);
       nsA.setDescription("test");
       nsA.store();
       Thread.sleep(1);
-      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      nsA = StemFinder.findByName(GrouperSession.staticGrouperSession(), nsA.getName(), true, new QueryOptions().secondLevelCache(false));
       long    mtime = nsA.getModifyTime().getTime();
+
+
       long    mtime_mem = nsA.getLastMembershipChange().getTime();
   
       assertTrue( "nsA modify time updated (" + mtime + " > " + orig + ")", mtime > orig );
@@ -2388,6 +2402,183 @@ public class TestStem extends GrouperTest {
       assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
     
     }
+  }
+
+  /**
+   * make sure obliterate works
+   */
+  public void testObliterateAndPointInTime() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    new StemSave(grouperSession).assignName("test:sub1").save();
+    new StemSave(grouperSession).assignName("test:sub2").save();
+    new StemSave(grouperSession).assignName("test:sub1:sub12").save();
+    new StemSave(grouperSession).assignName("test:sub2:sub22").save();
+    
+    new GroupSave(grouperSession).assignName("test:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup3").save();
+  
+    AttributeDef testTestAttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef").save();
+    AttributeDef testTest2AttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef2").save();
+    AttributeDef testTest3AttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef3").save();
+    AttributeDef testTestSub1AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef").save();
+    AttributeDef testTestSub12AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef2").save();
+    AttributeDef testTestSub13AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef3").save();
+    AttributeDef testTestSub2AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef").save();
+    AttributeDef testTestSub22AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef2").save();
+    AttributeDef testTestSub23AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef3").save();
+    AttributeDef testTestSub112AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef").save();
+    AttributeDef testTestSub122AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef2").save();
+    AttributeDef testTestSub123AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef3").save();
+    AttributeDef testTestSub222AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef").save();
+    AttributeDef testTestSub2222AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef2").save();
+    AttributeDef testTestSub2223AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef3").save();
+  
+    new AttributeDefNameSave(grouperSession, testTestAttributeDef).assignName("test:testAttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTest2AttributeDef).assignName("test:testAttributeDefName2").save();
+    new AttributeDefNameSave(grouperSession, testTest3AttributeDef).assignName("test:testAttributeDefName3").save();
+    new AttributeDefNameSave(grouperSession, testTestSub1AttributeDef).assignName("test:testSub1AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub12AttributeDef).assignName("test:testSub12AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub13AttributeDef).assignName("test:testSub13AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2AttributeDef).assignName("test:testSub2AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub22AttributeDef).assignName("test:testSub22AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub23AttributeDef).assignName("test:testSub23AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub112AttributeDef).assignName("test:testSub112AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub122AttributeDef).assignName("test:testSub122AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub123AttributeDef).assignName("test:testSub123AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub222AttributeDef).assignName("test:testSub222AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2222AttributeDef).assignName("test:testSub2222AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2223AttributeDef).assignName("test:testSub2223AttributeDefName").save();
+  
+    try {
+      Stem.testingRunChangeLogSooner = true;
+      
+      stem.obliterate(true, true, true);
+      
+      stem = StemFinder.findByName(grouperSession, "test", true);
+      
+      assertNotNull(stem);
+      
+      stem.obliterate(false, false, true);
+      
+      stem = StemFinder.findByName(grouperSession, "test", false);
+      
+      assertNull(stem);
+      
+      ChangeLogTempToEntity.convertRecords();
+      
+      assertEquals(0, GrouperUtil.length(GrouperDAOFactory.getFactory().getPITStem().findByName("test", false)));
+    } finally {
+      Stem.testingRunChangeLogSooner = false;
+      
+    }
+    
+  }
+
+  /**
+   * make sure obliterate works
+   */
+  public void testObliterateAndPointInTimeComposite() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    new StemSave(grouperSession).assignName("test:sub1").save();
+    new StemSave(grouperSession).assignName("test:sub2").save();
+    new StemSave(grouperSession).assignName("test:sub1:sub12").save();
+    new StemSave(grouperSession).assignName("test:sub2:sub22").save();
+
+    Group test2Group = new GroupSave(grouperSession).assignName("test2:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group test2Group2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
+    Group test2Group3 = new GroupSave(grouperSession).assignName("test2:testGroup3").save();
+    Group test2Group4 = new GroupSave(grouperSession).assignName("test2:testGroup4").save();
+
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    
+    testGroup.addCompositeMember(CompositeType.INTERSECTION, test2Group, test2Group2);
+    test2Group3.addCompositeMember(CompositeType.INTERSECTION, testGroup2, test2Group4);
+    
+    new GroupSave(grouperSession).assignName("test:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup3").save();
+  
+    AttributeDef testTestAttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef").save();
+    AttributeDef testTest2AttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef2").save();
+    AttributeDef testTest3AttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef3").save();
+    AttributeDef testTestSub1AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef").save();
+    AttributeDef testTestSub12AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef2").save();
+    AttributeDef testTestSub13AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef3").save();
+    AttributeDef testTestSub2AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef").save();
+    AttributeDef testTestSub22AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef2").save();
+    AttributeDef testTestSub23AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef3").save();
+    AttributeDef testTestSub112AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef").save();
+    AttributeDef testTestSub122AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef2").save();
+    AttributeDef testTestSub123AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef3").save();
+    AttributeDef testTestSub222AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef").save();
+    AttributeDef testTestSub2222AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef2").save();
+    AttributeDef testTestSub2223AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef3").save();
+  
+    new AttributeDefNameSave(grouperSession, testTestAttributeDef).assignName("test:testAttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTest2AttributeDef).assignName("test:testAttributeDefName2").save();
+    new AttributeDefNameSave(grouperSession, testTest3AttributeDef).assignName("test:testAttributeDefName3").save();
+    new AttributeDefNameSave(grouperSession, testTestSub1AttributeDef).assignName("test:testSub1AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub12AttributeDef).assignName("test:testSub12AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub13AttributeDef).assignName("test:testSub13AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2AttributeDef).assignName("test:testSub2AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub22AttributeDef).assignName("test:testSub22AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub23AttributeDef).assignName("test:testSub23AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub112AttributeDef).assignName("test:testSub112AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub122AttributeDef).assignName("test:testSub122AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub123AttributeDef).assignName("test:testSub123AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub222AttributeDef).assignName("test:testSub222AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2222AttributeDef).assignName("test:testSub2222AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2223AttributeDef).assignName("test:testSub2223AttributeDefName").save();
+  
+    try {
+      Stem.testingRunChangeLogSooner = true;
+      
+      stem.obliterate(true, true, true);
+      
+      stem = StemFinder.findByName(grouperSession, "test", true);
+      
+      assertNotNull(stem);
+      
+      stem.obliterate(false, false, true);
+      
+      stem = StemFinder.findByName(grouperSession, "test", false);
+      
+      assertNull(stem);
+      
+      ChangeLogTempToEntity.convertRecords();
+      
+      assertEquals(0, GrouperUtil.length(GrouperDAOFactory.getFactory().getPITStem().findByName("test", false)));
+    } finally {
+      Stem.testingRunChangeLogSooner = false;
+      
+    }
+    
   }
 }
 

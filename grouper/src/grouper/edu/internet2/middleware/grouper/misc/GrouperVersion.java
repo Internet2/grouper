@@ -19,15 +19,22 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
 /**
@@ -332,4 +339,117 @@ public class GrouperVersion {
     }
     return this.rc > anotherVersion.rc;
   }
+  
+  /**
+   * cache this so we dont have to lookup patches all the time
+   */
+  private static ExpirableCache<Boolean, Map<String, Set<Integer>>> patchesInstalledCache = new ExpirableCache<Boolean, Map<String, Set<Integer>>>(10);
+  
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(GrouperVersion.class);
+
+  /**
+   * get the patch index file if can find or null if not
+   * @param errorIfProblem if should throw error if problem
+   * @return the file
+   */
+  public static File grouperPatchStatusFile(boolean errorIfProblem) {
+    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
+    if (log4jFile.exists()) {
+      File confDir = log4jFile.getParentFile();
+      if (confDir.exists()) {
+        File grouperDir = confDir.getParentFile();
+        if (grouperDir.exists()) {
+          File patchIndexFile = new File(GrouperUtil.fileCanonicalPath(grouperDir) + File.separator + "grouperPatchStatus.properties");
+          return patchIndexFile;
+        } else {
+          if (errorIfProblem) {
+            throw new RuntimeException("grouper dir doesnt exist");
+          }
+        }
+      } else {
+        if (errorIfProblem) {
+          throw new RuntimeException("conf dir doesnt exist");
+        }
+      }
+    } else {
+      if (errorIfProblem) {
+        throw new RuntimeException("log4j.properties doesnt exist");
+      }
+    }
+    if (errorIfProblem) {
+      throw new RuntimeException("Problem finding grouperPatchStatus.properties");
+    }
+    return null;
+  }
+  
+  /**
+   * map of patch type (e.g. api, ui), and numbers of patches installed in order
+   * @return the map of patches installed, never returns null
+   */
+  public static Map<String, Set<Integer>> patchesInstalled() {
+    Map<String, Set<Integer>> patchesInstalled = patchesInstalledCache.get(Boolean.TRUE);
+    
+    if (patchesInstalled == null) {
+      synchronized (patchesInstalledCache) {
+        
+        patchesInstalled = patchesInstalledCache.get(Boolean.TRUE);
+        if (patchesInstalled == null) {
+          
+          patchesInstalled = new TreeMap<String, Set<Integer>>();
+          
+          try {
+
+            File patchIndexFile = grouperPatchStatusFile(true);
+            if (patchIndexFile.exists()) {
+              Properties props = GrouperUtil.propertiesFromFile(patchIndexFile, false);
+              
+              Pattern patchStatePattern = Pattern.compile("^grouper_v" + GROUPER_VERSION.replace(".", "_") + "_(.*)_patch_(.*)\\.state$");
+              for (String key : (Set<String>)(Object)props.keySet()) {
+                Matcher matcher = patchStatePattern.matcher(key);
+
+                if (matcher.matches() && "applied".equals(props.getProperty(key))) {
+                  String engine = matcher.group(1);
+                  String patchNumberString = matcher.group(2);
+                  Set<Integer> patchNumbers = patchesInstalled.get(engine);
+                  if (patchNumbers == null) {
+                    patchNumbers = new TreeSet<Integer>();
+                    patchesInstalled.put(engine, patchNumbers);
+                  }
+                  
+                  try {
+                    int patchNumberInt = GrouperUtil.intValue(patchNumberString); 
+                    patchNumbers.add(patchNumberInt);
+                  } catch (Exception e) {
+                    String logMessage = "Error: cant parse version number from grouperPatchStatus.properties entry: " + key + " in " + patchIndexFile.getAbsolutePath();
+                    try {
+                      LOG.error(logMessage);
+                    } catch (Exception e2) {
+                      System.out.println(logMessage);
+                    }
+                    //swallow this since could be in startup
+                  }
+                }
+              }
+            }
+          } catch (Exception e) {
+            String logMessage = "Error: cant process grouperPatchStatus.properties";
+            try {
+              LOG.error(logMessage, e);
+            } catch (Exception e2) {
+              System.out.println(logMessage);
+              e.printStackTrace();
+            }
+            //swallow this since could be in startup
+          }
+          patchesInstalledCache.put(Boolean.TRUE, patchesInstalled);
+        }
+      }
+    }
+    return patchesInstalled;
+  }
+  
+
 }

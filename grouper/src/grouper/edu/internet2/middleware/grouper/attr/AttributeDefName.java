@@ -68,6 +68,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -1169,6 +1170,9 @@ public class AttributeDefName extends GrouperAPI
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.stemId.name(), this.getStemId(), 
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.description.name(), this.getDescription(), 
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.attributeDefId.name(), this.getAttributeDefId()).save();
+    
+    Hib3AttributeDefNameDAO.attributeDefNameCacheRemove(this);
+
   }
 
   /**
@@ -1269,6 +1273,9 @@ public class AttributeDefName extends GrouperAPI
         GrouperUtil.toList(
             ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name(),
             ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description.name())); 
+    
+    Hib3AttributeDefNameDAO.attributeDefNameCacheRemove(this);
+
   }
 
   /**
@@ -1459,6 +1466,15 @@ public class AttributeDefName extends GrouperAPI
       
     }
     return true;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperObject#getParentStem()
+   */
+  public Stem getParentStem() {
+    return this.getStem();
   }
 
 }

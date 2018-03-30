@@ -604,10 +604,10 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       
       if (readonly) {
         System.out.println((atlassianCwdUser.getId() == null ? "Adding" : "Updating") 
-            + " user: " + atlassianCwdUser.getUserName());
+            + " user: " + atlassianCwdUser.getUserName() + ", email: " + atlassianCwdUser.getEmailAddress());
       } else {
         LOG.info((atlassianCwdUser.getId() == null ? "Adding" : "Updating") 
-            + " user: " + atlassianCwdUser.getUserName());
+            + " user: " + atlassianCwdUser.getUserName() + ", email: " + atlassianCwdUser.getEmailAddress());
         atlassianCwdUser.store();
 
         this.atlassianUserIdToUserMap.put(atlassianCwdUser.getId(), atlassianCwdUser);

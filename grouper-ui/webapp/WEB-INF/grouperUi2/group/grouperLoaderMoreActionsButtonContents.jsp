@@ -36,7 +36,7 @@
                             >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Group.viewAllLoaderManagedGroups?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAllLoaderManagedGroups?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewAllLoaderManagedGroups'] }</a></li>
                         </c:if>
                       </ul>

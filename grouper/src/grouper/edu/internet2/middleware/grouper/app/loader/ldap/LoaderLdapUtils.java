@@ -28,8 +28,8 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.util.ExpirableCache;
@@ -86,7 +86,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapAttributeDefName(boolean exceptionIfNotFound) {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapName(), exceptionIfNotFound);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapName(), exceptionIfNotFound);
   }
 
   /** extension of the attribute def name for the quartz cron configuration */
@@ -111,7 +111,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapQuartzCronAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapQuartzCronName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapQuartzCronName(), true);
   }
   
   /** loader ldap def extension */
@@ -151,7 +151,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapTypeAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapTypeName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapTypeName(), true);
   }
   
   /** extension of the attribute def name for the server id of the ldap config (e.g. myLdap) */
@@ -176,7 +176,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapServerIdAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapServerIdName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapServerIdName(), true);
   }
 
   /** extension of attribute def name for ldap filter to run to find the objects that have the subject id */
@@ -201,7 +201,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapFilterAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapFilterName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapFilterName(), true);
   }
 
   /** extension of attribute def name for ldap filter run in a dn (optional though recommended) */
@@ -226,7 +226,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapSearchDnAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSearchDnName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapSearchDnName(), true);
   }
 
   /** extension of attribute def name for ldap "and groups" (must be in these comma separated group names) */
@@ -251,7 +251,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapPriorityAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapPriorityName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapPriorityName(), true);
   }
 
   /** Quartz has a fixed threadpool (max configured in the grouper-loader.properties), and when the max is reached, 
@@ -277,7 +277,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapAndGroupsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapAndGroupsName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapAndGroupsName(), true);
   }
 
   /** extension of attribute def name for the name of the attribute in the ldap object 
@@ -304,9 +304,10 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapSubjectAttributeAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSubjectAttributeName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapSubjectAttributeName(), true);
   }
 
+  
   /** extension of the attribute def name for the source id of all subjects inside */
   public static final String ATTR_DEF_EXTENSION_SOURCE_ID = "grouperLoaderLdapSourceId";
 
@@ -329,7 +330,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapSourceIdAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSourceIdName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapSourceIdName(), true);
   }
 
   /** extension of the attribute def name for subjectId, subjectIdentifier, or subjectIdOrIdentifier (default) */
@@ -354,7 +355,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapSubjectIdTypeAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSubjectIdTypeName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapSubjectIdTypeName(), true);
   }
 
   /** extension of the attribute def name for search scope, needs to be one of: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE */
@@ -379,7 +380,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapSearchScopeAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSearchScopeName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapSearchScopeName(), true);
   }
   
   /** extension of the attribute def name for groups like string for sql to remove orphans of LDAP_GROUP_LIST */
@@ -404,7 +405,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupsLikeAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupsLikeName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupsLikeName(), true);
   }
   
   /**
@@ -442,7 +443,34 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupAttributeAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttributeName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupAttributeName(), true);
+  }
+
+
+
+  /** Attribute name of the processing expression filter object result that holds the group name  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE_PROCESSING_EXPRESSION = "grouperLoaderLdapGroupAttributeProcessingExpression";
+
+  /** attribute def name of group attribute processing expression */
+  private static String grouperLoaderLdapGroupAttributeProcessingExpressionName;
+
+  /**
+   * attribute def name of group attribute processing expression
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupAttributeProcessingExpressionName() {
+    if (grouperLoaderLdapGroupAttributeProcessingExpressionName == null) {
+      grouperLoaderLdapGroupAttributeProcessingExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE_PROCESSING_EXPRESSION;
+    }
+    return grouperLoaderLdapGroupAttributeProcessingExpressionName;
+  }
+  
+  /**
+   * return attribute def name for attribute group attribute processing expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupAttributeProcessingExpressionAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupAttributeProcessingExpressionName(), true);
   }
 
 
@@ -470,7 +498,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapAttributeFilterExpressionAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapAttributeFilterExpressionName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapAttributeFilterExpressionName(), true);
   }
 
 
@@ -499,7 +527,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapExtraAttributesAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapExtraAttributesName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapExtraAttributesName(), true);
   }
   
   /** Attribute name of name expression  */
@@ -524,7 +552,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupNameExpressionAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupNameExpressionName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupNameExpressionName(), true);
   }
 
   
@@ -554,7 +582,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupDisplayNameExpressionAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupDisplayNameExpressionName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupDisplayNameExpressionName(), true);
   }
 
   
@@ -583,7 +611,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupDescriptionExpressionAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupDescriptionExpressionName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupDescriptionExpressionName(), true);
   }
 
   
@@ -691,7 +719,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapSubjectExpressionAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSubjectExpressionName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapSubjectExpressionName(), true);
   }
 
   
@@ -717,7 +745,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupTypesAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupTypesName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupTypesName(), true);
   }
 
   
@@ -744,7 +772,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapReadersAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapReadersName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapReadersName(), true);
   }
 
   
@@ -770,7 +798,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapViewersAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapViewersName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapViewersName(), true);
   }
 
   
@@ -797,7 +825,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapUpdatersAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapUpdatersName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapUpdatersName(), true);
   }
 
   
@@ -825,7 +853,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapAdminsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapAdminsName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapAdminsName(), true);
   }
 
   
@@ -853,7 +881,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapOptinsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapOptinsName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapOptinsName(), true);
   }
 
   
@@ -880,7 +908,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapOptoutsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapOptoutsName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapOptoutsName(), true);
   }
 
   
@@ -907,7 +935,7 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupAttrReadersAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttrReadersName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupAttrReadersName(), true);
   }
   
   
@@ -933,6 +961,6 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupAttrUpdatersAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttrUpdatersName(), true);
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupAttrUpdatersName(), true);
   }
 }
