@@ -65,8 +65,9 @@
           <input type="text" name="enabledDate"  id="enabledDateId"
             value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.enabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.enabledDate}" 
             style="width: 8em" />
-            <span class="simpleMembershipUpdateDisabled"
-              ><grouper:message key="simpleAttributeUpdate.assignEditEnabledDisabledDateMask" /></span>
+            <span class="simpleMembershipUpdateDisabled">
+              ${textContainer.text['simpleAttributeUpdate.assignEditEnabledDisabledDateMask'] }
+            </span>
         </div>
       </div>
       
@@ -76,8 +77,9 @@
           <input type="text" name="disabledDate"  id="disabledDateId"
             value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.disabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.disabledDate}" 
             style="width: 8em" />
-            <span class="simpleMembershipUpdateDisabled"
-              ><grouper:message key="simpleAttributeUpdate.assignEditEnabledDisabledDateMask" /></span>
+            <span class="simpleMembershipUpdateDisabled">
+              ${textContainer.text['simpleAttributeUpdate.assignEditEnabledDisabledDateMask'] }
+            </span>
         </div>
       </div>
       
