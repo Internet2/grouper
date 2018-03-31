@@ -186,13 +186,13 @@
         <dependency>
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz</artifactId>
-            <exclusions>
-                <!-- ? quartz pool is using c3p0, not using hikariCP -->
-                <exclusion>
-                    <groupId>com.zaxxer</groupId>
-                    <artifactId>HikariCP-java6</artifactId>
-                </exclusion>
-            </exclusions>
+          <exclusions>
+              <!-- ? quartz pool is using c3p0, not using hikariCP -->
+              <exclusion>
+                  <groupId>com.zaxxer</groupId>
+                  <artifactId>HikariCP-java6</artifactId>
+              </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
@@ -281,11 +281,21 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ldaptive</groupId>
+            <artifactId>ldaptive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ldaptive</groupId>
+            <artifactId>ldaptive-unboundid</artifactId>
+        </dependency>
+
 
         <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -336,7 +346,6 @@
           <artifactId>groovy-all</artifactId>
         </dependency>
 
-
     </dependencies>
 
     <build>
@@ -346,11 +355,26 @@
         <resources>
             <resource>
                 <directory>conf</directory>
+                <includes>
+                    <include>ddl/README.txt</include>
+                    <include>grouperUtf8.txt</include>
+                    <include>grouperRulesEmailTemplates/*.txt</include>
+                    <!-- other options, may decide to include later
+                    <include>README.txt</include>
+                    <include>*.example.properties</include>
+                    <include>*.example.xml</include>
+                    <include>grouper.version.properties</include>
+                    <include>groovysh.profile</include>
+                    <include>GSHFileLoad.properties</include>
+                    -->
+                </includes>
             </resource>
             <resource>
                 <directory>src/grouper</directory>
                 <includes>
                     <include>**/*.hbm.xml</include>
+                    <include>edu/internet2/middleware/grouper/xml/export.properties</include>
+                    <include>edu/internet2/middleware/grouper/xml/import.properties</include>
                 </includes>
             </resource>
         </resources>
@@ -359,6 +383,7 @@
                 <directory>src/test</directory>
                 <includes>
                     <include>**/*.hbm.xml</include>
+                    <include>edu/internet2/middleware/grouper/app/gsh/*.gsh</include>
                 </includes>
             </testResource>
         </testResources>
