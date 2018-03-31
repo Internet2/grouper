@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -504,6 +505,27 @@ public class AttributeDefContainer {
   public boolean isConfigDefaultAttributeDefsCreateGrantAllView() {
     return GrouperConfig.retrieveConfig()
         .propertyValueBoolean("attributeDefs.create.grant.all.attrView", false);
+  }
+  
+  /**
+   * attributes assigned to this attribute def.
+   */
+  private Set<GuiAttributeAssign> guiAttributeAssigns;
+  
+  /**
+   * attributes assigned to this attribute def.
+   * @return attributes assigned to this attribute def.
+   */
+  public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return guiAttributeAssigns;
+  }
+  
+  /**
+   * attributes assigned to this attribute def.
+   * @param guiAttributeAssigns
+   */
+  public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
+    this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
   

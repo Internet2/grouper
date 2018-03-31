@@ -1,14 +1,14 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- for the new group or new stem button --%>
-<input type="hidden" name="objectStemId" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerStemId}" />
+<input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" />
 
 <div class="row-fluid">
   <div class="span12">
     
     <form id="simpleAttributeAssignEditForm" name="simpleAttributeAssignEditFormName" class="form-horizontal">
       
-      <input name="stemId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerStemId }" />
+      <input name="attributeDefId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerAttributeDefId }" />
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
         <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
       </c:if>
@@ -84,8 +84,8 @@
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2StemAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</a>
-        <a href="#" onclick="return guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerStemId}');"
+        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</a>
+        <a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerAttributeDefId}');"
                            class="btn">${textContainer.text['simpleAttributeAssign.assignEditCancelButton']}</a> 
       </div>
       

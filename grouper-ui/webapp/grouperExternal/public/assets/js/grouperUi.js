@@ -2352,6 +2352,23 @@ function showHideGroupAssignAttributeBlock() {
 }
 
 /**
+ * show/hide attribute def assign attribute block on click of Assign attribute button
+ * Also add attributes for accessibility
+ * */
+function showHideAttributeDefAssignAttributeBlock() {
+	
+	$('#assign-attribute-def-attribute-block-container').toggle('slow');
+	if ($("#assign-attribute-def-attribute-block-container").attr("aria-expanded") === 'true') {
+		$("#assign-attribute-def-attribute-block-container").attr("aria-expanded","false");
+		$("#assign-attribute-def-attribute-block-container").removeAttr("role");
+	} else {	  
+		$("#assign-attribute-def-attribute-block-container").attr("aria-expanded","true");
+		$("assign-attribute-def-attribute-block-container").attr("role", "alert");
+		$("#parentFolderComboId").focus();
+	}	
+}
+
+/**
  * show the privileges block on click of Custom Privileges radio button
  * Also add attributes for accessibility
  * */
