@@ -99,12 +99,13 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * cache stuff in attributeDef by subjectSourceId, subjectId, name, uuid, idIndex
    */
   private static GrouperCache<MultiKey, AttributeDef> attributeDefFlashCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder.attributeDefFinderFlashCache");
+      "edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder.attributeDefFinderFlashCache", 10000, false, 5, 5, false);
   /**
    * cache stuff in attribute defs by name, uuid, idIndex
    */
   private static GrouperCache<Object, AttributeDef> attributeDefRootCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder.attributeDefFinderCache");
+      "edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder.attributeDefFinderCache", 10000, false, 60, 60, false);
+
   /**
    * 
    */
@@ -1187,7 +1188,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     attributeDefRootCache.remove(attributeDef.getUuid());
     attributeDefRootCache.remove(attributeDef.getName());
     attributeDefRootCache.remove(attributeDef.getIdIndex());
-  
+    
+    {
+      AttributeDef dbVersion = attributeDef.dbVersion();
+      if (dbVersion != null && dbVersion != attributeDef) {
+        attributeDefCacheRemove(dbVersion);
+        return;
+      }
+    }
+
     attributeDefFlashCache.clear();
   }
 

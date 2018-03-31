@@ -97,7 +97,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    *  sourceIdSubjectId / <theSourceId> / <theSubjectId>
    */
   private static GrouperCache<MultiKey, Member> membersFlashCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.memberFlashCache");
+      "edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.memberFlashCache", 10000, false, 30, 120, false);
 
   /**
    * @since   @HEAD@
@@ -397,6 +397,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         if (!StringUtils.equals(member.getSubjectSourceId(), member2.getSubjectSourceId()) && !StringUtils.equals(member.getSubjectSourceId(), member2.getSubjectSourceId())) {
           membersFlashCache.remove(membersFlashCacheMultikeyBySubjectId(member2.getSubjectSourceId(), member2.getSubjectId()));
         }
+      }
+      
+      Member dbVersion = member.dbVersion();
+      if (dbVersion != null && dbVersion != member) {
+        membersCacheRemove(dbVersion);
       }
     }
   }

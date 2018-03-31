@@ -49,7 +49,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
    * @throws Exception 
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperBuiltinMessagingSystemTest("testSend"));
+    TestRunner.run(new GrouperBuiltinMessagingSystemTest("testCleanMessages"));
     //TestRunner.run(new GrouperBuiltinMessagingSystemTest("testMessageSecurity"));
     
     

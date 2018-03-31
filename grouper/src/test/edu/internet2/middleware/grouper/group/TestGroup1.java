@@ -1179,7 +1179,7 @@ public class TestGroup1 extends GrouperTest {
   //      
   //    });
       }
-      System.out.println("Took: " + (System.currentTimeMillis() - now) + "ms");
+      //System.out.println("Took: " + (System.currentTimeMillis() - now) + "ms");
     }
 
   /**

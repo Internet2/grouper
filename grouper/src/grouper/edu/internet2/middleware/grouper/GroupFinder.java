@@ -114,6 +114,14 @@ public class GroupFinder {
     groupRootCache.remove(group.getName());
     groupRootCache.remove(group.getIdIndex());
 
+    {
+      Group dbVersion = group.dbVersion();
+      if (dbVersion != null && dbVersion != group) {
+        groupCacheRemove(dbVersion);
+        return;
+      }
+    }
+    
     groupFlashCache.clear();
   }
   
@@ -317,13 +325,13 @@ public class GroupFinder {
    * cache stuff in groups by name, uuid, idIndex
    */
   private static GrouperCache<Object, Group> groupRootCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.GroupFinder.groupCache");
+      "edu.internet2.middleware.grouper.GroupFinder.groupCache", 10000, false, 60, 60, false);
 
   /**
    * cache stuff in groups by subjectSourceId, subjectId, name, uuid, idIndex
    */
   private static GrouperCache<MultiKey, Group> groupFlashCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.GroupFinder.groupFlashCache");
+      "edu.internet2.middleware.grouper.GroupFinder.groupFlashCache", 10000, false, 5, 5, false);
 
   /**
    * if we are filtering for groups which are composite owners or not

@@ -185,9 +185,27 @@ public class HibUtils {
 
   /**
    * if should disallow cache
+   * <pre>
+   *  boolean needsUnassignment = HibUtils.assignDisallowCacheThreadLocal();
+   *  Set<AttributeAssign> attributeAssigns = null;
+   *  try {
+   *    attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+   *  } finally {
+   *    if (needsUnassignment) {
+   *      HibUtils.clearDisallowCacheThreadLocal();
+   *    }
+   *  }
+   * 
+   * </pre>
+   * @return if assigned
    */
-  public static void assignDisallowCacheThreadLocal() {
+  public static boolean assignDisallowCacheThreadLocal() {
+    Boolean caching = cachingEnabledThreadLocal.get();
+    if (caching != null && !caching) {
+      return false;
+    }
     cachingEnabledThreadLocal.set(Boolean.FALSE);
+    return true;
   }
 
   /**

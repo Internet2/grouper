@@ -3154,37 +3154,37 @@ public enum GrouperLoaderType {
   private static void updateLoaderMetadataAttributes(Hib3GrouperLoaderLog hib3GrouploaderLog, Group groupBeingManaged, Group loaderGroup) {
 
     try {
-      
       if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperLoader.updateLoaderMetadataAttributes", true)) {
         return;
       }
-      
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
-          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, true);
-      if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(attributeDefName.getName())) {
-        groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
-      }
-      AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-      AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()
-          +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
-          
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
-      
-      AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(
-          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroup.getId());
-      
-      AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(
-          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, true);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
-      
-      AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(
-          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, true);
-      attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
-          "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
-          + " updated: "+ hib3GrouploaderLog.getUpdateCount());
-      loaderGroup = null;  
-      
+      synchronized (groupBeingManaged.getUuid().intern()) {
+        
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+            GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, true);
+        if (!groupBeingManaged.getAttributeDelegate().hasAttributeByName(attributeDefName.getName())) {
+          groupBeingManaged.getAttributeDelegate().assignAttribute(attributeDefName);
+        }
+        AttributeAssign attributeAssign = groupBeingManaged.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()
+            +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
+            
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
+        
+        AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(
+            GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroup.getId());
+        
+        AttributeDefName grouperLoaderMetadataLastFullMillisSince1970 = AttributeDefNameFinder.findByName(
+            GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, true);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastFullMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
+        
+        AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(
+            GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, true);
+        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
+            "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
+            + " updated: "+ hib3GrouploaderLog.getUpdateCount());
+        loaderGroup = null;  
+      }      
     } catch (Exception e) {
       LOG.warn("Non-fatal error updating metadata on group: " + groupBeingManaged.getName(), e);
     }

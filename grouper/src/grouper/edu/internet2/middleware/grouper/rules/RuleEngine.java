@@ -572,7 +572,7 @@ public class RuleEngine {
    * multikey is sourceId and subjectId , default is 2.5 minutes
    */
   private static GrouperCache<MultiKey, Boolean> subjectHasAccessToApi = 
-    new GrouperCache<MultiKey, Boolean>("RuleEngine.hasAccessToElApi", 1000, false, 150, 150, false);
+    new GrouperCache<MultiKey, Boolean>(RuleEngine.class.getName() + ".hasAccessToElApi", 1000, false, 150, 150, false);
   
   /**
    * clear this for testing

@@ -93,20 +93,20 @@ public class GrouperUserDataApiTest extends GrouperTest {
     for (int i=0;i<100; i++) {
       
       GrouperUserDataApi.favoriteGroupAdd(userDataGroupName, SubjectTestHelper.SUBJ0, favorite2);
-      System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+      // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
       start = System.nanoTime();
       
       GrouperUserDataApi.favoriteGroupRemove(userDataGroupName, SubjectTestHelper.SUBJ0, favorite2);
-      System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+      // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
       start = System.nanoTime();
 
       GrouperUserDataApi.favoriteGroups(userDataGroupName, SubjectTestHelper.SUBJ0);
-      System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+      // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
       start = System.nanoTime();
       
     }
     
-    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+    // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
     
     ChangeLogTempToEntity.convertRecords();
     
