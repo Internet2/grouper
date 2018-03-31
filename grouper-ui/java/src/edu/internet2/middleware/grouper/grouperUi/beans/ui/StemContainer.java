@@ -635,10 +635,18 @@ public class StemContainer {
    */
   private Set<GuiAttributeAssign> guiAttributeAssigns;
   
+  /**
+   * attributes assigned to this folder.
+   * @return attributes assigned to this folder.
+   */
   public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
     return guiAttributeAssigns;
   }
   
+  /**
+   * attributes assigned to this folder.
+   * @param guiAttributeAssigns
+   */
   public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
     this.guiAttributeAssigns = guiAttributeAssigns;
   }

@@ -34,9 +34,7 @@
                  <tr>
                    <td style="white-space: nowrap;">${textContainer.text['simpleAttributeUpdate.assignDirect']}</td>
                    <td>${guiAttributeAssign.guiAttributeDefName.shortLinkWithIcon}</td>
-                   <td>
-                     <grouper:message key="${guiAttributeAssign.enabledDisabledKey}"  />
-                   </td>
+                   <td>${textContainer.text[guiAttributeAssign.enabledDisabledKey]}</td>
                    
                    <td style="white-space: nowrap;">
                      <%-- loop through the values --%>
@@ -51,6 +49,10 @@
                        </c:if>
    
                        ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
+                       <a class="assignmentValueButton" href="#">
+                         <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
+                          id="assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
+                       </a>
                        
                        <c:set var="valueRow" value="${valueRow + 1}" />
                      </c:forEach>
@@ -84,11 +86,11 @@
                    <%-- see if there are assignments on the assignment --%>
                      <tr  ${row % 2 == 1 ? 'class="alternate"' : ''} style="vertical-align: top">
                        <td style="white-space: nowrap;" align="right">
-                         <span class="simpleMembershipUpdateDisabled">&nbsp;&nbsp;&nbsp;&nbsp;<grouper:message key="simpleAttributeUpdate.assignMetadata" /></span>
+                         <span class="simpleMembershipUpdateDisabled">&nbsp;&nbsp;&nbsp;&nbsp;${textContainer.text['simpleAttributeUpdate.assignMetadata'] }</span>
                        </td>
                     
                        <td>${guiAttributeAssignAssign.guiAttributeDefName.shortLinkWithIcon}</td>
-                       <td><grouper:message key="${guiAttributeAssignAssign.enabledDisabledKey}"  /></td>
+                       <td>${textContainer.text[guiAttributeAssignAssign.enabledDisabledKey] }</td>
                        <td style="white-space: nowrap;">
                          <%-- loop through the values --%>
                          <c:set var="valueRow" value="0" />

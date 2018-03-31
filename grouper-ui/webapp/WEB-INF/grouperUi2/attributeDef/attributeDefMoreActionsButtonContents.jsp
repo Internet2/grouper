@@ -43,6 +43,8 @@
                             >${textContainer.text['attributeDefViewNewAttributeDefNameButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewNewAttributeDefActionButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                            >${textContainer.text['attributeDefViewAttributeAssignments'] }</a></li>
                         </c:if>
                       </ul>
                     </div>

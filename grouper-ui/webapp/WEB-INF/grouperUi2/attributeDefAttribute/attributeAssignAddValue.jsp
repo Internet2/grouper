@@ -1,14 +1,14 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- for the new group or new stem button --%>
-<input type="hidden" name="objectStemId" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerStemId}" />
+<input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" />
 
 <div class="row-fluid">
   <div class="span12">
     
-    <form id="simpleAttributeAssignEditForm" name="simpleAttributeAssignEditFormName" class="form-horizontal">
+    <form id="simpleAttributeAssignAddValueForm" name="simpleAttributeAssignAddValueFormName" class="form-horizontal">
       
-      <input name="stemId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerStemId }" />
+      <input name="attributeDefId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerAttributeDefId }" />
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
         <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
       </c:if>
@@ -30,9 +30,9 @@
       
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignHeaderAttributeName'] }
-          <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
-            ${textContainer.text['simpleAttributeUpdate.assignMetadataLabelSuffix'] }
-          </c:if>
+	        <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
+	          ${textContainer.text['simpleAttributeUpdate.assignMetadataLabelSuffix'] }
+	        </c:if>
         </label>
         <div class="controls">
           <span>${attributeUpdateRequestContainer.guiAttributeAssign.guiAttributeDefName.shortLinkWithIcon}</span>
@@ -60,33 +60,16 @@
       </div>
       
       <div class="control-group">
-        <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignEditEnabledDate'] }</label>
+        <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignAddValue'] }</label>
         <div class="controls">
-          <input type="text" name="enabledDate"  id="enabledDateId"
-            value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.enabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.enabledDate}" 
-            style="width: 8em" />
-            <span class="simpleMembershipUpdateDisabled">
-              ${textContainer.text['simpleAttributeUpdate.assignEditEnabledDisabledDateMask'] }
-            </span>
-        </div>
-      </div>
-      
-      <div class="control-group">
-        <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignEditDisabledDate'] }</label>
-        <div class="controls">
-          <input type="text" name="disabledDate"  id="disabledDateId"
-            value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.disabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.disabledDate}" 
-            style="width: 8em" />
-            <span class="simpleMembershipUpdateDisabled">
-              ${textContainer.text['simpleAttributeUpdate.assignEditEnabledDisabledDateMask'] }
-            </span>
+          <input type="text" name="valueToAdd"  id="valueToAddId" />
         </div>
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2StemAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</a>
-        <a href="#" onclick="return guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerStemId}');"
-                           class="btn">${textContainer.text['simpleAttributeAssign.assignEditCancelButton']}</a> 
+        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.attributeAssignAddValueSubmit', {formIds: 'simpleAttributeAssignAddValueForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignAddValueSubmitButton'] }</a>
+        <a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerAttributeDefId}');"
+                           class="btn">${textContainer.text['simpleAttributeAssign.assignAddValueCancelButton']}</a> 
       </div>
       
     </form>
