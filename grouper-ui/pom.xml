@@ -330,19 +330,6 @@
             <artifactId>jamon</artifactId>
             <scope>test</scope>
         </dependency>
-		
-    	<dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.core</artifactId>
-        </dependency>
-    	    <dependency>
-          <groupId>org.apache.wink</groupId>
-          <artifactId>wink-client</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.wso2.charon</groupId>
-          <artifactId>org.wso2.charon.samples</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
