@@ -68,7 +68,7 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
    * cache stuff in attributeAssigns by uuid, <uuid> or attributeDefId, <attributeDefId>
    */
   private static GrouperCache<MultiKey, Set<AttributeAssignAction>> attributeAssignActionFlashCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO.attributeAssignActionFlashCache");
+      "edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO.attributeAssignActionFlashCache", 10000, false, 5, 5, false);
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Hib3AttributeAssignActionDAO.class);

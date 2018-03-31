@@ -37,7 +37,7 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogConsumerBaseImplTest("testRemoveMarkerFromGroup"));
+    TestRunner.run(new ChangeLogConsumerBaseImplTest("testRemoveGroupMarkerKeepFolderMarker"));
   }
   
   /**

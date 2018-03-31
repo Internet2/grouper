@@ -2631,8 +2631,8 @@ public class GrouperUtil {
     if (fieldSetCache == null) {
       synchronized(fieldSetCacheSemaphore) {
         if (fieldSetCache == null) {
-          fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
-              2000, false, 0, 60*60*24, false);
+          fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.GrouperUtil.fieldSetCache",
+              2000, false, 60*60*24, 60*60*24, false);
         }
       }
     }
@@ -2658,8 +2658,8 @@ public class GrouperUtil {
     if (declaredMethodsCache == null) {
       synchronized(declaredMethodsCacheSemaphore) {
         if (declaredMethodsCache == null) {
-          declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
-              2000, false, 0, 60*60*24, false);
+          declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.GrouperUtil.declaredMethodsCache",
+              2000, false, 60*60*24, 60*60*24, false);
         }
       }
     }

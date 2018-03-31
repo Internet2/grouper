@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -247,7 +248,15 @@ public abstract class AttributeAssignBaseDelegate {
     if (checkSecurity) {
       this.assertCanReadAttributeDefName(attributeDefName);
     }
-    Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+    boolean needsUnassignment = HibUtils.assignDisallowCacheThreadLocal();
+    Set<AttributeAssign> attributeAssigns = null;
+    try {
+      attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+    } finally {
+      if (needsUnassignment) {
+        HibUtils.clearDisallowCacheThreadLocal();
+      }
+    }
     return retrieveAssignmentHelper(action, attributeDefName, exceptionIfNull,
         attributeAssigns);
   }

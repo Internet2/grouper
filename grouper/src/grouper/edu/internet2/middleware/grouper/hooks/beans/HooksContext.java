@@ -147,14 +147,14 @@ public class HooksContext {
    */
   private static GrouperCache<String, Group> groupNameToGroupCache = 
     new GrouperCache<String, Group>("edu.internet2.middleware.grouper.hooks.beans.HooksContext.groupNameToGroupCache",
-        2000, false, 0, 60*5, false);
+        2000, false, 60*5, 60*5, false);
   
   /**
    * cache group to uuids for 5 minutes
    */
   private static GrouperCache<MultiKey, Boolean> subjectInGroupCache = 
     new GrouperCache<MultiKey, Boolean>("edu.internet2.middleware.grouper.hooks.beans.HooksContext.subjectInGroupCache",
-        2000, false, 0, 60*5, false);
+        2000, false, 60*5, 60*5, false);
   
   /**
    * see if the current act as subject is in a certain group.  Note, this group uuid will be stored

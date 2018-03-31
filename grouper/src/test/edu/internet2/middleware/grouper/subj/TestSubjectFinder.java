@@ -385,7 +385,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
-    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+   // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
     
     GrouperSession.stopQuietly(grouperSession);
     
@@ -1597,7 +1597,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
-    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+    // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
     
     GrouperSession.stopQuietly(grouperSession);
     
@@ -1755,7 +1755,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertTrue("queries: " + numberOfQueries, numberOfQueries < 30);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
-    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+    // System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
     
     GrouperSession.stopQuietly(grouperSession);
     

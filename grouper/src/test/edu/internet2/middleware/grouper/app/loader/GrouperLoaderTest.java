@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -130,7 +131,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderFailsafeGroupListManagedGroupsOK1"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderUnresolvable"));
   }
 
   /**
@@ -1766,10 +1767,10 @@ public class GrouperLoaderTest extends GrouperTest {
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
 
-    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
     assertEquals("This is the fourth group", systemOfRecordGroup.getDescription());
     assertEquals("loader:group 4 system of record", systemOfRecordGroup.getDisplayName());
-    overallGroup = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
+    overallGroup = GroupFinder.findByName(this.grouperSession, "loader:group3", true, new QueryOptions().secondLevelCache(false));
     assertEquals("group 4", overallGroup.getDisplayExtension());
     
   }

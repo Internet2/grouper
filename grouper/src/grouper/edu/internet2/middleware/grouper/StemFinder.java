@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -95,6 +96,15 @@ public class StemFinder {
     stemFlashCache.remove(stem.getUuid());
     stemFlashCache.remove(stem.getName());
     stemFlashCache.remove(stem.getIdIndex());
+    
+    {
+      Stem dbVersion = stem.dbVersion();
+      if (dbVersion != null && dbVersion != stem) {
+        stemCacheRemove(dbVersion);
+        return;
+      }
+    }
+
   }
 
   /**
@@ -654,7 +664,7 @@ public class StemFinder {
    * cache stuff in stems by name, uuid, idIndex
    */
   private static GrouperCache<Object, Stem> stemFlashCache = new GrouperCache(
-      "edu.internet2.middleware.grouper.StemFinder.stemFlashCache");
+      "edu.internet2.middleware.grouper.StemFinder.stemFlashCache", 10000, false, 5, 5, false);
 
   /**
    * check read on attribute def when checking attribute def name

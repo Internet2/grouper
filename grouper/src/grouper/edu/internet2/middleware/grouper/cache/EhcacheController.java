@@ -62,10 +62,46 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 public class EhcacheController implements CacheController {
 
   /**
+   * save the config
+   */
+  private Configuration configuration;
+  
+  
+  /**
+   * save the config
+   * @return the configuration
+   */
+  public Configuration getconfiguration() {
+    return this.configuration;
+  }
+
+  
+  /**
+   * if configured via properties and not ehcache.xml
+   */
+  private boolean configuredViaProperties = false;
+
+  /**
+   * if configured via properties and not ehcache.xml
+   * @return the configuredViaProperties
+   */
+  public boolean isConfiguredViaProperties() {
+    return this.configuredViaProperties;
+  }
+
+  /**
    * singleton cache controller
    */
   private static EhcacheController ehcacheController = null;
 
+  /**
+   * get the mgr
+   * @return the mge
+   */
+  public CacheManager getCacheManager() {
+    return this.mgr;
+  }
+  
   /**
    * utility cache controller if you dont want to create your own...
    * @return ehcache controller
@@ -191,9 +227,12 @@ public class EhcacheController implements CacheController {
       boolean defaultEternal, int defaultTimeToIdleSeconds, 
       int defaultTimeToLiveSeconds, boolean defaultOverflowToDisk) 
     throws  IllegalStateException { 
+    
     this.initialize();
     if (this.mgr.cacheExists(name) ) {
-      return this.mgr.getCache(name);
+      Cache cache = this.mgr.getCache(name);
+      return cache;
+
     }
     if (useDefaultIfNotInConfigFile) {
       if (LOG != null) {
@@ -313,7 +352,11 @@ public class EhcacheController implements CacheController {
               }
 
               if (!configured) {
+                this.configuredViaProperties = true;
                 LOG.debug("Configuring ehcache with grouper.cache.properties");
+                
+                
+                
                 Configuration ehcacheConfiguration = new Configuration();
                 
                 //disk store
@@ -342,8 +385,9 @@ public class EhcacheController implements CacheController {
                   ehcacheConfiguration.addCache(cacheConfiguration);
                 }
 
+                this.configuration = ehcacheConfiguration;
                 this.mgr = new CacheManager(ehcacheConfiguration);
-
+                
                 configured = true;
 
               }
