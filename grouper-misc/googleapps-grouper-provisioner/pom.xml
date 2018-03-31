@@ -6,12 +6,12 @@
 
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>google-apps-provisioner</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.1</version>
 
     <properties>
         <commons-collections.version>3.2.1</commons-collections.version>
-        <google-api-services-admin-directory.version>directory_v1-rev42-1.19.0</google-api-services-admin-directory.version>
-        <google-api-services-groupssettings.version>v1-rev64-1.21.0</google-api-services-groupssettings.version>
+        <google-api-services-admin-directory.version>directory_v1-rev90-1.23.0</google-api-services-admin-directory.version>
+        <google-api-services-groupssettings.version>v1-rev66-1.23.0</google-api-services-groupssettings.version>
         <grouper.version>2.3.0</grouper.version>
         <hibernate-core.version>3.6.7.Final</hibernate-core.version>
         <mockito.version>1.8.5</mockito.version>
@@ -53,6 +53,16 @@
             <artifactId>grouper</artifactId>
             <version>${grouper.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.wso2.charon</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

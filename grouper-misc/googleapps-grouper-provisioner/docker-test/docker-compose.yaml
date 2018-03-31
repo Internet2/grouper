@@ -3,6 +3,8 @@ version: "2"
 services:
   grouper:
     build: ./grouper/
+    environment:
+     - disable=SAMPLE-JOBS,WS
     ports:
      - 8080:8080
      - 3306:3306

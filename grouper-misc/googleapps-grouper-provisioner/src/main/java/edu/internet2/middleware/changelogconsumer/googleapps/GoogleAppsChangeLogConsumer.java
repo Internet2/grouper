@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.changeLog.*;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
@@ -457,18 +458,46 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Processing group delete.", consumerName, toString(changeLogEntry));
 
         final String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.name);
+
+        //For PIT testing, uncomment the following line and wait a couple of minutes after testing and the cache will clear forcing the PIT to be used.
+        //connector.getSyncedGroupsAndStems().clear();
+
         final edu.internet2.middleware.grouper.Group grouperGroup = connector.fetchGrouperGroup(groupName);
 
-        if (!connector.shouldSyncGroup(grouperGroup)) {
-            LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Skipping group delete, nothing to do cause the group is not flagged or is gone.", consumerName,
-                    toString(changeLogEntry));
-            return;
-        }
+        LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' The group object is null: {} (if true, then the PIT info will be used.)", new Object[]{consumerName, toString(changeLogEntry), grouperGroup == null});
 
-        try {
-            connector.deleteGooGroup(grouperGroup);
-        } catch (IOException e) {
-            LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group delete: {}", new Object[] {consumerName, toString(changeLogEntry), e.getMessage()});
+        if (grouperGroup != null) {
+            if (!connector.shouldSyncStem(grouperGroup.getParentStem())) {
+                LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Skipping group delete, nothing to do cause the group is not flagged or is gone.", consumerName,
+                        toString(changeLogEntry));
+                return;
+            }
+
+            try {
+                LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Trying to delete via Grouper Group data", consumerName, toString(changeLogEntry));
+
+                connector.deleteGooGroup(grouperGroup);
+                return;
+            } catch (IOException e) {
+                LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group delete: {}", new Object[]{consumerName, toString(changeLogEntry), e.getMessage()});
+            }
+        } else {
+            PITGroup group = PITGroupFinder.findByName(groupName, false, true).iterator().next();
+
+            if (!connector.shouldSyncStem(group.getPITStem().getName())) {
+                LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Skipping PIT-based group delete, nothing to do cause the group is not flagged or is gone.", consumerName,
+                        toString(changeLogEntry));
+                return;
+            }
+
+            try {
+                LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Trying to delete via Grouper PITGroup data", consumerName, toString(changeLogEntry));
+
+                connector.deleteGooGroup(group);
+                return;
+            } catch (IOException e) {
+                LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group delete: {}", new Object[]{consumerName, toString(changeLogEntry), e.getMessage()});
+            }
         }
     }
 
