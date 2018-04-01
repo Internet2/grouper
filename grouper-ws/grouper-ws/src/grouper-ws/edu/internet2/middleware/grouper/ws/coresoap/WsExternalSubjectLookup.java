@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResult.WsExternalSubjectDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -40,7 +41,7 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * </pre>
  * @author mchyzer
  */
-public class WsExternalSubjectLookup {
+public class WsExternalSubjectLookup implements GrouperWsToStringCompact {
 
   /**
    * see if blank

@@ -20,6 +20,8 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -33,12 +35,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.internet2.middleware.morphString.apache.codec.binary.Base64;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.NDC;
@@ -66,12 +66,15 @@ import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsLongRunningLog;
+import edu.internet2.middleware.morphString.apache.codec.binary.Base64;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Extend the servlet to get user info
@@ -155,6 +158,9 @@ public class GrouperServiceJ2ee implements Filter {
    */
   @SuppressWarnings({ "unchecked", "deprecation" })
   public static Subject retrieveSubjectLoggedIn() {
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
     String authenticationClassName = GrouperWsConfig.getPropertyString(
         GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS,
         WsGrouperDefaultAuthentication.class.getName());
@@ -241,6 +247,8 @@ public class GrouperServiceJ2ee implements Filter {
       ndcBuilder.append(" >");
       NDC.push(ndcBuilder.toString());
     }
+
+    debugMap.put("userIdLoggedIn", userIdLoggedIn);
     
     Subject caller = null;
     GrouperSession grouperSession = GrouperSession.startRootSession(false);
@@ -272,8 +280,21 @@ public class GrouperServiceJ2ee implements Filter {
           }
         }
       });
-      
+
+      Subject originalCaller = caller;
+      if (caller != null) {
+        debugMap.put("userIdLoggedInSource", caller.getSourceId());
+        if (!StringUtils.equals(caller.getId(), (String)debugMap.get("userIdLoggedIn"))) {
+          debugMap.put("userIdLoggedInSubjectId", caller.getId());
+        }
+      }
+
       caller = retrieveSubjectGrouperActAsHelper(caller);
+
+      if (caller != null && originalCaller != null && !StringUtils.equals(caller.getId(), originalCaller.getId())) {
+        debugMap.put("userIdActAsSource", caller.getSourceId());
+        debugMap.put("userIdActAsSubjectId", caller.getId());
+      }
       
       //this is set in filter
       GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
@@ -858,23 +879,55 @@ public class GrouperServiceJ2ee implements Filter {
     InstrumentationThread.shutdownThread();
   }
 
+  /**
+   * 
+   * @return the debug map
+   */
+  public static Map<String, Object> retrieveDebugMap() {
+    
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    
+    if (httpServletRequest == null) {
+      //dont want a null pointer exception
+      //wont get logged anyways
+      return new LinkedHashMap<String, Object>();
+    }
+    
+    Map<String, Object> debugMap = (Map<String, Object>)httpServletRequest.getAttribute("debugMap");
+
+    if (debugMap == null) {
+      debugMap = new LinkedHashMap<String, Object>();
+      httpServletRequest.setAttribute("debugMap", debugMap);
+    }
+    
+    return debugMap;
+
+  }
+  
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
+    Map<String, Object> debugMap = null;
+    Long start = System.nanoTime();
     try {
-      
+
       request.setCharacterEncoding("UTF-8");
       response.setCharacterEncoding("UTF-8");
-      
+
       //make sure nulls are not returned for params for Axis bug where
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);
   
+      request.setAttribute("debugMap", debugMap);
+      
       NDC.clear();
       
       //servlet will set this...
       threadLocalServlet.remove();
       threadLocalRequest.set((HttpServletRequest) request);
+      
+      debugMap = retrieveDebugMap();
+      
       threadLocalResponse.set((HttpServletResponse) response);
       threadLocalRequestStartMillis.set(System.currentTimeMillis());
       
@@ -889,14 +942,26 @@ public class GrouperServiceJ2ee implements Filter {
       GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
           GrouperEngineBuiltin.WS, false, false);
       
-      grouperContext.setCallerIpAddress(request.getRemoteAddr());
-
-    
+      String xForwardedFor = ((HttpServletRequest)request).getHeader("X-Forwarded-For");
+      String remoteAddr = StringUtils.defaultIfBlank(xForwardedFor, request.getRemoteAddr());
+      grouperContext.setCallerIpAddress(remoteAddr);
+      
+      //get the proxy IP address
+      debugMap.put("startTimestamp", new Date());
+      debugMap.put("remoteAddr", remoteAddr);
+      debugMap.put("requestUrl", ((HttpServletRequest)request).getRequestURL());
+      
       filterChain.doFilter(request, response);
+
     } catch (RuntimeException re) {
       LOG.info("error in request", re);
+      debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
       throw re;
     } finally {
+      
+      GrouperWsLog.wsLog(debugMap, start);
+      GrouperWsLongRunningLog.wsLog(debugMap, start);
+      
       threadLocalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();
@@ -914,6 +979,92 @@ public class GrouperServiceJ2ee implements Filter {
    */
   public void init(FilterConfig arg0) throws ServletException {
     InstrumentationThread.startThread(GrouperEngineBuiltin.WS, null);
+    
+    
+    initOnce();
   }
 
+  /**
+   * mark group as cacheable
+   * should we auto-create?
+   * @param name
+   */
+  private static void initGroup(final String name) {
+    if (StringUtils.isBlank(name)) {
+      return;
+    }
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Group group = GroupFinder.findByName(grouperSession, name, false);
+        if (group != null) {
+          
+          GroupFinder.groupCacheAsRootAddSystemGroup(group);
+          
+        }
+        
+        return null;
+      }
+    });
+  }
+
+  /**
+   * if initted
+   */
+  private static boolean inittedOnce = false;
+
+  /**
+   * 
+   */
+  private static void initOnce() {
+    
+    if (!inittedOnce) {
+      synchronized (GrouperServiceJ2ee.class) {
+        if (!inittedOnce) {
+
+          //  # Web service users who are in the following group can use the actAs field to act as someone else
+          //  # You can put multiple groups separated by commas.  e.g. a:b:c, e:f:g
+          //  # You can put a single entry as the group the calling user has to be in, and the grouper the actAs has to be in
+          //  # separated by 4 colons
+          //  # e.g. if the configured values is:       a:b:c, e:f:d :::: r:e:w, x:e:w
+          //  # then if the calling user is in a:b:c or x:e:w, then the actAs can be anyone
+          //  # if not, then if the calling user is in e:f:d, then the actAs must be in r:e:w.  If multiple rules, then 
+          //  # if one passes, then it is a success, if they all fail, then fail.
+          //  ws.act.as.group = etc:webServiceActAsGroup
+          //
+          //  # similar syntax as ws.act.as.group but for the grouper actas (e.g. for grouper messaging to WS bridge)
+          //  ws.grouper.act.as.group = 
+          
+          String debugGroupConfig = GrouperWsConfig.retrieveConfig().propertyValueString("browser.debug.group");
+          String grouperDebugGroupConfig = GrouperWsConfig.retrieveConfig().propertyValueString("ws.grouper.act.as.group");
+          
+          for (String config : new String[]{debugGroupConfig, grouperDebugGroupConfig}) {
+            if (!StringUtils.isBlank(config)) {
+              for (String groupNameConfig : GrouperUtil.splitTrim(config, ",")) {
+                //now see if it is a multi input
+                if (StringUtils.contains(groupNameConfig, GrouperWsConfig.WS_SEPARATOR)) {
+  
+                  //it is the group the user is in, and the group the act as has to be in
+                  String[] groupEntryArray = GrouperUtil.splitTrim(groupNameConfig,
+                      GrouperWsConfig.WS_SEPARATOR);
+                  initGroup(groupEntryArray[0]);
+                  initGroup(groupEntryArray[1]);
+                } else {
+                  initGroup(groupNameConfig);
+                }
+              }
+            }
+          }
+          
+          //  # If there is an entry here for group name, then all web service client users must be in this group (before the actAs)
+          //  #ws.client.user.group.name = etc:webServiceClientUsers
+          initGroup(GrouperWsConfig.retrieveConfig().propertyValueString("ws.client.user.group.name"));
+          
+          inittedOnce = true;
+        }
+      }
+    }
+  }
 }

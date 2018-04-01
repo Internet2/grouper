@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -62,7 +63,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * </pre>
  * @author mchyzer
  */
-public class WsSubjectLookup {
+public class WsSubjectLookup implements GrouperWsToStringCompact {
 
   /** find the subject */
   @XStreamOmitField

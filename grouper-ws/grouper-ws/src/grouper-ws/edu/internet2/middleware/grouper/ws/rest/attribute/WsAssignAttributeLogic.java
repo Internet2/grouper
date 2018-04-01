@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
@@ -535,7 +536,7 @@ public class WsAssignAttributeLogic {
         }
   
         for (String attributeDefId : GrouperUtil.nonNull(ownerAttributeDefIds)) {
-          AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(attributeDefId, true);
+          AttributeDef attributeDef = AttributeDefFinder.findByIdAsRoot(attributeDefId, true);
           attributeAssignableList.add(attributeDef);
         }
   

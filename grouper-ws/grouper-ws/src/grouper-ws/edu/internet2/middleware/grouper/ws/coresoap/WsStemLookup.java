@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsStemLookup {
+public class WsStemLookup implements GrouperWsToStringCompact {
 
   /**
    * integer ID for object

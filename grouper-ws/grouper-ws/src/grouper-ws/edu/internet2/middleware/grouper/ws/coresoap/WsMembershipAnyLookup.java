@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup.GroupFindResul
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -50,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
  * </pre>
  * @author mchyzer
  */
-public class WsMembershipAnyLookup {
+public class WsMembershipAnyLookup implements GrouperWsToStringCompact {
 
   /** group lookup for group */
   private WsGroupLookup wsGroupLookup;

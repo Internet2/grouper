@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult.WsGetMemb
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -51,7 +52,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsGroupLookup {
+public class WsGroupLookup implements GrouperWsToStringCompact {
 
   /**
    * integer ID for object
@@ -403,16 +404,20 @@ public class WsGroupLookup {
    * @return return a compact to string
    */
   public String toStringCompact() {
+    StringBuilder result = new StringBuilder();
     if (!StringUtils.isBlank(this.groupName)) {
-      return "name: " + this.groupName;
+      GrouperUtil.appendIfNotBlank(result, null, ", ", "name: " + this.groupName, null);
     }
     if (!StringUtils.isBlank(this.uuid)) {
-      return "id: " + this.uuid;
+      GrouperUtil.appendIfNotBlank(result, null, ", ", "id: " + this.uuid, null);
     }
     if (!StringUtils.isBlank(this.idIndex)) {
-      return "idIndex: " + this.idIndex;
+      GrouperUtil.appendIfNotBlank(result, null, ", ", "idIndex: " + this.idIndex, null);
     }
-    return "blank";
+    if (result.length() == 0) {
+      result.append("blank");
+    }
+    return result.toString();
   }
 
   /**

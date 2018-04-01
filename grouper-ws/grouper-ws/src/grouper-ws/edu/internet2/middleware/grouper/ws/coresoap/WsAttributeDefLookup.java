@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -49,7 +50,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsAttributeDefLookup {
+public class WsAttributeDefLookup implements GrouperWsToStringCompact {
 
   /**
    * integer ID for object

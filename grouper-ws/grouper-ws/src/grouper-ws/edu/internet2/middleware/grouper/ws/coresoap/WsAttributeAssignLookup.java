@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -43,7 +44,7 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * </pre>
  * @author mchyzer
  */
-public class WsAttributeAssignLookup {
+public class WsAttributeAssignLookup implements GrouperWsToStringCompact {
 
   /**
    * see if blank
