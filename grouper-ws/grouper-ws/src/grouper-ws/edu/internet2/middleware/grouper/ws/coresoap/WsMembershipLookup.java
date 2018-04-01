@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -43,7 +44,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsMembershipLookup {
+public class WsMembershipLookup implements GrouperWsToStringCompact {
 
   /**
    * @param uuid1

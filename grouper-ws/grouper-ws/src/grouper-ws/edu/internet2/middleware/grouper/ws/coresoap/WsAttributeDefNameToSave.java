@@ -29,13 +29,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -201,8 +201,8 @@ public class WsAttributeDefNameToSave {
     
     //we need the attribute definition, find it by id if was passed in
     if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefId())) {
-      attributeDef = AttributeDefFinder.findById(this.getWsAttributeDefName().getAttributeDefId(), false, new QueryOptions().secondLevelCache(false));
-      
+      attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(this.getWsAttributeDefName().getAttributeDefId(), false, new QueryOptions().secondLevelCache(false)); 
+
       if (attributeDef == null) {
         throw new WsInvalidQueryException("Cant find attributeDef by id: " + this.getWsAttributeDefName().getAttributeDefId());
       }
@@ -215,7 +215,7 @@ public class WsAttributeDefNameToSave {
       
     } else if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefName())) {
 
-      attributeDef = AttributeDefFinder.findByName(this.getWsAttributeDefName().getAttributeDefName(), false, new QueryOptions().secondLevelCache(false));
+      attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(this.getWsAttributeDefName().getAttributeDefName(), false, new QueryOptions().secondLevelCache(false));
       
       if (attributeDef == null) {
         throw new WsInvalidQueryException("Cant find attributeDef by name: " + this.getWsAttributeDefName().getAttributeDefName());

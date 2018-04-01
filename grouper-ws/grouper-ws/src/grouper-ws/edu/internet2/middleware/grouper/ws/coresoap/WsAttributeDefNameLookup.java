@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
 
 /**
  * <pre>
@@ -53,7 +54,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsAttributeDefNameLookup {
+public class WsAttributeDefNameLookup implements GrouperWsToStringCompact {
 
   /**
    * create if any not null, otherwise null

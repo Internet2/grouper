@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1413,4 +1414,122 @@ public final class GrouperServiceUtils {
     return multiKey;
   }
 
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @param maxChars is the max chars that should be returned (abbreviate if longer), or -1 for any amount
+   * @return the string value
+   */
+  public static String toStringForLog(Object object, int maxChars) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result);
+    String resultString = result.toString();
+    if (maxChars != -1) {
+      return GrouperUtil.abbreviate(resultString, maxChars);
+    }
+    return resultString;
+  }
+
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @param maxChars is where it should stop when figuring out object.  note, result might be longer than max...
+   * need to abbreviate when back
+   * @param result is where to append to
+   */
+  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
+
+    try {
+      if (object == null) {
+        result.append("null");
+      } else if (object.getClass().isArray()) {
+        // handle arrays
+        int length = Array.getLength(object);
+        if (length == 0) {
+          result.append("Empty array");
+        } else {
+          result.append("Array size: ").append(length).append(": ");
+          for (int i = 0; i < length; i++) {
+            if (i > 0) {
+              result.append(", ");
+            }
+            result.append("[").append(i).append("]: ").append(
+                toStringForLog(Array.get(object, i), maxChars));
+            if (maxChars != -1 && result.length() > maxChars) {
+              return;
+            }
+          }
+        }
+      } else if (object instanceof Collection) {
+        //give size and type if collection
+        Collection<Object> collection = (Collection<Object>) object;
+        int collectionSize = collection.size();
+        if (collectionSize == 0) {
+          result.append("Empty ").append(object.getClass().getSimpleName());
+        } else {
+          result.append(object.getClass().getSimpleName()).append(" size: ").append(collectionSize).append(": ");
+          int i=0;
+          for (Object collectionObject : collection) {
+            if (i > 0) {
+              result.append(", ");
+            }
+            result.append("[").append(i).append("]: ").append(
+                toStringForLog(collectionObject, maxChars));
+            if (maxChars != -1 && result.length() > maxChars) {
+              return;
+            }
+            i++;
+          }
+        }
+      } else if (object instanceof Subject) {
+        result.append(GrouperUtil.subjectToString((Subject)object));
+      } else {
+        result.append(toStringForWsLog(object));
+      }
+    } catch (Exception e) {
+      result.append("<<exception>> ").append(object.getClass()).append(":\n")
+        .append(GrouperUtil.getFullStackTrace(e)).append("\n");
+    }
+  }
+  
+  /**
+   * convert a set to a string (comma separate)
+   * @param map
+   * @return the String
+   */
+  public static String mapToString(Map<?, ?> map) {
+    if (map == null) {
+      return "null";
+    }
+    if (map.size() == 0) {
+      return "empty";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (Object object : map.keySet()) {
+      if (!first) {
+        result.append(", ");
+      }
+      first = false;
+      result.append(object).append(": ").append(toStringForWsLog(map.get(object)));
+    }
+    return result.toString();
+  }
+
+  /**
+   * 
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForWsLog(Object object) {
+    if (object == null) {
+      return "";
+    }
+    if (object instanceof GrouperWsToStringCompact) {
+      return ((GrouperWsToStringCompact)object).toStringCompact();
+    }
+    return object.toString();
+  }
 }

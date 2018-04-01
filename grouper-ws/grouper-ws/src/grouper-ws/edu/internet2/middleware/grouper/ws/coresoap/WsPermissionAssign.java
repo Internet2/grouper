@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
@@ -492,8 +493,7 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
         .findById(permissionEntry.getAttributeDefId(), true);
       this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
     } else {
-      AttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-        .findById(permissionEntry.getAttributeDefId(), true);
+      AttributeDef theAttributeDef = AttributeDefFinder.findByIdAsRoot(permissionEntry.getAttributeDefId(), true);
       this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
       this.enabled = permissionEntry.isEnabled() ? "T" : "F";
     }

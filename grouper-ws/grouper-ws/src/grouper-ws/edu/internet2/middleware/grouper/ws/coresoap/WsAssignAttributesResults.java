@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -487,7 +488,8 @@ public class WsAssignAttributesResults implements WsResponseBean, ResultMetadata
     
     int i = 0;
     for (String wsAttributeDefId : allAttributeDefIds) {
-      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(wsAttributeDefId, true);
+      // TODO batch these
+      AttributeDef attributeDef = AttributeDefFinder.findByIdAsRoot(wsAttributeDefId, true);
       this.wsAttributeDefs[i] = new WsAttributeDef(attributeDef, null);
       i++;
     }

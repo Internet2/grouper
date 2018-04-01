@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -24,11 +26,13 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
 
 /**
  * <pre>
@@ -196,6 +200,11 @@ public class WsAddMemberResults implements WsResponseBean, ResultMetadataHolder 
         }
       }
 
+      final Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "successes", successes);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "failures", failures);
+      
       //if transaction rolled back all line items, 
       if ((!successOverall || failures > 0) && grouperTransactionType.isTransactional()
           && !grouperTransactionType.isReadonly()) {
