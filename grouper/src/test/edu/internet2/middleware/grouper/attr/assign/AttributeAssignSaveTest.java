@@ -10,6 +10,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteMultipleCorruption;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -32,7 +33,7 @@ public class AttributeAssignSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignSaveTest("testMarkerGroupWithMarkersOnAssignment"));
+    TestRunner.run(new AttributeAssignSaveTest("testMultiAssignAttributeProblem"));
     //TestRunner.run(AttributeAssignSaveTest.class);
   }
   
@@ -51,7 +52,207 @@ public class AttributeAssignSaveTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testMultiAssignAttributeProblem() {
 
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:attrDefMarker")
+        .assignToGroup(true).assignMultiAssignable(true).assignMultiValued(true)
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string).save();
+
+    AttributeDef attributeDefMeta = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:attrDefMarkerMeta")
+        .assignToGroupAssn(true).assignMultiAssignable(true).assignMultiValued(true)
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string).save();
+      
+    AttributeDefName attributeDefName0 = new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:attributeDefName0").save();
+    AttributeDefName attributeDefName1 = new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:attributeDefName1").save();
+    
+    AttributeDefName attributeDefNameMeta0 = new AttributeDefNameSave(grouperSession, attributeDefMeta).assignName("test:attributeDefNameMeta0").save();
+    AttributeDefName attributeDefNameMeta1 = new AttributeDefNameSave(grouperSession, attributeDefMeta).assignName("test:attributeDefNameMeta1").save();
+    AttributeDefName attributeDefNameMeta2 = new AttributeDefNameSave(grouperSession, attributeDefMeta).assignName("test:attributeDefNameMeta2").save();
+
+    Group group0 = new GroupSave(grouperSession).assignName("test:group0").save();
+    Group group1 = new GroupSave(grouperSession).assignName("test:group1").save();
+    Group group2 = new GroupSave(grouperSession).assignName("test:group2").save();
+
+    AttributeAssign attributeAssignBase0_0 = new AttributeAssignSave(grouperSession).assignOwnerGroup(group0).assignAttributeDefName(attributeDefName0).assignSaveMode(SaveMode.INSERT).save();
+    AttributeAssign attributeAssignBase0_1 = new AttributeAssignSave(grouperSession).assignOwnerGroup(group0).assignAttributeDefName(attributeDefName0).assignSaveMode(SaveMode.INSERT).save();
+    assertNotNull(attributeAssignBase0_0);
+    AttributeAssign attributeAssignBase1_0 = new AttributeAssignSave(grouperSession).assignOwnerGroup(group1).assignAttributeDefName(attributeDefName0).assignSaveMode(SaveMode.INSERT).save();
+    AttributeAssign attributeAssignBase1_2 = new AttributeAssignSave(grouperSession).assignOwnerGroup(group1).assignAttributeDefName(attributeDefName1).assignSaveMode(SaveMode.INSERT).save();
+    AttributeAssign attributeAssignBase2_0 = new AttributeAssignSave(grouperSession).assignOwnerGroup(group2).assignAttributeDefName(attributeDefName0).assignSaveMode(SaveMode.INSERT).save();
+    AttributeAssign attributeAssignBase2_1 = new AttributeAssignSave(grouperSession).assignOwnerGroup(group2).assignAttributeDefName(attributeDefName1).assignSaveMode(SaveMode.INSERT).save();
+    
+    attributeAssignBase0_0.getAttributeValueDelegate().addValue(attributeDefNameMeta0.getName(), "value1a");
+    attributeAssignBase0_0.getAttributeValueDelegate().addValue(attributeDefNameMeta0.getName(), "value1b");
+    attributeAssignBase0_1.getAttributeValueDelegate().addValue(attributeDefNameMeta0.getName(), "value2");
+
+    new AttributeAssignSave(grouperSession).assignOwnerAttributeAssign(attributeAssignBase0_0).assignAttributeDefName(attributeDefNameMeta0).assignSaveMode(SaveMode.INSERT).save();
+    new AttributeAssignSave(grouperSession).assignOwnerAttributeAssign(attributeAssignBase0_0).assignAttributeDefName(attributeDefNameMeta1).assignSaveMode(SaveMode.INSERT).save();
+    
+    AttributeAssign attributeAssignMetaBase2_0 = new AttributeAssignSave(grouperSession).assignOwnerAttributeAssign(attributeAssignBase2_0).assignAttributeDefName(attributeDefNameMeta0).assignSaveMode(SaveMode.INSERT).save();
+    AttributeAssign attributeAssignMetaBase2_0a = new AttributeAssignSave(grouperSession).assignOwnerAttributeAssign(attributeAssignBase2_0).assignAttributeDefName(attributeDefNameMeta0).assignSaveMode(SaveMode.INSERT).save();
+    AttributeAssign attributeAssignMetaBase2_1 = new AttributeAssignSave(grouperSession).assignOwnerAttributeAssign(attributeAssignBase2_1).assignAttributeDefName(attributeDefNameMeta0).assignSaveMode(SaveMode.INSERT).save();
+    
+    attributeAssignMetaBase2_0.getValueDelegate().assignValue("value1");
+    attributeAssignMetaBase2_1.getValueDelegate().assignValue("value2");
+    
+    assertEquals(2, group0.getAttributeDelegate().retrieveAssignments(attributeDefName0).size());
+    assertEquals(1, group1.getAttributeDelegate().retrieveAssignments(attributeDefName0).size());
+    assertEquals(1, group1.getAttributeDelegate().retrieveAssignments(attributeDefName1).size());
+    assertEquals(2, attributeAssignBase2_0.getAttributeDelegate().retrieveAssignments(attributeDefNameMeta0).size());
+    assertEquals(1, group2.getAttributeDelegate().retrieveAssignments(attributeDefName0).size());
+    assertEquals(1, group2.getAttributeDelegate().retrieveAssignments(attributeDefName1).size());
+    assertEquals(1, attributeAssignBase2_1.getAttributeDelegate().retrieveAssignments(attributeDefNameMeta0).size());
+
+    assertEquals("value2", attributeAssignBase0_1.getAttributeValueDelegate().retrieveValueString(attributeDefNameMeta0.getName()));
+    
+    assertEquals("value1", attributeAssignMetaBase2_0.getValueDelegate().retrieveValueString());
+    assertEquals("value2", attributeAssignMetaBase2_1.getValueDelegate().retrieveValueString());
+
+    StringBuilder jobMessage = new StringBuilder();
+    boolean[] error = new boolean[]{false};
+    
+    String result = GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, true, error);
+    
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixAssignsCount: 0"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("No duplicate assigns found"));
+    
+    attributeDef.setMultiAssignable(false);
+    attributeDef.store();
+
+    attributeDefMeta.setMultiAssignable(false);
+    attributeDefMeta.store();
+
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, true, error);
+
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixAssignsCount: 3"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("Redundant grouper_attribute_assign needs to be deleted"));
+
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, false, error);
+
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixAssignsCount: 3"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("Redundant grouper_attribute_assign is deleted"));
+
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, false, error);
+
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixAssignsCount: 0"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("No duplicate assigns found"));
+
+
+    assertEquals(1, group0.getAttributeDelegate().retrieveAssignments(attributeDefName0).size());
+    assertEquals(1, group1.getAttributeDelegate().retrieveAssignments(attributeDefName0).size());
+    assertEquals(1, group1.getAttributeDelegate().retrieveAssignments(attributeDefName1).size());
+    assertEquals(1, attributeAssignBase2_0.getAttributeDelegate().retrieveAssignments(attributeDefNameMeta0).size());
+    assertEquals(1, group2.getAttributeDelegate().retrieveAssignments(attributeDefName0).size());
+    assertEquals(1, group2.getAttributeDelegate().retrieveAssignments(attributeDefName1).size());
+    assertEquals(1, attributeAssignBase2_1.getAttributeDelegate().retrieveAssignments(attributeDefNameMeta0).size());
+
+    assertEquals("value2", attributeAssignBase0_1.getAttributeValueDelegate().retrieveValueString(attributeDefNameMeta0.getName()));
+    
+    assertEquals("value2", attributeAssignMetaBase2_1.getValueDelegate().retrieveValueString());
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testMultiAssignAttributeValueProblem() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:attrDefMarker")
+        .assignToGroup(true).assignMultiValued(true)
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.string).save();
+      
+    AttributeDefName attributeDefName0 = new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:attributeDefName0").save();
+    
+    Group group0 = new GroupSave(grouperSession).assignName("test:group0").save();
+    Group group1 = new GroupSave(grouperSession).assignName("test:group1").save();
+
+    group0.getAttributeValueDelegate().addValue(attributeDefName0.getName(), "test1");
+    group0.getAttributeValueDelegate().addValue(attributeDefName0.getName(), "test2");
+
+    group1.getAttributeValueDelegate().addValue(attributeDefName0.getName(), "test1");
+
+    List<String> values = group0.getAttributeValueDelegate().retrieveValuesString(attributeDefName0.getName());
+    
+    assertEquals(2, values.size());
+    assertTrue(values.contains("test1"));
+    assertTrue(values.contains("test2"));
+    
+    values = group1.getAttributeValueDelegate().retrieveValuesString(attributeDefName0.getName());
+    
+    assertEquals(1, values.size());
+    assertTrue(values.contains("test1"));
+    
+    StringBuilder jobMessage = new StringBuilder();
+    boolean[] error = new boolean[]{false};
+    
+    String result = GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, true, error);
+    
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixValuesCount: 0"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("No duplicate values found"));
+    
+    attributeDef.setMultiValued(false);
+    attributeDef.store();
+    
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, true, error);
+
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixValuesCount: 1"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("Redundant grouper_attribute_assign_value needs to be deleted"));
+
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, false, error);
+
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixValuesCount: 1"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("Redundant grouper_attribute_assign_value is deleted"));
+
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, false, error);
+
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixValuesCount: 0"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("No duplicate values found"));
+
+    values = group0.getAttributeValueDelegate().retrieveValuesString(attributeDefName0.getName());
+    
+    assertEquals(1, values.size());
+    assertTrue(values.contains("test2"));
+    
+    values = group1.getAttributeValueDelegate().retrieveValuesString(attributeDefName0.getName());
+    
+    assertEquals(1, values.size());
+    assertTrue(values.contains("test1"));
+
+  }
+  
   /**
    * 
    */
@@ -144,6 +345,7 @@ public class AttributeAssignSaveTest extends GrouperTest {
     assertTrue(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta3));
     assertTrue(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta4));
 
+    assertNoFixAttributeProblems();
 
   }
 
@@ -230,6 +432,8 @@ public class AttributeAssignSaveTest extends GrouperTest {
     assertTrue(values.contains("B"));
     assertTrue(values.contains("C"));
     assertTrue(values.contains("D"));
+
+    assertNoFixAttributeProblems();
 
     EhcacheController.ehcacheController().flushCache();
 
@@ -408,6 +612,8 @@ public class AttributeAssignSaveTest extends GrouperTest {
     assertEquals("D", attributeAssignBase1.getAttributeValueDelegate().retrieveValueString(attributeDefNameMeta2.getName()));
     assertEquals("E", attributeAssignBase1.getAttributeValueDelegate().retrieveValueString(attributeDefNameMeta3.getName()));
 
+    assertNoFixAttributeProblems();
+    
     EhcacheController.ehcacheController().flushCache();
     
 
@@ -465,9 +671,34 @@ public class AttributeAssignSaveTest extends GrouperTest {
     
     assertTrue(group0.getAttributeDelegate().hasAttribute(attributeDefName0));
 
+    assertNoFixAttributeProblems();
     EhcacheController.ehcacheController().flushCache();
 
     
+
+  }
+
+  /**
+   * 
+   */
+  public static void assertNoFixAttributeProblems() {
+    StringBuilder jobMessage = new StringBuilder();
+    boolean[] error = new boolean[]{false};
+    
+    String result = GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, true, error);
+    
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixAssignsCount: 0"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("No duplicate assigns found"));
+
+    jobMessage = new StringBuilder();
+    error = new boolean[]{false};
+    
+    result = GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, true, error);
+    
+    assertTrue(jobMessage.toString(), jobMessage.toString().contains("fixValuesCount: 0"));
+    assertFalse(error[0]);
+    assertTrue(result, result.contains("No duplicate values found"));
 
   }
   
