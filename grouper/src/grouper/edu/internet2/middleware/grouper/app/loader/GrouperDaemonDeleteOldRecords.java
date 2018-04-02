@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperDaemonDeleteOldRecords {
 
   /** delete old records log */
-  private static final String LOG_LABEL = "maintenanceDeleteOldRecords";
+  public static final String LOG_LABEL = "maintenanceDeleteOldRecords";
 
   
   /**
@@ -92,6 +92,53 @@ public class GrouperDaemonDeleteOldRecords {
         jobMessage.append("\nError in deleteOldAuditEntry: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
         
+      }
+
+      try {
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+            "loader.removeMultiAttributeValuesIfSingleValuedAttribute", true)) {
+          
+          //# if daemon should remove old values which are multi-assigned if the attribute is single valued
+          boolean logOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.removeMultiAttributeValuesIfSingleValuedAttributeLogOnly", true);
+          boolean[] errorArray = new boolean[]{false};
+          GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, logOnly, errorArray);
+          if (errorArray[0]) {
+            error = true;
+          }
+        } else {
+          if (jobMessage != null) {
+            jobMessage.append("Configured to not remove multi assigned values if single valued attribute.  ");
+          }
+        }
+      } catch (Exception e) {
+        LOG.error("Error in removeMultiAttributeValuesIfSingleValuedAttribute", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInRemoveMultiAttributeValuesIfSingleValuedAttribute", ExceptionUtils.getFullStackTrace(e));
+        jobMessage.append("\nError in removeMultiAttributeValuesIfSingleValuedAttribute: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        error = true;
+      }
+
+      try {
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+            "loader.removeMultiAttributeAssignIfSingleAssignAttribute", true)) {
+
+          //# if daemon should remove old assignments which are multi-assigned if the attribute is single assign
+          boolean logOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.removeMultiAttributeAssignIfSingleAssignAttributeLogOnly", true);
+
+          boolean[] errorArray = new boolean[]{false};
+          GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, logOnly, errorArray);
+          if (errorArray[0]) {
+            error = true;
+          }
+        } else {
+          if (jobMessage != null) {
+            jobMessage.append("Configured to not remove multi attribute assign if single assigned attribute.  ");
+          }
+        }
+      } catch (Exception e) {
+        LOG.error("Error in removeMultiAttributeAssignIfSingleAssignAttribute", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInRemoveMultiAttributeAssignIfSingleAssignAttribute", ExceptionUtils.getFullStackTrace(e));
+        jobMessage.append("\nError in removeMultiAttributeAssignIfSingleAssignAttribute: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        error = true;
       }
 
       try {

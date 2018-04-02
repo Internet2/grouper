@@ -360,11 +360,11 @@ public class LoaderLdapElUtils {
     if (StringUtils.isBlank(dn)) {
       return dn;
     }
-	
+  
     if (LOG.isDebugEnabled()) {
       LOG.debug("Start conversion of DN '" + dn + "'");
     }
-	
+  
     // get the domain suffix, RDN attribute and RDN value from the DN
     String domainSuffix = dn.substring(dn.toLowerCase().indexOf("dc="));
     String rdnAttribute = StringUtils.substringBefore(dn,"=");
@@ -419,42 +419,42 @@ public class LoaderLdapElUtils {
       Boolean isGroup = new Boolean(groupresults.size() > 0);
     
       if (isGroup) {
-    	// Check that the member object is within the baseOu space
-    	if ( dn.toLowerCase().indexOf(baseOu.toLowerCase()) > 0 ) {
-	      // convert the DN to a grouper group
-	      String groupName = convertDnToGroupName(dn, domainSuffix, grouperBaseStem); 
-	    
-	      // see if the group exists
-	      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName, false, null) ;
-	      if (group == null) {
-	        if (LOG.isDebugEnabled()) {
-	          LOG.debug("Group doesnt exist, creating: '" + groupName +"'");
-	        }
-	
-	      // If the group which is a member doesnt exist, create it
-	      group = new GroupSave(GrouperSession.staticGrouperSession())
-	              .assignName(groupName)
-	              .assignCreateParentStemsIfNotExist(true)
-	              .save();
-	      }
-	
-	      // return the ID of the group
-	      if (LOG.isDebugEnabled()) {
-	        LOG.debug("DN: '" + dn + "' converted to group: '" + group.getName() + "' and id: '" + group.getId() + "'");
-	      }
-	    
-	      return idOrIdentifier ? group.getId() : group.getName();
-	      
-    	} 
-    	else {
-    		// member object is not within the baseOu space.
-    		// Future code should perhaps address this but for now, return dn.
-    		return dn;
-    	}
+      // Check that the member object is within the baseOu space
+      if ( dn.toLowerCase().indexOf(baseOu.toLowerCase()) > 0 ) {
+        // convert the DN to a grouper group
+        String groupName = convertDnToGroupName(dn, domainSuffix, grouperBaseStem); 
+      
+        // see if the group exists
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName, false, null) ;
+        if (group == null) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Group doesnt exist, creating: '" + groupName +"'");
+          }
+  
+        // If the group which is a member doesnt exist, create it
+        group = new GroupSave(GrouperSession.staticGrouperSession())
+                .assignName(groupName)
+                .assignCreateParentStemsIfNotExist(true)
+                .save();
+        }
+  
+        // return the ID of the group
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("DN: '" + dn + "' converted to group: '" + group.getName() + "' and id: '" + group.getId() + "'");
+        }
+      
+        return idOrIdentifier ? group.getId() : group.getName();
+        
+      } 
+      else {
+        // member object is not within the baseOu space.
+        // Future code should perhaps address this but for now, return dn.
+        return dn;
+      }
       }
       // object is NOT a group OR is person object that does not have a uniqueAttribute value (e.g: computer). Return dn
       else {
-    	  return dn;
+        return dn;
       }
     }
   }
