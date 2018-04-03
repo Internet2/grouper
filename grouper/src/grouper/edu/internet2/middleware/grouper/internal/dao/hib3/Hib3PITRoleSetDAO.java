@@ -133,7 +133,7 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
     return HibernateSession.byHqlStatic().createQuery(
         "select id from PITRoleSet where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
         //do this since mysql cant handle self-referential foreign keys
-        .assignBatchPreExecuteUpdateQuery("update PITRoleSet set parentRoleSetId = null where parentRoleSetId is not null")
+        .assignBatchPreExecuteUpdateQuery("update PITRoleSet set parentRoleSetId = null where parentRoleSetId in ")
         .deleteInBatches(String.class, "PITRoleSet", "id");
   }
 

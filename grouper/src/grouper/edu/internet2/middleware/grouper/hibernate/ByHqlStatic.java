@@ -154,7 +154,7 @@ public class ByHqlStatic implements HqlQuery {
   private String batchPreExecuteUpdateQuery = null;
   
   /**
-   * if batch deleting, run this execute update first
+   * if batch deleting, run this execute update first.  note, the query must end with " in " or " in"
    * @param theBatchPreExecuteUpdateQuery
    * @return this for chaining
    */
@@ -522,12 +522,12 @@ public class ByHqlStatic implements HqlQuery {
           ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
           
           String hql = this.batchPreExecuteUpdateQuery;
-          if (this.batchPreExecuteUpdateQuery.contains(" where ")) {
-            hql += " and ";
-          } else {
-            hql += " where ";
+          
+          if (!hql.trim().endsWith(" in")) {
+            throw new RuntimeException("The batchPreExecuteUpdateQuery must end with ' in'. but is: '" + hql + "'");
           }
-          hql += columnNameOfId + " in (" + HibUtils.convertToInClauseAnyType(idsBatch, byHqlStatic) +  ")";
+
+          hql += " (" + HibUtils.convertToInClauseAnyType(idsBatch, byHqlStatic) +  ")";
           
           byHqlStatic.createQuery(hql).executeUpdate();
           

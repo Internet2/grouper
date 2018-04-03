@@ -411,7 +411,7 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
         "select id from PITGroupSet where endTimeDb is not null and endTimeDb < :time")
         .setLong("time", time.getTime() * 1000)
         //do this since mysql cant handle self-referential foreign keys
-        .assignBatchPreExecuteUpdateQuery("update PITGroupSet set parentId = null where parentId is not null")
+        .assignBatchPreExecuteUpdateQuery("update PITGroupSet set parentId = null where parentId in ")
         .deleteInBatches(String.class, "PITGroupSet", "id");
 
   }

@@ -133,7 +133,7 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
     return HibernateSession.byHqlStatic().createQuery(
         "select id from PITAttributeAssignActionSet where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
         //do this since mysql cant handle self-referential foreign keys
-        .assignBatchPreExecuteUpdateQuery("update PITAttributeAssignActionSet set parentAttrAssignActionSetId = null where parentAttrAssignActionSetId is not null")
+        .assignBatchPreExecuteUpdateQuery("update PITAttributeAssignActionSet set parentAttrAssignActionSetId = null where parentAttrAssignActionSetId in ")
         .deleteInBatches(String.class, "PITAttributeAssignActionSet", "id");
     
   }

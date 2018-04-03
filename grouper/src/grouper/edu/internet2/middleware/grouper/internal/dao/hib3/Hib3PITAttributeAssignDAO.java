@@ -312,7 +312,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
         "select id from PITAttributeAssign a where a.endTimeDb is not null and a.endTimeDb < :time " +
           "and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)").setLong("time", time.getTime() * 1000)
         //do this since mysql cant handle self-referential foreign keys
-        .assignBatchPreExecuteUpdateQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.ownerAttributeAssignId is not null")
+        .assignBatchPreExecuteUpdateQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.ownerAttributeAssignId in ")
         .deleteInBatches(String.class, "PITAttributeAssign", "id");
   }
   
