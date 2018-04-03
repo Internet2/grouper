@@ -187,7 +187,7 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     return HibernateSession.byHqlStatic().createQuery(
         "select id from PITStem where endTimeDb is not null and endTimeDb < :time").setLong("time", time.getTime() * 1000)
         //do this since mysql cant handle self-referential foreign keys
-        .assignBatchPreExecuteUpdateQuery("update PITStem set parentStemId = null")
+        .assignBatchPreExecuteUpdateQuery("update PITStem set parentStemId = null where parentStemId in ")
         .deleteInBatches(String.class, "PITStem", "id");
     
   }
