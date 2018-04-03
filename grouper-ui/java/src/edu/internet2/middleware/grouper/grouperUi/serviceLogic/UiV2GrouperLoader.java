@@ -2612,7 +2612,7 @@ public class UiV2GrouperLoader {
                           loaderReport.append("<font color='green'>SUCCESS:</font> GROUP_DESCRIPTION exists '" + groupDescription + "'\n");
                         }
                       } else {
-                        loaderReport.append("<font color='blue'>NOTE:</font> Didn't find GROUP_DESCRIPTION col in group query");
+                        loaderReport.append("<font color='blue'>NOTE:</font> Didn't find GROUP_DESCRIPTION col in group query\n");
                       }
 
                       for (String privilegeColumn : new String[]{"VIEWERS", "READERS", "ADMINS", "UPDATERS", "OPTINS", "OPTOUTS", "GROUP_ATTR_READERS", "GROUP_ATTR_UPDATERS"}) {
@@ -2662,30 +2662,31 @@ public class UiV2GrouperLoader {
                       }
                       
                     }
-                  }
-                  if (groupsLikeCount == 0) {
-                    
-                    if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
-                      // see if the groups like count is similar to the number of groups returned
-                      loaderReport.append("<font color='red'>ERROR:</font> 0 groups in 'groups like' and " + grouperLoaderResultsetForGroups.numberOfRows() 
-                          + " groups in SQL group query, maybe job hasnt been run yet?  Or groupsLike '" 
-                          + grouperLoaderContainer.getSqlGroupsLike() + "' is misconfigured?\n");
-                    }
-                    
-                  } else if (groupsLikeCount == grouperLoaderResultsetForGroups.numberOfRows()) {
-                    loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " 
-                        + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query are the same number!\n");
-                    
-                  } else if (groupsLikeCount > 0) {
 
-                    double percentOff = Math.abs(groupsLikeCount - grouperLoaderResultsetForGroups.numberOfRows()) / groupsLikeCount;
-                    if (percentOff > 0.1) {
-                      loaderReport.append("<font color='red'>ERROR:</font> " + groupsLikeCount + " groups in 'groups like' and " 
-                          + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query more than 10% away from each other.  Maybe job needs to be run?  Or groupsLike '" 
-                          + grouperLoaderContainer.getSqlGroupsLike() + "' is misconfigured?\n");
-                    } else {
-                      loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " 
-                          + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query are within 10%\n");
+                    if (groupsLikeCount == 0) {
+
+                      if (grouperLoaderResultsetForGroups.numberOfRows() > 0) {
+                        // see if the groups like count is similar to the number of groups returned
+                        loaderReport.append("<font color='red'>ERROR:</font> 0 groups in 'groups like' and " + grouperLoaderResultsetForGroups.numberOfRows()
+                            + " groups in SQL group query, maybe job hasnt been run yet?  Or groupsLike '"
+                            + grouperLoaderContainer.getSqlGroupsLike() + "' is misconfigured?\n");
+                      }
+
+                    } else if (groupsLikeCount == grouperLoaderResultsetForGroups.numberOfRows()) {
+                      loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and "
+                          + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query are the same number!\n");
+
+                    } else if (groupsLikeCount > 0) {
+
+                      double percentOff = Math.abs(groupsLikeCount - grouperLoaderResultsetForGroups.numberOfRows()) / groupsLikeCount;
+                      if (percentOff > 0.1) {
+                        loaderReport.append("<font color='red'>ERROR:</font> " + groupsLikeCount + " groups in 'groups like' and "
+                            + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query more than 10% away from each other.  Maybe job needs to be run?  Or groupsLike '"
+                            + grouperLoaderContainer.getSqlGroupsLike() + "' is misconfigured?\n");
+                      } else {
+                        loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and "
+                            + grouperLoaderResultsetForGroups.numberOfRows() + " groups in SQL group query are within 10%\n");
+                      }
                     }
                   }
                 }
