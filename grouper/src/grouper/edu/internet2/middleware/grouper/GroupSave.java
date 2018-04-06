@@ -259,6 +259,19 @@ public class GroupSave {
     return this;
   }
 
+  private boolean setAlternateNameIfRename = true;
+  
+  /**
+   * whether an alternate name should automatically be assigned if doing a rename
+   * @param theSetAlternateNameIfRename
+   * @return this for chaining
+   */
+  public GroupSave assignSetAlternateNameIfRename(boolean theSetAlternateNameIfRename) {
+    this.setAlternateNameIfRename = theSetAlternateNameIfRename;
+    return this;
+  }
+  
+
   /** id index */
   private Long idIndex;
   
@@ -517,6 +530,9 @@ public class GroupSave {
                 //default
                 GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                 boolean needsSave = false;
+                
+                boolean isRename = false;
+                
                 //if inserting
                 if (!isUpdate) {
                   GroupSave.this.saveResultType = SaveResultType.INSERT;
@@ -543,9 +559,10 @@ public class GroupSave {
                         throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
                       }
                       
-                      theGroup.setExtension(extensionNew);
+                      theGroup.setExtension(extensionNew, GroupSave.this.setAlternateNameIfRename);
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
                     needsSave = true;
+                    isRename = true;
                   }
                   if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
@@ -577,7 +594,7 @@ public class GroupSave {
                   }
                   theGroup.setDescription(GroupSave.this.description);
                 }
-
+                
                 //compare type of group
                 if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
                   needsSave = true;
