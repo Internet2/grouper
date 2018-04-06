@@ -538,8 +538,19 @@ public class ByHqlStatic implements HqlQuery {
         String hql = "delete from " + hqlClassNameToDelete + " where " + columnNameOfId 
             + " in (" + HibUtils.convertToInClauseAnyType(idsBatch, byHqlStatic) +  ")";
         
-        byHqlStatic.createQuery(hql).executeUpdate();
-        
+        try {
+          byHqlStatic.createQuery(hql).executeUpdate();
+        } catch (Exception e) {
+          LOG.warn("Failed to delete from " + hqlClassNameToDelete + " in batch, ids=" + idsBatch + ".  Trying each delete separately.", e);
+          
+          ByHqlStatic byHqlStatic2 = HibernateSession.byHqlStatic();
+          String select = "select theObject from " + hqlClassNameToDelete + " as theObject where " + columnNameOfId + " in (" + HibUtils.convertToInClauseAnyType(idsBatch, byHqlStatic2) + ")";
+          
+          Set<Object> objects = byHqlStatic2.createQuery(select).setCacheable(false).listSet(Object.class);
+          for (Object object : objects) {
+            HibernateSession.byObjectStatic().delete(object);
+          }
+        }
       }
 
       //we are done if it didnt select the full amount

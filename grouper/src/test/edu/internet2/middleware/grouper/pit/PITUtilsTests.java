@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -60,7 +61,7 @@ public class PITUtilsTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITUtilsTests("testDeleteInactiveRecords"));
+    TestRunner.run(new PITUtilsTests("testDeleteInactiveRecordsWithBadData2"));
   }
   
   /** top level stems */
@@ -115,9 +116,9 @@ public class PITUtilsTests extends GrouperTest {
   }
   
   /**
-   * 
+   * @param forceBadPITData
    */
-  public void testDeleteInactiveRecords() {
+  public void internal_testDeleteInactiveRecords(boolean forceBadPITData) {
     GroupType type = GroupType.createType(grouperSession, "testType");
 
     // data set 1: before cleanup time but we will not delete these objects
@@ -247,6 +248,13 @@ public class PITUtilsTests extends GrouperTest {
     // sleep
     GrouperUtil.sleep(sleepTime);
     
+    if (forceBadPITData) {
+      HibernateSession.byHqlStatic().createQuery("update PITAttributeAssign set endTimeDb='" + System.currentTimeMillis() + "000' where endTimeDb is not null").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("update PITAttributeAssignAction set endTimeDb='" + System.currentTimeMillis() + "000' where endTimeDb is not null").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("update PITAttributeAssignValue set endTimeDb='" + System.currentTimeMillis() + "000' where endTimeDb is not null").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("update PITAttributeDefName set endTimeDb='" + System.currentTimeMillis() + "000' where endTimeDb is not null").executeUpdate();
+    }
+    
     // now delete old PIT records
     PITUtils.deleteInactiveRecords(cleanupDate, false);
 
@@ -313,6 +321,111 @@ public class PITUtilsTests extends GrouperTest {
     assertNotNull(GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership4.getImmediateMembershipId(), false));
     assertNotNull(GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdUnique(roleSet4.getId(), false));
     assertNotNull(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem4.getUuid(), false));
+  }
+  
+  /**
+   * 
+   */
+  public void testDeleteInactiveRecordsWithBadData() {
+    internal_testDeleteInactiveRecords(true);
+  }
+  
+  /**
+   * 
+   */
+  public void testDeleteInactiveRecords() {
+    internal_testDeleteInactiveRecords(false);
+  }
+  
+  /**
+   * 
+   */
+  public void testDeleteInactiveRecordsWithBadData2() {
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+
+    Group group1 = edu.addChildGroup("group1", "group1");
+    Group group2 = edu.addChildGroup("group2", "group2");
+    Group group3 = edu.addChildGroup("group3", "group3");
+    Group group4 = edu.addChildGroup("group4", "group4");
+    Group group5 = edu.addChildGroup("group5", "group5");
+    Group group6 = edu.addChildGroup("group6", "group6");
+    Group group7 = edu.addChildGroup("group7", "group7");
+    Group group8 = edu.addChildGroup("group8", "group8");
+    Group group9 = edu.addChildGroup("group9", "group9");
+    Group group10 = edu.addChildGroup("group10", "group10");
+
+    AttributeAssign attributeAssign1 = group1.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign2 = group2.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign3 = group3.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign4 = group4.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign5 = group5.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign6 = group6.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign7 = group7.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign8 = group8.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign9 = group9.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    AttributeAssign attributeAssign10 = group10.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+
+    ChangeLogTempToEntity.convertRecords();
+
+    attributeAssign1.delete();
+    attributeAssign2.delete();
+    attributeAssign3.delete();
+    attributeAssign4.delete();
+    attributeAssign5.delete();
+    attributeAssign6.delete();
+    attributeAssign7.delete();
+    attributeAssign8.delete();
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+
+    group1.delete();
+    group2.delete();
+    group3.delete();
+    group4.delete();
+    group5.delete();
+    group6.delete();
+    group7.delete();
+    group8.delete();
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Date cleanupDate = getDateWithSleep();
+    
+    attributeAssign9.delete();
+    group9.delete();
+    ChangeLogTempToEntity.convertRecords();
+    
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    grouperSession = GrouperSession.startRootSession();
+    
+    // now delete old PIT records
+    PITUtils.deleteInactiveRecords(cleanupDate, false);
+
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group4.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group5.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group6.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group7.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group8.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group9.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group10.getId(), false));
+    
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign1.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign2.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign3.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign4.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign5.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign6.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign7.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign8.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign9.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdUnique(attributeAssign10.getId(), false));
   }
   
   /**
