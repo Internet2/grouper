@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.entity.EntityFinder;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
@@ -122,7 +123,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGetAndHasPrivs"));
+    TestRunner.run(new TestGroup("testAlternateName"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -2003,6 +2004,75 @@ public class TestGroup extends GrouperTest {
     }
   }
 
+  /**
+   * 
+   */
+  public void testAlternateName() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    String groupName = "test:testGroup";
+    String groupName2 = "test:testGroup2";
+    String groupName3 = "test:testGroup3";
+    String groupName4 = "test:testGroup4";
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(groupName).save();
+    
+    assertNull(group.getAlternateName());
+
+    String uuid = group.getUuid();
+    
+    // rename and set alternate name
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName2).save();
+    
+    assertEquals(uuid, group.getUuid());
+    assertEquals(groupName2, group.getName());
+    assertEquals(groupName, group.getAlternateName());
+    
+    // rename and set alternate name
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName3).save();
+    
+    assertEquals(uuid, group.getUuid());
+    assertEquals(groupName3, group.getName());
+    assertEquals(groupName2, group.getAlternateName());
+
+    // rename and don't set alternate name
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName4).assignSetAlternateNameIfRename(false).save();
+    
+    assertEquals(uuid, group.getUuid());
+    assertEquals(groupName4, group.getName());
+    assertEquals(groupName2, group.getAlternateName());
+/*   
+    // delete alternate name
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName4).save();
+    
+    assertEquals(uuid, group.getUuid());
+    assertEquals(groupName4, group.getName());
+    assertNull(group.getAlternateName());
+   
+    // add alternate name
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName4).assignAlternateName("x:y").save();
+    
+    assertEquals(uuid, group.getUuid());
+    assertEquals(groupName4, group.getName());
+    assertEquals("x:y", group.getAlternateName());
+    
+    // change alternate name
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName4).assignAlternateName("x:y:z").save();
+    
+    assertEquals(uuid, group.getUuid());
+    assertEquals(groupName4, group.getName());
+    assertEquals("x:y:z", group.getAlternateName());
+    
+    // bad alternate name
+    try {
+      group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName4).assignAlternateName("x").save();
+      fail("should have thrown exception");
+    } catch (GroupModifyException e) {
+      // good
+    }
+    */
+    GrouperSession.stopQuietly(grouperSession);
+  }
   
 }
 

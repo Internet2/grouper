@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -153,6 +154,7 @@ public class WsGroupToSave {
    * 
    * @param grouperSession
    *            to save
+   * @param renameAssignAlternateName 
    * @return the stem that was inserted or updated
    * @throws StemNotFoundException 
    * @throws GroupNotFoundException
@@ -165,7 +167,7 @@ public class WsGroupToSave {
    * @throws AttributeNotFoundException 
    * @throws MemberDeleteException 
    */
-  public Group save(GrouperSession grouperSession) {
+  public Group save(GrouperSession grouperSession, Boolean renameAssignAlternateName) {
 
     Group group = null;
       
@@ -193,6 +195,11 @@ public class WsGroupToSave {
       groupSave.assignUuid(this.getWsGroup().getUuid()).assignName(this.getWsGroup().getName());
       groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());
       groupSave.assignDescription(this.getWsGroup().getDescription());
+      
+      if (renameAssignAlternateName != null) {
+        groupSave.assignSetAlternateNameIfRename(renameAssignAlternateName);
+      }
+      
       groupSave.assignSaveMode(theSaveMode);
       if (!StringUtils.isBlank(this.getWsGroup().getIdIndex())) {
         groupSave.assignIdIndex(GrouperUtil.longValue(this.getWsGroup().getIdIndex()));

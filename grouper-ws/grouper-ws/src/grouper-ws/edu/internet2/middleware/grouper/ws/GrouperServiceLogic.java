@@ -2480,7 +2480,9 @@ public class GrouperServiceLogic {
                               + "expecting move or copy but was: '" + moveOrCopy + "'");
                         }
                       } else {
-                        group = WS_GROUP_TO_SAVE.save(SESSION);
+                        Boolean renameAssignAlternateName = GrouperUtil.booleanObjectValue(paramMap.get("renameAssignAlternateName"));
+                        
+                        group = WS_GROUP_TO_SAVE.save(SESSION, renameAssignAlternateName);
                       }
                       
                       SaveResultType saveResultType = WS_GROUP_TO_SAVE.saveResultType();
