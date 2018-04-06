@@ -2041,7 +2041,7 @@ public class TestGroup extends GrouperTest {
     assertEquals(uuid, group.getUuid());
     assertEquals(groupName4, group.getName());
     assertEquals(groupName2, group.getAlternateName());
-/*   
+   
     // delete alternate name
     group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignUuid(uuid).assignName(groupName4).save();
     
@@ -2070,7 +2070,7 @@ public class TestGroup extends GrouperTest {
     } catch (GroupModifyException e) {
       // good
     }
-    */
+    
     GrouperSession.stopQuietly(grouperSession);
   }
   

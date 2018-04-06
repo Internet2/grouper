@@ -72,6 +72,9 @@ public class WsRestGroupSaveLiteRequest implements WsRequestBean {
   /** field */
   private String groupUuid; 
   
+  /** field */
+  private String alternateName;
+  
   /** 
    * field
    */
@@ -354,4 +357,18 @@ public class WsRestGroupSaveLiteRequest implements WsRequestBean {
     this.includeGroupDetail = includeGroupDetail1;
   }
 
+  
+  /**
+   * @return the alternateName
+   */
+  public String getAlternateName() {
+    return this.alternateName;
+  }
+  
+  /**
+   * @param alternateName1 the alternateName to set
+   */
+  public void setAlternateName(String alternateName1) {
+    this.alternateName = alternateName1;
+  }
 }

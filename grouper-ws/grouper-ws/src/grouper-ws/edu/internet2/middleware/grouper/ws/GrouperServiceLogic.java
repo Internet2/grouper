@@ -3541,6 +3541,7 @@ public class GrouperServiceLogic {
    * @param paramValue1
    *            reserved for future use
    * @param typeOfGroup type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param alternateName the alternate name of the group
    * @return the result of one member add
    */
   public static WsGroupSaveLiteResult groupSaveLite(final GrouperVersion clientVersion,
@@ -3548,7 +3549,7 @@ public class GrouperServiceLogic {
       String displayExtension, String description, SaveMode saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, TypeOfGroup typeOfGroup) {
+      String paramName1, String paramValue1, TypeOfGroup typeOfGroup, String alternateName) {
   
     // setup the group lookup
     WsGroupToSave wsGroupToSave = new WsGroupToSave();
@@ -3559,6 +3560,7 @@ public class GrouperServiceLogic {
     wsGroup.setName(groupName);
     wsGroup.setUuid(groupUuid);
     wsGroup.setTypeOfGroup(typeOfGroup == null ? null : typeOfGroup.name());
+    wsGroup.setAlternateName(alternateName);
   
     wsGroupToSave.setWsGroup(wsGroup);
   

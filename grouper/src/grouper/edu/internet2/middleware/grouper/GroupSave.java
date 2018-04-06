@@ -258,7 +258,20 @@ public class GroupSave {
     this.description = theDescription;
     return this;
   }
-
+  
+  /** alternateName */
+  private String alternateName;
+  
+  /**
+   * assign alternateName
+   * @param theAlternateName
+   * @return this for chaining
+   */
+  public GroupSave assignAlternateName(String theAlternateName) {
+    this.alternateName = theAlternateName;
+    return this;
+  }
+  
   private boolean setAlternateNameIfRename = true;
   
   /**
@@ -595,6 +608,21 @@ public class GroupSave {
                   theGroup.setDescription(GroupSave.this.description);
                 }
                 
+                if (!isRename) {
+                  if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getAlternateName())), 
+                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.alternateName)))) {
+                    needsSave = true;
+                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    if (StringUtils.isBlank(GroupSave.this.alternateName)) {
+                      theGroup.setAlternateNameDb(null);
+                    } else {
+                      theGroup.addAlternateName(StringUtils.trim(GroupSave.this.alternateName));
+                    }
+                  }
+                }
+
                 //compare type of group
                 if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
                   needsSave = true;

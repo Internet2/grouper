@@ -195,6 +195,7 @@ public class WsGroupToSave {
       groupSave.assignUuid(this.getWsGroup().getUuid()).assignName(this.getWsGroup().getName());
       groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());
       groupSave.assignDescription(this.getWsGroup().getDescription());
+      groupSave.assignAlternateName(this.getWsGroup().getAlternateName());
       
       if (renameAssignAlternateName != null) {
         groupSave.assignSetAlternateNameIfRename(renameAssignAlternateName);

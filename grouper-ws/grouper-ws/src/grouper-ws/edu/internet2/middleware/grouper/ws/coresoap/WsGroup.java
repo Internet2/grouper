@@ -132,6 +132,11 @@ public class WsGroup implements Comparable<WsGroup> {
    * universally unique identifier of this group
    */
   private String uuid;
+  
+  /**
+   * alternate name for the group
+   */
+  private String alternateName;
 
   /**
    * if requested, return the detail properties of the group
@@ -181,6 +186,7 @@ public class WsGroup implements Comparable<WsGroup> {
       this.setUuid(group.getUuid());
       this.setExtension(group.getExtension());
       this.setDisplayExtension(group.getDisplayExtension());
+      this.setAlternateName(group.getAlternateName());
 
       //if greater then 2.2 then set id index
       if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
@@ -349,5 +355,21 @@ public class WsGroup implements Comparable<WsGroup> {
       return 1;
     }
     return GrouperUtil.compare(this.getName(), o2.getName());
+  }
+
+  
+  /**
+   * @return the alternateName
+   */
+  public String getAlternateName() {
+    return this.alternateName;
+  }
+
+  
+  /**
+   * @param alternateName1 the alternateName to set
+   */
+  public void setAlternateName(String alternateName1) {
+    this.alternateName = alternateName1;
   }
 }

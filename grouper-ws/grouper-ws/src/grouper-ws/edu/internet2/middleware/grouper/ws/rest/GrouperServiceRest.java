@@ -1247,7 +1247,7 @@ public class GrouperServiceRest {
         wsRestGroupSaveLiteRequest.getIncludeGroupDetail(), wsRestGroupSaveLiteRequest
             .getParamName0(), wsRestGroupSaveLiteRequest.getParamValue0(),
         wsRestGroupSaveLiteRequest.getParamName1(), wsRestGroupSaveLiteRequest
-            .getParamValue1(), wsRestGroupSaveLiteRequest.getTypeOfGroup());
+            .getParamValue1(), wsRestGroupSaveLiteRequest.getTypeOfGroup(), wsRestGroupSaveLiteRequest.getAlternateName());
   
     //return result
     return wsGroupSaveLiteResult;

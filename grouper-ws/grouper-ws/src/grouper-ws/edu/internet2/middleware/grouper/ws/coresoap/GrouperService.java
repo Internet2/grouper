@@ -904,6 +904,7 @@ public class GrouperService {
    * @param paramValue1
    *            reserved for future use
    * @param typeOfGroup1 type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param alternateName the alternate name of the group
    * @return the result of one member add
    */
   public WsGroupSaveLiteResult groupSaveLite(final String clientVersion,
@@ -911,7 +912,7 @@ public class GrouperService {
       String displayExtension,String description,  String saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String typeOfGroup1) {
+      String paramName1, String paramValue1, String typeOfGroup1, String alternateName) {
 
     WsGroupSaveLiteResult wsGroupSaveLiteResult = new WsGroupSaveLiteResult();
     GrouperVersion grouperWsVersion = null;
@@ -930,7 +931,7 @@ public class GrouperService {
       wsGroupSaveLiteResult = GrouperServiceLogic.groupSaveLite(grouperWsVersion, groupLookupUuid,
           groupLookupName, groupUuid, groupName, displayExtension, description, saveModeEnum,
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean,  
-          paramName0, paramValue0, paramName1, paramValue1, typeOfGroup);
+          paramName0, paramValue0, paramName1, paramValue1, typeOfGroup, alternateName);
     } catch (Exception e) {
       wsGroupSaveLiteResult.assignResultCodeException(null, null, e, grouperWsVersion);
     }
