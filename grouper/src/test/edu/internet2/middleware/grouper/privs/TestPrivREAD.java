@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.privs;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -59,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestPrivREAD.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestPrivREAD extends TestCase {
+public class TestPrivREAD extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestPrivREAD.class);
@@ -81,6 +80,7 @@ public class TestPrivREAD extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -99,6 +99,7 @@ public class TestPrivREAD extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
   /**
