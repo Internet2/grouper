@@ -35,7 +35,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -65,7 +64,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestPrivVIEW.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestPrivVIEW extends TestCase {
+public class TestPrivVIEW extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestPrivVIEW.class);
@@ -88,6 +87,7 @@ public class TestPrivVIEW extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -104,7 +104,7 @@ public class TestPrivVIEW extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
-    // Nothing 
+    super.tearDown();
   }
 
   /**

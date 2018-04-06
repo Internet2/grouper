@@ -31,7 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
@@ -39,7 +38,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MemberHelper;
@@ -57,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestPrivUPDATE.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestPrivUPDATE extends TestCase {
+public class TestPrivUPDATE extends GrouperTest {
 
   /**
    * 
@@ -97,6 +95,7 @@ public class TestPrivUPDATE extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -112,7 +111,7 @@ public class TestPrivUPDATE extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests
