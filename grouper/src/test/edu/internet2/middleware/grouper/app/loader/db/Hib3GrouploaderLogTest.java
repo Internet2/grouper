@@ -21,11 +21,11 @@ package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Timestamp;
 
-import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.type.StringType;
 
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 /**
  *
  */
-public class Hib3GrouploaderLogTest extends TestCase {
+public class Hib3GrouploaderLogTest extends GrouperTest {
 
   /**
    * Constructor for Hib3GrouperDdlTest.
@@ -50,6 +50,15 @@ public class Hib3GrouploaderLogTest extends TestCase {
    */
   public static void main(String[] args) {
     junit.textui.TestRunner.run(Hib3GrouploaderLogTest.class);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
 
   /**

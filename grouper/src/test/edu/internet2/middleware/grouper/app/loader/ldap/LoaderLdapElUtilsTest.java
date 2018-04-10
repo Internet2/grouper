@@ -22,14 +22,14 @@ package edu.internet2.middleware.grouper.app.loader.ldap;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import junit.textui.TestRunner;
 
 
 /**
  *
  */
-public class LoaderLdapElUtilsTest extends TestCase {
+public class LoaderLdapElUtilsTest extends GrouperTest {
 
   /**
    * 
@@ -44,6 +44,15 @@ public class LoaderLdapElUtilsTest extends TestCase {
    */
   public LoaderLdapElUtilsTest(String name) {
     super(name);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
 
   /**

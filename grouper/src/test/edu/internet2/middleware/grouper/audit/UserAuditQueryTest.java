@@ -23,16 +23,16 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.subject.Subject;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 
 /**
  *
  */
-public class UserAuditQueryTest extends TestCase {
+public class UserAuditQueryTest extends GrouperTest {
 
   /**
    * 
@@ -47,6 +47,15 @@ public class UserAuditQueryTest extends TestCase {
    */
   public UserAuditQueryTest(String name) {
     super(name);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
 
   /**

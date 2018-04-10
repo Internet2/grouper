@@ -31,7 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper.membership;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -57,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestMemberOf.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestMemberOf extends TestCase {
+public class TestMemberOf extends GrouperTest {
 
   /**
    * Method main.
@@ -90,6 +89,7 @@ public class TestMemberOf extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -105,6 +105,7 @@ public class TestMemberOf extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
 

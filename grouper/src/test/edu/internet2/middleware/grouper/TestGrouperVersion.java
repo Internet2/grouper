@@ -19,8 +19,8 @@
  */
 package edu.internet2.middleware.grouper;
 
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 
@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 /**
  *
  */
-public class TestGrouperVersion extends TestCase {
+public class TestGrouperVersion extends GrouperTest {
 
   /**
    * 
@@ -38,6 +38,15 @@ public class TestGrouperVersion extends TestCase {
   public static void main(String[] args) throws Exception {
     //TestRunner.run(new GrouperVersionTest("testIndentJson"));
     TestRunner.run(TestGrouperVersion.class);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
 
   /**

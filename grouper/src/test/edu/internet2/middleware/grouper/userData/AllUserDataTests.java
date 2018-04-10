@@ -16,10 +16,9 @@
 package edu.internet2.middleware.grouper.userData;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class AllUserDataTests extends TestCase {
+public class AllUserDataTests {
 
   /**
    * 

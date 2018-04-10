@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -51,20 +50,21 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * @author  blair christensen.
  * @version $Id: TestGQNull.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestGQNull extends TestCase {
+public class TestGQNull extends GrouperTest {
 
   public TestGQNull(String name) {
     super(name);
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

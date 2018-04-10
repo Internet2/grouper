@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.group;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
@@ -57,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestWrongFieldType.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  */
-public class TestWrongFieldType extends TestCase {
+public class TestWrongFieldType extends GrouperTest {
 
   // Private Class Constants
   private static final Log        LOG   = GrouperUtil.getLog(TestWrongFieldType.class); 
@@ -77,6 +76,7 @@ public class TestWrongFieldType extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
     s     = SessionHelper.getRootSession();
@@ -88,6 +88,7 @@ public class TestWrongFieldType extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
 

@@ -37,7 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -50,7 +49,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -77,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestMembership.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  */
-public class TestMembership extends TestCase {
+public class TestMembership extends GrouperTest {
 
   /**
    * 
@@ -107,6 +105,7 @@ public class TestMembership extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -121,6 +120,7 @@ public class TestMembership extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
 

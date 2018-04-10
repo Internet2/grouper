@@ -35,7 +35,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.FieldHelper;
@@ -53,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author  blair christensen.
  * @version $Id: TestField.java,v 1.14 2009-11-05 06:10:51 mchyzer Exp $
  */
-public class TestField extends TestCase {
+public class TestField extends GrouperTest {
 
   /**
    * 
@@ -73,6 +72,7 @@ public class TestField extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     FieldFinder.find("viewers", true);
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
@@ -80,7 +80,7 @@ public class TestField extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -56,20 +55,21 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * @author  blair christensen.
  * @version $Id: TestGQGroupAttribute.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  */
-public class TestGQGroupAttribute extends TestCase {
+public class TestGQGroupAttribute extends GrouperTest {
 
   public TestGQGroupAttribute(String name) {
     super(name);
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

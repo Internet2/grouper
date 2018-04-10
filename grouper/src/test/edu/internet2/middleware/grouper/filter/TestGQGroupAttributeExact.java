@@ -34,10 +34,8 @@ package edu.internet2.middleware.grouper.filter;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -58,7 +56,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 
-public class TestGQGroupAttributeExact extends TestCase {
+public class TestGQGroupAttributeExact extends GrouperTest {
 
   /**
    * Method main.
@@ -81,13 +79,14 @@ public class TestGQGroupAttributeExact extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

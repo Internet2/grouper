@@ -4,15 +4,24 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import junit.textui.TestRunner;
 
 
 /**
  *
  */
-public class ChangeLogEntryTest extends TestCase {
+public class ChangeLogEntryTest extends GrouperTest {
 
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
+  
   /**
    * 
    * @param args

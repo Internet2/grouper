@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -62,7 +61,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author  blair christensen.
  * @version $Id: TestGQGroupName.java,v 1.4 2009-03-27 23:28:53 shilen Exp $
  */
-public class TestGQGroupName extends TestCase {
+public class TestGQGroupName extends GrouperTest {
 
   /**
    * 
@@ -77,13 +76,14 @@ public class TestGQGroupName extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

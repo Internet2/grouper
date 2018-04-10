@@ -36,7 +36,6 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -58,7 +57,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author  blair christensen.
  * @version $Id: TestGQStemCreatedBefore.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestGQStemCreatedBefore extends TestCase {
+public class TestGQStemCreatedBefore extends GrouperTest {
 
   public static void main(String[] args) {
     TestRunner.run(new TestGQStemCreatedBefore("testStemCreatedBeforeFilterNothing"));
@@ -69,13 +68,14 @@ public class TestGQStemCreatedBefore extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -57,7 +56,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * @author  blair christensen.
  * @version $Id: TestInternalSourceAdapter.java,v 1.4 2009-09-02 05:57:26 mchyzer Exp $
  */
-public class TestInternalSourceAdapter extends TestCase {
+public class TestInternalSourceAdapter extends GrouperTest {
 
   /**
    * 
@@ -82,6 +81,7 @@ public class TestInternalSourceAdapter extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -90,6 +90,7 @@ public class TestInternalSourceAdapter extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
   // Tests
