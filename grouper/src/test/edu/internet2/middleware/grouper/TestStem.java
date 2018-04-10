@@ -41,6 +41,8 @@ import junit.textui.TestRunner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -1822,7 +1824,8 @@ public class TestStem extends GrouperTest {
 
     //update it
     HibernateSession.bySqlStatic().executeSql(
-        "update grouper_stems set extension = 'abc' where id = ?", HibUtils.listObject(edu.getUuid()));
+        "update grouper_stems set extension = 'abc' where id = ?", HibUtils.listObject(edu.getUuid()), 
+        HibUtils.listType(StringType.INSTANCE));
 
     //NOTE: make sure this is set in grouper.hibernate.properties: hibernate.cache.use_query_cache = true  
     //NOTE: make sure the ehcache.xml is like the example in regards to Stem caching

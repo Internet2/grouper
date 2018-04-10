@@ -28,6 +28,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -42,6 +44,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -540,13 +543,15 @@ public class GrouperStartup {
     for (TableIndexType tableIndexType : TableIndexType.values()) {
       
       List<String> ids = HibernateSession.bySqlStatic().listSelect(
-          String.class, "select id from " + tableIndexType.tableName() + " where id_index is null order by id" , null);
+          String.class, "select id from " + tableIndexType.tableName() + " where id_index is null order by id" , null, null);
 
       if (GrouperUtil.length(ids) > 0) {
         LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null id_index... correcting... please wait...");
         for (int i=0;i<GrouperUtil.length(ids); i++) {
           HibernateSession.bySqlStatic().executeSql("update " + tableIndexType.tableName() 
-              + " set id_index = ? where id = ?", GrouperUtil.toListObject(TableIndex.reserveId(tableIndexType), ids.get(i)));
+              + " set id_index = ? where id = ?", 
+              GrouperUtil.toListObject(TableIndex.reserveId(tableIndexType), ids.get(i)),
+              HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
           if (i+1 % 1000 == 0) {
             LOG.warn("Updated " + (i-1) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " id_index records...");
           }

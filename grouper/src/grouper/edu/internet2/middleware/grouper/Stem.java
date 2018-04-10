@@ -47,6 +47,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.LongType;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -95,6 +96,7 @@ import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -4680,7 +4682,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       
       //see if we are making progress
       long maxCreatedOn = HibernateSession.bySqlStatic().select(long.class, "SELECT max(created_on) FROM grouper_change_log_entry_temp");
-      int changeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", GrouperUtil.toListObject(maxCreatedOn));
+      int changeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", 
+          GrouperUtil.toListObject(maxCreatedOn), HibUtils.listType(LongType.INSTANCE));
 
       int loops = 0;
       
@@ -4705,7 +4708,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         GrouperUtil.sleep(15000);
 
         int hasCreatedOn = HibernateSession.bySqlStatic().select(int.class, 
-            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", GrouperUtil.toListObject(maxCreatedOn));
+            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", 
+            GrouperUtil.toListObject(maxCreatedOn), HibUtils.listType(LongType.INSTANCE));
         
         //nothing to do
         if (hasCreatedOn == 0) {
@@ -4713,7 +4717,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         }
         
         int currentChangeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, 
-            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", GrouperUtil.toListObject(maxCreatedOn));
+            "SELECT count(1) FROM grouper_change_log_entry_temp where created_on <= ?", 
+            GrouperUtil.toListObject(maxCreatedOn), HibUtils.listType(LongType.INSTANCE));
           
         int loopsLimit = testingRunChangeLogSooner ? 2 : 100;
         
@@ -4722,7 +4727,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           int recordsChanged = ChangeLogTempToEntity.convertRecords();
           while (recordsChanged > 0) {
             hasCreatedOn = HibernateSession.bySqlStatic().select(int.class, 
-                "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", GrouperUtil.toListObject(maxCreatedOn));
+                "SELECT count(1) FROM grouper_change_log_entry_temp where created_on = ?", 
+                GrouperUtil.toListObject(maxCreatedOn), HibUtils.listType(LongType.INSTANCE));
             if (hasCreatedOn == 0) {
               break OUTER;
             }

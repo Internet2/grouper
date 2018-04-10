@@ -17,6 +17,7 @@ import java.util.TreeSet;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.LongType;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateExcepti
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -1106,7 +1108,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     long micros = calendar.getTimeInMillis() * 1000;
 
     int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_message where sent_time_micros < ?", 
-        (List<Object>)(Object)GrouperUtil.toList(micros));
+        GrouperUtil.toListObject(micros), HibUtils.listType(LongType.INSTANCE));
 
     return records;
   }
@@ -1134,7 +1136,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     long micros = calendar.getTimeInMillis();
 
     int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_message where get_time_millis < ? and state = 'PROCESSED'", 
-        (List<Object>)(Object)GrouperUtil.toList(micros));
+        GrouperUtil.toListObject(micros), HibUtils.listType(LongType.INSTANCE));
 
     return records;
   }

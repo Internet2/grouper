@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
@@ -146,8 +148,15 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
           sql.append(HibUtils.convertToInClauseForSqlStatic(subjectIds));
           sql.append(")");
           
+          List<Type> types = new ArrayList<Type>();
+          for (int j=0;j<GrouperUtil.length(subjectIds);j++) {
+            types.add(StringType.INSTANCE);
+          }
+              
+          
           //get the results from the DB
-          List<String[]> dbResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), GrouperUtil.toListObject(subjectIds.toArray()));
+          List<String[]> dbResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), 
+              GrouperUtil.toListObject(subjectIds.toArray()), types);
           
           //index the results by id of row
           Map<String, String[]> dbResultLookup = new HashMap<String, String[]>();

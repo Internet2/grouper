@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -209,7 +211,7 @@ public class ChangeLogTempToEntity {
               //using sql since hibernate would try to otherwise batch this delete (since the table is not versioned I think),
               //in which case some database (like Oracle) do not return the number of affected rows.
               int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id = ?", 
-                  GrouperUtil.toList((Object)CHANGE_LOG_ENTRY.getId()));
+                  HibUtils.listObject(CHANGE_LOG_ENTRY.getId()), HibUtils.listType(StringType.INSTANCE));
               if (count != 1) {
                 throw new RuntimeException("Bad count of " + count + " when deleting temp change log entry: " + CHANGE_LOG_ENTRY.toStringDeep());
               }

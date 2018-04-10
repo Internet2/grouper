@@ -24,11 +24,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.DoubleType;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -49,6 +54,7 @@ import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.BySql;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -518,10 +524,12 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
 
                     String sql = "UPDATE grouper_attribute_assign_value SET hibernate_version_number = ?, context_id = ?, last_updated = ?, "
                         + "value_integer = ?, value_floating = ?, value_string = ?, value_member_id = ? WHERE id = ?" ;
-                    int rows = bySql.executeSql(sql, 
-                        GrouperUtil.toListObject(AttributeAssignValue.this.getHibernateVersionNumber()+1, GrouperUuid.getUuid(), System.currentTimeMillis(),
-                            AttributeAssignValue.this.valueInteger, AttributeAssignValue.this.valueFloating, AttributeAssignValue.this.valueString, 
-                            AttributeAssignValue.this.valueMemberId, AttributeAssignValue.this.id));
+                    List<Object> params = GrouperUtil.toListObject(AttributeAssignValue.this.getHibernateVersionNumber()+1, GrouperUuid.getUuid(), System.currentTimeMillis(),
+                        AttributeAssignValue.this.valueInteger, AttributeAssignValue.this.valueFloating, AttributeAssignValue.this.valueString, 
+                        AttributeAssignValue.this.valueMemberId, AttributeAssignValue.this.id);
+                    List<Type> types = HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE, LongType.INSTANCE, DoubleType.INSTANCE,
+                        StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                    int rows = bySql.executeSql(sql, params, types);
                     if (rows != 1) {
                       if (rows == 0) {
                         //try not to get errors...
