@@ -47,6 +47,9 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -1935,7 +1938,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public void updateLastMembershipChange(String stemId) {
     HibernateSession.bySqlStatic().executeSql(
         "update grouper_stems set last_membership_change = ? where id = ?",
-        GrouperUtil.toList((Object) System.currentTimeMillis(), stemId));
+        GrouperUtil.toListObject(System.currentTimeMillis(), stemId), HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
     StemFinder.stemCacheRemoveById(stemId);
   }
   
@@ -1963,8 +1966,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       params.add(time);
       params.addAll(stemIdsInBatch);
       
+      List<Type> types = new ArrayList<Type>();
+      types.add(LongType.INSTANCE);
+      for (int j=0;j<GrouperUtil.length(stemIdsInBatch);j++) {
+        types.add(StringType.INSTANCE);
+      }
+
       String queryInClause = HibUtils.convertToInClauseForSqlStatic(stemIdsInBatch);
-      HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params);    
+      HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params, types);    
     }
   }
 

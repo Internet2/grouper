@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.type.StringType;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -77,7 +79,7 @@ public class HibernateSessionTest extends GrouperTest {
     new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
     
     List<Group> groups = HibernateSession.bySqlStatic().listSelect(Group.class, 
-        "select * from grouper_groups where name = ?", GrouperUtil.toListObject("test:testGroup"));
+        "select * from grouper_groups where name = ?", GrouperUtil.toListObject("test:testGroup"), HibUtils.listType(StringType.INSTANCE));
     assertTrue(GrouperUtil.length(groups) > 0);
   }
 

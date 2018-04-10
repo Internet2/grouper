@@ -51,6 +51,9 @@ import org.apache.commons.logging.Log;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
@@ -79,6 +82,7 @@ import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -4431,7 +4435,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                     Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 
                     Member.this.name, Member.this.description, Member.this.subjectIdentifier0,
                     Member.this.getUuid());
-                hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars);
+                List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
+                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
+                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars, types);
                 
                 // if subject identifier is changing, we're sending that to the change log
                 if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0)) {
@@ -4451,7 +4458,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                       oldValue,
                       newValue,
                       "subjectIdentifier0");
-                  hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2);
+                  types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
+                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                  hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
                 }
                 
                 hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);

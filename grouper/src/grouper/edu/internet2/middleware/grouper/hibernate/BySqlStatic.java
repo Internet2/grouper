@@ -66,7 +66,7 @@ public class BySqlStatic {
    * @return the number of rows affected or 0 for ddl
    */
   public int executeSql(final String sql) {
-    return executeSql(sql, null);
+    return executeSql(sql, null, null);
   }
 
   /**
@@ -74,8 +74,21 @@ public class BySqlStatic {
    * @param sql can be insert, update, delete, or ddl
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
+   * @deprecated doesnt work with postgres, need to pass in param types explicitly since cant determine them if null
    */
+  @Deprecated
   public int executeSql(final String sql, final List<Object> params) {
+    return executeSql(sql, params, convertParamsToTypes(params));
+  }
+
+  /**
+   * execute some sql
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @param types is the types of the params
+   * @return the number of rows affected or 0 for ddl
+   */
+  public int executeSql(final String sql, final List<Object> params, final List<Type> types) {
   
     int result = (Integer)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -94,7 +107,7 @@ public class BySqlStatic {
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
       
-          attachParams(preparedStatement, params);
+          attachParams(preparedStatement, params, types);
           
           GrouperContext.incrementQueryCount();
           int result = preparedStatement.executeUpdate();
@@ -121,7 +134,7 @@ public class BySqlStatic {
    * @return the number of rows affected or 0 for ddl
    */
   public <T> T select(final Class<T> returnClassType, final String sql) {
-    return select(returnClassType, sql, null);
+    return select(returnClassType, sql, null, null);
   }
 
   /**
@@ -131,8 +144,23 @@ public class BySqlStatic {
    * @param sql can be insert, update, delete, or ddl
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
+   * @deprecated doesnt work with postgres, need to pass in param types explicitly since cant determine them if null
    */
+  @Deprecated
   public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params) {
+    return select(returnClassType, sql, params, convertParamsToTypes(params));
+  }
+
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @param types types of params
+   * @return the number of rows affected or 0 for ddl
+   */
+  public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params, final List<Type> types) {
   
     //TODO incorporate this with the listSelect
     T theResult = (T)HibernateSession.callbackHibernateSession(
@@ -206,12 +234,25 @@ public class BySqlStatic {
    * select one object from sql (one row, one col
    * @param returnClassType type to be returned (currnetly supports string and int
    * @param <T> the type
-   * @param sql can be insert, update, delete, or ddl
+   * @param query can be insert, update, delete, or ddl
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
+   * @deprecated doesnt work with postgres, need to pass in param types explicitly since cant determine them if null
    */
   @SuppressWarnings("deprecation")
   public <T> List<T> listSelectHiberateMapped(final Class<T> returnClassType, final String query, final List<Object> params) {
+    return listSelectHiberateMapped(returnClassType, query, params, convertParamsToTypes(params));
+  }
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param query can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @param types types of params
+   * @return the number of rows affected or 0 for ddl
+   */
+  public <T> List<T> listSelectHiberateMapped(final Class<T> returnClassType, final String query, final List<Object> params, final List<Type> types) {
     //Get the alias and the types.  First see if already there
     final String alias = HibUtils.parseAlias(query, false);
     
@@ -222,7 +263,6 @@ public class BySqlStatic {
     //  alias = HibUtils.parseAlias(query);
     //}
     
-    final List<Type> types = HibUtils.hibernateTypes(params);
     
     List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -242,7 +282,7 @@ public class BySqlStatic {
     return theResult;
 
   }
-
+  
   /**
    * select one object from sql (one row, one col
    * @param returnClassType type to be returned (currnetly supports string and int
@@ -250,14 +290,30 @@ public class BySqlStatic {
    * @param sql can be insert, update, delete, or ddl
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
+   * @deprecated doesnt work with postgres, need to pass in param types explicitly since cant determine them if null
    */
   @SuppressWarnings("deprecation")
+  @Deprecated
   public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params) {
+    return listSelect(returnClassType, sql, params, convertParamsToTypes(params));
+  }
+
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @param types
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params, final List<Type> types) {
 
     boolean isPrimitiveClass = HibUtils.handleAsPrimitive(returnClassType);
 
     if (!isPrimitiveClass) {
-      return listSelectHiberateMapped(returnClassType, sql, params);
+      return listSelectHiberateMapped(returnClassType, sql, params, types);
     }
 
     List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(
@@ -281,7 +337,7 @@ public class BySqlStatic {
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
       
-          attachParams(preparedStatement, params);
+          attachParams(preparedStatement, params, types);
           
           resultSet = preparedStatement.executeQuery();
           
@@ -338,19 +394,31 @@ public class BySqlStatic {
    * @param params either null, Object, Object[], or List of Objects
    * @throws HibernateException
    * @throws SQLException
+   * @deprecated doesnt work with postgres, pass in types explicitly
    */
   @SuppressWarnings("unchecked")
+  @Deprecated
   public static void attachParams(PreparedStatement statement, Object params)
       throws HibernateException, SQLException {
-    if (GrouperUtil.length(params) == 0) {
-      return;
-    }
-    List<Object> paramList = GrouperUtil.toList(params);
-    List<Type> typeList = HibUtils.hibernateTypes(paramList);
-    attachParams(statement, paramList, typeList);
+    attachParams(statement, params, convertParamsToTypes(params));
   }
 
-
+  /**
+   * convert params to types
+   * @param params
+   * @return the types
+   * @deprecated doesnt work with postgres.  pass in types explicitly
+   */
+  @Deprecated
+  public static List<Type> convertParamsToTypes(Object params) {
+    List<Type> typeList = null;
+    if (GrouperUtil.length(params) > 0) {
+      List<Object> paramList = GrouperUtil.toList(params);
+      typeList = HibUtils.hibernateTypes(paramList);
+    }
+    return typeList;
+  }
+  
   /**
    * Attach params for a prepared statement.  The type of the params and types must be the
    * same (e.g. either both array or list, but not one is Array, and the other list

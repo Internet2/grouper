@@ -41,7 +41,7 @@ public class SubjectPerformance {
 
     //lets get 5k pennids
     List<String> pennids = HibernateSession.bySqlStatic().listSelect(String.class, 
-        "select penn_id from person_source_v where rownum < 6000", null);
+        "select penn_id from person_source_v where rownum < 6000", null, null);
     
     int index = 0;
     

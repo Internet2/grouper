@@ -280,7 +280,7 @@ public class LdapPennPoc {
     List<String> pennids = HibernateSession.bySqlStatic().listSelect(String.class, 
         "select distinct(GMLV.SUBJECT_ID) from grouper_memberships_lw_v gmlv "
         + " where GMLV.SUBJECT_SOURCE = 'pennperson' and gmlv.list_name = 'members' "
-        + " and GMLV.GROUP_NAME = 'penn:community:employee' and rownum <= 20100 ", null);
+        + " and GMLV.GROUP_NAME = 'penn:community:employee' and rownum <= 20100 ", null, null);
     
     System.out.println("Retrieved pennids: " + ((System.nanoTime() - start) / 1000000) + "ms");
     

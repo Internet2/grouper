@@ -24,9 +24,10 @@ import java.sql.Timestamp;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.type.StringType;
 
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -60,7 +61,7 @@ public class Hib3GrouploaderLogTest extends TestCase {
     
     //clean up before test
     HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where job_name = ?",
-        GrouperUtil.toList((Object)testObjectName));
+        HibUtils.listObject(testObjectName), HibUtils.listType(StringType.INSTANCE));
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     hib3GrouploaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));

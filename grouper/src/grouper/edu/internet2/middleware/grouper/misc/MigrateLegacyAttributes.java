@@ -135,7 +135,7 @@ public class MigrateLegacyAttributes {
   public long migrateGroupTypes() {
     showStatus("\n\nSearching for legacy group types");
     String sql = "select id, name from grouper_types_legacy where name not in ('base', 'naming', 'attributeDef')";
-    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null);
+    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null, null);
     totalCount = results.size();
     
     showStatus("Found " + totalCount + " legacy group types");
@@ -195,7 +195,7 @@ public class MigrateLegacyAttributes {
   public long migrateAttributes() {
     showStatus("\n\nSearching for legacy attributes");
     String sql = "select grouptype_uuid, name from grouper_fields_legacy where type='attribute'";
-    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null);
+    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null, null);
     totalCount = results.size();
     
     showStatus("Found " + totalCount + " legacy attributes");
@@ -257,7 +257,7 @@ public class MigrateLegacyAttributes {
   public long migrateLists() {
     showStatus("\n\nSearching for lists");
     String sql = "select grouptype_uuid, name from grouper_fields_legacy where type='list' and name not in ('members')";
-    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null);
+    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null, null);
     totalCount = results.size();
     
     showStatus("Found " + totalCount + " lists");
@@ -323,10 +323,11 @@ public class MigrateLegacyAttributes {
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("legacyAttributeMigration.useThreads", true);
     int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
   
-    String baseGroupTypeId = HibernateSession.bySqlStatic().select(String.class, "select id from grouper_types_legacy where name='base'", null);
+    String baseGroupTypeId = HibernateSession.bySqlStatic().select(String.class, 
+        "select id from grouper_types_legacy where name='base'");
 
     String sql = "select id, group_uuid, type_uuid from grouper_groups_types_legacy where type_uuid not in ('" + baseGroupTypeId + "')";
-    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null);
+    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null, null);
     totalCount = results.size();
     
     showStatus("Found " + totalCount + " group type assignments");
@@ -416,7 +417,7 @@ public class MigrateLegacyAttributes {
     
     // cache attributes first
     String attributeSql = "select id, name from grouper_fields_legacy where type='attribute'";
-    List<String[]> attributeResults = HibernateSession.bySqlStatic().listSelect(String[].class, attributeSql, null);
+    List<String[]> attributeResults = HibernateSession.bySqlStatic().listSelect(String[].class, attributeSql, null, null);
     final Map<String, String> fieldIdToNameMap = new HashMap<String, String>();
     for (String[] values : attributeResults) {
       String fieldId = values[0];
@@ -425,7 +426,7 @@ public class MigrateLegacyAttributes {
     }
     
     String sql = "select id, group_id, field_id, value from grouper_attributes_legacy";
-    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null);
+    List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sql, null, null);
     totalCount = results.size();
     
     showStatus("Found " + totalCount + " attribute assignments");

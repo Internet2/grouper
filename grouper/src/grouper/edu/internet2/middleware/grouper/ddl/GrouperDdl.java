@@ -35,6 +35,8 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
 import org.hibernate.internal.SessionImpl;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
@@ -68,6 +70,7 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.E
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -13244,7 +13247,9 @@ public enum GrouperDdl implements DdlVersionable {
           if (!tableIndexTableNew) {
             
             //see if that row is there
-            if (0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.group.name()))) {
+            if (0 == HibernateSession.bySqlStatic().select(Integer.class, 
+                "select count(*) from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.group.name())
+                , HibUtils.listType(StringType.INSTANCE))) {
               //now we need to account for the used indices
               long now = System.currentTimeMillis();
 
@@ -13256,7 +13261,8 @@ public enum GrouperDdl implements DdlVersionable {
             } else {
             
               nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
-                  "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.group.name()));
+                  "select last_index_reserved from grouper_table_index where type = ?", 
+                  GrouperUtil.toListObject(TableIndexType.group.name()), HibUtils.listType(StringType.INSTANCE));
             }
           }
           
@@ -13269,7 +13275,7 @@ public enum GrouperDdl implements DdlVersionable {
             //lets reserve that many rows and update stuff
             List<String> groupIds = HibernateSession.bySqlStatic().listSelect(
                 String.class, columnIsNew ? "select id from grouper_groups order by id" 
-                    : "select id from grouper_groups where id_index is null order by id" , null);
+                    : "select id from grouper_groups where id_index is null order by id", null, null);
             
             for (int i=0;i<GrouperUtil.length(groupIds); i++) {
               ddlVersionBean.getAdditionalScripts().append(
@@ -13341,8 +13347,9 @@ public enum GrouperDdl implements DdlVersionable {
           if (!tableIndexTableNew) {
             
             //see if that row is there
-            if (0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = ?", 
-                GrouperUtil.toListObject(TableIndexType.stem.name()))) {
+            if (0 == HibernateSession.bySqlStatic().select(Integer.class, 
+                "select count(*) from grouper_table_index where type = ?", 
+                GrouperUtil.toListObject(TableIndexType.stem.name()), HibUtils.listType(StringType.INSTANCE))) {
               //now we need to account for the used indices
               long now = System.currentTimeMillis();
 
@@ -13354,7 +13361,8 @@ public enum GrouperDdl implements DdlVersionable {
             } else {
             
               nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
-                  "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.stem.name()));
+                  "select last_index_reserved from grouper_table_index where type = ?", 
+                  GrouperUtil.toListObject(TableIndexType.stem.name()), HibUtils.listType(StringType.INSTANCE));
             }
           }
 
@@ -13367,7 +13375,7 @@ public enum GrouperDdl implements DdlVersionable {
             //lets reserve that many rows and update stuff
             List<String> stemIds = HibernateSession.bySqlStatic().listSelect(
                 String.class, columnIsNew ? "select id from grouper_stems order by id" 
-                    : "select id from grouper_stems where id_index is null order by id" , null);
+                    : "select id from grouper_stems where id_index is null order by id" , null, null);
 
             for (int i=0;i<GrouperUtil.length(stemIds); i++) {
               ddlVersionBean.getAdditionalScripts().append(
@@ -13439,8 +13447,9 @@ public enum GrouperDdl implements DdlVersionable {
           if (!tableIndexTableNew) {
             
             //see if that row is there
-            if (0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = ?", 
-                GrouperUtil.toListObject(TableIndexType.attributeDef.name()))) {
+            if (0 == HibernateSession.bySqlStatic().select(Integer.class, 
+                "select count(*) from grouper_table_index where type = ?", 
+                GrouperUtil.toListObject(TableIndexType.attributeDef.name()), HibUtils.listType(StringType.INSTANCE))) {
               //now we need to account for the used indices
               long now = System.currentTimeMillis();
 
@@ -13452,7 +13461,8 @@ public enum GrouperDdl implements DdlVersionable {
             } else {
             
               nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
-                  "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.attributeDef.name()));
+                  "select last_index_reserved from grouper_table_index where type = ?",
+                  GrouperUtil.toListObject(TableIndexType.attributeDef.name()), HibUtils.listType(StringType.INSTANCE));
             }
           }
 
@@ -13465,7 +13475,7 @@ public enum GrouperDdl implements DdlVersionable {
             //lets reserve that many rows and update stuff
             List<String> attributeDefIds = HibernateSession.bySqlStatic().listSelect(
                 String.class, columnIsNew ? "select id from grouper_attribute_def order by id" 
-                    : "select id from grouper_attribute_def where id_index is null order by id" , null);
+                    : "select id from grouper_attribute_def where id_index is null order by id" , null, null);
             
             for (int i=0;i<GrouperUtil.length(attributeDefIds); i++) {
               ddlVersionBean.getAdditionalScripts().append(
@@ -13537,7 +13547,8 @@ public enum GrouperDdl implements DdlVersionable {
           if (!tableIndexTableNew) {
             
             //see if that row is there
-            if (0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.attributeDefName.name()))) {
+            if (0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = ?", 
+                GrouperUtil.toListObject(TableIndexType.attributeDefName.name()), HibUtils.listType(StringType.INSTANCE))) {
               //now we need to account for the used indices
               long now = System.currentTimeMillis();
 
@@ -13549,7 +13560,8 @@ public enum GrouperDdl implements DdlVersionable {
             } else {
             
               nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
-                  "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.attributeDefName.name()));
+                  "select last_index_reserved from grouper_table_index where type = ?", 
+                  GrouperUtil.toListObject(TableIndexType.attributeDefName.name()), HibUtils.listType(StringType.INSTANCE));
             }
           }
 
@@ -13562,7 +13574,7 @@ public enum GrouperDdl implements DdlVersionable {
             //lets reserve that many rows and update stuff
             List<String> attributeDefNameIds = HibernateSession.bySqlStatic().listSelect(
                 String.class, columnIsNew ? "select id from grouper_attribute_def_name order by id" 
-                    : "select id from grouper_attribute_def_name where id_index is null order by id" , null);
+                    : "select id from grouper_attribute_def_name where id_index is null order by id" , null, null);
             
             for (int i=0;i<GrouperUtil.length(attributeDefNameIds); i++) {
               ddlVersionBean.getAdditionalScripts().append(

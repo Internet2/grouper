@@ -46,6 +46,9 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
@@ -2464,7 +2467,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public void updateLastMembershipChange(String groupId) {
     HibernateSession.bySqlStatic().executeSql(
         "update grouper_groups set last_membership_change = ? where id = ?",
-        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+        GrouperUtil.toListObject(System.currentTimeMillis(), groupId), HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
   }
   
   /**
@@ -2473,7 +2476,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public void updateLastImmediateMembershipChange(String groupId) {
     HibernateSession.bySqlStatic().executeSql(
         "update grouper_groups set last_imm_membership_change = ? where id = ?",
-        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+        GrouperUtil.toListObject(System.currentTimeMillis(), groupId), HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
   }
   
   /**
@@ -2499,8 +2502,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       params.add(time);
       params.addAll(groupIdsInBatch);
       
+      List<Type> types = new ArrayList<Type>();
+      types.add(LongType.INSTANCE);
+      for (int j=0;j<GrouperUtil.length(groupIdsInBatch);j++) {
+        types.add(StringType.INSTANCE);
+      }
+      
       String queryInClause = HibUtils.convertToInClauseForSqlStatic(groupIdsInBatch);
-      HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params); 
+      HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params, types); 
     }
   }
 

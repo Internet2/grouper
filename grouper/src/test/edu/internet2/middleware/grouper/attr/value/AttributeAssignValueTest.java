@@ -24,9 +24,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import junit.textui.TestRunner;
-
 import org.hibernate.exception.SQLGrammarException;
+import org.hibernate.type.DoubleType;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -49,6 +50,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -68,7 +71,23 @@ public class AttributeAssignValueTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignValueTest("testXmlDifferentUpdateProperties"));
+    //TestRunner.run(new AttributeAssignValueTest("testAttributeValueStringSql"));
+    
+//    String sql = "UPDATE grouper_attribute_assign_value SET hibernate_version_number = ?, context_id = ?, last_updated = ?, "
+//        + "value_integer = ?, value_floating = ?, value_string = ?, value_member_id = ? WHERE id = ?" ;
+//    int rows = bySql.executeSql(sql, 
+//        GrouperUtil.toListObject(AttributeAssignValue.this.getHibernateVersionNumber()+1, GrouperUuid.getUuid(), System.currentTimeMillis(),
+//            AttributeAssignValue.this.valueInteger, AttributeAssignValue.this.valueFloating, AttributeAssignValue.this.valueString, 
+//            AttributeAssignValue.this.valueMemberId, AttributeAssignValue.this.id));
+
+    
+    String id = "b5c81f0e44034cd2b6b619979950db45";
+    
+    String sql = "UPDATE grouper_attribute_assign_value SET  "
+      + "value_integer = ?, value_floating = ?, value_string = ? WHERE id = ?" ;
+    
+    int rows = HibernateSession.bySqlStatic().executeSql(sql, 
+        GrouperUtil.toListObject(null, null, null, id), HibUtils.listType(LongType.INSTANCE, DoubleType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
   }
   
   /**

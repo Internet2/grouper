@@ -60,6 +60,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.internal.SessionImpl;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -77,6 +78,7 @@ import edu.internet2.middleware.grouper.ddl.ddlutils.HsqlDb2Platform;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -1866,7 +1868,7 @@ public class GrouperDdlUtils {
    * @param id
    */
   public static void deleteDdlById(final String id) {
-    HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where id = ?", GrouperUtil.toListObject(id));
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where id = ?", GrouperUtil.toListObject(id), HibUtils.listType(StringType.INSTANCE));
   }
 
   /**
@@ -1942,7 +1944,8 @@ public class GrouperDdlUtils {
     hibernateSession.bySql().executeSql(
         "insert into grouper_ddl (id, object_name, " +
         "history, db_version) values (?, ?, ?, 0)", GrouperUtil.toListObject(
-            id, name, someUtfString));
+            id, name, someUtfString), 
+            HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
     
     return grouperDdl;
   }

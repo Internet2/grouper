@@ -20,11 +20,11 @@ package edu.internet2.middleware.grouper.hibernate;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.internal.SessionImpl;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -46,89 +46,63 @@ public class BySql extends HibernateDelegate {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(BySql.class);
 
-  /** assign a transaction type, default use the transaction modes
-   * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 
-   * GrouperTransactionType.READ_WRITE_OR_USE_EXISTING depending on
-   * if a transaction is needed */
-  private GrouperTransactionType grouperTransactionType = null;
+  /** query count exec queries, used for testing */
+  public static int queryCountQueries = 0;
   
+
   /**
    * assign a different grouperTransactionType (e.g. for autonomous transactions)
    * @param theGrouperTransactionType
    * @return the same object for chaining
+   * @TODO remove in future grouper version 2.4
    */
   public BySql setGrouperTransactionType(GrouperTransactionType 
       theGrouperTransactionType) {
-    this.grouperTransactionType = theGrouperTransactionType;
     return this;
   }
   
   /**
    * string value for error handling
    * @return the string value
+   * @TODO remove in future grouper release 2.4
    */
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder("BySql, query: '");
-    result.append(this.query);
-    result.append(", tx type: ").append(this.grouperTransactionType);
-    //dont use bindVars() method so it doesnt lazy load
-    if (this.bindVars != null) {
-      int index = 0;
-      int size = this.bindVars().size();
-      for (Object object : this.bindVars()) {
-        result.append("Bind var[").append(index++).append("]: '");
-        result.append(GrouperUtil.toStringForLog(object, 50));
-        if (index!=size-1) {
-          result.append(", ");
-        }
-      }
-    }
-    return result.toString();
+    return super.toString();
   }
-  /**
-   * map of params to attach to the query.
-   * access this with the bindVarNameParams method
-   */
-  private List<Object> bindVars = null;
-
-  /**
-   * query to execute
-   */
-  private String query = null;
 
   /**
    * set the query to run
    * @param theHqlQuery
    * @return this object for chaining
+   * @TODO remove in future grouper release 2.4
    */
   public BySql createQuery(String theHqlQuery) {
-    this.query = theHqlQuery;
     return this;
   }
-  
-  /**
-   * lazy load params
-   * @return the params map
-   */
-  private List<Object> bindVars() {
-    if (this.bindVars == null) {
-      this.bindVars = new ArrayList<Object>();
-    }
-    return this.bindVars;
-  }
-  
-  /** query count exec queries, used for testing */
-  public static int queryCountQueries = 0;
-  
 
   /**
    * execute some sql
    * @param sql can be insert, update, delete, or ddl
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
+   * @deprecated doesnt work with postgres, need to pass in param types explicitly since cant determine them if null
    */
+  @Deprecated
   public int executeSql(final String sql, final List<Object> params) {
+  
+
+    return executeSql(sql, params, BySqlStatic.convertParamsToTypes(params));
+  }
+
+  /**
+   * execute some sql
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @param types
+   * @return the number of rows affected or 0 for ddl
+   */
+  public int executeSql(final String sql, final List<Object> params, final List<Type> types) {
   
     HibernateSession hibernateSession = this.getHibernateSession();
     hibernateSession.misc().flush();
@@ -140,7 +114,7 @@ public class BySql extends HibernateDelegate {
       Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
       preparedStatement = connection.prepareStatement(sql);
   
-      BySqlStatic.attachParams(preparedStatement, params);
+      BySqlStatic.attachParams(preparedStatement, params, types);
       
       GrouperContext.incrementQueryCount();
       int result = preparedStatement.executeUpdate();
@@ -161,24 +135,6 @@ public class BySql extends HibernateDelegate {
    */
   public BySql(HibernateSession theHibernateSession) {
     super(theHibernateSession);
-  }
-
-
-  
-  /**
-   * @param bindVars1 the bindVars to set
-   */
-  void setBindVars(List<Object> bindVars1) {
-    this.bindVars = bindVars1;
-  }
-
-
-  
-  /**
-   * @param query1 the query to set
-   */
-  void setQuery(String query1) {
-    this.query = query1;
   }
   
   

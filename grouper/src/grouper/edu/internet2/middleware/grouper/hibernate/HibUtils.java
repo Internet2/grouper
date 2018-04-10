@@ -660,7 +660,9 @@ public class HibUtils {
    * @param params either null, Object, Object[], or List of Objects
    * @throws HibernateException
    * @throws SQLException
+   * @deprecated doesnt work with postgres
    */
+  @Deprecated
   @SuppressWarnings("unchecked")
   public static void attachParams(PreparedStatement statement, Object params)
       throws HibernateException, SQLException {
@@ -728,11 +730,38 @@ public class HibUtils {
   }
 
   /**
+   * convert types to a list of types
+   *       return ObjectType.INSTANCE;
+   * DoubleType.INSTANCE, LongType.INSTANCE, FloatType.INSTANCE, ByteType.INSTANCE, TrueFalseType.INSTANCE, 
+   * CharacterType.INSTANCE, ShortType.INSTANCE, DateType.INSTANCE, TimestampType.INSTANCE, StringType.INSTANCE;
+   * @param types
+   * @return the list of objects
+   */
+  @SuppressWarnings("unchecked")
+  public static List<Type> listType(Type... types) {
+    
+    if (types == null) {
+      return null;
+    }
+    
+    ArrayList<Type> typeList = new ArrayList<Type>();
+    
+    for(Type type : types) {
+      typeList.add(type);
+    }
+    
+    return typeList;
+  
+  }
+
+  /**
    * Returns a Hibernate Type for the given java type. Handles both primitives and Objects.
    * Will throw an exception if the given object is null or if a type cannot be found for it.
    * @param o is the object to find the Type for.
    * @return the Type.
+   * @deprecated doesnt work with postgres
    */
+  @Deprecated
   public static Type hibernateType(Object o) {
     if (o == null) {
       //its possible to bind null (e.g. for an update), so just use object to do this
@@ -772,7 +801,9 @@ public class HibUtils {
    * Returns a list of Hibernate types corresponding to the given params.
    * @param params are the objects to get the types for. Can be list, Object, or array.
    * @return the corresponding types.
+   * @deprecated doesnt work with postgres
    */
+  @Deprecated
   public static List<Type> hibernateTypes(List<Object> params) {
   
     int length = GrouperUtil.length(params);

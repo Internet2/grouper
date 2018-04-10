@@ -9,7 +9,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -18,6 +17,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.LongType;
+import org.hibernate.type.TimestampType;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -245,7 +247,7 @@ public class GrouperDaemonDeleteOldRecords {
    
           // this is the old way that can go away at some point
           records = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry where created_on < ?", 
-              (List<Object>)(Object)GrouperUtil.toList(new Long(time)));
+              HibUtils.listObject(new Long(time)), HibUtils.listType(LongType.INSTANCE));
           
         }
       
@@ -285,7 +287,7 @@ public class GrouperDaemonDeleteOldRecords {
         } else {
           //this is the old way that we can get rid of at some point
           records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
-              (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
+              HibUtils.listObject(new Timestamp(calendar.getTimeInMillis())), HibUtils.listType(TimestampType.INSTANCE));
         }
    
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldGrouperLoaderLogsCount", records);

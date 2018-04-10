@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.app.loader;
 
 import java.util.Date;
 
+import org.hibernate.type.DateType;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -13,6 +15,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -73,7 +76,8 @@ public class GrouperLoaderCleanLogsTest extends GrouperTest {
     }
     
     //change the dates
-    HibernateSession.bySqlStatic().executeSql("update grouper_loader_log set last_updated = ? where host = 'abc'", GrouperUtil.toListObject(new Date(0L)));
+    HibernateSession.bySqlStatic().executeSql("update grouper_loader_log set last_updated = ? where host = 'abc'", 
+        GrouperUtil.toListObject(new Date(0L)), HibUtils.listType(DateType.INSTANCE));
     HibernateSession.bySqlStatic().executeSql("update grouper_change_log_entry set created_on = 1");
 
     int grouperLoaderLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_loader_log");
