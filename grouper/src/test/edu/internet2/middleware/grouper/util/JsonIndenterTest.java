@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import junit.textui.TestRunner;
 
 
@@ -27,7 +27,7 @@ import junit.textui.TestRunner;
 /**
  *
  */
-public class JsonIndenterTest extends TestCase {
+public class JsonIndenterTest extends GrouperTest {
 
   /**
    * 
@@ -37,6 +37,15 @@ public class JsonIndenterTest extends TestCase {
   public static void main(String[] args) throws Exception {
     //TestRunner.run(new JsonIndenterTest("testIndent"));
     TestRunner.run(JsonIndenterTest.class);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
 
   /**

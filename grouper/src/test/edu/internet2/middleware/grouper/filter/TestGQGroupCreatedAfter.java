@@ -34,7 +34,6 @@ package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -55,20 +54,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author  blair christensen.
  * @version $Id: TestGQGroupCreatedAfter.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestGQGroupCreatedAfter extends TestCase {
+public class TestGQGroupCreatedAfter extends GrouperTest {
 
   public TestGQGroupCreatedAfter(String name) {
     super(name);
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

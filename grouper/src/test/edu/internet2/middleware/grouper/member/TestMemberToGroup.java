@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.member;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -50,20 +49,21 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * @author  blair christensen.
  * @version $Id: TestMemberToGroup.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestMemberToGroup extends TestCase {
+public class TestMemberToGroup extends GrouperTest {
 
   public TestMemberToGroup(String name) {
     super(name);
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

@@ -66,6 +66,15 @@ public class TestQuery extends GrouperTest {
     TestRunner.run(new TestQuery("testGroupModifiedBeforeFilterFindSomething"));
   }
   
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
+  
   /**
    * @see GrouperTest#setupConfigs
    */

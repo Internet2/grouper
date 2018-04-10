@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -52,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author shilen
  * @version $Id: TestGQGroupAlternateNameFilter.java,v 1.1 2009-03-27 23:28:53 shilen Exp $
  */
-public class TestGQGroupAlternateNameFilter extends TestCase {
+public class TestGQGroupAlternateNameFilter extends GrouperTest {
 
   
   /**
@@ -63,13 +62,14 @@ public class TestGQGroupAlternateNameFilter extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

@@ -71,6 +71,15 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
   public TestQueryMembershipModifiedBefore(String name) {
     super(name);
   }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
 
   /**
    * 

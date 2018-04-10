@@ -21,13 +21,13 @@ package edu.internet2.middleware.grouper.util;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 
 /**
  * test grouper cache
  */
-public class GrouperCacheTest extends TestCase {
+public class GrouperCacheTest extends GrouperTest {
 
   /**
    * @param name
@@ -36,6 +36,15 @@ public class GrouperCacheTest extends TestCase {
     super(name);
   }
 
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
+  
   /**
    * test the cache
    */

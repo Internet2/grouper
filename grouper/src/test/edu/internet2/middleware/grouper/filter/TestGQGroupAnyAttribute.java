@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * @author  blair christensen.
  * @version $Id: TestGQGroupAnyAttribute.java,v 1.4 2009-04-14 07:41:24 mchyzer Exp $
  */
-public class TestGQGroupAnyAttribute extends TestCase {
+public class TestGQGroupAnyAttribute extends GrouperTest {
 
   /**
    * 
@@ -74,13 +74,14 @@ public class TestGQGroupAnyAttribute extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

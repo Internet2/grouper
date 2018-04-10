@@ -32,6 +32,15 @@ public class GrouperLoaderDbTest extends GrouperTest {
     TestRunner.run(new GrouperLoaderDbTest("atestPooledConnection"));
   }
 
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
+  
   /**
    * 
    * @param name

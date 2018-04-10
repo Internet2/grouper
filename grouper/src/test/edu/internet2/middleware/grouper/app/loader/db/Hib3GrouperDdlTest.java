@@ -19,14 +19,14 @@
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 
 /**
  *
  */
-public class Hib3GrouperDdlTest extends TestCase {
+public class Hib3GrouperDdlTest extends GrouperTest {
 
   /**
    * Constructor for Hib3GrouperDdlTest.
@@ -43,6 +43,15 @@ public class Hib3GrouperDdlTest extends TestCase {
    */
   public static void main(String[] args) {
     junit.textui.TestRunner.run(Hib3GrouperDdlTest.class);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
 
   /**

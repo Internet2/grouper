@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
@@ -18,13 +19,12 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.util.HttpURLConnection;
-import junit.framework.TestCase;
 import net.sf.json.JSONObject;
 
 /**
  * @author vsachdeva
  */
-public class MessageConsumerDaemonTest extends TestCase {
+public class MessageConsumerDaemonTest extends GrouperTest {
   
   private boolean webServiceCalled;
   private boolean replyToSendCalled;
@@ -35,6 +35,15 @@ public class MessageConsumerDaemonTest extends TestCase {
    */
   public MessageConsumerDaemonTest(String name) {    
     super(name);
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
   
   private String validMessage = "{\"grouperHeader\": "

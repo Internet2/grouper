@@ -59,6 +59,15 @@ public class TestGroupTypeFilter extends GrouperTest {
   public TestGroupTypeFilter(String name) {
     super(name);
   }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
 
   /**
    * @see GrouperTest#setupConfigs

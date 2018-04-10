@@ -18,13 +18,13 @@
  */
 package edu.internet2.middleware.grouper.util;
 
-import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import junit.textui.TestRunner;
 
 /**
  * test xml indenter
  */
-public class XmlIndenterTest extends TestCase {
+public class XmlIndenterTest extends GrouperTest {
 
   /**
    * 
@@ -35,6 +35,16 @@ public class XmlIndenterTest extends TestCase {
     //TestRunner.run(new XmlIndenterTest("testIndent"));
     TestRunner.run(XmlIndenterTest.class);
   }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
+
 
   /**
    * @param name

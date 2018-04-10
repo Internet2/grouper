@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.subj;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -55,7 +54,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestGrouperSubject.java,v 1.2 2009-09-02 05:57:26 mchyzer Exp $
  */
-public class TestGrouperSubject extends TestCase {
+public class TestGrouperSubject extends GrouperTest {
 
   /**
    * 
@@ -85,6 +84,7 @@ public class TestGrouperSubject extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -102,6 +102,7 @@ public class TestGrouperSubject extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
   // Tests

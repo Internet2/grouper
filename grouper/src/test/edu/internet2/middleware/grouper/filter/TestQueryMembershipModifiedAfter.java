@@ -65,6 +65,15 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
     TestRunner.run(TestQueryMembershipModifiedAfter.class);
   }
   
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
+  }
+  
   private static final Log LOG = GrouperUtil
       .getLog(TestQueryMembershipModifiedAfter.class);
 

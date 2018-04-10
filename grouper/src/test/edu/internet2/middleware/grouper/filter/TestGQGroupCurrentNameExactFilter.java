@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -53,7 +52,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author shilen
  * @version $Id: TestGQGroupCurrentNameExactFilter.java,v 1.2 2009-04-14 07:41:24 mchyzer Exp $
  */
-public class TestGQGroupCurrentNameExactFilter extends TestCase {
+public class TestGQGroupCurrentNameExactFilter extends GrouperTest {
 
   /**
    * 
@@ -71,13 +70,14 @@ public class TestGQGroupCurrentNameExactFilter extends TestCase {
   }
 
   protected void setUp () {
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
   }
 
   protected void tearDown () {
-    // Nothing 
+    super.tearDown();
   }
 
   // Tests

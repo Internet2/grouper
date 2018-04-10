@@ -20,9 +20,9 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristic.PermissionHeuristicType;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 
@@ -30,7 +30,7 @@ import junit.textui.TestRunner;
  * @author mchyzer
  *
  */
-public class PermissionHeuristicTest extends TestCase {
+public class PermissionHeuristicTest extends GrouperTest {
 
   /**
    * 
@@ -39,6 +39,15 @@ public class PermissionHeuristicTest extends TestCase {
   public static void main(String[] args) {
     TestRunner.run(PermissionHeuristicTest.class);
     //TestRunner.run(new PermissionHeuristicTest("testNumbers"));
+  }
+  
+  protected void setUp () {
+    super.setUp();
+
+  }
+
+  protected void tearDown () {
+    super.tearDown();
   }
   
   /**
