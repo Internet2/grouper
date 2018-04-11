@@ -77,7 +77,7 @@ public class UiV2GroupAttributeAssignment {
   }
   
   /**
-   * show attribute assignments for the given stem
+   * show attribute assignments for the given group
    * @param group
    */
   private void filterHelper(Group group) {

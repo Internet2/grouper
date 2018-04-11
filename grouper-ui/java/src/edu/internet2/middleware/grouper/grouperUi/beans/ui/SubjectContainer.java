@@ -22,6 +22,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -249,6 +250,27 @@ public class SubjectContainer {
   public void setPrivilegeGuiMembershipSubjectContainers(
       Set<GuiMembershipSubjectContainer> privilegeGuiMembershipSubjectContainers1) {
     this.privilegeGuiMembershipSubjectContainers = privilegeGuiMembershipSubjectContainers1;
+  }
+  
+  /**
+   * attributes assigned to this subject.
+   */
+  private Set<GuiAttributeAssign> guiAttributeAssigns;
+  
+  /**
+   * attributes assigned to this subject.
+   * @return
+   */
+  public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return guiAttributeAssigns;
+  }
+  
+  /**
+   * attributes assigned to this subject.
+   * @param guiAttributeAssigns
+   */
+  public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
+    this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
 }

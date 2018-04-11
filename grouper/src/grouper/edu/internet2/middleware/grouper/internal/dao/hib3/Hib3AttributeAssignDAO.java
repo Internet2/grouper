@@ -3466,7 +3466,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       byHqlStatic.setString("theOwnerStemId", ownerStemId);
     }
     if (!StringUtils.isBlank(ownerMemberId)) {
-      if (attributeAssignType == AttributeAssignType.group || attributeAssignType == AttributeAssignType.any_mem) {
+      if (attributeAssignType == AttributeAssignType.member || attributeAssignType == AttributeAssignType.any_mem) {
         sql.append(" and aa.ownerMemberId = :theOwnerMemberId ");
         byHqlStatic.setString("theOwnerMemberId", ownerMemberId);
       } else if (attributeAssignType == AttributeAssignType.imm_mem) {
