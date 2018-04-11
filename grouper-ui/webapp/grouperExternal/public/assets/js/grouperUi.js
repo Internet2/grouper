@@ -2369,6 +2369,41 @@ function showHideAttributeDefAssignAttributeBlock() {
 }
 
 /**
+ * show/hide subject assign attribute block on click of Assign attribute button
+ * Also add attributes for accessibility
+ * */
+function showHideSubjectAssignAttributeBlock() {
+	
+	$('#assign-subject-attribute-block-container').toggle('slow');
+	if ($("#assign-subject-attribute-block-container").attr("aria-expanded") === 'true') {
+		$("#assign-subject-attribute-block-container").attr("aria-expanded","false");
+		$("#assign-subject-attribute-block-container").removeAttr("role");
+	} else {	  
+		$("#assign-subject-attribute-block-container").attr("aria-expanded","true");
+		$("assign-subject-attribute-block-container").attr("role", "alert");
+		$("#parentFolderComboId").focus();
+	}	
+}
+
+/**
+ * show/hide membership assign attribute block on click of Assign attribute button
+ * Also add attributes for accessibility
+ * */
+function showHideMembershipAssignAttributeBlock() {
+	
+	$('#assign-membership-attribute-block-container').toggle('slow');
+	if ($("#assign-membership-attribute-block-container").attr("aria-expanded") === 'true') {
+		$("#assign-membership-attribute-block-container").attr("aria-expanded","false");
+		$("#assign-membership-attribute-block-container").removeAttr("role");
+	} else {	  
+		$("#assign-membership-attribute-block-container").attr("aria-expanded","true");
+		$("assign-membership-attribute-block-container").attr("role", "alert");
+		$("#parentFolderComboId").focus();
+	}	
+}
+
+
+/**
  * show the privileges block on click of Custom Privileges radio button
  * Also add attributes for accessibility
  * */

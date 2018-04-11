@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -21,7 +23,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -29,7 +30,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -41,10 +41,10 @@ import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
-public class UiV2AttributeDefAttributeAssignment {
+public class UiV2SubjectAttributeAssignment {
 
   /**
-   * view attributes assigned to this attribute def.
+   * view attributes assigned to a subject.
    * @param request
    * @param response
    */
@@ -57,14 +57,16 @@ public class UiV2AttributeDefAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDef();
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
+          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
       
-      filterHelper(attributeDef);
+      filterHelper(member);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -73,10 +75,10 @@ public class UiV2AttributeDefAttributeAssignment {
   }
   
   /**
-   * show attribute assignments for the given attribute def
-   * @param attributeDef
+   * show attribute assignments for the given member
+   * @param group
    */
-  private void filterHelper(AttributeDef attributeDef) {
+  private void filterHelper(Member member) {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
@@ -84,14 +86,14 @@ public class UiV2AttributeDefAttributeAssignment {
     String attributeAssignAttributeName = null;
     String attributeAssignGroup = null;
     String attributeAssignStem = null;
+    String attributeAssignOwnerAttributeDef = null;
     String attributeAssignMembershipId = null;
-    String attributeAssignMemberId = null;
     Boolean enabledDisabledBoolean = null;
     
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
-        AttributeAssignType.attr_def,
-        attributeAssignAttributeDef, attributeAssignAttributeName, attributeAssignGroup,
-        attributeAssignStem, attributeAssignMemberId, attributeDef.getId(),
+        AttributeAssignType.member, 
+        attributeAssignAttributeDef, attributeAssignAttributeName, attributeAssignGroup, 
+        attributeAssignStem, member.getUuid(), attributeAssignOwnerAttributeDef, 
         attributeAssignMembershipId, 
         enabledDisabledBoolean, false);
     
@@ -104,15 +106,14 @@ public class UiV2AttributeDefAttributeAssignment {
     }
     
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-    grouperRequestContainer.getAttributeDefContainer().setGuiAttributeAssigns(guiAttributeAssigns);
-    grouperRequestContainer.getAttributeDefContainer().setGuiAttributeDef(new GuiAttributeDef(attributeDef)); 
+    grouperRequestContainer.getSubjectContainer().setGuiAttributeAssigns(guiAttributeAssigns);
     
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewAttributeAssignments", 
-        "/WEB-INF/grouperUi2/attributeDefAttribute/attributeDefViewAttributeAssignsContents.jsp"));
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewAttributeAssignments",
+        "/WEB-INF/grouperUi2/subjectAttribute/subjectViewAttributeAssignsContents.jsp"));
   }
   
   /**
-   * assign attribute to the given attribute def.
+   * assign attribute to subject.
    * @param request
    * @param response
    */
@@ -125,7 +126,8 @@ public class UiV2AttributeDefAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      AttributeDef ownerAttributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
       
       final String attributeDefId = request.getParameter("attributeDefComboName");
       final String attributeDefNameId = request.getParameter("attributeDefNameComboName");
@@ -135,26 +137,26 @@ public class UiV2AttributeDefAttributeAssignment {
       if (StringUtils.isBlank(attributeDefId)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeDefRequired")));
+            TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeDefRequired")));
         return;
       }
       
       if (StringUtils.isBlank(attributeDefNameId)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#attributeDefNameComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeAttributeDefNameRequired")));
+            TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeAttributeDefNameRequired")));
         return;
       }
       
-      if (ownerAttributeDef == null) {
-        throw new RuntimeException("why is owner attribute def blank??");
+      if (member == null) {
+        throw new RuntimeException("why is member blank/null??");
       }
       
       AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
       if (attributeDef == null) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeDefRequired")));
+            TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeDefRequired")));
         return;
       }
       
@@ -162,31 +164,32 @@ public class UiV2AttributeDefAttributeAssignment {
       if (attributeDefName == null) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#attributeDefNameComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeAttributeDefNameRequired")));
+            TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeAttributeDefNameRequired")));
         return;
       }
          
-      AttributeAssignBaseDelegate attributeDelegate = ownerAttributeDef.getAttributeDelegate();
-
-      boolean multiAssignable = attributeDefName.getAttributeDef().isMultiAssignable();
-        if (!multiAssignable) {
-          if (GrouperUtil.length(attributeDelegate.retrieveAssignments(attributeDefName)) > 0) {
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+      final boolean multiAssignable = attributeDefName.getAttributeDef().isMultiAssignable();
+      if (!multiAssignable) {
+        if (GrouperUtil.length(member.getAttributeDelegate().retrieveAssignments(attributeDefName)) > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
               "#attributeDefComboErrorId",
-              TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeNotMultiAssignableError")));
-            return;
-         }
-       }
-       if (multiAssignable) {
-         attributeDelegate.addAttribute(attributeDefName);
-       } else {
-         attributeDelegate.assignAttribute(attributeDefName);
-       }
+              TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeNotMultiAssignableError")));
+          return;
+        }
+      }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=" + ownerAttributeDef.getId() + "')"));
+      AttributeAssignBaseDelegate attributeDelegate = member.getAttributeDelegate();
+      
+      if (multiAssignable) {
+        attributeDelegate.addAttribute(attributeDefName);
+      } else {
+        attributeDelegate.assignAttribute(attributeDefName);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=" + subject.getId() + "&sourceId=" + subject.getSourceId() + "')"));
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeSuccess")));
+          TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -204,7 +207,7 @@ public class UiV2AttributeDefAttributeAssignment {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
     String attributeAssignId = request.getParameter("attributeAssignId");
-    
+
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -247,11 +250,11 @@ public class UiV2AttributeDefAttributeAssignment {
         attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeDefAttributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDefAttribute/attributeAssignAddValue.jsp"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectAttributeAssignments", 
+          "/WEB-INF/grouperUi2/subjectAttribute/attributeAssignAddValue.jsp"));
   
     } catch (Exception e) {
-      throw new RuntimeException("Error addValue "+ e.getMessage(), e);
+      throw new RuntimeException("Error addValue: " + e.getMessage(), e);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -272,7 +275,8 @@ public class UiV2AttributeDefAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDef();
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -311,9 +315,8 @@ public class UiV2AttributeDefAttributeAssignment {
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      
-      filterHelper(attributeDef);
+          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
+      filterHelper(member);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -362,11 +365,11 @@ public class UiV2AttributeDefAttributeAssignment {
       
       attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeDefAttributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDefAttribute/attributeDefAttributeAssignAddMetadataAssignment.jsp"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectAttributeAssignments", 
+          "/WEB-INF/grouperUi2/subjectAttribute/subjectAttributeAssignAddMetadataAssignment.jsp"));
       
     } catch (Exception e) {
-      throw new RuntimeException("Error addMetadataAssignment " + e.getMessage(), e);
+      throw new RuntimeException("Error addMetadataAssignment: " + e.getMessage(), e);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -388,7 +391,8 @@ public class UiV2AttributeDefAttributeAssignment {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(httpServletRequest, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      Subject subject = UiV2Subject.retrieveSubjectHelper(httpServletRequest, true);
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
 
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       
@@ -406,8 +410,6 @@ public class UiV2AttributeDefAttributeAssignment {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
         return;
       }
-      
-      //todo check more security, e.g. where it is assigned
       
       {
         String attributeAssignAssignAttributeNameId = httpServletRequest.getParameter("attributeAssignAssignAttributeComboName");
@@ -451,8 +453,8 @@ public class UiV2AttributeDefAttributeAssignment {
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      filterHelper(attributeDef);
+          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
+      filterHelper(member);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -476,7 +478,7 @@ public class UiV2AttributeDefAttributeAssignment {
       grouperSession = GrouperSession.start(loggedInSubject);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
+     
       String attributeAssignId = request.getParameter("attributeAssignId");
       
       if (StringUtils.isBlank(attributeAssignId)) {
@@ -495,9 +497,9 @@ public class UiV2AttributeDefAttributeAssignment {
         return;
       }
       
-      AttributeDef attributeDef = attributeAssign.getOwnerAttributeDef();
-      if (attributeDef == null) {
-        attributeDef = attributeAssign.getOwnerAttributeAssign().getOwnerAttributeDef();
+      Member member = attributeAssign.getOwnerMember();
+      if (member == null) {        
+        member = attributeAssign.getOwnerAttributeAssign().getOwnerMember();
       }
       
       attributeAssign.delete();
@@ -505,12 +507,12 @@ public class UiV2AttributeDefAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      filterHelper(attributeDef);
+      filterHelper(member);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
     } finally {
-      GrouperSession.stopQuietly(grouperSession); 
+      GrouperSession.stopQuietly(grouperSession);
     }
   }
   
@@ -569,10 +571,9 @@ public class UiV2AttributeDefAttributeAssignment {
         
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeDefAttributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDefAttribute/attributeDefAttributeAssignEdit.jsp"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectAttributeAssignments", 
+          "/WEB-INF/grouperUi2/subjectAttribute/subjectAttributeAssignEdit.jsp"));
 
-      
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -594,8 +595,9 @@ public class UiV2AttributeDefAttributeAssignment {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(httpServletRequest, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
-      
+      Subject subject = UiV2Subject.retrieveSubjectHelper(httpServletRequest, true);
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       
       if (StringUtils.isBlank(attributeAssignId)) {
@@ -646,8 +648,8 @@ public class UiV2AttributeDefAttributeAssignment {
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      filterHelper(attributeDef);
+          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
+      filterHelper(member);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -760,12 +762,12 @@ public class UiV2AttributeDefAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignValueSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      AttributeDef attributeDef = attributeAssign.getOwnerAttributeDef();
-      if (attributeDef == null) {
-        attributeDef = attributeAssign.getOwnerAttributeAssign().getOwnerAttributeDef();
+      Member member = attributeAssign.getOwnerMember();
+      if (member == null) {
+        member = attributeAssign.getOwnerAttributeAssign().getOwnerMember();
       }
       
-      filterHelper(attributeDef);
+      filterHelper(member);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -858,13 +860,13 @@ public class UiV2AttributeDefAttributeAssignment {
         
         GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
         guiAttributeAssign.setAttributeAssign(attributeAssign);
-
+        
         attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
         
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeDefAttributeAssignments", 
-          "/WEB-INF/grouperUi2/attributeDefAttribute/attributeDefAttributeAssignValueEdit.jsp"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectAttributeAssignments", 
+          "/WEB-INF/grouperUi2/subjectAttribute/subjectAttributeAssignValueEdit.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -887,8 +889,9 @@ public class UiV2AttributeDefAttributeAssignment {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(httpServletRequest, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDef();
-
+      Subject subject = UiV2Subject.retrieveSubjectHelper(httpServletRequest, true);
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+      
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       
       if (StringUtils.isBlank(attributeAssignId)) {
@@ -938,13 +941,13 @@ public class UiV2AttributeDefAttributeAssignment {
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      filterHelper(attributeDef);
+          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
+      filterHelper(member);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
     } finally {
-      GrouperSession.stopQuietly(grouperSession); 
+      GrouperSession.stopQuietly(grouperSession);
     }
 
   }

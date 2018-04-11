@@ -68,6 +68,7 @@
                                   <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
                                     <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
                                   </c:if>
+                                  <li><a href="#"  onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;" class="actions-attribute-assignments">${textContainer.text['membershipAttributeAssignmentsButton'] }</a></li>
                                 </ul>
                               </div>
                             </c:if>

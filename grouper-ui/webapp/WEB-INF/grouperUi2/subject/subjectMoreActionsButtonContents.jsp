@@ -50,5 +50,13 @@
          ${textContainer.text['subjectViewPermissionsButton'] }
        </a>
      </li>
+     
+     <li class="divider"></li>
+     <li>
+       <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.viewAttributeAssignments?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;">
+         ${textContainer.text['subjectAttributeAssignmentsButton'] }
+       </a>
+     </li>
+     
    </ul>
  </div>

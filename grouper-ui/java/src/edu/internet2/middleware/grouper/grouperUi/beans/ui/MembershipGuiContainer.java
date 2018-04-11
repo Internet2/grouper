@@ -15,7 +15,10 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
@@ -411,6 +414,27 @@ public class MembershipGuiContainer {
    */
   public void setField(Field field1) {
     this.field = field1;
+  }
+  
+  /**
+   * attributes assigned to this subject.
+   */
+  private Set<GuiAttributeAssign> guiAttributeAssigns;
+  
+  /**
+   * attributes assigned to this subject.
+   * @return
+   */
+  public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return guiAttributeAssigns;
+  }
+  
+  /**
+   * attributes assigned to this subject.
+   * @param guiAttributeAssigns
+   */
+  public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
+    this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
 }
