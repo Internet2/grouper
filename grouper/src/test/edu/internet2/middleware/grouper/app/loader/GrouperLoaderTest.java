@@ -1701,21 +1701,21 @@ public class GrouperLoaderTest extends GrouperTest {
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
 
-    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true, new QueryOptions().secondLevelCache(false));
     assertEquals("The loader:group 2", overallGroup1.getDisplayName());
-    systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
+    systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
     assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
     assertEquals("The loader:group 2 system of record", systemOfRecordGroup1.getDisplayName());
     
-    group1Includes = GroupFinder.findByName(this.grouperSession, "loader:group1_includes", true);
+    group1Includes = GroupFinder.findByName(this.grouperSession, "loader:group1_includes", true, new QueryOptions().secondLevelCache(false));
     assertNotNull(group1Includes);
     assertEquals("The loader:group 2 includes", group1Includes.getDisplayName());
     
-    group1Excludes = GroupFinder.findByName(this.grouperSession, "loader:group1_excludes", true);
+    group1Excludes = GroupFinder.findByName(this.grouperSession, "loader:group1_excludes", true, new QueryOptions().secondLevelCache(false));
     assertNotNull(group1Excludes);
     assertEquals("The loader:group 2 excludes", group1Excludes.getDisplayName());
     
-    group1SystemOfRecordIncludes = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecordAndIncludes", true);
+    group1SystemOfRecordIncludes = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecordAndIncludes", true, new QueryOptions().secondLevelCache(false));
     assertNotNull(group1SystemOfRecordIncludes);
     assertEquals("The loader:group 2 system of record and includes", group1SystemOfRecordIncludes.getDisplayName());
     
