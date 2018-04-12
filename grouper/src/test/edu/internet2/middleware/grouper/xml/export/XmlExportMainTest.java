@@ -540,7 +540,7 @@ public class XmlExportMainTest extends GrouperTest {
     xml = stringWriter.toString();
     
     //System.out.println(GrouperUtil.indent(xml, true));
-    assertTrue(xml.contains("folders=\"etc:legacy:attribute:%, yesExport:%, whatever:%\"")); 
+    assertTrue(xml.contains("folders=\"etc:legacy:attribute:%, whatever:%, yesExport:%\"")); 
     assertTrue(xml.contains("objects=\"yesExportAlso:e\""));
     assertTrue(xml.contains("members=\"allWithoutUnecessaryGroups\""));
     
