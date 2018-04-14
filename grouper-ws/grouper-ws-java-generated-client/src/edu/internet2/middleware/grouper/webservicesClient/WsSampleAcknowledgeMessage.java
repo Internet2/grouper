@@ -79,10 +79,10 @@ public class WsSampleAcknowledgeMessage implements WsSampleGenerated {
       GrouperMessagingEngine
           .send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
               .addMessageBody("message body")
-              .assignQueueType(GrouperMessageQueueType.queue), null);
+              .assignQueueType(GrouperMessageQueueType.queue));
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
-          .receive(new GrouperMessageReceiveParam().assignQueueName("def"), null);
+          .receive(new GrouperMessageReceiveParam().assignQueueName("def"));
 
       GrouperMessage grouperMessage = grouperMessageReceiveResult.getGrouperMessages()
           .iterator().next();

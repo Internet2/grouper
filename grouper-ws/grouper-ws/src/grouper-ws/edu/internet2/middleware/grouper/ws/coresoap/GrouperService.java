@@ -4975,6 +4975,7 @@ public class GrouperService {
    * @param queueOrTopicName
    * @param messageSystemName
    * @param routingKey
+   * @param autocreateObjects
    * @param messages
    * @param actAsSubjectLookup
    * @param params
@@ -4982,7 +4983,7 @@ public class GrouperService {
    */
   public WsMessageResults sendMessage(final String clientVersion,
       String queueType, String queueOrTopicName, String messageSystemName,
-      String routingKey, WsMessage[] messages,
+      String routingKey, boolean autocreateObjects, WsMessage[] messages,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
 
     WsMessageResults wsSendMessageResults = new WsMessageResults();
@@ -4998,8 +4999,8 @@ public class GrouperService {
           .valueOfIgnoreCase(queueType, true);
 
       wsSendMessageResults = GrouperServiceLogic.sendMessage(grouperWsVersion,
-          messageQueueType,
-          queueOrTopicName, messageSystemName, routingKey, messages, actAsSubjectLookup, params);
+          messageQueueType, queueOrTopicName, messageSystemName, routingKey,
+          autocreateObjects, messages, actAsSubjectLookup, params);
 
     } catch (Exception e) {
       wsSendMessageResults.assignResultCodeException(null, null, e);
@@ -5016,6 +5017,7 @@ public class GrouperService {
    * @param queueOrTopicName
    * @param messageSystemName
    * @param routingKey
+   * @param autocreateObjects
    * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)
    * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)
    * @param actAsSubjectLookup
@@ -5024,6 +5026,7 @@ public class GrouperService {
    */
   public WsMessageResults receiveMessage(final String clientVersion,
       String queueOrTopicName, String messageSystemName, String routingKey,
+      final boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
 
@@ -5037,7 +5040,7 @@ public class GrouperService {
           clientVersion, true);
 
       wsReceiveMessageResults = GrouperServiceLogic.receiveMessage(grouperWsVersion,
-          queueOrTopicName, messageSystemName, routingKey,
+          queueOrTopicName, messageSystemName, routingKey, autocreateObjects,
           blockMillis, maxMessagesToReceiveAtOnce, actAsSubjectLookup, params);
 
     } catch (Exception e) {

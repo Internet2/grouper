@@ -79,12 +79,12 @@ public class MessagingListenerController {
       String queueName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queueName");
       String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".routingKey");
       
-      boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
-
       int numberOfTriesPerIteration = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".numberOfTriesPerIteration", 3);
       int pollingTimeoutSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".pollingTimeoutSeconds", 18);
       int sleepSecondsInBetweenIterations = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".sleepSecondsInBetweenIterations", 0);
       int maxMessagesToReceiveAtOnce = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".maxMessagesToReceiveAtOnce", 20);
+      
+      boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
       
       if (maxMessagesToReceiveAtOnce < 1) {
         maxMessagesToReceiveAtOnce = 1;

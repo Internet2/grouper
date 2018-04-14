@@ -9306,6 +9306,7 @@ public class GrouperServiceLogic {
    * @param queueOrTopicName - queue or topic to send to (required)
    * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
    * @param routingKey - valid for only rabbitmq. ignored otherwise.
+   * @param autocreateObjects - create queue/topic if not there already
    * @param messages - payload to be sent (required)
    * @param actAsSubjectLookup
    * @param params
@@ -9313,7 +9314,7 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
       final GrouperMessageQueueType queueType, final String queueOrTopicName,
-      final String messageSystemName, String routingKey,
+      final String messageSystemName, String routingKey, boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
@@ -9359,6 +9360,7 @@ public class GrouperServiceLogic {
           .assignGrouperMessageSystemName(messageSystemName)
           .assignQueueOrTopicName(queueOrTopicName)
           .assignQueueType(queueType)
+          .assignAutocreateObjects(autocreateObjects)
           .assignGrouperMessages(grouperMessages);
 
       GrouperMessagingEngine.send(grouperMessageSendParam.assignRoutingKey(routingKey));
@@ -9385,6 +9387,7 @@ public class GrouperServiceLogic {
    * @param queueOrTopicName - queue or topic to receive from (required)
    * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
    * @param routingKey - valid for rabbitmq, ignored otherwise.
+   * @param autocreateObjects - create queue/topic if not there already.
    * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)
    * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)
    * @param actAsSubjectLookup
@@ -9393,7 +9396,7 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults receiveMessage(final GrouperVersion clientVersion,
       final String queueOrTopicName, final String messageSystemName,
-      String routingKey,
+      String routingKey, boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
@@ -9427,6 +9430,7 @@ public class GrouperServiceLogic {
 
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
+          .assignAutocreateObjects(autocreateObjects)
           .assignQueueName(queueOrTopicName);
       
       if (blockMillis != null) {
