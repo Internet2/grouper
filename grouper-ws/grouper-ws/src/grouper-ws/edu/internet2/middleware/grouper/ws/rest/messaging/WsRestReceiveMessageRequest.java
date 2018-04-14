@@ -54,6 +54,8 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   /** max number of messages to receive at once, though can't be more than the server maximum (optional) **/
   Integer maxMessagesToReceiveAtOnce;
   
+  /** create queue/topic if doesn't exist already. **/
+  private boolean autocreateObjects;
   
   /** 
    * @return queueOrTopicName
@@ -123,6 +125,22 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    */
   public void setMaxMessagesToReceiveAtOnce(Integer maxMessagesToReceiveAtOnce1) {
     this.maxMessagesToReceiveAtOnce = maxMessagesToReceiveAtOnce1;
+  }
+  
+  /**
+   * create queue/topic if doesn't exist already.
+   * @return autocreateObjects
+   */
+  public boolean isAutocreateObjects() {
+    return this.autocreateObjects;
+  }
+
+  /**
+   * create queue/topic if doesn't exist already.
+   * @param autocreateObjects1
+   */
+  public void setAutocreateObjects(boolean autocreateObjects1) {
+    this.autocreateObjects = autocreateObjects1;
   }
 
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */

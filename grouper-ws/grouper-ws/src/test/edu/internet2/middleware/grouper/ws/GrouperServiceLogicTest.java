@@ -9806,7 +9806,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
    
     // happy path
-    WsMessageResults wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, "abc", null, null, new WsMessage[] {wsMessage}, actAsSubjectLookup, null);
+    WsMessageResults wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, "abc", null, null, true, new WsMessage[] {wsMessage}, actAsSubjectLookup, null);
 
     assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
             WsMessageResultsCode.SUCCESS.name(), 
@@ -9819,13 +9819,13 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertNotNull(grouperMessageHibernate);
     
     // null/blank queueTopicName not allowed
-    wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, null, null, null, new WsMessage[] {wsMessage}, actAsSubjectLookup, null);
+    wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, null, null, null, true, new WsMessage[] {wsMessage}, actAsSubjectLookup, null);
     assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
         WsMessageResultsCode.INVALID_QUERY.name(), 
         wsMessageResults.getResultMetadata().getResultCode());
   
     // there has to be at least one message
-    wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, "abc", null, null, new WsMessage[] {}, actAsSubjectLookup, null);
+    wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, "abc", null, null, true, new WsMessage[] {}, actAsSubjectLookup, null);
     assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
         WsMessageResultsCode.INVALID_QUERY.name(), 
         wsMessageResults.getResultMetadata().getResultCode());
@@ -9855,11 +9855,11 @@ public class GrouperServiceLogicTest extends GrouperTest {
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
     // happy path
     GrouperSession.start(SubjectTestHelper.SUBJ1);
-    WsMessageResults wsMessageResults = GrouperServiceLogic.receiveMessage(GROUPER_VERSION, "abc", null, null, 0, 10, actAsSubjectLookup, null);
+    WsMessageResults wsMessageResults = GrouperServiceLogic.receiveMessage(GROUPER_VERSION, "abc", null, null, true, 0, 10, actAsSubjectLookup, null);
     assertTrue("test", wsMessageResults.getMessages().length > 0);
     
     // null/blank queueTopicName not allowed
-    wsMessageResults = GrouperServiceLogic.receiveMessage(GROUPER_VERSION, null, null, null, 0, 10, actAsSubjectLookup, null);
+    wsMessageResults = GrouperServiceLogic.receiveMessage(GROUPER_VERSION, null, null, null, true, 0, 10, actAsSubjectLookup, null);
     assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
         WsMessageResultsCode.INVALID_QUERY.name(), 
         wsMessageResults.getResultMetadata().getResultCode());

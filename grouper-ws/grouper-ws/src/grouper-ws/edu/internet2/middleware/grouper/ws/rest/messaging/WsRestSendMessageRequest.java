@@ -51,6 +51,9 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   
   /** routing key for rabbitmq **/
   private String routingKey;
+  
+  /** create queue/topic if doesn't exist already. **/
+  private boolean autocreateObjects;
 
   /** messages to be sent **/
   private WsMessage[] messages;
@@ -146,6 +149,22 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    */
   public void setClientVersion(String clientVersion1) {
     this.clientVersion = clientVersion1;
+  }
+  
+  /**
+   * create queue/topic if doesn't exist already.
+   * @return autocreateObjects
+   */
+  public boolean isAutocreateObjects() {
+    return this.autocreateObjects;
+  }
+
+  /**
+   * create queue/topic if doesn't exist already.
+   * @param autocreateObjects1
+   */
+  public void setAutocreateObjects(boolean autocreateObjects1) {
+    this.autocreateObjects = autocreateObjects1;
   }
 
   /** if acting as someone else */
