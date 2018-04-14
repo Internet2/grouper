@@ -113,7 +113,7 @@ public class XmlExportMain {
    * @return stem patterns to filter on
    */
   public Set<String> getStemNamePatterns() {
-    Set<String> result = new HashSet<String>();
+    Set<String> result = new LinkedHashSet<String>();
     for (String stem : this.stems) {
       if (!stem.endsWith("%")) {
         result.add(stem + ":%");
