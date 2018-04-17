@@ -100,7 +100,7 @@ public class GrouperServiceUtilsTest extends TestCase {
     //System.out.println(queryString);
     
     //create map that mimics a real request map
-    Map<String, String> paramMap = GrouperServiceUtils.convertQueryStringToMap(
+    Map<String, String[]> paramMap = GrouperServiceUtils.convertQueryStringToMap(
         queryString);
     
     wsLiteGetMembersSimpleRequest = (WsRestGetMembersLiteRequest)

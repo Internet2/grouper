@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
 /**
@@ -63,4 +64,27 @@ public class ServletInputStreamCopier extends ServletInputStream {
     return this.copy.toByteArray();
   }
 
+  /**
+   * @see ServletInputStream#isFinished()
+   */
+  //@Override
+  public boolean isFinished() {
+    return true;
+  }
+
+  /**
+   * @see ServletInputStream#isReady()
+   */
+  //@Override
+  public boolean isReady() {
+    return true;
+  }
+
+  /**
+   * @see ServletInputStream#setReadListener(ReadListener)
+   */
+  //@Override
+  public void setReadListener(ReadListener readListener) {
+    throw new RuntimeException("Not implemented");
+  }
 }

@@ -6210,7 +6210,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
-    Subject subject = SubjectFinder.findByIdentifier("a@b.c", false);
+    Subject subject = SubjectFinder.findByIdentifier("a@idp.example.edu", false);
     
     assertNull(subject);
     
@@ -6222,7 +6222,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     GrouperVersion grouperVersion = GrouperVersion.valueOfIgnoreCase("v2_0_000");
     WsGroupLookup wsGroupLookup = new WsGroupLookup(group.getName(), null);
-    WsSubjectLookup[] subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@b.c")};
+    WsSubjectLookup[] subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@idp.example.edu")};
     WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
         grouperVersion, wsGroupLookup, subjectLookups, false,
         null, null, null, false, false, null, null, null, null, false);
@@ -6232,11 +6232,11 @@ public class GrouperServiceLogicTest extends GrouperTest {
         wsAddMemberResults.getResultMetadata().getResultCode());
 
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-    subject = SubjectFinder.findByIdentifier("a@b.c", false);
+    subject = SubjectFinder.findByIdentifier("a@idp.example.edu", false);
     assertNull(subject);
     
     wsGroupLookup = new WsGroupLookup(group.getName(), null);
-    subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@b.c")};
+    subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@idp.example.edu")};
     
     //try again with param
     wsAddMemberResults = GrouperServiceLogic.addMember(
@@ -6254,7 +6254,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //make sure the external member is a member
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
-    subject = SubjectFinder.findByIdentifier("a@b.c", true);
+    subject = SubjectFinder.findByIdentifier("a@idp.example.edu", true);
     
     assertTrue(group.hasMember(subject));
   }

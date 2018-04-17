@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 /**
  * copy bytes to a buffer
@@ -63,4 +64,19 @@ public class ServletOutputStreamCopier extends ServletOutputStream {
     return this.copy.toByteArray();
   }
 
+  /**
+   * @see javax.servlet.ServletOutputStream#isReady()
+   */
+  //@Override
+  public boolean isReady() {
+    return true;
+  }
+
+  /**
+   * @see javax.servlet.ServletOutputStream#setWriteListener(WriteListener)
+   */
+  //@Override
+  public void setWriteListener(WriteListener writeListener) {
+    throw new RuntimeException("Not implemented");
+  }
 }

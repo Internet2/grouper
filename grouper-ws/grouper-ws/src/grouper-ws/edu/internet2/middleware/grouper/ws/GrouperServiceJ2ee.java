@@ -103,11 +103,11 @@ public class GrouperServiceJ2ee implements Filter {
    * @param key to lookup
    * @return the value
    */
-  public static String parameterValue(Map<String, String> paramMap,
+  public static String parameterValue(Map<String, String[]> paramMap,
       HttpServletRequest httpServletRequest, String key) {
     //if no servlet (probably just testing), get from map
     if (httpServletRequest == null) {
-      return paramMap == null ? null : paramMap.get(key);
+      return paramMap == null ? null : paramMap.get(key)[0];
     }
     String[] values = httpServletRequest.getParameterValues(key);
     if (values == null || values.length == 0) {

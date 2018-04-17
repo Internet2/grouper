@@ -35,11 +35,6 @@
   <dependencies>
     <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>subject</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>grouper</artifactId>
         <version>${project.version}</version>
     </dependency>

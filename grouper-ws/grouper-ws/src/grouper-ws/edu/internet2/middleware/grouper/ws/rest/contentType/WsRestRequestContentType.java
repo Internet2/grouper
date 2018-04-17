@@ -100,7 +100,7 @@ public enum WsRestRequestContentType {
     public Object parseString(String input, StringBuilder warnings) {
       HttpServletRequest httpServletRequest = GrouperServiceJ2ee.retrieveHttpServletRequest();
       //marshal the object out of there
-      Map<String, String> params = httpServletRequest.getParameterMap();
+      Map<String, String[]> params = httpServletRequest.getParameterMap();
       
       //see if in query string in body
       if (!StringUtils.isBlank(input)) {

@@ -681,7 +681,7 @@ public class SampleCapture {
 
       ExternalSubjectSave externalSubjectSave = new ExternalSubjectSave(GrouperServiceUtils.testSession)
           .assignName("My Name")
-          .assignIdentifier("a_ident@b.c").assignEmail("a@b.c");
+          .assignIdentifier("a_ident@idp.example.edu").assignEmail("a@b.c");
       
       boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
 

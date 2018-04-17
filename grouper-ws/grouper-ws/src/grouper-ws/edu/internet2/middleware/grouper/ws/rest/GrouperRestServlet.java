@@ -115,7 +115,7 @@ public class GrouperRestServlet extends HttpServlet {
     //we need something here if errors, so default to xhtml
     WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.json;
 
-    Map<String, String> parameterMap = null;
+    Map<String, String[]> parameterMap = null;
 
     try {
       

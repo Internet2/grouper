@@ -31,9 +31,9 @@
     <modules>
         <module>../grouper-misc/morphString</module>
         <module>../grouper-misc/grouperClient</module>
-        <module>../subject</module>
+        <!--<module>../subject</module>-->
         <module>../grouper</module>
-        <module>../grouper-misc/grouper-shib</module>
+        <!--<module>../grouper-misc/grouper-shib</module>-->
         <module>../grouper-misc/grouperScim</module>
         <module>../grouper-ui</module>
         <module>../grouper-ws</module>
@@ -166,18 +166,18 @@
     </properties>
 
     <repositories>
+        <!-- this was moved to software.internet2.edu, breaking the www.internet2.edu address; set releases and snapshots to false to effectively disable it -->
         <repository>
             <id>grouper.internet2.edu</id>
             <name>Internet2</name>
             <layout>default</layout>
             <url>http://www.internet2.edu/grouper/downloads/maven2</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </snapshots>
-        </repository>
-        <repository>
-            <id>shib-release</id>
-            <url>https://shibboleth.net/nexus/content/groups/public</url>
         </repository>
         <repository>
             <id>nexus-releases</id>

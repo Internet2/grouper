@@ -39,7 +39,7 @@
         <module>grouper-ws-java-generated-client</module>
         <module>grouper-ws-java-manual-client</module>
         <module>grouper-ws-test</module>
-        <module>grouper-ws-scim</module>
+        <!--<module>grouper-ws-scim</module>-->
     </modules>
 	
 	<build>
@@ -54,118 +54,4 @@
 	        </plugin>
 	    </plugins>
 	</build>
-	
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>subject</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>grouper</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>grouper</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-        </dependency>
-        <!-- <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>grouper-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency> -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>grouperClient</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <!-- ignore xalan 2.7.0 -->
-                <!-- http://groups.google.com/group/opensaml-users/browse_thread/thread/d06ae0cac4ae9929 -->
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-math</groupId>
-            <artifactId>commons-math</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.security</groupId>
-            <artifactId>wss4j</artifactId>
-            <version>1.5.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-transport-http</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-adb</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.rampart</groupId>
-			<artifactId>rampart-core</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.rampart</groupId>
-			<artifactId>rampart-policy</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.rampart</groupId>
-			<artifactId>rampart-trust</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>3.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.core.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-		
-
 </project>

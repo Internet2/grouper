@@ -11,12 +11,12 @@ sudo: false
 branches:
   only:
   - master
-  - GROUPER_2_1_BRANCH
-  - GROUPER_2_2_BRANCH
+  - GROUPER_2_3_BRANCH
 jdk:
-- oraclejdk7
+- oraclejdk8
 - openjdk6
 - openjdk7
+- openjdk8
 before_script:
  - export JAVA_OPTS="-Xmx2048m"
 install:
@@ -27,7 +27,7 @@ before_install:
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh
 after_success:
-- mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura
+- mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura -Dlicense.skip=true -DskipTests=true
 - chmod -R 777 travis/javadocs-ghpages.sh
 - travis/javadocs-ghpages.sh
 env:

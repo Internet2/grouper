@@ -63,8 +63,8 @@
                 </exclusion>
                 <!-- we are pulling javax jta as a direct dep -->
                 <exclusion>
-                    <artifactId>org.apache.geronimo.specs</artifactId>
-                    <groupId>geronimo-jta_1.1_spec</groupId>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jta_1.1_spec</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -288,6 +288,21 @@
         <dependency>
             <groupId>org.ldaptive</groupId>
             <artifactId>ldaptive-unboundid</artifactId>
+        </dependency>
+        <!-- for migrated subject module -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-digester3</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>cglib</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 

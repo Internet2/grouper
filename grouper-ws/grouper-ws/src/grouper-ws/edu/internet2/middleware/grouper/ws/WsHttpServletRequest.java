@@ -50,22 +50,22 @@ public class WsHttpServletRequest extends HttpServletRequestWrapper {
   }
 
   /** param map which doesnt return null */
-  private Map<String, String> parameterMap = null;
+  private Map<String, String[]> parameterMap = null;
 
   /**
    * @see javax.servlet.ServletRequestWrapper#getParameterMap()
    */
   @SuppressWarnings("unchecked")
   @Override
-  public Map<String, String> getParameterMap() {
+  public Map<String, String[]> getParameterMap() {
 
     if (this.parameterMap == null) {
 
-      Map<String, String> existingMap = super.getParameterMap();
-      Map<String, String> newMap = new LinkedHashMap<String, String>(existingMap);
+      Map<String, String[]> existingMap = super.getParameterMap();
+      Map<String, String[]> newMap = new LinkedHashMap<String, String[]>(existingMap);
       for (String key : newMap.keySet()) {
         if (newMap.get(key) == null) {
-          newMap.put(key, "");
+          newMap.put(key, new String[] {""});
         }
       }
       this.parameterMap = newMap;

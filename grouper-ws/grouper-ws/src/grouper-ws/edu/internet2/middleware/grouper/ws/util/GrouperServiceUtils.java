@@ -326,7 +326,7 @@ public final class GrouperServiceUtils {
    * @param warnings is the warnings, if null, just throw exception
    * @return the object or null if nothing in query params
    */
-  public static Object marshalHttpParamsToObject(Map<String,String> paramMap, 
+  public static Object marshalHttpParamsToObject(Map<String,String[]> paramMap,
       HttpServletRequest httpServletRequest, StringBuilder warnings) {
 
     String objectTypeSimpleName = GrouperServiceJ2ee.parameterValue(paramMap, httpServletRequest, WS_LITE_OBJECT_TYPE);
@@ -393,13 +393,13 @@ public final class GrouperServiceUtils {
    * @param queryString
    * @return the map (null if no query string)
    */
-  public static Map<String, String> convertQueryStringToMap(String queryString) {
+  public static Map<String, String[]> convertQueryStringToMap(String queryString) {
     
     if (StringUtils.isBlank(queryString)) {
       return null;
     }
     
-    Map<String, String> paramMap = new HashMap<String, String>();
+    Map<String, String[]> paramMap = new HashMap<String, String[]>();
     
     String[] queryStringPairs = GrouperUtil.splitTrim(queryString, "&");
     
@@ -415,7 +415,7 @@ public final class GrouperServiceUtils {
             + key + ", " + queryString);
         
       }
-      paramMap.put(key, value);
+      paramMap.put(key, new String[] {value});
     }
     return paramMap;
   }
