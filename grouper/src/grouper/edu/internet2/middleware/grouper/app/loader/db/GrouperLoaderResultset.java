@@ -619,7 +619,7 @@ public class GrouperLoaderResultset {
 
       String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
 
-      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray);
+      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray, null);
 
       int subObjectCount = 0;
       for (LdapEntry searchResult : searchResults) {
@@ -843,7 +843,7 @@ public class GrouperLoaderResultset {
 
       String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
 
-      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray);
+      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray, null);
 
       Map<String, String> attributeNameToGroupNameMap = new HashMap<String, String>();
 

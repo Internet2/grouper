@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.net.ssl.SSLSocketFactory;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.ldaptive.BindConnectionInitializer;
@@ -61,6 +63,7 @@ import org.ldaptive.sasl.GssApiConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
+import edu.internet2.middleware.grouper.ldap.LdapPEMSocketFactory;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -133,6 +136,8 @@ public class LdaptiveSessionImpl implements LdapSession {
 
           // Setup ldaptive ConnectionConfig
           ConnectionConfig connConfig = new ConnectionConfig();
+          DefaultConnectionFactory connectionFactory = new DefaultConnectionFactory();
+
           ConnectionConfigPropertySource ccpSource = new ConnectionConfigPropertySource(connConfig, ldaptiveProperties);
           ccpSource.initialize();
                   
@@ -172,9 +177,18 @@ public class LdaptiveSessionImpl implements LdapSession {
             binder.setBindSaslConfig(gssApiConfig);
           }
           
+          // handle ssl socket factory
+          String cafile = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pemCaFile");
+          String certfile = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pemCertFile");
+          String keyfile = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".pemKeyFile");
+          if (cafile != null && certfile != null && keyfile != null) {
+            LdapPEMSocketFactory sf = new LdapPEMSocketFactory(cafile, certfile, keyfile);
+            SSLSocketFactory ldapSocketFactory = sf.getSocketFactory();
+            ((JndiProviderConfig) connectionFactory.getProvider().getProviderConfig()).setSslSocketFactory(ldapSocketFactory);
+          }
+          
           connConfig.setConnectionInitializer(binder);
           
-          DefaultConnectionFactory connectionFactory = new DefaultConnectionFactory();
           DefaultConnectionFactoryPropertySource dcfSource = new DefaultConnectionFactoryPropertySource(connectionFactory, ldaptiveProperties);
           dcfSource.initialize();
           connectionFactory.setConnectionConfig(connConfig);
@@ -188,6 +202,7 @@ public class LdaptiveSessionImpl implements LdapSession {
             }
           }
           ((JndiProviderConfig) connectionFactory.getProvider().getProviderConfig()).setSearchIgnoreResultCodes(codesToIgnore.toArray(new ResultCode[]{}));
+          
 
           // batch size
           int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".batchSize", -1);
@@ -240,9 +255,9 @@ public class LdaptiveSessionImpl implements LdapSession {
               ldapPoolConfig.setValidateOnCheckOut(true);
             }
           }
-                              
+
           result.initialize();
-          
+                    
           blockingLdapPool = new PooledConnectionFactory(result);
 
           poolMap.put(ldapServerId, blockingLdapPool);
@@ -575,13 +590,11 @@ public class LdaptiveSessionImpl implements LdapSession {
     
   }
 
-
-
   /**
-   * @see edu.internet2.middleware.grouper.ldap.LdapSession#list(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String[])
+   * @see edu.internet2.middleware.grouper.ldap.LdapSession#list(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String[], java.lang.Long)
    */
   public List<edu.internet2.middleware.grouper.ldap.LdapEntry> list(final String ldapServerId, final String searchDn,
-      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames) {
+      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, final Long sizeLimit) {
 
     try {
       
@@ -594,7 +607,11 @@ public class LdaptiveSessionImpl implements LdapSession {
           SearchRequest searchRequest = new SearchRequest();
           searchRequest.setSearchFilter(new SearchFilter(filter));
           searchRequest.setReturnAttributes(attributeNames);
-
+          
+          if (sizeLimit != null) {
+            searchRequest.setSizeLimit(sizeLimit);
+          }
+          
           if (searchEntryHandlers.get(ldapServerId).size() > 0) {
             SearchEntryHandler[] handlers = new SearchEntryHandler[searchEntryHandlers.get(ldapServerId).size()];
             int count = 0;

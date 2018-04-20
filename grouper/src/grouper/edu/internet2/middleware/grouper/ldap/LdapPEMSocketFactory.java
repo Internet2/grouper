@@ -35,7 +35,7 @@
  * @author fox
  */
 
-package edu.internet2.middleware.subject.provider;
+package edu.internet2.middleware.grouper.ldap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,9 +56,10 @@ import java.security.cert.CertificateException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Key;
-import javax.net.ssl.SSLSocketFactory;
 
-
+/**
+ * 
+ */
 public class LdapPEMSocketFactory {
 
    private String caFilename;
@@ -85,6 +86,9 @@ public class LdapPEMSocketFactory {
       initSocketFactory();
    }
 
+   /**
+    * @return socket factory
+    */
    public SSLSocketFactory getSocketFactory() {
        return socketFactory;
    }

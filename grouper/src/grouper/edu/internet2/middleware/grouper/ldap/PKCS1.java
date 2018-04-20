@@ -26,7 +26,7 @@
           so the key file can have ONLY a private key
  **/
 
-package edu.internet2.middleware.subject.provider;
+package edu.internet2.middleware.grouper.ldap;
 
 import java.io.EOFException;
 import java.io.FileReader;

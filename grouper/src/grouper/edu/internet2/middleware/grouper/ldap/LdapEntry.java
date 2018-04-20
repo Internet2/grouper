@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -67,6 +68,8 @@ public class LdapEntry {
     attributes.put(attribute.getName().toLowerCase(), attribute);
   }
   
+  
+  
   public String toString() {
 
     ToStringBuilder builder = new ToStringBuilder(this);
@@ -77,5 +80,13 @@ public class LdapEntry {
     }
     
     return builder.toString();
+  }
+
+  
+  /**
+   * @return the attributes
+   */
+  public Collection<LdapAttribute> getAttributes() {
+    return attributes.values();
   }
 }

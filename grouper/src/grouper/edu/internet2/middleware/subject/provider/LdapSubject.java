@@ -125,7 +125,11 @@ public class LdapSubject extends SubjectImpl {
   private void getAllAttributes() {
     if (!this.attributesGotten) {
       try {
-        ((LdapSourceAdapter)this.getSource()).getAllAttributes(this);
+        if (this.getSource() instanceof LdapSourceAdapterLegacy) {
+          ((LdapSourceAdapterLegacy)this.getSource()).getAllAttributes(this);
+        } else {
+          ((LdapSourceAdapter)this.getSource()).getAllAttributes(this);
+        }
       } finally {
         this.attributesGotten = true;
       }

@@ -465,10 +465,10 @@ public class VTLdapSessionImpl implements LdapSession {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.ldap.LdapSession#list(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String[])
+   * @see edu.internet2.middleware.grouper.ldap.LdapSession#list(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ldap.LdapSearchScope, java.lang.String, java.lang.String[], java.lang.Long)
    */
   public List<LdapEntry> list(final String ldapServerId, final String searchDn,
-      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames) {
+      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, final Long sizeLimit) {
 
     try {
       
@@ -486,6 +486,10 @@ public class VTLdapSessionImpl implements LdapSession {
           
           if (ldapSearchScope != null) {
             searchControls.setSearchScope(ldapSearchScope.getSeachControlsConstant());
+          }
+
+          if (sizeLimit != null) {
+            searchControls.setCountLimit(sizeLimit);
           }
           
           if (StringUtils.isBlank(searchDn)) {
