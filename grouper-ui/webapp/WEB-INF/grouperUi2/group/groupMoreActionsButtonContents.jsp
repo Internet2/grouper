@@ -77,8 +77,11 @@
                               >${textContainer.text['attestationButton'] }</a></li>
                         </c:if>                
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=group'); return false;"
                               >${textContainer.text['groupViewAuditButton'] }</a></li>
+                              
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=membership'); return false;"
+                              >${textContainer.text['groupViewMembershipAuditButton'] }</a></li>
                           
                           <c:if test="${mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true' }" >
                             <c:if test="${grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoaderLdap || grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoader}">
