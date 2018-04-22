@@ -57,6 +57,8 @@
          ${textContainer.text['subjectAttributeAssignmentsButton'] }
        </a>
      </li>
-     
+     <li class="divider"></li>
+     <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+         >${textContainer.text['subjectViewMembershipAuditButton'] }</a></li>
    </ul>
  </div>

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -271,6 +272,69 @@ public class SubjectContainer {
    */
   public void setGuiAttributeAssigns(Set<GuiAttributeAssign> guiAttributeAssigns) {
     this.guiAttributeAssigns = guiAttributeAssigns;
+  }
+  
+  /**
+   * if extended results on audit display
+   */
+  private boolean auditExtendedResults = false;
+
+  /**
+   * if extended results on audit display
+   * @return if extended results
+   */
+  public boolean isAuditExtendedResults() {
+    return this.auditExtendedResults;
+  }
+
+  /**
+   * if extended results on audit display
+   * @param auditExtendedResults1
+   */
+  public void setAuditExtendedResults(boolean auditExtendedResults1) {
+    this.auditExtendedResults = auditExtendedResults1;
+  }
+
+  /**
+   * sorting, e.g. for the audit screen
+   */
+  private GuiSorting guiSorting;
+  
+  /**
+   * sorting, e.g. for the audit screen
+   * @return the sorting
+   */
+  public GuiSorting getGuiSorting() {
+    return this.guiSorting;
+  }
+
+  /**
+   * sorting, e.g. for the audit screen
+   * @param guiSorting1
+   */
+  public void setGuiSorting(GuiSorting guiSorting1) {
+    this.guiSorting = guiSorting1;
+  }
+
+  /**
+   * audit entries for subject
+   */
+  private Set<GuiAuditEntry> guiAuditEntries;
+
+  /**
+   * audit entries for subject
+   * @return audit entries
+   */
+  public Set<GuiAuditEntry> getGuiAuditEntries() {
+    return this.guiAuditEntries;
+  }
+
+  /**
+   * audit entries for subject
+   * @param guiAuditEntries1
+   */
+  public void setGuiAuditEntries(Set<GuiAuditEntry> guiAuditEntries1) {
+    this.guiAuditEntries = guiAuditEntries1;
   }
   
 }

@@ -2135,11 +2135,14 @@ public class UiV2Group {
         return;
       }
   
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      grouperRequestContainer.getGroupContainer().setAuditType(request.getParameter("auditType"));
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupViewAudits.jsp"));
-  
+      
       viewAuditsHelper(request, response, group);
 
     } finally {
@@ -3942,8 +3945,20 @@ public class UiV2Group {
 
     guiSorting.processRequest(request);
     
-    query.addAuditTypeFieldValue("groupId", group.getId());
-
+    String auditType = request.getParameter("auditType");
+    
+    if ("membership".equals(auditType)) {
+      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      GrouperSession grouperSession = GrouperSession.startIfNotStarted(loggedInSubject).getGrouperSession();
+      Subject subj = SubjectFinder.findById(group.getUuid(), true);
+      Member member = MemberFinder.findBySubject(grouperSession, subj, false);
+      query.addAuditTypeFieldValue("memberId", member.getUuid());
+    } else {
+      query.addAuditTypeFieldValue("groupId", group.getId());
+    }
+    
+    groupContainer.setAuditType(auditType);
+    
     List<AuditEntry> auditEntries = query.execute();
 
     groupContainer.setGuiAuditEntries(GuiAuditEntry.convertFromAuditEntries(auditEntries));

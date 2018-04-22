@@ -149,6 +149,26 @@ public class GroupContainer {
     this.auditExtendedResults = auditExtendedResults1;
   }
 
+  /** audit type: membership or group **/
+  private String auditType;
+  
+  /**
+   * audit type: membership or group
+   * @return
+   */
+  public String getAuditType() {
+    return this.auditType;
+  }
+
+
+  /**
+   * audit type: membership or group
+   * @param auditType1
+   */
+  public void setAuditType(String auditType1) {
+    this.auditType = auditType1;
+  }
+
   /**
    * sorting, e.g. for the audit screen
    */

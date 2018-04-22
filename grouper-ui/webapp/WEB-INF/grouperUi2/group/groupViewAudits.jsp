@@ -22,6 +22,7 @@
                 <p class="lead">${textContainer.text['groupAuditLogDescription'] }</p>
 
                 <form class="form-inline form-small form-filter" id="groupFilterAuditFormId">
+                  <input type="hidden" name="auditType" value="${grouperRequestContainer.groupContainer.auditType}" />
                   <label for="date-filter">${textContainer.text['groupAuditLogFilterByDate'] }</label>&nbsp;
                   <select id="date-filter" class="span2" name="filterType">
                     <option value="all" selected="selected">${textContainer.text['groupAuditLogFilterType_all']}</option>
