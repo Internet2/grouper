@@ -41,8 +41,6 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ui.tags.GrouperHideShowTarget;
-import edu.internet2.middleware.grouper.ui.tags.GrouperInfodotTag;
 import edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag;
 import edu.internet2.middleware.grouper.ui.tags.GrouperParamTag;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;

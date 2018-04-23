@@ -24,10 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.ui.actions.LogoutAction;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -63,10 +61,11 @@ public class Misc {
    */
   public void logout(HttpServletRequest request, HttpServletResponse response) {
 
-    if (!LogoutAction.logoutLogic(request, response, request.getSession(false), true)) {
+    // todo Admin UI
+    //if (!LogoutAction.logoutLogic(request, response, request.getSession(false), true)) {
       //not sure why this would happen, we are in ajax
       //throw new ControllerDone();
-    }
+    //}
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 

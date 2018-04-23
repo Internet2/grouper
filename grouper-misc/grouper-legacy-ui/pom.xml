@@ -95,6 +95,21 @@
             <classifier>jdk15</classifier>
         </dependency>
         <dependency>
+            <groupId>struts</groupId>
+            <artifactId>struts</artifactId>
+            <exclusions>
+                <!-- pulls in oro 2.0.7; we either use a later version, or don't need it -->
+                <exclusion>
+                    <artifactId>oro</artifactId>
+                    <groupId>oro</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>struts</groupId>
+            <artifactId>struts-el</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet.jsp.jstl</groupId>
             <artifactId>javax.servlet.jsp.jstl-api</artifactId>
         </dependency>

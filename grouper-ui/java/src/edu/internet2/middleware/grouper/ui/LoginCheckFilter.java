@@ -259,7 +259,7 @@ public class LoginCheckFilter implements Filter {
 				"edu.intenet2.middleware.grouper.ui.GrouperSession", s);
 		//request.setAttribute("message",new
 		// Message("auth.message.login-welcome",remoteUser));
-		ErrorFilter.initNDC(request);
+		//ErrorFilter.initNDC(request);
 		try {
 			SessionInitialiser.init(request);
 		} catch (Exception e) {
