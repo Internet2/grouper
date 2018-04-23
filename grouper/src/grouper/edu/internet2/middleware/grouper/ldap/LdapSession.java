@@ -65,4 +65,12 @@ public interface LdapSession {
    */
   public abstract List<LdapEntry> list(final String ldapServerId, final String searchDn, 
       final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, Long sizeLimit);
+  
+  /**
+   * Authenticate a user
+   * @param ldapServerId 
+   * @param userDn
+   * @param password
+   */
+  public abstract void authenticate(final String ldapServerId, final String userDn, final String password);
 }

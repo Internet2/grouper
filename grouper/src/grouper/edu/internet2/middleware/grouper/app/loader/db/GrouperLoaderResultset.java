@@ -41,7 +41,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
@@ -627,13 +626,12 @@ public class GrouperLoaderResultset {
         List<String> valueResults = new ArrayList<String>();
         String nameInNamespace = searchResult.getDn();
         
-        GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig
-          .retrieveLdapProfile(ldapServerId);
+        String baseDn = GrouperLoaderConfig.parseLdapBaseDnFromUrlConfig(ldapServerId);
 
         String defaultFolder = defaultLdapFolder();
 
         String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
-            grouperLoaderLdapServer.getBaseDn(), searchDn);
+            baseDn, searchDn);
 
         String loaderGroupDisplayName = null;
         String loaderGroupDescription = null;

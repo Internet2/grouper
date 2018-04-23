@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
-import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -215,111 +214,21 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
   }
 
   /**
-   * get a profile by name from grouper-loader.properties
-   * specify the ldap connection with user, pass, url, etc
-   * the string after "ldap." is the name of the connection, and it should not have
-   * spaces or other special chars in it
-   * ldap.personLdap.user
-   * ldap.personLdap.pass
-   * ldap.personLdap.url
-   * @param name
-   * @return the db
+   * get the base dn from the URL, e.g. ldaps://server/baseDn would return baseDn
+   * @param ldapServerId 
+   * @return base dn or null if none
    */
-  public static GrouperLoaderLdapServer retrieveLdapProfile(String name) {
+  public static String parseLdapBaseDnFromUrlConfig(String ldapServerId) {
+    String url = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".url");
     
-    GrouperLoaderLdapServer grouperLoaderLdapServer = new GrouperLoaderLdapServer();
-
-    grouperLoaderLdapServer.setConfigFileFromClasspath(getPropertyString("ldap." + name + ".configFileFromClasspath"));
-
-    {
-      //#note the URL should start with ldap: or ldaps: if it is SSL.  
-      //#It should contain the server and port (optional if not default), and baseDn, 
-      //#e.g. ldaps://ldapserver.school.edu:636/dc=school,dc=edu
-      //#ldap.personLdap.url = ldaps://ldapserver.school.edu:636/dc=school,dc=edu
-      String url = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".url");
-      
-      if (StringUtils.isBlank(url) && StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
-        throw new RuntimeException("Cant find the ldap connection named: '" + name + "' in " +
-        		"the grouper-loader.properties.  Should have entry: ldap." + name + ".url or ldap." + name + ".configFileFromClasspath");
-      }
-      
-      grouperLoaderLdapServer.setUrl(url);
+    String baseDn = null;
+    //must have three slashes, e.g. ldaps://something/baseDn
+    if (url != null && StringUtils.countMatches(url, "/") == 3 && !url.endsWith("/")) {
+      //get the string after the last slash
+      int indexOfLastSlash = url.lastIndexOf('/');
+      baseDn = StringUtils.trimToNull(url.substring(indexOfLastSlash+1, url.length()));
     }
-    
-    {
-      String user = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".user");
-      //#ldap.personLdap.user = uid=someapp,ou=people,dc=myschool,dc=edu
-      if (!StringUtils.isBlank(user)) {
-        grouperLoaderLdapServer.setUser(user);
-      }
-    }
-    
-    {
-      String pass = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".pass");
-      if (!StringUtils.isBlank(pass)) {
-        //might be in external file
-        pass = Morph.decryptIfFile(pass);
-        //#note the password can be stored encrypted in an external file
-        //#ldap.personLdap.pass = secret
-        grouperLoaderLdapServer.setPass(pass);
-      }
-    }
-
-    
-    //#optional, if you are using tls, set this to TRUE.  Generally you will not be using an SSL URL to use TLS...
-    //#ldap.personLdap.tls = true
-    grouperLoaderLdapServer.setTls(getPropertyBoolean("ldap." + name + ".tls", false));
-    
-    //#optional, if using sasl
-    //#ldap.personLdap.saslAuthorizationId = 
-    //#ldap.personLdap.saslRealm = 
-    grouperLoaderLdapServer.setSaslAuthorizationId(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".saslAuthorizationId"));
-    grouperLoaderLdapServer.setSaslRealm(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".saslRealm"));
-    
-    //#ldap.personLdap.batchSize = 
-    grouperLoaderLdapServer.setBatchSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".batchSize", -1));
-        
-    //#ldap.personLdap.countLimit = 
-    grouperLoaderLdapServer.setCountLimit(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".countLimit", -1));
-    
-    grouperLoaderLdapServer.setTimeLimit(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".timeLimit", -1));
-
-    grouperLoaderLdapServer.setTimeout(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".timeout", -1));
-
-    grouperLoaderLdapServer.setMinPoolSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".minPoolSize", -1));
-
-    grouperLoaderLdapServer.setMaxPoolSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".maxPoolSize", -1));
-
-    grouperLoaderLdapServer.setValidateOnCheckIn(getPropertyBoolean("ldap." + name + ".validateOnCheckIn", false));
-    grouperLoaderLdapServer.setValidateOnCheckOut(getPropertyBoolean("ldap." + name + ".validateOnCheckOut", false));
-    grouperLoaderLdapServer.setValidatePeriodically(getPropertyBoolean("ldap." + name + ".validatePeriodically", false));
-
-    grouperLoaderLdapServer.setPagedResultsSize(getPropertyInt("ldap." + name + ".pagedResultsSize", -1));
-
-    grouperLoaderLdapServer.setSearchResultHandlers(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".searchResultHandlers"));
-
-    grouperLoaderLdapServer.setReferral(getPropertyString("ldap." + name + ".referral"));
-
-    //#validateOnCheckout defaults to true if all other validate methods are false
-    if (!grouperLoaderLdapServer.isValidateOnCheckIn() && !grouperLoaderLdapServer.isValidateOnCheckOut() && !grouperLoaderLdapServer.isValidatePeriodically()) {
-      grouperLoaderLdapServer.setValidateOnCheckOut(true);
-    }
-    
-    //#ldap.personLdap.validateTimerPeriod = 
-    grouperLoaderLdapServer.setValidateTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".validateTimerPeriod", -1));
-    
-    //#ldap.personLdap.pruneTimerPeriod = 
-    grouperLoaderLdapServer.setPruneTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".pruneTimerPeriod", -1));
-
-    //#if connections expire after a certain amount of time, this is it, in millis, defaults to 300000 (5 minutes)
-    //#ldap.personLdap.expirationTime = 
-    grouperLoaderLdapServer.setExpirationTime(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".expirationTime", -1));
-    
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("LDAP config for server id: " + name + ": " + grouperLoaderLdapServer);
-    }
-    
-    return grouperLoaderLdapServer;
+    return baseDn;
   }
 
   /**

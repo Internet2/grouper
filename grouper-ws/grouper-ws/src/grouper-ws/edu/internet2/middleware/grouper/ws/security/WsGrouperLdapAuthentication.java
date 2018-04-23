@@ -20,15 +20,11 @@
 package edu.internet2.middleware.grouper.ws.security;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.naming.AuthenticationException;
-import javax.naming.InvalidNameException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
@@ -37,14 +33,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.vt.middleware.ldap.Ldap;
-import edu.vt.middleware.ldap.LdapConfig;
-
 
 /**
  * <pre>
@@ -89,111 +81,10 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
       WsGrouperLdapAuthentication.class.getName() + ".userCache", 10000, false, 60*1, 60*1, false);
 
   /**
-   * get or create the pool based on the server id
-   * @param ldapServerId
-   * @return the pool
-   */
-  private static LdapConfig ldapConfig(String ldapServerId) {
-          
-    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
-
-    try {
-
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("method", "ldapConfig()");
-      }
-
-      GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
-
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("ldapConfig (note, user/pass/pooling will not be used)", grouperLoaderLdapServer.toString());
-      }
-
-      LdapConfig ldapConfig = null;
-      
-      // load this vt-ldap config file before the configs here.  load from classpath
-      if (!StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
-  
-        URL url = GrouperUtil.computeUrl(grouperLoaderLdapServer.getConfigFileFromClasspath(), false);
-        try {
-          ldapConfig = LdapConfig.createFromProperties(url.openStream());    
-        } catch (IOException ioe) {
-          throw new RuntimeException("Error processing classpath file: " + grouperLoaderLdapServer.getConfigFileFromClasspath(), ioe);
-        }
-        
-        if (!StringUtils.isBlank(grouperLoaderLdapServer.getUrl())) {
-          ldapConfig.setLdapUrl(grouperLoaderLdapServer.getUrl());
-        }
-      } else {
-  
-        ldapConfig = new LdapConfig(grouperLoaderLdapServer.getUrl());
-  
-      }
-      
-      //#optional, if you are using tls, set this to true.  Generally you will not be using an SSL URL to use TLS...
-      //#ldap.personLdap.tls = false
-      if (grouperLoaderLdapServer.isTls()) {
-        ldapConfig.setTls(grouperLoaderLdapServer.isTls());
-      }
-      
-      //
-      //#optional, if using sasl
-      //#ldap.personLdap.saslAuthorizationId = 
-      //#ldap.personLdap.saslRealm = 
-      if (!StringUtils.isBlank(grouperLoaderLdapServer.getSaslAuthorizationId())) {
-        ldapConfig.setSaslAuthorizationId(grouperLoaderLdapServer.getSaslAuthorizationId());
-      }
-      if (!StringUtils.isBlank(grouperLoaderLdapServer.getSaslRealm())) {
-        ldapConfig.setSaslRealm(grouperLoaderLdapServer.getSaslRealm());
-      }
-      
-      //
-      //#optional (note, time limit is for search operations, timeout is for connection timeouts), 
-      //#most of these default to vt-ldap defaults.  times are in millis
-      //#validateOnCheckout defaults to true if all other validate methods are false
-      //#ldap.personLdap.batchSize = 
-      if (grouperLoaderLdapServer.getBatchSize() != -1) {
-        ldapConfig.setBatchSize(grouperLoaderLdapServer.getBatchSize());
-      }
-      
-      //#ldap.personLdap.countLimit = 
-      if (grouperLoaderLdapServer.getCountLimit() != -1) {
-        ldapConfig.setCountLimit(grouperLoaderLdapServer.getCountLimit());
-      }
-      
-      //#ldap.personLdap.timeLimit = 
-      if (grouperLoaderLdapServer.getTimeLimit() != -1) {
-        ldapConfig.setTimeLimit(grouperLoaderLdapServer.getTimeLimit());
-      }
-      
-      //#ldap.personLdap.timeout = 
-      if (grouperLoaderLdapServer.getTimeout() != -1) {
-        ldapConfig.setTimeout(grouperLoaderLdapServer.getTimeout());
-      }
-      
-      //#ldap.personLdap.pagedResultsSize
-      if (grouperLoaderLdapServer.getPagedResultsSize() != -1) {
-        ldapConfig.setPagedResultsSize(grouperLoaderLdapServer.getPagedResultsSize());
-      }
-  
-      //#ldap.personLdap.referral
-      if (!StringUtils.isBlank(grouperLoaderLdapServer.getReferral())) {
-        ldapConfig.setReferral(grouperLoaderLdapServer.getReferral());
-      }
-      
-      return ldapConfig;
-    } finally {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(GrouperUtil.mapToString(debugMap));
-      }
-    }
-    
-  }
-
-  /**
    * 
    * @see edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)
    */
+  @Override
   public String retrieveLoggedInSubjectId(HttpServletRequest httpServletRequest)
       throws RuntimeException {
     
@@ -329,17 +220,8 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
         }
         throw new RuntimeException("ws.authn.ldap.grouperLoaderLdapConfigName must be configured in the grouper-ws.properties");
       }
-      
-      LdapConfig ldapConfig = ldapConfig(grouperLoaderLdapConfigId);
-      
-      //set user/pass
-      
-      ldapConfig.setBindDn(userDn);
-      ldapConfig.setBindCredential(password);
-      
-      Ldap ldap = new Ldap(ldapConfig);
-
-      ldap.connect();
+            
+      LdapSessionUtils.ldapSession().authenticate(grouperLoaderLdapConfigId, userDn, password);
       
       if (LOG.isDebugEnabled()) {
         debugMap.put("authenticated", "true");
@@ -351,12 +233,8 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
         debugMap.put("authenticated", "false");
         debugMap.put("error", ExceptionUtils.getFullStackTrace(le));
       }
-      //authn and invalid name exception is when bad user/pass I believe
-      if ((!(le instanceof AuthenticationException)) && (!(le instanceof InvalidNameException))) {
-        LOG.error("error for principal: " + principal + ", dn: " + userDn, le);
-      } else {
-        LOG.warn("error for principal: " + principal + ", dn: " + userDn, le);
-      }
+
+      LOG.warn("error for principal: " + principal + ", dn: " + userDn, le);
     } finally {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));

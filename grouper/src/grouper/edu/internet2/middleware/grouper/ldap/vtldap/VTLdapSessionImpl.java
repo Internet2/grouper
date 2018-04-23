@@ -31,7 +31,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
@@ -39,6 +38,7 @@ import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.morphString.Morph;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
@@ -76,7 +76,7 @@ public class VTLdapSessionImpl implements LdapSession {
         
         if (blockingLdapPool == null) {
           
-          GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
+          GrouperLoaderLdapServer grouperLoaderLdapServer = retrieveLdapProfile(ldapServerId);
           
           LdapConfig ldapConfig = null;
           
@@ -418,8 +418,8 @@ public class VTLdapSessionImpl implements LdapSession {
             //for some reason this returns: cn=test:testGroup,dc=upenn,dc=edu
             // instead of cn=test:testGroup,ou=groups,dc=upenn,dc=edu
             if (nameInNamespace != null && !StringUtils.isBlank(searchDn)) {
-              GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
-              String baseDn = grouperLoaderLdapServer.getBaseDn();
+              String baseDn = GrouperLoaderConfig.parseLdapBaseDnFromUrlConfig(ldapServerId);
+
               if (!StringUtils.isBlank(baseDn) && nameInNamespace.endsWith("," + baseDn)) {
                 
                 //sub one to get the comma out of there
@@ -509,8 +509,8 @@ public class VTLdapSessionImpl implements LdapSession {
             //for some reason this returns: cn=test:testGroup,dc=upenn,dc=edu
             // instead of cn=test:testGroup,ou=groups,dc=upenn,dc=edu
             if (!StringUtils.isBlank(searchDn)) {
-              GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
-              String baseDn = grouperLoaderLdapServer.getBaseDn();
+              String baseDn = GrouperLoaderConfig.parseLdapBaseDnFromUrlConfig(ldapServerId);
+
               if (!StringUtils.isBlank(baseDn) && nameInNamespace.endsWith("," + baseDn)) {
                 
                 //sub one to get the comma out of there
@@ -551,5 +551,191 @@ public class VTLdapSessionImpl implements LdapSession {
           + ", filter: '" + filter + "', returning attributes: " + attributeNames);
       throw re;
     }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.ldap.LdapSession#authenticate(java.lang.String, java.lang.String, java.lang.String)
+   */
+  public void authenticate(final String ldapServerId, final String userDn, final String password) {
+    GrouperLoaderLdapServer grouperLoaderLdapServer = retrieveLdapProfile(ldapServerId);
+
+    LdapConfig ldapConfig = null;
+    
+    if (!StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
+
+      URL url = GrouperUtil.computeUrl(grouperLoaderLdapServer.getConfigFileFromClasspath(), false);
+      try {
+        ldapConfig = LdapConfig.createFromProperties(url.openStream());    
+      } catch (IOException ioe) {
+        throw new RuntimeException("Error processing classpath file: " + grouperLoaderLdapServer.getConfigFileFromClasspath(), ioe);
+      }
+      
+      if (!StringUtils.isBlank(grouperLoaderLdapServer.getUrl())) {
+        ldapConfig.setLdapUrl(grouperLoaderLdapServer.getUrl());
+      }
+    } else {
+      ldapConfig = new LdapConfig(grouperLoaderLdapServer.getUrl());
+    }
+
+    if (grouperLoaderLdapServer.isTls()) {
+      ldapConfig.setTls(grouperLoaderLdapServer.isTls());
+    }
+
+    if (!StringUtils.isBlank(grouperLoaderLdapServer.getSaslAuthorizationId())) {
+      ldapConfig.setSaslAuthorizationId(grouperLoaderLdapServer.getSaslAuthorizationId());
+    }
+    if (!StringUtils.isBlank(grouperLoaderLdapServer.getSaslRealm())) {
+      ldapConfig.setSaslRealm(grouperLoaderLdapServer.getSaslRealm());
+    }
+    
+    if (grouperLoaderLdapServer.getBatchSize() != -1) {
+      ldapConfig.setBatchSize(grouperLoaderLdapServer.getBatchSize());
+    }
+    
+    if (grouperLoaderLdapServer.getCountLimit() != -1) {
+      ldapConfig.setCountLimit(grouperLoaderLdapServer.getCountLimit());
+    }
+    
+    if (grouperLoaderLdapServer.getTimeLimit() != -1) {
+      ldapConfig.setTimeLimit(grouperLoaderLdapServer.getTimeLimit());
+    }
+    
+    if (grouperLoaderLdapServer.getTimeout() != -1) {
+      ldapConfig.setTimeout(grouperLoaderLdapServer.getTimeout());
+    }
+    
+    if (grouperLoaderLdapServer.getPagedResultsSize() != -1) {
+      ldapConfig.setPagedResultsSize(grouperLoaderLdapServer.getPagedResultsSize());
+    }
+
+    if (!StringUtils.isBlank(grouperLoaderLdapServer.getReferral())) {
+      ldapConfig.setReferral(grouperLoaderLdapServer.getReferral());
+    }
+    
+    
+    ldapConfig.setBindDn(userDn);
+    ldapConfig.setBindCredential(password);
+    
+    Ldap ldap = new Ldap(ldapConfig);
+
+    try {
+      ldap.connect();
+    } catch (NamingException e) {
+      throw new RuntimeException (e);
+    } finally {
+      try {
+        ldap.close();
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+  }
+  
+  /**
+   * get a profile by name from grouper-loader.properties
+   * specify the ldap connection with user, pass, url, etc
+   * the string after "ldap." is the name of the connection, and it should not have
+   * spaces or other special chars in it
+   * ldap.personLdap.user
+   * ldap.personLdap.pass
+   * ldap.personLdap.url
+   * @param name
+   * @return the db
+   */
+  private static GrouperLoaderLdapServer retrieveLdapProfile(String name) {
+    
+    GrouperLoaderLdapServer grouperLoaderLdapServer = new GrouperLoaderLdapServer();
+
+    grouperLoaderLdapServer.setConfigFileFromClasspath(GrouperLoaderConfig.getPropertyString("ldap." + name + ".configFileFromClasspath"));
+
+    {
+      //#note the URL should start with ldap: or ldaps: if it is SSL.  
+      //#It should contain the server and port (optional if not default), and baseDn, 
+      //#e.g. ldaps://ldapserver.school.edu:636/dc=school,dc=edu
+      //#ldap.personLdap.url = ldaps://ldapserver.school.edu:636/dc=school,dc=edu
+      String url = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".url");
+      
+      if (StringUtils.isBlank(url) && StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
+        throw new RuntimeException("Cant find the ldap connection named: '" + name + "' in " +
+            "the grouper-loader.properties.  Should have entry: ldap." + name + ".url or ldap." + name + ".configFileFromClasspath");
+      }
+      
+      grouperLoaderLdapServer.setUrl(url);
+    }
+    
+    {
+      String user = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".user");
+      //#ldap.personLdap.user = uid=someapp,ou=people,dc=myschool,dc=edu
+      if (!StringUtils.isBlank(user)) {
+        grouperLoaderLdapServer.setUser(user);
+      }
+    }
+    
+    {
+      String pass = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".pass");
+      if (!StringUtils.isBlank(pass)) {
+        //might be in external file
+        pass = Morph.decryptIfFile(pass);
+        //#note the password can be stored encrypted in an external file
+        //#ldap.personLdap.pass = secret
+        grouperLoaderLdapServer.setPass(pass);
+      }
+    }
+
+    
+    //#optional, if you are using tls, set this to TRUE.  Generally you will not be using an SSL URL to use TLS...
+    //#ldap.personLdap.tls = true
+    grouperLoaderLdapServer.setTls(GrouperLoaderConfig.getPropertyBoolean("ldap." + name + ".tls", false));
+    
+    //#optional, if using sasl
+    //#ldap.personLdap.saslAuthorizationId = 
+    //#ldap.personLdap.saslRealm = 
+    grouperLoaderLdapServer.setSaslAuthorizationId(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".saslAuthorizationId"));
+    grouperLoaderLdapServer.setSaslRealm(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".saslRealm"));
+    
+    //#ldap.personLdap.batchSize = 
+    grouperLoaderLdapServer.setBatchSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".batchSize", -1));
+        
+    //#ldap.personLdap.countLimit = 
+    grouperLoaderLdapServer.setCountLimit(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".countLimit", -1));
+    
+    grouperLoaderLdapServer.setTimeLimit(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".timeLimit", -1));
+
+    grouperLoaderLdapServer.setTimeout(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".timeout", -1));
+
+    grouperLoaderLdapServer.setMinPoolSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".minPoolSize", -1));
+
+    grouperLoaderLdapServer.setMaxPoolSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".maxPoolSize", -1));
+
+    grouperLoaderLdapServer.setValidateOnCheckIn(GrouperLoaderConfig.getPropertyBoolean("ldap." + name + ".validateOnCheckIn", false));
+    grouperLoaderLdapServer.setValidateOnCheckOut(GrouperLoaderConfig.getPropertyBoolean("ldap." + name + ".validateOnCheckOut", false));
+    grouperLoaderLdapServer.setValidatePeriodically(GrouperLoaderConfig.getPropertyBoolean("ldap." + name + ".validatePeriodically", false));
+
+    grouperLoaderLdapServer.setPagedResultsSize(GrouperLoaderConfig.getPropertyInt("ldap." + name + ".pagedResultsSize", -1));
+
+    grouperLoaderLdapServer.setSearchResultHandlers(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".searchResultHandlers"));
+
+    grouperLoaderLdapServer.setReferral(GrouperLoaderConfig.getPropertyString("ldap." + name + ".referral"));
+
+    //#validateOnCheckout defaults to true if all other validate methods are false
+    if (!grouperLoaderLdapServer.isValidateOnCheckIn() && !grouperLoaderLdapServer.isValidateOnCheckOut() && !grouperLoaderLdapServer.isValidatePeriodically()) {
+      grouperLoaderLdapServer.setValidateOnCheckOut(true);
+    }
+    
+    //#ldap.personLdap.validateTimerPeriod = 
+    grouperLoaderLdapServer.setValidateTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".validateTimerPeriod", -1));
+    
+    //#ldap.personLdap.pruneTimerPeriod = 
+    grouperLoaderLdapServer.setPruneTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".pruneTimerPeriod", -1));
+
+    //#if connections expire after a certain amount of time, this is it, in millis, defaults to 300000 (5 minutes)
+    //#ldap.personLdap.expirationTime = 
+    grouperLoaderLdapServer.setExpirationTime(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".expirationTime", -1));
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("LDAP config for server id: " + name + ": " + grouperLoaderLdapServer);
+    }
+    
+    return grouperLoaderLdapServer;
   }
 }

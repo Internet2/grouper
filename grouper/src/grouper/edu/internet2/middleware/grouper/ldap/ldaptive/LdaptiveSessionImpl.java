@@ -29,9 +29,12 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.ldaptive.BindConnectionInitializer;
+import org.ldaptive.BindOperation;
+import org.ldaptive.BindRequest;
 import org.ldaptive.CompareRequest;
 import org.ldaptive.Connection;
 import org.ldaptive.ConnectionConfig;
+import org.ldaptive.Credential;
 import org.ldaptive.DefaultConnectionFactory;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -140,9 +143,6 @@ public class LdaptiveSessionImpl implements LdapSession {
 
           ConnectionConfigPropertySource ccpSource = new ConnectionConfigPropertySource(connConfig, ldaptiveProperties);
           ccpSource.initialize();
-                  
-          //GrouperLoaderLdapServer grouperLoaderLdapProperties 
-          //  = GrouperLoaderConfig.retrieveLdapProfile(ldapSystemName);
           
           /////////////
           // Binding
@@ -684,6 +684,39 @@ public class LdaptiveSessionImpl implements LdapSession {
           + ", filter: '" + filter + "', returning attributes: " + attributeNames);
       throw re;
     }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.ldap.LdapSession#authenticate(java.lang.String, java.lang.String, java.lang.String)
+   */
+  public void authenticate(final String ldapServerId, final String userDn, final String password) {
+      
+      callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
+        
+        public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
+
+          Connection ldap = ldapHandlerBean.getLdap();
+          
+          ConnectionConfig connectionConfig = ConnectionConfig.newConnectionConfig(ldap.getConnectionConfig());
+          connectionConfig.setConnectionInitializer(null);
+          Connection ldap2 = DefaultConnectionFactory.getConnection(connectionConfig);
+          
+          try {
+            ldap2.open();
+            BindOperation bind = new BindOperation(ldap2);
+            bind.execute(new BindRequest(userDn, new Credential(password)));
+          } finally {
+            try {
+              ldap2.close();
+            } catch (Exception e) {
+              // ignore
+            }
+          }
+          
+          return null;
+        }
+      });
+
   }
   
   private SearchScope translateScope(LdapSearchScope jndiScope) {

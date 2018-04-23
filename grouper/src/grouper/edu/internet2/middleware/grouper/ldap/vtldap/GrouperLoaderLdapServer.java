@@ -17,7 +17,7 @@
  * @author mchyzer
  * $Id: GrouperLoaderDb.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.app.loader.ldap;
+package edu.internet2.middleware.grouper.ldap.vtldap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,21 +31,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * db profile from grouper.properties (or possibly grouper.hibernate.properties)
  */
 public class GrouperLoaderLdapServer {
-
-  /**
-   * get the base dn from the URL, e.g. ldaps://server/baseDn would return baseDn
-   * @return base dn or null if none
-   */
-  public String getBaseDn() {
-    String baseDn = null;
-    //must have three slashes, e.g. ldaps://something/baseDn
-    if (this.url != null && StringUtils.countMatches(this.url, "/") == 3 && !this.url.endsWith("/")) {
-      //get the string after the last slash
-      int indexOfLastSlash = this.url.lastIndexOf('/');
-      baseDn = StringUtils.trimToNull(this.url.substring(indexOfLastSlash+1, this.url.length()));
-    }
-    return baseDn;
-  }
   
   /** user to login to ldap, e.g. uid=someapp,ou=people,dc=myschool,dc=edu */
   private String user;
