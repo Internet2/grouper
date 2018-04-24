@@ -194,7 +194,7 @@ public class LdaptiveSessionImpl implements LdapSession {
           connectionFactory.setConnectionConfig(connConfig);
           
           LinkedHashSet<ResultCode> codesToIgnore = new LinkedHashSet<ResultCode>();
-          String searchIgnoreResultCodes = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".searchIgnoreResultCodes");
+          String searchIgnoreResultCodes = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".searchIgnoreResultCodes", "SIZE_LIMIT_EXCEEDED");
           if (!StringUtils.isBlank(searchIgnoreResultCodes)) {
             String[] searchIgnoreResultCodesArray = GrouperUtil.splitTrim(searchIgnoreResultCodes, ",");
             for (String searchIgnoreResultCode : searchIgnoreResultCodesArray) {
@@ -608,10 +608,6 @@ public class LdaptiveSessionImpl implements LdapSession {
           searchRequest.setSearchFilter(new SearchFilter(filter));
           searchRequest.setReturnAttributes(attributeNames);
           
-          if (sizeLimit != null) {
-            searchRequest.setSizeLimit(sizeLimit);
-          }
-          
           if (searchEntryHandlers.get(ldapServerId).size() > 0) {
             SearchEntryHandler[] handlers = new SearchEntryHandler[searchEntryHandlers.get(ldapServerId).size()];
             int count = 0;
@@ -630,6 +626,10 @@ public class LdaptiveSessionImpl implements LdapSession {
           // note that the searchDn here is relative
           if (StringUtils.isNotBlank(searchDn)) {
             searchRequest.setBaseDn(searchDn);
+          }
+          
+          if (sizeLimit != null) {
+            searchRequest.setSizeLimit(sizeLimit);
           }
 
           if (ldapSearchScope != null) {

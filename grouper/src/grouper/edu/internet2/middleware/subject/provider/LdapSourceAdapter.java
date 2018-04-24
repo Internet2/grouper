@@ -360,7 +360,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       return (null);
     }
     LdapAttribute attribute = entry.getAttribute(subjectIDAttributeName);
-    if (attribute == null) {
+    if (attribute == null || attribute.getStringValues().size() == 0) {
       log.error("No value for LDAP attribute \"" + subjectIDAttributeName + "\". It is Grouper attribute \"SubjectID\".\".  Subject's problematic attributes : " + entry.toString());
       return null;
     }
