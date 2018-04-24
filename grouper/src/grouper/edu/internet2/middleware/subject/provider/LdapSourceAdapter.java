@@ -589,7 +589,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             if (log.isDebugEnabled()) {
               log.debug("checking attribute " + a.getName());
             }
-            if (overall.getAttribute(a.getName())==null) {
+            if (overall.getAttribute(a.getName())==null || 
+                (overall.getAttribute(a.getName()).getStringValues().size() == 0 && overall.getAttribute(a.getName()).getBinaryValues().size() == 0)) {
               if (log.isDebugEnabled()) {
                 log.debug("adding " + a.getName());
               }
