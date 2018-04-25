@@ -337,4 +337,24 @@ public class SubjectContainer {
     this.guiAuditEntries = guiAuditEntries1;
   }
   
+  /** audit type **/
+  private String auditType;
+  
+  /**
+   * audit type
+   * @return
+   */
+  public String getAuditType() {
+    return this.auditType;
+  }
+
+
+  /**
+   * audit type
+   * @param auditType1
+   */
+  public void setAuditType(String auditType1) {
+    this.auditType = auditType1;
+  }
+  
 }

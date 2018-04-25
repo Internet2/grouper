@@ -149,11 +149,11 @@ public class GroupContainer {
     this.auditExtendedResults = auditExtendedResults1;
   }
 
-  /** audit type: membership or group **/
+  /** audit type **/
   private String auditType;
   
   /**
-   * audit type: membership or group
+   * audit type
    * @return
    */
   public String getAuditType() {
@@ -162,7 +162,7 @@ public class GroupContainer {
 
 
   /**
-   * audit type: membership or group
+   * audit type
    * @param auditType1
    */
   public void setAuditType(String auditType1) {
