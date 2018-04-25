@@ -83,6 +83,12 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=membership'); return false;"
                               >${textContainer.text['groupViewMembershipAuditButton'] }</a></li>
                           
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=actions'); return false;"
+                              >${textContainer.text['groupViewActionAuditButton'] }</a></li>
+                          
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=privileges'); return false;"
+                              >${textContainer.text['groupViewPrivilegeAuditButton'] }</a></li>
+                          
                           <c:if test="${mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true' }" >
                             <c:if test="${grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoaderLdap || grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoader}">
                               <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"

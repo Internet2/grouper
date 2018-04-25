@@ -2230,7 +2230,10 @@ public class UiV2Subject {
       if (subject == null) {
         return;
       }
-  
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      grouperRequestContainer.getSubjectContainer().setAuditType(request.getParameter("auditType"));
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -2365,7 +2368,20 @@ public class UiV2Subject {
 
     guiSorting.processRequest(request);
     
-    query.addAuditTypeFieldValue("memberId", member.getUuid());
+    
+    
+    String auditType = request.getParameter("auditType");
+    
+    if ("actions".equals(auditType)) {
+      query=query.loggedInMember(member);
+      query=query.actAsMember(member);
+    } else if ("privileges".equals(auditType)) {
+      query=query.addAuditTypeCategory("privilege").addAuditTypeFieldValue("memberId", member.getUuid());
+    } else {
+      query.addAuditTypeCategory("membership").addAuditTypeFieldValue("memberId", member.getUuid());
+    }
+    
+    subjectContainer.setAuditType(auditType);
 
     List<AuditEntry> auditEntries = query.execute();
 

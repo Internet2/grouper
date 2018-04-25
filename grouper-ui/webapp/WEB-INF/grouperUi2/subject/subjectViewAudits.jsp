@@ -7,7 +7,7 @@
                 <div id="messages"></div>
 				        <ul class="nav nav-tabs">
                   <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectMembershipsTab'] }</a></li>
-                  <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
+                  <li><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
                   <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
                   <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance}">
@@ -18,6 +18,7 @@
                 <p class="lead">${textContainer.text['subjectAuditLogDescription'] }</p>
 
                 <form class="form-inline form-small form-filter" id="subjectFilterAuditFormId">
+                  <input type="hidden" name="auditType" value="${grouperRequestContainer.subjectContainer.auditType}" />
                   <label for="date-filter">${textContainer.text['subjectAuditLogFilterByDate'] }</label>&nbsp;
                   <select id="date-filter" class="span2" name="filterType">
                     <option value="all" selected="selected">${textContainer.text['subjectAuditLogFilterType_all']}</option>
