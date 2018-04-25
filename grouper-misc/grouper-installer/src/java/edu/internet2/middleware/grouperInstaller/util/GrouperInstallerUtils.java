@@ -10949,14 +10949,14 @@ public class GrouperInstallerUtils  {
    */
   public static String newlineFromFile(String fileContents) {
     String newline = "\n";
-    if (fileContents.contains("\\r\\n")) {
-      newline = "\\r\\n";
+    if (fileContents.contains("\r\n")) {
+      newline = "\r\n";
     }
-    if (fileContents.contains("\\n\\r")) {
-      newline = "\\n\\r";
+    if (fileContents.contains("\n\r")) {
+      newline = "\n\r";
     }
-    if (fileContents.contains("\\r")) {
-      newline = "\\r";
+    if (fileContents.contains("\r")) {
+      newline = "\r";
     }
     return newline;
   }

@@ -3169,12 +3169,16 @@ public class GrouperInstaller {
 
     GrouperInstallerAdminAction grouperInstallerAdminAction = 
         (GrouperInstallerAdminAction)promptForEnum(
-            "What admin action do you want to do (manage, upgradeTask)? : ",
+            "What admin action do you want to do (manage, upgradeTask, develop)? : ",
             "grouperInstaller.autorun.adminAction", GrouperInstallerAdminAction.class);
     
     switch(grouperInstallerAdminAction) {
       case manage:
         mainManageLogic();
+        break;
+
+      case develop:
+        mainDevelopLogic();
         break;
 
       case upgradeTask:
@@ -3226,6 +3230,47 @@ public class GrouperInstaller {
       
       System.out.print("Press <enter> to continue or type 'exit' to end: ");
       String result = readFromStdIn("grouperInstaller.autorun.manageContinue");
+      if (GrouperInstallerUtils.equalsIgnoreCase(result, "exit")) {
+        System.exit(0);
+      }
+      //add some space
+      System.out.println("");
+    }
+  }
+
+  /**
+   * admin manage
+   */
+  private void mainDevelopLogic() {
+    
+    GrouperInstallerDevelopAction grouperInstallerDevelopAction = null;
+
+    while (true) {
+      grouperInstallerDevelopAction = 
+          (GrouperInstallerDevelopAction)promptForEnum(
+              "What do you want to develop (translate, back, exit)? : ",
+              "grouperInstaller.autorun.developAction", GrouperInstallerDevelopAction.class);
+
+      switch(grouperInstallerDevelopAction) {
+        case translate:
+
+          adminTranslate();
+
+          break;
+        case exit:
+
+          System.exit(0);
+
+          break;
+        case back:
+          
+          this.mainAdminLogic();
+  
+          break;
+      }
+      
+      System.out.print("Press <enter> to continue or type 'exit' to end: ");
+      String result = readFromStdIn("grouperInstaller.autorun.developContinue");
       if (GrouperInstallerUtils.equalsIgnoreCase(result, "exit")) {
         System.exit(0);
       }
@@ -3324,6 +3369,166 @@ public class GrouperInstaller {
 
     }
     
+  }
+
+  /**
+   * translate a ui text file
+   */
+  private void adminTranslate() {
+
+    System.out.println("What is the location of the grouper.text.en.us.base.properties file: ");
+    String grouperTextEnUsBasePropertiesName = readFromStdIn("grouperInstaller.autorun.translate.from");
+
+    if (GrouperInstallerUtils.isBlank(grouperTextEnUsBasePropertiesName)) {
+      System.out.println("The location of the grouper.text.en.us.base.properties file is required!");
+      System.exit(1);
+    }
+
+    File grouperTextEnUsBasePropertiesFile = new File(grouperTextEnUsBasePropertiesName);
+
+    if (grouperTextEnUsBasePropertiesFile.isDirectory()) {
+      grouperTextEnUsBasePropertiesName = GrouperInstallerUtils.stripLastSlashIfExists(grouperTextEnUsBasePropertiesName);
+      grouperTextEnUsBasePropertiesName = grouperTextEnUsBasePropertiesName + File.separator + "grouper.text.en.us.base.properties";
+      grouperTextEnUsBasePropertiesFile = new File(grouperTextEnUsBasePropertiesName);
+    }
+
+    if (!grouperTextEnUsBasePropertiesFile.isFile() || !grouperTextEnUsBasePropertiesFile.exists()) {
+      System.out.println("The grouper.text.en.us.base.properties file is not found! " + grouperTextEnUsBasePropertiesFile.getAbsolutePath());
+      System.exit(1);
+    }
+    
+    System.out.println("What is the location of the translated file: ");
+    String grouperTranslatedBasePropertiesName = readFromStdIn("grouperInstaller.autorun.translate.to");
+
+    if (GrouperInstallerUtils.isBlank(grouperTextEnUsBasePropertiesName)) {
+      System.out.println("The location of the translated file is required!");
+      System.exit(0);
+    }
+
+    File grouperTranslatedBasePropertiesFile = new File(grouperTranslatedBasePropertiesName);
+
+    if (!grouperTranslatedBasePropertiesFile.isFile() || !grouperTranslatedBasePropertiesFile.exists()) {
+      System.out.println("The translated file is not found! " + grouperTextEnUsBasePropertiesFile.getAbsolutePath());
+      System.exit(0);
+    }
+    
+    //backup the existing file
+    File grouperTranslatedBasePropertiesFileBak = new File(GrouperInstallerUtils.prefixOrSuffix(
+        grouperTranslatedBasePropertiesFile.getAbsolutePath(), ".properties", true) + "." 
+        + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + ".properties");
+    
+    String newline = GrouperInstallerUtils.newlineFromFile(GrouperInstallerUtils.readFileIntoString(grouperTranslatedBasePropertiesFile));
+    
+    GrouperInstallerUtils.copyFile(grouperTranslatedBasePropertiesFile, grouperTranslatedBasePropertiesFileBak);
+    System.out.println("The translated file was backed up to: " + grouperTranslatedBasePropertiesFileBak.getAbsolutePath());
+    
+    System.out.print("Do you want to edit this file inline (if not will just run a report) (t|f) [t]: ");
+    boolean editInline = readFromStdInBoolean(true, "grouperInstaller.translate.editInline");
+   
+    StringBuilder output = new StringBuilder();
+    
+    String grouperTextEnUsBasePropertiesContents = GrouperInstallerUtils.readFileIntoString(grouperTextEnUsBasePropertiesFile);
+    String grouperTranslatedBasePropertiesContents = GrouperInstallerUtils.readFileIntoString(grouperTranslatedBasePropertiesFile);
+
+    //go through the original properties line by line
+    String[] grouperTextEnUsBasePropertiesLines = GrouperInstallerUtils.splitLines(grouperTextEnUsBasePropertiesContents);
+    String[] grouperTranslatedBasePropertiesLines = GrouperInstallerUtils.splitLines(grouperTranslatedBasePropertiesContents);
+    Properties existingTranslatedLinesByKey = new Properties();
+
+    //make raw properties
+    for (String grouperTranslatedBasePropertiesLine : grouperTranslatedBasePropertiesLines) {
+      int equalsIndex = grouperTranslatedBasePropertiesLine.indexOf('=');
+      if (equalsIndex != -1) {
+        String propertyName = GrouperInstallerUtils.prefixOrSuffix(grouperTranslatedBasePropertiesLine, "=", true).trim();
+        String propertyValue = GrouperInstallerUtils.prefixOrSuffix(grouperTranslatedBasePropertiesLine, "=", false).trim();
+        if (!GrouperInstallerUtils.isBlank(propertyValue)) {
+          existingTranslatedLinesByKey.put(propertyName, grouperTranslatedBasePropertiesLine);
+        }
+      }
+    }
+
+    StringBuilder propertyAndComments = new StringBuilder();
+    int diffCount = 0;
+
+    int lineCount = 1;
+    
+    for (String grouperTextEnUsBasePropertiesLine: grouperTextEnUsBasePropertiesLines) {
+      
+      grouperTextEnUsBasePropertiesLine = grouperTextEnUsBasePropertiesLine.trim();
+      
+      boolean isBlank = GrouperInstallerUtils.isBlank(grouperTextEnUsBasePropertiesLine);
+      boolean isComment = grouperTextEnUsBasePropertiesLine.startsWith("#");
+      boolean isProperty = !isBlank && !isComment && grouperTextEnUsBasePropertiesLine.contains("=");
+      
+      if (!isBlank && !isComment && !isProperty) {
+        System.out.print("Line " + lineCount + " is not a blank, comment, or property, hit <enter> to continue");
+        readFromStdIn("grouperInstaller.autorun.translateIssueContinue");
+      }
+      
+      propertyAndComments.append(newline).append(grouperTextEnUsBasePropertiesLine);
+
+      if (!isProperty) {
+        output.append(grouperTextEnUsBasePropertiesLine).append(newline);
+      } else {
+        int equalsIndex = grouperTextEnUsBasePropertiesLine.indexOf('=');
+        if (equalsIndex == -1) {
+          //shouldnt happen
+          throw new RuntimeException("Coding error: " + grouperTextEnUsBasePropertiesLine);
+        }
+        
+        String propertyName = grouperTextEnUsBasePropertiesLine.substring(0, equalsIndex).trim();
+        
+        String translatedPropertyLine = existingTranslatedLinesByKey.getProperty(propertyName);
+        
+        // see if there is already a translation
+        if (!GrouperInstallerUtils.isBlank(translatedPropertyLine)) {
+          
+          //just append everything to the new file
+          output.append(translatedPropertyLine).append(newline);
+          
+        } else {
+          diffCount++;
+
+          //there is no translation
+          if (!editInline) {
+            System.out.println(diffCount + ": Translate line " + lineCount + ":");
+          }
+
+          System.out.println("");
+          System.out.println(propertyAndComments.toString().trim() + newline);
+          
+          //there is no translation
+          if (editInline) {
+            System.out.print("\n" + diffCount + ": Enter a translation for line " + lineCount + ":");
+            String translatedValue = readFromStdIn("autorun.translate.value");
+            
+            output.append(propertyName).append("=").append(translatedValue).append(newline);
+
+          } else {
+            
+            output.append(propertyName).append("=").append(newline);
+            
+          }
+          
+        }
+        propertyAndComments.setLength(0);
+        
+      }
+      
+      lineCount++;
+    }
+    GrouperInstallerUtils.saveStringIntoFile(grouperTranslatedBasePropertiesFile, output.toString(), true, true);
+    
+    if (diffCount == 0) {
+      System.out.println("The translated file is complete");
+    } else {
+      if (!editInline) {
+        System.out.println("You have " + diffCount + " missing properties, they need translation.");
+      } else {
+        System.out.println("You translated " + diffCount + " missing properties.");
+      }
+    }
+    System.exit(0);
   }
 
   /**
@@ -4195,6 +4400,9 @@ public class GrouperInstaller {
     /** manage */
     manage,
     
+    /** develop */
+    develop,
+    
     /** convert */
     upgradeTask;
     
@@ -4288,6 +4496,33 @@ public class GrouperInstaller {
      */
     public static GrouperInstallerManageAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
       return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerManageAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public static enum GrouperInstallerDevelopAction {
+
+    /** logs */
+    translate,
+
+    /** back to admin */
+    back,
+
+    /** exit */
+    exit;
+
+    /**
+     * 
+     * @param string
+     * @param exceptionIfInvalid
+     * @param exceptionIfBlank
+     * @return the action
+     */
+    public static GrouperInstallerDevelopAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerDevelopAction.class, string, exceptionIfBlank, exceptionIfInvalid);
     }
     
   }
