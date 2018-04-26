@@ -3417,7 +3417,8 @@ public class GrouperInstaller {
         grouperTranslatedBasePropertiesFile.getAbsolutePath(), ".properties", true) + "." 
         + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + ".properties");
     
-    String newline = GrouperInstallerUtils.newlineFromFile(GrouperInstallerUtils.readFileIntoString(grouperTranslatedBasePropertiesFile));
+    // GrouperInstallerUtils.newlineFromFile(GrouperInstallerUtils.readFileIntoString(grouperTranslatedBasePropertiesFile));
+    String newline = "\n";
     
     GrouperInstallerUtils.copyFile(grouperTranslatedBasePropertiesFile, grouperTranslatedBasePropertiesFileBak);
     System.out.println("The translated file was backed up to: " + grouperTranslatedBasePropertiesFileBak.getAbsolutePath());
@@ -3454,10 +3455,12 @@ public class GrouperInstaller {
     
     for (String grouperTextEnUsBasePropertiesLine: grouperTextEnUsBasePropertiesLines) {
       
+      Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+      
       grouperTextEnUsBasePropertiesLine = grouperTextEnUsBasePropertiesLine.trim();
       
       boolean isBlank = GrouperInstallerUtils.isBlank(grouperTextEnUsBasePropertiesLine);
-      boolean isComment = grouperTextEnUsBasePropertiesLine.startsWith("#");
+      boolean isComment = grouperTextEnUsBasePropertiesLine.trim().startsWith("#");
       boolean isProperty = !isBlank && !isComment && grouperTextEnUsBasePropertiesLine.contains("=");
       
       if (!isBlank && !isComment && !isProperty) {
@@ -3465,10 +3468,15 @@ public class GrouperInstaller {
         readFromStdIn("grouperInstaller.autorun.translateIssueContinue");
       }
       
+      debugMap.put("isBlank", isBlank);
+      debugMap.put("isComment", isComment);
+      debugMap.put("isProperty", isProperty);
+      
       propertyAndComments.append(newline).append(grouperTextEnUsBasePropertiesLine);
 
       if (!isProperty) {
         output.append(grouperTextEnUsBasePropertiesLine).append(newline);
+        debugMap.put("clearPropertyAndComments", false);
       } else {
         int equalsIndex = grouperTextEnUsBasePropertiesLine.indexOf('=');
         if (equalsIndex == -1) {
@@ -3477,12 +3485,16 @@ public class GrouperInstaller {
         }
         
         String propertyName = grouperTextEnUsBasePropertiesLine.substring(0, equalsIndex).trim();
-        
+
+        debugMap.put("propertyName", propertyName);
+
         String translatedPropertyLine = existingTranslatedLinesByKey.getProperty(propertyName);
         
+        debugMap.put("hasTranslation", !GrouperInstallerUtils.isBlank(translatedPropertyLine));
+
         // see if there is already a translation
         if (!GrouperInstallerUtils.isBlank(translatedPropertyLine)) {
-          
+ 
           //just append everything to the new file
           output.append(translatedPropertyLine).append(newline);
           
@@ -3511,8 +3523,13 @@ public class GrouperInstaller {
           }
           
         }
-        propertyAndComments.setLength(0);
+        debugMap.put("clearPropertyAndComments", true);
+        propertyAndComments = new StringBuilder();
         
+      }
+      
+      if (GrouperInstallerUtils.propertiesValueBoolean("printDebugInfo", false, false)) {
+        System.out.println(GrouperInstallerUtils.mapToString(debugMap));
       }
       
       lineCount++;
