@@ -198,8 +198,8 @@
   
     <tag>
         <name>recordTile</name>
-        <tagclass>edu.internet2.middleware.grouper.ui.ELTileRecorderTag</tagclass>
-        <info>registers with UIThreadLocal that a tile was loaded</info>
+        <tag-class>edu.internet2.middleware.grouper.ui.ELTileRecorderTag</tag-class>
+        <description>registers with UIThreadLocal that a tile was loaded</description>
         <attribute>
             <name>view</name>
             <required>false</required>
@@ -228,10 +228,10 @@
     </tag>
   <tag>
     <name>message</name>
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag</tagclass>
-    <info>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag</tag-class>
+    <description>
         Maps key to localized message and performs parametric replacement, or just prints message
-    </info>
+    </description>
     
     <attribute>
         <name>ignoreTooltipStyle</name>
@@ -392,12 +392,12 @@
   </tag>
   <tag>
     <name>param</name>
-    <info>
+    <description>
         Supplies an argument for parametric replacement to a containing
         &lt;message&gt; tag
-    </info>
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperParamTag</tagclass>
-    <bodycontent>JSP</bodycontent>
+    </description>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperParamTag</tag-class>
+    <body-content>JSP</body-content>
     <attribute>
         <name>value</name>
         <required>false</required>
@@ -406,11 +406,11 @@
   </tag>
     <tag>
     <name>infodot</name>
-    <info>
+    <description>
         This will generate an infodot image which when clicked will hide/show some instructions
-    </info>
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperInfodotTag</tagclass>
-    <bodycontent>empty</bodycontent>
+    </description>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperInfodotTag</tag-class>
+    <body-content>empty</body-content>
     <attribute>
         <name>hideShowHtmlId</name>
         <required>true</required>
@@ -477,7 +477,7 @@
     <!--  description>
         This will generate an infodot image which when clicked will hide/show some instructions
     </description -->
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tagclass>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tag-class>
     <attribute>
       <name>infodotValue</name>
       <required>false</required>
@@ -506,10 +506,10 @@
   </tag>
   <tag>
     <name>title</name>
-    <info>
+    <description>
       This will generate a title, and perhaps an infodot
-    </info>
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperTitleTag</tagclass>
+    </description>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperTitleTag</tag-class>
     <attribute>
       <name>infodotValue</name>
       <required>false</required>
@@ -541,8 +541,8 @@
     <!--  description>
         This will generate an onmouseover which is a tooltip in an html element (e.g. image)
     </description -->
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperTooltipTag</tagclass>
-    <bodycontent>empty</bodycontent>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperTooltipTag</tag-class>
+    <body-content>empty</body-content>
     <attribute>
         <name>key</name>
         <required>true</required>
@@ -561,8 +561,8 @@
   </tag>
     <tag>
     <name>hideShowTarget</name>
-    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperHideShowTarget</tagclass>
-    <bodycontent>empty</bodycontent>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperHideShowTarget</tag-class>
+    <body-content>empty</body-content>
     <attribute>
         <name>hideShowHtmlId</name>
         <required>true</required>
