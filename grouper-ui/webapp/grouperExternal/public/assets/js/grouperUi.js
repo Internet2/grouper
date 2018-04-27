@@ -1308,6 +1308,17 @@ function guiToggle(event, jqueryElementKey) {
   return false;
 }
 
+/** go to an anchor link on the same page */
+function goToAnchor(anchor) {
+  var location = ""+window.location;
+  var charIndex = location.indexOf("#");
+  if (charIndex >= 0) {
+    location = location.substring(0, charIndex);
+  }
+  window.location = location + "#" + anchor;
+  return false;
+}
+
 /** 
  * call this from button to hide/show some text
  * 

@@ -103,7 +103,7 @@
   <dt><li> <a href="#"
   onclick="return grouperHideShow(event, 'findFolderNavigation');">Find
   a folder or a group by navigation</a></dt>
-  <dd id="findFolderNavigation0" style="display:none;visibility:hidden;">
+  <dd id="findFolderNavigation0" style="display:none">
   (requires VIEW privilege or greater)
   <ol><li> Click "Explore" in the "My Tools" segment of the left menu</li>
   <li> Click any folder name in the "Browse or list groups" panel to show
@@ -123,7 +123,7 @@ the Group Summary screen for that group</li>
   <a name="findEntitySearchAnchor"></a>
   <dt><li> <a href="#"
   onclick="return grouperHideShow(event, 'findEntitySearch');">Find an entity or a group by searching</a></dt>
-  <dd id="findEntitySearch0" style="display:none;visibility:hidden;">(requires VIEW privilege or greater)
+  <dd id="findEntitySearch0" style="display:none">(requires VIEW privilege or greater)
     <ol><li> Click "Search" in the "My Tools" segment of the left menu</li>
      <li> In the "Search people or groups" panel, type a search term</li>
      <li> Click the "Search" button, or press the Return key, to submit.  A
@@ -140,7 +140,7 @@ view it.   Try modifying your search, or contact your administrator.</li></ul>
      <a name="readGroupMembershipListAnchor"></a>
 <dt><li>       <a href="#"
   onclick="return grouperHideShow(event, 'readGroupMembershipList');">Read a group's membership list</a></dt>
-<dd id="readGroupMembershipList0" style="display:none;visibility:hidden;">(requires READ privilege or greater)
+<dd id="readGroupMembershipList0" style="display:none">(requires READ privilege or greater)
 <ol><li>      Find the Group Summary screen for the group by <a href="#"
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor')">navigating</a> or
   <a href="#"
@@ -154,7 +154,7 @@ by selecting the appropriate radio button at the top of the "Membership list" pa
 <a name="addMemberToGroupAnchor"></a>
 <dt><li>       <a href="#"
   onclick="return grouperHideShow(event, 'addMemberToGroup');">Add a member (entity or group) to a group</a></dt>
-<dd id="addMemberToGroup0" style="display:none;visibility:hidden;">(requires UPDATE privilege or greater)
+<dd id="addMemberToGroup0" style="display:none">(requires UPDATE privilege or greater)
 <ol><li>      <a href="#"
   onclick="grouperHideShow(event, 'readGroupMembershipList', true);return goToAnchor('readGroupMembershipListAnchor');">Go to the group's membership list page</a></li>
 <li>      Click "Add member" at the bottom of the "Membership list" panel.
@@ -170,7 +170,7 @@ the member listing, then click the "Assign privileges" button at the bottom of t
 </dd>
 <dt><li>      <a href="#"
   onclick="return grouperHideShow(event, 'removeMemberFromGroup');">Remove a member from a group</a></dt>
-<dd id="removeMemberFromGroup0" style="display:none;visibility:hidden;">(requires UPDATE privilege or greater)
+<dd id="removeMemberFromGroup0" style="display:none">(requires UPDATE privilege or greater)
 <ol><li>      <a href="#"
   onclick="grouperHideShow(event, 'readGroupMembershipList', true);return goToAnchor('readGroupMembershipListAnchor');">Go to the group's membership list page</a></li>
 <li>      Select the member(s) you want to remove by clicking the checkbox
@@ -180,7 +180,7 @@ next to the member listing(s).</li>
 </dd>
 <dt><li>      <a href="#"
   onclick="return grouperHideShow(event, 'assignManagerToGroup');">Assign someone to be able to manage a group</a></dt>
-<dd id="assignManagerToGroup0" style="display:none;visibility:hidden;">(requires ADMIN privilege or greater)
+<dd id="assignManagerToGroup0" style="display:none">(requires ADMIN privilege or greater)
 <ol><li>      <a href="#"
   onclick="grouperHideShow(event, 'readGroupMembershipList', true);return goToAnchor('readGroupMembershipListAnchor');">Go to the group's membership list page</a></li>
 <li>      Click "Add member" at the bottom of the "Membership list" panel.</li>
@@ -201,7 +201,7 @@ clicking the checkbox next to the entity listing, then click the "Assign privile
 
 <dt><li>        <a href="#"
   onclick="return grouperHideShow(event, 'createNewGroup');">Create a new group</a></dt>
-<dd id="createNewGroup0" style="display:none;visibility:hidden;">(requires CREATE privilege or greater)
+<dd id="createNewGroup0" style="display:none">(requires CREATE privilege or greater)
 <ol><li>      <a href=""
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor');">Find a parent folder</a>
    for the group.  This
@@ -220,7 +220,7 @@ saved and you can add members to the group.</li></ul></li>
 </dd>
 <dt><li> <a href="#"
   onclick="return grouperHideShow(event, 'createCompositeGroup');">Create a composite group</a></dt>
-<dd id="createCompositeGroup0" style="display:none;visibility:hidden;">(requires CREATE privilege or greater)
+<dd id="createCompositeGroup0" style="display:none">(requires CREATE privilege or greater)
 Grouper allows you to use two existing groups (called "factors") to define a third (composite) group.
 You may combine two groups in the following ways:
 <ul><li> UNION includes all members of the two original (factor) groups -- "adding"</li>
@@ -266,7 +266,7 @@ panel to create the new composite group.</li></ol></li></ol>
 </dd>
 <dt><li>      <a href="#"
   onclick="return grouperHideShow(event, 'createNewFolder');">Create a new folder</a></dt>
-<dd id="createNewFolder0" style="display:none;visibility:hidden;">(requires CREATE privilege or greater)
+<dd id="createNewFolder0" style="display:none">(requires CREATE privilege or greater)
 <ol><li>      <a href="#"
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor');">Find a parent folder</a>
    for the folder you will be creating.  This should place you on the Browse Groups Hierarchy screen
@@ -284,7 +284,7 @@ saved and can add search for and members to the group</li></ul></li></ol>
   onclick="return grouperHideShow(event, 'assignFolderManager');">Assign someone to be
   able to create new folders or groups within a
 parent folder</a></dt>
-<dd id="assignFolderManager0" style="display:none;visibility:hidden;">(requires ADMIN privilege)
+<dd id="assignFolderManager0" style="display:none">(requires ADMIN privilege)
 <ol><li>      <a href="#"
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor');">Find a parent folder</a>
   for the folder you will be creating.
