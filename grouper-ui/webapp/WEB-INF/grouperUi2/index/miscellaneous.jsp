@@ -33,6 +33,8 @@
                     </c:if>
                     <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
                       >${textContainer.text['miscAttestationLink'] }</a>
+                    <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Main.help');" style="white-space: nowrap;"
+                      >${textContainer.text['grouper.help'] }</a>
                   </div>
                 </div>
               </div>

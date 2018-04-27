@@ -815,6 +815,29 @@ public class UiV2Main extends UiServiceLogicBase {
     
   }
 
+  /**
+   * Help page
+   * @param request
+   * @param response
+   */
+  public void help(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+              "/WEB-INF/grouperUi2/index/help.jsp"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
 
   /**
    * search submit from upper right

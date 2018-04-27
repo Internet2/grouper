@@ -26,8 +26,8 @@
                 &middot; 
                 <a href="../../logout.do" class="navbar-link">${textContainer.text['indexLogoutLink']}</a> 
               </c:if>
-              <%-- MCH 20140406: not sure what to do with help... 
-              &middot; <a href="#" class="navbar-link">Help</a> --%>
+              &middot; <a href="#"
+                      onclick="return guiV2link('operation=UiV2Main.help');">${textContainer.text['grouper.help'] }</a>
              </div>
           </div>
         </div>

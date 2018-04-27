@@ -54,9 +54,9 @@ public class UiV2Public extends UiServiceLogicBase {
     
     //dont use reflection here for security reasons
     if (StringUtils.equals(function, UiV2Public.class.getSimpleName() + ".error")) {
-
       error(request, response);
-
+    } else if (StringUtils.equals(function, UiV2Public.class.getSimpleName() + ".help")) {
+      help(request, response);
     } else {
       throw new RuntimeException("Invalid function: " + function);
     }
@@ -100,6 +100,13 @@ public class UiV2Public extends UiServiceLogicBase {
     }  
   }
 
+  public void help(HttpServletRequest request, HttpServletResponse response) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+            "/WEB-INF/grouperUi2/public/help.jsp"));
+  }
+
   /**
    * ajax operation if there is an error
    * @param request
@@ -120,5 +127,5 @@ public class UiV2Public extends UiServiceLogicBase {
         TextContainer.retrieveFromRequest().getText().get("errorCode_" + code)));
 
   }
-  
+
 }
