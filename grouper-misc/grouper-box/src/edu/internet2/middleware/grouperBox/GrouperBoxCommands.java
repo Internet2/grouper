@@ -54,12 +54,12 @@ public class GrouperBoxCommands {
 //    System.out.println(grouperBoxUser.getBoxUserInfo().getLogin());
 
     
-    for (String userName : new String[] { "boxdev-admin@isc.upenn.edu", "forwardonly-test@isc.upenn.edu", "joemyers001@box-dev.net.isc.upenn.edu", "rbarron10@gmail.com" }) {
-      GrouperBoxUser grouperBoxUser = retrieveBoxUser(userName);
-  
-      grouperBoxUser.getBoxUserInfo().setStatus(Status.valueOf("ACTIVE"));
-      GrouperBoxCommands.updateBoxUser(grouperBoxUser, false);
-    }
+//    for (String userName : new String[] { "boxdev-admin@isc.upenn.edu", "forwardonly-test@isc.upenn.edu", "joemyers001@box-dev.net.isc.upenn.edu", "rbarron10@gmail.com" }) {
+//      GrouperBoxUser grouperBoxUser = retrieveBoxUser(userName);
+//  
+//      grouperBoxUser.getBoxUserInfo().setStatus(Status.valueOf("ACTIVE"));
+//      GrouperBoxCommands.updateBoxUser(grouperBoxUser, false);
+//    }
 
 
 
@@ -87,7 +87,7 @@ public class GrouperBoxCommands {
 //    grouperBoxGroup.removeUserFromGroup(grouperBoxUser, false);
 //    grouperBoxGroup.removeUserFromGroup(grouperBoxUser, false);
 
-//    createBoxGroup("testGroup3", false);
+    createBoxGroup("testGroup3", false);
 //    createBoxGroup("testGroup3", false);
 //
 //    Map<String, GrouperBoxGroup> allGroupsMap = retrieveBoxGroups();
@@ -485,9 +485,13 @@ public class GrouperBoxCommands {
     try {
     
       BoxAPIConnection boxAPIConnection = retrieveBoxApiConnection();
-      BoxGroup.Info boxGroupInfo = BoxGroup.createGroup(boxAPIConnection, groupName);
-      GrouperBoxGroup grouperBoxGroup = new GrouperBoxGroup(boxGroupInfo.getResource(), boxGroupInfo);
       
+      // admins_only, admins_and_members, all_managed_users
+      String invitabilityLevel = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.invitabilityLevel", "admins_and_members");
+      String memberViewabilityLevel =GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.memberViewabilityLevel", "admins_and_members");
+      BoxGroup.Info boxGroupInfo = BoxGroup.createGroup(boxAPIConnection, groupName, null, null, null, invitabilityLevel, memberViewabilityLevel);
+            
+      GrouperBoxGroup grouperBoxGroup = new GrouperBoxGroup(boxGroupInfo.getResource(), boxGroupInfo);
       return grouperBoxGroup;
     } catch (BoxAPIException boxAPIException) {
       if (boxAPIException.getResponseCode() == 409) {
