@@ -123,7 +123,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testAlternateName"));
+    TestRunner.run(new TestGroup("testDeleteGroupWhenGroupIsUsedOnObjectsWithNoAccess"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -162,6 +162,40 @@ public class TestGroup extends GrouperTest {
     
   }
   
+  /**
+   * 
+   */
+  public void testDeleteGroupWhenGroupIsUsedOnObjectsWithNoAccess() {
+    
+    try {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+  
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+      Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
+      Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
+      Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
+      Stem stem = group1.getParentStem();
+  
+      group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+      
+      group2.addMember(group1.toSubject());
+      group3.grantPriv(group1.toSubject(), AccessPrivilege.VIEW);
+      stem.grantPriv(group1.toSubject(), NamingPrivilege.STEM_ATTR_READ);
+      
+      GrouperSession.stopQuietly(grouperSession);
+      
+      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+          
+      group1.delete();
+      
+      GrouperSession.stopQuietly(grouperSession);
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("groups.create.grant.all.read");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("groups.create.grant.all.view");
+    }
+  }
   
   /**
    * 

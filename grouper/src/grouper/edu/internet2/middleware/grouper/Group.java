@@ -1794,8 +1794,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               
               // ... And delete all memberships - as root
               // Deletes (and saves) now happen within internal_deleteAllFieldType().  See GRP-254.
-                Membership.internal_deleteAllFieldType( 
-                  GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST );
+              GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+                
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  
+                  Membership.internal_deleteAllFieldType( 
+                    GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST );
+                  
+                  return null;
+                }
+              });
 
               //delete any attributes on this group, this is done as root
               GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
