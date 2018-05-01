@@ -382,7 +382,19 @@ public class GrouperBoxMessageConsumer implements Job {
             GrouperWsCommandsForBox.retrieveGrouperUsers().put(username, new String[]{subjectId, sourceId, usernamePrefix});
             GrouperBoxCommands.deprovisionOrUndeprovision(grouperBoxUser, debugMap);
           } else {
-            GrouperBoxCommands.assignUserToBoxGroup(grouperBoxUser, groupInBox, true);
+            
+            boolean addUser = true;
+            
+            if (!GrouperClientUtils.isBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.requireGroup"))) {
+              Map<String, String[]> usersAllowedToBeInBox = GrouperWsCommandsForBox.retrieveGrouperUsers();
+              if (!usersAllowedToBeInBox.containsKey(username)) {
+                debugMap.put("userNotAllowed", true);
+                addUser = false;
+              }
+            }
+            if (addUser) {
+              GrouperBoxCommands.assignUserToBoxGroup(grouperBoxUser, groupInBox, true);
+            }
           }
         }
         
