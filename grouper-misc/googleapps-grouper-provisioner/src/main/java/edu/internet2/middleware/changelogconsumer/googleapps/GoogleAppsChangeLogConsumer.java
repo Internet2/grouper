@@ -657,9 +657,9 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         //For nested groups, ChangeLogEvents fire when the group is removed, and also for each indirect user added,
         //so we only need to handle PERSON events.
         if (subjectType == SubjectTypeEnum.PERSON) {
-            try {                
+            try {
                 String role = connector.determineRole(member, grouperGroup);
-                if (role != null) {
+                if (role != null && !role.equalsIgnoreCase("MEMBER")) {
                     connector.updateGooMember(grouperGroup, lookupSubject, role);
                 } else {
                     connector.removeGooMembership(grouperGroup.getName(), lookupSubject);

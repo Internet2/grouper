@@ -223,7 +223,7 @@ public class GoogleGrouperConnector {
             try {
                 user = GoogleAppsSdkUtils.retrieveUser(directoryClient, userKey);
             } catch (IOException e) {
-                LOG.warn("Google Apps Consume '{}' - Error fetching user ({}) from Google: {}", new Object[]{consumerName, userKey, e.getMessage()});
+                LOG.info("Google Apps Consume '{}' - Error fetching user ({}) from Google: {}; this may not be an actual problem depending upon context.", new Object[]{consumerName, userKey, e.getMessage()});
             }
 
             if (user != null) {
@@ -266,6 +266,8 @@ public class GoogleGrouperConnector {
 
         User newUser;
         if (properties.shouldProvisionUsers() && email.endsWith(properties.getGoogleDomain())) {
+            LOG.debug("Google Apps Consumer '{}' - Creating organziation Google User {}.", consumerName, email);
+
             newUser = new User();
             newUser.setPassword(new BigInteger(130, new SecureRandom()).toString(32))
                     .setPrimaryEmail(email)
@@ -286,6 +288,8 @@ public class GoogleGrouperConnector {
             newUser = GoogleAppsSdkUtils.addUser(directoryClient, newUser);
             GoogleCacheManager.googleUsers().put(newUser);
         } else {
+            LOG.debug("Google Apps Consumer '{}' - Creating a working non-Google user {}.", consumerName, email);
+
             newUser = new User();
             newUser.setPrimaryEmail(email);
         }
@@ -295,7 +299,7 @@ public class GoogleGrouperConnector {
 
     public void createGooMember(Group group, User user, String role) throws IOException {
         if (StringUtils.isEmpty(role)) {
-            LOG.debug("skipping {}; no role assigned", user);
+            LOG.debug("skipping {}; no role assigned", user.getPrimaryEmail());
             return;
         }
 
@@ -315,6 +319,8 @@ public class GoogleGrouperConnector {
         recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
 
         if (googleGroup == null) {
+            LOG.debug("Google Apps Consumer '{}' - Creating full group {}.", consumerName, groupKey);
+
             googleGroup = new Group();
             googleGroup.setName(grouperGroup.getDisplayExtension())
                     .setEmail(groupKey)
@@ -327,6 +333,7 @@ public class GoogleGrouperConnector {
             recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
 
             if (properties.useGroupSettings()) {
+                LOG.debug("Google Apps Consumer '{}' - Setting Groupsettings for {}.", consumerName, groupKey);
 
                 final Groups groupSettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
                 final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
@@ -366,6 +373,8 @@ public class GoogleGrouperConnector {
 
         Set<edu.internet2.middleware.grouper.Member> members = grouperGroup.getMembers();
         for (edu.internet2.middleware.grouper.Member member : members) {
+            LOG.debug("Google Apps Consumer '{}' - Adding all of the members for {}.", consumerName, groupKey);
+
             if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
                 Subject subject = fetchGrouperSubject(member.getSubjectSourceId(), member.getSubjectId());
                 if (subject == null) {
@@ -391,26 +400,38 @@ public class GoogleGrouperConnector {
             variableMap.put("group", group);
             variableMap.put("member", member);
 
-            final String role = ConfigPropertiesCascadeUtils.substituteExpressionLanguage(
+            String role = ConfigPropertiesCascadeUtils.substituteExpressionLanguage(
                     properties.getWhoCanManageJexl(),
                     variableMap, true, false, true, false);
 
-            return role != null ? role : "MEMBER";
+            LOG.debug("Google Apps Consumer '{}' - Scripted role initially calculated the role of '{}' for {} in {}.", new Object[] {consumerName, role, member.getSubjectId(), group.getName()});
+
+            role = StringUtils.isNotBlank(role) ? role.trim() : "MEMBER";
+
+            LOG.debug("Google Apps Consumer '{}' - Final scripted role calculated the role of '{}' for {} in {}.", new Object[] {consumerName, role, member.getSubjectId(), group.getName()});
+
+            return role;
 
         } else if ((properties.getWhoCanManage().equalsIgnoreCase("BOTH") && member.canUpdate(group))
                 || (properties.getWhoCanManage().equalsIgnoreCase("ADMIN") && member.canAdmin(group))
                 || (properties.getWhoCanManage().equalsIgnoreCase("UPDATE") && member.canUpdate(group) && !member.canAdmin(group))
                 ) {
+
+            LOG.debug("Google Apps Consumer '{}' - Role set to '{}' for {} in {}.", new Object[] {consumerName, "MANAGER", member.getSubjectId(), group.getName()});
             return "MANAGER";
+
         } else if (member.isMember(group)) {
+            LOG.debug("Google Apps Consumer '{}' - Role set to '{}' for {} in {}.", new Object[] {consumerName, "MEMBER", member.getSubjectId(), group.getName()});
             return "MEMBER";
         }
-        
+
+        LOG.debug("Google Apps Consumer '{}' - No role calculated}.", consumerName);
         return null;
     }
     
     public void unarchiveGooGroupIfNecessary(Group group) throws IOException {
         if (!properties.useGroupSettings()) {
+            LOG.debug("Google Apps Consumer '{}' - useGroupSetting is false; skipping unarchive for {}.", consumerName, group.getEmail());
             return;
         }
 
@@ -421,6 +442,7 @@ public class GoogleGrouperConnector {
         Groups groupssettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
 
         if (groupssettings.getArchiveOnly().equalsIgnoreCase("true")) {
+            LOG.debug("Google Apps Consumer '{}' - ArchiveOnly=true, setting to false for {}.", consumerName, groupKey);
             groupssettings.setArchiveOnly("false");
             groupssettings.setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage());
 
@@ -447,6 +469,7 @@ public class GoogleGrouperConnector {
 
     public void deleteGooGroupByEmail(String groupKey) throws IOException {
         if (properties.getHandleDeletedGroup().equalsIgnoreCase("archive")) {
+            LOG.debug("Google Apps Consumer '{}' - Archiving group {}.", consumerName, groupKey);
             recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
 
             Groups gs = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
@@ -457,6 +480,7 @@ public class GoogleGrouperConnector {
             recentlyManipulatedObjectsList.add(groupKey);
 
         } else if (properties.getHandleDeletedGroup().equalsIgnoreCase("delete")) {
+            LOG.debug("Google Apps Consumer '{}' - Deleting group {}.", consumerName, groupKey);
             recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
 
             GoogleAppsSdkUtils.removeGroup(directoryClient, groupKey);
@@ -596,27 +620,29 @@ public class GoogleGrouperConnector {
 
         recentlyManipulatedObjectsList.delayIfNeeded(userKey);
         GoogleAppsSdkUtils.removeGroupMember(directoryClient, groupKey, userKey);
+        LOG.debug("Google Apps Consumer '{}' - Removed {} from group {}.", new Object[] {consumerName, userKey, groupKey});
         recentlyManipulatedObjectsList.add(userKey);
 
         if (properties.shouldDeprovisionUsers()) {
             //FUTURE: check if the user has other memberships and if not, initiate the removal here.
         }
-
-        }
+    }
 
     public void removeGooMembership(String groupKey, String subjectEmail) throws IOException {
       recentlyManipulatedObjectsList.delayIfNeeded(subjectEmail);
       GoogleAppsSdkUtils.removeGroupMember(directoryClient, groupKey, subjectEmail);
-      recentlyManipulatedObjectsList.add(subjectEmail);
+        LOG.debug("Google Apps Consumer '{}' - Removed {} from group {}.", new Object[] {consumerName, subjectEmail, groupKey});
+        recentlyManipulatedObjectsList.add(subjectEmail);
 
       if (properties.shouldDeprovisionUsers()) {
           //FUTURE: check if the user has other memberships and if not, initiate the removal here.
       }
 
-      }
+    }
     
     public Group updateGooGroup(String groupKey, Group group) throws IOException {
         recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
+        LOG.debug("Google Apps Consumer '{}' - update Google Group settings {}.", consumerName, groupKey);
         final Group gooGroup = GoogleAppsSdkUtils.updateGroup(directoryClient, groupKey, group);
         recentlyManipulatedObjectsList.add(groupKey);
 
@@ -624,6 +650,7 @@ public class GoogleGrouperConnector {
     }
 
     public List<Member> getGooMembership(String groupKey) throws IOException {
+        LOG.debug("Google Apps Consumer '{}' - Getting Google group members {}.", consumerName, groupKey);
         return GoogleAppsSdkUtils.retrieveGroupMembers(directoryClient, groupKey);
     }
 
@@ -640,10 +667,13 @@ public class GoogleGrouperConnector {
 
         if (user == null) {
             user = createGooUser(subject);
+            LOG.debug("Google Apps Consumer '{}' - Created user {}", consumerName, user);
+
         }
 
         Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));
         if (user != null && gooGroup != null && StringUtils.isEmpty(role)) {
+            LOG.debug("Google Apps Consumer '{}' - Create user {} in {} as {}.", new Object[] {consumerName, user, gooGroup.getId(), role});
             createGooMember(gooGroup, user, role);
         }
     }
@@ -654,12 +684,16 @@ public class GoogleGrouperConnector {
         if (user == null) {
             user = createGooUser(subject);
             if (user == null) {
+                LOG.debug("Google Apps Consumer '{}' - No user found, exiting: {}", consumerName, subject.getId());
+
                 return;
             }
         }
 
         Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));
         if (gooGroup == null) {
+            LOG.debug("Google Apps Consumer '{}' - No group found, existing: {}", consumerName, group.getName());
+
             return;
         }
 
@@ -668,16 +702,23 @@ public class GoogleGrouperConnector {
 
         if (member == null) {
             if (StringUtils.isNotEmpty(role)){
+                LOG.debug("Google Apps Consumer '{}' - Need to add user {} in {} as {}.", new Object[] {consumerName, user.getPrimaryEmail(), gooGroup.getEmail(), role});
+
                 createGooMember(gooGroup, user, role);
             }
             return;
         }
 
-        if (member.getRole() != role) {
+        if (!member.getRole().equalsIgnoreCase(role)) {
+            LOG.debug("Google Apps Consumer '{}' - Need to update user role {} from {} to {}.", new Object[] {consumerName, user.getPrimaryEmail(), member.getRole(), role});
+
             if (StringUtils.isEmpty(role)) {
+                LOG.debug("Google Apps Consumer '{}' - Remove role.", consumerName, user);
                 GoogleAppsSdkUtils.removeGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail());
+
             } else {
                 member.setRole(role);
+                LOG.debug("Google Apps Consumer '{}' - Update role {} for {} in {}.", new Object[] {consumerName, role, user.getPrimaryEmail(), gooGroup.getEmail()});
                 GoogleAppsSdkUtils.updateGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail(), member);
                 recentlyManipulatedObjectsList.add(user.getPrimaryEmail());
             }

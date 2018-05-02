@@ -512,7 +512,7 @@ public class GoogleAppsSdkUtils {
                 break;
 
             case 404: //Not found
-                LOG.warn("handleGoogleJsonResponseException() - Not found: {}", e);
+                LOG.info("handleGoogleJsonResponseException() - Not found: {}", e);
                 return true;
 
             case 503:
