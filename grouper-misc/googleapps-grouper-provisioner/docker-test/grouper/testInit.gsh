@@ -34,3 +34,5 @@ attrDefName.store();
 addRootStem("test", "test");
 addStem("test", "provisionEnabledGroups", "Provision Enabled Groups");
 grantPriv("test:provisionEnabledGroups", "jsmith", NamingPrivilege.CREATE);
+
+:quit
