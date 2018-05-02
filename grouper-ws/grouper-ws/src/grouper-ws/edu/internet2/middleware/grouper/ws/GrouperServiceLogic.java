@@ -254,22 +254,22 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(params, 100) + "\n, disabledDate: " + disabledTime
           + ", enabledDate: " + enabledTime;
 
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "addMember");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookup", wsGroupLookup);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "replaceAllExisting", replaceAllExisting);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "disabledTime", disabledTime);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "enabledTime", enabledTime);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
-
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "replaceAllExisting", replaceAllExisting);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookup", wsGroupLookup);
+      
       final String THE_SUMMARY = theSummary;
       
       //start session based on logged in user or the actAs passed in
@@ -422,13 +422,14 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsAddMemberResults.assignResultCodeException(null, theSummary, e);
-      debugMap.put("operationException", ExceptionUtils.getFullStackTrace(e));
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAddMemberResults);
     }
 
-    GrouperWsLog.addToLog(debugMap, wsAddMemberResults);
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAddMemberResults == null ? 0 : GrouperUtil.length(wsAddMemberResults.getResults()));
 
     //this should be the first and only return, or else it is exiting too early
     return wsAddMemberResults;
@@ -547,7 +548,9 @@ public class GrouperServiceLogic {
       GrouperTransactionType txType, final boolean includeGroupDetail, 
       final boolean includeSubjectDetail, String[] subjectAttributeNames, 
       final WsParam[] params) {
-  
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
     final WsDeleteMemberResults wsDeleteMemberResults = new WsDeleteMemberResults();
   
     GrouperSession session = null;
@@ -563,7 +566,20 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectLookups, 100) + "\n, actAsSubject: "
           + actAsSubjectLookup + ", fieldName: " + fieldName + ", txType: " + txType
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-      
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "deleteMember");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookup", wsGroupLookup);
+
       final String THE_SUMMARY = theSummary;
   
       final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
@@ -658,11 +674,15 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsDeleteMemberResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsDeleteMemberResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsDeleteMemberResults == null ? 0 : GrouperUtil.length(wsDeleteMemberResults.getResults()));
+
     //this should be the first and only return, or else it is exiting too early
     return wsDeleteMemberResults;
   }
@@ -719,6 +739,9 @@ public class GrouperServiceLogic {
       String subjectAttributeNames, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
   
@@ -758,6 +781,10 @@ public class GrouperServiceLogic {
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "findGroups");
+
     final WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
   
     GrouperSession session = null;
@@ -771,6 +798,13 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
           + "\n, wsGroupLookups: " + GrouperUtil.toStringForLog(wsGroupLookups, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookups", wsGroupLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsQueryFilter", wsQueryFilter);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -811,11 +845,16 @@ public class GrouperServiceLogic {
   
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsFindGroupsResults);
+
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsFindGroupsResults == null ? 0 : GrouperUtil.length(wsFindGroupsResults.getGroupResults()));
+
     return wsFindGroupsResults;
   }
 
@@ -877,6 +916,9 @@ public class GrouperServiceLogic {
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
       String pageNumber, String sortString, String ascending, String typeOfGroups) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
 
@@ -921,6 +963,10 @@ public class GrouperServiceLogic {
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params, WsStemLookup[] wsStemLookups) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "findStems");
+
     final WsFindStemsResults wsFindStemsResults = new WsFindStemsResults();
   
     GrouperSession session = null;
@@ -932,7 +978,13 @@ public class GrouperServiceLogic {
           + wsStemQueryFilter + ", actAsSubject: " + actAsSubjectLookup
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
           + "\n, wsStemLookups: " + GrouperUtil.toStringForLog(wsStemLookups, 100);
-  
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemQueryFilter", wsStemQueryFilter);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookups", wsStemLookups);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -973,11 +1025,15 @@ public class GrouperServiceLogic {
   
     } catch (Exception e) {
       wsFindStemsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsFindStemsResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsFindStemsResults == null ? 0 : GrouperUtil.length(wsFindStemsResults.getStemResults()));
+
     return wsFindStemsResults;
   }
 
@@ -1030,6 +1086,9 @@ public class GrouperServiceLogic {
       String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
 
@@ -1107,6 +1166,9 @@ public class GrouperServiceLogic {
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getGroups");
+
     final WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
     boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
 
@@ -1125,7 +1187,27 @@ public class GrouperServiceLogic {
           + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber + ", sortString: " + sortString
           + ", ascending: " + ascending
           + "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
-  
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ascending", ascending);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "enabled", enabled);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "memberFilter", memberFilter);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageNumber", pageNumber);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSize", pageSize);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeFrom", pointInTimeFrom);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeTo", pointInTimeTo);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "scope", scope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "sortString", sortString);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "stemScope", stemScope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookup", wsStemLookup);
+      
       subjectAttributeNames = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
 
@@ -1250,11 +1332,15 @@ public class GrouperServiceLogic {
       
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetGroupsResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetGroupsResults == null ? 0 : GrouperUtil.length(wsGetGroupsResults.getResults()));
+
     return wsGetGroupsResults;
   
   }
@@ -1336,6 +1422,9 @@ public class GrouperServiceLogic {
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the subject lookup
     WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
         subjectIdentifier);
@@ -1435,9 +1524,11 @@ public class GrouperServiceLogic {
           + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber 
           + ", sortString: " + sortString + ", ascending: " + ascending ;
 
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookups", wsGroupLookups);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "memberFilter", memberFilter);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
@@ -1449,7 +1540,6 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "sortString", sortString);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "ascending", ascending);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
-
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1578,19 +1668,20 @@ public class GrouperServiceLogic {
       }
       
       wsGetMembersResults.setResults(results.toArray(new WsGetMembersResult[0]));
-      GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", GrouperUtil.length(wsGetMembersResults.getResults()));
 
       wsGetMembersResults.tallyResults(theSummary);
       
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, theSummary, e);
-      debugMap.put("operationException", ExceptionUtils.getFullStackTrace(e));
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetMembersResults);
     }
-  
-    GrouperWsLog.addToLog(debugMap, wsGetMembersResults);
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetMembersResults == null ? 0 : GrouperUtil.length(wsGetMembersResults.getResults()));
+
     return wsGetMembersResults;
   }
 
@@ -1652,6 +1743,10 @@ public class GrouperServiceLogic {
       String sortStringForMember, Boolean ascendingForMember
       ) {  
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getMemberships");
+
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
     GrouperSession session = null;
@@ -1676,6 +1771,35 @@ public class GrouperServiceLogic {
           + "\n, pageSize: " + pageSize + ", pageNumber: " + pageNumber 
           + ", sortString: " + sortString + ", ascending: " + ascending;
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ascending", ascending);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ascendingForMember", ascendingForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "enabled", enabled);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "membershipIds", membershipIds);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageNumber", pageNumber);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSize", pageSize);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSizeForMember", pageSizeForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageNumberForMember", pageNumberForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "scope", scope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "serviceLookup", serviceLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "serviceRole", serviceRole);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "sortString", sortString);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "sortStringForMember", sortStringForMember);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "sourceIds", sourceIds);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "stemScope", stemScope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookups", wsGroupLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsMemberFilter", wsMemberFilter);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefLookups", wsOwnerAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookups", wsOwnerStemLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookup", wsStemLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookups", wsSubjectLookups);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -1922,10 +2046,14 @@ public class GrouperServiceLogic {
         
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetMembershipsResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetMembershipsResults == null ? 0 : GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+    
     return wsGetMembershipsResults;
   
   }
@@ -2013,6 +2141,9 @@ public class GrouperServiceLogic {
       String sortString, Boolean ascending, Integer pageSizeForMember, Integer pageNumberForMember,
       String sortStringForMember, Boolean ascendingForMember) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsGroupLookup wsGroupLookup = null;
     
@@ -2192,6 +2323,10 @@ public class GrouperServiceLogic {
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "groupDelete");
+
     final WsGroupDeleteResults wsGroupDeleteResults = new WsGroupDeleteResults();
   
     GrouperSession session = null;
@@ -2207,6 +2342,13 @@ public class GrouperServiceLogic {
           + includeGroupDetail + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookups", wsGroupLookups);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -2289,11 +2431,15 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsGroupDeleteResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGroupDeleteResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGroupDeleteResults == null ? 0 : GrouperUtil.length(wsGroupDeleteResults.getResults()));
+    
     //this should be the first and only return, or else it is exiting too early
     return wsGroupDeleteResults;
   
@@ -2334,6 +2480,9 @@ public class GrouperServiceLogic {
       final boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
     WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
@@ -2368,6 +2517,10 @@ public class GrouperServiceLogic {
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail,  final WsParam[] params) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "groupSave");
+
     final WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
   
     GrouperSession session = null;
@@ -2383,6 +2536,13 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 200);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupToSaves", wsGroupToSaves);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -2518,11 +2678,15 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsGroupSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGroupSaveResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGroupSaveResults == null ? 0 : GrouperUtil.length(wsGroupSaveResults.getResults()));
+    
     //this should be the first and only return, or else it is exiting too early
     return wsGroupSaveResults;
   }
@@ -2546,6 +2710,8 @@ public class GrouperServiceLogic {
       final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
     final WsExternalSubjectSaveResults wsExternalSubjectSaveResults = new WsExternalSubjectSaveResults();
   
     GrouperSession session = null;
@@ -2560,6 +2726,13 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 200);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "externalSubjectSave");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsExternalSubjectToSaves", wsExternalSubjectToSaves);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -2640,11 +2813,15 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsExternalSubjectSaveResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsExternalSubjectSaveResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsExternalSubjectSaveResults == null ? 0 : GrouperUtil.length(wsExternalSubjectSaveResults.getResults()));
+
     //this should be the first and only return, or else it is exiting too early
     return wsExternalSubjectSaveResults;
   }
@@ -2696,6 +2873,10 @@ public class GrouperServiceLogic {
       String[] subjectAttributeNames, WsParam[] params,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "hasMember");
+
     WsHasMemberResults wsHasMemberResults = new WsHasMemberResults();
     boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
 
@@ -2713,10 +2894,22 @@ public class GrouperServiceLogic {
           + ", includeSubjectDetail: " + includeSubjectDetail
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n," +
-          		"params: " + GrouperUtil.toStringForLog(params, 100) + "\n,"
+              "params: " + GrouperUtil.toStringForLog(params, 100) + "\n,"
           + "pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
 
-  
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "memberFilter", memberFilter);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeFrom", pointInTimeFrom);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeTo", pointInTimeTo);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookup", wsGroupLookup);
+      
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -2807,11 +3000,15 @@ public class GrouperServiceLogic {
   
     } catch (Exception e) {
       wsHasMemberResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsHasMemberResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsHasMemberResults == null ? 0 : GrouperUtil.length(wsHasMemberResults.getResults()));
+    
     return wsHasMemberResults;
   
   }
@@ -2884,6 +3081,9 @@ public class GrouperServiceLogic {
       String paramValue0, String paramName1, String paramValue1,
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
   
@@ -2955,6 +3155,9 @@ public class GrouperServiceLogic {
       String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
 
     WsMemberChangeSubject wsMemberChangeSubject = new WsMemberChangeSubject();
@@ -3009,6 +3212,10 @@ public class GrouperServiceLogic {
       final String[] subjectAttributeNames, final WsParam[] params) {
     final WsMemberChangeSubjectResults wsMemberChangeSubjectResults = new WsMemberChangeSubjectResults();
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "memberChangeSubject");
+
     GrouperSession session = null;
     String theSummary = null;
     try {
@@ -3022,6 +3229,14 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
       
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsMemberChangeSubjects", wsMemberChangeSubjects);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -3096,10 +3311,14 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsMemberChangeSubjectResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsMemberChangeSubjectResults);
     }
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsMemberChangeSubjectResults == null ? 0 : GrouperUtil.length(wsMemberChangeSubjectResults.getResults()));
   
     return wsMemberChangeSubjectResults;
 
@@ -3124,6 +3343,10 @@ public class GrouperServiceLogic {
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "stemDelete");
+
     final WsStemDeleteResults wsStemDeleteResults = new WsStemDeleteResults();
   
     GrouperSession session = null;
@@ -3139,6 +3362,12 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookups", wsStemLookups);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -3214,11 +3443,16 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsStemDeleteResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsStemDeleteResults);
+      
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsStemDeleteResults == null ? 0 : GrouperUtil.length(wsStemDeleteResults.getResults()));
+    
     //this should be the first and only return, or else it is exiting too early
     return wsStemDeleteResults;
   
@@ -3257,6 +3491,9 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the stem lookup
     WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
     WsStemLookup[] wsStemLookups = new WsStemLookup[] { wsStemLookup };
@@ -3291,6 +3528,10 @@ public class GrouperServiceLogic {
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "stemSave");
+
     final WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
   
     GrouperSession session = null;
@@ -3306,6 +3547,12 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemToSaves", wsStemToSaves);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -3431,10 +3678,15 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsStemSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsStemSaveResults);
+
     }
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsStemSaveResults == null ? 0 : GrouperUtil.length(wsStemSaveResults.getResults()));
   
     //this should be the first and only return, or else it is exiting too early
     return wsStemSaveResults;
@@ -3479,6 +3731,9 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the stem lookup
     WsStemToSave wsStemToSave = new WsStemToSave();
   
@@ -3550,6 +3805,9 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, TypeOfGroup typeOfGroup) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsGroupToSave wsGroupToSave = new WsGroupToSave();
   
@@ -3635,6 +3893,10 @@ public class GrouperServiceLogic {
       boolean includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getGrouperPrivilegesLite");
+
     WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = 
       new WsGetGrouperPrivilegesLiteResult();
       
@@ -3670,6 +3932,27 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup 
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
         
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectId", actAsSubjectId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectSourceId", actAsSubjectSourceId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectIdentifier", actAsSubjectIdentifier);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "groupName", groupName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "groupUuid", groupUuid);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "paramName0", paramName0);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "paramName1", paramName1);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "paramValue0", paramValue0);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "paramValue1", paramValue1);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "privilegeName", privilegeName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "privilegeType", privilegeType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "stemName", stemName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "stemUuid", stemUuid);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectId", subjectId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectIdentifier", subjectIdentifier);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectSourceId", subjectSourceId);
+
       subjectAttributeArray = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeArray, includeSubjectDetail);
 
@@ -3997,11 +4280,15 @@ public class GrouperServiceLogic {
           .assignResultCode(WsGetGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES);
     } catch (Exception e) {
       wsGetGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetGrouperPrivilegesLiteResult);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetGrouperPrivilegesLiteResult == null ? 0 : GrouperUtil.length(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()));
+
     return wsGetGrouperPrivilegesLiteResult;
 
     
@@ -4626,6 +4913,9 @@ public class GrouperServiceLogic {
         boolean includeGroupDetail, String paramName0,
         String paramValue0, String paramName1, String paramValue1) {
 
+      Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
       // setup the group lookup
       WsGroupLookup wsGroupLookup = null;
       
@@ -4693,6 +4983,10 @@ public class GrouperServiceLogic {
         String[] sourceIds, WsGroupLookup wsGroupLookup, WsMemberFilter wsMemberFilter,
         Field fieldName, boolean includeGroupDetail, final WsParam[] params) {  
     
+      Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getSubjects");
+
       WsGetSubjectsResults wsGetSubjectsResults = new WsGetSubjectsResults();
     
       GrouperSession session = null;
@@ -4711,6 +5005,19 @@ public class GrouperServiceLogic {
             + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
             + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds, 100);
     
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "fieldName", fieldName);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "searchString", searchString);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "sourceIds", sourceIds);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookup", wsGroupLookup);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "wsMemberFilter", wsMemberFilter);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookups", wsSubjectLookups);
+
         //start session based on logged in user or the actAs passed in
         session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
     
@@ -4872,10 +5179,14 @@ public class GrouperServiceLogic {
           
       } catch (Exception e) {
         wsGetSubjectsResults.assignResultCodeException(null, theSummary, e);
+        GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
       } finally {
         GrouperSession.stopQuietly(session);
+        GrouperWsLog.addToLog(debugMap, wsGetSubjectsResults);
       }
 
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetSubjectsResults == null ? 0 : GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+      
       return wsGetSubjectsResults;
     
     }
@@ -4935,6 +5246,9 @@ public class GrouperServiceLogic {
         Field fieldName, boolean includeGroupDetail, String paramName0, String paramValue0,
         String paramName1, String paramValue1) {
     
+      Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
       // setup the group lookup
       WsGroupLookup wsGroupLookup = null;
       
@@ -5346,6 +5660,10 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "assignGrouperPrivileges");
+    
     try {
   
       theSummary = "clientVersion: " + clientVersion + ", wsSubjects: " + GrouperUtil.toStringForLog(wsSubjectLookups, 100)
@@ -5354,7 +5672,22 @@ public class GrouperServiceLogic {
           + ", allowed? " + allowed + ", actAsSubject: "
           + actAsSubjectLookup + ", replaceAllExisting: " + replaceAllExisting
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-        
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "allowed", allowed);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "privilegeNames", privilegeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "privilegeType", privilegeType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "replaceAllExisting", replaceAllExisting);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsGroupLookup", wsGroupLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsStemLookup", wsStemLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookups", wsSubjectLookups);
+
       final String[] subjectAttributeArray = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
 
@@ -5588,11 +5921,15 @@ public class GrouperServiceLogic {
           .assignResultCode(WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode.INSUFFICIENT_PRIVILEGES);
     } catch (Exception e) {
       wsAssignGrouperPrivilegesResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAssignGrouperPrivilegesResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAssignGrouperPrivilegesResults == null ? 0 : GrouperUtil.length(wsAssignGrouperPrivilegesResults.getResults()));
+
     return wsAssignGrouperPrivilegesResults;
   }
   
@@ -5652,6 +5989,10 @@ public class GrouperServiceLogic {
       WsAttributeDefNameLookup[] wsAssignAssignOwnerAttributeDefNameLookups,
       String[] wsAssignAssignOwnerActions) {  
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getAttributeAssignments");
+
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
   
     GrouperSession session = null;
@@ -5686,6 +6027,34 @@ public class GrouperServiceLogic {
           + ", wsAssignAssignOwnerAttributeDefNameLookups: " + GrouperUtil.toStringForLog(wsAssignAssignOwnerAttributeDefNameLookups, 200)
           + ", wsAssignAssignOwnerActions: " + GrouperUtil.toStringForLog(wsAssignAssignOwnerActions, 200);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actions", actions);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeAssignType", attributeAssignType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeDefType", attributeDefType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeDefValueType", attributeDefValueType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "enabled", enabled);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeAssignmentsFromAssignments", includeAssignmentsFromAssignments);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeAssignmentsOnAssignments", includeAssignmentsOnAssignments);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "theValue", theValue);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAssignAssignOwnerActions", wsAssignAssignOwnerActions);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAssignAssignOwnerAttributeAssignLookups", wsAssignAssignOwnerAttributeAssignLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAssignAssignOwnerAttributeDefLookups", wsAssignAssignOwnerAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAssignAssignOwnerAttributeDefNameLookups", wsAssignAssignOwnerAttributeDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeAssignLookups", wsAttributeAssignLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookups", wsAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameLookups", wsAttributeDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefLookups", wsOwnerAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerGroupLookups", wsOwnerGroupLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerMembershipAnyLookups", wsOwnerMembershipAnyLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerMembershipLookups", wsOwnerMembershipLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookups", wsOwnerStemLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerSubjectLookups", wsOwnerSubjectLookups);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -6070,10 +6439,14 @@ public class GrouperServiceLogic {
         
     } catch (Exception e) {
       wsGetAttributeAssignmentsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetAttributeAssignmentsResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetAttributeAssignmentsResults == null ? 0 : GrouperUtil.length(wsGetAttributeAssignmentsResults.getWsAttributeAssigns()));
+
     return wsGetAttributeAssignmentsResults; 
   }
 
@@ -6158,6 +6531,9 @@ public class GrouperServiceLogic {
       AttributeDefType attributeDefType, String wsAssignAssignOwnerAttributeAssignId, 
       String wsAssignAssignOwnerIdOfAttributeDef, String wsAssignAssignOwnerNameOfAttributeDef,
       String wsAssignAssignOwnerIdOfAttributeDefName, String wsAssignAssignOwnerNameOfAttributeDefName, String wsAssignAssignOwnerAction) {  
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
 
     WsAttributeAssignLookup[] attributeAssignLookups = null;
     
@@ -6271,6 +6647,10 @@ public class GrouperServiceLogic {
       WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getAttributeAssignActions");
+
     WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
 
     GrouperSession session = null;
@@ -6288,6 +6668,12 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup
           + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actions", actions);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookups", wsAttributeDefLookups);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -6379,9 +6765,13 @@ public class GrouperServiceLogic {
 
     } catch (Exception e) {
       wsGetAttributeAssignActionsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetAttributeAssignActionsResults);
     }
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetAttributeAssignActionsResults == null ? 0 : GrouperUtil.length(wsGetAttributeAssignActionsResults.getWsAttributeAssignActionTuples()));
 
     return wsGetAttributeAssignActionsResults;
   }
@@ -6409,6 +6799,9 @@ public class GrouperServiceLogic {
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
       String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
 
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
 
@@ -6502,6 +6895,11 @@ public class GrouperServiceLogic {
   
     GrouperSession session = null;
     String theSummary = null;
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "assignAttributes");
+    
     try {
   
       GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
@@ -6529,7 +6927,35 @@ public class GrouperServiceLogic {
           + "\n, attributeDefsToReplace: " + GrouperUtil.toStringForLog(attributeDefsToReplace, 200)
           + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200)
           + "\n, attributeDefTypesToReplace: " + GrouperUtil.toStringForLog(attributeDefTypesToReplace, 200);
-  
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actions", actions);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actionsToReplace", actionsToReplace);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "assignmentDisabledTime", assignmentDisabledTime);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "assignmentEnabledTime", assignmentEnabledTime);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "assignmentNotes", assignmentNotes);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeAssignOperation", attributeAssignOperation);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeAssignType", attributeAssignType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeAssignValueOperation", attributeAssignValueOperation);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeDefsToReplace", attributeDefsToReplace);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeDefTypesToReplace", attributeDefTypesToReplace);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "delegatable", delegatable);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "values", values);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeAssignLookups", wsAttributeAssignLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameLookups", wsAttributeDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeAssignLookups", wsOwnerAttributeAssignLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerAttributeDefLookups", wsOwnerAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerGroupLookups", wsOwnerGroupLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerMembershipAnyLookups", wsOwnerMembershipAnyLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerMembershipLookups", wsOwnerMembershipLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookups", wsOwnerStemLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerSubjectLookups", wsOwnerSubjectLookups);
+      
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -6554,10 +6980,14 @@ public class GrouperServiceLogic {
         
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAssignAttributesResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAssignAttributesResults == null ? 0 : GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+
     return wsAssignAttributesResults; 
   
   }
@@ -6639,6 +7069,9 @@ public class GrouperServiceLogic {
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {  
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     String[] attributeDefTypesToReplace = null;
     WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
     WsAttributeDefLookup[] attributeDefsToReplace = null; 
@@ -6756,6 +7189,8 @@ public class GrouperServiceLogic {
 
     final WsAttributeDefSaveResults wsAttributeDefSaveResults = new WsAttributeDefSaveResults();
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
     GrouperSession session = null;
     String theSummary = null;
     try {
@@ -6770,6 +7205,15 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
 
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "attributeDefSave");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefsToSave", wsAttributeDefsToSave);
+
+      
       final String THE_SUMMARY = theSummary;
 
       //start session based on logged in user or the actAs passed in
@@ -6865,10 +7309,14 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsAttributeDefSaveResults.assignResultCodeException(null, theSummary, e,
           clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAttributeDefSaveResults);
     }
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAttributeDefSaveResults == null ? 0 : GrouperUtil.length(wsAttributeDefSaveResults.getResults()));
 
     //this should be the first and only return, or else it is exiting too early
     return wsAttributeDefSaveResults;
@@ -6941,6 +7389,9 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the attributeDef lookup
     WsAttributeDefToSave wsAttributeDefToSave = new WsAttributeDefToSave();
 
@@ -7010,6 +7461,8 @@ public class GrouperServiceLogic {
       final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
     final WsAttributeDefDeleteResults wsAttributeDefDeleteResults = new WsAttributeDefDeleteResults();
 
     GrouperSession session = null;
@@ -7029,6 +7482,15 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup
           + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "attributeDefDelete");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookups", wsAttributeDefLookups);
+
 
       final String THE_SUMMARY = theSummary;
 
@@ -7120,10 +7582,14 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsAttributeDefDeleteResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAttributeDefDeleteResults);
     }
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAttributeDefDeleteResults == null ? 0 : GrouperUtil.length(wsAttributeDefDeleteResults.getResults()));
 
     //this should be the first and only return, or else it is exiting too early
     return wsAttributeDefDeleteResults;
@@ -7151,6 +7617,9 @@ public class GrouperServiceLogic {
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
       String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
 
     WsAttributeDefLookup[] wsAttributeDefLookups = new WsAttributeDefLookup[] {
         new WsAttributeDefLookup(
@@ -7202,6 +7671,10 @@ public class GrouperServiceLogic {
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "findAttributeDefs");
+
     final WsFindAttributeDefsResults wsFindAttributeDefsResults = new WsFindAttributeDefsResults();
 
     GrouperSession session = null;
@@ -7221,6 +7694,21 @@ public class GrouperServiceLogic {
           + ", sortString: " + sortString + ", ascending: " + ascending
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ascending", ascending);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "findByUuidOrName", findByUuidOrName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageNumber", pageNumber);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSize", pageSize);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "parentStemId", parentStemId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "privilegeName", privilegeName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "scope", scope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "sortString", sortString);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "splitScope", splitScope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "stemScope", stemScope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookups", wsAttributeDefLookups);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -7319,10 +7807,14 @@ public class GrouperServiceLogic {
 
     } catch (Exception e) {
       wsFindAttributeDefsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsFindAttributeDefsResults);
     }
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsFindAttributeDefsResults == null ? 0 : GrouperUtil.length(wsFindAttributeDefsResults.getAttributeDefResults()));
 
     return wsFindAttributeDefsResults;
   }
@@ -7378,6 +7870,9 @@ public class GrouperServiceLogic {
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
 
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
@@ -7526,12 +8021,14 @@ public class GrouperServiceLogic {
 
     } catch (Exception e) {
       wsAttributeDefAssignActionsResults.assignResultCodeException(null, theSummary, e);
-      debugMap.put("operationException", ExceptionUtils.getFullStackTrace(e));
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAttributeDefAssignActionsResults);
     }
 
-    GrouperWsLog.addToLog(debugMap, wsAttributeDefAssignActionsResults);
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAttributeDefAssignActionsResults == null ? 0 : GrouperUtil.length(wsAttributeDefAssignActionsResults.getActions()));
+
     return wsAttributeDefAssignActionsResults;
 
   }
@@ -7598,6 +8095,10 @@ public class GrouperServiceLogic {
       PermissionType permissionType, PermissionProcessor permissionProcessor, WsPermissionEnvVar[] limitEnvVars,
       boolean includeLimits) {  
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "getPermissionAssignments");
+
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
     GrouperSession session = null;
@@ -7630,6 +8131,30 @@ public class GrouperServiceLogic {
           + ", permissionProcessor: " + permissionProcessor + "\n limitEnvVars: "
           + GrouperUtil.toStringForLog(limitEnvVars, 100) + "\n includeLimits: " + includeLimits;
 
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actions", actions);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "enabled", enabled);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "immediateOnly", immediateOnly);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeAssignmentsOnAssignments", includeAssignmentsOnAssignments);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeAttributeAssignments", includeAttributeAssignments);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeAttributeDefNames", includeAttributeDefNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeLimits", includeLimits);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includePermissionAssignDetail", includePermissionAssignDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "limitEnvVars", limitEnvVars);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "permissionProcessor", permissionProcessor);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "permissionType", permissionType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeFrom", pointInTimeFrom);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pointInTimeTo", pointInTimeTo);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "roleLookups", roleLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookups", wsAttributeDefLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameLookups", wsAttributeDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookups", wsSubjectLookups);
+      
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -7660,10 +8185,10 @@ public class GrouperServiceLogic {
       StringBuilder errorMessage = new StringBuilder();
   
       //get the attributedefs to retrieve
-      Set<String> attributeDefIds = GrouperUtil.nonNull(WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
+      Set<String> attributeDefIds = wsAttributeDefLookups == null ? null : GrouperUtil.nonNull(WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
       
       //get the attributeDefNames to retrieve
-      Set<String> attributeDefNameIds = GrouperUtil.nonNull(WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
+      Set<String> attributeDefNameIds = wsAttributeDefNameLookups == null ? null : GrouperUtil.nonNull(WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
       
       //if you sent some in, and none are remaining, then that is bad...
       if (GrouperUtil.length(attributeDefNameIds) == 0 && GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
@@ -7779,10 +8304,14 @@ public class GrouperServiceLogic {
         
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGetPermissionAssignmentsResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetPermissionAssignmentsResults == null ? 0 : GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()));
+    
     return wsGetPermissionAssignmentsResults; 
   }
 
@@ -7872,6 +8401,9 @@ public class GrouperServiceLogic {
       String limitEnvVarType0, String limitEnvVarName1, String limitEnvVarValue1, String limitEnvVarType1, 
       boolean includeLimits) {  
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
     if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
       wsAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsAttributeDefName, wsAttributeDefId)};
@@ -7963,6 +8495,9 @@ public class GrouperServiceLogic {
       WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, 
       Boolean disallowed) {  
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    WsAssignPermissionsResults wsAssignPermissionsResults = null;
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
     GrouperSession session = null;
@@ -7988,6 +8523,29 @@ public class GrouperServiceLogic {
           + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200)
           + "\n, disallowed: " + disallowed;
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "assignPermissions");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actions", actions);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actionsToReplace", actionsToReplace);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "assignmentDisabledTime", assignmentDisabledTime);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "assignmentEnabledTime", assignmentEnabledTime);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "assignmentNotes", assignmentNotes);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeDefsToReplace", attributeDefsToReplace);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "delegatable", delegatable);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "disallowed", disallowed);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "permissionAssignOperation", permissionAssignOperation);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "permissionDefNameLookups", permissionDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "permissionType", permissionType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "roleLookups", roleLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectRoleLookups", subjectRoleLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeAssignLookups", wsAttributeAssignLookups);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -8015,10 +8573,16 @@ public class GrouperServiceLogic {
       
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      wsAssignPermissionsResults = new WsAssignPermissionsResults(wsAssignAttributesResults);
+      GrouperWsLog.addToLog(debugMap, wsAssignPermissionsResults);
+
     }
-    WsAssignPermissionsResults wsAssignPermissionsResults = new WsAssignPermissionsResults(wsAssignAttributesResults);
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAssignPermissionsResults == null ? 0 : GrouperUtil.length(wsAssignPermissionsResults.getWsAssignPermissionResults()));
+
     return wsAssignPermissionsResults; 
   
   }
@@ -8074,6 +8638,9 @@ public class GrouperServiceLogic {
       String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, Boolean disallowed) {  
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
 
     WsAttributeDefLookup[] attributeDefsToReplace = null; 
 
@@ -8368,9 +8935,11 @@ public class GrouperServiceLogic {
       }
     } catch (Exception e) {
       wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAssignAttributeDefNameInheritanceResults);
     }
   
     //this should be the first and only return, or else it is exiting too early
@@ -8413,6 +8982,9 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup(attributeDefNameName, attributeDefNameUuid);
     WsAttributeDefNameLookup relatedWsAttributeDefNameLookup = new WsAttributeDefNameLookup(relatedAttributeDefNameName, relatedAttributeDefNameUuid);
     WsAttributeDefNameLookup[] relatedWsAttributeDefNameLookups = new WsAttributeDefNameLookup[] { relatedWsAttributeDefNameLookup };
@@ -8445,6 +9017,8 @@ public class GrouperServiceLogic {
       GrouperTransactionType txType, final WsParam[] params) {
     final WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = new WsAttributeDefNameDeleteResults();
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
     GrouperSession session = null;
     String theSummary = null;
     try {
@@ -8456,6 +9030,14 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(wsAttributeDefNameLookups, 200) + "\n, actAsSubject: "
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "attributeDefNameDelete");
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameLookups", wsAttributeDefNameLookups);
 
       final String THE_SUMMARY = theSummary;
   
@@ -8539,11 +9121,16 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsAttributeDefNameDeleteResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAttributeDefNameDeleteResults);
+
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAttributeDefNameDeleteResults == null ? 0 : GrouperUtil.length(wsAttributeDefNameDeleteResults.getResults()));
+
     //this should be the first and only return, or else it is exiting too early
     return wsAttributeDefNameDeleteResults;
   }
@@ -8577,6 +9164,9 @@ public class GrouperServiceLogic {
       final String actAsSubjectIdentifier, final String paramName0, final String paramValue0,
       final String paramName1, final String paramValue1) {
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup(attributeDefNameName, attributeDefNameUuid);
     WsAttributeDefNameLookup[] wsAttributeDefNameLookups = new WsAttributeDefNameLookup[] { wsAttributeDefNameLookup };
@@ -8609,6 +9199,8 @@ public class GrouperServiceLogic {
       final WsAttributeDefNameToSave[] wsAttributeDefNameToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
     
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
     final WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = new WsAttributeDefNameSaveResults();
     
     GrouperSession session = null;
@@ -8624,6 +9216,14 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "attributeDefNameSave");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameToSaves", wsAttributeDefNameToSaves);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -8699,11 +9299,15 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsAttributeDefNameSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAttributeDefNameSaveResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAttributeDefNameSaveResults == null ? 0 : GrouperUtil.length(wsAttributeDefNameSaveResults.getResults()));
+
     //this should be the first and only return, or else it is exiting too early
     return wsAttributeDefNameSaveResults;
 
@@ -8757,6 +9361,10 @@ public class GrouperServiceLogic {
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     // setup the group lookup
     WsAttributeDefNameToSave wsAttributeDefNameToSave = new WsAttributeDefNameToSave();
   
@@ -8824,12 +9432,16 @@ public class GrouperServiceLogic {
       WsInheritanceSetRelation wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
       WsSubjectLookup wsSubjectLookup, ServiceRole serviceRole) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
     final WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
     
     GrouperSession session = null;
     String theSummary = null;
     try {
       GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsFindAttributeDefNamesResults.getResponseMetadata().warnings());
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "findAttributeDefNames");
 
       theSummary = "clientVersion: " + clientVersion + ", scope: "
           + scope + ", splitScope: " + splitScope
@@ -8844,6 +9456,23 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
           + "\n, wsSubjectLookup: " + wsSubjectLookup + ", serviceRole: " + serviceRole;
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ascending", ascending);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeAssignType", attributeAssignType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "attributeDefType", attributeDefType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageNumber", pageNumber);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSize", pageSize);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "scope", scope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "serviceRole", serviceRole);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "sortString", sortString);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "splitScope", splitScope);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefLookup", wsAttributeDefLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAttributeDefNameLookups", wsAttributeDefNameLookups);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsInheritanceSetRelation", wsInheritanceSetRelation);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsSubjectLookup", wsSubjectLookup);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
 
@@ -9002,11 +9631,15 @@ public class GrouperServiceLogic {
   
     } catch (Exception e) {
       wsFindAttributeDefNamesResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsFindAttributeDefNamesResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsFindAttributeDefNamesResults == null ? 0 : GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+
     return wsFindAttributeDefNamesResults;
   }
     
@@ -9068,6 +9701,9 @@ public class GrouperServiceLogic {
       String paramValue0, String paramName1, String paramValue1, String subjectId, String subjectSourceId,
       String subjectIdentifier, ServiceRole serviceRole) {
 
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "lite", true);
+
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
 
@@ -9126,6 +9762,11 @@ public class GrouperServiceLogic {
   
     GrouperSession session = null;
     String theSummary = null;
+    
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "acknowledge");
+    
     try {
   
       GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesBatchResults.getResponseMetadata().warnings());
@@ -9141,6 +9782,15 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) 
           + "\n, wsAssignAttributeBatchEntries: "
           + WsAssignAttributeBatchEntry.toString(wsAssignAttributeBatchEntries, 200);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeGroupDetail", includeGroupDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "includeSubjectDetail", includeSubjectDetail);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectAttributeNames", subjectAttributeNames);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsAssignAttributeBatchEntries", wsAssignAttributeBatchEntries);
       
       final String THE_SUMMARY = theSummary;
       
@@ -9289,11 +9939,14 @@ public class GrouperServiceLogic {
         
     } catch (Exception e) {
       wsAssignAttributesBatchResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsAssignAttributesBatchResults);
     }
     
-    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsAssignAttributesBatchResults == null ? 0 : GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+
     return wsAssignAttributesBatchResults; 
   
   }
@@ -9304,7 +9957,7 @@ public class GrouperServiceLogic {
    * @param queueOrTopicName - queue or topic to send to (required)
    * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
    * @param routingKey - valid for only rabbitmq. ignored otherwise.
-   * @param autocreateObjects - create queue/topic if not there already
+   * @param autocreateObjects - create queue/topic if not there already.
    * @param messages - payload to be sent (required)
    * @param actAsSubjectLookup
    * @param params
@@ -9315,6 +9968,10 @@ public class GrouperServiceLogic {
       final String messageSystemName, String routingKey, boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "sendMessage");
 
     final WsMessageResults wsSendMessageResults = new WsMessageResults();
 
@@ -9329,6 +9986,16 @@ public class GrouperServiceLogic {
           + "\nmessages: " + GrouperUtil.toStringForLog(messages)
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "autocreateObjects", autocreateObjects);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "messageSystemName", messageSystemName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "messages", messages);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "queueType", queueType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "routingKey", routingKey);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -9356,9 +10023,9 @@ public class GrouperServiceLogic {
 
       GrouperMessageSendParam grouperMessageSendParam = new GrouperMessageSendParam()
           .assignGrouperMessageSystemName(messageSystemName)
+          .assignAutocreateObjects(autocreateObjects)
           .assignQueueOrTopicName(queueOrTopicName)
           .assignQueueType(queueType)
-          .assignAutocreateObjects(autocreateObjects)
           .assignGrouperMessages(grouperMessages);
 
       GrouperMessagingEngine.send(grouperMessageSendParam.assignRoutingKey(routingKey));
@@ -9372,10 +10039,14 @@ public class GrouperServiceLogic {
 
     } catch (Exception e) {
       wsSendMessageResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsSendMessageResults);
     }
 
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsSendMessageResults == null ? 0 : GrouperUtil.length(wsSendMessageResults.getMessages()));
+    
     return wsSendMessageResults;
 
   }
@@ -9385,7 +10056,7 @@ public class GrouperServiceLogic {
    * @param queueOrTopicName - queue or topic to receive from (required)
    * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
    * @param routingKey - valid for rabbitmq, ignored otherwise.
-   * @param autocreateObjects - create queue/topic if not there already.
+   * @param autocreateObjects - create queue/topic if not there already
    * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)
    * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)
    * @param actAsSubjectLookup
@@ -9397,6 +10068,10 @@ public class GrouperServiceLogic {
       String routingKey, boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "receiveMessage");
 
     final WsMessageResults wsReceiveMessageResults = new WsMessageResults();
 
@@ -9412,6 +10087,16 @@ public class GrouperServiceLogic {
           + maxMessagesToReceiveAtOnce
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "autocreateObjects", autocreateObjects);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "blockMillis", blockMillis);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "maxMessagesToReceiveAtOnce", maxMessagesToReceiveAtOnce);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "messageSystemName", messageSystemName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "routingKey", routingKey);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -9458,10 +10143,14 @@ public class GrouperServiceLogic {
 
     } catch (Exception e) {
       wsReceiveMessageResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsReceiveMessageResults);
     }
 
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsReceiveMessageResults == null ? 0 : GrouperUtil.length(wsReceiveMessageResults.getMessages()));
+    
     return wsReceiveMessageResults;
 
   }
@@ -9502,9 +10191,15 @@ public class GrouperServiceLogic {
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
 
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "acknowledge");
       GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "messageSystemName", messageSystemName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "acknowledgeType", acknowledgeType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "messageIds", messageIds);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "anotherQueueOrTopicName", anotherQueueOrTopicName);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "anotherQueueType", anotherQueueType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
       
       //start session based on logged in user or the actAs passed in
@@ -9515,14 +10210,14 @@ public class GrouperServiceLogic {
       }
       
       if (acknowledgeType == GrouperMessageAcknowledgeType.send_to_another_queue &&
-    		  (StringUtils.isBlank(anotherQueueOrTopicName) || anotherQueueType == null)) { 
-    	  throw new WsInvalidQueryException(
-    	          "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
+          (StringUtils.isBlank(anotherQueueOrTopicName) || anotherQueueType == null)) { 
+        throw new WsInvalidQueryException(
+                "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
       }
       if (acknowledgeType != GrouperMessageAcknowledgeType.send_to_another_queue && 
-    		  (!StringUtils.isBlank(anotherQueueOrTopicName) || anotherQueueType != null)) { 
-    	  throw new WsInvalidQueryException(
-    	          "You need to pass in acknowledge type as send_to_another_queue if you are passing anotherQueueOrTopicName or anotherQueueType");
+          (!StringUtils.isBlank(anotherQueueOrTopicName) || anotherQueueType != null)) { 
+        throw new WsInvalidQueryException(
+                "You need to pass in acknowledge type as send_to_another_queue if you are passing anotherQueueOrTopicName or anotherQueueType");
       }
       if (GrouperUtil.length(messageIds) == 0) {
         throw new WsInvalidQueryException("You need to pass in at least one messageId.");
@@ -9565,11 +10260,11 @@ public class GrouperServiceLogic {
 
     } catch (Exception e) {
       wsMessageAcknowledgedResults.assignResultCodeException(null, theSummary, e);
-      debugMap.put("operationException", ExceptionUtils.getFullStackTrace(e));
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsMessageAcknowledgedResults);
     }
-    GrouperWsLog.addToLog(debugMap, wsMessageAcknowledgedResults);
     return wsMessageAcknowledgedResults;
 
   }
@@ -9592,11 +10287,15 @@ public class GrouperServiceLogic {
       final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
     final WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = new WsExternalSubjectDeleteResults();
   
     GrouperSession session = null;
     String theSummary = null;
     try {
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "externalSubjectDelete");
+
       GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsExternalSubjectDeleteResults.getResponseMetadata().warnings());
   
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
@@ -9606,6 +10305,14 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "externalSubjectDelete");
+      
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "txType", txType);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsExternalSubjectLookups", wsExternalSubjectLookups);
+
       final String THE_SUMMARY = theSummary;
   
       //start session based on logged in user or the actAs passed in
@@ -9689,10 +10396,14 @@ public class GrouperServiceLogic {
           });
     } catch (Exception e) {
       wsExternalSubjectDeleteResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsExternalSubjectDeleteResults);
     }
+
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsExternalSubjectDeleteResults == null ? 0 : GrouperUtil.length(wsExternalSubjectDeleteResults.getResults()));
 
     //this should be the first and only return, or else it is exiting too early
     return wsExternalSubjectDeleteResults;
@@ -9712,6 +10423,10 @@ public class GrouperServiceLogic {
       WsExternalSubjectLookup[] wsExternalSubjectLookups,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
   
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+    
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "findExternalSubjects");
+
     final WsFindExternalSubjectsResults wsFindExternalSubjectsResults = new WsFindExternalSubjectsResults();
   
     GrouperSession session = null;
@@ -9724,6 +10439,11 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
           + "\n, wsExternalSubjectLookups: " + GrouperUtil.toStringForLog(wsExternalSubjectLookups, 100);
   
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "wsExternalSubjectLookups", wsExternalSubjectLookups);
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -9771,11 +10491,15 @@ public class GrouperServiceLogic {
   
     } catch (Exception e) {
       wsFindExternalSubjectsResults.assignResultCodeException(null, theSummary, e);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
       GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsFindExternalSubjectsResults);
     }
   
+    GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsFindExternalSubjectsResults == null ? 0 : GrouperUtil.length(wsFindExternalSubjectsResults.getExternalSubjectResults()));
+
     return wsFindExternalSubjectsResults;
   }
   

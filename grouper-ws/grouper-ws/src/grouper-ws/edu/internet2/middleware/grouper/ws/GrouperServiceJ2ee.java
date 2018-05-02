@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -904,6 +905,11 @@ public class GrouperServiceJ2ee implements Filter {
 
   }
   
+  /**
+   * time format in logs
+   */
+  private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+  
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
@@ -947,7 +953,7 @@ public class GrouperServiceJ2ee implements Filter {
       grouperContext.setCallerIpAddress(remoteAddr);
       
       //get the proxy IP address
-      debugMap.put("startTimestamp", new Date());
+      debugMap.put("start", timeFormat.format(new Date()));
       debugMap.put("remoteAddr", remoteAddr);
       debugMap.put("requestUrl", ((HttpServletRequest)request).getRequestURL());
       
