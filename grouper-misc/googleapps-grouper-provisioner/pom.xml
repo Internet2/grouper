@@ -6,7 +6,7 @@
 
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>google-apps-provisioner</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
 
     <properties>
         <commons-collections.version>3.2.1</commons-collections.version>
