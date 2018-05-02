@@ -61,11 +61,10 @@ public class Misc {
    */
   public void logout(HttpServletRequest request, HttpServletResponse response) {
 
-    // todo Admin UI
-    //if (!LogoutAction.logoutLogic(request, response, request.getSession(false), true)) {
+    if (!Logout.logoutLogic(request, response, request.getSession(false), true)) {
       //not sure why this would happen, we are in ajax
-      //throw new ControllerDone();
-    //}
+      throw new ControllerDone();
+    }
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 

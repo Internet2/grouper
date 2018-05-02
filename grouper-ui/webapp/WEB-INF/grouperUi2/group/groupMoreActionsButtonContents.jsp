@@ -115,11 +115,6 @@
                           </a>
                         </li>
 
-                        <c:if test="${grouperRequestContainer.groupContainer.showMenuLinkToAdminUi}">
-                          <li class="divider"></li>
-                          <li><a href="../../populateGroupSummary.do?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"
-                              >${textContainer.text['groupViewAdminUiButton'] }</a></li>
-                        </c:if>
                       </ul>
                     </div>
 

@@ -7,6 +7,7 @@
   <grouper:subtitle key="simpleMembershipUpdate.topIndexSectionHeader" />
   <div class="sectionBody">
     <ul>
+      <li><a href="../../populateAllGroups.do"><grouper:message key="simpleGroupUpdate.topIndexAdminUi" /></a></li>
       <li><a href="../../grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain"><grouper:message key="simpleGroupUpdate.topIndexNewUi" /></a></li>
       <li><a href="grouper.html?operation=SimpleGroupUpdate.index"
         ><grouper:message key="simpleGroupUpdate.topIndexGroupUpdate" /></a></li>

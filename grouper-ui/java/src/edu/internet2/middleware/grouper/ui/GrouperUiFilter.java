@@ -722,6 +722,9 @@ public class GrouperUiFilter implements Filter {
     String uri = httpServletRequest.getRequestURI();
     
     //TODO might want to check the servlet param name from web.xml: ignore
+    if (uri.matches("^/[^/]+/$")) {
+      return UiSection.ANONYMOUS;
+    }
     if (uri.matches("^/[^/]+/index\\.jsp$")) {
       return UiSection.ANONYMOUS;
     }

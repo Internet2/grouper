@@ -24,7 +24,8 @@
               ${guiSettings.loggedInSubject.shortLink} 
               <c:if test="${mediaMap['logout.link.show']=='true'}">
                 &middot; 
-                <a href="../../logout.do" class="navbar-link">${textContainer.text['indexLogoutLink']}</a> 
+                <a href="#"
+                      onclick="return guiV2link('operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
               </c:if>
               &middot; <a href="#"
                       onclick="return guiV2link('operation=UiV2Main.help');">${textContainer.text['grouper.help'] }</a>

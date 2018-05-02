@@ -1044,7 +1044,7 @@ public class IndexContainer {
    * @return true if allowed to see admin link
    */
   public boolean isAdminUIQuickLinkDisplayed() {
-    boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", true);
+    boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", false);
     if (result) {
       Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.adminui.forGroup", loggedInSubject, true);

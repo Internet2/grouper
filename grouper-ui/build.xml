@@ -436,7 +436,7 @@
 	    </fileset>
 		</path>
 		<antcall target="-compileGrouper"/>
-		<!-- Compile ui code - mostly Struts actions -->
+		<!-- Compile ui code -->
 		
 	  <if><equals arg1="${ui.make.jar}" arg2="true"/>
 	  	<then>
@@ -469,7 +469,7 @@
 	  
 	  
 		
-		<!-- Call any site specific build script. This may be used to introduce site specific Struts action,
+		<!-- Call any site specific build script. This may be used to introduce site specific action,
 		  	     local Subject implementations etc -->
 		<antcall target="-additional-build">
 			<param name="target" value="webapp"/>
@@ -967,7 +967,6 @@
       <include name="edu/internet2/middleware/**"/>
     </packageset>
 
-    <link href="http://struts.apache.org/1.2.x/api/"/>
     <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
     <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
 
@@ -990,7 +989,6 @@
       <include name="edu/internet2/middleware/grouper/**"/>
     </packageset>
 
-    <link href="http://struts.apache.org/1.2.x/api/"/>
     <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
     <link href="http://java.sun.com/j2se/1.4.2/docs/api"/>
 
