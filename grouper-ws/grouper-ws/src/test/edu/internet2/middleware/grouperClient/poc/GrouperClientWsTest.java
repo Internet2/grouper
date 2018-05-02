@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -114,9 +115,10 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetMemberships"));
+    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNames"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
+
   }
 
   /**
@@ -7599,14 +7601,14 @@ public class GrouperClientWsTest extends GrouperTest {
     Group confluenceGroup = new GroupSave(grouperSession)
       .assignName("apps:confluence:editors").assignCreateParentStemsIfNotExist(true).save();
 
-    confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
-    confluenceGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
-    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
-    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
-    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.UPDATE);
+    confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    confluenceGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN, false);
+    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ, false);
+    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN, false);
+    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.UPDATE, false);
 
-    confluenceGroup.addMember(SubjectTestHelper.SUBJ1);
-    confluenceGroup.addMember(SubjectTestHelper.SUBJ2);
+    confluenceGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    confluenceGroup.addMember(SubjectTestHelper.SUBJ2, false);
 
     //the confluence folder has the confluence service tag
     Stem confluenceFolder = StemFinder.findByName(grouperSession, "apps:confluence", true);
@@ -7623,11 +7625,11 @@ public class GrouperClientWsTest extends GrouperTest {
     Group directoryGroup = new GroupSave(grouperSession)
       .assignName("apps:directory:users").assignCreateParentStemsIfNotExist(true).save();
 
-    directoryGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
-    directoryGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.READ);
-    directoryGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ);
-    directoryGroup.addMember(SubjectTestHelper.SUBJ2);
-    directoryGroup.addMember(SubjectTestHelper.SUBJ3);
+    directoryGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    directoryGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.READ, false);
+    directoryGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ, false);
+    directoryGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    directoryGroup.addMember(SubjectTestHelper.SUBJ3, false);
 
     //the confluence folder has the confluence service tag
     Stem directoryFolder = StemFinder.findByName(grouperSession, "apps:directory", true);
@@ -11828,7 +11830,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertEquals(outputLine, "read", matcher.group(3));
+      assertEquals(outputLine, "assign", matcher.group(3));
       
       outputLine = outputLines[1];
       matcher = pattern.matcher(outputLines[1]);
@@ -11836,7 +11838,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "1", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertEquals(outputLine, "assign", matcher.group(3));
+      assertEquals(outputLine, "read", matcher.group(3));
 
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -21335,8 +21337,18 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(systemOut);
 
       outputLines = GrouperClientUtils.splitTrim(output, "\n");
-
-      assertEquals(4, outputLines.length);
+      {
+        String[] outputLines2 = new String[4];
+        int i=0;
+        for (String outputLine : outputLines) {
+          if (!outputLine.contains("attestationLastEmailedDate")) {
+            outputLines2[i++] = outputLine;
+          }
+        }
+        outputLines = outputLines2;
+      }
+      
+      assertEquals(output, 4, outputLines.length);
 
       //Index ${index}: name: ${wsAttributeDefName.name}, displayName: ${wsAttributeDefName.displayName}$newline$
       pattern = Pattern.compile("^Index (\\d+): name: (.*), displayName: (.*)$");
@@ -21369,6 +21381,17 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(systemOut);
 
       outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      {
+        String[] outputLines2 = new String[4];
+        int i=0;
+        for (String outputLine : outputLines) {
+          if (!outputLine.contains("attestationLastEmailedDate")) {
+            outputLines2[i++] = outputLine;
+          }
+        }
+        outputLines = outputLines2;
+      }
 
       assertEquals(4, outputLines.length);
 
@@ -38701,7 +38724,7 @@ public class GrouperClientWsTest extends GrouperTest {
       String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
   
       Pattern pattern = Pattern
-          .compile("^Index (\\d+): identifier: (.+), name: (.+)$");
+          .compile("^Index (\\d+): identifier: (.+): name: (.+)$");
       Matcher matcher = pattern.matcher(outputLines[0]);
   
       assertEquals(output, 1, outputLines.length);

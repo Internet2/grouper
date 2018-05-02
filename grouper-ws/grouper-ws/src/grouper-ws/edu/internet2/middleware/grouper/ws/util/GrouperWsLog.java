@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -41,10 +42,15 @@ public class GrouperWsLog {
    */
   public static void addToLogIfNotBlank(Map<String, Object> messageMap, String key, Object value) {
     
-    if (!LOG.isDebugEnabled()) {
+    if (!LOG.isDebugEnabled() || messageMap == null) {
       return;
     }
     if (value == null) {
+      return;
+    }
+    
+    if (value instanceof Throwable) {
+      messageMap.put(key, ExceptionUtils.getFullStackTrace((Throwable)value));
       return;
     }
     
@@ -53,11 +59,11 @@ public class GrouperWsLog {
     }
     if (value.getClass().isArray() || value instanceof Collection) {
       if (GrouperUtil.length(value) > 0) {
-        messageMap.put(key, GrouperServiceUtils.toStringForLog(value, 100));
+        messageMap.put(key, GrouperServiceUtils.toStringForLog(value, 200));
       }
       return;
     }
-    messageMap.put(key, value);
+    messageMap.put(key, GrouperServiceUtils.toStringForWsLog(value));
   }
   
   /**
@@ -71,6 +77,7 @@ public class GrouperWsLog {
     }
 
     if (wsResponseBean == null) {
+      messageMap.put("responseBean", "null");
       return;
     }
     WsResultMeta resultMeta = wsResponseBean.getResultMetadata();
