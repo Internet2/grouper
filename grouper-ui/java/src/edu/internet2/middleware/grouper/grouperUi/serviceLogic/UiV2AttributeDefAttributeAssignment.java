@@ -183,7 +183,7 @@ public class UiV2AttributeDefAttributeAssignment {
          attributeDelegate.assignAttribute(attributeDefName);
        }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=" + ownerAttributeDef.getId() + "')"));
+      filterHelper(ownerAttributeDef);
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("attributeDefAssignAttributeSuccess")));
@@ -310,10 +310,7 @@ public class UiV2AttributeDefAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignAddValueSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      
-      filterHelper(attributeDef);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=" + attributeDef.getId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -450,9 +447,7 @@ public class UiV2AttributeDefAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAddSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      filterHelper(attributeDef);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=" + attributeDef.getId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -645,9 +640,7 @@ public class UiV2AttributeDefAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignEditSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/attributeDefAttribute/viewAttributeDefAttributeAssigns.jsp"));
-      filterHelper(attributeDef);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=" + attributeDef.getId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       

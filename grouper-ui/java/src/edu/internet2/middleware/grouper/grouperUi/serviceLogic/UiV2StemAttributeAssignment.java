@@ -204,7 +204,7 @@ public class UiV2StemAttributeAssignment {
         attributeDelegate.assignAttribute(attributeDefName);
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=" + stem.getId() + "')"));
+      filterHelper(stem);
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemAssignAttributeSuccess")));
@@ -331,9 +331,7 @@ public class UiV2StemAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignAddValueSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/stemAttribute/viewStemAttributeAssigns.jsp"));
-      filterHelper(stem);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=" + stem.getId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -470,9 +468,7 @@ public class UiV2StemAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAddSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/stemAttribute/viewStemAttributeAssigns.jsp"));
-      filterHelper(stem);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=" + stem.getId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -664,9 +660,7 @@ public class UiV2StemAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignEditSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/stemAttribute/viewStemAttributeAssigns.jsp"));
-      filterHelper(stem);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=" + stem.getId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
