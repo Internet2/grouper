@@ -186,7 +186,7 @@ public class UiV2SubjectAttributeAssignment {
         attributeDelegate.assignAttribute(attributeDefName);
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=" + subject.getId() + "&sourceId=" + subject.getSourceId() + "')"));
+      filterHelper(member);
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("subjectAssignAttributeSuccess")));
@@ -276,7 +276,6 @@ public class UiV2SubjectAttributeAssignment {
       grouperSession = GrouperSession.start(loggedInSubject);
       
       Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
-      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -314,9 +313,7 @@ public class UiV2SubjectAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignAddValueSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
-      filterHelper(member);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=" + subject.getId() + "&sourceId=" + subject.getSourceId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
@@ -392,7 +389,6 @@ public class UiV2SubjectAttributeAssignment {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       Subject subject = UiV2Subject.retrieveSubjectHelper(httpServletRequest, true);
-      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
 
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       
@@ -452,9 +448,7 @@ public class UiV2SubjectAttributeAssignment {
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAddSuccess");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/subjectAttribute/viewSubjectAttributeAssigns.jsp"));
-      filterHelper(member);
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=" + subject.getId() + "&sourceId=" + subject.getSourceId() + "')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
