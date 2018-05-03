@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [ "$0" = "" ]; then
     arg1=-initEnv
 elif [ "$0" = "gsh.sh" ]; then
@@ -116,7 +118,7 @@ if [ "$arg1" != "-initEnv" ]; then
 
     GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
-	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH $*
+	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
 	
 fi
 #:end
