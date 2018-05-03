@@ -35,7 +35,6 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
 import org.hibernate.internal.SessionImpl;
-import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Attribute;
@@ -2329,6 +2328,13 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
           "change_log_temp_created_on_idx", false, "created_on");
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
+     */
+    public boolean recreateViewsAndForeignKeys() {
+      return false;
     }
   };
   
