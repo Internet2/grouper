@@ -14,7 +14,6 @@
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=2.4.0"></script>
-<script src="../../grouperExternal/public/assets/js/grouperUi.js"></script>
 <script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
