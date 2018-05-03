@@ -30,6 +30,9 @@ grouper-misc/grouperClient/dist/grouperClient.institution-2.2.0.tar.gz
 grouper-misc/grouperClient/dist/grouperClient.jar
 grouper-misc/grouperClient/misc/README.txt
 
+**/org.eclipse.buildship.core.prefs
+**/.settings/
+
 subject/dist/
 subject/doc/
 **/build/dist/**/*.jar
