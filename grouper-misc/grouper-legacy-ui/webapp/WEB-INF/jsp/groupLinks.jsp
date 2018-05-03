@@ -16,7 +16,8 @@
 	</c:if>
 	   <c:if test="${groupPrivResolver.canEditGroup}">
 
-      <html:link page="/deleteGroup.do?${csrf:token()}" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
+      <c:set var="csrf_token"><csrf:token/></c:set>
+      <html:link page="/deleteGroup.do?${csrf_token}" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
         <grouper:message key="groups.action.delete"/>
       </html:link>
 

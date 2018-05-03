@@ -29,11 +29,10 @@
 <html:link page="/populateEditStem.do"><grouper:message key="stems.action.edit"/></html:link>
 </c:if>
 
-
-
+<c:set var="csrf_token"><csrf:token/></c:set>
 
 <c:if test="${!stemHasChildren && browsePrivs.stemAdmin}"> 
-<html:link page="/deleteStem.do?${csrf:token()}" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message key="stems.action.delete" /></html:link>
+<html:link page="/deleteStem.do?${csrf_token}" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message key="stems.action.delete" /></html:link>
 </c:if>
 <c:if test="${browsePrivs.create || browsePrivs.stemAdmin}"> 
 <html:link page="/populateCreateStem.do"><grouper:message key="stems.action.create"/></html:link>

@@ -2,6 +2,9 @@
 
 <!-- TODO translate from English -->
 
+
+<!-- start getting started text :  (from admin UI) WEB-INF/jsp/gettingStarted.jsp -->
+
 <h2>Grouper - intro</h2>
 <p>Grouper is a system for creating and maintaining institutional groups in a
   central repository. Such groups may be used for many different purposes
@@ -423,3 +426,59 @@ Entities can be found by:<br/>
   has two memberships for Group C.</p>
 
 <!-- end general help text : (from admin UI) WEB-INF/jsp/generalHelp.jsp -->
+
+
+<!-- start group math text :  (from admin UI) WEB-INF/jsp/groupMathHelp.jsp -->
+
+<h2 id="groupMathHelp">Group math</h2>
+<p>Grouper allows the membership of a group to be defined as the <em>union</em> (or),
+  <em>intersection</em> (and) or <em>complement</em> (not) of two other groups. This special
+  type of member is known as a <em>Composite</em> member. A composite member has
+  two <em>Factor</em> groups. </p>
+<p>Take two <em>ordinary</em> groups:</p>
+<ol>
+  <li>fionas = Fiona Windsor, Fiona Benson, Fiona Tarbuck</li>
+  <li>bensons= Keith Benson, Fiona Benson, Ian Benson</li>
+</ol>
+
+<dl>
+  <dt>fionas
+    <em><strong>union</strong></em> bensons= Fiona Windsor, Fiona Benson, Fiona
+    Tarbuck, Keith Benson, Ian Benson</dt>
+  <dd><em><strong>union</strong></em>
+    indicates the result of <em><strong>adding</strong></em> the members of <em>fionas</em>
+    and <em>bensons</em>.</dd>
+  <dt>fionas
+    <em><strong>intersection</strong> </em>bensons= Fiona Benson</dt>
+  <dd><em><strong>intersection</strong></em>
+    indicates the <em><strong>members-in-common</strong></em> of <em>fionas</em>
+    and <em>bensons</em>.</dd>
+  <dt>fionas
+    <em><strong>complement</strong> </em>bensons= Fiona Windsor, Fiona Tarbuck</dt>
+  <dd><em><strong>complement</strong></em>
+    indicates the members of <em>fionas</em> <em><strong>minus</strong></em> the
+    members of <em>bensons</em>. In this case the position, left or right, of
+    the groups is important. </dd>
+</dl>
+
+<p>A group can have a single composite member, or any number of entities (including
+  groups) as members, but not a combination, however, groups which have a composite
+  member can be used anywhere other groups can be used.</p>
+
+
+<!-- end group math text :  (from admin UI) WEB-INF/jsp/groupMathHelp.jsp -->
+
+
+<!-- start custom types text :  (from admin UI) WEB-INF/jsp/customTypesHelp.jsp -->
+
+<h2>Custom group types</h2>
+<p>It is possible for sites to define custom attributes for groups
+(Grouper administrators can see <a target="_blank" href="https://spaces.internet2.edu/x/QIbd">wiki</a> for more info).
+A special
+  kind of attribute, a list, is a collection of entities, similar to a group's
+  membership list. If a group has list attributes, and you have READ or WRITE
+  privilege for the list, the Grouper UI will let you manage the list in a similar
+  way to a group's membership list. A custom list cannot have a direct composite
+  member, however, it can have as members, groups which have composite members.</p>
+
+<!-- end custom types text :  (from admin UI) WEB-INF/jsp/customTypesHelp.jsp -->
