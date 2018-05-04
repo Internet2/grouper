@@ -13,11 +13,6 @@
                         role="menu" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
                         ${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options">
-                        <li><a href="#"
-                             onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
-                            ${textContainer.text['attributeDefViewAttributeDefNameButton'] }
-                          </a>
-                        </li>
 
                         <c:choose>
                           <c:when test="${grouperRequestContainer.attributeDefNameContainer.favorite}">
