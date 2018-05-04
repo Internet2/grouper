@@ -41,8 +41,10 @@
                             >${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewNewAttributeDefNameButton'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
-                            >${textContainer.text['attributeDefViewNewAttributeDefActionButton'] }</a></li>
+                            <c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.attributeDefTypeDb == 'perm'}">
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                                >${textContainer.text['attributeDefViewNewAttributeDefActionButton'] }</a></li>
+                            </c:if>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewAttributeAssignments'] }</a></li>
                         </c:if>
