@@ -11,13 +11,11 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -117,17 +115,9 @@ public class UiV2GroupAttributeAssignment {
       
       final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, true).getGroup();
       
-      final String attributeDefId = request.getParameter("attributeDefComboName");
       final String attributeDefNameId = request.getParameter("attributeDefNameComboName");
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      if (StringUtils.isBlank(attributeDefId)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("groupAssignAttributeDefRequired")));
-        return;
-      }
       
       if (StringUtils.isBlank(attributeDefNameId)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -138,14 +128,6 @@ public class UiV2GroupAttributeAssignment {
       
       if (group == null) {
         throw new RuntimeException("why is group blank??");
-      }
-      
-      AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
-      if (attributeDef == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("groupAssignAttributeDefRequired")));
-        return;
       }
       
       final AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);

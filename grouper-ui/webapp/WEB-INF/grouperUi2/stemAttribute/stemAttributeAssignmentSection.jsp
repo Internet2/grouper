@@ -15,25 +15,11 @@
           <form id="assignAttributeStemForm" class="form-horizontal">
              <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
              <div class="control-group">
-               <label class="control-label">${textContainer.text['stemAssignAttributeAttributeDefLabel'] }</label>
-               <div class="controls">
-                 <input type="hidden" name="attributeAssignType" value="stem" />                         
-                 <grouper:combobox2 idBase="attributeDefCombo" style="width: 30em"
-                   filterOperation="UiV2AttributeDef.attributeDefFilter"
-                   additionalFormElementNames="attributeAssignType"
-                   value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.objectAttributeDefId)}"
-                   />
-                 <span class="help-block">${textContainer.text['stemAssignAttributeAttributeDefDescription'] }</span>
-               
-               </div>
-             </div>
-             <div class="control-group">
                <label class="control-label">${textContainer.text['stemAssignAttributeAttributeDefNameLabel'] }</label>
                <div class="controls">
                                        
                  <grouper:combobox2 idBase="attributeDefNameCombo" style="width: 30em"
                    filterOperation="UiV2AttributeDefName.attributeDefNameFilter"
-                   additionalFormElementNames="attributeDefComboName,attributeAssignType"
                    value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.objectAttributeDefId)}"
                    />
                  <span class="help-block">${textContainer.text['stemAssignAttributeAttributeDefNameDescription'] }</span>

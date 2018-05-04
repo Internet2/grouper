@@ -129,7 +129,7 @@
                             </td>
                           </tr>
                           <tr>
-                            <td><strong>${textContainer.text['attributeDefLabelAssignTo']}</strong></td>
+                            <td class="top-vertical-align"><strong>${textContainer.text['attributeDefLabelAssignTo']}</strong></td>
                             <td>
                               <c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.assignToAttributeDef }">
                                 ${textContainer.text['attributeDefAssignTo.attributeDef'] } <br />

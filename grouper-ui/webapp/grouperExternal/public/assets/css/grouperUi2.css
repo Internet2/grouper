@@ -47,3 +47,7 @@ table.attributeDefAssignToTable td {
 .control-label.no-padding {
 	padding: 0px;
 }
+
+.table-condensed td.top-vertical-align {
+	vertical-align: top;
+}
