@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
 	<classpathentry kind="src" path="conf"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/activation-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/antlr-2.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent-3.1.jar"/>
@@ -55,7 +54,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-jpa-2.1-api-1.0.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12-1.7.25.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/vt-ldap-3.3.9.jar"/>
-        <classpathentry exported="true" kind="lib" path="lib/grouper/ldaptive-1.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ldaptive-1.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/ojdbc6_g.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-commons-annotations-5.0.1.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-ehcache-5.0.12.Final.jar"/>
@@ -71,5 +70,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/joda-time-2.9.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jline-2.14.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-validator-1.6.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java8"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
