@@ -357,6 +357,8 @@ public class UiV2AttributeDefName {
         GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setObjectStemId(objectStemId);
       }
       
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
       UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
       
       if (objectStemId != null) {
@@ -371,7 +373,20 @@ public class UiV2AttributeDefName {
         }
       }
       
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      String attributeDefId = request.getParameter("attributeDefId");
+      
+      if (StringUtils.isNotBlank(attributeDefId)) {
+        AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
+        if (attributeDef == null) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("attributeDefCantFindAttributeDef")));
+          return;
+        }
+        
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getAttributeDefContainer()
+        .setObjectAttributeDefId(attributeDef.getId());
+        
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/attributeDefName/newAttributeDefName.jsp"));
