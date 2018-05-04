@@ -48,10 +48,6 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-right" id="main-more-options">
                 <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2AttributeDef.newAttributeDef', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNewCreateNewAttributeDefMenuButton'] }</a></li>
-                <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNameNewCreateNewAttributeDefNameMenuButton'] }</a></li>
-                <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
