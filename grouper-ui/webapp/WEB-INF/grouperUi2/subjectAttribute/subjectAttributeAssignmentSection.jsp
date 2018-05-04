@@ -15,25 +15,10 @@
           <form id="assignAttributeSubjectForm" class="form-horizontal">
              <input type="hidden" name="subjectId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
              <div class="control-group">
-               <label class="control-label">${textContainer.text['subjectAssignAttributeAttributeDefLabel'] }</label>
-               <div class="controls">
-                 <input type="hidden" name="attributeAssignType" value="member" />                         
-                 <grouper:combobox2 idBase="attributeDefCombo" style="width: 30em"
-                   filterOperation="UiV2AttributeDef.attributeDefFilter"
-                   additionalFormElementNames="attributeAssignType"
-                   value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.objectAttributeDefId)}"
-                   />
-                 <span class="help-block">${textContainer.text['subjectAssignAttributeAttributeDefDescription'] }</span>
-               
-               </div>
-             </div>
-             <div class="control-group">
                <label class="control-label">${textContainer.text['subjectAssignAttributeAttributeDefNameLabel'] }</label>
                <div class="controls">
-                                       
                  <grouper:combobox2 idBase="attributeDefNameCombo" style="width: 30em"
                    filterOperation="UiV2AttributeDefName.attributeDefNameFilter"
-                   additionalFormElementNames="attributeDefComboName,attributeAssignType"
                    value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.objectAttributeDefId)}"
                    />
                  <span class="help-block">${textContainer.text['subjectAssignAttributeAttributeDefNameDescription'] }</span>

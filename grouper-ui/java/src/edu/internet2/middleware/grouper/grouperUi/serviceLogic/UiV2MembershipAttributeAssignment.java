@@ -14,14 +14,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -166,17 +164,9 @@ public class UiV2MembershipAttributeAssignment {
         throw new RuntimeException("Why is this an assignment on an assignment?");
       }
       
-      final String attributeDefId = request.getParameter("attributeDefComboName");
       final String attributeDefNameId = request.getParameter("attributeDefNameComboName");
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      if (StringUtils.isBlank(attributeDefId)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("membershipAssignAttributeDefRequired")));
-        return;
-      }
       
       if (StringUtils.isBlank(attributeDefNameId)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -187,14 +177,6 @@ public class UiV2MembershipAttributeAssignment {
       
       if (member == null) {
         throw new RuntimeException("why is member blank/null??");
-      }
-      
-      AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
-      if (attributeDef == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#attributeDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("membershipAssignAttributeDefRequired")));
-        return;
       }
       
       final AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
