@@ -595,6 +595,17 @@ public class SubjectFinder {
   }
   
   /**
+   * find subjects by idsOrIdentifiers
+   * @param idsOrIdentifiers
+   * @param sourcess
+   * @return the map of id or identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, Set<Source> sources) {
+    return getResolver().findByIdsOrIdentifiers(idsOrIdentifiers, sources);
+  }
+  
+  /**
    * find subjects by identifiers
    * @param identifiers
    * @return the map of identifier to subject.  If a subject is not found, it will

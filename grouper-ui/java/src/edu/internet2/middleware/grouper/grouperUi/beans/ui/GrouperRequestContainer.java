@@ -488,10 +488,26 @@ public class GrouperRequestContainer {
   private RulesContainer rulesContainer;
   
   /**
+   * container for deprovisioning users
+   */
+  private DeprovisioningContainer deprovisioningContainer;
+
+  /**
    * container for attestation screen
    */
   private AttestationContainer attestationContainer;
   
+  /**
+   * container for deprovisioning screen
+   * @return the container
+   */
+  public DeprovisioningContainer getDeprovisioningContainer() {
+    if (this.deprovisioningContainer == null) {
+      this.deprovisioningContainer = new DeprovisioningContainer();
+    }
+    return this.deprovisioningContainer;
+  }
+
   /**
    * lazy load the attestation container
    * @return the attestation container
