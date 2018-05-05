@@ -7,7 +7,9 @@
            <span>${textContainer.text['stemAttributeAssignmentsDescription'] }</span>
          </div>
          <div class="span3" id="stemAttributeMoreActionsButtonContentsDivId">
-           <%@ include file="stemAttributeMoreActionsButtonContents.jsp"%>
+	         <c:if test="${grouperRequestContainer.stemContainer.canUpdateAttributes}">
+	           <%@ include file="stemAttributeMoreActionsButtonContents.jsp"%>
+	         </c:if>
          </div>
         </div>
         <div class="row-fluid">

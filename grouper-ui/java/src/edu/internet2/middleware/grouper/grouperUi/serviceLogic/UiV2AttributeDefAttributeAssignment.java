@@ -98,6 +98,13 @@ public class UiV2AttributeDefAttributeAssignment {
     
     for (AttributeAssign attributeAssign : attributeAssigns) {
       GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+      // check security
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+        guiAttributeAssign.setCanUpdateAttributeDefName(true);
+      } catch (InsufficientPrivilegeException e) {
+        guiAttributeAssign.setCanUpdateAttributeDefName(false);
+      }
       guiAttributeAssign.setAttributeAssign(attributeAssign);
       guiAttributeAssigns.add(guiAttributeAssign);
     }

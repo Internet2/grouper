@@ -101,20 +101,21 @@
                           </c:if>
                         </c:if>
                         
-                        <li class="divider"></li>
-                        <li>
-                          <a href="#" onclick="ajax('../app/UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
-                            ${textContainer.text['groupViewPermissionsButton'] }
-                          </a>
-                        </li>
-                        
-                        <li class="divider"></li>
-                        <li>
-                          <a href="#" onclick="ajax('../app/UiV2GroupAttributeAssignment.viewAttributeAssignments?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
-                            ${textContainer.text['groupAttributeAssignmentsButton'] }
-                          </a>
-                        </li>
-
+                        <c:if test="${grouperRequestContainer.groupContainer.canReadAttributes}">
+	                        <li class="divider"></li>
+	                        <li>
+	                          <a href="#" onclick="ajax('../app/UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
+	                            ${textContainer.text['groupViewPermissionsButton'] }
+	                          </a>
+	                        </li>
+	                        
+	                        <li class="divider"></li>
+	                        <li>
+	                          <a href="#" onclick="ajax('../app/UiV2GroupAttributeAssignment.viewAttributeAssignments?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
+	                            ${textContainer.text['groupAttributeAssignmentsButton'] }
+	                          </a>
+	                        </li>
+                        </c:if>
                       </ul>
                     </div>
 

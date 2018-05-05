@@ -476,6 +476,12 @@ public class UiV2AttributeDefName {
             TextContainer.retrieveFromRequest().getText().get("attributeDefNameCreateRequiredAttributeDef")));
         return;
       }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeNameUpdate.errorCantEditAttributeDef")));
+        return;
+      }
          
       attributeDefName = parentFolder.addChildAttributeDefName(attributeDef, extension, displayExtension);
       attributeDefName.setDescription(description);
