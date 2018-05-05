@@ -823,7 +823,7 @@ public class UiV2AttributeDefName {
       public String retrieveHtmlLabel(GrouperSession grouperSession, AttributeDefName t) {
         //description could be null?
         String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
-        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/cog.png\" /> " + label;
         return htmlLabel;
       }
   
