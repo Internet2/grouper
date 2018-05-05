@@ -2017,7 +2017,7 @@ public class UiV2AttributeDef {
       public String retrieveHtmlLabel(GrouperSession grouperSession, AttributeDef t) {
         //description could be null?
         String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
-        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/cog.png\" /> " + label;
         return htmlLabel;
       }
   
