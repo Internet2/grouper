@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -82,6 +83,9 @@ public class GuiAttributeAssign implements Serializable {
    */
   private String screenLabelShort = null;
   
+  /** can update associated attribute def name **/
+  private boolean canUpdateAttributeDefName;
+  
   /**
    * attribute assignment
    * @return attribute assignment
@@ -103,6 +107,12 @@ public class GuiAttributeAssign implements Serializable {
     
     for (AttributeAssign theAttributeAssign : GrouperUtil.nonNull(attributeAssigns)) {
       GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+        guiAttributeAssign.setCanUpdateAttributeDefName(true);
+      } catch (InsufficientPrivilegeException e) {
+        guiAttributeAssign.setCanUpdateAttributeDefName(false);
+      }
       guiAttributeAssign.setAttributeAssign(theAttributeAssign);
       guiAttributeAssigns.add(guiAttributeAssign);
     }
@@ -332,6 +342,15 @@ public class GuiAttributeAssign implements Serializable {
       return "simpleAttributeUpdate.assignEnabled";
     }
     return "simpleAttributeUpdate.assignDisabled";
+  }
+
+  
+  public boolean isCanUpdateAttributeDefName() {
+    return canUpdateAttributeDefName;
+  }
+  
+  public void setCanUpdateAttributeDefName(boolean canUpdateAttributeDefName) {
+    this.canUpdateAttributeDefName = canUpdateAttributeDefName;
   }
   
 }

@@ -87,9 +87,19 @@ public class UiV2GroupAttributeAssignment {
     Set<GuiAttributeAssign> guiAttributeAssigns = new HashSet<GuiAttributeAssign>();
     
     for (AttributeAssign attributeAssign : attributeAssigns) {
+      
       GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
       guiAttributeAssign.setAttributeAssign(attributeAssign);
+      
+      // check security
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+        guiAttributeAssign.setCanUpdateAttributeDefName(true);
+      } catch (InsufficientPrivilegeException e) {
+        guiAttributeAssign.setCanUpdateAttributeDefName(false);
+      }
       guiAttributeAssigns.add(guiAttributeAssign);
+      
     }
     
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();

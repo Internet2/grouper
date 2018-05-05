@@ -684,6 +684,17 @@ public class GroupContainer {
    * if the logged in user can update group, lazy loaded
    */
   private Boolean canUpdate;
+  
+  /**
+   * if the logged in user can read attributes, lazy loaded
+   */
+  private Boolean canReadAttributes;
+  
+  /**
+   * if the logged in user can update attributes, lazy loaded
+   */
+  private Boolean canUpdateAttributes;
+  
   /**
    * keep track of the paging on the stem screen
    */
@@ -727,6 +738,52 @@ public class GroupContainer {
     }
     
     return this.canUpdate;
+  }
+  
+  /**
+   * if the logged in user can read attributes, lazy loaded
+   * @return if can update
+   */
+  public boolean isCanReadAttributes() {
+    
+    if (this.canReadAttributes == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canReadAttributes = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false);
+            }
+          });
+    }
+    
+    return this.canReadAttributes;
+  }
+  
+  /**
+   * if the logged in user can update attributes, lazy loaded
+   * @return if can update
+   */
+  public boolean isCanUpdateAttributes() {
+    
+    if (this.canUpdateAttributes == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canUpdateAttributes = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_UPDATE.getName(), false);
+            }
+          });
+    }
+    
+    return this.canUpdateAttributes;
   }
 
   /**

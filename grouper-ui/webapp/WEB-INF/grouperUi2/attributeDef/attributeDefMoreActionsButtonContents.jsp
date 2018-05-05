@@ -27,7 +27,7 @@
                             >${textContainer.text['attributeDefViewMoreActionsRemoveFromMyFavorites'] }</a></li>
                           </c:when>
                           <c:otherwise>
-                            <li><a href="#" 
+                            <li><a href="#"
                             onclick="ajax('../app/UiV2AttributeDef.addToMyFavorites?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" 
                             >${textContainer.text['attributeDefViewMoreActionsAddToMyFavorites'] }</a></li>
                           </c:otherwise>
@@ -45,6 +45,8 @@
                               <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                                 >${textContainer.text['attributeDefViewNewAttributeDefActionButton'] }</a></li>
                             </c:if>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.attributeDefContainer.canRead }">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewAttributeAssignments'] }</a></li>
                         </c:if>

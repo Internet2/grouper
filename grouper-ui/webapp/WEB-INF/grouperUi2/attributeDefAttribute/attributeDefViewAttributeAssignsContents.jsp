@@ -52,10 +52,12 @@
                        </c:if>
    
                        ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
-                        <a class="assignmentValueButton" href="#">
+                       <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
+                         <a class="assignmentValueButton" href="#">
                           <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                            id="assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                        </a>
+                         </a>
+                       </c:if>
                        
                        <c:set var="valueRow" value="${valueRow + 1}" />
                      </c:forEach>
@@ -65,19 +67,21 @@
                      ${guiAttributeAssign.guiAttributeDef.shortLinkWithIcon}
                    </td>
                    <td>
-                     <div class="btn-group">
-                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
-                        ${textContainer.text['attributeDefViewActionsButton'] } 
-                          <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
-                        </ul>
-                      </div>
+                     <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
+	                     <div class="btn-group">
+	                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+	                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+	                        ${textContainer.text['attributeDefViewActionsButton'] } 
+	                          <span class="caret"></span>
+	                        </a>
+	                        <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+	                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
+	                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
+	                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
+	                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
+	                        </ul>
+	                     </div>
+                     </c:if>
                    </td>
                  </tr>
                  
@@ -102,10 +106,12 @@
                            <c:if test="${valueRow != 0}"><br /></c:if>
                            
                            ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
-                            <a class="assignmentValueButton" href="#">
-                             <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                              id="assignmentValueButton_${guiAttributeAssignAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                           </a>
+                           <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
+                             <a class="assignmentValueButton" href="#">
+                               <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
+                                id="assignmentValueButton_${guiAttributeAssignAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
+                             </a>
+                           </c:if>
                  
                            <c:set var="valueRow" value="${valueRow + 1}" />
                  
@@ -114,19 +120,20 @@
                        </td>
                        <td>${guiAttributeAssignAssign.guiAttributeDef.shortLinkWithIcon}</td>
                        <td>
+                       <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
                          <div class="btn-group">
 	                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
 	                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
 	                        ${textContainer.text['attributeDefViewActionsButton'] } 
 	                          <span class="caret"></span>
 	                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
-                        </ul>
-                      </div>
+	                        <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+	                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
+	                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
+	                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
+	                        </ul>
+                        </div>
+                      </c:if>
                        </td>
                      </tr>
                    </c:if>

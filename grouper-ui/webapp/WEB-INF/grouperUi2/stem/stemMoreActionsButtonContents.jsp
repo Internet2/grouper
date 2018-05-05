@@ -60,18 +60,21 @@
 
                         </c:if>
                         
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                        
+                        <c:if test="${grouperRequestContainer.stemContainer.canReadAttributes || grouperRequestContainer.stemContainer.canCreateStems}">
                           <li class="divider"></li>
-                           <li><a href="#" 
-                              onclick="return guiV2link('operation=UiV2AttributeDef.newAttributeDef', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNewCreateNewAttributeDefMenuButton'] }</a></li>
-                           <li><a href="#" 
-                              onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNameNewCreateNewAttributeDefNameMenuButton'] }</a></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.stemContainer.canCreateStems}">
+                          <li><a href="#" 
+                             onclick="return guiV2link('operation=UiV2AttributeDef.newAttributeDef', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNewCreateNewAttributeDefMenuButton'] }</a></li>
+                          <li><a href="#" 
+                             onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNameNewCreateNewAttributeDefNameMenuButton'] }</a></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.stemContainer.canReadAttributes}">
                           <li>
                             <a href="#" onclick="return guiV2link('operation=UiV2StemAttributeAssignment.viewAttributeAssignments&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">
                               ${textContainer.text['stemViewAttributeAssignmentsButton'] }
                             </a>
-                          </li>
+                         </li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
 

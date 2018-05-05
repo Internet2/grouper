@@ -3946,25 +3946,17 @@ public class UiV2Group {
     guiSorting.processRequest(request);
     
     String auditType = request.getParameter("auditType");
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = GrouperSession.startIfNotStarted(loggedInSubject).getGrouperSession();
+    Subject subj = SubjectFinder.findById(group.getUuid(), true);
+    Member member = MemberFinder.findBySubject(grouperSession, subj, false);
     
     if ("membership".equals(auditType)) {
-      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      GrouperSession grouperSession = GrouperSession.startIfNotStarted(loggedInSubject).getGrouperSession();
-      Subject subj = SubjectFinder.findById(group.getUuid(), true);
-      Member member = MemberFinder.findBySubject(grouperSession, subj, false);
       query.addAuditTypeFieldValue("memberId", member.getUuid());
     } else if ("actions".equals(auditType)) {
-      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      GrouperSession grouperSession = GrouperSession.startIfNotStarted(loggedInSubject).getGrouperSession();
-      Subject subj = SubjectFinder.findById(group.getUuid(), true);
-      Member member = MemberFinder.findBySubject(grouperSession, subj, false);
       query=query.loggedInMember(member);
       query=query.actAsMember(member);
     } else if ("privileges".equals(auditType)) {
-      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      GrouperSession grouperSession = GrouperSession.startIfNotStarted(loggedInSubject).getGrouperSession();
-      Subject subj = SubjectFinder.findById(group.getUuid(), true);
-      Member member = MemberFinder.findBySubject(grouperSession, subj, false);
       query=query.addAuditTypeCategory("privilege").addAuditTypeFieldValue("memberId", member.getUuid());
     } else {
       query.addAuditTypeFieldValue("groupId", group.getId());

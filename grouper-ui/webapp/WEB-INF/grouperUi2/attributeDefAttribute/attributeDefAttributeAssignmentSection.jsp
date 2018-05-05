@@ -7,7 +7,9 @@
            <span>${textContainer.text['attributeDefAttributeAssignmentsDescription'] }</span>
          </div>
          <div class="span3" id="attributeDefAttributeMoreActionsButtonContentsDivId">
-           <%@ include file="attributeDefAttributeMoreActionsButtonContents.jsp"%>
+	         <c:if test="${grouperRequestContainer.attributeDefContainer.canUpdate}">
+	           <%@ include file="attributeDefAttributeMoreActionsButtonContents.jsp"%>
+	         </c:if>
          </div>
         </div>
         <div class="row-fluid">
