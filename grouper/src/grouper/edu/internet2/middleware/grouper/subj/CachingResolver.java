@@ -347,6 +347,20 @@ public class CachingResolver extends SubjectResolverDecorator {
   }
 
   /**
+   * Retrieve subject from cache for <code>findByIdentifier(...)</code>.
+   * @return  Cached subject or null.
+   * @since   1.2.1
+   */
+  private Subject getFromFindByIdOrIdentifierCache(String identifier, Set<Source> sources) {
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
+    if (staticGrouperSession == null) {
+      return null;
+    }
+    return findByIdOrIdentifierCache.get( sourcesMultiKey2(identifier, GrouperSourceAdapter.searchForGroupsWithReadPrivilege(),
+        sources));
+  }
+
+  /**
    * Put subject into cache for <code>findByIdentifier(...)</code>.
    * @since   1.2.1
    */
@@ -368,11 +382,26 @@ public class CachingResolver extends SubjectResolverDecorator {
   }
 
   /**
+   * Put subject into cache for <code>findByIdentifier(...)</code>.
+   * @since   1.2.1
+   */
+  private void putInFindByIdOrIdentifierCache(String idfr, Set<Source> sources, Subject subj) {
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
+    if (staticGrouperSession == null || subj == null) {
+      return;
+    }
+    MultiKey multiKey = sourcesMultiKey2(idfr, GrouperSourceAdapter.searchForGroupsWithReadPrivilege(),
+        sources);
+    findByIdOrIdentifierCache.put( multiKey, subj);
+    this.putInFindCache(subj);
+  }
+
+  /**
    * 
    */
   public Subject findByIdOrIdentifier(String id) throws IllegalArgumentException,
       SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subj = this.getFromFindByIdOrIdentifierCache(id, null);
+    Subject subj = this.getFromFindByIdOrIdentifierCache(id, (String)null);
     if (subj == null) {
       subj = super.getDecoratedResolver().findByIdOrIdentifier(id);
       this.putInFindByIdOrIdentifierCache(id, subj);
@@ -956,7 +985,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
     //lets get from cache
     for (String idOrIdentifier : idsOrIdentifiers) {
-      Subject subject = this.getFromFindByIdOrIdentifierCache(idOrIdentifier, null);
+      Subject subject = this.getFromFindByIdOrIdentifierCache(idOrIdentifier, (String)null);
       if (subject == null) {
         //if not found, batch these up
         idsOrIdentifiersNotFoundInCache.add(idOrIdentifier);
@@ -981,9 +1010,43 @@ public class CachingResolver extends SubjectResolverDecorator {
 
     }
     return result;
+  }
 
+  /**
+   * 
+   * @param identifier
+   * @param searchForGroupsWithReadPrivilege
+   * @param sources
+   * @return multikey for cache
+   */
+  private MultiKey sourcesMultiKey2(String identifier, boolean searchForGroupsWithReadPrivilege, Set<Source> sources) {
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
+    if (staticGrouperSession == null) {
+      throw new RuntimeException("If there is no grouper session you should not call this method!");
+    }
+    Subject grouperSessionSubject = staticGrouperSession.getSubject();
+    if (GrouperUtil.length(sources) == 0) {
+      return new MultiKey(new Object[]{grouperSessionSubject.getSourceId(), 
+          grouperSessionSubject.getId(), identifier, searchForGroupsWithReadPrivilege, null, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()});
+    }
+    Object[] sourcesArray = sources.toArray();
+    //convert to ids
+    for (int i=0;i<sourcesArray.length;i++) {
+      sourcesArray[i] = ((Source)sourcesArray[i]).getId();
+    }
+    Arrays.sort(sourcesArray);
+    Object[] fullKey = new Object[sourcesArray.length+5];
+    fullKey[0] = grouperSessionSubject.getSourceId();
+    fullKey[1] = grouperSessionSubject.getId(); 
+    fullKey[2] = identifier;
+    fullKey[3] = searchForGroupsWithReadPrivilege;
+    fullKey[4] = GrouperSourceAdapter.searchForGroupsWithReadPrivilege();
+    System.arraycopy(sourcesArray, 0, fullKey, 5, sourcesArray.length);
+    MultiKey multiKey = new MultiKey(fullKey);
+    return multiKey;
     
   }
+
   
   /**
    * @see SubjectResolver#findByIdsOrIdentifiers(Collection, String)
@@ -1025,5 +1088,44 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   }
 
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection, Set)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, Set<Source> sources)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> result = new HashMap<String, Subject>();    
+
+    Set<String> idsOrIdentifiersNotFoundInCache = new HashSet<String>();
+
+    //lets get from cache
+    for (String idOrIdentifier : idsOrIdentifiers) {
+      Subject subject = this.getFromFindByIdOrIdentifierCache(idOrIdentifier, sources);
+      if (subject == null) {
+        //if not found, batch these up
+        idsOrIdentifiersNotFoundInCache.add(idOrIdentifier);
+      } else {
+        result.put(idOrIdentifier, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(idsOrIdentifiersNotFoundInCache) > 0) {
+
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiersNotFoundInCache, sources);
+
+      for (String idOrIdentifier : nonCachedResult.keySet()) {
+
+        //put each of these in the cache
+        this.putInFindByIdOrIdentifierCache(idOrIdentifier, sources, nonCachedResult.get(idOrIdentifier));
+
+      }
+
+      result.putAll(nonCachedResult);
+
+    }
+    return result;
+
+  }
 }
 

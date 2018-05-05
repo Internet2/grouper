@@ -335,6 +335,16 @@ public class ValidatingResolver extends SubjectResolverDecorator {
     return super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiers, source);
   }
 
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection, Set)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, Set<Source> sources)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    this.param.notNullCollectionString(idsOrIdentifiers, "null Subject Ids");
+    return super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiers, sources);
+  }
+
 
   
 }

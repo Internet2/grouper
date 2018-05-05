@@ -78,7 +78,17 @@ public abstract class GuiObjectBase {
     return tempObjectBases;
 
   }
-  
+
+  /**
+   * display short link with image next to it in li
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getShortLinkWithIcon() {
+    
+    throw new RuntimeException("Not implemented");
+  }
+
   /**
    * get the gui object
    * @return the object

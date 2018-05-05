@@ -292,6 +292,21 @@ public interface SubjectResolver {
 
   /**
    * @return  map of search param to subject
+   * @param   id      Subject identifier to search on.
+   * @param   type    Subject type to search on.
+   * @param   sources  Source adapters to search within.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, Set<Source> sources)
+    throws  IllegalArgumentException,
+            SourceUnavailableException;
+
+  /**
+   * @return  map of search param to subject
    * @param   ids    Subject id to search on.
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SubjectNotFoundException if no matching subject is found.
