@@ -58,7 +58,7 @@
             <div class="controls">
               <input type="hidden" name="typeOfGroup" value="role" />                   	
                <grouper:combobox2 idBase="subjectRoleCombo" style="width: 30em"
-                 filterOperation="../app/UiV2Group.groupUpdateFilter"
+                 filterOperation="../app/UiV2Group.groupRoleAssignPermissionFilter"
                  additionalFormElementNames="typeOfGroup"/>
                                     
               <span class="help-block">${textContainer.text['subjectAssignPermissionRoleDescription'] }</span>

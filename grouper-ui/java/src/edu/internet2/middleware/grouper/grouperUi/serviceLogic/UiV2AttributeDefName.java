@@ -762,7 +762,7 @@ public class UiV2AttributeDefName {
               AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES, queryOptions, attributeAssignType, null);
           
           if (attributeDefNames.size() > 1) {
-            throw new RuntimeException("shouldn't have found more than one attribute def name.");
+            throw new RuntimeException("shouldn't have found more than one attribute def name: '" + query + "'");
           }
           if (attributeDefNames.size() == 1) {
             return attributeDefNames.iterator().next();

@@ -92,6 +92,10 @@
     <then><copy file="${conf.dir}/server.example.properties" 
       tofile="${conf.dir}/server.properties" /></then>
   </if> 
+	  <if><not><available file="${conf.dir}/grouper.cache.properties" /></not>
+	    <then><copy file="misc/grouper.cache.example.properties" 
+	      tofile="${conf.dir}/grouper.cache.properties" /></then>
+	  </if> 
   <if><not><available file="${conf.dir}/sources.xml" /></not>
     <then><copy file="${conf.dir}/sources.example.xml" 
       tofile="${conf.dir}/sources.xml" /></then>
@@ -502,6 +506,8 @@
     <!-- keep this in the jar so we know where it is -->
     <copy file="${basedir}/misc/version.properties" 
       tofile="${build.dir.grouper}/grouper.version.properties" />
+    <copy file="${basedir}/misc/grouper.cache.example.properties" 
+      tofile="${build.dir.grouper}/grouper.cache.properties" />
     <copy file="misc/grouper.example.properties" 
       todir="${build.dir.grouper}" />
     <copy file="misc/grouper.hibernate.example.properties" 
