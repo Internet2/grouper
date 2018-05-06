@@ -4841,6 +4841,80 @@ public class UiV2Group {
     
   }
 
+/**
+   * combo filter create group folder.  Note, this cannot be composite (since you cant
+   * add members to a composite)
+   * @param request
+   * @param response
+   */
+  public void groupRoleAssignPermissionFilter(final HttpServletRequest request, HttpServletResponse response) {
+  
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Group>() {
+  
+      /**
+       * 
+       */
+      @Override
+      public Group lookup(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES)
+            .assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).addTypeOfGroup(TypeOfGroup.role);
+        
+        return groupFinder.findGroup();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public Collection<Group> search(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        
+        int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
+        GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES)
+            .assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).addTypeOfGroup(TypeOfGroup.role);
+        
+        return groupFinder.findGroups();
+        
+      }
+  
+      /**
+       * 
+       * @param t
+       * @return id
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Group t) {
+        return t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Group t) {
+        return t.getDisplayName();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Group t) {
+        //description could be null?
+        String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/group.gif\" /> " + label;
+        return htmlLabel;
+      }
+  
+    });
+    
+  }
+
 //  /**
 //   * this subjects privileges inherited from folders
 //   * @param request

@@ -1164,6 +1164,10 @@ public class GroupFinder {
       }
     }
     
+    if (GrouperUtil.length(this.typeOfGroups) == 0) {
+      this.typeOfGroups.addAll(TypeOfGroup.GROUP_OR_ROLE_SET);
+    }
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     if (this.membershipsForSubject && this.field == null) {
@@ -1205,7 +1209,6 @@ public class GroupFinder {
    * default constructor
    */
   public GroupFinder() {
-    this.typeOfGroups.addAll(TypeOfGroup.GROUP_OR_ROLE_SET);
   }
   
   /**
