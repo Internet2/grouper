@@ -36,6 +36,7 @@ public class AllDeprovisioningTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.deprovisioning");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperDeprovisioningJobTest.class);
+    suite.addTestSuite(GrouperDeprovisioningOverallConfigurationTest.class);
     //$JUnit-END$
     return suite;
   }
