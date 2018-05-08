@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -92,12 +93,12 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
   }
 
   /**
-   * get managers group oro null if not found
-   * @return managers group
+   * get users members who have been deprovisioned
+   * @return users
    */
-  public Set<Subject> getUsersWhoHaveBeenDeprovisioned() {
+  public Set<Member> getUsersWhoHaveBeenDeprovisioned() {
     //these need to be looked up as root
-    return (Set<Subject>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Set<Member>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -113,7 +114,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
     });
 
   }
-  
+
   /**
    * get managers group oro null if not found
    * @return managers group
