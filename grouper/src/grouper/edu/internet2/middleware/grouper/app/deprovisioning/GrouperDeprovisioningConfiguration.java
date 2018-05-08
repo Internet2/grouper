@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 
@@ -7,26 +8,6 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
  * configuration on an object
  */
 public class GrouperDeprovisioningConfiguration {
-
-  /**
-   * Group or stem with configuration
-   */
-  private GrouperObject originalOwner;
-  
-  /**
-   * @return the originalOwner
-   */
-  public GrouperObject getOriginalOwner() {
-    return this.originalOwner;
-  }
-
-  
-  /**
-   * @param originalOwner1 the originalOwner to set
-   */
-  public void setOriginalOwner(GrouperObject originalOwner1) {
-    this.originalOwner = originalOwner1;
-  }
 
   /**
    * Stem that is the inherited owner
@@ -74,8 +55,6 @@ public class GrouperDeprovisioningConfiguration {
    * new config after calculations
    */
   private GrouperDeprovisioningAttributeValue newConfig;
-
-  
   
   /**
    * new config after calculations

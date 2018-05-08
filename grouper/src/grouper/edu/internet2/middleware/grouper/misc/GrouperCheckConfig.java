@@ -708,13 +708,26 @@ public class GrouperCheckConfig {
             .save();
         }
 
+        boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
+        
+        {
+          // # users in this group who are admins of a realm but who are not Grouper SysAdmins, will be 
+          // # able to deprovision from all grouper groups/objects, not just groups they have access to UPDATE/ADMIN
+          // deprovisioning.admin.group = $$deprovisioning.systemFolder$$:deprovisioningAdmins
+          String deprovisioningAdminGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningAdminGroupName();
+
+          checkGroup(grouperSession, deprovisioningAdminGroupName, wasInCheckConfig, autocreate, 
+              wasInCheckConfig, null, 
+              "deprovisioning admin group can deprovision from all groups/objects in Grouper even if the user is not a Grouper overall SysAdmin", 
+              "deprovisioning admin group can deprovision from all groups/objects in Grouper even if the user is not a Grouper overall SysAdmin",
+              null);
+        }        
+        
         // group that users who are allowed to deprovision other users are in
         for (String realm : GrouperDeprovisioningJob.retrieveDeprovisioningRealms()) {
 
           String deprovisioningManagersMustBeInGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningManagersMustBeInGroupName(realm);
 
-          boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
-          
           checkGroup(grouperSession, deprovisioningManagersMustBeInGroupName, wasInCheckConfig, autocreate, 
               wasInCheckConfig, null, "deprovisioning: " + realm + ", group that users who are allowed to deprovision other users are in", 
               "deprovisioning: " + realm + ", group that users who are allowed to deprovision other users are in", null);
@@ -760,8 +773,11 @@ public class GrouperCheckConfig {
         // try an attribute def dependent on an attribute def name
         deprovisioningAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
         
-        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningJob.DEPROVISIONING_REALM_ELIGIBLE_GROUP_ID, 
-            "Group ID of the group that identifies generally if an entity is in this realm. So if a group is deprovisioned by various realms, then only deprovision if the entity in the group is not in any realm eligible group. e.g. VPN is deprovisioned by realms employee and student. If the person is no longer an employee, but is still a student, then dont deprovision.", wasInCheckConfig);
+        
+
+        
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningJob.DEPROVISIONING_INHERITED_FROM_FOLDER_ID,
+            "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment and not inherited", wasInCheckConfig);
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningJob.DEPROVISIONING_REALM, 
             "Realm configured in the grouper.properties.  e.g. employee, student, etc", wasInCheckConfig);
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningJob.DEPROVISIONING_ALLOW_ADDS_WHILE_DEPROVISIONED, 

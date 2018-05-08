@@ -33,6 +33,10 @@
                     </c:if>
                     <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
                       >${textContainer.text['miscAttestationLink'] }</a>
+                    <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain');" style="white-space: nowrap;"
+                      >${textContainer.text['deprovisioningMainLink'] }</a>
+                    </c:if>
                   </div>
                 </div>
               </div>
