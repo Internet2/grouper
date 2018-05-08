@@ -245,6 +245,30 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
 
   }
 
+   
+  /**
+   * Stem ID of the folder where the configuration is inherited from.  This is blank if this is a 
+   * direct assignment and not inherited
+   */
+  public static final String DEPROVISIONING_INHERITED_FROM_FOLDER_ID = "deprovisioningInheritedFromFolderId";
+
+  /**
+   * Stem ID of the folder where the configuration is inherited from.  This is blank if this is a 
+   * direct assignment and not inherited
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameInheritedFromFolderId() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperAttestationJob.attestationStemName() + ":" + DEPROVISIONING_INHERITED_FROM_FOLDER_ID);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant deprovisioning inherited from folder id attribute def name be found?");
+    }
+    return attributeDefName;
+
+  }
+  
   /**
    * If configuration is assigned to a folder, then this is "one" or "sub".  "one" means only applicable to objects
    * directly in this folder.  "sub" (default) means applicable to all objects in this folder and
@@ -377,31 +401,6 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
   }
   
   /**
-   * Group ID of the group that identifies generally if an entity is in this realm. So if a group is deprovisioned by various realms, 
-   * then only deprovision if the entity in the group is not in any realm eligible group. e.g. VPN is deprovisioned by realms employee 
-   * and student. If the person is no longer an employee, but is still a student, then dont deprovision.
-   */
-  public static final String DEPROVISIONING_REALM_ELIGIBLE_GROUP_ID = "deprovisioningRealmEligibleGroupId";
-  
-  /**
-   * Group ID of the group that identifies generally if an entity is in this realm. So if a group is deprovisioned by various realms, 
-   * then only deprovision if the entity in the group is not in any realm eligible group. e.g. VPN is deprovisioned by realms employee 
-   * and student. If the person is no longer an employee, but is still a student, then dont deprovision.
-   * @return the attribute def name
-   */
-  public static AttributeDefName retrieveAttributeDefNameRealmEligibleGroupId() {
-    
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperAttestationJob.attestationStemName() + ":" + DEPROVISIONING_REALM_ELIGIBLE_GROUP_ID);
-
-    if (attributeDefName == null) {
-      throw new RuntimeException("Why cant deprovisioning realm eligible group id attribute def name be found?");
-    }
-    return attributeDefName;
-
-  }
-
-  /**
    * required, is the realm for this metadata
    */
   public static final String DEPROVISIONING_REALM = "deprovisioningRealm";
@@ -501,6 +500,19 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     return GrouperConfig.retrieveConfig().deprovisioningRealms();
   }
   
+  /**
+   * users in this group who are admins of a realm but who are not Grouper SysAdmins
+   * @return the group name
+   */
+  public static String retrieveDeprovisioningAdminGroupName() {
+    
+    // # users in this group who are admins of a realm but who are not Grouper SysAdmins, will be 
+    // # able to deprovision from all grouper groups/objects, not just groups they have access to UPDATE/ADMIN
+    // deprovisioning.admin.group = $$deprovisioning.systemFolder$$:deprovisioningAdmins
+    return GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.admin.group");
+
+  }
+
   /**
    * group that users who are allowed to deprovision other users are in
    * @param realm deprovi
