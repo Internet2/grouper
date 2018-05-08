@@ -1,9 +1,8 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
-import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -11,26 +10,49 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.textui.TestRunner;
 
 public class GrouperDeprovisioningJobTest extends GrouperTest {
-  
+
+  /**
+   * add config stuff
+   */
+  @Override
+  protected void setupConfigs() {
+    //  # if deprovisioning should be enabled
+    //  deprovisioning.enable = true
+    //
+    //  # comma separated realms for deprovisioning e.g. employee, student, etc
+    //  # these need to be alphanumeric suitable for properties keys for further config or for group extensions
+    //  deprovisioning.realms = 
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.enable", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realms", "faculty, student");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realm_faculty.groupNameMeansInRealm", "community:faculty");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realm_student.groupNameMeansInRealm", "community:student");
+  }
+
+  /**
+   * 
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+    GrouperCheckConfig.checkGroups();
+  }
+
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDeprovisioningJobTest(""));
+    TestRunner.run(new GrouperDeprovisioningJobTest("testRetrieveRealms"));
   }
   
   /**
@@ -40,6 +62,46 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testRetrieveRealms() {
+        
+    Map<String, GrouperDeprovisioningRealm> allRealms = GrouperDeprovisioningJob.retrieveAllRealms();
+    
+    assertEquals(2, GrouperUtil.length(allRealms));
+    
+    boolean foundStudent = false;
+    boolean foundFaculty = false;
+    
+    for (GrouperDeprovisioningRealm grouperDeprovisioningRealm : allRealms.values()) {
+      if (StringUtils.equals("faculty", grouperDeprovisioningRealm.getLabel())) {
+        foundFaculty = true;
+        assertEquals("community:faculty", grouperDeprovisioningRealm.getGroupNameMeansInRealm());
+      }
+      if (StringUtils.equals("student", grouperDeprovisioningRealm.getLabel())) {
+        foundStudent = true;
+      }
+    }
+    assertTrue(foundFaculty);
+    assertTrue(foundStudent);
+    
+    assertTrue(allRealms.containsKey("faculty"));
+    assertTrue(allRealms.containsKey("student"));
+    
+    Group facultyManagers = GroupFinder.findByName(GrouperSession.staticGrouperSession(), GrouperDeprovisioningJob.deprovisioningStemName() + ":managersWhoCanDeprovision_faculty", true);
+    
+    facultyManagers.addMember(SubjectTestHelper.SUBJ1);
+    
+    assertEquals(0, GrouperUtil.length(GrouperDeprovisioningJob.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ2)));
+    
+    Map<String, GrouperDeprovisioningRealm> realms = GrouperDeprovisioningJob.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ1);
+    
+    assertEquals(1, GrouperUtil.length(realms));
+    assertEquals("faculty", realms.keySet().iterator().next());
+    assertEquals("faculty", realms.get("faculty").getLabel());
+    
+  }
   
   /**
    * 
