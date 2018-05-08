@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.util.EmailObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -399,6 +400,16 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     return attributeDefName;
 
   }
+  
+  public static Set<GrouperDeprovisioningRealm> retrieveAllRealms() {
+    return null;
+  }
+  
+  
+  public static Set<GrouperDeprovisioningRealm> retrieveRealmsForUserManager(Subject subject) {
+    return null;
+  }
+  
   
   /**
    * required, is the realm for this metadata
