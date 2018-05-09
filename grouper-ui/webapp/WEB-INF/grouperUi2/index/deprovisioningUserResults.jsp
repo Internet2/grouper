@@ -35,20 +35,23 @@ ${textContainer.text['deprovisioningUserResultsDescription'] }
                   </thead>
                   <tbody>
                       <c:set var="i" value="0" />
-                      <c:forEach items="${grouperRequestContainer.deprovisioningContainer.guiMembershipSubjectContainers}" 
-                        var="guiMembershipSubjectContainer" >
+                      <c:forEach items="${grouperRequestContainer.deprovisioningContainer.guiDeprovisioningMembershipSubjectContainers}" 
+                        var="guiDeprovisioningMembershipSubjectContainer" >
+                        <c:set var="guiMembershipSubjectContainer" value="${guiDeprovisioningMembershipSubjectContainer.guiMembershipSubjectContainer}"/>
                         <c:set var="objectType" value="${guiMembershipSubjectContainer.guiGroup != null ? 'group' : 
                         ( guiMembershipSubjectContainer.guiStem != null ? 'stem' : 
                         ( guiMembershipSubjectContainer.guiAttributeDef != null ? 'attributeDef' : 'unknown' ) )}" />
                         <c:set var="guiMembershipContainer" value="${guiMembershipSubjectContainer.someGuiMembershipContainer}" />
                         <tr>
                           <td>
-                            <label class="checkbox checkbox-no-padding">
-                              <input type="checkbox" name="membershipRow_${i}" 
-                              checked="checked"
-                              aria-label="${textContainer.text['groupMembershipsInOtherGropusCheckboxAriaLabel'] }"
-                              value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
-                            </label>
+                            <c:if test="${guiDeprovisioningMembershipSubjectContainer.showCheckbox}">
+                              <label class="checkbox checkbox-no-padding">
+                                <input type="checkbox" name="membershipRow_${i}" 
+                                  ${guiDeprovisioningMembershipSubjectContainer.checkCheckbox ? 'checked="checked"' : '' }
+                                  aria-label="${textContainer.text['groupMembershipsInOtherGropusCheckboxAriaLabel'] }"
+                                  value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
+                              </label>
+                            </c:if>
                           </td>
                           <td data-hide="phone,medium" style="white-space: nowrap;">
                             ${guiMembershipSubjectContainer.guiObjectBase.pathColonSpaceSeparated}
