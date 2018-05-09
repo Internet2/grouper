@@ -1,7 +1,12 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.logging.Log;
 
@@ -9,6 +14,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -81,7 +87,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
    * @return managers group name
    */
   public String getManagersGroupName() {
-    return GrouperDeprovisioningJob.deprovisioningStemName() + ":managersWhoCanDeprovision_" + this.label;
+    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":managersWhoCanDeprovision_" + this.label;
   }
 
   /**
@@ -89,7 +95,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
    * @return users who have been deprovisioned
    */
   public String getUsersWhoHaveBeenDeprovisionedGroupName() {
-    return GrouperDeprovisioningJob.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + this.label;
+    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + this.label;
   }
 
   /**
@@ -186,6 +192,84 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
       }
     });
 
+  }
+
+  /**
+   * retrieve all realms configured in the grouper.properties, will not return null
+   * @return the realms, alphabetical
+   */
+  public static Map<String, GrouperDeprovisioningRealm> retrieveAllRealms() {
+    
+    Map<String, GrouperDeprovisioningRealm> allRealms = new TreeMap<String, GrouperDeprovisioningRealm>();
+    
+    //  GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.enable", "true");
+    //  GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realms", "faculty, student");
+    if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+      String allRealmsString = GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.realms");
+      if (!StringUtils.isBlank(allRealmsString)) {
+        Set<String> realmLabels = GrouperUtil.splitTrimToSet(allRealmsString, ",");
+        for (String realmLabel : realmLabels) {
+          GrouperDeprovisioningRealm grouperDeprovisioningRealm = new GrouperDeprovisioningRealm();
+          grouperDeprovisioningRealm.setLabel(realmLabel);
+          
+          // # deprovisioning.realm_<realmName>.groupNameMeansInRealm = a:b:c
+          grouperDeprovisioningRealm.setGroupNameMeansInRealm(GrouperConfig.retrieveConfig().propertyValueString(
+              "deprovisioning.realm_" + realmLabel + ".groupNameMeansInRealm"));
+          allRealms.put(realmLabel, grouperDeprovisioningRealm);
+        }
+      }
+    }
+    return allRealms;
+  }
+
+  /**
+   * get the configured deprovisioning realms
+   * @return the realms
+   */
+  public static Set<String> retrieveDeprovisioningRealms() {
+    // dont call the method since could be a circular problem
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.enable", true)) {
+      return new HashSet<String>();
+    }
+    return GrouperConfig.retrieveConfig().deprovisioningRealms();
+  }
+
+  /**
+   * get realms a subject manages
+   * @param subject who is the manager
+   * @return the realms
+   */
+  public static Map<String, GrouperDeprovisioningRealm> retrieveRealmsForUserManager(final Subject subject) {
+    //these need to be looked up as root
+    return (Map<String, GrouperDeprovisioningRealm>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      /**
+       * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
+       */
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        Map<String, GrouperDeprovisioningRealm> allRealms = retrieveAllRealms();
+        
+        if (PrivilegeHelper.isWheelOrRoot(subject)) {
+          return allRealms;
+        }
+        
+        Map<String, GrouperDeprovisioningRealm> someRealms = new TreeMap<String, GrouperDeprovisioningRealm>();
+        
+        Iterator<String> iterator = allRealms.keySet().iterator();
+        
+        while (iterator.hasNext()) {
+          String realmName = iterator.next();
+          GrouperDeprovisioningRealm grouperDeprovisioningRealm = allRealms.get(realmName);
+          if (grouperDeprovisioningRealm.getManagersGroup().hasMember(subject)) {
+            someRealms.put(realmName, grouperDeprovisioningRealm);
+          }
+        }
+        
+        return someRealms;
+      }
+    });
+  
   }
   
 }

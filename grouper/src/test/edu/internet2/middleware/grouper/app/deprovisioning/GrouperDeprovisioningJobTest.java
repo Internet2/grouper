@@ -67,7 +67,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
    */
   public void testRetrieveRealms() {
         
-    Map<String, GrouperDeprovisioningRealm> allRealms = GrouperDeprovisioningJob.retrieveAllRealms();
+    Map<String, GrouperDeprovisioningRealm> allRealms = GrouperDeprovisioningRealm.retrieveAllRealms();
     
     assertEquals(2, GrouperUtil.length(allRealms));
     
@@ -89,13 +89,13 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     assertTrue(allRealms.containsKey("faculty"));
     assertTrue(allRealms.containsKey("student"));
     
-    Group facultyManagers = GroupFinder.findByName(GrouperSession.staticGrouperSession(), GrouperDeprovisioningJob.deprovisioningStemName() + ":managersWhoCanDeprovision_faculty", true);
+    Group facultyManagers = GroupFinder.findByName(GrouperSession.staticGrouperSession(), GrouperDeprovisioningSettings.deprovisioningStemName() + ":managersWhoCanDeprovision_faculty", true);
     
     facultyManagers.addMember(SubjectTestHelper.SUBJ1);
     
-    assertEquals(0, GrouperUtil.length(GrouperDeprovisioningJob.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ2)));
+    assertEquals(0, GrouperUtil.length(GrouperDeprovisioningRealm.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ2)));
     
-    Map<String, GrouperDeprovisioningRealm> realms = GrouperDeprovisioningJob.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ1);
+    Map<String, GrouperDeprovisioningRealm> realms = GrouperDeprovisioningRealm.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ1);
     
     assertEquals(1, GrouperUtil.length(realms));
     assertEquals("faculty", realms.keySet().iterator().next());

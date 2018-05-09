@@ -194,6 +194,31 @@ public class GrouperDeprovisioningAttributeValue {
   }
 
   /**
+   * Stem ID of the folder where the configuration is inherited from.  This is blank if this is a 
+   * direct assignment and not inherited
+   */
+  private String inheritedFromFolderIdString;
+
+  /**
+   * Stem ID of the folder where the configuration is inherited from.  This is blank if this is a 
+   * direct assignment and not inherited
+   * @return inherited from folder id
+   */
+  public String getInheritedFromFolderIdString() {
+    return this.inheritedFromFolderIdString;
+  }
+
+
+  /**
+   * Stem ID of the folder where the configuration is inherited from.  This is blank if this is a 
+   * direct assignment and not inherited
+   * @param inheritedFromFolderIdString1
+   */
+  public void setInheritedFromFolderIdString(String inheritedFromFolderIdString1) {
+    this.inheritedFromFolderIdString = inheritedFromFolderIdString1;
+  }
+
+  /**
    * custom subject for emails, if blank use the default configured subject. Note there are template variables 
    * $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
    */
@@ -264,31 +289,6 @@ public class GrouperDeprovisioningAttributeValue {
    */
   public void setRealmString(String realmString) {
     this.realmString = realmString;
-  }
-
-
-  /**
-   * Group ID of the group that identifies generally if an entity is in this realm. So if a group is deprovisioned by various realms, 
-   * then only deprovision if the entity in the group is not in any realm eligible group. e.g. VPN is deprovisioned by realms employee 
-   * and student. If the person is no longer an employee, but is still a student, then dont deprovision.
-   */
-  private String realmEligibleGroupIdString;
-  
-  
-  /**
-   * @return the realmEligibleGroupIdString
-   */
-  public String getRealmEligibleGroupIdString() {
-    return this.realmEligibleGroupIdString;
-  }
-
-
-  
-  /**
-   * @param realmEligibleGroupIdString the realmEligibleGroupIdString to set
-   */
-  public void setRealmEligibleGroupIdString(String realmEligibleGroupIdString) {
-    this.realmEligibleGroupIdString = realmEligibleGroupIdString;
   }
 
   /**
