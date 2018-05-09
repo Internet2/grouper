@@ -1,5 +1,11 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+
+           <div class="row-fluid" style="margin-bottom: 10px;">
+             <div class="span2 pull-right" id="groupMoreActionsButtonContentsDivId">
+               <%@ include file="../index/deprovisioningMainMoreActionsButtonContents.jsp"%>
+             </div>
+           </div>
            <div class="span12">
               <c:choose>
                 <c:when test="${fn:length(grouperRequestContainer.deprovisioningContainer.deprovisionedGuiMembers) == 0}">

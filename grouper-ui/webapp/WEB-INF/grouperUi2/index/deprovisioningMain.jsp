@@ -10,20 +10,24 @@
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="lead span9"><h1>${textContainer.text['miscellaneousDeprovisioningMainDecription'] }</h1></div>
-                  <div class="span3" id="deprovisioningMainMoreActionsButtonContentsDivId">
+                  <%-- <div class="span3" id="deprovisioningMainMoreActionsButtonContentsDivId">
                     <%@ include file="deprovisioningMainMoreActionsButtonContents.jsp"%>
-                  </div>
+                  </div> --%>
                 </div>
-                <div class="row-fluid">
+                <%-- <div class="row-fluid">
                   <div class="span12">
                     <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousDeprovisioningMainSubtitle']}</p>
                   </div>
-                </div>
+                </div> --%>
               </div>
+              
+              <!-- <div class="row-fluid">
+			         
+			        </div> -->
               
               
             </div>
 
-            <div class="row-fluid">
-              <%@ include file="../index/deprovisioningMainHelper.jsp"%>
+            <div class="row-fluid" id="deprovisioningUsers">
+              <%@ include file="../index/deprovisioningSelectRealm.jsp"%>
             </div>

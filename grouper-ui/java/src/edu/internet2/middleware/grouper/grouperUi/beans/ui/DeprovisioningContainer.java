@@ -5,8 +5,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDeprovisioningMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Source;
@@ -17,23 +18,23 @@ public class DeprovisioningContainer {
   /**
    * access that a user has
    */
-  private Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers;
+  private Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningMembershipSubjectContainers;
   
   /**
    * access that a user has
-   * @return the access set
+   * @return
    */
-  public Set<GuiMembershipSubjectContainer> getGuiMembershipSubjectContainers() {
-    return this.guiMembershipSubjectContainers;
+  public Set<GuiDeprovisioningMembershipSubjectContainer> getGuiDeprovisioningMembershipSubjectContainers() {
+    return guiDeprovisioningMembershipSubjectContainers;
   }
 
   /**
    * access that a user has
-   * @param guiMembershipSubjectContainers1
+   * @param guiDeprovisioningMembershipSubjectContainers
    */
-  public void setGuiMembershipSubjectContainers(
-      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers1) {
-    this.guiMembershipSubjectContainers = guiMembershipSubjectContainers1;
+  public void setGuiDeprovisioningMembershipSubjectContainers(
+      Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningMembershipSubjectContainers) {
+    this.guiDeprovisioningMembershipSubjectContainers = guiDeprovisioningMembershipSubjectContainers;
   }
 
   /**
@@ -42,7 +43,7 @@ public class DeprovisioningContainer {
    */
   public Set<Source> getSources() {
     
-    return GrouperDeprovisioningJob.retrieveSourcesAllowedToDeprovision();
+    return GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision();
   }
 
   /**
@@ -70,7 +71,7 @@ public class DeprovisioningContainer {
    * make sure deprovisioning is enabled and allowed
    */
   public void assertDeprovisioningEnabledAndAllowed() {
-    if (!GrouperDeprovisioningJob.deprovisioningEnabled()) {
+    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       throw new RuntimeException("Deprovisioning is disabled");
     }
     
@@ -85,7 +86,7 @@ public class DeprovisioningContainer {
    * @return true if enabled
    */
   public boolean isDeprovisioningEnabled() {
-    return GrouperDeprovisioningJob.deprovisioningEnabled();
+    return GrouperDeprovisioningSettings.deprovisioningEnabled();
   }
   
   /**
@@ -94,7 +95,7 @@ public class DeprovisioningContainer {
    */
   public boolean isAllowedToDeprovision() {
 
-    if (!GrouperDeprovisioningJob.deprovisioningEnabled()) {
+    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       return false;
     }
     
@@ -111,6 +112,42 @@ public class DeprovisioningContainer {
     
     return false;
 
+  }
+  
+  /**  set of realms current logged in user has access to **/
+  private Set<GuiDeprovisioningRealm> realms;
+  
+  /**
+   * @return set of realms current logged in user has access to
+   */
+  public Set<GuiDeprovisioningRealm> getRealms() {
+    return realms;
+  }
+  
+  /**
+   * @param set of realms current logged in user has access to
+   */
+  public void setRealms(Set<GuiDeprovisioningRealm> realms) {
+    this.realms = realms;
+  }
+  
+  /** realm user is currently working on **/
+  private String realm;
+
+  /**
+   * realm user is currently working on
+   * @return
+   */
+  public String getRealm() {
+    return realm;
+  }
+
+  /**
+   * realm user is currently working on
+   * @param realm
+   */
+  public void setRealm(String realm) {
+    this.realm = realm;
   }
   
 }

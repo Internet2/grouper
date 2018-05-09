@@ -1,11 +1,10 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,20 +12,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningRealm;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDeprovisioningMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -36,11 +30,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDeprovisioningRealm;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.membership.MembershipResult;
-import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
-import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -110,22 +101,23 @@ public class UiV2Deprovisioning {
   
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      Set<Member> deprovisionedMembers = null; //TODO  GrouperDeprovisioningJob.retrieveRecentlyDeprovisionedUsers();
+      Set<GrouperDeprovisioningRealm> realmsForUserManager = new TreeSet<GrouperDeprovisioningRealm>(GrouperDeprovisioningRealm.retrieveRealmsForUserManager(loggedInSubject).values());
       
-      Set<GuiMember> guiMembers = GuiMember.convertFromMembers(deprovisionedMembers);
+      Set<GuiDeprovisioningRealm> guiRealms = GuiDeprovisioningRealm.convertFromGrouperDeprovisioningRealms(realmsForUserManager);
       
-      deprovisioningContainer.setDeprovisionedGuiMembers(guiMembers);
+      deprovisioningContainer.setRealms(guiRealms);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/deprovisioningMain.jsp"));
-
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers", 
+          "/WEB-INF/grouperUi2/index/deprovisioningSelectRealm.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
 
   }
-  
   
   
   /**
@@ -168,7 +160,7 @@ public class UiV2Deprovisioning {
         }
 
         //dont do groups or internal
-        if (subject != null && !SubjectHelper.inSourceList(GrouperDeprovisioningJob.retrieveSourcesAllowedToDeprovision(), subject.getSource())) {
+        if (subject != null && !SubjectHelper.inSourceList(GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision(), subject.getSource())) {
           subject = null;
         }
         
@@ -184,7 +176,7 @@ public class UiV2Deprovisioning {
         try {
           GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
           Collection<Subject> results = 
-              SubjectFinder.findPage(query, GrouperDeprovisioningJob.retrieveSourcesAllowedToDeprovision()).getResults();
+              SubjectFinder.findPage(query, GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision()).getResults();
           return results;
         } finally {
           GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
@@ -279,7 +271,7 @@ public class UiV2Deprovisioning {
         if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperQuerySubjectsMultipleQueriesCommaSeparated", true)) {
           Set<String> searchStrings = GrouperUtil.splitTrimToSet(searchString, ",");
           if (StringUtils.equals("all", sourceId)) {
-            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings, GrouperDeprovisioningJob.retrieveSourcesAllowedToDeprovision())).values());
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings, GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision())).values());
           } else {
             subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings, sourceId)).values());
           }
@@ -303,7 +295,7 @@ public class UiV2Deprovisioning {
       } else {
         Set<Source> sources = null;
         if (StringUtils.equals("all", sourceId)) {
-          sources = GrouperDeprovisioningJob.retrieveSourcesAllowedToDeprovision();
+          sources = GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision();
         } else {
           sources = GrouperUtil.toSet(SourceManager.getInstance().getSource(sourceId));
         }
@@ -352,6 +344,27 @@ public class UiV2Deprovisioning {
       
       String subjectString = request.getParameter("groupAddMemberComboName");
       
+      if (StringUtils.isBlank(subjectString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupAddMemberComboId",
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+        return;
+      }
+      
+      String realm = request.getParameter("realm");
+      
+      if (StringUtils.isBlank(realm)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+        return;
+      }
+      
+      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
+      
+      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
+        throw new RuntimeException("User is not manager.");
+      }
+      
       Subject subject = null;
       
       if (subjectString != null && subjectString.contains("||")) {
@@ -369,7 +382,7 @@ public class UiV2Deprovisioning {
       }
 
       // must be in a certain source
-      if (subject != null && !SubjectHelper.inSourceList(GrouperDeprovisioningJob.retrieveSourcesAllowedToDeprovision(), subject.getSource())) {
+      if (subject != null && !SubjectHelper.inSourceList(GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision(), subject.getSource())) {
         subject = null;
       }
       
@@ -378,59 +391,11 @@ public class UiV2Deprovisioning {
             TextContainer.retrieveFromRequest().getText().get("deprovisioningCantFindSubject")));
         return;
       }      
-
-      final Subject SUBJECT = subject;
       
-      //switch over to admin so attributes work
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          Set<GuiMembershipSubjectContainer> result = new LinkedHashSet<GuiMembershipSubjectContainer>();
-          
-          for (FieldType fieldType : new FieldType[] {FieldType.LIST, FieldType.ACCESS, FieldType.NAMING, FieldType.ATTRIBUTE_DEF}) {
-
-            //get all the memberships and privileges
-            MembershipResult membershipResult = new MembershipFinder().addSubject(SUBJECT)
-                .assignFieldType(fieldType)
-                .assignMembershipType(MembershipType.IMMEDIATE).findMembershipResult();
-            Set<MembershipSubjectContainer> membershipSubjectContainers = membershipResult.getMembershipSubjectContainers();
-            
-            Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
-            ArrayList<GuiMembershipSubjectContainer> resultList = new ArrayList<GuiMembershipSubjectContainer>(guiMembershipSubjectContainers);
-            Collections.sort(resultList, new Comparator<GuiMembershipSubjectContainer>() {
-
-              @Override
-              public int compare(GuiMembershipSubjectContainer o1,
-                  GuiMembershipSubjectContainer o2) {
-                
-                if (o1 == o2) {
-                  return 0;
-                }
-                
-                if (o2 == null) {
-                  return 1;
-                }
-                
-                if (o1 == null) {
-                  return -1;
-                }
-                
-                return o1.getGuiObjectBase().getNameColonSpaceSeparated().compareTo(o2.getGuiObjectBase().getNameColonSpaceSeparated());
-              }
-            });
-            result.addAll(resultList);
-          }
-          
-          deprovisioningContainer.setGuiMembershipSubjectContainers(result);
-          return null;
-        }
-      });
+      deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(new HashSet<GuiDeprovisioningMembershipSubjectContainer>());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUserResultsDivId", 
           "/WEB-INF/grouperUi2/index/deprovisioningUserResults.jsp"));
-
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -488,8 +453,146 @@ public class UiV2Deprovisioning {
 
     guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
         TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionSuccess")));
-
-    
     
   }
+  
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningRealmSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      String realm = request.getParameter("realm");
+      if (StringUtils.isBlank(realm)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#realmFilter",
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+        return;
+      }
+      
+      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
+      
+      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
+        throw new RuntimeException("User is not manager.");
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&realm=" + realm + "')"));
+      
+//      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
+//          "/WEB-INF/grouperUi2/index/deprovisioningMainHelper.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * view recently deprovisioned users
+   * @param request
+   * @param response
+   */
+  public void viewRecentlyDeprovisionedUsers(HttpServletRequest request, HttpServletResponse response) {
+    
+    final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      String realm = request.getParameter("realm");
+      if (StringUtils.isBlank(realm)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#realmFilter",
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+        return;
+      }
+      
+      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
+      
+      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
+        throw new RuntimeException("User is not manager.");
+      }
+      
+      Set<Member> usersWhoHaveBeenDeprovisioned = deprovisioningRealm.getUsersWhoHaveBeenDeprovisioned();
+      
+      deprovisioningContainer.setDeprovisionedGuiMembers(GuiMember.convertFromMembers(usersWhoHaveBeenDeprovisioned));
+      deprovisioningContainer.setRealm(realm);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/index/deprovisioningMain.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
+          "/WEB-INF/grouperUi2/index/deprovisioningMainHelper.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * deprovision a user
+   * @param request
+   * @param response
+   */
+  public void deprovisionUser1(HttpServletRequest request, HttpServletResponse response) {
+    
+    final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+    
+    deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      String realm = request.getParameter("realm");
+      if (StringUtils.isBlank(realm)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+        return;
+      }
+      
+      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
+      
+      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
+        throw new RuntimeException("User is not manager.");
+      }
+      
+      deprovisioningContainer.setRealm(realm);
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
+          "/WEB-INF/grouperUi2/index/deprovisioningUserSearch1.jsp"));
+            
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
 }
