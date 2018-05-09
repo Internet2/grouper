@@ -1,13 +1,36 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
-import edu.internet2.middleware.grouper.Group;
+import java.util.Map;
+import java.util.TreeMap;
+
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 
 /**
  * configuration on an object
  */
 public class GrouperDeprovisioningConfiguration {
+
+  /**
+   * base existing attribute assign for this configuration
+   */
+  private AttributeAssign attributeAssignBase = null;
+  
+  /**
+   * base existing attribute assign for this configuration
+   * @return the attribute assign
+   */
+  public AttributeAssign getAttributeAssignBase() {
+    return this.attributeAssignBase;
+  }
+
+  /**
+   * base existing attribute assign for this configuration
+   * @param attributeAssignBase1
+   */
+  public void setAttributeAssignBase(AttributeAssign attributeAssignBase1) {
+    this.attributeAssignBase = attributeAssignBase1;
+  }
 
   /**
    * Stem that is the inherited owner
