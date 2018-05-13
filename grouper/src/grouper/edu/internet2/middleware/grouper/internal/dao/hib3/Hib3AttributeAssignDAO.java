@@ -1294,7 +1294,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return findGroupAttributeAssignmentsHelper(attributeAssignIds,
         attributeDefIds, attributeDefNameIds,
         groupIds, actions, enabled, includeAssignmentsOnAssignments,
-        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef);
+        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef, null, null, null, null);
 
   }
 
@@ -1302,11 +1302,32 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean)
    */
+  public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType, AttributeDefValueType attributeDefValueType, Object theValue,
+      boolean attributeCheckReadOnAttributeDef, final String idOfAttributeDefNameOnAssignment, Set<Object> attributeValuesOnAssignment,
+      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2) {
+
+    return findGroupAttributeAssignmentsHelper(attributeAssignIds,
+        attributeDefIds, attributeDefNameIds,
+        groupIds, actions, enabled, includeAssignmentsOnAssignments,
+        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef, idOfAttributeDefNameOnAssignment, attributeValuesOnAssignment,
+        idOfAttributeDefNameOnAssignment2, attributeValuesOnAssignment2);
+      
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean, String, Set, String, Set)
+   */
   private Set<AttributeAssign> findGroupAttributeAssignmentsHelper(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
       Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
       AttributeDefType attributeDefType, AttributeDefValueType attributeDefValueType, Object theValue,
-      Boolean attributeCheckReadOnAttributeDef) {
+      Boolean attributeCheckReadOnAttributeDef, 
+      final String idOfAttributeDefNameOnAssignment, Set<Object> attributeValuesOnAssignment,
+      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2) {
       
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
@@ -1410,6 +1431,88 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
+    
+    // maybe looking for attribute assignments on the assignment
+    Object[] attributeNamesAndValues = new Object[] {idOfAttributeDefNameOnAssignment, attributeValuesOnAssignment, 
+        idOfAttributeDefNameOnAssignment2, attributeValuesOnAssignment2};
+//    for (int i = 0; i<2; i++) {
+//      
+//      String theIdOfAttributeDefNameOnAssignment = (String)attributeNamesAndValues[i*2];
+//      Set<Object> theAttributeValuesOnAssignment = (Set<Object>)attributeNamesAndValues[i*2 + 1];
+//      
+//      if (!StringUtils.isBlank(theIdOfAttributeDefNameOnAssignment)) {
+//        
+//        sql.append(" and exists ( select aav ")
+//        
+//        
+//        
+//        if (GrouperUtil.length(theAttributeValuesOnAssignment) > 0) {
+//          
+//          
+//          
+//        }
+//      }
+//    
+//      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2
+//      
+//      
+//      whereClause.append(" exists ( select aav ");
+//      
+//      whereClause.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
+//      
+//      whereClause.append(" where theGroup.uuid = aa.ownerGroupId ");
+//      whereClause.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
+//      
+//      whereClause.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName2 ");
+//      byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
+//      whereClause.append(" and aa.enabledDb = 'T' ");
+//
+//      AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+//
+//      Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValuesOnAssignment2, "aaOnAssign");
+//      
+//      whereClause.append(" ) ");
+//      
+//      
+//    } else {
+//      
+//      whereClause.append(" exists ( select ");
+//      
+//      whereClause.append(attributeValue2 == null ? "aa" : "aav");
+//      
+//      whereClause.append(" from AttributeAssign aa ");
+//
+//      if (attributeValue2 != null) {
+//        whereClause.append(", AttributeAssignValue aav ");
+//      }
+//      
+//      whereClause.append(" where theGroup.uuid = aa.ownerGroupId ");
+//      whereClause.append(" and aa.attributeDefNameId = :idOfAttributeDefName2 ");
+//      byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
+//      whereClause.append(" and aa.enabledDb = 'T' ");
+//
+//      if (attributeValue2 != null) {
+//
+//        AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+//
+//        Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValue2);
+//        
+//      }
+//      
+//      whereClause.append(" ) ");
+//        
+//    }
+//
+//    
+//    
+//    
+//    check names
+//    add marker
+//    add values
+//    add marker2
+//    add values2
+    
+    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindGroupAttributeAssignments");
@@ -3640,7 +3743,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return findStemAttributeAssignmentsHelper(attributeAssignIds,
         attributeDefIds, attributeDefNameIds,
         stemIds, actions, enabled, includeAssignmentsOnAssignments, 
-        attributeDefType, attributeDefValueType, theValue, null);
+        attributeDefType, attributeDefValueType, theValue, null, null, null, null, null);
 
   }
 
@@ -3656,13 +3759,19 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param attributeDefType
    * @param attributeDefValueType
    * @param theValue
-   * @return
+   * @param idOfAttributeDefNameOnAssignment id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment values that the attribute def name on assignment of assignment has
+   * @param idOfAttributeDefNameOnAssignment2 second id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment2 second values that the attribute def name on assignment of assignment has
+   * @return the set of attribute assignments
    */
   private Set<AttributeAssign> findStemAttributeAssignmentsHelper(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
       Collection<String> stemIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
       AttributeDefType attributeDefType,
-      AttributeDefValueType attributeDefValueType, Object theValue, Boolean attributeCheckReadOnAttributeDef) {
+      AttributeDefValueType attributeDefValueType, Object theValue, Boolean attributeCheckReadOnAttributeDef, 
+      final String idOfAttributeDefNameOnAssignment, Set<Object> attributeValuesOnAssignment,
+      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2) {
 
     attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
     
@@ -4724,7 +4833,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return findGroupAttributeAssignmentsHelper(attributeAssignIds,
         attributeDefIds, attributeDefNameIds,
         groupIds, actions, enabled, includeAssignmentsOnAssignments,
-        attributeDefType, attributeDefValueType, theValue, null);
+        attributeDefType, attributeDefValueType, theValue, null, null, null, null, null);
   }
 
   /**
@@ -4741,7 +4850,28 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return findStemAttributeAssignmentsHelper(attributeAssignIds,
         attributeDefIds, attributeDefNameIds,
         stemIds, actions, enabled, includeAssignmentsOnAssignments, 
-        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef);
+        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef, null, null, null, null);
+  }
+
+  /**
+   * @see AttributeAssignDAO#findStemAttributeAssignments(Collection, Collection, Collection, Collection, Collection, Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean, String, Set, String, Set)
+   */
+  @Override
+  public Set<AttributeAssign> findStemAttributeAssignments(
+      Collection<String> attributeAssignIds, Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> stemIds,
+      Collection<String> actions, Boolean enabled,
+      boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue,
+      boolean attributeCheckReadOnAttributeDef, 
+      final String idOfAttributeDefNameOnAssignment, Set<Object> attributeValuesOnAssignment,
+      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2) {
+    return findStemAttributeAssignmentsHelper(attributeAssignIds,
+        attributeDefIds, attributeDefNameIds,
+        stemIds, actions, enabled, includeAssignmentsOnAssignments, 
+        attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef, 
+        idOfAttributeDefNameOnAssignment, attributeValuesOnAssignment,
+        idOfAttributeDefNameOnAssignment2, attributeValuesOnAssignment2);
   }
 
   /**

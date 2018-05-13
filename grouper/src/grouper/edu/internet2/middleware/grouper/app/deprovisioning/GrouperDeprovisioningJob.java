@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
@@ -12,6 +14,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -273,6 +276,112 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     
     return attributeAssign;
   }
+  
+  /**
+   * take a stem attribute assign and process it, make sure child metadata is correct
+   * @param stem is the stem the attribute is on
+   * @param stemAttributeAssign
+   * @return the email objects
+   */
+  public static Map<String, Set<EmailObject>> stemDeprovisioningProcessHelper(Stem stem, AttributeAssign stemAttributeAssign) {
+    
+    Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
+    
+    String realm = stemAttributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName());
+    
+    String stemHasDeprovisioningString = "false";
+
+    if (stemAttributeAssign != null) {
+
+      stemHasDeprovisioningString = stemAttributeAssign.getAttributeValueDelegate()
+          .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision().getName());
+        
+      // it needs this if it doesnt have it (from earlier upgrade)
+      if (StringUtils.isBlank(stemHasDeprovisioningString)) {
+        
+        stemAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames
+            .retrieveAttributeDefNameDeprovision().getName(), "true");
+        stemHasDeprovisioningString = "true";
+      }
+
+    }
+
+    String attestationStemScope = stemAttributeAssign == null ? Scope.SUB.name() : 
+      stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision().getName());
+
+    // go through each group and check if they have their own deprovisioning attribute and use them if they are present.
+    // if not, then use the stem attributes.
+    Scope scope = GrouperUtil.defaultIfNull(Scope.valueOfIgnoreCase(attestationStemScope, false), Scope.SUB);
+        
+    Set<Group> childGroups = stem.getChildGroups(scope);
+    
+    for (Group group: childGroups) {
+      
+      AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDef(), false, false);
+              
+      if (groupAttributeAssign == null) {
+        groupAttributeAssign = group.getAttributeDelegate().assignAttribute(
+            GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDef()).getAttributeAssign();
+      }
+      
+      String directAssignmentString = groupAttributeAssign.getAttributeValueDelegate()
+          .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName());
+      
+      if (StringUtils.isBlank(directAssignmentString)) {
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+            GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+        directAssignmentString = "false";
+      }
+
+      // group has direct attestation, don't use stem attributes at all.  This will be in group assignment calculations
+      if (GrouperUtil.booleanValue(directAssignmentString, false)) { 
+        continue;
+      }
+//TODO needs realm
+      //start at stem and look for assignment, needs realm
+      AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
+        .getAttributeOrAncestorAttribute(
+            GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDef().getName(), false);
+
+      //there is no direct assignment and no stem with attestation
+      if (attributeAssignable == null) {
+
+// TODO
+//        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+//            retrieveAttributeDefNameHasAttestation().getName(), "false");
+//        groupAttributeAssign.getAttributeDelegate().removeAttribute(retrieveAttributeDefNameCalculatedDaysLeft());
+        continue;
+        
+      }
+      
+//      //make sure its the right stem that has the assignment
+//      if (!StringUtils.equals(((Stem)attributeAssignable).getName(), stem.getName())) {
+//        continue;
+//      }
+//
+//      //make sure group is in sync with stem
+//      groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), stemHasDeprovisioningString);
+//      
+//      if (!GrouperUtil.booleanValue(stemHasDeprovisioningString, true)) {
+//        continue;
+//      }
+//
+//      Set<AttributeAssign> singleGroupAttributeAssign = new HashSet<AttributeAssign>();
+//      singleGroupAttributeAssign.add(groupAttributeAssign);
+//      
+//      // skip sending email for this attribute assign
+//      Map<String, Set<EmailObject>> buildAttestationGroupEmails = buildAttestationGroupEmails(stemAttributeAssign, singleGroupAttributeAssign);
+//     
+//      mergeEmailObjects(emails, buildAttestationGroupEmails);
+
+    }
+    
+    return emails;
+  }
+
   
   /**
    * 
