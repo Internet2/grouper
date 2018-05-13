@@ -120,9 +120,24 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     Group groupInheritAssigned1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3:group2").save();
     
     
-    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
-    //grouperDeprovisioningConfiguration.se
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = 
+        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem0);
+ 
+    GrouperDeprovisioningConfiguration studentConfiguration = new GrouperDeprovisioningConfiguration();
+        
+    grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().put("student", studentConfiguration);
     
+    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+    
+    studentConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+    
+    grouperDeprovisioningAttributeValue.setDeprovisionString("true");
+    
+    grouperDeprovisioningAttributeValue.setRealmString("student");
+
+    grouperDeprovisioningOverallConfiguration.storeConfigurationForRealm("student");
+
+    //GrouperDeprovisioningJob.
     
   }
   

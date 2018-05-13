@@ -1060,10 +1060,18 @@ public abstract class AttributeAssignBaseDelegate {
    * @param attributeFlag
    * @param attributeFlagName
    * @param subjectMakingCall subject making this call
+   * @param metadataAttributeDefName0 attributeDefName object if available else null and will be looked up
+   * @param uuidOfMetadataAttributeDefName0 uuid of an attributeDefName metadata attribute (null means dont check)
+   * @param metadataValue0 string value of the metadata attribute
+   * @param metadataAttributeDefName0 attributeDefName object if available else null and will be looked up
+   * @param uuidOfMetadataAttributeDefName1 uuid of a second attributeDefName metadata attribute (null means dont check)
+   * @param metadataValue1 string value of a second metadata attribuet
    * @return true if group or stem has attribute
    */
   private AttributeAssignable getAttributeOrAncestorAttributeHelper(AttributeAssignable owner,
-      AttributeDefName attributeFlag, String attributeFlagName, Subject subjectMakingCall) {
+      AttributeDefName attributeFlag, String attributeFlagName, Subject subjectMakingCall, AttributeDefName metadataAttributeDefName0, 
+      final String uuidOfMetadataAttributeDefName0,
+      final String metadataValue0, AttributeDefName metadataAttributeDefName1, final String uuidOfMetadataAttributeDefName1, final String metadataValue1) {
 
     //not sure why would be null
     if (owner == null) {
@@ -1083,39 +1091,75 @@ public abstract class AttributeAssignBaseDelegate {
       throw new RuntimeException("hasAttributeOrAncestorHasAttribute() is only available for Groups, Stems, or AttributeDefs, not " + owner.getClass().getName());
     }
     
-    MultiKey key = new MultiKey(type, ((GrouperObject)owner).getName(), attributeFlagName, subjectMakingCall.getSourceId(), subjectMakingCall.getId());
+//    if (StringUtils.isBlank(uuidOfMetadataAttributeDefName0)) {
+//      metadataValue0 = null;
+//    }
+//    if (StringUtils.isBlank(uuidOfMetadataAttributeDefName1)) {
+//      metadataValue1 = null;
+//    }
     
-    if (objectHasAttributeCache().containsKey(key)) {
-      return objectHasAttributeCache().get(key);
+    MultiKey key = new MultiKey(new Object[] {type, ((GrouperObject)owner).getName(), attributeFlagName, 
+        subjectMakingCall.getSourceId(), subjectMakingCall.getId(),
+        uuidOfMetadataAttributeDefName0, metadataValue0, uuidOfMetadataAttributeDefName1, metadataValue1});
+    
+    AttributeAssignable result = objectHasAttributeCache().get(key);
+    
+    if (result != null) {
+      return result;
     }
     
-    AttributeAssignable result = null;
     //lazy load the attribute only once
     attributeFlag = attributeFlag != null ? attributeFlag : AttributeDefNameFinder.findByName(attributeFlagName, false);
-    if (attributeFlag != null) {
-      if (this.hasAttribute(attributeFlag)) {
-        result = owner;
-      } else {
-        //see if the parent stem or ancestor has the attribute
-        AttributeAssignable parent = null;
-        if (owner instanceof Group) {
-          parent = ((Group)owner).getParentStem();
-        } else if (owner instanceof Stem) {
-          //cant go further than root
-          if (!((Stem)owner).isRootStem()) {
-            parent = ((Stem)owner).getParentStem();
-          }
-        } else if (owner instanceof AttributeDef) {
-          parent = ((AttributeDef)owner).getParentStem();
-        } else {
-          throw new RuntimeException("hasAttributeOrAncestorHasAttribute() is only available for Groups, Stems, or AttributeDefs, not " + owner.getClass().getName());
-        }
-        
-        if (parent != null) {
-          result = parent.getAttributeDelegate().getAttributeOrAncestorAttributeHelper(parent, attributeFlag, attributeFlagName, subjectMakingCall);
-        }
-      }
+    metadataAttributeDefName0 = metadataAttributeDefName0 != null ? metadataAttributeDefName0 : 
+        AttributeDefNameFinder.findById(uuidOfMetadataAttributeDefName0, false);
+    attributeFlag = attributeFlag != null ? attributeFlag : AttributeDefNameFinder.findByName(attributeFlagName, false);
+    metadataAttributeDefName1 = metadataAttributeDefName1 != null ? metadataAttributeDefName1 : 
+      AttributeDefNameFinder.findById(uuidOfMetadataAttributeDefName1, false);
+    
+    boolean allowedToSeeAttributes = true;
+    
+    if (attributeFlag == null) {
+      allowedToSeeAttributes = false;
     }
+
+    if (!StringUtils.isBlank(uuidOfMetadataAttributeDefName0) && metadataAttributeDefName0 == null) {
+      allowedToSeeAttributes = false;
+    }
+    
+    if (!StringUtils.isBlank(uuidOfMetadataAttributeDefName1) && metadataAttributeDefName1 == null) {
+      allowedToSeeAttributes = false;
+    }
+    
+//    if (allowedToSeeAttributes) {
+//      result = owner.getAttributeDelegate().retrieveAssign
+//      do a new call with metadata values
+//      if (metadataAttributeDefName0 == null || !StringU)
+//    }
+//    
+//    if (attributeFlag != null) {
+//      if ( && owner.getAttributeDelegate().retr) {
+//        result = owner;
+//      } else {
+//        //see if the parent stem or ancestor has the attribute
+//        AttributeAssignable parent = null;
+//        if (owner instanceof Group) {
+//          parent = ((Group)owner).getParentStem();
+//        } else if (owner instanceof Stem) {
+//          //cant go further than root
+//          if (!((Stem)owner).isRootStem()) {
+//            parent = ((Stem)owner).getParentStem();
+//          }
+//        } else if (owner instanceof AttributeDef) {
+//          parent = ((AttributeDef)owner).getParentStem();
+//        } else {
+//          throw new RuntimeException("hasAttributeOrAncestorHasAttribute() is only available for Groups, Stems, or AttributeDefs, not " + owner.getClass().getName());
+//        }
+//        
+//        if (parent != null) {
+//          result = parent.getAttributeDelegate().getAttributeOrAncestorAttributeHelper(parent, attributeFlag, attributeFlagName, subjectMakingCall);
+//        }
+//      }
+//    }
     objectHasAttributeCache().put(key, result);
     
     return result;
@@ -1135,12 +1179,12 @@ public abstract class AttributeAssignBaseDelegate {
     
     if (checkSecurity) {
       Subject subjectMakingCall = GrouperSession.staticGrouperSession().getSubject();
-      return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, subjectMakingCall) != null;
+      return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, subjectMakingCall, null, null, null, null, null, null) != null;
     }
     return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, grouperSession.getSubject()) != null;
+        return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, grouperSession.getSubject(), null, null, null, null, null, null) != null;
       }
     });
   }
@@ -1158,12 +1202,54 @@ public abstract class AttributeAssignBaseDelegate {
     
     if (checkSecurity) {
       Subject subjectMakingCall = GrouperSession.staticGrouperSession().getSubject();
-      return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, subjectMakingCall);
+      return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, subjectMakingCall, null, null, null, null, null, null);
     }
     return (AttributeAssignable)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, grouperSession.getSubject());
+        return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, grouperSession.getSubject(), null, null, null, null, null, null);
+      }
+    });
+  }
+
+  /**
+   * see if a group or parent or ancestor folder has an attribute.  this can run securely.
+   * @param attributeFlagName
+   * @param checkSecurity
+   * @return true if group or stem has attribute
+   */
+  public AttributeAssignable getAttributeOrAncestorAttribute(
+      final String attributeFlagName, final boolean checkSecurity, final String uuidOfMetadataAttributeDefName0,
+      final String metadataValue0) {
+    return getAttributeOrAncestorAttribute(
+        attributeFlagName, checkSecurity, uuidOfMetadataAttributeDefName0,
+        metadataValue0, null, null);
+  }
+
+  /**
+   * see if a group or parent or ancestor folder has an attribute.  this can run securely.
+   * @param attributeFlagName
+   * @param checkSecurity
+   * @param uuidOfMetadataAttributeDefName0 uuid of an attributeDefName metadata attribute (null means dont check)
+   * @param metadataValue0 string value of the metadata attribute
+   * @param uuidOfMetadataAttributeDefName1 uuid of a second attributeDefName metadata attribute (null means dont check)
+   * @param metadataValue1 string value of a second metadata attribuet
+   * @return true if group or stem has attribute
+   */
+  public AttributeAssignable getAttributeOrAncestorAttribute(
+      final String attributeFlagName, final boolean checkSecurity, final String uuidOfMetadataAttributeDefName0,
+      final String metadataValue0, final String uuidOfMetadataAttributeDefName1, final String metadataValue1) {
+    
+    final AttributeAssignable owner = this.getAttributeAssignable();
+    
+    if (checkSecurity) {
+      Subject subjectMakingCall = GrouperSession.staticGrouperSession().getSubject();
+      return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, subjectMakingCall, null, null, null, null, null, null);
+    }
+    return (AttributeAssignable)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return getAttributeOrAncestorAttributeHelper(owner, null, attributeFlagName, grouperSession.getSubject(), null, null, null, null, null, null);
       }
     });
   }
