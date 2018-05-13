@@ -232,13 +232,6 @@ public class UiV2GroupPermission {
         attributeDef = AttributeDefFinder.findById(permissionDefId, false);
       }
       
-      if (attributeDef == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#permissionDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("groupAssignPermissionInvalidPermissionDefError")));
-        return;
-      }
-      
       AttributeDefName attributeDefName = null;
       if (!StringUtils.isBlank(permissionDefNameId)) {
         attributeDefName = AttributeDefNameFinder.findById(permissionDefNameId, false);
@@ -251,7 +244,7 @@ public class UiV2GroupPermission {
         return;
       }
       
-      if (!attributeDefName.getAttributeDef().getId().equals(attributeDef.getId())) {
+      if (attributeDef != null && !attributeDefName.getAttributeDef().getId().equals(attributeDef.getId())) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#permissionResourceNameComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupAssignPermissionInvalidPermissionResourceNameError")));

@@ -163,13 +163,6 @@ public class UiV2SubjectPermission {
         attributeDef = AttributeDefFinder.findById(permissionDefId, false);
       }
       
-      if (attributeDef == null) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#permissionDefComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("subjectAssignPermissionInvalidPermissionDefError")));
-        return;
-      }
-      
       AttributeDefName attributeDefName = null;
       if (!StringUtils.isBlank(permissionDefNameId)) {
         attributeDefName = AttributeDefNameFinder.findById(permissionDefNameId, false);
@@ -182,7 +175,7 @@ public class UiV2SubjectPermission {
         return;
       }
       
-      if (!attributeDefName.getAttributeDef().getId().equals(attributeDef.getId())) {
+      if (attributeDef != null && !attributeDefName.getAttributeDef().getId().equals(attributeDef.getId())) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#permissionResourceNameComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("subjectAssignPermissionInvalidPermissionResourceNameError")));
