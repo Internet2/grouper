@@ -61,8 +61,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.PermissionEntryUtils;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.PermissionEntryUtils;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristic;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristicBetter;
@@ -291,7 +291,10 @@ public class UiV2GroupPermission {
       
       permissionContainer.setGuiGroup(new GuiGroup(group));
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GroupPermission.groupPermission&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/groupPermissions/groupPermission.jsp"));
+      
+      groupViewPermissionsHelper(request, response, group);
 
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 

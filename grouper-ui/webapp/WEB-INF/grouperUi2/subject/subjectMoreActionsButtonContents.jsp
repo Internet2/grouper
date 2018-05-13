@@ -45,11 +45,8 @@
 		 </c:choose>
  
      <li class="divider"></li>
-     <li>
-       <a href="#" onclick="ajax('../app/UiV2SubjectPermission.subjectPermission?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;">
-         ${textContainer.text['subjectViewPermissionsButton'] }
-       </a>
-     </li>
+     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2SubjectPermission.subjectPermission&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+                              >${textContainer.text['subjectViewPermissionsButton'] }</a></li>
      
      <li class="divider"></li>
      <li>
