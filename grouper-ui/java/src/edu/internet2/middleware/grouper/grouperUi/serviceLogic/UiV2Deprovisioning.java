@@ -71,7 +71,7 @@ public class UiV2Deprovisioning {
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
             
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/index/deprovisioningUserSearch.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserSearch.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -108,10 +108,10 @@ public class UiV2Deprovisioning {
       deprovisioningContainer.setRealms(guiRealms);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/index/deprovisioningMain.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers", 
-          "/WEB-INF/grouperUi2/index/deprovisioningSelectRealm.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningSelectRealm.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -351,18 +351,10 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      String realm = request.getParameter("realm");
+      GrouperDeprovisioningRealm  deprovisioningRealm = retrieveRealm(request, loggedInSubject);
       
-      if (StringUtils.isBlank(realm)) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+      if (deprovisioningRealm == null) {
         return;
-      }
-      
-      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
-      
-      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
-        throw new RuntimeException("User is not manager.");
       }
       
       Subject subject = null;
@@ -395,7 +387,7 @@ public class UiV2Deprovisioning {
       deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(new HashSet<GuiDeprovisioningMembershipSubjectContainer>());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUserResultsDivId", 
-          "/WEB-INF/grouperUi2/index/deprovisioningUserResults.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserResults.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -474,21 +466,13 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      String realm = request.getParameter("realm");
-      if (StringUtils.isBlank(realm)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#realmFilter",
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+      GrouperDeprovisioningRealm  deprovisioningRealm = retrieveRealm(request, loggedInSubject);
+      
+      if (deprovisioningRealm == null) {
         return;
       }
       
-      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
-      
-      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
-        throw new RuntimeException("User is not manager.");
-      }
-      
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&realm=" + realm + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&realm=" + deprovisioningRealm.getLabel() + "')"));
       
 //      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
 //          "/WEB-INF/grouperUi2/index/deprovisioningMainHelper.jsp"));
@@ -519,30 +503,21 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      String realm = request.getParameter("realm");
-      if (StringUtils.isBlank(realm)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#realmFilter",
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+      GrouperDeprovisioningRealm  deprovisioningRealm = retrieveRealm(request, loggedInSubject);
+      
+      if (deprovisioningRealm == null) {
         return;
-      }
-      
-      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
-      
-      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
-        throw new RuntimeException("User is not manager.");
       }
       
       Set<Member> usersWhoHaveBeenDeprovisioned = deprovisioningRealm.getUsersWhoHaveBeenDeprovisioned();
       
       deprovisioningContainer.setDeprovisionedGuiMembers(GuiMember.convertFromMembers(usersWhoHaveBeenDeprovisioned));
-      deprovisioningContainer.setRealm(realm);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/index/deprovisioningMain.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
-          "/WEB-INF/grouperUi2/index/deprovisioningMainHelper.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMainHelper.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -572,26 +547,47 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      String realm = request.getParameter("realm");
-      if (StringUtils.isBlank(realm)) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+      GrouperDeprovisioningRealm  deprovisioningRealm = retrieveRealm(request, loggedInSubject);
+      
+      if (deprovisioningRealm == null) {
         return;
       }
       
-      GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
-      
-      if (!deprovisioningRealm.subjectIsManager(loggedInSubject)) {
-        throw new RuntimeException("User is not manager.");
-      }
-      
-      deprovisioningContainer.setRealm(realm);
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
-          "/WEB-INF/grouperUi2/index/deprovisioningUserSearch1.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserSearch1.jsp"));
             
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    
+  }
+  
+  private static GrouperDeprovisioningRealm retrieveRealm(HttpServletRequest request, Subject subject) {
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+    
+    String realm = request.getParameter("realm");
+    if (StringUtils.isBlank(realm)) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+      return null;
+    }
+    
+    GrouperDeprovisioningRealm deprovisioningRealm = GrouperDeprovisioningRealm.retrieveAllRealms().get(realm);
+    if (deprovisioningRealm == null) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningNoRealmSelected")));
+      return null;
+    }
+    
+    if (!deprovisioningRealm.subjectIsManager(subject)) {
+      throw new RuntimeException("User is not manager.");
+    }
+    
+    deprovisioningContainer.setRealm(realm);
+    return deprovisioningRealm;
     
   }
   

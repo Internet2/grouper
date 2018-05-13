@@ -50,3 +50,7 @@ table.attributeDefAssignToTable td {
 .table-condensed td.top-vertical-align {
 	vertical-align: top;
 }
+
+.deprovisioning-more-actions {
+	margin-bottom: 10px;
+}
