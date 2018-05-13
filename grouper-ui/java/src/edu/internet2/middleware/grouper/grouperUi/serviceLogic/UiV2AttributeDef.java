@@ -1068,6 +1068,10 @@ public class UiV2AttributeDef {
 
             //lets show all
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
             
@@ -1076,6 +1080,10 @@ public class UiV2AttributeDef {
             //lets show all
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToTypeHideCheckbox').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
             
@@ -1084,6 +1092,10 @@ public class UiV2AttributeDef {
             //lets show all, hide the non limit ones
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToLimitHideCheckbox').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
             
@@ -1092,6 +1104,10 @@ public class UiV2AttributeDef {
             //lets show all, hide the non perm ones
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToPermHideCheckbox').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').hide('slow')"));
 
             break;
             
@@ -1100,6 +1116,10 @@ public class UiV2AttributeDef {
             //lets show all, hide the non service ones
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToServiceHideCheckbox').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
           
