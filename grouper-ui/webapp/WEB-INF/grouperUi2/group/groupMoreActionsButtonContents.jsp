@@ -103,12 +103,8 @@
                         
                         <c:if test="${grouperRequestContainer.groupContainer.canReadAttributes}">
 	                        <li class="divider"></li>
-	                        <li>
-	                          <a href="#" onclick="ajax('../app/UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
-	                            ${textContainer.text['groupViewPermissionsButton'] }
-	                          </a>
-	                        </li>
-	                        
+	                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupPermission.groupPermission&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewPermissionsButton'] }</a></li>
 	                        <li class="divider"></li>
 	                        <li>
 	                          <a href="#" onclick="ajax('../app/UiV2GroupAttributeAssignment.viewAttributeAssignments?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
