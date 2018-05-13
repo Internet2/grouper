@@ -187,7 +187,7 @@
                     </div>
                   </div>                  
                   
-                  <div class="control-group">
+                  <div class="control-group attributeDefMultiAssignablePermTypeHide">
                     <label for="attributeDefMultiAssignable" class="control-label">${textContainer.text['attributeDefMultiAssignable'] }</label>
                     <div class="controls">
                     
@@ -197,22 +197,31 @@
                   </div>
                   
                   
-                  <div class="control-group">
+                  <div class="control-group attribute-def-value-all-values">
                     <label for="attributeDefValueType" class="control-label">${textContainer.text['attributeDefCreateValueTypeLabel'] }</label>
                     <div class="controls">
                       <select name="attributeDefValueType" id="attributeDefValueTypeId"
                           onchange="ajax('../app/UiV2AttributeDef.attributeDefValueTypeChanged', {formIds: 'addAttributeDefForm'}); return false;">
-                      >
-                        <option value="" ></option>
-             <option value="marker" >${textContainer.text['attributeDefValueType_marker'] }</option>
-             <option value="floating" >${textContainer.text['attributeDefValueType_floating'] }</option>
-             <option value="integer" >${textContainer.text['attributeDefValueType_integer'] }</option>
-             <option value="memberId" >${textContainer.text['attributeDefValueType_memberId'] }</option>
-             <option value="string" >${textContainer.text['attributeDefValueType_string'] }</option>
-             <option value="timestamp" >${textContainer.text['attributeDefValueType_timestamp'] }</option>
+                         <option value="" ></option>
+						             <option value="marker" >${textContainer.text['attributeDefValueType_marker'] }</option>
+						             <option value="floating" >${textContainer.text['attributeDefValueType_floating'] }</option>
+						             <option value="integer" >${textContainer.text['attributeDefValueType_integer'] }</option>
+						             <option value="memberId" >${textContainer.text['attributeDefValueType_memberId'] }</option>
+						             <option value="string" >${textContainer.text['attributeDefValueType_string'] }</option>
+						             <option value="timestamp" >${textContainer.text['attributeDefValueType_timestamp'] }</option>
                       </select> 
                     
                       <span class="help-block">${textContainer.text['attributeDefCreateValueTypeDescription'] }</span>
+                    </div>
+                  </div>
+                  
+                  <div class="control-group attributedef-value-no-value" style="display: none;">
+                    <label for="attributeDefValueType" class="control-label">${textContainer.text['attributeDefCreateValueTypeLabel'] }</label>
+                    <div class="controls">
+                      <select name="attributeDefValueType" id="attributeDefValueTypeId"
+                          onchange="ajax('../app/UiV2AttributeDef.attributeDefValueTypeChanged', {formIds: 'addAttributeDefForm'}); return false;">
+                       <option value="marker" >${textContainer.text['attributeDefValueType_marker'] }</option>
+                      </select> 
                     </div>
                   </div>
 
