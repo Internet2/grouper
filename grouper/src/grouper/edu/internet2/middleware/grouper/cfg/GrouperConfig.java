@@ -32,7 +32,10 @@
 
 package edu.internet2.middleware.grouper.cfg;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -553,6 +556,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
     this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet = null;
     attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.clear();
     attributeDefIdsToIgnoreChangeLogAndAuditSetCache.clear();
+    
+    this.deprovisioningRealms = null;
   }
 
   /**
@@ -586,5 +591,51 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   protected String getSecondsToCheckConfigKey() {
     return "grouper.config.secondsBetweenUpdateChecks";
   }
+  
+  /**
+   * cache deprovisioning realms
+   */
+  private Set<String> deprovisioningRealms = null;
+  
+  /**
+   * pattern compile alphanumeric and underscore
+   */
+  private static Pattern realmNamePattern = Pattern.compile("^[a-zA-Z0-9_]+$");
+  
+  /**
+   * cache deprovisioning realms
+   * @return the realms
+   */
+  public Set<String> deprovisioningRealms() {
+
+    if (this.deprovisioningRealms != null) {
+      return this.deprovisioningRealms;
+    }
+
+    String realmsString = GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.realms");
+    if (StringUtils.isBlank(realmsString)) {
+      return new HashSet<String>();
+    }
+    Set<String> result = GrouperUtil.splitTrimToSet(realmsString, ",");
+    
+    Iterator<String> resultIterator = result.iterator();
+    
+    while (resultIterator.hasNext()) {
+      
+      String realm = resultIterator.next();
+      
+      Matcher matcher = realmNamePattern.matcher(realm);
+      
+      if (!matcher.matches()) {
+        LOG.error("Realm name configured in grouper.properties deprovisioning.realms is not valid: '" + realm + "'!!!!!!!");
+        resultIterator.remove();
+      }
+      
+    }
+    return result;
+
+  }
+  
+
   
 } 

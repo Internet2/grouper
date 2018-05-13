@@ -1104,18 +1104,26 @@ public class SourcesXmlResolver implements SubjectResolver {
     return subjectMap;
 
   }
-  
+
   /**
    * @see SubjectResolver#findByIdsOrIdentifiers(Collection)
    */
   public Map<String, Subject> findByIdsOrIdentifiers(final Collection<String> idsOrIdentifiers)
       throws IllegalArgumentException {
+    Set<Source> sources = this.getSources();
+    return findByIdsOrIdentifiers(idsOrIdentifiers, sources);
+  }
+
+
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(final Collection<String> idsOrIdentifiers, Set<Source> sources)
+      throws IllegalArgumentException {
 
     Map<String, Subject> subjectMapResults = new HashMap<String, Subject>();
     
     List<LogLabelCallable<Map<String, Subject>>> callables = new ArrayList<LogLabelCallable<Map<String, Subject>>>();
-    
-    Set<Source> sources = this.getSources();
     
     boolean needsThreads = needsThreads(sources, false);
     

@@ -1,32 +1,37 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
-import java.util.LinkedHashSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.util.EmailObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
- * attestation daemon
+ * deprovisioning daemon
  */
 @DisallowConcurrentExecution
 public class GrouperDeprovisioningJob extends OtherJobBase {
@@ -43,39 +48,32 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     return true;
   }
   
-  
-  /**
-   * if deprovisioning is enabled
-   * @return
-   */
-  public static boolean deprovisioningEnabled() {
-    return GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.enable", true);
-    
-  }
-  
   /**
    * group that users who are allowed to deprovision other users are in
+   * @param realm deprovi
    * @return the group name
    */
-  public static String retrieveDeprovisioningManagersMustBeInGroupName() {
+  public static String retrieveDeprovisioningManagersMustBeInGroupName(String realm) {
     
-    // group that users who are allowed to deprovision other users are in
-    String deprovisioningMustBeInGroupName = GrouperConfig.retrieveConfig().propertyValueStringRequired("deprovisioning.managers.must.be.in.group");
+    //  # e.g. managersWhoCanDeprovision_<realmName>
+    //  # e.g. usersWhoHaveBeenDeprovisioned_<realmName>
+    //  deprovisioning.systemFolder = $$grouper.rootStemForBuiltinObjects$$:deprovisioning
     
-    return deprovisioningMustBeInGroupName;
-    
+    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":managersWhoCanDeprovision_" + realm;
+
   }
 
   /**
    * group name which has been deprovisioned
    * @return the group name
    */
-  public static String retrieveGroupNameWhichHasBeenDeprovisioned() {
+  public static String retrieveGroupNameWhichHasBeenDeprovisioned(String realm) {
     
-    // group that deprovisioned users go in (temporarily, but history will always be there)
-    String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperConfig.retrieveConfig().propertyValueStringRequired("deprovisioning.group.which.has.been.deprovisioned");
+    //  # e.g. managersWhoCanDeprovision_<realmName>
+    //  # e.g. usersWhoHaveBeenDeprovisioned_<realmName>
+    //  deprovisioning.systemFolder = $$grouper.rootStemForBuiltinObjects$$:deprovisioning
     
-    return deprovisioningGroupWhichHasBeenDeprovisionedName;
+    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + realm;
   }
 
   /**
@@ -110,51 +108,58 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
   }
 
   /**
-   * cache the sources allowed for a tad
+   * go through groups and folders marked with deprovisioning metadata and make sure its up to date with inheritance
    */
-  private static ExpirableCache<Boolean, Set<Source>> retrieveSourcesAllowedToDeprovisionCache = new ExpirableCache<Boolean, Set<Source>>();
-  
-  /**
-   * get the sources to deprovision, dont include the group source or the internal source
-   * @return the sources to deprovision
-   */
-  public static Set<Source> retrieveSourcesAllowedToDeprovision() {
+  public static void updateDeprovisioningMetadata() {
     
-    Set<Source> result = retrieveSourcesAllowedToDeprovisionCache.get(Boolean.TRUE);
-    
-    if (result == null) {
-    
-      synchronized(retrieveSourcesAllowedToDeprovisionCache) {
-  
-        result = retrieveSourcesAllowedToDeprovisionCache.get(Boolean.TRUE);
-        
-        if (result == null) {
-          result = new LinkedHashSet<Source>();
-          
-          for (Source source : SourceManager.getInstance().getSources()) {
-            if (StringUtils.equals(source.getId(), GrouperSourceAdapter.groupSourceId())) {
-              continue;
-            }
-            if (StringUtils.equals(source.getId(), InternalSourceAdapter.ID)) {
-              continue;
-            }
-            result.add(source);
-          }
-          
-          retrieveSourcesAllowedToDeprovisionCache.put(Boolean.TRUE, result);
-        }
-        
-      }
-    }
-    
-    return result;
   }
   
   /**
+   * get map of email addresses to email objects for stem attributes 
+   * @param attributeDef
+   * @return
+   */
+  private Map<String, Set<EmailObject>> buildDeprovisioningStemEmails() {
+  
+    //TODO only look at direct assignments?  are there duplicate assignments?
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
+        AttributeAssignType.stem,
+        null, GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getId(), null, 
+        null, null, null, 
+        null, 
+        Boolean.TRUE, false);
+    
+    Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
+    
+    for (AttributeAssign attributeAssign: attributeAssigns) {
+      
+      String deprovisioningSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameSendEmail().getName());
+      
+//      Map<String, Set<EmailObject>> localEmailMap = stemDeprovisioningProcessHelper(attributeAssign.getOwnerStem(), attributeAssign);
+//
+//      boolean sendEmailAttributeValue = GrouperUtil.booleanValue(deprovisioningSendEmail, true);
+//      
+//      // skip sending email for this attribute assign
+//      if (!sendEmailAttributeValue) {
+//        LOG.debug("For "+attributeAssign.getOwnerStem().getDisplayName()+" deprovisioningSendEmail attribute is not set to true so skipping sending email.");
+//        continue;
+//      }
+//
+//      if (sendEmailAttributeValue) {
+//        mergeEmailObjects(emails, localEmailMap);
+//      }
+    }
+    
+    return emails;
+    
+  }
+
+  /**
    * get the list of recently deprovisioned users
+   * @param realm 
    * @return the list of members
    */
-  public static Set<Member> retrieveRecentlyDeprovisionedUsers() {
+  public static Set<Member> retrieveRecentlyDeprovisionedUsers(final String realm) {
     
     //switch over to admin so attributes work
     return (Set<Member>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -162,7 +167,7 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        Group deprovisionedGroup = GroupFinder.findByName(grouperSession, retrieveGroupNameWhichHasBeenDeprovisioned(), true);
+        Group deprovisionedGroup = GroupFinder.findByName(grouperSession, retrieveGroupNameWhichHasBeenDeprovisioned(realm), true);
         
         Set<Member> members = deprovisionedGroup.getMembers();
         return members;
@@ -182,7 +187,7 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    if (!deprovisioningEnabled()) {
+    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       LOG.debug("Deprovisioning is not enabled!  Quitting daemon!");
       return null;
     }
@@ -190,5 +195,207 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     return null;
   }
   
+  /** attribute assign cache */
+  private static ExpirableCache<String, AttributeAssign> attributeAssignCache = new ExpirableCache<String, AttributeAssign>(1);
+  
+  /**
+   * if this is in cache it means null and it is in cache
+   */
+  private static final AttributeAssign nullAttributeAssign = new AttributeAssign();
+  
+  /**
+   * clear the attribute assign cache
+   */
+  public static void clearAttributeAssignCache() {
+    attributeAssignCache.clear();
+  }
 
+  /**
+   * 
+   * @param attributeAssignable
+   * @return the id
+   */
+  private static String retrieveAttributeAssignableId(AttributeAssignable attributeAssignable) {
+    if (attributeAssignable == null) {
+      return null;
+    }
+    if (attributeAssignable instanceof Group) {
+      return ((Group)attributeAssignable).getId();
+    }
+    if (attributeAssignable instanceof Stem) {
+      return ((Stem)attributeAssignable).getId();
+    }
+    throw new RuntimeException("Not expecting object type: " + attributeAssignable.getClass() + ", " + attributeAssignable);
+  }
+  
+  /**
+   * 
+   * @param attributeAssignable
+   * @return the id
+   */
+  private static Stem retrieveAttributeAssignableParentStem(AttributeAssignable attributeAssignable) {
+    if (attributeAssignable == null) {
+      return null;
+    }
+    if (attributeAssignable instanceof Group) {
+      return ((Group)attributeAssignable).getParentStem();
+    }
+    if (attributeAssignable instanceof Stem) {
+      return ((Stem)attributeAssignable).getParentStem();
+    }
+    throw new RuntimeException("Not expecting object type: " + attributeAssignable.getClass() + ", " + attributeAssignable);
+  }
+  
+  /**
+   * get the attribute assign base for this object or a parent
+   * @return the attribute assign base
+   */
+  public static AttributeAssign attributeAssignBase(AttributeAssignable attributeAssignable) {
+
+    String id = retrieveAttributeAssignableId(attributeAssignable);
+    AttributeAssign attributeAssign = attributeAssignCache.get(id);
+    
+    if (attributeAssign != null) {
+      return attributeAssign == nullAttributeAssign ? null : attributeAssign;
+    }
+    
+    AttributeAssign attributeAssignBase = attributeAssignable.getAttributeDelegate().retrieveAssignment(
+        null, GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef(), false, true);
+
+    if (attributeAssignBase == null) {
+    
+      Stem parentStem = retrieveAttributeAssignableParentStem(attributeAssignable);
+      
+      if (parentStem != null) {
+        attributeAssignable = parentStem.getAttributeDelegate()
+            .getAttributeOrAncestorAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName(), false);
+      }      
+    }
+
+    attributeAssignCache.put(id, attributeAssign == null ? nullAttributeAssign : attributeAssign);
+    
+    return attributeAssign;
+  }
+  
+  /**
+   * take a stem attribute assign and process it, make sure child metadata is correct
+   * @param stem is the stem the attribute is on
+   * @param stemAttributeAssign
+   * @return the email objects
+   */
+  public static Map<String, Set<EmailObject>> stemDeprovisioningProcessHelper(Stem stem, AttributeAssign stemAttributeAssign) {
+    
+    Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
+    
+    String realm = stemAttributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName());
+    
+    String stemHasDeprovisioningString = "false";
+
+    if (stemAttributeAssign != null) {
+
+      stemHasDeprovisioningString = stemAttributeAssign.getAttributeValueDelegate()
+          .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision().getName());
+        
+      // it needs this if it doesnt have it (from earlier upgrade)
+      if (StringUtils.isBlank(stemHasDeprovisioningString)) {
+        
+        stemAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames
+            .retrieveAttributeDefNameDeprovision().getName(), "true");
+        stemHasDeprovisioningString = "true";
+      }
+
+    }
+
+    String attestationStemScope = stemAttributeAssign == null ? Scope.SUB.name() : 
+      stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision().getName());
+
+    // go through each group and check if they have their own deprovisioning attribute and use them if they are present.
+    // if not, then use the stem attributes.
+    Scope scope = GrouperUtil.defaultIfNull(Scope.valueOfIgnoreCase(attestationStemScope, false), Scope.SUB);
+        
+    Set<Group> childGroups = stem.getChildGroups(scope);
+    
+    for (Group group: childGroups) {
+      
+      AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDef(), false, false);
+              
+      if (groupAttributeAssign == null) {
+        groupAttributeAssign = group.getAttributeDelegate().assignAttribute(
+            GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDef()).getAttributeAssign();
+      }
+      
+      String directAssignmentString = groupAttributeAssign.getAttributeValueDelegate()
+          .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName());
+      
+      if (StringUtils.isBlank(directAssignmentString)) {
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+            GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+        directAssignmentString = "false";
+      }
+
+      // group has direct attestation, don't use stem attributes at all.  This will be in group assignment calculations
+      if (GrouperUtil.booleanValue(directAssignmentString, false)) { 
+        continue;
+      }
+//TODO needs realm
+      //start at stem and look for assignment, needs realm
+      AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
+        .getAttributeOrAncestorAttribute(
+            GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDef().getName(), false);
+
+      //there is no direct assignment and no stem with attestation
+      if (attributeAssignable == null) {
+
+// TODO
+//        groupAttributeAssign.getAttributeValueDelegate().assignValueString(
+//            retrieveAttributeDefNameHasAttestation().getName(), "false");
+//        groupAttributeAssign.getAttributeDelegate().removeAttribute(retrieveAttributeDefNameCalculatedDaysLeft());
+        continue;
+        
+      }
+      
+//      //make sure its the right stem that has the assignment
+//      if (!StringUtils.equals(((Stem)attributeAssignable).getName(), stem.getName())) {
+//        continue;
+//      }
+//
+//      //make sure group is in sync with stem
+//      groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), stemHasDeprovisioningString);
+//      
+//      if (!GrouperUtil.booleanValue(stemHasDeprovisioningString, true)) {
+//        continue;
+//      }
+//
+//      Set<AttributeAssign> singleGroupAttributeAssign = new HashSet<AttributeAssign>();
+//      singleGroupAttributeAssign.add(groupAttributeAssign);
+//      
+//      // skip sending email for this attribute assign
+//      Map<String, Set<EmailObject>> buildAttestationGroupEmails = buildAttestationGroupEmails(stemAttributeAssign, singleGroupAttributeAssign);
+//     
+//      mergeEmailObjects(emails, buildAttestationGroupEmails);
+
+    }
+    
+    return emails;
+  }
+
+  
+  /**
+   * 
+   * @param group
+   * @return if marked for deprovisioning
+   */
+  public static boolean groupMarkedForDeprovisioning(Group group) {
+    
+    AttributeAssign attributeAssignBase = attributeAssignBase(group);
+    
+    //String directAssignmentString = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDirectAssignment().getName());
+    // TODO
+    return false;
+    
+  }
+  
 }

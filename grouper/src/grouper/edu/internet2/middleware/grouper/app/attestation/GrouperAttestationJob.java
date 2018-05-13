@@ -12,8 +12,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
@@ -36,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.EmailObject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -716,7 +715,7 @@ public class GrouperAttestationJob extends OtherJobBase {
           Set<EmailObject> emailObjects = emails.get(primaryEmailAddress);
           emailObjects.add(emailObject);
         } else {
-          Set<EmailObject> emailObjects = new HashSet<GrouperAttestationJob.EmailObject>();
+          Set<EmailObject> emailObjects = new HashSet<EmailObject>();
           emailObjects.add(emailObject);
           emails.put(primaryEmailAddress, emailObjects);
         }
@@ -952,6 +951,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   private Map<String, Set<EmailObject>> buildAttestationStemEmails() {
   
+    //TODO just get directly assigned ones?  or are indirect folders assigned copies of the settings?
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
         AttributeAssignType.stem,
         null, retrieveAttributeDefNameValueDef().getId(), null, 
@@ -1095,68 +1095,6 @@ public class GrouperAttestationJob extends OtherJobBase {
     return result;
   }
   
-  /**
-   * Object to represent value in the map.
-   */
-  static class EmailObject {
-    
-    private String groupId;
-    private String groupName;
-    private Set<String> ccEmails;
-    
-    EmailObject(String groupId, String groupName, Set<String> ccEmails) {
-      this.groupId = groupId;
-      this.groupName = groupName;
-      this.ccEmails = ccEmails;
-    }
-    
-    public String getGroupId() {
-      return groupId;
-    }
-
-    
-    public String getGroupName() {
-      return groupName;
-    }
-    
-    public Set<String> getCcEmails() {
-      return ccEmails;
-    }
-
-    @Override
-    public int hashCode() {
-     return new HashCodeBuilder()
-     .append(groupId)
-     .append(groupName)
-     .append(ccEmails)
-     .toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
-      EmailObject other = (EmailObject) obj;
-    
-      return new EqualsBuilder()
-          .append(this.groupId, other.groupId)
-          .append(this.groupName, other.groupName)
-          .append(this.ccEmails, other.ccEmails)
-          .isEquals();
-    }
-
-    @Override
-    public String toString() {
-      return "EmailObject [groupId=" + groupId + ", groupName=" + groupName
-          + ", ccEmails=" + ccEmails + "]";
-    }
-    
-  }
-
   /**
    * remove direct group assignment in favor of stem assignment
    * @param group

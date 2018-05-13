@@ -8,8 +8,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -20,6 +27,65 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GuiMembershipSubjectContainer {
 
+  /**
+   * return some gui membership container (some list)
+   * @return the gui membership container
+   */
+  public GuiMembershipContainer getSomeGuiMembershipContainer() {
+    
+    //if members is there use that
+    GuiMembershipContainer guiMembershipContainer = this.getGuiMembershipContainers().get("members");
+    if (guiMembershipContainer != null) {
+      return guiMembershipContainer;
+    }
+    
+    //just use anything
+    if (this.getGuiMembershipContainers().size() == 0) {
+      return null;
+    }
+    
+    return this.getGuiMembershipContainers().values().iterator().next();
+    
+  }
+  
+  /**
+   * get all the privileges comma separated
+   * @return the privileges comma separated
+   */
+  public String getPrivilegesCommaSeparated() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    boolean first = true;
+    
+    //go through privs
+    for (String listName : GrouperUtil.nonNull(this.guiMembershipContainers).keySet()) {
+      
+      if (!first) {
+        result.append(", ");
+      }
+      
+      //this is not a priv
+      if (StringUtils.equals("members", listName)) {
+        continue;
+      }
+      Privilege privilege = null;
+      if (this.getGuiGroup() != null) {
+        privilege = AccessPrivilege.listToPriv(listName);
+      } else if (this.getGuiStem() != null) {
+        privilege = NamingPrivilege.listToPriv(listName);
+      } else if (this.getGuiAttributeDef() != null) {
+        privilege = AttributeDefPrivilege.listToPriv(listName);
+      }
+      String privName = privilege.getName();
+      result.append(TextContainer.retrieveFromRequest().getText().get("priv." + privName));
+      
+      first = false;
+    }
+    
+    return result.toString();
+  }
+  
   /**
    * get one result from a finder result, if there are multiple throw an exception, if none, then null
    * @param membershipResult
@@ -33,6 +99,19 @@ public class GuiMembershipSubjectContainer {
     
     return membershipSubjectContainer == null ? null : new GuiMembershipSubjectContainer(membershipSubjectContainer);
 
+  }
+  
+  public GuiObjectBase getGuiObjectBase() {
+    if (this.guiGroup != null) {
+      return this.guiGroup;
+    }
+    if (this.guiStem != null) {
+      return this.guiStem;
+    }
+    if (this.guiAttributeDef != null) {
+      return this.guiAttributeDef;
+    }
+    return null;
   }
   
   /**

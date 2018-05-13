@@ -52,6 +52,10 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningRealm;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -681,25 +685,125 @@ public class GrouperCheckConfig {
         
       }
       
-//      if (GrouperDeprovisioningJob.deprovisioningEnabled()) {
-//        
-//        // group that users who are allowed to deprovision other users are in
-//        String deprovisioningMustBeInGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningManagersMustBeInGroupName();
-//
-//        boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
-//        
-//        checkGroup(grouperSession, deprovisioningMustBeInGroupName, wasInCheckConfig, autocreate, 
-//            wasInCheckConfig, null, "group that users who are allowed to deprovision other users are in", 
-//            "group that users who are allowed to deprovision other users are in", null);
-//
-//        // group that deprovisioned users go in (temporarily, but history will always be there)
-//        String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned();
-//        
-//        checkGroup(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, wasInCheckConfig, autocreate, 
-//            wasInCheckConfig, null, "group that deprovisioned users go in (temporarily, but history will always be there)", 
-//            "group that deprovisioned users go in (temporarily, but history will always be there)", null);
-//        
-//      }
+      if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+
+        String deprovisioningRootStemName = GrouperDeprovisioningSettings.deprovisioningStemName();
+        
+        Stem deprovisioningStem = StemFinder.findByName(grouperSession, deprovisioningRootStemName, false);
+        if (deprovisioningStem == null) {
+          deprovisioningStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper deprovisioning objects").assignName(deprovisioningRootStemName)
+            .save();
+        }
+
+        boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
+        
+        {
+          // # users in this group who are admins of a realm but who are not Grouper SysAdmins, will be 
+          // # able to deprovision from all grouper groups/objects, not just groups they have access to UPDATE/ADMIN
+          // deprovisioning.admin.group = $$deprovisioning.systemFolder$$:deprovisioningAdmins
+          String deprovisioningAdminGroupName = GrouperDeprovisioningSettings.retrieveDeprovisioningAdminGroupName();
+
+          checkGroup(grouperSession, deprovisioningAdminGroupName, wasInCheckConfig, autocreate, 
+              wasInCheckConfig, null, 
+              "deprovisioning admin group can deprovision from all groups/objects in Grouper even if the user is not a Grouper overall SysAdmin", 
+              "deprovisioning admin group can deprovision from all groups/objects in Grouper even if the user is not a Grouper overall SysAdmin",
+              null);
+        }        
+        
+        // group that users who are allowed to deprovision other users are in
+        for (String realm : GrouperDeprovisioningRealm.retrieveDeprovisioningRealms()) {
+
+          String deprovisioningManagersMustBeInGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningManagersMustBeInGroupName(realm);
+
+          checkGroup(grouperSession, deprovisioningManagersMustBeInGroupName, wasInCheckConfig, autocreate, 
+              wasInCheckConfig, null, "deprovisioning: " + realm + ", group that users who are allowed to deprovision other users are in", 
+              "deprovisioning: " + realm + ", group that users who are allowed to deprovision other users are in", null);
+
+          // group that deprovisioned users go in (temporarily, but history will always be there)
+          String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned(realm);
+          
+          checkGroup(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, wasInCheckConfig, autocreate, 
+              wasInCheckConfig, null, "deprovisioning: " + realm + ", group that deprovisioned users go in (temporarily, but history will always be there)", 
+              "deprovisioning: " + realm + ", group that deprovisioned users go in (temporarily, but history will always be there)", null);
+
+        }
+        
+        //see if attributeDef is there
+        String deprovisioningTypeDefName = deprovisioningRootStemName + ":" + GrouperDeprovisioningAttributeNames.DEPROVISIONING_DEF;
+        AttributeDef deprovisioningType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            deprovisioningTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (deprovisioningType == null) {
+          deprovisioningType = deprovisioningStem.addChildAttributeDef(GrouperDeprovisioningAttributeNames.DEPROVISIONING_DEF, AttributeDefType.type);
+          //assign once for each realm
+          deprovisioningType.setMultiAssignable(true);
+          deprovisioningType.setAssignToGroup(true);
+          deprovisioningType.setAssignToStem(true);
+          deprovisioningType.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(deprovisioningStem, deprovisioningType, "deprovisioning", "has deprovisioning attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String deprovisioningAttrDefName = deprovisioningRootStemName + ":" + GrouperDeprovisioningAttributeNames.DEPROVISIONING_VALUE_DEF;
+        AttributeDef deprovisioningAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            deprovisioningAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (deprovisioningAttrType == null) {
+          deprovisioningAttrType = deprovisioningStem.addChildAttributeDef(GrouperDeprovisioningAttributeNames.DEPROVISIONING_VALUE_DEF, AttributeDefType.attr);
+          deprovisioningAttrType.setAssignToGroupAssn(true);
+          deprovisioningAttrType.setAssignToStemAssn(true);
+          deprovisioningAttrType.setValueType(AttributeDefValueType.string);
+          deprovisioningAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        deprovisioningAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+        
+        
+
+        
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_INHERITED_FROM_FOLDER_ID,
+            "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment and not inherited", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_REALM, 
+            "Realm configured in the grouper.properties.  e.g. employee, student, etc", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_ALLOW_ADDS_WHILE_DEPROVISIONED, 
+            "If allows adds to group of people who are deprovisioned.  can be: blank, true, or false.  "
+            + "If blank, then will not allow adds unless auto change loader is false", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_AUTO_CHANGE_LOADER, 
+            "If this is a loader job, if being in a deprovisioned group means the user "
+            + "should not be in the loaded group. can be: blank (true), or false (false)", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_AUTOSELECT_FOR_REMOVAL, 
+            "If the deprovisioning screen should autoselect this object as an object to deprovision can be: blank, true, or false.  "
+            + "If blank, then will autoselect unless deprovisioningAutoChangeLoader is false", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_DIRECT_ASSIGNMENT, 
+            "if deprovisioning configuration is directly assigned to the group or folder or inherited from parent", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_EMAIL_ADDRESSES, 
+            "Email addresses to send deprovisioning messages.  If blank, then send to group managers, or comma separated email addresses (mutually exclusive with deprovisioningMailToGroup)", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_MAIL_TO_GROUP, 
+            "Group ID which holds people to email members of that group to send deprovisioning messages (mutually exclusive with deprovisioningEmailAddresses)", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_SEND_EMAIL, 
+            "If this is true, then send an email about the deprovisioning event.  If the assignments were removed, then give a "
+            + "description of the action.  If assignments were not removed, then remind the managers to unassign.  Can be <blank>, true, or false.  "
+            + "Defaults to false unless the assignments were not removed.", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_SHOW_FOR_REMOVAL, 
+            "If the deprovisioning screen should show this object if the user as an assignment.  "
+            + "Can be: blank, true, or false.  If blank, will default to true unless auto change loader is false.", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_DEPROVISION, 
+            "if this object should be in consideration for the deprovisioning system.  Can be: blank, true, or false.  Defaults to true", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_STEM_SCOPE, 
+            "If configuration is assigned to a folder, then this is 'one' or 'sub'.  'one' means only applicable to objects"
+            + " directly in this folder.  'sub' (default) means applicable to all objects in this folder and "
+            + "subfolders.  Note, the inheritance stops when a sub folder or object has configuration assigned.", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_EMAIL_SUBJECT, 
+            "custom subject for emails, if blank use the default configured subject. "
+            + "Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_EMAIL_BODY, 
+            "custom email body for emails, if blank use the default configured body.  "
+            + "Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$", wasInCheckConfig);
+        
+      }
       
       
     } catch (SessionException se) {
