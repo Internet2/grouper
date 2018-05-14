@@ -9,6 +9,9 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
+/**
+ *
+ */
 public class GrouperDeprovisioningAttributeNames {
 
   /**
@@ -25,10 +28,18 @@ public class GrouperDeprovisioningAttributeNames {
    * can be: blank, true, or false.  If blank, then will autoselect unless deprovisioningAutoChangeLoader is false
    */
   public static final String DEPROVISIONING_AUTOSELECT_FOR_REMOVAL = "deprovisioningAutoselectForRemoval";
+
   /**
    * main attribute definition assigned to groups, folders
    */
   public static final String DEPROVISIONING_DEF = "deprovisioningDef";
+  
+  /**
+   * main attribute definition assigned to groups, folders
+   */
+  public static final String DEPROVISIONING_BASE = "deprovisioning";
+  
+  
   /**
    * if this object should be in consideration for the deprovisioning system.
    * can be: blank, true, or false.  Defaults to true
@@ -86,7 +97,7 @@ public class GrouperDeprovisioningAttributeNames {
   /**
    * attribute definition for name value pairs assigned to assignment on groups or folders
    */
-  public static final String DEPROVISIONING_VALUE_DEF = "deprovisioning";
+  public static final String DEPROVISIONING_VALUE_DEF = "deprovisioningValueDef";
   /**
    * deprovisioning allow adds while deprovisioned attribute def name
    * @return the attribute def name
@@ -136,10 +147,10 @@ public class GrouperDeprovisioningAttributeNames {
    * attribute def assigned to stem or group
    * @return the attribute def name
    */
-  public static AttributeDefName retrieveAttributeDefNameDef() {
+  public static AttributeDefName retrieveAttributeDefNameBase() {
     
     AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_DEF);
+        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_BASE);
   
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant deprovisioning def attribute def name be found?");

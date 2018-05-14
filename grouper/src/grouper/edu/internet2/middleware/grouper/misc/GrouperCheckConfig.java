@@ -743,7 +743,7 @@ public class GrouperCheckConfig {
         }
         
         //add a name
-        AttributeDefName attribute = checkAttribute(deprovisioningStem, deprovisioningType, "deprovisioning", "has deprovisioning attributes", wasInCheckConfig);
+        AttributeDefName attribute = checkAttribute(deprovisioningStem, deprovisioningType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_BASE, "has deprovisioning attributes", wasInCheckConfig);
         
         //lets add some rule attributes
         String deprovisioningAttrDefName = deprovisioningRootStemName + ":" + GrouperDeprovisioningAttributeNames.DEPROVISIONING_VALUE_DEF;

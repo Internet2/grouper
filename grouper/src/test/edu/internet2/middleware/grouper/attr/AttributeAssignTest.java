@@ -38,11 +38,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
@@ -73,7 +75,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeAssignTest("testFindAttributeAssigns"));
   }
   
   /**
@@ -130,6 +132,110 @@ public class AttributeAssignTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "-1");
   }
 
+  /**
+   * 
+   */
+  public void testFindAttributeAssigns() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem a1Stem = new StemSave(grouperSession).assignName("a1").assignCreateParentStemsIfNotExist(true).save();
+    Stem b1Stem = new StemSave(grouperSession).assignName("b1").assignCreateParentStemsIfNotExist(true).save();
+    Stem a1a2Stem = new StemSave(grouperSession).assignName("a1:a2").assignCreateParentStemsIfNotExist(true).save();
+    Stem a1a2a3Stem = new StemSave(grouperSession).assignName("a1:a2:a3").assignCreateParentStemsIfNotExist(true).save();
+    
+    Group a1a2a3xGroup = new GroupSave(grouperSession).assignName("a1:a2:a3:x").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      AttributeAssign attributeAssign = a1Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm1");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "a");
+    }
+    
+    {
+      AttributeAssign attributeAssign = a1Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm2");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "b");
+    }
+
+    {
+      AttributeAssign attributeAssign = b1Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm1");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "c");
+    }
+
+    {
+      AttributeAssign attributeAssign = a1a2Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm1");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "d");
+    }
+
+    {
+      AttributeAssign attributeAssign = a1a2Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm2");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "true");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "e");
+    }
+
+    {
+      AttributeAssign attributeAssign = a1a2a3Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm1");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "f");
+    }
+
+    {
+      AttributeAssign attributeAssign = a1a2a3Stem.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm2");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "g");
+    }
+
+    {
+      AttributeAssign attributeAssign = a1a2a3xGroup.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm1");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "h");
+    }
+
+    {
+      AttributeAssign attributeAssign = a1a2a3xGroup.getAttributeDelegate().addAttribute(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName(), "realm2");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName(), "false");
+      attributeAssign.getAttributeValueDelegate().assignValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName(), "i");
+    }
+
+    AttributeAssignable configObject = a1a2a3xGroup.getAttributeDelegate().getAttributeOrAncestorAttribute(
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getName(), true, 
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getId(), "realm1", GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getId(), "true");
+    
+    assertNotNull(configObject);
+    assertTrue(configObject instanceof Stem);
+    assertEquals(a1Stem.getName(), ((Stem)configObject).getName());
+
+    configObject = a1a2a3xGroup.getAttributeDelegate().getAttributeOrAncestorAttribute(
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getName(), true, 
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getId(), "realm2", GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getId(), "true");
+    
+    assertNotNull(configObject);
+    assertTrue(configObject instanceof Stem);
+    assertEquals(a1a2Stem.getName(), ((Stem)configObject).getName());
+
+  }
+  
   /**
    * attribute def
    */
