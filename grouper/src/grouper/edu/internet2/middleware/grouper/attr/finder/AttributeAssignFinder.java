@@ -39,6 +39,66 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AttributeAssignFinder {
 
   /**
+   * id of attribute def name that there is an assignment on assignment of with a value or values (optional)
+   */
+  private String idOfAttributeDefNameOnAssignment0;
+  
+  /**
+   * id of attribute def name that there is an assignment on assignment of with a value or values (optional)
+   * @param theIdOfAttributeDefNameOnAssignment0
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignIdOfAttributeDefNameOnAssignment0(String theIdOfAttributeDefNameOnAssignment0) {
+    this.idOfAttributeDefNameOnAssignment0 = theIdOfAttributeDefNameOnAssignment0;
+    return this;
+  }
+  
+  /**
+   * values that the attribute def name on assignment of assignment has
+   */
+  private Set<Object> attributeValuesOnAssignment0;
+
+  /**
+   * values that the attribute def name on assignment of assignment has
+   * @param theAttributeValuesOnAssignment0
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignAttributeValuesOnAssignment0(Set<Object> theAttributeValuesOnAssignment0) {
+    this.attributeValuesOnAssignment0 = theAttributeValuesOnAssignment0;
+    return this;
+  }
+
+  /**
+   * second id of attribute def name that there is an assignment on assignment of with a value
+   */
+  private String idOfAttributeDefNameOnAssignment1;
+
+  /**
+   * id of second attribute def name that there is an assignment on assignment of with a value or values (optional)
+   * @param theIdOfAttributeDefNameOnAssignment1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignIdOfAttributeDefNameOnAssignment1(String theIdOfAttributeDefNameOnAssignment1) {
+    this.idOfAttributeDefNameOnAssignment1 = theIdOfAttributeDefNameOnAssignment1;
+    return this;
+  }
+
+  /**
+   * second values that the attribute def name on assignment of assignment has
+   */
+  private Set<Object> attributeValuesOnAssignment1;
+
+  /**
+   * values that the second attribute def name on assignment of assignment has
+   * @param theAttributeValuesOnAssignment1
+   * @return this for chaining
+   */
+  public AttributeAssignFinder assignAttributeValuesOnAssignment1(Set<Object> theAttributeValuesOnAssignment1) {
+    this.attributeValuesOnAssignment1 = theAttributeValuesOnAssignment1;
+    return this;
+  }
+
+  /**
    * use security around attribute def?  default is true
    */
   private Boolean attributeCheckReadOnAttributeDef = null;
@@ -211,7 +271,8 @@ public class AttributeAssignFinder {
       this.attributeCheckReadOnAttributeDef = GrouperUtil.booleanValue(this.attributeCheckReadOnAttributeDef, true);
       return GrouperDAOFactory.getFactory().getAttributeAssign()
           .findGroupAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerGroupIds, null, true, 
-              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef);
+              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef, 
+              this.idOfAttributeDefNameOnAssignment0, this.attributeValuesOnAssignment0, this.idOfAttributeDefNameOnAssignment1, this.attributeValuesOnAssignment1);
 
     }
     
@@ -220,7 +281,8 @@ public class AttributeAssignFinder {
       this.attributeCheckReadOnAttributeDef = GrouperUtil.booleanValue(this.attributeCheckReadOnAttributeDef, true);
       return GrouperDAOFactory.getFactory().getAttributeAssign()
           .findStemAttributeAssignments(null, null, this.attributeDefNameIds, this.ownerStemIds, null, true, 
-              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef);
+              this.includeAssignmentsOnAssignments, null, null, null, this.attributeCheckReadOnAttributeDef,
+              this.idOfAttributeDefNameOnAssignment0, this.attributeValuesOnAssignment0, this.idOfAttributeDefNameOnAssignment1, this.attributeValuesOnAssignment1);
 
     }
     

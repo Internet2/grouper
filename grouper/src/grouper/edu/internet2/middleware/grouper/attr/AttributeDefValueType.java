@@ -22,6 +22,10 @@ import java.sql.Timestamp;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -199,6 +203,35 @@ public enum AttributeDefValueType {
     return GrouperUtil.enumValueOfIgnoreCase(AttributeDefValueType.class, 
         theString, exceptionOnNull);
 
+  }
+  
+  /**
+   * @param checkSecurity
+   * @param attributeDefNameId
+   * @return the type
+   */
+  public static AttributeDefValueType retrieveTypeBasedOnAttributeDefNameId(final String attributeDefNameId, boolean checkSecurity) {
+    if (checkSecurity) {
+      return retrieveTypeBasedOnAttributeDefNameIdHelper(attributeDefNameId);
+    }
+    return (AttributeDefValueType)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return retrieveTypeBasedOnAttributeDefNameIdHelper(attributeDefNameId);
+      }
+    });
+  }
+
+  /**
+   * 
+   * @param attributeDefNameId
+   * @return the type
+   */
+  private static AttributeDefValueType retrieveTypeBasedOnAttributeDefNameIdHelper(String attributeDefNameId) {
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    return attributeDef.getValueType();
   }
   
 }

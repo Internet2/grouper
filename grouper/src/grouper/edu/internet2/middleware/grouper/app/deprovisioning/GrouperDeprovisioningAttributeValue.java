@@ -4,12 +4,52 @@
  */
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+
 
 /**
  * bean that represents s attributes
  */
 public class GrouperDeprovisioningAttributeValue {
 
+  /**
+   * set strings to defaults to reduce the number of assignment values we need
+   */
+  public void flattenValues() {
+    
+    if (!this.isAllowAddsWhileDeprovisioned()) {
+      this.allowAddsWhileDeprovisionedString = null;
+    }
+    
+    if (this.isAutoChangeLoader() == GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autoChangeLoader", true)) {
+      this.autoChangeLoaderString = null;
+    }
+    
+    if (this.isAutoselectForRemoval()) {
+      this.autoselectForRemovalString = null;
+    }
+    
+    if (this.isDeprovision()) {
+      this.deprovisionString = null;
+    }
+
+    if (!this.isDirectAssignment() ) {
+      this.directAssignmentString = null;
+    }
+
+    if (!this.isSendEmail()) {
+      this.sendEmailString = null;
+    }
+    if (this.isShowForRemoval()) {
+      this.showForRemovalString = null;
+    }
+    
+  }
+  
+  
   /**
    * If allows adds to group of people who are deprovisioned
    * can be: blank, true, or false.  If blank, then will not allow adds unless auto change loader is false
@@ -26,6 +66,13 @@ public class GrouperDeprovisioningAttributeValue {
     return this.allowAddsWhileDeprovisionedString;
   }
 
+  /**
+   * if allow adds while deprovisioned
+   * @return true / false
+   */
+  public boolean isAllowAddsWhileDeprovisioned() {
+    return GrouperUtil.booleanValue(this.allowAddsWhileDeprovisionedString, false);
+  }
   
   /**
    * If allows adds to group of people who are deprovisioned
@@ -42,7 +89,18 @@ public class GrouperDeprovisioningAttributeValue {
    */
   private String autoChangeLoaderString;
   
+  /**
+   * 
+   * @return true if auto change loader based on config
+   */
+  public boolean isAutoChangeLoader() {
+    
+    boolean defaultAutoChangeLoader = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autoChangeLoader", true);
 
+    return GrouperUtil.booleanValue(this.autoChangeLoaderString, defaultAutoChangeLoader);
+    
+  }
+  
   /**
    * If this is a loader job, if being in a deprovisioned group means the user should not be in the loaded group.
    * can be: blank (true), or false (false)
@@ -65,15 +123,23 @@ public class GrouperDeprovisioningAttributeValue {
    * If the deprovisioning screen should autoselect this object as an object to deprovision
    * can be: blank, true, or false.  If blank, then will autoselect unless deprovisioningAutoChangeLoader is false
    */
-  private String autoselectForRemoval;
+  private String autoselectForRemovalString;
   
   /**
    * If the deprovisioning screen should autoselect this object as an object to deprovision
    * can be: blank, true, or false.  If blank, then will autoselect unless deprovisioningAutoChangeLoader is false
    * @return the autoselectForRemoval
    */
-  public String getAutoselectForRemoval() {
-    return this.autoselectForRemoval;
+  public String getAutoselectForRemovalString() {
+    return this.autoselectForRemovalString;
+  }
+  
+  /**
+   * 
+   * @return if autoselect for removal
+   */
+  public boolean isAutoselectForRemoval() {
+    return GrouperUtil.booleanValue(this.autoselectForRemovalString, true);
   }
   
   /**
@@ -81,8 +147,8 @@ public class GrouperDeprovisioningAttributeValue {
    * can be: blank, true, or false.  If blank, then will autoselect unless deprovisioningAutoChangeLoader is false
    * @param autoselectForRemoval1 the autoselectForRemoval to set
    */
-  public void setAutoselectForRemoval(String autoselectForRemoval1) {
-    this.autoselectForRemoval = autoselectForRemoval1;
+  public void setAutoselectForRemovalString(String autoselectForRemoval1) {
+    this.autoselectForRemovalString = autoselectForRemoval1;
   }
 
 
@@ -104,8 +170,14 @@ public class GrouperDeprovisioningAttributeValue {
     return this.deprovisionString;
   }
 
+  /**
+   * 
+   * @return true if deprovision
+   */
+  public boolean isDeprovision() {
+    return GrouperUtil.booleanValue(this.deprovisionString, true);
+  }
 
-  
   /**
    * true|false, true to deprovision, false to not deprovision (default to true). 
    * Note, if this is set on a daemon job, then it will not deprovision any group 
@@ -120,8 +192,6 @@ public class GrouperDeprovisioningAttributeValue {
    * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
    */
   private String directAssignmentString;
-
-
   
   /**
    * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
@@ -130,8 +200,14 @@ public class GrouperDeprovisioningAttributeValue {
   public String getDirectAssignmentString() {
     return this.directAssignmentString;
   }
-
-
+  
+  /**
+   * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
+   * @return the directAssignmentString
+   */
+  public boolean isDirectAssignment() {
+    return GrouperUtil.booleanValue(this.directAssignmentString, false);
+  }
   
   /**
    * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
@@ -296,7 +372,21 @@ public class GrouperDeprovisioningAttributeValue {
    */
   private String sendEmailString;
   
-
+  /**
+   * 
+   * @return true if send email
+   */
+  public boolean isSendEmail() {
+    return GrouperUtil.booleanValue(this.sendEmailString, false);
+  }
+  
+  /**
+   * 
+   * @return true if show for removal
+   */
+  public boolean isShowForRemoval() {
+    return GrouperUtil.booleanValue(this.showForRemovalString, true);
+  }
   
   /**
    * @return the sendEmailString
@@ -353,7 +443,16 @@ public class GrouperDeprovisioningAttributeValue {
     return this.stemScopeString;
   }
 
-
+  /**
+   * get the stem scope if assigned to a stem
+   * @return the scope
+   */
+  public Scope getStemScope() {
+    if (StringUtils.isBlank(this.stemScopeString)) {
+      return Scope.SUB;
+    }
+    return Scope.valueOfIgnoreCase(this.stemScopeString, true);
+  }
   
   /**
    * @param stemScopeString the stemScopeString to set

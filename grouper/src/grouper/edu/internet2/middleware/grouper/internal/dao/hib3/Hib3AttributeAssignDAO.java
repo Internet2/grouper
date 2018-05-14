@@ -41,11 +41,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -53,6 +55,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -1319,7 +1322,25 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType, AttributeDefValueType, Object, boolean, String, Set, String, Set)
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * then get the assignment which tells you the owner as well
+   * @param attributeCheckReadOnAttributeDef if security should be checked on attribute def
+   * @param idOfAttributeDefNameOnAssignment id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment values that the attribute def name on assignment of assignment has
+   * @param idOfAttributeDefNameOnAssignment2 second id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment2 second values that the attribute def name on assignment of assignment has
    */
   private Set<AttributeAssign> findGroupAttributeAssignmentsHelper(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
@@ -1435,83 +1456,40 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     // maybe looking for attribute assignments on the assignment
     Object[] attributeNamesAndValues = new Object[] {idOfAttributeDefNameOnAssignment, attributeValuesOnAssignment, 
         idOfAttributeDefNameOnAssignment2, attributeValuesOnAssignment2};
-//    for (int i = 0; i<2; i++) {
-//      
-//      String theIdOfAttributeDefNameOnAssignment = (String)attributeNamesAndValues[i*2];
-//      Set<Object> theAttributeValuesOnAssignment = (Set<Object>)attributeNamesAndValues[i*2 + 1];
-//      
-//      if (!StringUtils.isBlank(theIdOfAttributeDefNameOnAssignment)) {
-//        
-//        sql.append(" and exists ( select aav ")
-//        
-//        
-//        
-//        if (GrouperUtil.length(theAttributeValuesOnAssignment) > 0) {
-//          
-//          
-//          
-//        }
-//      }
-//    
-//      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2
-//      
-//      
-//      whereClause.append(" exists ( select aav ");
-//      
-//      whereClause.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
-//      
-//      whereClause.append(" where theGroup.uuid = aa.ownerGroupId ");
-//      whereClause.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
-//      
-//      whereClause.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName2 ");
-//      byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
-//      whereClause.append(" and aa.enabledDb = 'T' ");
-//
-//      AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
-//
-//      Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValuesOnAssignment2, "aaOnAssign");
-//      
-//      whereClause.append(" ) ");
-//      
-//      
-//    } else {
-//      
-//      whereClause.append(" exists ( select ");
-//      
-//      whereClause.append(attributeValue2 == null ? "aa" : "aav");
-//      
-//      whereClause.append(" from AttributeAssign aa ");
-//
-//      if (attributeValue2 != null) {
-//        whereClause.append(", AttributeAssignValue aav ");
-//      }
-//      
-//      whereClause.append(" where theGroup.uuid = aa.ownerGroupId ");
-//      whereClause.append(" and aa.attributeDefNameId = :idOfAttributeDefName2 ");
-//      byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
-//      whereClause.append(" and aa.enabledDb = 'T' ");
-//
-//      if (attributeValue2 != null) {
-//
-//        AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
-//
-//        Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValue2);
-//        
-//      }
-//      
-//      whereClause.append(" ) ");
-//        
-//    }
-//
-//    
-//    
-//    
-//    check names
-//    add marker
-//    add values
-//    add marker2
-//    add values2
-    
+    for (int i = 0; i<2; i++) {
+      
+      final String theIdOfAttributeDefNameOnAssignment = (String)attributeNamesAndValues[i*2];
+      final Set<Object> theAttributeValuesOnAssignment = (Set<Object>)attributeNamesAndValues[i*2 + 1];
+      
+      if (!StringUtils.isBlank(theIdOfAttributeDefNameOnAssignment)) {
+        
+        sql.append(" and exists ( select aaOnAssign ");
+        
+        sql.append(" from AttributeAssign aaOnAssign");
+        
+        if (GrouperUtil.length(theAttributeValuesOnAssignment) > 0) {
+          sql.append(" , AttributeAssignValue aav ");
+        }
+        
+        sql.append(" where aa.id = aaOnAssign.ownerAttributeAssignId ");
+        
+        sql.append(" and aaOnAssign.attributeDefNameId = :theIdOfAttributeDefName" + i + " ");
+        byHqlStatic.setString("theIdOfAttributeDefName" + i, theIdOfAttributeDefNameOnAssignment);
+        sql.append(" and aa.enabledDb = 'T' ");
+
+        if (GrouperUtil.length(theAttributeValuesOnAssignment) > 0) {
+
+          AttributeDefValueType theAttributeDefValueType = 
+              AttributeDefValueType.retrieveTypeBasedOnAttributeDefNameId(theIdOfAttributeDefNameOnAssignment, attributeCheckReadOnAttributeDef);
+          
+          Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, theAttributeDefValueType, theAttributeValuesOnAssignment, "aaOnAssign");
+          
+        }
+        
+        sql.append(" ) ");
+        
+      }
+    }    
     
     byHqlStatic
       .setCacheable(false)
@@ -3877,6 +3855,45 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
+    
+    // maybe looking for attribute assignments on the assignment
+    Object[] attributeNamesAndValues = new Object[] {idOfAttributeDefNameOnAssignment, attributeValuesOnAssignment, 
+        idOfAttributeDefNameOnAssignment2, attributeValuesOnAssignment2};
+    for (int i = 0; i<2; i++) {
+      
+      final String theIdOfAttributeDefNameOnAssignment = (String)attributeNamesAndValues[i*2];
+      final Set<Object> theAttributeValuesOnAssignment = (Set<Object>)attributeNamesAndValues[i*2 + 1];
+      
+      if (!StringUtils.isBlank(theIdOfAttributeDefNameOnAssignment)) {
+        
+        sql.append(" and exists ( select aaOnAssign ");
+        
+        sql.append(" from AttributeAssign aaOnAssign");
+        
+        if (GrouperUtil.length(theAttributeValuesOnAssignment) > 0) {
+          sql.append(" , AttributeAssignValue aav ");
+        }
+        
+        sql.append(" where aa.id = aaOnAssign.ownerAttributeAssignId ");
+        
+        sql.append(" and aaOnAssign.attributeDefNameId = :theIdOfAttributeDefName" + i + " ");
+        byHqlStatic.setString("theIdOfAttributeDefName" + i, theIdOfAttributeDefNameOnAssignment);
+        sql.append(" and aa.enabledDb = 'T' ");
+
+        if (GrouperUtil.length(theAttributeValuesOnAssignment) > 0) {
+
+          AttributeDefValueType theAttributeDefValueType = 
+              AttributeDefValueType.retrieveTypeBasedOnAttributeDefNameId(theIdOfAttributeDefNameOnAssignment, attributeCheckReadOnAttributeDef);
+          
+          Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, theAttributeDefValueType, theAttributeValuesOnAssignment, "aaOnAssign");
+          
+        }
+        
+        sql.append(" ) ");
+        
+      }
+    }    
+    
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindStemAttributeAssignments");

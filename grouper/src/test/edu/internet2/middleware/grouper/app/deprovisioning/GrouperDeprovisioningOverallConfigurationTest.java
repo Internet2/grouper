@@ -55,6 +55,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     assertEquals(0, GrouperUtil.length(grouperDeprovisioningOverallConfiguration.getRealmToConfiguration()));
     
     GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
+    grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
     
     grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().put("student", grouperDeprovisioningConfiguration);
     
@@ -63,20 +64,20 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
 
     grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString("true");
     grouperDeprovisioningAttributeValue.setAutoChangeLoaderString("false");
-    grouperDeprovisioningAttributeValue.setAutoselectForRemoval("abc");
-    grouperDeprovisioningAttributeValue.setDeprovisionString("def");
-    grouperDeprovisioningAttributeValue.setDirectAssignmentString("ghi");
+    grouperDeprovisioningAttributeValue.setAutoselectForRemovalString("false");
+    grouperDeprovisioningAttributeValue.setDeprovisionString("false");
+    grouperDeprovisioningAttributeValue.setDirectAssignmentString("true");
     grouperDeprovisioningAttributeValue.setEmailAddressesString("jkl");
     grouperDeprovisioningAttributeValue.setEmailBodyString("mno");
     grouperDeprovisioningAttributeValue.setEmailSubjectString("pqr");
     grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString("hgn");
     grouperDeprovisioningAttributeValue.setMailToGroupString("stu");
-    grouperDeprovisioningAttributeValue.setRealmString("vwx");
-    grouperDeprovisioningAttributeValue.setSendEmailString("ace");
-    grouperDeprovisioningAttributeValue.setShowForRemovalString("bdf");
-    grouperDeprovisioningAttributeValue.setStemScopeString("gjo");
+    grouperDeprovisioningAttributeValue.setRealmString("student");
+    grouperDeprovisioningAttributeValue.setSendEmailString("true");
+    grouperDeprovisioningAttributeValue.setShowForRemovalString("false");
+    grouperDeprovisioningAttributeValue.setStemScopeString("one");
     
-    grouperDeprovisioningOverallConfiguration.storeConfigurationForRealm("student");
+    grouperDeprovisioningConfiguration.storeConfiguration();
     
     EhcacheController.ehcacheController().flushCache();
     
@@ -88,7 +89,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     
     assertEquals(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString(), grouperDeprovisioningAttributeValue2.getAllowAddsWhileDeprovisionedString());
     assertEquals(grouperDeprovisioningAttributeValue.getAutoChangeLoaderString(), grouperDeprovisioningAttributeValue2.getAutoChangeLoaderString());
-    assertEquals(grouperDeprovisioningAttributeValue.getAutoselectForRemoval(), grouperDeprovisioningAttributeValue2.getAutoselectForRemoval());
+    assertEquals(grouperDeprovisioningAttributeValue.getAutoselectForRemovalString(), grouperDeprovisioningAttributeValue2.getAutoselectForRemovalString());
     assertEquals(grouperDeprovisioningAttributeValue.getDeprovisionString(), grouperDeprovisioningAttributeValue2.getDeprovisionString());
     assertEquals(grouperDeprovisioningAttributeValue.getDirectAssignmentString(), grouperDeprovisioningAttributeValue2.getDirectAssignmentString());
     assertEquals(grouperDeprovisioningAttributeValue.getEmailAddressesString(), grouperDeprovisioningAttributeValue2.getEmailAddressesString());
@@ -100,7 +101,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     assertEquals(grouperDeprovisioningAttributeValue.getSendEmailString(), grouperDeprovisioningAttributeValue2.getSendEmailString());
     assertEquals(grouperDeprovisioningAttributeValue.getShowForRemovalString(), grouperDeprovisioningAttributeValue2.getShowForRemovalString());
     assertEquals(grouperDeprovisioningAttributeValue.getStemScopeString(), grouperDeprovisioningAttributeValue2.getStemScopeString());
-    assertEquals("gjo", grouperDeprovisioningAttributeValue2.getStemScopeString());
+    assertEquals("one", grouperDeprovisioningAttributeValue2.getStemScopeString());
     
   }
   

@@ -57,12 +57,27 @@ public class AttributeAssignValueFinder {
     private Set<AttributeAssign> attributeAssignsOnAssigns = new LinkedHashSet<AttributeAssign>();
     private Set<String> attributeAssignsOnAssignsIds = new LinkedHashSet<String>();
     private Map<String, AttributeAssign> mapOwnerIdToAttributeAssign = new LinkedHashMap<String, AttributeAssign>();
+    private Map<String, Set<AttributeAssign>> mapOwnerIdToAttributeAssigns = new LinkedHashMap<String, Set<AttributeAssign>>();
     
     /**
      * get the map from group id to the attribute assign
      */
     public Map<String, AttributeAssign> getMapOwnerIdToAttributeAssign() {
       return this.mapOwnerIdToAttributeAssign;
+    }
+    
+    /**
+     * get the map from group id to the attribute assign
+     */
+    public Map<String, Set<AttributeAssign>> getMapOwnerIdToAttributeAssigns() {
+      return this.mapOwnerIdToAttributeAssigns;
+    }
+    
+    /**
+     * map of attributeAssignId to attributeAssign
+     */
+    public Map<String, AttributeAssign> getMapAttributeAssignIdToAttributeAssign() {
+      return this.mapAttributeAssignIdToAttributeAssign;
     }
     
     private Map<String, Set<String>> mapAttributeAssignIdToAssignAssignIds = new LinkedHashMap<String, Set<String>>();
@@ -105,6 +120,49 @@ public class AttributeAssignValueFinder {
             }
           }
           
+        }
+        
+      }
+      
+      return result;
+    }
+    
+    /**
+     * get the map of attribute assign id (base attrbute) to map of names and values (assign of assign)
+     * @param ownerId
+     * @return the map
+     */
+    public Map<String, Map<String, String>> retrieveAssignIdsToAttributeDefNamesAndValueStrings(String ownerId) {
+      
+      Map<String, Map<String, String>> result = new LinkedHashMap<String, Map<String, String>>();
+      
+      if (GrouperUtil.length(this.attributeAssignValues) > 0) {
+        
+        Set<AttributeAssign> attributeAssigns = this.mapOwnerIdToAttributeAssigns.get(ownerId);
+
+        if (GrouperUtil.length(attributeAssigns) > 0) {
+          for (AttributeAssign attributeAssign : attributeAssigns) {
+            
+            Map<String, String> attributeDefNameToValue = new LinkedHashMap<String, String>();
+            result.put(attributeAssign.getId(), attributeDefNameToValue);
+            
+            for (String attributeAssignAssignId : GrouperUtil.nonNull(this.mapAttributeAssignIdToAssignAssignIds.get(attributeAssign.getId()))) {
+
+              AttributeAssign attributeAssignOnAssign = this.mapAttributeAssignIdToAttributeAssign.get(attributeAssignAssignId);
+              
+              AttributeDefName attributeDefName = this.mapAttributeDefNameIdToAttributeDefName.get(attributeAssignOnAssign.getAttributeDefNameId());
+              
+              if (result.containsKey(attributeDefName.getName())) {
+                throw new RuntimeException("AttributeDefName '" + attributeDefName.getName() + "' already exists!");
+              }
+              
+              AttributeAssignValue attributeAssignValue = this.mapAttributeAssignOnAssignIdToAttributeAssignValue.get(attributeAssignOnAssign.getId());
+              
+              if (attributeAssignValue != null) {
+                attributeDefNameToValue.put(attributeDefName.getName(), attributeAssignValue.valueString());
+              }
+            }
+          }          
         }
         
       }
@@ -338,15 +396,20 @@ public class AttributeAssignValueFinder {
         result.attributeAssignsOnAssigns.add(attributeAssign);
         result.attributeAssignsOnAssignsIds.add(attributeAssign.getId());
       } else {
+        
+        //single assign map
         result.attributeAssigns.add(attributeAssign);
-        if (attributeAssign.getOwnerGroupId() != null) {
-          result.mapOwnerIdToAttributeAssign.put(attributeAssign.getOwnerGroupId(), attributeAssign);
+        String ownerId = attributeAssign.getOwnerSingleId();
+        result.mapOwnerIdToAttributeAssign.put(ownerId, attributeAssign);
+
+        // multi assign map
+        Set<AttributeAssign> attributeAssigns = result.mapOwnerIdToAttributeAssigns.get(attributeAssign.getOwnerGroupId());
+        if (attributeAssigns == null) {
+          attributeAssigns = new HashSet<AttributeAssign>();
+          result.mapOwnerIdToAttributeAssigns.put(ownerId, attributeAssigns);
         }
-        if (attributeAssign.getOwnerStemId() != null) {
-          result.mapOwnerIdToAttributeAssign.put(attributeAssign.getOwnerStemId(), attributeAssign);
-        }
+        attributeAssigns.add(attributeAssign);
       }
-      
     }
     
     // link up the attribute assign with the assign ids

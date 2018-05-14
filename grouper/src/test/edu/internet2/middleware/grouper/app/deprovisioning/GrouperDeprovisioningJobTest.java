@@ -52,7 +52,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDeprovisioningJobTest("testRetrieveRealms"));
+    TestRunner.run(new GrouperDeprovisioningJobTest("testDaemonUpdatingMetadataOnGroups"));
   }
   
   /**
@@ -135,7 +135,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     
     grouperDeprovisioningAttributeValue.setRealmString("student");
 
-    grouperDeprovisioningOverallConfiguration.storeConfigurationForRealm("student");
+    studentConfiguration.storeConfiguration();
 
     //GrouperDeprovisioningJob.
     
