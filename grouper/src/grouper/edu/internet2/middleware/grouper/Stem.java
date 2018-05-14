@@ -1935,6 +1935,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public void validate() {
     //lets validate
+    
+    int maxNameLength = 255;
+    maxNameLength = GrouperConfig.retrieveConfig().propertyValueInt("grouper.stemName.maxSize", maxNameLength);
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "extension", 
     //        Types.VARCHAR, "255", false, true);
@@ -1952,14 +1955,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
     //        Types.VARCHAR, "255", false, true);
-    if (GrouperUtil.lengthAscii(this.getName()) > 255) {
+    if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
       throw new GrouperValidationException("Stem name too long: " + GrouperUtil.lengthAscii(this.getName()), 
           VALIDATION_STEM_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getName()));
     }
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name", 
     //        Types.VARCHAR, "255", false, true);
-    if (GrouperUtil.lengthAscii(this.getDisplayName()) > 255) {
+    if (GrouperUtil.lengthAscii(this.getDisplayName()) > maxNameLength) {
       throw new GrouperValidationException("Stem display name too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
           VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
     }

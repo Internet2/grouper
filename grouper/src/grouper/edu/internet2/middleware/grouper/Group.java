@@ -5115,10 +5115,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     //lets validate
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "name", 
     //        Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, false);
-
     boolean sqlServer = GrouperDdlUtils.isSQLServer();
     int maxNameLength = sqlServer ? 900 : 1024;
-
+    maxNameLength = GrouperConfig.retrieveConfig().propertyValueInt("grouper.groupName.maxSize", maxNameLength);
+    
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "extension", 
     //        Types.VARCHAR, "255", false, false);
     if (GrouperUtil.lengthAscii(this.getExtension()) > 255 ) {

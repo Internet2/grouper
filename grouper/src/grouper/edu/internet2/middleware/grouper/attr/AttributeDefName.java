@@ -1018,6 +1018,7 @@ public class AttributeDefName extends GrouperAPI
     //        AttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
     boolean sqlServer = GrouperDdlUtils.isSQLServer();
     int maxNameLength = sqlServer ? 900 : 1024;
+    maxNameLength = GrouperConfig.retrieveConfig().propertyValueInt("grouper.nameOfAttributeDefName.maxSize", maxNameLength);
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
     //        AttributeDefName.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);

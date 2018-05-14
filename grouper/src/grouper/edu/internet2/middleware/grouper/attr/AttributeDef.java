@@ -558,6 +558,9 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
     //validate the attribute definition
 
     //lets validate
+    boolean sqlServer = GrouperDdlUtils.isSQLServer();
+    int maxNameLength = sqlServer ? 900 : 1024;
+    maxNameLength = GrouperConfig.retrieveConfig().propertyValueInt("grouper.nameOfAttributeDef.maxSize", maxNameLength);
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
     //        AttributeDef.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
@@ -569,8 +572,6 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
     
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
     //        AttributeDef.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
-    boolean sqlServer = GrouperDdlUtils.isSQLServer();
-    int maxNameLength = sqlServer ? 900 : 1024;
     if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
       throw new GrouperValidationException("Name of attributeDef too long: " + GrouperUtil.lengthAscii(this.getName()), 
           VALIDATION_NAME_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getName()));
