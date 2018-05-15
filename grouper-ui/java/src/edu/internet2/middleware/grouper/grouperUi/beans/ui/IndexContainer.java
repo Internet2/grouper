@@ -1039,37 +1039,4 @@ public class IndexContainer {
     return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", true);
   }
 
-  /**
-   * Should the admin ui link the displayed under quick links?
-   * @return true if allowed to see admin link
-   */
-  public boolean isAdminUIQuickLinkDisplayed() {
-    boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", false);
-    if (result) {
-      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.adminui.forGroup", loggedInSubject, true);
-      //null error means allow
-      if (error == null) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Should the lite ui link the displayed under quick links?
-   * @return true if the lite ui link should be shown
-   */
-  public boolean isLiteUIQuickLinkDisplayed() {
-    boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.liteui", true);
-    if (result) {
-      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.liteui.forGroup", loggedInSubject, true);
-      //null error means allow
-      if (error == null) {
-        return true;
-      }
-    }
-    return false;
-  }
 }

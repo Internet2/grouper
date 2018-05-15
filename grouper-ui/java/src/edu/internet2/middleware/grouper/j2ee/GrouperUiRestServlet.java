@@ -46,7 +46,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleGroupUpdateFilter;
@@ -120,10 +119,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       "SimpleMembershipUpdateFilter.filterMembers", "SimpleAttributeUpdateFilter.filterAttributeDefs",
       "SimpleAttributeUpdateFilter.filterCreatableNamespace", 
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers",
-      SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterAttributeDefs",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterGroups",
-      SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterAttributeDefNames",
-      SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterCreatableNamespace",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterCreatableNamespace",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterRoles",
@@ -260,7 +256,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
-
+    /* todo isn't this already checked by the uiFilter? */
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, response);
     if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
         && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".postIndex", urlStrings.get(1))

@@ -34,7 +34,9 @@ tar xzf $DL/grouper-legacy-ui.tar.gz
 ```
 
 3) Manually update WEB-INF/web.xml to restore the legacy servlet and Struts filters. Near the end of the file (before </web-app>),
-add in the following xml fragments
+add in the following xml fragments. This template uses grouperRole=* for security. If you have a custom setting to allow
+specific roles into the application, set the grouperRole to the correct value.
+
 
 ```
 <filter>
@@ -45,10 +47,30 @@ add in the following xml fragments
     <filter-name>Caller page</filter-name>
     <filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
 </filter>
+<filter>
+   <filter-name>Login check</filter-name>
+   <filter-class>edu.internet2.middleware.grouper.ui.LoginCheckFilter</filter-class>
+   <init-param>
+           <param-name>failureUrl</param-name>
+           <param-value>/index.jsp</param-value>
+   </init-param>
+           <init-param>
+   <param-name>ignore</param-name>
+           <param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:/status:</param-value>
+   </init-param>
+   <init-param>
+           <param-name>grouperRole</param-name>
+           <param-value>*</param-value>
+   </init-param>
+</filter>
 
 <filter-mapping>
     <filter-name>GrouperUi</filter-name>
     <url-pattern>*.do</url-pattern>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/appHtml/*</url-pattern>
 </filter-mapping>
 <filter-mapping>
     <filter-name>Error Catcher</filter-name>
@@ -81,4 +103,26 @@ add in the following xml fragments
     <servlet-name>action</servlet-name>
     <url-pattern>*.do</url-pattern>
 </servlet-mapping>
+
+<security-constraint>
+    <web-resource-collection>
+        <web-resource-name>UI</web-resource-name>
+        <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+        <role-name>*</role-name>
+    </auth-constraint>
+</security-constraint>
+
+<security-constraint>
+    <web-resource-collection>
+        <web-resource-name>Tomcat login</web-resource-name>
+        <url-pattern>/login.do</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+         <!-- NOTE:  This role is not present in the default users file -->
+         <role-name>*</role-name>
+    </auth-constraint>
+</security-constraint>
+
 ```

@@ -58,14 +58,6 @@ public class GroupContainer {
   
 
   /**
-   * if should show link to admin ui in group menu
-   * @return should show
-   */
-  public boolean isShowMenuLinkToAdminUi() {
-    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("ui-new.link-from-admin-ui", true);
-  }
-  
-  /**
    * if displaying composite, this is the owner
    */
   private GuiGroup compositeOwnerGuiGroup;

@@ -223,7 +223,6 @@ public class SessionInitialiser {
         locale=createLocale(localeStr);
       }
       
-      session.setAttribute("org.apache.struts.action.LOCALE", locale);
       session.setAttribute("locale", locale);
   
       SessionInitialiser.init(null, session);

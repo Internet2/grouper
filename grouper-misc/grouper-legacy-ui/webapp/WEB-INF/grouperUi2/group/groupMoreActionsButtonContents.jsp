@@ -76,6 +76,11 @@
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['attestationButton'] }</a></li>
                         </c:if>                
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning}">
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['deprovisioningMoreActionsMenuLabel'] }</a></li>
+                        </c:if>         
+                        
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=group'); return false;"
                               >${textContainer.text['groupViewAuditButton'] }</a></li>
@@ -100,26 +105,22 @@
                               >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
                           </c:if>
                         </c:if>
-                        
-                        <li class="divider"></li>
-                        <li>
-                          <a href="#" onclick="ajax('../app/UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
-                            ${textContainer.text['groupViewPermissionsButton'] }
-                          </a>
-                        </li>
-                        
-                        <li class="divider"></li>
-                        <li>
-                          <a href="#" onclick="ajax('../app/UiV2GroupAttributeAssignment.viewAttributeAssignments?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">
-                            ${textContainer.text['groupAttributeAssignmentsButton'] }
-                          </a>
-                        </li>
+                                                
+                        <c:if test="${grouperRequestContainer.groupContainer.canReadAttributes}">
+	                        <li class="divider"></li>
+	                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupPermission.groupPermission&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewPermissionsButton'] }</a></li>
+	                        <li class="divider"></li>
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupAttributeAssignmentsButton'] }</a></li>
+                        </c:if>
 
                         <c:if test="${grouperRequestContainer.groupContainer.showMenuLinkToAdminUi}">
                           <li class="divider"></li>
                           <li><a href="../../populateGroupSummary.do?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"
-                              >${textContainer.text['groupViewAdminUiButton'] }</a></li>
-                        </c:if>
+                              >${textContainer.text['groupViewAdminUiButton'] }</a></li>                        
+                       </c:if>
+
                       </ul>
                     </div>
 

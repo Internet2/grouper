@@ -19,6 +19,10 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
     <url-pattern>/grouperExternal/public/UiV2Public.index</url-pattern>
   </filter-mapping>
   <filter-mapping>
@@ -92,5 +96,16 @@
       <role-name>*</role-name>
     </auth-constraint>
   </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
 
 </web-app>

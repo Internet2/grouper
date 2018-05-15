@@ -41,14 +41,6 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class CommonRequestContainer {
 
   /**
-   * if we should have the root ui be the new ui
-   * @return true if root ui should be the new ui
-   */
-  public boolean isRootUiNewUi() {
-    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("ui-root-is-new-ui", true);
-  }
-  
-  /**
    * error for screen (unescaped)
    */
   private String error;

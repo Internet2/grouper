@@ -6,12 +6,6 @@
   String location="grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain";
 %>
 
-<c:if test="${grouperRequestContainer.commonRequestContainer.rootUiNewUi}==false">
-<%
-  location="grouperUi/appHtml/grouper.html?operation=Misc.index";
-%>
-</c:if>
-
 <head><meta http-equiv="refresh" content="0;<%=location%>"/></head>
 
 <body onload="document.location.href='<%=location%>'">

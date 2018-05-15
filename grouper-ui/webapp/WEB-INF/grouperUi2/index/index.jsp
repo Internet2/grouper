@@ -80,13 +80,6 @@
                     <li><a href="#" 
                       onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['indexMiscellaneousButton'] }</a></li>
                   </c:if>
-                   
-                  <c:if test="${grouperRequestContainer.indexContainer.adminUIQuickLinkDisplayed=='true'}">
-                  	<li><a id="adminiu-link" href="../../populateAllGroups.do">${textContainer.text['ui-lite.fromInvite-admin-link'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.indexContainer.liteUIQuickLinkDisplayed=='true'}">
-                  	<li><a id="liteiu-link" href="../../grouperUi/appHtml/grouper.html?operation=Misc.index">${textContainer.text['ui-lite.fromInvite-link'] }</a></li>
-                  </c:if>
                   </ul>
                 </div>
               </div>

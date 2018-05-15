@@ -32,17 +32,8 @@ $(document).ready(function(){
 
     processUrl();  
     
-    if (typeof urlArgObjectMap.operation == 'undefined') {
-      //alert('going back to index: ' + location.href);
-      
-      //if the url is an external URL, then go to the external index page
-      if (!guiIsEmpty(location.href) && location.href.indexOf("/grouperExternal/appHtml/grouper.html") != -1) {
-        location.href = "grouper.html?operation=ExternalSubjectSelfRegister.index";
-      } else if (!guiIsEmpty(location.href) && location.href.indexOf("/test/") != -1) {
-        //nothing
-      } else {
-        location.href = "grouper.html?operation=Misc.index";
-      }
+    if (typeof urlArgObjectMap.operation == 'undefined' && !guiIsEmpty(location.href) && location.href.indexOf("/test/") != -1) {
+      //nothing
       return;
     }
   } else {

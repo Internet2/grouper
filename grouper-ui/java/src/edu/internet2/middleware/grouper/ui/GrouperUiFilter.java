@@ -51,7 +51,6 @@ import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -87,8 +86,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.ExternalSubjectSelfRegister;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
@@ -302,9 +299,10 @@ public class GrouperUiFilter implements Filter {
   public static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn, HttpServletResponse httpServletResponse) {
     Subject subject = retrieveSubjectLoggedInHelper(allowNoUserLoggedIn);
 
-    UiSection uiSectionForRequest = uiSectionForRequest();
-
-    ensureUserAllowedInSection(uiSectionForRequest, subject, httpServletResponse);
+    /* todo cer28-is this redundant? It's already in doFilter */
+//    UiSection uiSectionForRequest = uiSectionForRequest();
+//
+//    ensureUserAllowedInSection(uiSectionForRequest, subject, httpServletResponse);
 
     if (subject != null) {
       SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
@@ -549,17 +547,8 @@ public class GrouperUiFilter implements Filter {
     ADMIN_UI("require.group.for.logins", null),
 
     /** simple membership update */
-    INVITE_EXTERNAL_SUBJECTS("require.group.for.inviteExternalSubjects.logins", null),
-    
-    /** simple membership update */
-    SIMPLE_MEMBERSHIP_UPDATE("require.group.for.membershipUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
-    
-    /** simple membership update */
-    SIMPLE_ATTRIBUTE_UPDATE("require.group.for.attributeUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
-    
-    /** subject picker */
-    SUBJECT_PICKER("require.group.for.subjectPicker.logins", GrouperUtil.toSet(ADMIN_UI, SIMPLE_MEMBERSHIP_UPDATE));
-    
+    INVITE_EXTERNAL_SUBJECTS("require.group.for.inviteExternalSubjects.logins", null);
+
     /** media properties key */
     private String mediaKey;
 
@@ -728,28 +717,11 @@ public class GrouperUiFilter implements Filter {
     if (uri.matches("^/[^/]+/index\\.jsp$")) {
       return UiSection.ANONYMOUS;
     }
-    if (uri.matches("^/[^/]+/populateIndex\\.do$")) {
+    if (uri.matches("^/[^/]+/grouperExternal/app/[^/]+$")) {
       return UiSection.ANONYMOUS;
     }
-    if (uri.matches("^/[^/]+/callLogin\\.do$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/error\\.do$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/logout\\.do$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/grouperExternal[/]?.*/$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/grouperExternal[/]?.*/index.html$")) {
-      return UiSection.ANONYMOUS;
-    }
+
     if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.index$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.index$")) {
       return UiSection.ANONYMOUS;
     }
     if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.postIndex$")) {
@@ -759,41 +731,19 @@ public class GrouperUiFilter implements Filter {
       return UiSection.ANONYMOUS;
     }
     
-    boolean externalServlet = uri.matches("^/[^/]+/grouperExternal/appHtml/grouper\\.html$")
-        || uri.matches("^/[^/]+/grouperExternal/app/[^/]+$");
+    boolean externalServlet = uri.matches("^/[^/]+/grouperExternal/app/[^/]+$");
 
-    String operation = null;
-
-    if (uri.matches("^/[^/]+/grouper(Ui|External)/appHtml/grouper\\.html$")) {
-
-      //must be in simple membership update or subject picker
-      operation = httpServletRequest.getParameter("operation");
-
-      if (StringUtils.isBlank(operation) && !externalServlet) {
-
-        return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
-      }
-
-    } else if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")) {
-      
-      //must be in simple membership update or subject picker
-      int lastLastIndex = uri.lastIndexOf('/');
-      operation = uri.substring(lastLastIndex+1);
-    }
+    String operation = httpServletRequest.getParameter("operation");
 
     String theClass = null;
     
     if (!StringUtils.isBlank(operation)) {
-      
       theClass = GrouperUtil.prefixOrSuffix(operation, ".", true);
     }
     
     if (externalServlet) {
       
       if (!StringUtils.isBlank(theClass)) {
-        if (theClass.startsWith(ExternalSubjectSelfRegister.class.getSimpleName())) {
-          return UiSection.EXTERNAL;
-        }
         if (theClass.startsWith(UiV2ExternalSubjectSelfRegister.class.getSimpleName())) {
           return UiSection.EXTERNAL;
         }
@@ -809,18 +759,6 @@ public class GrouperUiFilter implements Filter {
       //anyone can see the menu...
       if (theClass.equals("Misc") || theClass.equals("MiscMenu")) {
         return UiSection.ANONYMOUS;
-      }
-      if (theClass.startsWith("SimpleAttributeUpdate")) {
-        return UiSection.SIMPLE_ATTRIBUTE_UPDATE;
-      }
-      if (theClass.startsWith("SimpleMembershipUpdate")) {
-        return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
-      }
-      if (theClass.startsWith("SubjectPicker") || theClass.startsWith("AttributeDefNamePicker")) {
-        return UiSection.SUBJECT_PICKER;
-      }
-      if (theClass.startsWith(InviteExternalSubjects.class.getSimpleName())) {
-        return UiSection.INVITE_EXTERNAL_SUBJECTS;
       }
     }
 
@@ -865,16 +803,6 @@ public class GrouperUiFilter implements Filter {
           //  browser.debug.group=
           initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("browser.debug.group"));
           
-          //  # Display the link to the admin ui only if user is a member of this group.
-          //  # note this config item needs uiV2.quicklink.menu.adminui=true
-          //  uiV2.quicklink.menu.adminui.forGroup=
-          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.quicklink.menu.adminui.forGroup"));
-
-          //  # Display the link to the lite ui only if user is a member of this group
-          //  # note this config item needs uiV2.quicklink.menu.liteui=true
-          //  uiV2.quicklink.menu.liteui.forGroup=
-          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.quicklink.menu.liteui.forGroup"));
-
           //  require.group.for.logins
           initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.logins"));
 
@@ -1184,10 +1112,8 @@ public class GrouperUiFilter implements Filter {
       
       //this makes sure allowed in section
       Subject subjectLoggedIn = retrieveSubjectLoggedIn(true, httpServletResponse);
-      if (subjectLoggedIn != null) {
-        UiSection uiSection = uiSectionForRequest();
-        ensureUserAllowedInSection(uiSection, subjectLoggedIn, httpServletResponse);
-      }
+      UiSection uiSection = uiSectionForRequest();
+      ensureUserAllowedInSection(uiSection, subjectLoggedIn, httpServletResponse);
 
       TextContainer.retrieveFromRequest();
 
@@ -1204,23 +1130,32 @@ public class GrouperUiFilter implements Filter {
 
       //make a friendly response if not ajax
       if (!RequestContainer.retrieveFromRequest().isAjaxRequest()) {
-      
-        String msg = t.getMessage();
-        httpServletRequest.setAttribute("seriousError",msg);
-        //for some reason this has to be able the getRequestDispatcher...
-        RequestDispatcher rd = httpServletRequest.getRequestDispatcher("/filterError.do");
+//todo remove Lite UI
+//
+//        String msg = t.getMessage();
+//        httpServletRequest.setAttribute("seriousError",msg);
+//        //for some reason this has to be able the getRequestDispatcher...
+//        RequestDispatcher rd = httpServletRequest.getRequestDispatcher("/filterError.do");
+//        try {
+//          if (!response.isCommitted()) {
+//            response.setContentType("text/html");
+//            rd.forward(httpServletRequest, response);
+//          } else {
+//            rd.include(httpServletRequest, response);
+//          }
+//        }catch(Throwable tt) {
+//          LOG.error("Failed to include error page:", tt);
+//          ((HttpServletResponse)response).sendError(500);
+//        }
+
+//errorCode_ajaxError
         try {
-          if (!response.isCommitted()) {
-            response.setContentType("text/html");
-            rd.forward(httpServletRequest, response);
-          } else {
-            rd.include(httpServletRequest, response);
-          }
-        }catch(Throwable tt) {
-          LOG.error("Failed to include error page:", tt);
-          ((HttpServletResponse)response).sendError(500);
+          httpServletResponse.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Error", ioe);
         }
-      }      
+        //throw new ControllerDone();
+      }
     } finally {
       sendErrorEmailIfNeeded();
      

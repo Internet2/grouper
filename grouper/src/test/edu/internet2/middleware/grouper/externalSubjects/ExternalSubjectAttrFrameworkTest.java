@@ -117,8 +117,8 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       String body = GrouperEmail.testingEmails().get(0).getBody();
       assertTrue(body.contains("this is the email\n\nhttp://"));
               
-      assertTrue(body, body.contains("grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId="));
-      
+      assertTrue(body, body.contains("grouperExternal/public/UiV2Public.index?operation=UiV2ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId="));
+
       //grab the uuid
       Pattern pattern = Pattern.compile(".*externalSubjectInviteId=([0-9a-z]+)", Pattern.DOTALL);
       Matcher matcher = pattern.matcher(body);
@@ -186,8 +186,8 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       
       String body = GrouperEmail.testingEmails().get(0).getBody();
       assertTrue(body.contains("this is the email\n\nhttp://"));
-      assertTrue(body.contains("grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId="));
-      
+      assertTrue(body.contains("grouperExternal/public/UiV2Public.index?operation=UiV2ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId="));
+
       //grab the uuid
       Pattern pattern = Pattern.compile(".*externalSubjectInviteId=([0-9a-z]+)", Pattern.DOTALL);
       Matcher matcher = pattern.matcher(body);
