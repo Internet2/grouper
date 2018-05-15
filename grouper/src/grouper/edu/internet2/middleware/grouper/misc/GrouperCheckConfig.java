@@ -1452,6 +1452,7 @@ public class GrouperCheckConfig {
     checkJar("mailapi-1.4.3.jar", 250233, "com.sun.mail.handlers.text_html", "1.4.3");
     checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
     checkJar("morphString.jar", 78679, "edu.internet2.middleware.morphString.Crypto", "1.2");
+    checkJar("oro-2.0.8.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");
     checkJar("p6spy-3.6.0.jar", 123220, "com.p6spy.engine.logging.P6LogOptionsMBean", "null");
     checkJar("quartz-2.3.0.jar", 690992, "org.quartz.Calendar", "null");
     checkJar("slf4j-api-1.7.25.jar", 41203, "org.slf4j.event.EventConstants", "1.7.25");

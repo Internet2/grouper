@@ -217,11 +217,6 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging-api</artifactId>
                 </exclusion>
-                <!-- testing whether oro can be fully eliminated from the project; does ddlUtils use it? -->
-                <exclusion>
-                    <groupId>oro</groupId>
-                    <artifactId>oro</artifactId>
-                </exclusion>
                 <!-- We already pull a higher version of dom4j -->
                 <exclusion>
                     <groupId>dom4j</groupId>
