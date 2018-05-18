@@ -37,13 +37,13 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 
 /**
  *
  */
 @DisallowConcurrentExecution
-public class GrouperDuoFullRefresh implements Job {
+public class GrouperDuoFullRefresh extends OtherJobBase implements Job {
 
   /**
    * 
