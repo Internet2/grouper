@@ -105,12 +105,12 @@ public class TestSubject extends GrouperTest {
     assertEquals(1, subjects.size());
     
     assertTrue(SubjectHelper.inList(subjects, everyEntity));  
-    
+
+    // this might find the deprovisioning group too
     subjects = SubjectFinder.findAll("erall");
-    
-    assertEquals(1, subjects.size());
-    
+        
     assertTrue(SubjectHelper.inList(subjects, everyEntity));  
+    assertTrue(!SubjectHelper.inList(subjects, grouperSystem));  
     
     subjects = SubjectFinder.findAll("eryen");
     

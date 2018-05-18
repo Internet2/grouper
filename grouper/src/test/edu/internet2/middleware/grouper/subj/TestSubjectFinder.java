@@ -325,8 +325,8 @@ public class TestSubjectFinder extends GrouperTest {
     
     for (int i=0;i<8;i++) {
       ExternalSubject externalSubject = new ExternalSubject();
-      externalSubject.setEmail("a" + i + "@b.c");
-      externalSubject.setIdentifier("a" + i + "@id.b.c");
+      externalSubject.setEmail("a" + i + "@example.edu");
+      externalSubject.setIdentifier("a" + i + "@id.example.edu");
       externalSubject.setInstitution("My Institution" + i);
       externalSubject.setName("My Name" + i);
       externalSubject.store();
@@ -940,8 +940,8 @@ public class TestSubjectFinder extends GrouperTest {
     {
       for (int i=0;i<8;i++) {
         ExternalSubject externalSubject = new ExternalSubject();
-        externalSubject.setEmail("a" + i + "@b.c");
-        externalSubject.setIdentifier("a" + i + "@id.b.c");
+        externalSubject.setEmail("a" + i + "@example.edu");
+        externalSubject.setIdentifier("a" + i + "@id.example.edu");
         externalSubject.setInstitution("My Institution" + i);
         externalSubject.setName("My Name" + i);
         externalSubject.store();
@@ -950,7 +950,7 @@ public class TestSubjectFinder extends GrouperTest {
       
       
       //this tests the jdbc2 source
-      Set<Subject> subjects = SubjectFinder.findAll("id.b.c");
+      Set<Subject> subjects = SubjectFinder.findAll("id.example.edu");
       
       assertTrue(subjects.size() > 5);
       
@@ -965,13 +965,13 @@ public class TestSubjectFinder extends GrouperTest {
       
       try {
         try {
-          subjects = SubjectFinder.findAll("id.b.c", ExternalSubject.sourceId());
+          subjects = SubjectFinder.findAll("id.example.edu", ExternalSubject.sourceId());
           fail("Should be past max results");
         } catch (SubjectTooManyResults stmr) {
           //good
         }
         try {
-          subjects = SubjectFinder.findAll("id.b.c");
+          subjects = SubjectFinder.findAll("id.example.edu");
           fail("Should be past max results");
         } catch (SubjectTooManyResults stmr) {
           //good
@@ -986,12 +986,12 @@ public class TestSubjectFinder extends GrouperTest {
       SearchPageResult searchPageResult = null;
         
       try {
-        searchPageResult = SubjectFinder.findPage("id.b.c", ExternalSubject.sourceId());
+        searchPageResult = SubjectFinder.findPage("id.example.edu", ExternalSubject.sourceId());
         
         assertEquals(2, searchPageResult.getResults().size());
         assertTrue(searchPageResult.isTooManyResults());
         
-        searchPageResult = SubjectFinder.findPage("id.b.c");
+        searchPageResult = SubjectFinder.findPage("id.example.edu");
   
         assertTrue(searchPageResult.isTooManyResults());
         assertEquals(2, searchPageResult.getResults().size());
@@ -1535,8 +1535,8 @@ public class TestSubjectFinder extends GrouperTest {
     
     for (int i=0;i<8;i++) {
       ExternalSubject externalSubject = new ExternalSubject();
-      externalSubject.setEmail("a" + i + "@b.c");
-      externalSubject.setIdentifier("a" + i + "@id.b.c");
+      externalSubject.setEmail("a" + i + "@example.edu");
+      externalSubject.setIdentifier("a" + i + "@id.example.edu");
       externalSubject.setInstitution("My Institution" + i);
       externalSubject.setName("My Name" + i);
       externalSubject.store();
@@ -1682,8 +1682,8 @@ public class TestSubjectFinder extends GrouperTest {
     
     for (int i=0;i<50;i++) {
       ExternalSubject externalSubject = new ExternalSubject();
-      externalSubject.setEmail("a" + i + "@b.c");
-      externalSubject.setIdentifier("a" + i + "@id.b.c");
+      externalSubject.setEmail("a" + i + "@example.edu");
+      externalSubject.setIdentifier("a" + i + "@id.example.edu");
       externalSubject.setInstitution("My Institution" + i);
       externalSubject.setName("My Name" + i);
       externalSubject.store();

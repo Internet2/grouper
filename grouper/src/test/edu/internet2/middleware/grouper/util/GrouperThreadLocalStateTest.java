@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.util;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.morphString.Crypto;
+import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.morphString.MorphPropertyFileUtils;
 
 
 /**
@@ -45,28 +47,35 @@ public class GrouperThreadLocalStateTest extends GrouperTest {
       return;
     }
     
-    ThreadLocal threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
-    threadLocalCrypto.remove();
-    if (threadLocalCrypto.get() != null) {
-      fail("not null");
+    if (GrouperUtil.isBlank(MorphPropertyFileUtils.retrievePropertyString(Morph.ENCRYPT_KEY))) {
+      Morph.testMorphKey = "fh43IRJ4Nf5";
     }
     
-    Crypto.getThreadLocalCrypto();
-    
-    threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
-
-    if (threadLocalCrypto.get() == null) {
-      fail("null");
+    try {
+      ThreadLocal threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
+      threadLocalCrypto.remove();
+      if (threadLocalCrypto.get() != null) {
+        fail("not null");
+      }
+      
+      Crypto.getThreadLocalCrypto();
+      
+      threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
+  
+      if (threadLocalCrypto.get() == null) {
+        fail("null");
+      }
+      
+      GrouperThreadLocalState.removeCurrentThreadLocals();
+      
+      threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
+  
+      if (threadLocalCrypto.get() != null) {
+        fail("not null");
+      }
+    } finally {
+      Morph.testMorphKey = null;
     }
-    
-    GrouperThreadLocalState.removeCurrentThreadLocals();
-    
-    threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(Crypto.class, null, "threadLocalCrypto", false, true, false);
-
-    if (threadLocalCrypto.get() != null) {
-      fail("not null");
-    }
-
   }
   
 }
