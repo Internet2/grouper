@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.attributeNameUpdate.AttributeNameUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -612,7 +613,7 @@ public class UiV2AttributeDefName {
 
     
     if (attributeDefName != null) {
-      attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));      
+      attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));
       
       AttributeDef attributeDef = attributeDefName.getAttributeDef();
       attributeDefContainer.setGuiAttributeDef(new GuiAttributeDef(attributeDef));      
@@ -695,9 +696,7 @@ public class UiV2AttributeDefName {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      AttributeDefName attributeDefName = null;
-      
-      attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDefName();
+      AttributeDefName attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDefName();
       
       if (attributeDefName == null) {
         return;
@@ -939,6 +938,166 @@ public class UiV2AttributeDefName {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/attributeDefName/attributeDefNamesDelete.jsp"));
   
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * show attribute def name inheritance screen
+   * @param request
+   * @param response
+   */
+  public void editAttributeDefNameInheritance(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      AttributeDefName attributeDefName = null;
+      
+      attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDefName();
+      
+      if (attributeDefName == null) {
+        return;
+      }
+      
+      AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.errorCantEditAttributeDef")));
+        return;
+      }
+      if (attributeDef.getAttributeDefType() != AttributeDefType.perm) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeNameUpdate.errorNotPermission")));
+        return;
+      }
+      
+      AttributeNameUpdateRequestContainer attributeNameUpdateRequestContainer = AttributeNameUpdateRequestContainer.retrieveFromRequestOrCreate();
+      
+      QueryOptions queryOptions = QueryOptions.create("name", true, null, null);
+      
+      AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder()
+        .assignAttributeDefId(attributeDef.getId()).assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject());
+      
+      attributeDefNameFinder.assignQueryOptions(queryOptions);
+      
+      Set<AttributeDefName> allAttributeDefNames = attributeDefNameFinder.findAttributeNames();
+      
+      attributeNameUpdateRequestContainer.setAttributeDefNameToEdit(attributeDefName);
+      attributeNameUpdateRequestContainer.setAttributeDef(attributeDefName.getAttributeDef());
+      attributeNameUpdateRequestContainer.setAllAttributeDefNamesForCurrentAttributeDef(allAttributeDefNames);
+      
+      {
+        Set<AttributeDefName> attributeDefNamesThatImplyThis = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThis();
+        attributeNameUpdateRequestContainer.setAttributeDefNamesThatImplyThis(attributeDefNamesThatImplyThis);
+      }
+      
+      {
+        Set<AttributeDefName> attributeDefNamesThatImplyThisImmediate = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThisImmediate();
+        attributeNameUpdateRequestContainer.setAttributeDefNamesThatImplyThisImmediate(attributeDefNamesThatImplyThisImmediate);
+      }
+      
+      {
+        Set<AttributeDefName> attributeDefNamesImpliedByThis = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+        attributeNameUpdateRequestContainer.setAttributeDefNamesImpliedByThis(attributeDefNamesImpliedByThis);
+      }
+      
+      {
+        Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThisImmediate();
+        attributeNameUpdateRequestContainer.setAttributeDefNamesImpliedByThisImmediate(attributeDefNamesImpliedByThisImmediate);
+      }
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDefName/attributeDefNameInheritance.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * save attribute def name inheritance
+   * @param request
+   * @param response
+   */
+  public void editAttributeDefNameInheritanceSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      AttributeDefName attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDefName();
+      
+      if (attributeDefName == null) {
+        return;
+      }
+      
+      AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.errorCantEditAttributeDef")));
+        return;
+      }
+      
+      String[] defNamesThatImply = request.getParameterValues("defNamesThatImmediatelyImply[]");
+      String[] defNamesImpliedBy = request.getParameterValues("defNamesImpliedByImmediate[]");
+      
+      if (defNamesThatImply != null) {
+        for (AttributeDefName attributeDefNameThatImply:  attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThis()) {   
+          attributeDefNameThatImply.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefName);
+        }
+        
+        for (String attributeDefNameIdAddImply: defNamesThatImply) {
+          AttributeDefName attributeDefNameThatImply = AttributeDefNameFinder.findById(attributeDefNameIdAddImply, true);
+          attributeDefNameThatImply.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName);
+        }
+      }
+      
+      if (defNamesImpliedBy != null) {
+        
+        for (AttributeDefName attributeDefNameImpliedBy:  attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis()) {   
+          attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefNameImpliedBy);
+        }
+        
+        for (String attributeDefNameImpliedByAdd: defNamesImpliedBy) {        
+          AttributeDefName attributeDefNameImpliedBy = AttributeDefNameFinder.findById(attributeDefNameImpliedByAdd, true);
+          attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefNameImpliedBy);
+        }
+      }
+      
+      //go to the view attributeDef screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=" + attributeDefName.getAttributeDefId() + "')"));
+      
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefNameInheritanceEditSuccess")));
+
+    } catch (Exception e) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, e)) {
+        return;
+      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefNameInheritanceEditError") 
+          + ": " + GrouperUtil.xmlEscape(e.getMessage(), true)));
+      return;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

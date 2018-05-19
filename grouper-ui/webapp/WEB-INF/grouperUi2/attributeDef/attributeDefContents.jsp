@@ -52,7 +52,12 @@
                               	<li><a href="#"
                               	 		onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
                               		${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
-                              	</li>                                	
+                              	</li>
+                              	<c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.attributeDefType == 'perm'}">
+                                  <li><a href="#" 
+                                    onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefNameInheritance?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                                  ${textContainer.text['attributeDefEditInheritanceAttributeDefNameButton'] }</a></li>                              	
+                              	</c:if>
                                 <li><a href="#" 
                                     onclick="return guiV2link('operation=UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
                                   ${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
