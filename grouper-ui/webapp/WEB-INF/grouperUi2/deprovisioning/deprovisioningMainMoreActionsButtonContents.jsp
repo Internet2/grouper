@@ -12,7 +12,7 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&realm=${grouperRequestContainer.deprovisioningContainer.realm}'); return false;"
                               >${textContainer.text['deprovisioningMainMoreActionsDefault'] }</a></li>
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisionUser1&realm=${grouperRequestContainer.deprovisioningContainer.realm}'); return false;"
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisionUser&realm=${grouperRequestContainer.deprovisioningContainer.realm}'); return false;"
                               >${textContainer.text['deprovisioningMainMoreActionsDeprovision'] }</a></li>
                         </c:if>
 

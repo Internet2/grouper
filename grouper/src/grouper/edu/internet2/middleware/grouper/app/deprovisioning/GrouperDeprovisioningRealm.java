@@ -97,6 +97,34 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
   public String getUsersWhoHaveBeenDeprovisionedGroupName() {
     return GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + this.label;
   }
+  
+  /**
+   * @param subject
+   * @return true when subject is deprovisioned successfully, false otherwise.
+   */
+  public boolean deprovisionSubject(final Subject subject) {
+    
+    final String label = this.getLabel();
+    
+    return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Boolean callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        String groupName = GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + label;
+        Group deprovisionGroup = GroupFinder.findByName(rootSession, groupName, false);
+        if (deprovisionGroup == null) {
+          throw new RuntimeException(groupName+" not found.");
+        }
+        try {
+          return deprovisionGroup.addMember(subject, false);
+        } catch(Exception e) {
+          return false;
+        }
+      }
+    });
+    
+  }
 
   /**
    * get users members who have been deprovisioned

@@ -3,20 +3,21 @@
 <br /><br />
 ${textContainer.text['deprovisioningUserResultsDescription'] }
 <br /><br />
-                <form id="groupsToDeleteFormId">
+                <form id="deprovisionUserFormId">
+                <input type="hidden" name="realm" value="${grouperRequestContainer.deprovisioningContainer.realm}">
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
                       <td colspan="2" class="table-toolbar gradient-background">
                         <b>${textContainer.text['deprovisionUserNotesLabel'] }</b></td>
                       <td colspan="4" class="table-toolbar gradient-background">
-                        <textarea rows="2" cols="30"></textarea>
+                        <textarea rows="2" cols="30" name="deprovisioningReason"></textarea>
                       </td>
                     </tr>
                     <tr>
                       <td colspan="6" class="table-toolbar gradient-background">
-                        <a href="#" onclick="ajax('../app/UiV2Dep.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', 
-                        {formIds: 'deprovisionSearchFormId'}); return false;" 
+                        <a href="#" onclick="ajax('../app/UiV2Deprovisioning.deprovisionUserDeprovisionSubmit', 
+                        {formIds: 'deprovisionUserFormId'}); return false;" 
                         class="btn" role="button">${textContainer.text['deprovisionUserDeprovisionButtonSubmit'] }</a></td>
                     </tr>
                     <tr>

@@ -8,6 +8,15 @@ public class GuiDeprovisioningMembershipSubjectContainer {
   private boolean showCheckbox;
   
   private boolean checkCheckbox;
+  
+  public GuiDeprovisioningMembershipSubjectContainer(GuiMembershipSubjectContainer guiMembershipSubjectContainer,
+      boolean showCheckbox, boolean checkCheckbox) {
+    
+    this.guiMembershipSubjectContainer = guiMembershipSubjectContainer;
+    this.showCheckbox = showCheckbox;
+    this.checkCheckbox = checkCheckbox;
+    
+  }
 
   public GuiMembershipSubjectContainer getGuiMembershipSubjectContainer() {
     return guiMembershipSubjectContainer;
