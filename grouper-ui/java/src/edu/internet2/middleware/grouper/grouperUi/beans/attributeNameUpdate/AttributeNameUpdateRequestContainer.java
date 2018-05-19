@@ -117,6 +117,9 @@ public class AttributeNameUpdateRequestContainer implements Serializable {
   
   /** attribute def names implied by this immediate */
   private Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate = null;
+   
+  /** all attribute def names for current attribute def **/
+  private Set<AttributeDefName> allAttributeDefNamesForCurrentAttributeDef = null;
   
   /**
    * attribute def names that imply this immediate
@@ -184,6 +187,22 @@ public class AttributeNameUpdateRequestContainer implements Serializable {
   public void setAttributeDefNamesThatImplyThis(
       Set<AttributeDefName> attributeDefNamesThatImplyThis1) {
     this.attributeDefNamesThatImplyThis = attributeDefNamesThatImplyThis1;
+  }
+  
+  /**
+   * @return all attribute def names for current attribute def
+   */
+  public Set<AttributeDefName> getAllAttributeDefNamesForCurrentAttributeDef() {
+    return allAttributeDefNamesForCurrentAttributeDef;
+  }
+
+  /**
+   * all attribute def names for current attribute def
+   * @param allAttributeDefNamesForCurrentAttributeDef
+   */
+  public void setAllAttributeDefNamesForCurrentAttributeDef(
+      Set<AttributeDefName> allAttributeDefNamesForCurrentAttributeDef) {
+    this.allAttributeDefNamesForCurrentAttributeDef = allAttributeDefNamesForCurrentAttributeDef;
   }
 
   /**
@@ -289,6 +308,5 @@ public class AttributeNameUpdateRequestContainer implements Serializable {
   public void setCreate(boolean create1) {
     this.create = create1;
   }
-
 
 }
