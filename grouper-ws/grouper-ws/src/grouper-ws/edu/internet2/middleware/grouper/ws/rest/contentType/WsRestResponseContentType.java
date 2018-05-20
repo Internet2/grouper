@@ -54,14 +54,13 @@ public enum WsRestResponseContentType {
      */
     @Override
     public String getContentType() {
-      return WsRestRequestContentType.xhtml.getContentType();
+      return GrouperWsConfig.retrieveConfig().propertyValueString("ws.restResponseContentType.xhtml", "application/xhtml+xml");
     }
 
     /**
      * write a string representation to an outputstream
      * @param object to write to output
      * @param writer to write to (e.g. back to http client)
-     * @param warnings is where warnings should be written to
      */
     @Override
     public void writeString(Object object, Writer writer) {
@@ -89,14 +88,13 @@ public enum WsRestResponseContentType {
      */
     @Override
     public String getContentType() {
-      return WsRestRequestContentType.xml.getContentType();
+      return GrouperWsConfig.retrieveConfig().propertyValueString("ws.restResponseContentType.xml", "application/xml");
     }
 
     /**
      * write a string representation to an outputstream
      * @param object to write to output
      * @param writer to write to (e.g. back to http client)
-     * @param warnings is where warnings should be written to
      */
     @Override
     public void writeString(Object object, Writer writer) {
@@ -125,14 +123,13 @@ public enum WsRestResponseContentType {
      */
     @Override
     public String getContentType() {
-      return WsRestRequestContentType.json.getContentType();
+      return GrouperWsConfig.retrieveConfig().propertyValueString("ws.restResponseContentType.json", "application/json");
     }
 
     /**
      * write a string representation to an outputstream
      * @param object to write to output
      * @param writer to write to (e.g. back to http client)
-     * @param warnings is where warnings should be written to
      */
     @Override
     public void writeString(Object object, Writer writer) {
@@ -163,7 +160,6 @@ public enum WsRestResponseContentType {
    * write a string representation to an outputstream
    * @param object to write to output
    * @param writer to write to (e.g. back to http client)
-   * @param warnings is where warnings should be written to
    */
   public abstract void writeString(Object object, Writer writer);
 

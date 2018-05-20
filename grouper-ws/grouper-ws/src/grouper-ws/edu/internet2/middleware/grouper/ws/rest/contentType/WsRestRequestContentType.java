@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,7 +48,7 @@ public enum WsRestRequestContentType {
   /** default xhtml content type
    * http request content type should be set to application/xhtml+xml
    */
-  xhtml("application/xhtml+xml") {
+  xhtml(new String[]{"application/xhtml+xml"}) {
 
     /**
      * parse a string to an object
@@ -143,9 +144,9 @@ public enum WsRestRequestContentType {
 
   },
   /** xml content type
-   * http request content type should be set to text/xml
+   * http request content type should be set to application/xml or text/xml
    */
-  xml("text/xml") {
+  xml(new String[]{"application/xml", "text/xml"}) {
 
     /**
      * parse a string to an object
@@ -183,9 +184,9 @@ public enum WsRestRequestContentType {
   },
   /** 
    * json content type, uses the pluggable json converter
-   * http request content type should be set to text/x-json
+   * http request content type should be set to application/json or text/x-json
    */
-  json("text/x-json") {
+  json(new String[]{"application/json", "text/x-json"}) {
 
     /**
      * parse a string to an object
@@ -282,24 +283,36 @@ public enum WsRestRequestContentType {
   public abstract String writeString(Object object);
 
   /**
-   * constructor with content type
-   * @param theContentType
+   * constructor with content types
+   * @param theContentTypes
    */
-  private WsRestRequestContentType(String theContentType) {
-    this.contentType = theContentType;
+  private WsRestRequestContentType(String[] theContentTypes) {
+    this.contentTypes = theContentTypes;
   }
   
-  /** content type of request */
-  private String contentType;
+  /** content types of request */
+  private String[] contentTypes;
   
   /**
-   * content type header for http
-   * @return the content type
+   * Array of valid options content type header
+   * @return Valid content types
+   */
+  public String[] getContentTypes() {
+    return this.contentTypes;
+  }
+
+  /**
+   *  Default content type from acceptable content-type options
+   * @return The default content type
    */
   public String getContentType() {
-    return this.contentType;
+    if (ArrayUtils.isEmpty(contentTypes)) {
+      return null;
+    } else {
+      return contentTypes[0];
+    }
   }
-  
+
   /**
    * logger 
    */
@@ -316,10 +329,11 @@ public enum WsRestRequestContentType {
     error.append(StringUtils.defaultIfEmpty(contentTypeInRequest, "[none]"));
     error.append("', expecting one of: ");
     
-    for (WsRestRequestContentType wsRestRequestContentType : 
-        WsRestRequestContentType.values()) {
-      String contentTypeString = StringUtils.defaultIfEmpty(wsRestRequestContentType.contentType,
-          "[none] for http params");
+    for (WsRestRequestContentType wsRestRequestContentType :  WsRestRequestContentType.values()) {
+      String contentTypeString = "[none] for http params";
+      if (!ArrayUtils.isEmpty(wsRestRequestContentType.contentTypes)) {
+        contentTypeString = "[" + GrouperUtil.join(wsRestRequestContentType.contentTypes, ", ") + "]";
+      }
       error.append(wsRestRequestContentType.name()).append(": ")
         .append(contentTypeString).append(", ");
     }
@@ -352,17 +366,20 @@ public enum WsRestRequestContentType {
     }
     String theContentTypeBeforeSemi = StringUtils.trim(GrouperUtil.prefixOrSuffix(theContentType, ";", true));
     for (WsRestRequestContentType wsRestRequestContentType : WsRestRequestContentType.values()) {
-      if (!StringUtils.isBlank(wsRestRequestContentType.getContentType())) {
-        //get before the semi 
-        String wsRestRequestContentTypeBeforeSemi = StringUtils.trim(GrouperUtil.prefixOrSuffix(
-            wsRestRequestContentType.getContentType(), ";", true));
-        if (StringUtils.equals(theContentTypeBeforeSemi, wsRestRequestContentTypeBeforeSemi)) {
-          return wsRestRequestContentType;
+      if (!ArrayUtils.isEmpty(wsRestRequestContentType.contentTypes)) {
+        //get before the semi
+        // cer28 5/2018 maybe we can take this out, since we haven't defined any values with semicolons
+        for (String contentTypeOption : wsRestRequestContentType.contentTypes) {
+          String wsRestRequestContentTypeBeforeSemi = StringUtils.trim(GrouperUtil.prefixOrSuffix(
+                  contentTypeOption, ";", true));
+          if (StringUtils.equals(theContentTypeBeforeSemi, wsRestRequestContentTypeBeforeSemi)) {
+            return wsRestRequestContentType;
+          }
         }
       }
       //handle null
       if (StringUtils.isBlank(theContentType) 
-          && StringUtils.isBlank(wsRestRequestContentType.getContentType())) {
+          && ArrayUtils.isEmpty(wsRestRequestContentType.contentTypes)) {
         return wsRestRequestContentType;
       }
       
