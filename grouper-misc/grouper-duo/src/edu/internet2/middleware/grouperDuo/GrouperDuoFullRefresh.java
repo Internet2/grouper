@@ -19,9 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -33,6 +30,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -43,7 +41,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  *
  */
 @DisallowConcurrentExecution
-public class GrouperDuoFullRefresh implements Job {
+public class GrouperDuoFullRefresh extends OtherJobBase {
 
   /**
    * 
@@ -68,20 +66,27 @@ public class GrouperDuoFullRefresh implements Job {
   }
 
   /**
-   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
-   */
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-
-    fullRefreshLogic();
-
-    
-  }
-
-  /**
-   * full refresh logic
+   * 
    */
   public static void fullRefreshLogic() {
-    GrouperSession grouperSession = null;
+    OtherJobInput otherJobInput = new OtherJobInput();
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    otherJobInput.setGrouperSession(grouperSession);
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouploaderLog);
+    try {
+      fullRefreshLogic(otherJobInput);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * full refresh logic
+   * @param otherJobInput 
+   */
+  public static void fullRefreshLogic(OtherJobInput otherJobInput) {
+    GrouperSession grouperSession = otherJobInput.getGrouperSession();
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -90,7 +95,7 @@ public class GrouperDuoFullRefresh implements Job {
     debugMap.put("method", "fullRefreshLogic");
 
     //lets enter a log entry so it shows up as error in the db
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    Hib3GrouperLoaderLog hib3GrouploaderLog = otherJobInput.getHib3GrouperLoaderLog();
     hib3GrouploaderLog.setHost(GrouperUtil.hostname());
     hib3GrouploaderLog.setJobName(GrouperDuoFullRefresh.GROUPER_DUO_FULL_REFRESH);
     hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
@@ -101,8 +106,6 @@ public class GrouperDuoFullRefresh implements Job {
     long startedMillis = System.currentTimeMillis();
     
     try {
-      
-      grouperSession = GrouperSession.startRootSession();
       
       //# put groups in here which go to duo, the name in duo will be the extension here
       //grouperDuo.folder.name.withDuoGroups = duo
@@ -319,8 +322,18 @@ public class GrouperDuoFullRefresh implements Job {
     
     } finally {
       GrouperDuoLog.duoLog(debugMap, startTimeNanos);
-      GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.app.loader.OtherJobBase#run(edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput)
+   */
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    OtherJobOutput otherJobOutput = new OtherJobOutput();
+    fullRefreshLogic(otherJobInput);
+
+    return otherJobOutput;
   }
 
 }
