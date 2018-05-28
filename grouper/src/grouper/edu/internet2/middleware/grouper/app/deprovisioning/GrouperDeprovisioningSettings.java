@@ -13,6 +13,9 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
+/**
+ * 
+ */
 public class GrouperDeprovisioningSettings {
 
   /**
@@ -20,9 +23,9 @@ public class GrouperDeprovisioningSettings {
    * @return if deprovisioning enabled
    */
   public static boolean deprovisioningEnabled() {
-    // if turned off or if no realms then this is not enabled
+    // if turned off or if no affiliations then this is not enabled
     return GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.enable", true) 
-        || GrouperUtil.length(GrouperDeprovisioningRealm.retrieveDeprovisioningRealms()) == 0;
+        || GrouperUtil.length(GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) == 0;
   }
 
   /**
@@ -30,16 +33,17 @@ public class GrouperDeprovisioningSettings {
    * @return the stem name with no last colon
    */
   public static String deprovisioningStemName() {
-    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.systemFolder"), ":");
+    return GrouperUtil.stripEnd(GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.systemFolder", 
+        GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":deprovisioning"), ":");
   }
 
   /**
-   * users in this group who are admins of a realm but who are not Grouper SysAdmins
+   * users in this group who are admins of a affiliation but who are not Grouper SysAdmins
    * @return the group name
    */
   public static String retrieveDeprovisioningAdminGroupName() {
     
-    // # users in this group who are admins of a realm but who are not Grouper SysAdmins, will be 
+    // # users in this group who are admins of a affiliation but who are not Grouper SysAdmins, will be 
     // # able to deprovision from all grouper groups/objects, not just groups they have access to UPDATE/ADMIN
     // deprovisioning.admin.group = $$deprovisioning.systemFolder$$:deprovisioningAdmins
     return GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.admin.group");

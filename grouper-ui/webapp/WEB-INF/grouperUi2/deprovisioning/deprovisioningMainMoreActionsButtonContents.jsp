@@ -9,10 +9,10 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="deprovisioning-main-more-options">
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&realm=${grouperRequestContainer.deprovisioningContainer.realm}'); return false;"
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&affiliation=${grouperRequestContainer.deprovisioningContainer.affiliation}'); return false;"
                               >${textContainer.text['deprovisioningMainMoreActionsDefault'] }</a></li>
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisionUser&realm=${grouperRequestContainer.deprovisioningContainer.realm}'); return false;"
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisionUser&affiliation=${grouperRequestContainer.deprovisioningContainer.affiliation}'); return false;"
                               >${textContainer.text['deprovisioningMainMoreActionsDeprovision'] }</a></li>
                         </c:if>
 

@@ -342,6 +342,10 @@ public class AttributeAssignValueFinder {
    * attribute def names ids
    */
   private Collection<String> attributeDefNameIds;
+  /**
+   * look for values of attribute defs where it is an assignment on assignment
+   */
+  private Collection<String> ownerAttributeDefIdsOfAssignAssign;
   
   /**
    * attribute def name id to find
@@ -378,6 +382,7 @@ public class AttributeAssignValueFinder {
     AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder()
       .assignOwnerGroupIds(this.ownerGroupIdsOfAssignAssign)
       .assignOwnerStemIds(this.ownerStemIdsOfAssignAssign)
+      .assignOwnerAttributeDefIds(this.ownerAttributeDefIdsOfAssignAssign)
       .assignIncludeAssignmentsOnAssignments(true)
       .assignAttributeDefNameIds(this.attributeDefNameIds)
       .assignAttributeCheckReadOnAttributeDef(this.attributeCheckReadOnAttributeDef);
@@ -485,7 +490,8 @@ public class AttributeAssignValueFinder {
 
     }
     
-    Collection<String> ownerIdsOfAssignAssign = GrouperUtil.defaultIfNull(this.ownerGroupIdsOfAssignAssign, this.ownerStemIdsOfAssignAssign);
+    Collection<String> ownerIdsOfAssignAssign = GrouperUtil.defaultIfNull(
+        GrouperUtil.defaultIfNull(this.ownerGroupIdsOfAssignAssign, this.ownerStemIdsOfAssignAssign), this.ownerAttributeDefIdsOfAssignAssign);
     
     for (String ownerId : GrouperUtil.nonNull(ownerIdsOfAssignAssign)) {
       
@@ -537,6 +543,57 @@ public class AttributeAssignValueFinder {
     }
     
     throw new RuntimeException("Bad query");
+  }
+
+  /**
+   * look for values of AttributeDefs where it is an assignment on assignment
+   * @param ownerAttributeDefIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder addOwnerAttributeDefIdsOfAssignAssign(String ownerAttributeDefIdsOfAssignAssign1) {
+    if (this.ownerAttributeDefIdsOfAssignAssign == null) {
+      this.ownerAttributeDefIdsOfAssignAssign = new LinkedHashSet<String>();
+    }
+    this.ownerAttributeDefIdsOfAssignAssign.add(ownerAttributeDefIdsOfAssignAssign1);
+    return this;
+  }
+
+  /**
+   * look for values of AttributeDefs where it is an assignment on assignment
+   * @param ownerAttributeDefIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder addOwnerAttributeDefOfAssignAssign(Stem ownerAttributeDefIdsOfAssignAssign1) {
+    return this.addOwnerAttributeDefIdsOfAssignAssign(ownerAttributeDefIdsOfAssignAssign1.getId());
+  }
+
+  /**
+   * look for values of AttributeDefs where it is an assignment on assignment
+   * @param ownerAttributeDefIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder assignOwnerAttributeDefIdsOfAssignAssign(Collection<String> ownerAttributeDefIdsOfAssignAssign1) {
+    this.ownerAttributeDefIdsOfAssignAssign = ownerAttributeDefIdsOfAssignAssign1;
+    return this;
+  }
+
+  /**
+   * look for values of AttributeDefs where it is an assignment on assignment
+   * @param ownerAttributeDefIdsOfAssignAssign1
+   * @return this for chaining
+   */
+  public AttributeAssignValueFinder assignOwnerAttributeDefsOfAssignAssign(Collection<AttributeDef> ownerAttributeDefIdsOfAssignAssign1) {
+    
+    if (ownerAttributeDefIdsOfAssignAssign1 == null) {
+      this.ownerAttributeDefIdsOfAssignAssign = null;
+    } else {
+    
+      this.ownerAttributeDefIdsOfAssignAssign = new LinkedHashSet<String>();
+      for (AttributeDef attributeDef : ownerAttributeDefIdsOfAssignAssign1) {
+        this.ownerAttributeDefIdsOfAssignAssign.add(attributeDef.getId());
+      }
+    }
+    return this;
   }  
 
 }

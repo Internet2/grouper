@@ -51,31 +51,31 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
   
   /**
    * group that users who are allowed to deprovision other users are in
-   * @param realm deprovi
+   * @param affiliation deprovi
    * @return the group name
    */
-  public static String retrieveDeprovisioningManagersMustBeInGroupName(String realm) {
+  public static String retrieveDeprovisioningManagersMustBeInGroupName(String affiliation) {
     
-    //  # e.g. managersWhoCanDeprovision_<realmName>
-    //  # e.g. usersWhoHaveBeenDeprovisioned_<realmName>
+    //  # e.g. managersWhoCanDeprovision_<affiliationName>
+    //  # e.g. usersWhoHaveBeenDeprovisioned_<affiliationName>
     //  deprovisioning.systemFolder = $$grouper.rootStemForBuiltinObjects$$:deprovisioning
     
-    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":managersWhoCanDeprovision_" + realm;
+    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":managersWhoCanDeprovision_" + affiliation;
 
   }
 
   /**
    * group name which has been deprovisioned
-   * @param realm
+   * @param affiliation
    * @return the group name
    */
-  public static String retrieveGroupNameWhichHasBeenDeprovisioned(String realm) {
+  public static String retrieveGroupNameWhichHasBeenDeprovisioned(String affiliation) {
     
-    //  # e.g. managersWhoCanDeprovision_<realmName>
-    //  # e.g. usersWhoHaveBeenDeprovisioned_<realmName>
+    //  # e.g. managersWhoCanDeprovision_<affiliationName>
+    //  # e.g. usersWhoHaveBeenDeprovisioned_<affiliationName>
     //  deprovisioning.systemFolder = $$grouper.rootStemForBuiltinObjects$$:deprovisioning
     
-    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + realm;
+    return GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + affiliation;
   }
 
   /**
@@ -122,9 +122,9 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
 
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);
 
-      for (String realm : GrouperDeprovisioningRealm.retrieveAllRealms().keySet()) {
+      for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
         
-        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().get(realm);
+        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
 
         // we good
         if (grouperDeprovisioningConfiguration.getOriginalConfig().isDirectAssignment()) {
@@ -148,7 +148,7 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
           grouperDeprovisioningAttributeValue.setEmailSubjectString(inheritedAttributeValue.getEmailSubjectString());
           grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString(inheritedAttributeValue.getInheritedFromFolderIdString());
           grouperDeprovisioningAttributeValue.setMailToGroupString(inheritedAttributeValue.getMailToGroupString());
-          grouperDeprovisioningAttributeValue.setRealmString(inheritedAttributeValue.getRealmString());
+          grouperDeprovisioningAttributeValue.setAffiliationString(inheritedAttributeValue.getAffiliationString());
           grouperDeprovisioningAttributeValue.setSendEmailString(inheritedAttributeValue.getSendEmailString());
           grouperDeprovisioningAttributeValue.setShowForRemovalString(inheritedAttributeValue.getShowForRemovalString());
           grouperDeprovisioningAttributeValue.setStemScopeString(inheritedAttributeValue.getStemScopeString());
@@ -176,7 +176,7 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     //TODO only look at direct assignments?  are there duplicate assignments?
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
         AttributeAssignType.stem,
-        null, GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getId(), null, 
+        null, GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId(), null, 
         null, null, null, 
         null, 
         Boolean.TRUE, false);
@@ -208,10 +208,10 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
 
   /**
    * get the list of recently deprovisioned users
-   * @param realm 
+   * @param affiliation 
    * @return the list of members
    */
-  public static Set<Member> retrieveRecentlyDeprovisionedUsers(final String realm) {
+  public static Set<Member> retrieveRecentlyDeprovisionedUsers(final String affiliation) {
     
     //switch over to admin so attributes work
     return (Set<Member>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -219,7 +219,7 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        Group deprovisionedGroup = GroupFinder.findByName(grouperSession, retrieveGroupNameWhichHasBeenDeprovisioned(realm), true);
+        Group deprovisionedGroup = GroupFinder.findByName(grouperSession, retrieveGroupNameWhichHasBeenDeprovisioned(affiliation), true);
         
         Set<Member> members = deprovisionedGroup.getMembers();
         return members;
@@ -298,8 +298,8 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     
     Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
     
-    String realm = stemAttributeAssign.getAttributeValueDelegate()
-        .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName());
+    String affiliation = stemAttributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName());
     
     String stemHasDeprovisioningString = "false";
 
@@ -351,8 +351,8 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
       if (GrouperUtil.booleanValue(directAssignmentString, false)) { 
         continue;
       }
-//TODO needs realm
-      //start at stem and look for assignment, needs realm
+//TODO needs affiliation
+      //start at stem and look for assignment, needs affiliation
       AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
         .getAttributeOrAncestorAttribute(
             GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getName(), false);

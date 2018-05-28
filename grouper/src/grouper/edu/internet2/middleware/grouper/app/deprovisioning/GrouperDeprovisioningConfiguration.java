@@ -230,10 +230,10 @@ public class GrouperDeprovisioningConfiguration {
     originalConfig.setMailToGroupString(newConfig.getMailToGroupString());
 
     updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm(), 
-        originalConfig.getRealmString(),
-        newConfig.getRealmString(), changeCount);
-    originalConfig.setRealmString(newConfig.getRealmString());
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation(), 
+        originalConfig.getAffiliationString(),
+        newConfig.getAffiliationString(), changeCount);
+    originalConfig.setAffiliationString(newConfig.getAffiliationString());
 
     updateAttribute( 
         GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameSendEmail(), 

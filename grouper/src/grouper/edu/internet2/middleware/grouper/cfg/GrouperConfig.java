@@ -557,7 +557,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
     attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.clear();
     attributeDefIdsToIgnoreChangeLogAndAuditSetCache.clear();
     
-    this.deprovisioningRealms = null;
+    this.deprovisioningAffiliations = null;
   }
 
   /**
@@ -593,41 +593,41 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   }
   
   /**
-   * cache deprovisioning realms
+   * cache deprovisioning affiliations
    */
-  private Set<String> deprovisioningRealms = null;
+  private Set<String> deprovisioningAffiliations = null;
   
   /**
    * pattern compile alphanumeric and underscore
    */
-  private static Pattern realmNamePattern = Pattern.compile("^[a-zA-Z0-9_]+$");
+  private static Pattern affiliationNamePattern = Pattern.compile("^[a-zA-Z0-9_]+$");
   
   /**
-   * cache deprovisioning realms
-   * @return the realms
+   * cache deprovisioning affiliations
+   * @return the affiliations
    */
-  public Set<String> deprovisioningRealms() {
+  public Set<String> deprovisioningAffiliations() {
 
-    if (this.deprovisioningRealms != null) {
-      return this.deprovisioningRealms;
+    if (this.deprovisioningAffiliations != null) {
+      return this.deprovisioningAffiliations;
     }
 
-    String realmsString = GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.realms");
-    if (StringUtils.isBlank(realmsString)) {
+    String affiliationsString = GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.affiliations");
+    if (StringUtils.isBlank(affiliationsString)) {
       return new HashSet<String>();
     }
-    Set<String> result = GrouperUtil.splitTrimToSet(realmsString, ",");
+    Set<String> result = GrouperUtil.splitTrimToSet(affiliationsString, ",");
     
     Iterator<String> resultIterator = result.iterator();
     
     while (resultIterator.hasNext()) {
       
-      String realm = resultIterator.next();
+      String affiliation = resultIterator.next();
       
-      Matcher matcher = realmNamePattern.matcher(realm);
+      Matcher matcher = affiliationNamePattern.matcher(affiliation);
       
       if (!matcher.matches()) {
-        LOG.error("Realm name configured in grouper.properties deprovisioning.realms is not valid: '" + realm + "'!!!!!!!");
+        LOG.error("Affiliation name configured in grouper.properties deprovisioning.affiliations is not valid: '" + affiliation + "'!!!!!!!");
         resultIterator.remove();
       }
       

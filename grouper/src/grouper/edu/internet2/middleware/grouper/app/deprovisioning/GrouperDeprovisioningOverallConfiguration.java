@@ -12,13 +12,12 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.stem.StemSet;
@@ -94,9 +93,9 @@ public class GrouperDeprovisioningOverallConfiguration {
         
         GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);
         
-        for (String realm : GrouperDeprovisioningRealm.retrieveAllRealms().keySet()) {
+        for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
           
-          GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().get(realm);
+          GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
           
           if (grouperDeprovisioningConfiguration != null) {
             // if direct then we dont need the parent stem
@@ -115,7 +114,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 
             if (stemOverallConfiguration != null) {
 
-              GrouperDeprovisioningConfiguration stemDeprovisioningConfiguration = stemOverallConfiguration.getRealmToConfiguration().get(realm);
+              GrouperDeprovisioningConfiguration stemDeprovisioningConfiguration = stemOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
 
               if (stemDeprovisioningConfiguration != null) {
 
@@ -127,7 +126,7 @@ public class GrouperDeprovisioningOverallConfiguration {
                     if (grouperDeprovisioningConfiguration == null) {
                       grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
                       grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
-                      grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().put(realm, grouperDeprovisioningConfiguration);
+                      grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put(affiliation, grouperDeprovisioningConfiguration);
                     }
                     grouperDeprovisioningConfiguration.setInheritedConfig(stemDeprovisioningConfiguration);
                     //we done
@@ -155,35 +154,36 @@ public class GrouperDeprovisioningOverallConfiguration {
   
   /**
    * 
-   * @param groupOrFolder
+   * @param groupOrFolderOrAttributeDef
    * @return the configuration
    */
-  public static GrouperDeprovisioningOverallConfiguration retrieveConfiguration(GrouperObject groupOrFolder) {
-    Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> configMap = retrieveConfiguration(GrouperUtil.toSet(groupOrFolder));
-    return configMap.get(groupOrFolder);
+  public static GrouperDeprovisioningOverallConfiguration retrieveConfiguration(GrouperObject groupOrFolderOrAttributeDef) {
+    Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> configMap = retrieveConfiguration(GrouperUtil.toSet(groupOrFolderOrAttributeDef));
+    return configMap.get(groupOrFolderOrAttributeDef);
   }
 
   /**
    * 
-   * @param groupsOrFolders
+   * @param groupsOrFoldersOrAttributeDefs
    * @return the configuration
    */
-  public static Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> retrieveConfiguration(Set<GrouperObject> groupsOrFolders) {
+  public static Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> retrieveConfiguration(Set<GrouperObject> groupsOrFoldersOrAttributeDefs) {
     
-    if (GrouperUtil.length(groupsOrFolders) == 0) {
+    if (GrouperUtil.length(groupsOrFoldersOrAttributeDefs) == 0) {
       throw new NullPointerException("groupsOrFolders is empty");
     }
 
     Collection<String> groupIds = new HashSet<String>();
     Collection<String> stemIds = new HashSet<String>();
+    Collection<String> attributeDefIds = new HashSet<String>();
 
 
-    for (GrouperObject grouperObject : groupsOrFolders) {
+    for (GrouperObject grouperObject : groupsOrFoldersOrAttributeDefs) {
 
       //TODO handle attribute defs and attribute def names
       
-      if ((!(grouperObject instanceof Group)) && (!(grouperObject instanceof Stem))) {
-        throw new RuntimeException("groupOrFolder needs to be a stem or group: " + grouperObject.getClass() + ", " + grouperObject);
+      if ((!(grouperObject instanceof Group)) && (!(grouperObject instanceof Stem)) && (!(grouperObject instanceof AttributeDef))) {
+        throw new RuntimeException("groupOrFolder needs to be a stem or group or attribute def: " + grouperObject.getClass() + ", " + grouperObject);
       }
 
       if (grouperObject instanceof Group) {
@@ -194,10 +194,15 @@ public class GrouperDeprovisioningOverallConfiguration {
         stemIds.add(((Stem)grouperObject).getId());
       }
 
+      if (grouperObject instanceof AttributeDef) {
+        attributeDefIds.add(((AttributeDef)grouperObject).getId());
+      }
+
     }
 
     
     
+    AttributeAssignValueFinderResult attributeDefsAttributeAssignValueFinderResult = null;
     AttributeAssignValueFinderResult groupsAttributeAssignValueFinderResult = null;
     AttributeAssignValueFinderResult stemsAttributeAssignValueFinderResult = null;
         
@@ -207,7 +212,7 @@ public class GrouperDeprovisioningOverallConfiguration {
     //GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(this.parentUuid);
     
     if (GrouperUtil.length(groupIds) > 0) {
-//      //get all attributes and assignments for all realms on a group or folder
+//      //get all attributes and assignments for all affiliations on a group or folder
 //      AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder().addAttributeDefNameId(
 //          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
 //        .assignIncludeAssignmentsOnAssignments(true);
@@ -221,7 +226,7 @@ public class GrouperDeprovisioningOverallConfiguration {
       
     }
     if (GrouperUtil.length(stemIds) > 0) {
-//      //get all attributes and assignments for all realms on a group or folder
+//      //get all attributes and assignments for all affiliations on a group or folder
 //      AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder().addAttributeDefNameId(
 //          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
 //        .assignIncludeAssignmentsOnAssignments(true);
@@ -234,6 +239,22 @@ public class GrouperDeprovisioningOverallConfiguration {
           .findAttributeAssignValuesResult();
 
     }
+    
+    if (GrouperUtil.length(attributeDefIds) > 0) {
+//    //get all attributes and assignments for all affiliations on a group or folder
+//    AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder().addAttributeDefNameId(
+//        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
+//      .assignIncludeAssignmentsOnAssignments(true);
+//    attributeAssignFinder.assignOwnerStemIds(stemIds);
+//    attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
+
+      attributeDefsAttributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerAttributeDefIdsOfAssignAssign(attributeDefIds)
+        .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
+        .assignAttributeCheckReadOnAttributeDef(false)
+        .findAttributeAssignValuesResult();
+
+  }
+    
     
     // add all parent stems
     
@@ -265,7 +286,7 @@ public class GrouperDeprovisioningOverallConfiguration {
     
     Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> result = new HashMap<GrouperObject, GrouperDeprovisioningOverallConfiguration>();
 
-    for (GrouperObject groupOrFolder : groupsOrFolders) {
+    for (GrouperObject groupOrFolder : groupsOrFoldersOrAttributeDefs) {
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration 
         = new GrouperDeprovisioningOverallConfiguration();
       result.put(groupOrFolder, grouperDeprovisioningOverallConfiguration);
@@ -282,8 +303,8 @@ public class GrouperDeprovisioningOverallConfiguration {
         throw new RuntimeException("Wont happen");
       }
     
-      Map<String, Map<String, String>> realmToAttributeDefNameToValueString = new HashMap<String, Map<String, String>>();
-      Map<String, AttributeAssign> realmToAttributeAssign = new HashMap<String, AttributeAssign>();
+      Map<String, Map<String, String>> affiliationToAttributeDefNameToValueString = new HashMap<String, Map<String, String>>();
+      Map<String, AttributeAssign> affiliationToAttributeAssign = new HashMap<String, AttributeAssign>();
 
       for (String attributeAssignId : attributeAssignIdToattributeDefNameToValue.keySet()) {
 
@@ -292,15 +313,15 @@ public class GrouperDeprovisioningOverallConfiguration {
         AttributeAssign attributeAssignNew = groupsAttributeAssignValueFinderResult
             .getMapAttributeAssignIdToAttributeAssign().get(attributeAssignId);
         
-        String realm = attributeDefNameAndValueStrings.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName());
+        String affiliation = attributeDefNameAndValueStrings.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName());
 
-        if (!StringUtils.isBlank(realm)) {
+        if (!StringUtils.isBlank(affiliation)) {
 
-          if (realmToAttributeDefNameToValueString.containsKey(realm)) {
+          if (affiliationToAttributeDefNameToValueString.containsKey(affiliation)) {
 
             LOG.error("Multiple deprovisioning configurations found.  Deleting one: " + groupOrFolder);
 
-            AttributeAssign attributeAssignExisting = realmToAttributeAssign.get(realm);
+            AttributeAssign attributeAssignExisting = affiliationToAttributeAssign.get(affiliation);
             
             // see if new is newer than old
             if (GrouperUtil.defaultIfNull(GrouperUtil.defaultIfNull(attributeAssignNew.getLastUpdatedDb(), attributeAssignNew.getCreatedOnDb()), 0L)
@@ -314,11 +335,11 @@ public class GrouperDeprovisioningOverallConfiguration {
             }
           }              
             
-          realmToAttributeDefNameToValueString.put(realm, attributeDefNameAndValueStrings);
-          realmToAttributeAssign.put(realm, attributeAssignNew);
+          affiliationToAttributeDefNameToValueString.put(affiliation, attributeDefNameAndValueStrings);
+          affiliationToAttributeAssign.put(affiliation, attributeAssignNew);
         } else {
-          // has no realm!!!!
-          LOG.error("Cant find realm for deprovisioning, deleting: " + groupOrFolder);
+          // has no affiliation!!!!
+          LOG.error("Cant find affiliation for deprovisioning, deleting: " + groupOrFolder);
           attributeAssignNew.delete();
         }
         
@@ -326,17 +347,17 @@ public class GrouperDeprovisioningOverallConfiguration {
         GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
         grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
         
-        grouperDeprovisioningOverallConfiguration.realmToConfiguration.put(realm, grouperDeprovisioningConfiguration);
+        grouperDeprovisioningOverallConfiguration.affiliationToConfiguration.put(affiliation, grouperDeprovisioningConfiguration);
               
         //lets get the base attribute assign
         grouperDeprovisioningConfiguration.setAttributeAssignBase(attributeAssignNew);
       }
       
-      //loop through realms and setup the configuration
-      for (String realm : realmToAttributeDefNameToValueString.keySet()) {
+      //loop through affiliations and setup the configuration
+      for (String affiliation : affiliationToAttributeDefNameToValueString.keySet()) {
         
-        Map<String, String> nameOfAttributeDefNameToValue = realmToAttributeDefNameToValueString.get(realm);
-        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.realmToConfiguration.get(realm);
+        Map<String, String> nameOfAttributeDefNameToValue = affiliationToAttributeDefNameToValueString.get(affiliation);
+        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.affiliationToConfiguration.get(affiliation);
         
         if (grouperDeprovisioningConfiguration == null) {
           //not sure why this would be null
@@ -390,9 +411,9 @@ public class GrouperDeprovisioningOverallConfiguration {
             nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName()));
         newGrouperDeprovisioningAttributeValue.setMailToGroupString(grouperDeprovisioningAttributeValue.getMailToGroupString());
   
-        grouperDeprovisioningAttributeValue.setRealmString(
-            nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameRealm().getName()));
-        newGrouperDeprovisioningAttributeValue.setRealmString(grouperDeprovisioningAttributeValue.getRealmString());
+        grouperDeprovisioningAttributeValue.setAffiliationString(
+            nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName()));
+        newGrouperDeprovisioningAttributeValue.setAffiliationString(grouperDeprovisioningAttributeValue.getAffiliationString());
   
         grouperDeprovisioningAttributeValue.setSendEmailString(
             nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameSendEmail().getName()));
@@ -412,16 +433,16 @@ public class GrouperDeprovisioningOverallConfiguration {
   }
 
   /**
-   * realm label to a configuration object
+   * affiliation label to a configuration object
    */
-  private Map<String, GrouperDeprovisioningConfiguration> realmToConfiguration = new TreeMap<String, GrouperDeprovisioningConfiguration>();
+  private Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = new TreeMap<String, GrouperDeprovisioningConfiguration>();
   
   /**
-   * map of realm label to the configuration for that realm
+   * map of affiliation label to the configuration for that affiliation
    * @return the map
    */
-  public Map<String, GrouperDeprovisioningConfiguration> getRealmToConfiguration() {
-    return this.realmToConfiguration;
+  public Map<String, GrouperDeprovisioningConfiguration> getAffiliationToConfiguration() {
+    return this.affiliationToConfiguration;
   }
   
   /**

@@ -21,11 +21,11 @@
                     <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousDeprovisioningMainSubtitle']}</p>
                   </div>
                 </div>
-                <c:if test="${not empty grouperRequestContainer.deprovisioningContainer.realm}">
+                <c:if test="${not empty grouperRequestContainer.deprovisioningContainer.affiliation}">
                   <div class="row-fluid">
                     <div class="span12">
-                      <label class="control-label help-inline">${textContainer.text['deprovisioningRealmLabel'] }</label>
-                      ${grouperRequestContainer.deprovisioningContainer.realm}
+                      <label class="control-label help-inline">${textContainer.text['deprovisioningAffiliationLabel'] }</label>
+                      ${grouperRequestContainer.deprovisioningContainer.affiliation}
                     </div>               
                   </div>
                 </c:if>
@@ -39,5 +39,5 @@
             </div>
 
             <div class="row-fluid" id="deprovisioningUsers">
-              <%@ include file="../deprovisioning/deprovisioningSelectRealm.jsp"%>
+              <%@ include file="../deprovisioning/deprovisioningSelectAffiliation.jsp"%>
             </div>
