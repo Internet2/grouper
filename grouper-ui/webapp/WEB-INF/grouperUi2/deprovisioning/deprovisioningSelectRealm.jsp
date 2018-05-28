@@ -1,26 +1,26 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-<div id="realm-select-container">
-                <form id="realmSelectForm" class="form-horizontal">
+<div id="affiliation-select-container">
+                <form id="affiliationSelectForm" class="form-horizontal">
                    <div class="control-group">
-                     <label class="control-label">${textContainer.text['deprovisioningSelectRealmLabel'] }</label>
+                     <label class="control-label">${textContainer.text['deprovisioningSelectAffiliationLabel'] }</label>
                      <div class="controls">
                        
-                       <select id="realmFilter" class="span2" name="realm" onchange="">
+                       <select id="affiliationFilter" class="span2" name="affiliation" onchange="">
                           <option value=""></option>
-                          <c:forEach items="${grouperRequestContainer.deprovisioningContainer.realms}" var="realm">
-                            <option value="${realm.label}">${realm.translatedLabel}</option>
+                          <c:forEach items="${grouperRequestContainer.deprovisioningContainer.affiliations}" var="affiliation">
+                            <option value="${affiliation.label}">${affiliation.translatedLabel}</option>
                           </c:forEach>
                           
                        </select>
                        
-                       <span class="help-block">${textContainer.text['deprovisioningSelectRealmDescription'] }</span>
+                       <span class="help-block">${textContainer.text['deprovisioningSelectAffiliationDescription'] }</span>
                      
                      </div>
                    </div>
                    
                    <div class="form-actions"><a href="#" class="btn btn-primary" role="button"
-                     onclick="ajax('../app/UiV2Deprovisioning.deprovisioningRealmSubmit', {formIds: 'realmSelectForm'}); return false;">
-                     ${textContainer.text['deprovisioningSelectRealmSubmitButton'] }</a> 
+                     onclick="ajax('../app/UiV2Deprovisioning.deprovisioningAffiliationSubmit', {formIds: 'affiliationSelectForm'}); return false;">
+                     ${textContainer.text['deprovisioningSelectAffiliationSubmitButton'] }</a> 
                    </div>
                  </form>
                

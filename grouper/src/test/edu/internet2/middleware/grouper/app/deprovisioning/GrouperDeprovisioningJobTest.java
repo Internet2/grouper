@@ -1,6 +1,10 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import junit.textui.TestRunner;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,9 +18,9 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import junit.textui.TestRunner;
 
 public class GrouperDeprovisioningJobTest extends GrouperTest {
 
@@ -28,14 +32,14 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     //  # if deprovisioning should be enabled
     //  deprovisioning.enable = true
     //
-    //  # comma separated realms for deprovisioning e.g. employee, student, etc
+    //  # comma separated affiliations for deprovisioning e.g. employee, student, etc
     //  # these need to be alphanumeric suitable for properties keys for further config or for group extensions
-    //  deprovisioning.realms = 
+    //  deprovisioning.affiliations = 
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.enable", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realms", "faculty, student");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realm_faculty.groupNameMeansInRealm", "community:faculty");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realm_student.groupNameMeansInRealm", "community:student");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.affiliations", "faculty, student");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.affiliation_faculty.groupNameMeansInAffiliation", "community:faculty");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.affiliation_student.groupNameMeansInAffiliation", "community:student");
   }
 
   /**
@@ -65,41 +69,41 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
   /**
    * 
    */
-  public void testRetrieveRealms() {
+  public void testRetrieveAffiliations() {
         
-    Map<String, GrouperDeprovisioningRealm> allRealms = GrouperDeprovisioningRealm.retrieveAllRealms();
+    Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
     
-    assertEquals(2, GrouperUtil.length(allRealms));
+    assertEquals(2, GrouperUtil.length(allAffiliations));
     
     boolean foundStudent = false;
     boolean foundFaculty = false;
     
-    for (GrouperDeprovisioningRealm grouperDeprovisioningRealm : allRealms.values()) {
-      if (StringUtils.equals("faculty", grouperDeprovisioningRealm.getLabel())) {
+    for (GrouperDeprovisioningAffiliation grouperDeprovisioningAffiliation : allAffiliations.values()) {
+      if (StringUtils.equals("faculty", grouperDeprovisioningAffiliation.getLabel())) {
         foundFaculty = true;
-        assertEquals("community:faculty", grouperDeprovisioningRealm.getGroupNameMeansInRealm());
+        assertEquals("community:faculty", grouperDeprovisioningAffiliation.getGroupNameMeansInAffiliation());
       }
-      if (StringUtils.equals("student", grouperDeprovisioningRealm.getLabel())) {
+      if (StringUtils.equals("student", grouperDeprovisioningAffiliation.getLabel())) {
         foundStudent = true;
       }
     }
     assertTrue(foundFaculty);
     assertTrue(foundStudent);
     
-    assertTrue(allRealms.containsKey("faculty"));
-    assertTrue(allRealms.containsKey("student"));
+    assertTrue(allAffiliations.containsKey("faculty"));
+    assertTrue(allAffiliations.containsKey("student"));
     
     Group facultyManagers = GroupFinder.findByName(GrouperSession.staticGrouperSession(), GrouperDeprovisioningSettings.deprovisioningStemName() + ":managersWhoCanDeprovision_faculty", true);
     
     facultyManagers.addMember(SubjectTestHelper.SUBJ1);
     
-    assertEquals(0, GrouperUtil.length(GrouperDeprovisioningRealm.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ2)));
+    assertEquals(0, GrouperUtil.length(GrouperDeprovisioningAffiliation.retrieveAffiliationsForUserManager(SubjectTestHelper.SUBJ2)));
     
-    Map<String, GrouperDeprovisioningRealm> realms = GrouperDeprovisioningRealm.retrieveRealmsForUserManager(SubjectTestHelper.SUBJ1);
+    Map<String, GrouperDeprovisioningAffiliation> affiliations = GrouperDeprovisioningAffiliation.retrieveAffiliationsForUserManager(SubjectTestHelper.SUBJ1);
     
-    assertEquals(1, GrouperUtil.length(realms));
-    assertEquals("faculty", realms.keySet().iterator().next());
-    assertEquals("faculty", realms.get("faculty").getLabel());
+    assertEquals(1, GrouperUtil.length(affiliations));
+    assertEquals("faculty", affiliations.keySet().iterator().next());
+    assertEquals("faculty", affiliations.get("faculty").getLabel());
     
   }
   
@@ -115,17 +119,21 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     Stem stemTest1 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
     Stem stemTest2 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test2").save();
     Stem stemTest3 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3").save();
-    Group groupDirectAssigned = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test2:group0").save();
-    Group groupInheritAssigned0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:group1").save();
-    Group groupInheritAssigned1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3:group2").save();
-    
+    Stem stemTest11a = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test1a").save();
+    Stem stemTest11b = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test1b").save();
+    Stem stemTest22a = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test2:test2a").save();
+    Stem stemTest33a = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3:test3a").save();
+    Stem stemTest33b = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3:test3b").save();
+    Group groupDirectAssigned = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test2:test2a:group0").save();
+    Group groupInheritAssigned0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test1a:group1").save();
+    Group groupInheritAssigned1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3:test3b:group2").save();
     
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = 
         GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem0);
  
     GrouperDeprovisioningConfiguration studentConfiguration = new GrouperDeprovisioningConfiguration();
         
-    grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().put("student", studentConfiguration);
+    grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put("student", studentConfiguration);
     
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
     
@@ -133,7 +141,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     
     grouperDeprovisioningAttributeValue.setDeprovisionString("true");
     
-    grouperDeprovisioningAttributeValue.setRealmString("student");
+    grouperDeprovisioningAttributeValue.setAffiliationString("student");
 
     studentConfiguration.storeConfiguration();
 

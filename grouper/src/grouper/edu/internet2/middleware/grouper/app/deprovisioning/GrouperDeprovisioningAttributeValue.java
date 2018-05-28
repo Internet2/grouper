@@ -346,25 +346,25 @@ public class GrouperDeprovisioningAttributeValue {
   }
 
   /**
-   * Realm configured in the grouper.properties
+   * Affiliation configured in the grouper.properties
    */
-  private String realmString;
+  private String affiliationString;
   
   
   /**
-   * @return the realmString
+   * @return the affiliationString
    */
-  public String getRealmString() {
-    return this.realmString;
+  public String getAffiliationString() {
+    return this.affiliationString;
   }
 
 
   
   /**
-   * @param realmString the realmString to set
+   * @param affiliationString the affiliationString to set
    */
-  public void setRealmString(String realmString) {
-    this.realmString = realmString;
+  public void setAffiliationString(String affiliationString) {
+    this.affiliationString = affiliationString;
   }
 
   /**

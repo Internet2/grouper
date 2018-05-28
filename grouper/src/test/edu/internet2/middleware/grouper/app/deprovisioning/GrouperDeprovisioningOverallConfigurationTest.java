@@ -52,12 +52,12 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     
     assertEquals(someGroup, grouperDeprovisioningOverallConfiguration.getOriginalOwner());
     
-    assertEquals(0, GrouperUtil.length(grouperDeprovisioningOverallConfiguration.getRealmToConfiguration()));
+    assertEquals(0, GrouperUtil.length(grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration()));
     
     GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
     grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
     
-    grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().put("student", grouperDeprovisioningConfiguration);
+    grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put("student", grouperDeprovisioningConfiguration);
     
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
     grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
@@ -72,7 +72,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     grouperDeprovisioningAttributeValue.setEmailSubjectString("pqr");
     grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString("hgn");
     grouperDeprovisioningAttributeValue.setMailToGroupString("stu");
-    grouperDeprovisioningAttributeValue.setRealmString("student");
+    grouperDeprovisioningAttributeValue.setAffiliationString("student");
     grouperDeprovisioningAttributeValue.setSendEmailString("true");
     grouperDeprovisioningAttributeValue.setShowForRemovalString("false");
     grouperDeprovisioningAttributeValue.setStemScopeString("one");
@@ -84,7 +84,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     grouperDeprovisioningOverallConfiguration = 
         GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup);
     
-    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration2 = grouperDeprovisioningOverallConfiguration.getRealmToConfiguration().get("student");
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration2 = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("student");
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue2 = grouperDeprovisioningConfiguration2.getOriginalConfig();
     
     assertEquals(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString(), grouperDeprovisioningAttributeValue2.getAllowAddsWhileDeprovisionedString());
@@ -97,7 +97,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     assertEquals(grouperDeprovisioningAttributeValue.getEmailSubjectString(), grouperDeprovisioningAttributeValue2.getEmailSubjectString());
     assertEquals(grouperDeprovisioningAttributeValue.getInheritedFromFolderIdString(), grouperDeprovisioningAttributeValue2.getInheritedFromFolderIdString());
     assertEquals(grouperDeprovisioningAttributeValue.getMailToGroupString(), grouperDeprovisioningAttributeValue2.getMailToGroupString());
-    assertEquals(grouperDeprovisioningAttributeValue.getRealmString(), grouperDeprovisioningAttributeValue2.getRealmString());
+    assertEquals(grouperDeprovisioningAttributeValue.getAffiliationString(), grouperDeprovisioningAttributeValue2.getAffiliationString());
     assertEquals(grouperDeprovisioningAttributeValue.getSendEmailString(), grouperDeprovisioningAttributeValue2.getSendEmailString());
     assertEquals(grouperDeprovisioningAttributeValue.getShowForRemovalString(), grouperDeprovisioningAttributeValue2.getShowForRemovalString());
     assertEquals(grouperDeprovisioningAttributeValue.getStemScopeString(), grouperDeprovisioningAttributeValue2.getStemScopeString());

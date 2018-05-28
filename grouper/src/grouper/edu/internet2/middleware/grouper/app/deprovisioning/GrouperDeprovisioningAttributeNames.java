@@ -74,9 +74,9 @@ public class GrouperDeprovisioningAttributeNames {
    */
   public static final String DEPROVISIONING_MAIL_TO_GROUP = "deprovisioningMailToGroup";
   /**
-   * required, is the realm for this metadata
+   * required, is the affiliation for this metadata
    */
-  public static final String DEPROVISIONING_REALM = "deprovisioningRealm";
+  public static final String DEPROVISIONING_REALM = "deprovisioningAffiliation";
   /**
    * If this is true, then send an email about the deprovisioning event.  If the assignments were removed, then give a description of the action.  
    * If assignments were not removed, then remind the managers to unassign.  Can be <blank>, true, or false.  Defaults to false unless the assignments 
@@ -94,6 +94,7 @@ public class GrouperDeprovisioningAttributeNames {
    * subfolders.  Note, the inheritance stops when a sub folder or object has configuration assigned.
    */
   public static final String DEPROVISIONING_STEM_SCOPE = "deprovisioningStemScope";
+
   /**
    * attribute definition for name value pairs assigned to assignment on groups or folders
    */
@@ -295,13 +296,13 @@ public class GrouperDeprovisioningAttributeNames {
    * deprovisioning send email attribute def name
    * @return the attribute def name
    */
-  public static AttributeDefName retrieveAttributeDefNameRealm() {
+  public static AttributeDefName retrieveAttributeDefNameAffiliation() {
     
     AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
         GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_REALM);
   
     if (attributeDefName == null) {
-      throw new RuntimeException("Why cant deprovisioning realm attribute def name be found?");
+      throw new RuntimeException("Why cant deprovisioning affiliation attribute def name be found?");
     }
     return attributeDefName;
   
@@ -355,22 +356,40 @@ public class GrouperDeprovisioningAttributeNames {
    * attribute value def assigned to stem or group
    * @return the attribute def name
    */
-  public static AttributeDefName retrieveAttributeDefNameValueDef() {
+  public static AttributeDef retrieveAttributeDefNameValueDef() {
     
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+    AttributeDef attributeDef = retrieveAttributeDefFromDbOrCache(
         GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_VALUE_DEF);
   
-    if (attributeDefName == null) {
-      throw new RuntimeException("Why cant deprovisioning def attribute value def name be found?");
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant deprovisioning def attribute value def be found?");
     }
-    return attributeDefName;
+    return attributeDef;
   }
   /** attribute def name cache */
   private static ExpirableCache<String, AttributeDefName> attributeDefNameCache = new ExpirableCache<String, AttributeDefName>(5);
   /** attribute def cache */
   private static ExpirableCache<String, AttributeDef> attributeDefCache = new ExpirableCache<String, AttributeDef>(5);
+
+  /**
+   * attribute value def assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDef retrieveAttributeDefBaseDef() {
+    
+    AttributeDef attributeDef = retrieveAttributeDefFromDbOrCache(
+        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_DEF);
+  
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant deprovisioning def base def be found?");
+    }
+    return attributeDef;
+  }
+
   /**
    * cache this.  note, not sure if its necessary
+   * @param name 
+   * @return attribute def
    */
   private static AttributeDef retrieveAttributeDefFromDbOrCache(final String name) {
     

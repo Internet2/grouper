@@ -821,6 +821,33 @@ public interface AttributeAssignDAO extends GrouperDAO {
       AttributeDefValueType attributeDefValueType, Object theValue);
 
   /**
+   * 
+   * @param attributeAssignIds
+   * @param attributeDefIds
+   * @param attributeDefNameIds
+   * @param ownerAttributeDefIds
+   * @param actions
+   * @param enabled
+   * @param includeAssignmentsOnAssignments
+   * @param attributeDefType
+   * @param attributeDefValueType
+   * @param theValue
+   * @param attributeCheckReadOnAttributeDef 
+   * @param idOfAttributeDefNameOnAssignment id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment values that the attribute def name on assignment of assignment has
+   * @param idOfAttributeDefNameOnAssignment2 second id of attribute def name that there is an assignment on assignment of with a value
+   * @param attributeValuesOnAssignment2 second values that the attribute def name on assignment of assignment has
+   * @return the set of attribute assignments
+   */
+  public Set<AttributeAssign> findAttributeDefAttributeAssignments(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> ownerAttributeDefIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue, Boolean attributeCheckReadOnAttributeDef, 
+      final String idOfAttributeDefNameOnAssignment, Set<Object> attributeValuesOnAssignment,
+      final String idOfAttributeDefNameOnAssignment2, Set<Object> attributeValuesOnAssignment2);
+
+  /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
    * cannot have more than 100 bind variables
    * @param attributeAssignIds

@@ -4,7 +4,7 @@
 ${textContainer.text['deprovisioningUserResultsDescription'] }
 <br /><br />
                 <form id="deprovisionUserFormId">
-                <input type="hidden" name="realm" value="${grouperRequestContainer.deprovisioningContainer.realm}">
+                <input type="hidden" name="affiliation" value="${grouperRequestContainer.deprovisioningContainer.affiliation}">
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>

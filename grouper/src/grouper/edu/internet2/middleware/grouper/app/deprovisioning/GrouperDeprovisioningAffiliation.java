@@ -21,23 +21,23 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
-public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovisioningRealm> {
+public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDeprovisioningAffiliation> {
 
   /**
-   * label of realm from grouper.properties, e.g. "student" or "employee"
+   * label of affiliation from grouper.properties, e.g. "student" or "employee"
    */
   private String label;
   
   /**
    * if you are in this group then it means you are a member of that cohort
    */
-  private String groupNameMeansInRealm;
+  private String groupNameMeansInAffiliation;
 
   /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GrouperDeprovisioningRealm.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperDeprovisioningAffiliation.class);
 
   /**
-   * label of realm from grouper.properties, e.g. "student" or "employee"
+   * label of affiliation from grouper.properties, e.g. "student" or "employee"
    * @return label
    */
   public String getLabel() {
@@ -45,7 +45,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
   }
 
   /**
-   * label of realm from grouper.properties, e.g. "student" or "employee"
+   * label of affiliation from grouper.properties, e.g. "student" or "employee"
    * @param label1
    */
   public void setLabel(String label1) {
@@ -56,23 +56,23 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
    * if you are in this group then it means you are a member of that cohort
    * @return group name
    */
-  public String getGroupNameMeansInRealm() {
-    return this.groupNameMeansInRealm;
+  public String getGroupNameMeansInAffiliation() {
+    return this.groupNameMeansInAffiliation;
   }
 
   /**
    * if you are in this group then it means you are a member of that cohort
-   * @param groupNameMeansInRealm1
+   * @param groupNameMeansInAffiliation1
    */
-  public void setGroupNameMeansInRealm(String groupNameMeansInRealm1) {
-    this.groupNameMeansInRealm = groupNameMeansInRealm1;
+  public void setGroupNameMeansInAffiliation(String groupNameMeansInAffiliation1) {
+    this.groupNameMeansInAffiliation = groupNameMeansInAffiliation1;
   }
 
   /**
    * 
    */
   @Override
-  public int compareTo(GrouperDeprovisioningRealm o) {
+  public int compareTo(GrouperDeprovisioningAffiliation o) {
     if (o == null) {
       return 1;
     }
@@ -83,7 +83,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
   }
   
   /**
-   * managersWhoCanDeprovision_<realmName>
+   * managersWhoCanDeprovision_<affiliationName>
    * @return managers group name
    */
   public String getManagersGroupName() {
@@ -91,7 +91,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
   }
 
   /**
-   * usersWhoHaveBeenDeprovisioned_<realmName>
+   * usersWhoHaveBeenDeprovisioned_<affiliationName>
    * @return users who have been deprovisioned
    */
   public String getUsersWhoHaveBeenDeprovisionedGroupName() {
@@ -139,9 +139,9 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         
-        Group usersWhoHaveBeenDeprovisioned = GroupFinder.findByName(rootSession, GrouperDeprovisioningRealm.this.getUsersWhoHaveBeenDeprovisionedGroupName(), false);
+        Group usersWhoHaveBeenDeprovisioned = GroupFinder.findByName(rootSession, GrouperDeprovisioningAffiliation.this.getUsersWhoHaveBeenDeprovisionedGroupName(), false);
         if (usersWhoHaveBeenDeprovisioned == null) {
-          throw new RuntimeException("users group deprovisioned is not found '" + GrouperDeprovisioningRealm.this.getUsersWhoHaveBeenDeprovisionedGroupName() + "', for realm: '" + GrouperDeprovisioningRealm.this.getLabel() + "'");
+          throw new RuntimeException("users group deprovisioned is not found '" + GrouperDeprovisioningAffiliation.this.getUsersWhoHaveBeenDeprovisionedGroupName() + "', for affiliation: '" + GrouperDeprovisioningAffiliation.this.getLabel() + "'");
         }
         return usersWhoHaveBeenDeprovisioned.getMembers();
       }
@@ -162,9 +162,9 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         
-        Group usersWhoHaveBeenDeprovisioned = GroupFinder.findByName(rootSession, GrouperDeprovisioningRealm.this.getUsersWhoHaveBeenDeprovisionedGroupName(), false);
+        Group usersWhoHaveBeenDeprovisioned = GroupFinder.findByName(rootSession, GrouperDeprovisioningAffiliation.this.getUsersWhoHaveBeenDeprovisionedGroupName(), false);
         if (usersWhoHaveBeenDeprovisioned == null) {
-          LOG.info("users group deprovisioned is not found '" + GrouperDeprovisioningRealm.this.getUsersWhoHaveBeenDeprovisionedGroupName() + "', for realm: '" + GrouperDeprovisioningRealm.this.getLabel() + "'");
+          LOG.info("users group deprovisioned is not found '" + GrouperDeprovisioningAffiliation.this.getUsersWhoHaveBeenDeprovisionedGroupName() + "', for affiliation: '" + GrouperDeprovisioningAffiliation.this.getLabel() + "'");
         }
         return usersWhoHaveBeenDeprovisioned;
       }
@@ -185,9 +185,9 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         
-        Group managersGroup = GroupFinder.findByName(rootSession, GrouperDeprovisioningRealm.this.getManagersGroupName(), false);
+        Group managersGroup = GroupFinder.findByName(rootSession, GrouperDeprovisioningAffiliation.this.getManagersGroupName(), false);
         if (managersGroup == null) {
-          LOG.info("managers group is not found '" + GrouperDeprovisioningRealm.this.getManagersGroupName() + "', for realm: '" + GrouperDeprovisioningRealm.this.getLabel() + "'");
+          LOG.info("managers group is not found '" + GrouperDeprovisioningAffiliation.this.getManagersGroupName() + "', for affiliation: '" + GrouperDeprovisioningAffiliation.this.getLabel() + "'");
         }
         return managersGroup;
       }
@@ -212,7 +212,7 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
         if (PrivilegeHelper.isWheelOrRoot(subject)) {
           return true;
         }
-        Group managersGroup = GrouperDeprovisioningRealm.this.getManagersGroup();
+        Group managersGroup = GrouperDeprovisioningAffiliation.this.getManagersGroup();
         if (managersGroup == null) {
           return false;
         }
@@ -223,78 +223,78 @@ public class GrouperDeprovisioningRealm implements Comparable<GrouperDeprovision
   }
 
   /**
-   * retrieve all realms configured in the grouper.properties, will not return null
-   * @return the realms, alphabetical
+   * retrieve all affiliations configured in the grouper.properties, will not return null
+   * @return the affiliations, alphabetical
    */
-  public static Map<String, GrouperDeprovisioningRealm> retrieveAllRealms() {
+  public static Map<String, GrouperDeprovisioningAffiliation> retrieveAllAffiliations() {
     
-    Map<String, GrouperDeprovisioningRealm> allRealms = new TreeMap<String, GrouperDeprovisioningRealm>();
+    Map<String, GrouperDeprovisioningAffiliation> allAffiliations = new TreeMap<String, GrouperDeprovisioningAffiliation>();
     
     //  GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.enable", "true");
-    //  GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.realms", "faculty, student");
+    //  GrouperConfig.retrieveConfig().propertiesOverrideMap().put("deprovisioning.affiliations", "faculty, student");
     if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-      String allRealmsString = GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.realms");
-      if (!StringUtils.isBlank(allRealmsString)) {
-        Set<String> realmLabels = GrouperUtil.splitTrimToSet(allRealmsString, ",");
-        for (String realmLabel : realmLabels) {
-          GrouperDeprovisioningRealm grouperDeprovisioningRealm = new GrouperDeprovisioningRealm();
-          grouperDeprovisioningRealm.setLabel(realmLabel);
+      String allAffiliationsString = GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.affiliations");
+      if (!StringUtils.isBlank(allAffiliationsString)) {
+        Set<String> affiliationLabels = GrouperUtil.splitTrimToSet(allAffiliationsString, ",");
+        for (String affiliationLabel : affiliationLabels) {
+          GrouperDeprovisioningAffiliation grouperDeprovisioningAffiliation = new GrouperDeprovisioningAffiliation();
+          grouperDeprovisioningAffiliation.setLabel(affiliationLabel);
           
-          // # deprovisioning.realm_<realmName>.groupNameMeansInRealm = a:b:c
-          grouperDeprovisioningRealm.setGroupNameMeansInRealm(GrouperConfig.retrieveConfig().propertyValueString(
-              "deprovisioning.realm_" + realmLabel + ".groupNameMeansInRealm"));
-          allRealms.put(realmLabel, grouperDeprovisioningRealm);
+          // # deprovisioning.affiliation_<affiliationName>.groupNameMeansInAffiliation = a:b:c
+          grouperDeprovisioningAffiliation.setGroupNameMeansInAffiliation(GrouperConfig.retrieveConfig().propertyValueString(
+              "deprovisioning.affiliation_" + affiliationLabel + ".groupNameMeansInAffiliation"));
+          allAffiliations.put(affiliationLabel, grouperDeprovisioningAffiliation);
         }
       }
     }
-    return allRealms;
+    return allAffiliations;
   }
 
   /**
-   * get the configured deprovisioning realms
-   * @return the realms
+   * get the configured deprovisioning affiliations
+   * @return the affiliations
    */
-  public static Set<String> retrieveDeprovisioningRealms() {
+  public static Set<String> retrieveDeprovisioningAffiliations() {
     // dont call the method since could be a circular problem
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.enable", true)) {
       return new HashSet<String>();
     }
-    return GrouperConfig.retrieveConfig().deprovisioningRealms();
+    return GrouperConfig.retrieveConfig().deprovisioningAffiliations();
   }
 
   /**
-   * get realms a subject manages
+   * get affiliations a subject manages
    * @param subject who is the manager
-   * @return the realms
+   * @return the affiliations
    */
-  public static Map<String, GrouperDeprovisioningRealm> retrieveRealmsForUserManager(final Subject subject) {
+  public static Map<String, GrouperDeprovisioningAffiliation> retrieveAffiliationsForUserManager(final Subject subject) {
     //these need to be looked up as root
-    return (Map<String, GrouperDeprovisioningRealm>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Map<String, GrouperDeprovisioningAffiliation>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         
-        Map<String, GrouperDeprovisioningRealm> allRealms = retrieveAllRealms();
+        Map<String, GrouperDeprovisioningAffiliation> allAffiliations = retrieveAllAffiliations();
         
         if (PrivilegeHelper.isWheelOrRoot(subject)) {
-          return allRealms;
+          return allAffiliations;
         }
         
-        Map<String, GrouperDeprovisioningRealm> someRealms = new TreeMap<String, GrouperDeprovisioningRealm>();
+        Map<String, GrouperDeprovisioningAffiliation> someAffiliations = new TreeMap<String, GrouperDeprovisioningAffiliation>();
         
-        Iterator<String> iterator = allRealms.keySet().iterator();
+        Iterator<String> iterator = allAffiliations.keySet().iterator();
         
         while (iterator.hasNext()) {
-          String realmName = iterator.next();
-          GrouperDeprovisioningRealm grouperDeprovisioningRealm = allRealms.get(realmName);
-          if (grouperDeprovisioningRealm.getManagersGroup().hasMember(subject)) {
-            someRealms.put(realmName, grouperDeprovisioningRealm);
+          String affiliationName = iterator.next();
+          GrouperDeprovisioningAffiliation grouperDeprovisioningAffiliation = allAffiliations.get(affiliationName);
+          if (grouperDeprovisioningAffiliation.getManagersGroup().hasMember(subject)) {
+            someAffiliations.put(affiliationName, grouperDeprovisioningAffiliation);
           }
         }
         
-        return someRealms;
+        return someAffiliations;
       }
     });
   

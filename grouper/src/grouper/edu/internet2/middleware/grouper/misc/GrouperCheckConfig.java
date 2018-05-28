@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningRealm;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
@@ -712,20 +712,20 @@ public class GrouperCheckConfig {
         }        
         
         // group that users who are allowed to deprovision other users are in
-        for (String realm : GrouperDeprovisioningRealm.retrieveDeprovisioningRealms()) {
+        for (String affiliation : GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) {
 
-          String deprovisioningManagersMustBeInGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningManagersMustBeInGroupName(realm);
+          String deprovisioningManagersMustBeInGroupName = GrouperDeprovisioningJob.retrieveDeprovisioningManagersMustBeInGroupName(affiliation);
 
           checkGroup(grouperSession, deprovisioningManagersMustBeInGroupName, wasInCheckConfig, autocreate, 
-              wasInCheckConfig, null, "deprovisioning: " + realm + ", group that users who are allowed to deprovision other users are in", 
-              "deprovisioning: " + realm + ", group that users who are allowed to deprovision other users are in", null);
+              wasInCheckConfig, null, "deprovisioning: " + affiliation + ", group that users who are allowed to deprovision other users are in", 
+              "deprovisioning: " + affiliation + ", group that users who are allowed to deprovision other users are in", null);
 
           // group that deprovisioned users go in (temporarily, but history will always be there)
-          String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned(realm);
+          String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned(affiliation);
           
           checkGroup(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, wasInCheckConfig, autocreate, 
-              wasInCheckConfig, null, "deprovisioning: " + realm + ", group that deprovisioned users go in (temporarily, but history will always be there)", 
-              "deprovisioning: " + realm + ", group that deprovisioned users go in (temporarily, but history will always be there)", null);
+              wasInCheckConfig, null, "deprovisioning: " + affiliation + ", group that deprovisioned users go in (temporarily, but history will always be there)", 
+              "deprovisioning: " + affiliation + ", group that deprovisioned users go in (temporarily, but history will always be there)", null);
 
         }
         
@@ -738,6 +738,7 @@ public class GrouperCheckConfig {
           //assign once for each realm
           deprovisioningType.setMultiAssignable(true);
           deprovisioningType.setAssignToGroup(true);
+          deprovisioningType.setAssignToAttributeDef(true);
           deprovisioningType.setAssignToStem(true);
           deprovisioningType.store();
         }
@@ -753,6 +754,7 @@ public class GrouperCheckConfig {
           deprovisioningAttrType = deprovisioningStem.addChildAttributeDef(GrouperDeprovisioningAttributeNames.DEPROVISIONING_VALUE_DEF, AttributeDefType.attr);
           deprovisioningAttrType.setAssignToGroupAssn(true);
           deprovisioningAttrType.setAssignToStemAssn(true);
+          deprovisioningAttrType.setAssignToAttributeDefAssn(true);
           deprovisioningAttrType.setValueType(AttributeDefValueType.string);
           deprovisioningAttrType.store();
         }

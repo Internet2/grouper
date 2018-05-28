@@ -37,7 +37,7 @@
               </div>
               <div id="add-members">
                 <form id="add-members-form" target="#" class="form-horizontal form-highlight">
-                  <input type="hidden" name="realm" value="${grouperRequestContainer.deprovisioningContainer.realm}">
+                  <input type="hidden" name="affiliation" value="${grouperRequestContainer.deprovisioningContainer.affiliation}">
                   <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
                     <label for="groupAddMemberComboID" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
                     <div class="controls">
