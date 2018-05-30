@@ -25,7 +25,7 @@ public class GrouperDeprovisioningSettings {
   public static boolean deprovisioningEnabled() {
     // if turned off or if no affiliations then this is not enabled
     return GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.enable", true) 
-        || GrouperUtil.length(GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) == 0;
+        && GrouperUtil.length(GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) > 0;
   }
 
   /**

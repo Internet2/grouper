@@ -25,8 +25,10 @@
                 
                 <c:choose>
                   <c:when test="${grouperRequestContainer.deprovisioningContainer.hasDeprovisioningOnThisObjectOrParent}">
-                    <c:forEach items="${grouperRequestContainer.deprovisioningContainer.affiliations}" var="guiDeprovisioningAffiliation">
-                      ${textContainer.text['deprovisioningAffiliationLabel'] }: ${guiDeprovisioningAffiliation.label }
+                    <c:forEach items="${grouperRequestContainer.deprovisioningContainer.guiDeprovisioningAffiliationsAll}" var="guiDeprovisioningAffiliation">
+                      <h3>${textContainer.text['deprovisioningAffiliationLabel'] }: ${guiDeprovisioningAffiliation.translatedLabel }</h3>
+                      <c:set var="grouperDeprovisioningAttributeValue" 
+                        value="${grouperRequestContainer.deprovisioningContainer.grouperDeprovisioningAttributeValueNew}" />
                     
                     </c:forEach>
                   </c:when>

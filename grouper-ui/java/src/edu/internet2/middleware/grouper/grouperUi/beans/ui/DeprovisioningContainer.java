@@ -1,10 +1,19 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
@@ -17,6 +26,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -26,10 +36,82 @@ import edu.internet2.middleware.subject.Subject;
 public class DeprovisioningContainer {
 
   /**
+   * get the new deprovisioning settings
+   * @return the new configuration 
+   */
+  public GrouperDeprovisioningAttributeValue getGrouperDeprovisioningAttributeValueNew() {
+    if (StringUtils.isBlank(this.affiliation)) {
+      return null;
+    }
+    this.grouperDeprovisioningOverallConfiguration = this.getGrouperDeprovisioningOverallConfiguration();
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(this.affiliation);
+    if (grouperDeprovisioningConfiguration == null) {
+      grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
+      grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(this.grouperDeprovisioningOverallConfiguration);
+      this.grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put(this.affiliation, grouperDeprovisioningConfiguration);
+    }
+    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
+    
+    // if theres no configuration, or if the configuration is inherited, then clear it out
+    if (grouperDeprovisioningAttributeValue == null || !grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+      grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+      grouperDeprovisioningAttributeValue.setAffiliationString(this.affiliation);
+      grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+    }
+    
+    //set some defaults
+//    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getDeprovisionString())) {
+//      grouperDeprovisioningAttributeValue.setDeprovisionString("true");
+//    }
+    
+    return grouperDeprovisioningAttributeValue;
+  }
+  
+  /**
+   * get the grouper deprovisioning attribute values for all affiliations
+   * @return the map
+   */
+  public Map<String, GrouperDeprovisioningAttributeValue> getGrouperDeprovisioningAttributeValuesAll() {
+    
+    Map<String, GrouperDeprovisioningAttributeValue> affiliationNameToConfiguration = new TreeMap<String, GrouperDeprovisioningAttributeValue>();
+    
+    this.attributeAssignableHelper();
+    
+    for (String theAffiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+      
+      GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.grouperDeprovisioningOverallConfiguration == null ? null 
+          : this.grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(theAffiliation);
+      
+      GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration == null ? null 
+          : grouperDeprovisioningConfiguration.getOriginalConfig();
+
+      if (grouperDeprovisioningAttributeValue == null) {
+        grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+        grouperDeprovisioningAttributeValue.setAffiliationString(theAffiliation);
+      }
+      
+      affiliationNameToConfiguration.put(theAffiliation, grouperDeprovisioningAttributeValue);
+      
+    }
+    
+    return affiliationNameToConfiguration;
+  }
+  
+
+  /**
    * if this object or any parent object has deprovisioning
    * @return if there is deprovisioning
    */
-  public boolean ishasDeprovisioningOnThisObjectOrParent() {
+  public boolean isHasDeprovisioningOnThisObjectOrParent() {
+    this.attributeAssignableHelper();
+    if (this.grouperDeprovisioningOverallConfiguration == null || GrouperUtil.length(this.grouperDeprovisioningOverallConfiguration) == 0) {
+      return false;
+    }
+    for (GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration : this.grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().values()) {
+      if (!StringUtils.isBlank(grouperDeprovisioningConfiguration.getOriginalConfig().getAffiliationString())) {
+        return true;
+      }
+    }
     return false;
   }
   
@@ -43,6 +125,7 @@ public class DeprovisioningContainer {
    * @return the grouperDeprovisioningOverallConfiguration
    */
   public GrouperDeprovisioningOverallConfiguration getGrouperDeprovisioningOverallConfiguration() {
+    this.attributeAssignableHelper();
     return this.grouperDeprovisioningOverallConfiguration;
   }
 
@@ -289,20 +372,46 @@ public class DeprovisioningContainer {
   }
   
   /**  set of affiliations current logged in user has access to **/
-  private Set<GuiDeprovisioningAffiliation> affiliations;
+  private Set<GuiDeprovisioningAffiliation> guiDeprovisioningAffiliationsUserCanDeprovision;
   
   /**
    * @return set of affiliations current logged in user has access to
    */
-  public Set<GuiDeprovisioningAffiliation> getAffiliations() {
-    return affiliations;
+  public Set<GuiDeprovisioningAffiliation> getGuiDeprovisioningAffiliationsUserCanDeprovision() {
+    
+    if (this.guiDeprovisioningAffiliationsUserCanDeprovision == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+      Set<GrouperDeprovisioningAffiliation> affiliationsForUserManager = new TreeSet<GrouperDeprovisioningAffiliation>(
+          GrouperDeprovisioningAffiliation.retrieveAffiliationsForUserManager(loggedInSubject).values());
+      
+      Set<GuiDeprovisioningAffiliation> guiAffiliations = GuiDeprovisioningAffiliation.convertFromGrouperDeprovisioningAffiliations(affiliationsForUserManager);
+      
+      this.guiDeprovisioningAffiliationsUserCanDeprovision = guiAffiliations;
+    
+    }
+    return this.guiDeprovisioningAffiliationsUserCanDeprovision;
   }
   
+  /**  set of affiliations all **/
+  private Set<GuiDeprovisioningAffiliation> guiDeprovisioningAffiliationsAll;
+  
   /**
-   * @param set of affiliations current logged in user has access to
+   * @return set of affiliations all
    */
-  public void setAffiliations(Set<GuiDeprovisioningAffiliation> affiliations) {
-    this.affiliations = affiliations;
+  public Set<GuiDeprovisioningAffiliation> getGuiDeprovisioningAffiliationsAll() {
+    
+    if (this.guiDeprovisioningAffiliationsAll == null) {
+      
+      Map<String, GrouperDeprovisioningAffiliation> affiliationNameToAffiliation = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
+      
+      Set<GuiDeprovisioningAffiliation> guiAffiliations = GuiDeprovisioningAffiliation.convertFromGrouperDeprovisioningAffiliations(affiliationNameToAffiliation.values());
+      
+      this.guiDeprovisioningAffiliationsAll = guiAffiliations;
+    
+    }
+    return this.guiDeprovisioningAffiliationsAll;
   }
   
   /** affiliation user is currently working on **/
@@ -310,18 +419,18 @@ public class DeprovisioningContainer {
 
   /**
    * affiliation user is currently working on
-   * @return
+   * @return affil
    */
   public String getAffiliation() {
-    return affiliation;
+    return this.affiliation;
   }
 
   /**
    * affiliation user is currently working on
-   * @param affiliation
+   * @param affiliation1
    */
-  public void setAffiliation(String affiliation) {
-    this.affiliation = affiliation;
+  public void setAffiliation(String affiliation1) {
+    this.affiliation = affiliation1;
   }
   
 }
