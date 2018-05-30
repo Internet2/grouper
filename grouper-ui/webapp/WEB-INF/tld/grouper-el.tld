@@ -672,6 +672,20 @@
 
   <function>
     <description>
+      If the string is null or blank
+    </description>
+    <name>isBlank</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>boolean isBlank(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:isBlank(someVar.someField)}
+    </example>
+  </function>
+
+  <function>
+    <description>
       If the user using the app has a certain privilege (or privilege that implies that privilege) on an object
     </description>
     <name>canHavePrivilege</name>

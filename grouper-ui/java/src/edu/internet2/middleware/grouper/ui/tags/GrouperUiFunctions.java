@@ -53,6 +53,15 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public class GrouperUiFunctions {
 
   /**
+   * if null or blank
+   * @param string
+   * @return if null or blank
+   */
+  public static boolean isBlank(String string) {
+    return GrouperUtil.isBlank(string);
+  }
+  
+  /**
    * if an owner has a privilege by the authenticated user
    * @param owner 
    * @param privilegeOrListName 

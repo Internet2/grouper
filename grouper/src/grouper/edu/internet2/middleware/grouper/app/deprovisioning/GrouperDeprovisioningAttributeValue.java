@@ -4,10 +4,11 @@
  */
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -15,6 +16,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  */
 public class GrouperDeprovisioningAttributeValue {
 
+  
   /**
    * set strings to defaults to reduce the number of assignment values we need
    */
@@ -113,10 +115,10 @@ public class GrouperDeprovisioningAttributeValue {
   /**
    * If this is a loader job, if being in a deprovisioned group means the user should not be in the loaded group.
    * can be: blank (true), or false (false)
-   * @param autoChangeLoaderString the autoChangeLoaderString to set
+   * @param autoChangeLoaderString1 the autoChangeLoaderString to set
    */
-  public void setAutoChangeLoaderString(String autoChangeLoaderString) {
-    this.autoChangeLoaderString = autoChangeLoaderString;
+  public void setAutoChangeLoaderString(String autoChangeLoaderString1) {
+    this.autoChangeLoaderString = autoChangeLoaderString1;
   }
 
   /**
@@ -171,6 +173,20 @@ public class GrouperDeprovisioningAttributeValue {
   }
 
   /**
+   * if this is set then require a group name or email list
+   * note this is not persisted in the database
+   */
+  private Boolean emailManagers;
+  
+  /**
+   * 
+   * @param theEmailManagers
+   */
+  public void setEmailManagers(Boolean theEmailManagers) {
+    this.emailManagers = theEmailManagers;
+  }
+  
+  /**
    * 
    * @return true if deprovision
    */
@@ -215,6 +231,18 @@ public class GrouperDeprovisioningAttributeValue {
    */
   public void setDirectAssignmentString(String directAssignmentString1) {
     this.directAssignmentString = directAssignmentString1;
+  }
+  
+  /**
+   * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
+   * @param directAssignment the directAssignmentString to set
+   */
+  public void setDirectAssignment(boolean directAssignment) {
+    if (directAssignment) {
+      this.directAssignmentString = "true";
+    } else {
+      this.directAssignmentString = null;
+    }
   }
 
 
@@ -263,10 +291,10 @@ public class GrouperDeprovisioningAttributeValue {
   /**
    * custom email body for emails, if blank use the default configured body. Note there are template variables 
    * $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
-   * @param emailBodyString the emailBodyString to set
+   * @param emailBodyString1 the emailBodyString to set
    */
-  public void setEmailBodyString(String emailBodyString) {
-    this.emailBodyString = emailBodyString;
+  public void setEmailBodyString(String emailBodyString1) {
+    this.emailBodyString = emailBodyString1;
   }
 
   /**
@@ -339,10 +367,10 @@ public class GrouperDeprovisioningAttributeValue {
 
   
   /**
-   * @param mailToGroupString the mailToGroupString to set
+   * @param mailToGroupString1 the mailToGroupString to set
    */
-  public void setMailToGroupString(String mailToGroupString) {
-    this.mailToGroupString = mailToGroupString;
+  public void setMailToGroupString(String mailToGroupString1) {
+    this.mailToGroupString = mailToGroupString1;
   }
 
   /**
@@ -361,10 +389,10 @@ public class GrouperDeprovisioningAttributeValue {
 
   
   /**
-   * @param affiliationString the affiliationString to set
+   * @param affiliationString1 the affiliationString to set
    */
-  public void setAffiliationString(String affiliationString) {
-    this.affiliationString = affiliationString;
+  public void setAffiliationString(String affiliationString1) {
+    this.affiliationString = affiliationString1;
   }
 
   /**
@@ -398,10 +426,10 @@ public class GrouperDeprovisioningAttributeValue {
 
   
   /**
-   * @param sendEmailString the sendEmailString to set
+   * @param sendEmailString1 the sendEmailString to set
    */
-  public void setSendEmailString(String sendEmailString) {
-    this.sendEmailString = sendEmailString;
+  public void setSendEmailString(String sendEmailString1) {
+    this.sendEmailString = sendEmailString1;
   }
 
 
@@ -423,10 +451,10 @@ public class GrouperDeprovisioningAttributeValue {
 
   
   /**
-   * @param showForRemovalString the showForRemovalString to set
+   * @param showForRemovalString1 the showForRemovalString to set
    */
-  public void setShowForRemovalString(String showForRemovalString) {
-    this.showForRemovalString = showForRemovalString;
+  public void setShowForRemovalString(String showForRemovalString1) {
+    this.showForRemovalString = showForRemovalString1;
   }
 
 
@@ -434,6 +462,12 @@ public class GrouperDeprovisioningAttributeValue {
    * one|sub, if in folder only or in folder and all subfolders (default to sub)
    */
   private String stemScopeString;
+  
+  /**
+   * if this is set then require a group name 
+   * note this is not persisted in the database
+   */
+  private Boolean emailGroupMembers;
 
   
   /**
@@ -455,10 +489,74 @@ public class GrouperDeprovisioningAttributeValue {
   }
   
   /**
-   * @param stemScopeString the stemScopeString to set
+   * @param stemScopeString1 the stemScopeString to set
    */
-  public void setStemScopeString(String stemScopeString) {
-    this.stemScopeString = stemScopeString;
+  public void setStemScopeString(String stemScopeString1) {
+    this.stemScopeString = stemScopeString1;
+  }
+
+  /**
+   * send email to managers of object.  if not sending to email list or group, then must be managers
+   * @return true if send email to managers
+   */
+  public boolean isEmailManagers() {
+    if (!this.isSendEmail()) {
+      return false;
+    }
+    
+    if (this.emailManagers != null) {
+      return this.emailManagers;
+    }
+    
+    return StringUtils.isBlank(this.emailAddressesString) && StringUtils.isBlank(this.mailToGroupString);
   }
   
+  /**
+   * if should send email, default false
+   * @param theSendEmail
+   */
+  public void setSendEmail(boolean theSendEmail) {
+    if (theSendEmail) {
+      this.sendEmailString = "true";
+    } else {
+      this.sendEmailString = null;
+    }
+
+  }
+  
+  /**
+   * set the scope and honor the defaults
+   * @param scope
+   */
+  public void setStemScope(Scope scope) {
+    if (scope != null && scope == Scope.ONE) {
+      this.stemScopeString = scope.name();
+    } else {
+      this.stemScopeString = null;
+    }
+  }
+
+  /**
+   * send email to managers of object.  if not sending to email list or group, then must be managers
+   * @return true if send email to managers
+   */
+  public boolean isEmailGroupMembers() {
+    if (!this.isSendEmail()) {
+      return false;
+    }
+    
+    if (this.emailGroupMembers != null) {
+      return this.emailGroupMembers;
+    }
+    
+    return StringUtils.isBlank(this.emailAddressesString) && !this.isEmailManagers();
+  }
+
+  /**
+   * 
+   * @param theEmailGroupMembers
+   */
+  public void setEmailGroupMembers(Boolean theEmailGroupMembers) {
+    this.emailGroupMembers = theEmailGroupMembers;
+  }
 }

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class GuiDeprovisioningAffiliation {
     this.groupNameMeansInAffiliation = groupNameMeansInAffiliation;
   }
   
-  public static Set<GuiDeprovisioningAffiliation> convertFromGrouperDeprovisioningAffiliations(Set<GrouperDeprovisioningAffiliation> affiliations) {
+  public static Set<GuiDeprovisioningAffiliation> convertFromGrouperDeprovisioningAffiliations(Collection<GrouperDeprovisioningAffiliation> affiliations) {
    
     Set<GuiDeprovisioningAffiliation> guiAffiliations = new HashSet<GuiDeprovisioningAffiliation>();
     if (affiliations == null || affiliations.size() == 0) {

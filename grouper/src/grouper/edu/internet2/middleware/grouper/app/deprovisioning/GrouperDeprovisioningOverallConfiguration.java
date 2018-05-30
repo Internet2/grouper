@@ -202,9 +202,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 
     
     
-    AttributeAssignValueFinderResult attributeDefsAttributeAssignValueFinderResult = null;
-    AttributeAssignValueFinderResult groupsAttributeAssignValueFinderResult = null;
-    AttributeAssignValueFinderResult stemsAttributeAssignValueFinderResult = null;
+    AttributeAssignValueFinderResult attributeAssignValueFinderResult = null;
         
 //    Set<AttributeAssign> attributeAssigns = new LinkedHashSet<AttributeAssign>();
 
@@ -219,7 +217,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 //      attributeAssignFinder.assignOwnerGroupIds(groupIds);
 //      attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
       
-      groupsAttributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupIdsOfAssignAssign(groupIds)
+      attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupIdsOfAssignAssign(groupIds)
         .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
         .assignAttributeCheckReadOnAttributeDef(false)
         .findAttributeAssignValuesResult();
@@ -233,7 +231,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 //      attributeAssignFinder.assignOwnerStemIds(stemIds);
 //      attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
 
-      stemsAttributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemIdsOfAssignAssign(stemIds)
+      attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemIdsOfAssignAssign(stemIds)
           .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
           .assignAttributeCheckReadOnAttributeDef(false)
           .findAttributeAssignValuesResult();
@@ -248,7 +246,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 //    attributeAssignFinder.assignOwnerStemIds(stemIds);
 //    attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
 
-      attributeDefsAttributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerAttributeDefIdsOfAssignAssign(attributeDefIds)
+      attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerAttributeDefIdsOfAssignAssign(attributeDefIds)
         .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
         .assignAttributeCheckReadOnAttributeDef(false)
         .findAttributeAssignValuesResult();
@@ -286,19 +284,21 @@ public class GrouperDeprovisioningOverallConfiguration {
     
     Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> result = new HashMap<GrouperObject, GrouperDeprovisioningOverallConfiguration>();
 
-    for (GrouperObject groupOrFolder : groupsOrFoldersOrAttributeDefs) {
+    for (GrouperObject groupOrFolderOrAttributeDef : groupsOrFoldersOrAttributeDefs) {
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration 
         = new GrouperDeprovisioningOverallConfiguration();
-      result.put(groupOrFolder, grouperDeprovisioningOverallConfiguration);
+      result.put(groupOrFolderOrAttributeDef, grouperDeprovisioningOverallConfiguration);
       
-      grouperDeprovisioningOverallConfiguration.setOriginalOwner(groupOrFolder);
+      grouperDeprovisioningOverallConfiguration.setOriginalOwner(groupOrFolderOrAttributeDef);
       
       //get the values
       Map<String, Map<String, String>> attributeAssignIdToattributeDefNameToValue = null;
-      if (groupOrFolder instanceof Group) {
-        attributeAssignIdToattributeDefNameToValue = groupsAttributeAssignValueFinderResult.retrieveAssignIdsToAttributeDefNamesAndValueStrings(((Group)groupOrFolder).getId());
-      } else if (groupOrFolder instanceof Stem) {
-        attributeAssignIdToattributeDefNameToValue = stemsAttributeAssignValueFinderResult.retrieveAssignIdsToAttributeDefNamesAndValueStrings(((Stem)groupOrFolder).getId());
+      if (groupOrFolderOrAttributeDef instanceof Group) {
+        attributeAssignIdToattributeDefNameToValue = attributeAssignValueFinderResult.retrieveAssignIdsToAttributeDefNamesAndValueStrings(((Group)groupOrFolderOrAttributeDef).getId());
+      } else if (groupOrFolderOrAttributeDef instanceof Stem) {
+        attributeAssignIdToattributeDefNameToValue = attributeAssignValueFinderResult.retrieveAssignIdsToAttributeDefNamesAndValueStrings(((Stem)groupOrFolderOrAttributeDef).getId());
+      } else if (groupOrFolderOrAttributeDef instanceof AttributeDef) {
+        attributeAssignIdToattributeDefNameToValue = attributeAssignValueFinderResult.retrieveAssignIdsToAttributeDefNamesAndValueStrings(((AttributeDef)groupOrFolderOrAttributeDef).getId());
       } else {
         throw new RuntimeException("Wont happen");
       }
@@ -310,7 +310,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 
         Map<String, String> attributeDefNameAndValueStrings = attributeAssignIdToattributeDefNameToValue.get(attributeAssignId);
 
-        AttributeAssign attributeAssignNew = groupsAttributeAssignValueFinderResult
+        AttributeAssign attributeAssignNew = attributeAssignValueFinderResult
             .getMapAttributeAssignIdToAttributeAssign().get(attributeAssignId);
         
         String affiliation = attributeDefNameAndValueStrings.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName());
@@ -319,7 +319,7 @@ public class GrouperDeprovisioningOverallConfiguration {
 
           if (affiliationToAttributeDefNameToValueString.containsKey(affiliation)) {
 
-            LOG.error("Multiple deprovisioning configurations found.  Deleting one: " + groupOrFolder);
+            LOG.error("Multiple deprovisioning configurations found.  Deleting one: " + groupOrFolderOrAttributeDef);
 
             AttributeAssign attributeAssignExisting = affiliationToAttributeAssign.get(affiliation);
             
@@ -339,7 +339,7 @@ public class GrouperDeprovisioningOverallConfiguration {
           affiliationToAttributeAssign.put(affiliation, attributeAssignNew);
         } else {
           // has no affiliation!!!!
-          LOG.error("Cant find affiliation for deprovisioning, deleting: " + groupOrFolder);
+          LOG.error("Cant find affiliation for deprovisioning, deleting: " + groupOrFolderOrAttributeDef);
           attributeAssignNew.delete();
         }
         

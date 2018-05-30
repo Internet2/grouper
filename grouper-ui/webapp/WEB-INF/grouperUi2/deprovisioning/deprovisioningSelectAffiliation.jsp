@@ -7,8 +7,8 @@
                        
                        <select id="affiliationFilter" class="span2" name="affiliation" onchange="">
                           <option value=""></option>
-                          <c:forEach items="${grouperRequestContainer.deprovisioningContainer.affiliations}" var="affiliation">
-                            <option value="${affiliation.label}">${affiliation.translatedLabel}</option>
+                          <c:forEach items="${grouperRequestContainer.deprovisioningContainer.guiDeprovisioningAffiliationsUserCanDeprovision}" var="guiDeprovisioningAffiliation">
+                            <option value="${guiDeprovisioningAffiliation.label}">${guiDeprovisioningAffiliation.translatedLabel}</option>
                           </c:forEach>
                           
                        </select>
