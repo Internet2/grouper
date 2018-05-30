@@ -40,6 +40,7 @@ public class AllLoaderTests {
     suite.addTestSuite(GrouperLoaderQuartzTest.class);
     suite.addTestSuite(GrouperLoaderSecurityTest.class);
     suite.addTestSuite(GrouperLoaderTest.class);
+    suite.addTestSuite(GrouperDaemonSchedulerCheckTest.class);
     //$JUnit-END$
     suite.addTest(AllLoaderDbTests.suite());
     suite.addTest(AllLoaderLdapTests.suite());
