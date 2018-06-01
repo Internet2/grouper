@@ -615,7 +615,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
                 if (user != null) {
                     String role = connector.determineRole(member, grouperGroup);
-                    if (role != null) {
+                    if (role != null && !role.equalsIgnoreCase("NONE")) {
                       connector.createGooMember(group, user, role);
                     }
                 }
@@ -656,13 +656,13 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
         //For nested groups, ChangeLogEvents fire when the group is removed, and also for each indirect user added,
         //so we only need to handle PERSON events.
-        if (subjectType == SubjectTypeEnum.PERSON) {
+        if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
             try {
                 String role = connector.determineRole(member, grouperGroup);
-                if (role != null && !role.equalsIgnoreCase("MEMBER")) {
-                    connector.updateGooMember(grouperGroup, lookupSubject, role);
+                if (role != null && !role.equalsIgnoreCase("NONE")) {
+                    connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 } else {
-                    connector.removeGooMembership(grouperGroup.getName(), lookupSubject);
+                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing membership delete: {}", new Object[]{consumerName,
@@ -694,8 +694,10 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
             try {
                 String role = connector.determineRole(member, grouperGroup);
-                if (role != null) {
-                  connector.updateGooMember(grouperGroup, member.getSubject(), role);
+                if (role != null && !role.equalsIgnoreCase("NONE")) {
+                    connector.updateGooMember(grouperGroup, member.getSubject(), role);
+                } else {
+                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing privilege add: {}", new Object[]{consumerName,
@@ -733,8 +735,10 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
             try {
                 String role = connector.determineRole(member, grouperGroup);
-                if (role != null) {
-                  connector.updateGooMember(grouperGroup, member.getSubject(), role);
+                if (role != null && !role.equalsIgnoreCase("NONE")) {
+                    connector.updateGooMember(grouperGroup, member.getSubject(), role);
+                } else {
+                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing privilege update: {}", new Object[]{consumerName,
@@ -772,7 +776,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
             try {
                 String role = connector.determineRole(member, grouperGroup);
-                if (role != null) {
+                if (role != null && !role.equalsIgnoreCase("NONE")) {
                     connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 } else {
                     connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
