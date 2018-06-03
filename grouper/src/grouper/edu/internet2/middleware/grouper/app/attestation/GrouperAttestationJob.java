@@ -843,6 +843,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     String uiUrl = GrouperConfig.getGrouperUiUrl(false);
     if (StringUtils.isBlank(uiUrl)) {
       LOG.error("grouper.properties grouper.ui.url is blank/null. Please fix that first. GrouperAttestationJob will not proceed. No emails have been sent.");
+      return;
     }
     
     String subject = GrouperConfig.retrieveConfig().propertyValueString("attestation.reminder.email.subject");

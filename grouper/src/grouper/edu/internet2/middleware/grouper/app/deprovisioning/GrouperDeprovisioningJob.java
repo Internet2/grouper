@@ -1,7 +1,8 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import static edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,21 +14,25 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.EmailObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -36,6 +41,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @DisallowConcurrentExecution
 public class GrouperDeprovisioningJob extends OtherJobBase {
+  
 
   /**
    * enter a group or the group which controls a loader job
@@ -244,7 +250,72 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
       return null;
     }
     
+    Map<String, GrouperDeprovisioningAffiliation> affiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameBase();
+    
+    for (GrouperDeprovisioningAffiliation affiliation: affiliations.values()) {
+      
+      Set<Member> deprovisionedUsers = affiliation.getUsersWhoHaveBeenDeprovisioned();
+      
+      for (Member member: deprovisionedUsers) {
+        
+        Set<MembershipSubjectContainer> memberhipSubjectContainers = MembershipFinder.findAllImmediateMemberhipSubjectContainers(otherJobInput.getGrouperSession(), member.getSubject());
+        
+        for (MembershipSubjectContainer membershipSubjectContainer: memberhipSubjectContainers) {
+          
+          Group group = membershipSubjectContainer.getGroupOwner();
+          Stem stem = membershipSubjectContainer.getStemOwner();
+          AttributeDef attributeDef = membershipSubjectContainer.getAttributeDefOwner();
+          
+          if (group != null) {
+            buildEmailObjects(group, affiliation.getLabel());
+          } else if (stem != null) {
+            buildEmailObjects(stem, affiliation.getLabel());
+          } else if (attributeDef != null) {
+            buildEmailObjects(attributeDef, affiliation.getLabel());
+          }
+        }
+        
+      }
+      
+    }
+    
     return null;
+  }
+  
+  private Map<String, EmailObject> buildEmailObject() {
+    return null;
+  }
+  
+  private Map<String, EmailObject> buildEmailObjects(GrouperObject grouperObject, String affiliation) {
+
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+    Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration();
+    
+    if (!affiliationToConfiguration.containsKey(affiliation)) {
+      return new HashMap<String, EmailObject>();
+    }
+    
+    GrouperDeprovisioningConfiguration deprovisioningConfiguration = affiliationToConfiguration.get(affiliation);
+    
+    GrouperDeprovisioningAttributeValue attributeValue = deprovisioningConfiguration.getNewConfig();
+    
+    if (attributeValue.isDirectAssignment() && attributeValue.isSendEmail()) {
+      return buildEmailObject();
+    }
+    
+    String deprovisioningInheritedFromFolderId = attributeValue.getInheritedFromFolderIdString();
+    try {
+      Stem stemToInheritConfigurationFrom = StemFinder.findByIdIndex(Long.valueOf(deprovisioningInheritedFromFolderId), true, new QueryOptions());
+      
+      return buildEmailObjects(stemToInheritConfigurationFrom, affiliation);
+      
+    } catch(Exception e) {
+      LOG.error(grouperObject.getName()+" has deprovisioningInheritedFromFolderId set to invalid folder id: "+deprovisioningInheritedFromFolderId);
+      return new HashMap<String, EmailObject>();
+    }
+    
   }
   
   /**

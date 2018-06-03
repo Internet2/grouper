@@ -180,8 +180,6 @@ public class GrouperDeprovisioningOverallConfiguration {
 
     for (GrouperObject grouperObject : groupsOrFoldersOrAttributeDefs) {
 
-      //TODO handle attribute defs and attribute def names
-      
       if ((!(grouperObject instanceof Group)) && (!(grouperObject instanceof Stem)) && (!(grouperObject instanceof AttributeDef))) {
         throw new RuntimeException("groupOrFolder needs to be a stem or group or attribute def: " + grouperObject.getClass() + ", " + grouperObject);
       }

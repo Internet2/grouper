@@ -14,9 +14,16 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -99,28 +106,46 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
   }
   
   /**
-   * @param subject
+   * @param membership
    * @return true when subject is deprovisioned successfully, false otherwise.
    */
-  public boolean deprovisionSubject(final Subject subject) {
-    
-    final String label = this.getLabel();
+  public boolean deprovisionSubject(final Membership membership) {
     
     return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
       
       @Override
       public Boolean callback(GrouperSession rootSession) throws GrouperSessionException {
         
-        String groupName = GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + label;
-        Group deprovisionGroup = GroupFinder.findByName(rootSession, groupName, false);
-        if (deprovisionGroup == null) {
-          throw new RuntimeException(groupName+" not found.");
+        Subject subject =  membership.getMember().getSubject();
+
+        Group ownerGroup = membership.getOwnerGroupId() != null ? membership.getOwnerGroup(): null;
+        if (ownerGroup != null) {
+          ownerGroup.deleteMember(membership.getMember(), false);
+          
+          for (Privilege priv: AccessPrivilege.ALL_PRIVILEGES) {
+            ownerGroup.revokePriv(subject, priv, false);
+          }
+          
         }
-        try {
-          return deprovisionGroup.addMember(subject, false);
-        } catch(Exception e) {
-          return false;
+        
+        AttributeDef ownerAttributeDef = membership.getOwnerAttrDefId() != null ? membership.getOwnerAttributeDef(): null;
+            
+        if (ownerAttributeDef != null) {
+          for (Privilege priv: AttributeDefPrivilege.ALL_PRIVILEGES) {
+            ownerAttributeDef.getPrivilegeDelegate().revokePriv(subject, priv, false);
+          }
         }
+        
+        Stem ownerStem = membership.getOwnerStemId() != null ? membership.getOwnerStem(): null;
+        if (ownerStem != null) {
+          
+          for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
+            ownerStem.revokePriv(subject, priv, false); 
+          }
+        }
+        
+        Group deprovisionGroup = getUsersWhoHaveBeenDeprovisionedGroup();
+        return deprovisionGroup.addMember(subject, false);
       }
     });
     

@@ -76,7 +76,7 @@ public class GrouperDeprovisioningAttributeNames {
   /**
    * required, is the affiliation for this metadata
    */
-  public static final String DEPROVISIONING_REALM = "deprovisioningAffiliation";
+  public static final String DEPROVISIONING_AFFILIATION = "deprovisioningAffiliation";
   /**
    * If this is true, then send an email about the deprovisioning event.  If the assignments were removed, then give a description of the action.  
    * If assignments were not removed, then remind the managers to unassign.  Can be <blank>, true, or false.  Defaults to false unless the assignments 
@@ -299,7 +299,7 @@ public class GrouperDeprovisioningAttributeNames {
   public static AttributeDefName retrieveAttributeDefNameAffiliation() {
     
     AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_REALM);
+        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_AFFILIATION);
   
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant deprovisioning affiliation attribute def name be found?");
