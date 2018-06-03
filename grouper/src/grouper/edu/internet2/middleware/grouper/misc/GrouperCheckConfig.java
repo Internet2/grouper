@@ -699,7 +699,7 @@ public class GrouperCheckConfig {
         boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
         
         {
-          // # users in this group who are admins of a realm but who are not Grouper SysAdmins, will be 
+          // # users in this group who are admins of an affiliation but who are not Grouper SysAdmins, will be 
           // # able to deprovision from all grouper groups/objects, not just groups they have access to UPDATE/ADMIN
           // deprovisioning.admin.group = $$deprovisioning.systemFolder$$:deprovisioningAdmins
           String deprovisioningAdminGroupName = GrouperDeprovisioningSettings.retrieveDeprovisioningAdminGroupName();
@@ -735,7 +735,7 @@ public class GrouperCheckConfig {
             deprovisioningTypeDefName, false, new QueryOptions().secondLevelCache(false));
         if (deprovisioningType == null) {
           deprovisioningType = deprovisioningStem.addChildAttributeDef(GrouperDeprovisioningAttributeNames.DEPROVISIONING_DEF, AttributeDefType.type);
-          //assign once for each realm
+          //assign once for each affiliation
           deprovisioningType.setMultiAssignable(true);
           deprovisioningType.setAssignToGroup(true);
           deprovisioningType.setAssignToAttributeDef(true);
@@ -763,13 +763,10 @@ public class GrouperCheckConfig {
         // try an attribute def dependent on an attribute def name
         deprovisioningAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
         
-        
-
-        
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_INHERITED_FROM_FOLDER_ID,
             "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment and not inherited", wasInCheckConfig);
-        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_REALM, 
-            "Realm configured in the grouper.properties.  e.g. employee, student, etc", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_AFFILIATION, 
+            "Affiliation configured in the grouper.properties.  e.g. employee, student, etc", wasInCheckConfig);
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_ALLOW_ADDS_WHILE_DEPROVISIONED, 
             "If allows adds to group of people who are deprovisioned.  can be: blank, true, or false.  "
             + "If blank, then will not allow adds unless auto change loader is false", wasInCheckConfig);
@@ -794,7 +791,7 @@ public class GrouperCheckConfig {
             + "Can be: blank, true, or false.  If blank, will default to true unless auto change loader is false.", wasInCheckConfig);
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_DEPROVISION, 
             "if this object should be in consideration for the deprovisioning system.  Can be: blank, true, or false.  Defaults to true", wasInCheckConfig);
-        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_STEM_SCOPE, 
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_STEM_SCOPE,
             "If configuration is assigned to a folder, then this is 'one' or 'sub'.  'one' means only applicable to objects"
             + " directly in this folder.  'sub' (default) means applicable to all objects in this folder and "
             + "subfolders.  Note, the inheritance stops when a sub folder or object has configuration assigned.", wasInCheckConfig);

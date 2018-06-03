@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
@@ -27,7 +24,6 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -47,14 +43,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
-import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -659,6 +649,7 @@ public class UiV2Deprovisioning {
    * @param response
    */
   public void deprovisionUserSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
     
@@ -724,66 +715,14 @@ public class UiV2Deprovisioning {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-          Set<GuiMembershipSubjectContainer> result = new LinkedHashSet<GuiMembershipSubjectContainer>();
           
-          Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = new HashSet<GuiDeprovisioningMembershipSubjectContainer>();
+          Set<MembershipSubjectContainer> membershipSubjectContainers = MembershipFinder.findAllImmediateMemberhipSubjectContainers(grouperSession, SUBJECT);
           
-          for (FieldType fieldType : new FieldType[] {FieldType.LIST, FieldType.ACCESS, FieldType.NAMING, FieldType.ATTRIBUTE_DEF}) {
-
-            //get all the memberships and privileges
-            MembershipResult membershipResult = new MembershipFinder().addSubject(SUBJECT)
-                .assignFieldType(fieldType)
-                .assignMembershipType(MembershipType.IMMEDIATE).findMembershipResult();
-            Set<MembershipSubjectContainer> membershipSubjectContainers = membershipResult.getMembershipSubjectContainers();
-            
-            Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
-            ArrayList<GuiMembershipSubjectContainer> resultList = new ArrayList<GuiMembershipSubjectContainer>(guiMembershipSubjectContainers);
-            Collections.sort(resultList, new java.util.Comparator<GuiMembershipSubjectContainer>() {
-
-              @Override
-              public int compare(GuiMembershipSubjectContainer o1,
-                  GuiMembershipSubjectContainer o2) {
-                
-                if (o1 == o2) {
-                  return 0;
-                }
-                
-                if (o2 == null) {
-                  return 1;
-                }
-                
-                if (o1 == null) {
-                  return -1;
-                }
-                
-                return o1.getGuiObjectBase().getNameColonSpaceSeparated().compareTo(o2.getGuiObjectBase().getNameColonSpaceSeparated());
-              }
-            });
-            result.addAll(resultList);
-          }
+          Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
           
-          for (GuiMembershipSubjectContainer guiMembershipSubjectContainer: result) {
-            
-            GrouperObject grouperObject = guiMembershipSubjectContainer.getMembershipSubjectContainer().getGroupOwner();
-            
-            if (grouperObject == null) {
-              grouperObject = guiMembershipSubjectContainer.getMembershipSubjectContainer().getStemOwner();
-            }
-            //TODO un-comment below once grouper api is able to handle attribute defs
-//            if (grouperObject == null) {
-//              grouperObject = guiMembershipSubjectContainer.getMembershipSubjectContainer().getAttributeDefOwner();
-//            }
-            
-            if (grouperObject == null) {
-              continue;
-            }
-            
-            GrouperDeprovisioningOverallConfiguration config = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
-            
-            guiDeprovisioningContainers.add(new GuiDeprovisioningMembershipSubjectContainer(guiMembershipSubjectContainer,
-                config.isShowForRemoval(), config.isAutoselectForRemoval()));
-          }
+          //guiMembershipSubjectContainers.iterator().next().getGuiMember()
+          
+          Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
           
           deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
           
@@ -792,7 +731,7 @@ public class UiV2Deprovisioning {
         
       });
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUserResultsDivId", 
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUserResultsDivId",
           "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserResults.jsp"));
       
     } finally {
@@ -800,7 +739,7 @@ public class UiV2Deprovisioning {
     }
 
   }
-
+  
   /**
    * deprovision a user
    * @param request
@@ -848,46 +787,23 @@ public class UiV2Deprovisioning {
       int successes = 0;
       int failures = 0;
       
-      Subject subject = null;
       for (String membershipId : membershipsIds) {
         try {
           Membership membership = MembershipFinder.findByUuid(GrouperSession.start(loggedInSubject), membershipId, false, true);
           
-          if (subject == null) {
-            String subjectId = membership.getMemberSubjectId();
-            subject = SubjectFinder.findById(subjectId, true);
+          if (deprovisioningAffiliation.deprovisionSubject(membership)) {
+            successes++;
+          } else {
+            failures++;
           }
           
-          Group ownerGroup = membership.getOwnerGroupId() != null ? membership.getOwnerGroup() : null;
-          if (ownerGroup != null) {
-            ownerGroup.deleteMember(membership.getMember(), false);
-          }
-          
-          AttributeDef ownerAttributeDef = membership.getOwnerAttrDefId() != null ?
-              membership.getOwnerAttributeDef() : null;
-              
-          if (ownerAttributeDef != null) {
-            for (Privilege priv: AttributeDefPrivilege.ALL_PRIVILEGES) {
-              ownerAttributeDef.getPrivilegeDelegate().revokePriv(subject, priv, false);
-            }
-          }
-          
-          Stem ownerStem = membership.getOwnerStemId() != null ? membership.getOwnerStem(): null;
-          if (ownerStem != null) {
-            
-            for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
-              ownerStem.revokePriv(subject, priv, false); 
-            }
-          }
-          
-          successes++;
         } catch (Exception e) {
           LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
           failures++;
         }
       }
       
-      if (failures == 0 && deprovisioningAffiliation.deprovisionSubject(subject)) {
+      if (failures == 0) {
         
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&affiliation=" + deprovisioningAffiliation.getLabel() + "')"));
         
