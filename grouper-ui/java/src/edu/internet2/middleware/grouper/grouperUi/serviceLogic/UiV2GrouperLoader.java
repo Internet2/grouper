@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -61,6 +62,9 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
+import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -1116,7 +1120,6 @@ public class UiV2GrouperLoader {
    * @param attributeDefName
    * @param value
    */
-  @SuppressWarnings("deprecation")
   private static void assignGroupLdapAttribute(Group group, AttributeDefName attributeDefName, String value) {
 
     AttributeDefName grouperLoaderAttributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
@@ -2112,7 +2115,8 @@ public class UiV2GrouperLoader {
               List<String> results = null;
               long startNanos = System.nanoTime();
               try {
-                results = null;
+                results = LdapSessionUtils.ldapSession().list(String.class, grouperLoaderContainer.getLdapServerId(), grouperLoaderContainer.getLdapSearchDn(),
+                    ldapSearchScopeEnum, grouperLoaderContainer.getLdapLoaderFilter(), grouperLoaderContainer.getLdapSubjectAttributeName());
                 if (GrouperUtil.length(results) > 0) {
                   loaderReport.append("<font color='green'>SUCCESS:</font> Ran filter, got " + GrouperUtil.length(results) 
                       + " results in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms \n");
@@ -2888,11 +2892,198 @@ public class UiV2GrouperLoader {
   
     final String[] firstValueObject = new String[]{null};
   
-    @SuppressWarnings("unused")
-    Map<String, List<String>> resultMap = null;
     try {
-  
-      
+      List<LdapEntry> searchResults = null;
+
+      List<String> attributesList = new ArrayList<String>();
+      loaderReport.append("<font color='blue'>NOTE:</font> Adding attribute to return from LDAP: '" + grouperLoaderContainer.getLdapSubjectAttributeName() + "'\n");
+      attributesList.add(grouperLoaderContainer.getLdapSubjectAttributeName());
+      String[] extraAttributeArray = null;
+
+      if (!StringUtils.isBlank(grouperLoaderContainer.getLdapExtraAttributes())) {
+        extraAttributeArray = GrouperUtil.splitTrim(grouperLoaderContainer.getLdapExtraAttributes(), ",");
+        for (String attribute : extraAttributeArray) {
+          loaderReport.append("<font color='blue'>NOTE:</font> Adding attribute to return from LDAP: '" + attribute + "'\n");
+          attributesList.add(attribute);
+        }
+      }
+
+      loaderReport.append("<font color='blue'>NOTE:</font> Using filter: '" + grouperLoaderContainer.getLdapLoaderFilter() + "'\n");
+      String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
+
+      if (ldapSearchScopeEnum != null) {
+        loaderReport.append("<font color='blue'>NOTE:</font> Using scope: '" + ldapSearchScopeEnum.name() + "'\n");
+      }
+      try {
+        long startNanos = System.nanoTime();
+
+        if (StringUtils.isBlank(grouperLoaderContainer.getLdapSearchDn())) {
+          searchResults = LdapSessionUtils.ldapSession().list(grouperLoaderContainer.getLdapServerId(), null, ldapSearchScopeEnum, grouperLoaderContainer.getLdapLoaderFilter(), attributeArray, null);
+        } else {
+          loaderReport.append("<font color='blue'>NOTE:</font> Using search DN: '" + grouperLoaderContainer.getLdapSearchDn() + "'\n");
+          searchResults = LdapSessionUtils.ldapSession().list(grouperLoaderContainer.getLdapServerId(), grouperLoaderContainer.getLdapSearchDn(), ldapSearchScopeEnum, grouperLoaderContainer.getLdapLoaderFilter(), attributeArray, null);
+
+        }
+        loaderReport.append("<font color='green'>SUCCESS:</font> Filter ran and did not throw an error in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
+      } catch (Exception e) {
+        loaderReport.append("<font color='red'>ERROR:</font> Filter threw an error\n");
+        loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+        return;
+      }
+
+      Map<String, List<String>> result = new HashMap<String, List<String>>();
+      int subObjectCount = 0;
+
+      boolean firstObject = true;
+
+      for (LdapEntry entry : searchResults) {
+
+        List<String> valueResults = new ArrayList<String>();
+        String nameInNamespace = entry.getDn();
+
+        if (firstObject) {
+          loaderReport.append("<font color='blue'>NOTE:</font> Original nameInNamespace: '" + nameInNamespace + "'\n");
+        }
+
+        String defaultFolder = defaultLdapFolder();
+
+        String baseDn = GrouperLoaderConfig.parseLdapBaseDnFromUrlConfig(grouperLoaderContainer.getLdapServerId());
+
+        String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+            baseDn, grouperLoaderContainer.getLdapSearchDn());
+
+        if (firstObject) {
+          loaderReport.append("<font color='blue'>NOTE:</font> Original group name: '" + loaderGroupName + "'\n");
+        }
+
+        if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())
+            || !StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDisplayNameExpression())
+            || !StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDescriptionExpression())) {
+
+          Map<String, Object> envVars = new HashMap<String, Object>();
+
+          Map<String, Object> groupAttributes = new HashMap<String, Object>();
+          groupAttributes.put("dn", nameInNamespace);
+          if (!StringUtils.isBlank(grouperLoaderContainer.getLdapExtraAttributes())) {
+            for (String groupAttributeName : extraAttributeArray) {
+              LdapAttribute groupAttribute = entry.getAttribute(groupAttributeName);
+
+              if (groupAttribute != null && groupAttribute.getStringValues().size() > 0) {
+
+                if (groupAttribute.getStringValues().size() > 1) {
+                  throw new RuntimeException(
+                      "Grouper LDAP loader only supports single valued group attributes at this point: "
+                          + groupAttributeName);
+                }
+                String attributeValue = groupAttribute.getStringValues().iterator().next();
+                groupAttributes.put(groupAttributeName, attributeValue);
+                if (firstObject) {
+                  loaderReport.append("<font color='blue'>NOTE:</font> Found attribute: '" 
+                      + groupAttributeName + "' with value '" + attributeValue + "'\n");
+                }
+              }
+            }
+          }
+          envVars.put("groupAttributes", groupAttributes);
+          if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())) {
+            String elGroupName = null;
+            try {
+              elGroupName = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupNameExpression(),
+                  envVars);
+              if (firstObject) {
+                loaderReport.append("<font color='green'>SUCCESS:</font> Evaluated group name expression: '" 
+                    + grouperLoaderContainer.getLdapGroupNameExpression() + "' to value '" + elGroupName + "'\n");
+              }
+            } catch (Exception e) {
+              loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group name expression: '" 
+                  + grouperLoaderContainer.getLdapGroupNameExpression() + "'\n");
+              loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+              return;
+            }
+            loaderGroupName = groupParentFolderName + elGroupName;
+            if (firstObject) {
+              loaderReport.append("<font color='blue'>NOTE:</font> Final group name: '" + loaderGroupName + "'\n");
+            }
+          }
+          if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDisplayNameExpression())) {
+            String elGroupDisplayName = null;
+            try {
+              elGroupDisplayName = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupDisplayNameExpression(),
+                  envVars);
+              if (firstObject) {
+                loaderReport.append("<font color='green'>SUCCESS:</font> Evaluated group display name expression: '" 
+                    + grouperLoaderContainer.getLdapGroupDisplayNameExpression() + "' to value '" + elGroupDisplayName + "'\n");
+              }
+            } catch (Exception e) {
+              loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group display name expression: '" 
+                  + grouperLoaderContainer.getLdapGroupDisplayNameExpression() + "'\n");
+              loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+              return;
+            }
+          }
+          if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDescriptionExpression())) {
+            String elGroupDescription = null;
+            try {
+              elGroupDescription = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupDescriptionExpression(),
+                  envVars);
+              if (firstObject) {
+                loaderReport.append("<font color='green'>SUCCESS:</font> Evaluated group description expression: '" 
+                    + grouperLoaderContainer.getLdapGroupDescriptionExpression() + "' to value '" + elGroupDescription + "'\n");
+              }
+            } catch (Exception e) {
+              loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group description expression: '" 
+                  + grouperLoaderContainer.getLdapGroupDescriptionExpression() + "'\n");
+              loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+              return;
+            }
+          }
+        }
+
+        result.put(loaderGroupName, valueResults);
+
+        LdapAttribute subjectAttribute = entry.getAttribute(grouperLoaderContainer.getLdapSubjectAttributeName());
+
+        if (subjectAttribute != null && subjectAttribute.getStringValues().size() > 0) {
+          for (String attributeValue : subjectAttribute.getStringValues()) {
+
+            if (attributeValue != null) {
+              subObjectCount++;
+              subObjectOverallCount[0]++;
+              valueResults.add((String) attributeValue);
+              if (firstValueObject[0] == null) {
+                firstValueObject[0] = (String)attributeValue;
+              }
+            }
+          }
+        }
+        firstObject = false;
+      }
+
+      loaderReport.append("<font color='green'>SUCCESS:</font> Found " + result.size() + " groups, and " + subObjectCount
+          + " subjects\n");
+
+      if (groupsLikeCount == 0) {
+
+        if (result.size() > 0) {
+          // see if the groups like count is similar to the number of groups returned
+          loaderReport.append("<font color='red'>ERROR:</font> 0 groups in 'groups like' and " + result.size() + " groups in ldap, maybe job hasnt been run yet?  Or groupsLike '" 
+              + grouperLoaderContainer.getLdapGroupsLike() + "' is misconfigured?\n");
+        }
+
+      } else if (groupsLikeCount == result.size()) {
+        loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " + result.size() + " groups in ldap are the same number!\n");
+
+      } else if (groupsLikeCount > 0) {
+        double percentOff = Math.abs(groupsLikeCount - result.size()) / groupsLikeCount;
+        if (percentOff > 0.1) {
+          loaderReport.append("<font color='red'>ERROR:</font> " + groupsLikeCount + " groups in 'groups like' and " 
+              + result.size() + " groups in ldap more than 10% away from each other.  Maybe job needs to be run?  Or groupsLike '" 
+              + grouperLoaderContainer.getLdapGroupsLike() + "' is misconfigured?\n");
+        } else {
+          loaderReport.append("<font color='green'>SUCCESS:</font> " + groupsLikeCount + " groups in 'groups like' and " + result.size() + " groups in ldap are within 10%\n");
+
+        }
+      }
     } catch (RuntimeException re) {
       loaderReport.append("<font color='red'>ERROR:</font> " + re.getMessage() + "\n");
       loaderReport.append(ExceptionUtils.getFullStackTrace(re) + "\n");
@@ -2940,10 +3131,314 @@ public class UiV2GrouperLoader {
     @SuppressWarnings("unused")
     final String[] firstValueObject = new String[]{null};
 
-    @SuppressWarnings("unused")
-    Map<String, List<String>> resultMap = null;
     try {
+      List<LdapEntry> searchResults = null;
 
+      List<String> attributesList = new ArrayList<String>();
+
+      //there can be subject attribute
+      if (!StringUtils.isBlank(grouperLoaderContainer.getLdapSubjectAttributeName())) {
+        attributesList.add(grouperLoaderContainer.getLdapSubjectAttributeName());
+        loaderReport.append("<font color='blue'>NOTE:</font> Adding subject attribute to return from LDAP: '" + grouperLoaderContainer.getLdapSubjectAttributeName() + "'\n");
+      }
+      //there must be a group attribute points to group
+      // and multiple attributes may be present and separated
+      // by a comma
+      String[] groupAttributeNameArray = null;
+      groupAttributeNameArray = GrouperUtil.splitTrim(grouperLoaderContainer.getLdapGroupAttributeName(), ",");
+      for (String attribute: groupAttributeNameArray) {
+        loaderReport.append("<font color='blue'>NOTE:</font> Adding group attribute to return from LDAP: '" + attribute + "'\n");
+        attributesList.add(attribute);
+      }
+
+      String[] extraAttributeArray = null;
+
+      if (!StringUtils.isBlank(grouperLoaderContainer.getLdapExtraAttributes())) {
+        extraAttributeArray = GrouperUtil.splitTrim(grouperLoaderContainer.getLdapExtraAttributes(), ",");
+        for (String attribute : extraAttributeArray) {
+          loaderReport.append("<font color='blue'>NOTE:</font> Adding extra attribute to return from LDAP: '" + attribute + "'\n");
+          attributesList.add(attribute);
+        }
+
+      }
+
+      loaderReport.append("<font color='blue'>NOTE:</font> Using filter: '" + grouperLoaderContainer.getLdapLoaderFilter() + "'\n");
+      String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
+
+      if (ldapSearchScopeEnum != null) {
+        loaderReport.append("<font color='blue'>NOTE:</font> Using scope: '" + ldapSearchScopeEnum.name() + "'\n");
+      }
+      try {
+        long startNanos = System.nanoTime();
+
+        if (StringUtils.isBlank(grouperLoaderContainer.getLdapSearchDn())) {
+          searchResults = LdapSessionUtils.ldapSession().list(grouperLoaderContainer.getLdapServerId(), null, ldapSearchScopeEnum, grouperLoaderContainer.getLdapLoaderFilter(), attributeArray, null);
+        } else {
+          loaderReport.append("<font color='blue'>NOTE:</font> Using search DN: '" + grouperLoaderContainer.getLdapSearchDn() + "'\n");
+          searchResults = LdapSessionUtils.ldapSession().list(grouperLoaderContainer.getLdapServerId(), grouperLoaderContainer.getLdapSearchDn(), ldapSearchScopeEnum, grouperLoaderContainer.getLdapLoaderFilter(), attributeArray, null);
+        }
+        loaderReport.append("<font color='green'>SUCCESS:</font> Filter ran and did not throw an error in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
+      } catch (Exception e) {
+        loaderReport.append("<font color='red'>ERROR:</font> Filter threw an error\n");
+        loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+        return;
+      }
+
+      Map<String, String> attributeNameToGroupNameMap = new HashMap<String, String>();
+
+      Map<String, List<String>> result = new HashMap<String, List<String>>();
+      int subObjectCount = 0;
+      @SuppressWarnings("unused")
+      int subObjectValidCount = 0;
+
+      //if filtering attributes by a jexl, then this is the cached result true or false, for if it is a valid attribute
+      Map<String, Boolean> validAttributes = new HashMap<String, Boolean>();
+
+      boolean firstObject = true;
+
+      for (LdapEntry entry : searchResults) {
+
+        String subjectNameInNamespace = entry.getDn();
+
+        if (firstObject) {
+          loaderReport.append("<font color='blue'>NOTE:</font> Original subjectNameInNamespace: '" + subjectNameInNamespace + "'\n");
+        }
+
+        String subjectId = null;
+
+        if (!StringUtils.isBlank(grouperLoaderContainer.getLdapSubjectAttributeName())) {
+          LdapAttribute subjectAttributeObject = entry.getAttribute(grouperLoaderContainer.getLdapSubjectAttributeName());
+          if (subjectAttributeObject == null || subjectAttributeObject.getStringValues().size() == 0) {
+            loaderReport.append("<font color='red'>ERROR:</font> Cant find attribute " + grouperLoaderContainer.getLdapSubjectAttributeName() + " in LDAP record.  Maybe you have "
+                + "bad data in your LDAP or need to add to your filter a restriction that this attribute exists: '" 
+                + subjectNameInNamespace + "'\n");
+            return;
+          }
+          subjectId = subjectAttributeObject.getStringValues().iterator().next();
+          if (firstObject) {
+            loaderReport.append("<font color='blue'>NOTE:</font> Original subjectId: '" + subjectId + "'\n");
+          }
+        }
+
+        if (!StringUtils.isBlank(grouperLoaderContainer.getLdapSubjectExpression())) {
+          Map<String, Object> envVars = new HashMap<String, Object>();
+
+          Map<String, Object> subjectAttributes = new HashMap<String, Object>();
+          subjectAttributes.put("dn", subjectNameInNamespace);
+
+          if (!StringUtils.isBlank(subjectId)) {
+            subjectAttributes.put("subjectId", subjectId);
+          }
+
+          if (!StringUtils.isBlank(grouperLoaderContainer.getLdapExtraAttributes())) {
+            for (String subjectAttributeString : extraAttributeArray) {
+              LdapAttribute subjectAttribute = entry.getAttribute(subjectAttributeString);
+
+              if (subjectAttribute != null && subjectAttribute.getStringValues().size() > 0) {
+
+                if (subjectAttribute.getStringValues().size() > 1) {
+                  throw new RuntimeException(
+                      "Grouper LDAP loader only supports single valued subject attributes at this point: "
+                          + subjectAttribute);
+                }
+                String attributeValue = subjectAttribute.getStringValues().iterator().next();
+                subjectAttributes.put(subjectAttributeString, attributeValue);
+              }
+            }
+          }
+          envVars.put("subjectAttributes", subjectAttributes);
+          try {
+            subjectId = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapSubjectExpression(),
+                envVars);
+            if (firstObject) {
+              loaderReport.append("<font color='blue'>SUCCESS:</font> subjectId is: '" + subjectId 
+                  + "' after subjectExpression '" + grouperLoaderContainer.getLdapSubjectExpression() + "'\n");
+            }
+          } catch (Exception e) {
+            loaderReport.append("<font color='red'>ERROR:</font> Could not run expression language: '" + grouperLoaderContainer.getLdapSubjectExpression() + "'\n");
+            loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+            return;
+          }
+        }
+
+        if (StringUtils.isBlank(grouperLoaderContainer.getLdapGroupAttributeName())) {
+          loaderReport.append("<font color='red'>ERROR:</font> LDAP_GROUPS_FROM_ATTRIBUTES loader type requires group attribute name\n");
+          return;
+        }
+
+        // loop over attribute names that indicate group membership
+        for (String attribute: groupAttributeNameArray) {
+
+          LdapAttribute groupAttribute = entry.getAttribute(attribute);
+
+          if (groupAttribute != null) {
+            for (String attributeValue : groupAttribute.getStringValues()) {
+
+              if (attributeValue != null) {
+                subObjectCount++;
+
+                if (subObjectCount == 1) {
+                  loaderReport.append("<font color='green'>SUCCESS:</font> First group attribute value: '" 
+                      + attributeValue + "'\n");
+                }
+
+                //lets see if we know the groupName
+                String groupName = attributeNameToGroupNameMap.get(attributeValue);
+                if (StringUtils.isBlank(groupName)) {
+
+                  //lets see if valid attribute, see if a filter expression is set
+                  if (!StringUtils.isBlank(grouperLoaderContainer.getLdapAttributeFilterExpression())) {
+                    //see if we have already calculated it
+                    if (!validAttributes.containsKey(attributeValue)) {
+
+                      Map<String, Object> variableMap = new HashMap<String, Object>();
+                      variableMap.put("attributeValue", attributeValue);
+
+                      //lets run the filter on the attribute name
+                      String attributeResultBooleanString = null;
+
+                      try {
+                        attributeResultBooleanString = GrouperUtil.substituteExpressionLanguage(
+                            grouperLoaderContainer.getLdapAttributeFilterExpression(), variableMap, true, false, false);
+                      } catch (Exception e) {
+                        loaderReport.append("<font color='red'>ERROR:</font> Error running expression: '" 
+                            + grouperLoaderContainer.getLdapAttributeFilterExpression() + "'\n");
+                        loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+                        return;
+
+                      }
+                      boolean attributeResultBoolean = false;
+                      try {
+                        attributeResultBoolean = GrouperUtil.booleanValue(attributeResultBooleanString);
+                      } catch (RuntimeException re) {
+                        throw new RuntimeException("Error parsing boolean: '" + attributeResultBooleanString 
+                            + "', expecting true or false, from expression: " + grouperLoaderContainer.getLdapAttributeFilterExpression() );
+                      }
+
+                      if (LOG.isDebugEnabled()) {
+                        LOG.debug("Attribute '" + attributeValue + "' is allowed to be used based on expression? " 
+                            + attributeResultBoolean + ", '" + grouperLoaderContainer.getLdapAttributeFilterExpression() + "', note the attributeValue is" +
+                            " in a variable called attributeValue");
+                      }
+
+                      validAttributes.put((String)attributeValue, attributeResultBoolean);
+
+                    }
+
+                    //lets see if filtering
+                    if (!validAttributes.get(attributeValue)) {
+                      continue;
+                    }
+                  }
+
+                  subObjectValidCount++;
+
+                  String defaultFolder = defaultLdapFolder();
+
+                  groupName = defaultFolder + attributeValue;
+
+
+                  String loaderGroupDisplayName = null;
+                  String loaderGroupDescription = null;
+
+                  if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())
+                      || !StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDisplayNameExpression())
+                      || !StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDescriptionExpression())) {
+
+                    //calculate it
+
+                    Map<String, Object> envVars = new HashMap<String, Object>();
+
+                    envVars.put("groupAttribute", attributeValue);
+
+                    if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())) {
+                      try {
+
+                        groupName = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupNameExpression(),
+                            envVars);
+                        if (subObjectCount == 1) {
+                          loaderReport.append("<font color='green'>SUCCESS:</font> Group name: '" 
+                              + groupName + "' evaluated from '" + grouperLoaderContainer.getLdapGroupNameExpression() + "'\n");
+                          loaderReport.append("<font color='green'>SUCCESS:</font> Final group name: '" 
+                              + groupParentFolderName + groupName + "'\n");
+                        } 
+                      } catch (Exception e) {
+                        loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group name expression: '" 
+                            + grouperLoaderContainer.getLdapGroupNameExpression() + "'\n");
+                        loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+                        return;
+                      }
+
+                    }
+                    if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDisplayNameExpression())) {
+                      try {
+                        String elGroupDisplayName = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupDisplayNameExpression(),
+                            envVars);
+                        loaderGroupDisplayName = groupParentFolderName + elGroupDisplayName;
+                        if (subObjectCount == 1) {
+                          loaderReport.append("<font color='green'>SUCCESS:</font> Group display name: '" 
+                              + elGroupDisplayName + "' evaluated from '" + grouperLoaderContainer.getLdapGroupDisplayNameExpression() + "'\n");
+                          loaderReport.append("<font color='green'>SUCCESS:</font> Final group display name: '" 
+                              + loaderGroupDisplayName + "'\n");
+                        }
+                      } catch (Exception e) {
+                        loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group display name expression: '" 
+                            + grouperLoaderContainer.getLdapGroupDisplayNameExpression() + "'\n");
+                        loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+                        return;
+                      }
+                    }
+                    if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDescriptionExpression())) {
+                      try {
+                        String elGroupDescription = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupDescriptionExpression(),
+                            envVars);
+                        loaderGroupDescription = elGroupDescription;
+                        if (subObjectCount == 1) {
+                          loaderReport.append("<font color='green'>SUCCESS:</font> Group description: '" 
+                              + loaderGroupDescription + "' evaluated from '" + grouperLoaderContainer.getLdapGroupDescriptionExpression() + "'\n");
+                        }
+                      } catch (Exception e) {
+                        loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group description expression: '" 
+                            + grouperLoaderContainer.getLdapGroupDescriptionExpression() + "'\n");
+                        loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
+                        return;
+                      }
+                    }
+                  }
+
+                  groupName = groupParentFolderName + groupName;
+
+                  //cache this
+                  attributeNameToGroupNameMap.put((String)attributeValue, groupName);
+
+                  //init the subject list
+                  if (!result.containsKey(groupName)) {
+                    result.put(groupName, new ArrayList<String>());
+                  }
+                }
+                //get the "row" for the group
+                List<String> valueResults = result.get(groupName);
+                //add the subject
+                valueResults.add(subjectId);
+
+                if (firstObject) {
+                  grouperLoaderFindSubject(loaderReport, subjectId, grouperLoaderContainer.getLdapSubjectExpression(), 
+                      grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType());
+
+                }
+
+              }
+            }
+          }
+        } // end of looping over attributes indicating group membership
+        firstObject = false;
+
+      } // end of looping over search results
+
+      loaderReport.append("<font color='green'>SUCCESS:</font> Found " + result.size() + " subjects, and " + subObjectCount
+          + " memberships\n");
+
+      return;
     } catch (RuntimeException re) {
       loaderReport.append("<font color='red'>ERROR:</font> " + re.getMessage() + "\n");
       loaderReport.append(ExceptionUtils.getFullStackTrace(re) + "\n");
