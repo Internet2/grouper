@@ -615,7 +615,7 @@ public class PrivilegeHelper {
       } else if ( FieldType.ACCESS.equals( membership.getList().getType() ) ) {
         dispatch( grouperSession, membership.getOwnerGroup(), grouperSession.getSubject(), membership.getList().getReadPriv() );
         return true;
-      } else if (FieldType.NAMING.equals( membership.getList().getType() ) ) {
+      } else if (FieldType.ATTRIBUTE_DEF.equals( membership.getList().getType() ) ) {
         
         dispatch( grouperSession, membership.getAttributeDef(), grouperSession.getSubject(), membership.getList().getReadPriv() );
         return true;

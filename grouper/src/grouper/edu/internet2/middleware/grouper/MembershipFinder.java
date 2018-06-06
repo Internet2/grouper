@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -2487,6 +2488,27 @@ public class MembershipFinder {
       return membership;
     }   
     return null;
+  }
+  
+  /**
+   * Find all the membership subject containers for a given subject
+   * @param grouperSession
+   * @param subject
+   * @return
+   */
+  public static Set<MembershipSubjectContainer> findAllImmediateMemberhipSubjectContainers(GrouperSession grouperSession, Subject subject) {
+    
+    Set<MembershipSubjectContainer> result = new HashSet<MembershipSubjectContainer>();
+    GrouperSession.validate(grouperSession);
+    
+    for (FieldType fieldType : new FieldType[] {FieldType.LIST, FieldType.ACCESS, FieldType.NAMING, FieldType.ATTRIBUTE_DEF}) {
+      MembershipResult membershipResult = new MembershipFinder().addSubject(subject)
+          .assignFieldType(fieldType)
+          .assignMembershipType(MembershipType.IMMEDIATE).findMembershipResult();
+      result.addAll(membershipResult.getMembershipSubjectContainers());
+    }
+    
+    return result;
   }
 
 } // public class MembershipFinder
