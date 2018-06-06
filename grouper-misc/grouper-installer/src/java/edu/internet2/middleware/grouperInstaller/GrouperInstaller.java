@@ -5181,6 +5181,30 @@ public class GrouperInstaller {
     this.compareAndReplaceJar(this.grouperJar, 
         new File(this.untarredApiDir + File.separator + "dist" + File.separator 
             + "lib" + File.separator + "grouper.jar"), true, null);
+    
+    if (this.appToUpgrade == AppToUpgrade.API) {
+      boolean hadChange = false;
+      for (String gshName : new String[]{"gsh", "gsh.bat", "gsh.sh"}) {
+        File newGshFile = new File(this.untarredApiDir + File.separator + "bin" 
+            + File.separator + gshName);
+
+        File existingGshFile = new File(this.upgradeExistingApplicationDirectoryString 
+            + "bin" + File.separator + gshName);
+
+        if (!GrouperInstallerUtils.contentEquals(newGshFile, existingGshFile)) {
+          this.backupAndCopyFile(newGshFile, existingGshFile, true);
+          if (!GrouperInstallerUtils.equals("gsh.bat", gshName)) {
+            hadChange = true;
+          }
+        }
+        
+      }
+      if (hadChange) {
+        //set executable and dos2unix
+        gshExcutableAndDos2Unix(this.untarredApiDir + File.separator + "bin" 
+            + File.separator);
+      }
+    }
 
     System.out.println("\n##################################");
     System.out.println("Upgrading API config files\n");
@@ -5211,6 +5235,13 @@ public class GrouperInstaller {
         this.subjectPropertiesFile,
         null, null,
         "grouperInstaller.autorun.removeRedundantPropetiesFromSubjectProperties"
+      );
+    
+    this.compareUpgradePropertiesFile(this.grouperCacheBasePropertiesFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouper.cache.base.properties"),
+        this.grouperCachePropertiesFile,
+        null, null,
+        "grouperInstaller.autorun.removeRedundantPropetiesFromGrouperCacheProperties"
       );
 
     this.upgradeEhcacheXml();
@@ -5915,7 +5946,7 @@ public class GrouperInstaller {
     }
     
     //this file is done
-    if (!this.ehcacheFile.exists()
+    if ((this.ehcacheFile == null || !this.ehcacheFile.exists())
         && this.grouperCacheBasePropertiesFile.exists() && this.grouperCachePropertiesFile.exists()) {
       return;
     }
@@ -7189,6 +7220,11 @@ public class GrouperInstaller {
             for (String newFilePath : GrouperInstallerUtils.nonNull(newFileRelativePaths)) {
               File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + newFilePath);
               File oldFileInPatch = new File(oldDirFiles.getAbsolutePath() + File.separator + newFilePath);
+              
+              if (revertPatchExcludes.contains(newFileInPatch.getName())) {
+                System.out.println("Skipping revert for file: " + newFileInPatch.getName());
+                continue;
+              }
 
               File newFileInGrouper = new File(applicationPath + newFilePath);
 
@@ -7234,6 +7270,11 @@ public class GrouperInstaller {
 
               //if there is a new file, then its not a delete
               if (newFileInPatch.exists()) {
+                continue;
+              }
+              
+              if (revertPatchExcludes.contains(newFileInPatch.getName())) {
+                System.out.println("Skipping revert for file: " + newFileInPatch.getName());
                 continue;
               }
               
@@ -7283,6 +7324,10 @@ public class GrouperInstaller {
 
             File newFileInGrouper = new File(applicationPath + newFilePath);
             
+            if (revertPatchExcludes.contains(oldFileInPatch.getName())) {
+              continue;
+            }
+            
             if (oldFileInPatch.exists() && oldFileInPatch.isFile()) {
               System.out.println("Reverting file: " + newFileInGrouper.getAbsolutePath());
               GrouperInstallerUtils.copyFile(oldFileInPatch, newFileInGrouper, false);
@@ -7313,6 +7358,10 @@ public class GrouperInstaller {
             File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + oldFilePath);
 
             if (newFileInPatch.exists()) {
+              continue;
+            }
+            
+            if (revertPatchExcludes.contains(oldFileInPatch.getName())) {
               continue;
             }
             
@@ -11354,7 +11403,7 @@ public class GrouperInstaller {
       command.add(GrouperInstallerUtils.javaCommand());
       command.add("-cp");
       command.add(this.untarredApiDir + File.separator + "lib" + File.separator + "jdbcSamples" + File.separator 
-          + "hsqldb.jar");
+          + "*");
       //-cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper -port 9001
       command.addAll(GrouperInstallerUtils.splitTrimToList("org.hsqldb.Server -database.0 file:" 
           + this.untarredApiDir + File.separator + "grouper -dbname.0 grouper -port " + port , " "));
@@ -14528,4 +14577,11 @@ public class GrouperInstaller {
     return xmlParseAttributesResult;
   }
   
+  private static Set<String> revertPatchExcludes = new HashSet<String>();
+  
+  static {
+    revertPatchExcludes.add("grouper.cache.properties");
+    revertPatchExcludes.add("ehcache.xml");
+    revertPatchExcludes.add("ehcache.example.xml");
+  }
 }
