@@ -136,7 +136,8 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put("student", studentConfiguration);
     
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
-    
+    grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(studentConfiguration);
+
     studentConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
     
     grouperDeprovisioningAttributeValue.setDeprovisionString("true");

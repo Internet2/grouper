@@ -4,10 +4,13 @@
  */
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -16,7 +19,35 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperDeprovisioningAttributeValue {
 
+  /**
+   * 
+   */
+  public GrouperDeprovisioningAttributeValue() {
+    super();
+    
+  }
+
+
+  /**
+   * configuration for the attribute value
+   */
+  private GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration;
+   
+  /**
+   * @return the grouperDeprovisioningConfiguration
+   */
+  public GrouperDeprovisioningConfiguration getGrouperDeprovisioningConfiguration() {
+    return this.grouperDeprovisioningConfiguration;
+  }
   
+  /**
+   * @param grouperDeprovisioningConfiguration1 the grouperDeprovisioningConfiguration to set
+   */
+  public void setGrouperDeprovisioningConfiguration(
+      GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration1) {
+    this.grouperDeprovisioningConfiguration = grouperDeprovisioningConfiguration1;
+  }
+
   /**
    * set strings to defaults to reduce the number of assignment values we need
    */
@@ -173,6 +204,14 @@ public class GrouperDeprovisioningAttributeValue {
   }
 
   /**
+   * 
+   * @param deprovision
+   */
+  public void setDeprovision(Boolean deprovision) {
+    this.deprovisionString = deprovision == null ? null : (deprovision ? null: "false");
+  }
+  
+  /**
    * if this is set then require a group name or email list
    * note this is not persisted in the database
    */
@@ -191,9 +230,68 @@ public class GrouperDeprovisioningAttributeValue {
    * @return true if deprovision
    */
   public boolean isDeprovision() {
+
+    // default to true, deprovision if there is configuration set
     return GrouperUtil.booleanValue(this.deprovisionString, true);
   }
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this);
+    try {
+      // Bypass privilege checks.  If the group is loaded it is viewable.
+      toStringBuilder
+        .append( "deprovision", this.isDeprovision())
+        .append("directAssignment", this.isDirectAssignment());
+      
+      if (!StringUtils.isBlank(this.allowAddsWhileDeprovisionedString)) {
+        toStringBuilder.append("allowAddsWhileDeprovisioned", this.isAllowAddsWhileDeprovisioned());
+      }
+      if (!StringUtils.isBlank(this.autoChangeLoaderString)) {
+        toStringBuilder.append("autoChangeLoader", this.isAutoChangeLoader());
+      }
+      if (!StringUtils.isBlank(this.autoselectForRemovalString)) {
+        toStringBuilder.append("autoselectForRemoval", this.isAutoselectForRemoval());
+      }
+      if (!StringUtils.isBlank(this.directAssignmentString)) {
+        toStringBuilder.append("directAssignment", this.isDirectAssignment());
+      }
+      if (!StringUtils.isBlank(this.emailAddressesString)) {
+        toStringBuilder.append("emailAddresses", this.emailAddressesString);
+      }
+      if (!StringUtils.isBlank(this.emailBodyString)) {
+        toStringBuilder.append("emailBody", this.emailBodyString);
+      }
+      if (!StringUtils.isBlank(this.sendEmailString)) {
+        toStringBuilder.append("sendEmail", this.isSendEmail());
+      }
+      if (!StringUtils.isBlank(this.getEmailSubjectString())) {
+        toStringBuilder.append("emailSubjectString", this.isSendEmail());
+      }
+      if (!StringUtils.isBlank(this.getInheritedFromFolderIdString())) {
+        toStringBuilder.append("inheritedFromFolderIdString", this.getInheritedFromFolderIdString());
+      }
+      if (!StringUtils.isBlank(this.getMailToGroupString())) {
+        toStringBuilder.append("mailToGroupString", this.getMailToGroupString());
+      }
+      if (!StringUtils.isBlank(this.getShowForRemovalString())) {
+        toStringBuilder.append("showForRemovalString", this.isShowForRemoval());
+      }
+      if (!StringUtils.isBlank(this.getStemScopeString())) {
+        toStringBuilder.append("stemScope", this.getStemScope());
+      }
+        
+    } catch (Exception e) {
+      //ignore, did all we could
+    }
+    return toStringBuilder.toString();
+
+  }
+  
   /**
    * true|false, true to deprovision, false to not deprovision (default to true). 
    * Note, if this is set on a daemon job, then it will not deprovision any group 
@@ -310,6 +408,16 @@ public class GrouperDeprovisioningAttributeValue {
    */
   public String getInheritedFromFolderIdString() {
     return this.inheritedFromFolderIdString;
+  }
+
+  /**
+   * if this is a stem attribute, this is the stem
+   * @return the ownerStem
+   */
+  public Stem getInheritedFromFolder() {
+    
+    return this.inheritedFromFolderIdString == null ? null : GrouperDAOFactory.getFactory().getStem().findByUuid(this.inheritedFromFolderIdString, false);
+
   }
 
 

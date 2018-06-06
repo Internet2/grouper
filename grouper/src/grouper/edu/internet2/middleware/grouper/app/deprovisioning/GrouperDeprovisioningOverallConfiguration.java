@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -29,6 +30,31 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  */
 public class GrouperDeprovisioningOverallConfiguration {
 
+  /**
+   * 
+   */
+  public GrouperDeprovisioningOverallConfiguration() {
+    super();
+    
+  }
+
+  /**
+   * 
+   * @param affiliation
+   * @return true if has configuration for affiliation
+   */
+  public boolean hasConfigurationForAffiliation(String affiliation) {
+    
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.getAffiliationToConfiguration().get(affiliation);
+
+    if (grouperDeprovisioningConfiguration == null) {
+      return false;
+    }
+    
+    return grouperDeprovisioningConfiguration.getOriginalConfig() != null;
+
+  }
+  
   /**
    * is should show for removal
    * @return if show for removal
@@ -173,43 +199,39 @@ public class GrouperDeprovisioningOverallConfiguration {
       throw new NullPointerException("groupsOrFolders is empty");
     }
 
-    Collection<String> groupIds = new HashSet<String>();
-    Collection<String> stemIds = new HashSet<String>();
-    Collection<String> attributeDefIds = new HashSet<String>();
-
+    Map<String, GrouperObject> groupMap = new HashMap<String, GrouperObject>();
+    Map<String, GrouperObject> stemMap = new HashMap<String, GrouperObject>();
+    Map<String, GrouperObject> attributeDefMap = new HashMap<String, GrouperObject>();
 
     for (GrouperObject grouperObject : groupsOrFoldersOrAttributeDefs) {
 
-      //TODO handle attribute defs and attribute def names
-      
       if ((!(grouperObject instanceof Group)) && (!(grouperObject instanceof Stem)) && (!(grouperObject instanceof AttributeDef))) {
         throw new RuntimeException("groupOrFolder needs to be a stem or group or attribute def: " + grouperObject.getClass() + ", " + grouperObject);
       }
 
       if (grouperObject instanceof Group) {
-        groupIds.add(((Group)grouperObject).getId());
+        groupMap.put(grouperObject.getId(), grouperObject);
       }
       
       if (grouperObject instanceof Stem) {
-        stemIds.add(((Stem)grouperObject).getId());
+        stemMap.put(grouperObject.getId(), grouperObject);
       }
 
       if (grouperObject instanceof AttributeDef) {
-        attributeDefIds.add(((AttributeDef)grouperObject).getId());
+        attributeDefMap.put(grouperObject.getId(), grouperObject);
       }
 
     }
 
-    
-    
-    AttributeAssignValueFinderResult attributeAssignValueFinderResult = null;
         
 //    Set<AttributeAssign> attributeAssigns = new LinkedHashSet<AttributeAssign>();
 
     //find all parents
     //GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(this.parentUuid);
-    
-    if (GrouperUtil.length(groupIds) > 0) {
+
+    Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> result = new HashMap<GrouperObject, GrouperDeprovisioningOverallConfiguration>();
+
+    if (GrouperUtil.length(groupMap) > 0) {
 //      //get all attributes and assignments for all affiliations on a group or folder
 //      AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder().addAttributeDefNameId(
 //          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
@@ -217,13 +239,14 @@ public class GrouperDeprovisioningOverallConfiguration {
 //      attributeAssignFinder.assignOwnerGroupIds(groupIds);
 //      attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
       
-      attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupIdsOfAssignAssign(groupIds)
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerGroupIdsOfAssignAssign(groupMap.keySet())
         .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
         .assignAttributeCheckReadOnAttributeDef(false)
         .findAttributeAssignValuesResult();
-      
+      retrieveConfigurationHelper(groupMap.values(), attributeAssignValueFinderResult, result);
+
     }
-    if (GrouperUtil.length(stemIds) > 0) {
+    if (GrouperUtil.length(stemMap) > 0) {
 //      //get all attributes and assignments for all affiliations on a group or folder
 //      AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder().addAttributeDefNameId(
 //          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
@@ -231,14 +254,15 @@ public class GrouperDeprovisioningOverallConfiguration {
 //      attributeAssignFinder.assignOwnerStemIds(stemIds);
 //      attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
 
-      attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemIdsOfAssignAssign(stemIds)
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerStemIdsOfAssignAssign(stemMap.keySet())
           .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
           .assignAttributeCheckReadOnAttributeDef(false)
           .findAttributeAssignValuesResult();
+      retrieveConfigurationHelper(stemMap.values(), attributeAssignValueFinderResult, result);
 
     }
     
-    if (GrouperUtil.length(attributeDefIds) > 0) {
+    if (GrouperUtil.length(attributeDefMap) > 0) {
 //    //get all attributes and assignments for all affiliations on a group or folder
 //    AttributeAssignFinder attributeAssignFinder = new AttributeAssignFinder().addAttributeDefNameId(
 //        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
@@ -246,44 +270,25 @@ public class GrouperDeprovisioningOverallConfiguration {
 //    attributeAssignFinder.assignOwnerStemIds(stemIds);
 //    attributeAssigns.addAll(attributeAssignFinder.findAttributeAssigns());
 
-      attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerAttributeDefIdsOfAssignAssign(attributeDefIds)
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder().assignOwnerAttributeDefIdsOfAssignAssign(attributeDefMap.keySet())
         .addAttributeDefNameId(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getId())
         .assignAttributeCheckReadOnAttributeDef(false)
         .findAttributeAssignValuesResult();
+      retrieveConfigurationHelper(attributeDefMap.values(), attributeAssignValueFinderResult, result);
 
+    }
+
+    return result;
   }
-    
-    
-    // add all parent stems
-    
-    
-//    Map<String, Set<AttributeAssign>> ownerIdToAttributeAssigns = new HashMap<String, Set<AttributeAssign>>();
-//
-//    // catalog the attribute assigns by their owner (stem, group, or attributeassign)
-//    for (AttributeAssign attributeAssign : attributeAssigns) {
-//      
-//      String ownerSingleId = attributeAssign.getOwnerSingleId();
-//      Set<AttributeAssign> attributeAssignsForThisOwner = ownerIdToAttributeAssigns.get(ownerSingleId);
-//      if (attributeAssignsForThisOwner == null) {
-//        attributeAssignsForThisOwner = new HashSet<AttributeAssign>();
-//        ownerIdToAttributeAssigns.put(ownerSingleId, attributeAssignsForThisOwner);
-//      }
-//      attributeAssignsForThisOwner.add(attributeAssign);
-//    }
-//
-//    // get all values
-//    Collection<String> attributeAssignIds = new HashSet<String>();
-//    
-//    for (AttributeAssign attributeAssign : attributeAssigns) {
-//      attributeAssignIds.add(attributeAssign.getId());
-//    }    
-//    
-//    // get all values
-//    AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
-//        .assignAttributeAssignIds(attributeAssignIds).assignOwnerGroupIdsOfAssignAssign(null).findAttributeAssignValuesResult();
-    
-    Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> result = new HashMap<GrouperObject, GrouperDeprovisioningOverallConfiguration>();
 
+  /**
+   * @param groupsOrFoldersOrAttributeDefs
+   * @param attributeAssignValueFinderResult
+   * @param result
+   */
+  private static void retrieveConfigurationHelper(Collection<GrouperObject> groupsOrFoldersOrAttributeDefs,
+      AttributeAssignValueFinderResult attributeAssignValueFinderResult,
+      Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> result) {
     for (GrouperObject groupOrFolderOrAttributeDef : groupsOrFoldersOrAttributeDefs) {
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration 
         = new GrouperDeprovisioningOverallConfiguration();
@@ -365,7 +370,9 @@ public class GrouperDeprovisioningOverallConfiguration {
         }
 
         GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+        grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
         GrouperDeprovisioningAttributeValue newGrouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+        newGrouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
         
         grouperDeprovisioningConfiguration.setOriginalConfig(grouperDeprovisioningAttributeValue);
         grouperDeprovisioningConfiguration.setNewConfig(newGrouperDeprovisioningAttributeValue);
@@ -374,11 +381,11 @@ public class GrouperDeprovisioningOverallConfiguration {
             nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAllowAddsWhileDeprovisioned().getName()));
         //start with same value
         newGrouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
-        
+
         grouperDeprovisioningAttributeValue.setAutoChangeLoaderString(
             nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoChangeLoader().getName()));
         newGrouperDeprovisioningAttributeValue.setAutoChangeLoaderString(grouperDeprovisioningAttributeValue.getAutoChangeLoaderString());
-  
+
         grouperDeprovisioningAttributeValue.setAutoselectForRemovalString(
             nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoSelectForRemoval().getName()));
         newGrouperDeprovisioningAttributeValue.setAutoselectForRemovalString(grouperDeprovisioningAttributeValue.getAutoselectForRemovalString());
@@ -428,8 +435,29 @@ public class GrouperDeprovisioningOverallConfiguration {
         newGrouperDeprovisioningAttributeValue.setStemScopeString(grouperDeprovisioningAttributeValue.getStemScopeString());
   
       }
+      
+      //see if any were not set
+      for (String affiliationLabel : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+        if (grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliationLabel) == null) {
+          //if there is no configuration, set one anyways
+          GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration  = new GrouperDeprovisioningConfiguration();
+          grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
+          
+          GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+          grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
+          grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+          grouperDeprovisioningAttributeValue.setAffiliationString(affiliationLabel);
+          //by default do not deprovision (if not specified)
+          grouperDeprovisioningAttributeValue.setDeprovision(false);
+
+          grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put(affiliationLabel, grouperDeprovisioningConfiguration);
+        }
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("overall config: " + grouperDeprovisioningOverallConfiguration);
+      }
     }
-    return result;
   }
 
   /**
@@ -483,6 +511,29 @@ public class GrouperDeprovisioningOverallConfiguration {
     return true;
   }
 
- 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this);
+    try {
+      // Bypass privilege checks.  If the group is loaded it is viewable.
+      toStringBuilder
+        .append( "originalOwner", this.originalOwner == null ? "null" : this.originalOwner.getName());
+      
+      for (String affiliation: GrouperUtil.nonNull(this.affiliationToConfiguration).keySet()) {
+        toStringBuilder
+        .append( "affiliation_" + affiliation, this.affiliationToConfiguration.get(affiliation));
+        
+      }
+    } catch (Exception e) {
+      //ignore, did all we could
+    }
+    return toStringBuilder.toString();
+
+  }
+
   
 }

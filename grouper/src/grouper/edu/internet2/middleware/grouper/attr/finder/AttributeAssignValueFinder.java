@@ -402,18 +402,22 @@ public class AttributeAssignValueFinder {
         result.attributeAssignsOnAssignsIds.add(attributeAssign.getId());
       } else {
         
-        //single assign map
         result.attributeAssigns.add(attributeAssign);
-        String ownerId = attributeAssign.getOwnerSingleId();
-        result.mapOwnerIdToAttributeAssign.put(ownerId, attributeAssign);
 
-        // multi assign map
-        Set<AttributeAssign> attributeAssigns = result.mapOwnerIdToAttributeAssigns.get(attributeAssign.getOwnerGroupId());
-        if (attributeAssigns == null) {
-          attributeAssigns = new HashSet<AttributeAssign>();
-          result.mapOwnerIdToAttributeAssigns.put(ownerId, attributeAssigns);
+        if (attributeAssign.isHasSingleId()) {
+          //single assign map
+          String ownerId = attributeAssign.getOwnerSingleId();
+          result.mapOwnerIdToAttributeAssign.put(ownerId, attributeAssign);
+        
+          // multi assign map
+          Set<AttributeAssign> attributeAssigns = result.mapOwnerIdToAttributeAssigns.get(attributeAssign.getOwnerSingleId());
+          if (attributeAssigns == null) {
+            attributeAssigns = new HashSet<AttributeAssign>();
+            result.mapOwnerIdToAttributeAssigns.put(ownerId, attributeAssigns);
+          }
+          attributeAssigns.add(attributeAssign);
         }
-        attributeAssigns.add(attributeAssign);
+        
       }
     }
     
