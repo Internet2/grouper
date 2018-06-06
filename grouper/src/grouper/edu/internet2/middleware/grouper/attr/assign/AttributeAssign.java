@@ -2347,6 +2347,32 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
   
   /**
+   * if there is a single id
+   * @return true if has a single id
+   */
+  public boolean isHasSingleId() {
+    AttributeAssignType ownerType = this.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      return true;
+    } else if (AttributeAssignType.stem == ownerType) {
+      return true;
+    } else if (AttributeAssignType.member == ownerType) {
+      return true;
+    } else if (AttributeAssignType.attr_def == ownerType) {
+      return true;
+    } else if (AttributeAssignType.any_mem == ownerType) {
+      return false;
+    } else if (AttributeAssignType.imm_mem == ownerType) {
+      return true;
+    } else if (this.getOwnerAttributeAssignId() != null) {
+      return true;
+    } else {
+      throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    
+  }
+  
+  /**
    * e.g. if enabled or disabled is switching, delete this attribute assignment (and child objects)
    * and recommit it (which will not have the child objects or will have this time)
    */

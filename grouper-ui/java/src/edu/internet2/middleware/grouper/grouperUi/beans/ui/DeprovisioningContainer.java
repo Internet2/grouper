@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -24,6 +26,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDeprovisioningMem
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.deprovisioning.GuiGrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -36,11 +39,41 @@ import edu.internet2.middleware.subject.Subject;
 public class DeprovisioningContainer {
 
   /**
+   * group to email to if applicable
+   */
+  private GuiGroup grouperDeprovisioningEmailGuiGroup;
+  
+  /**
+   * group to email to if applicable
+   * @return the grouperDeprovisioningEmailGuiGroup
+   */
+  public GuiGroup getGrouperDeprovisioningEmailGuiGroup() {
+    return this.grouperDeprovisioningEmailGuiGroup;
+  }
+  
+  /**
+   * group to email to if applicable
+   * @param grouperDeprovisioningEmailGuiGroup1 the grouperDeprovisioningEmailGuiGroup to set
+   */
+  public void setGrouperDeprovisioningEmailGuiGroup(GuiGroup grouperDeprovisioningEmailGuiGroup1) {
+    this.grouperDeprovisioningEmailGuiGroup = grouperDeprovisioningEmailGuiGroup1;
+  }
+
+  /**
+   * 
+   * @return the gui value
+   */
+  public GuiGrouperDeprovisioningAttributeValue getGuiGrouperDeprovisioningAttributeValueNew() {
+    return new GuiGrouperDeprovisioningAttributeValue(this.getGrouperDeprovisioningAttributeValueNew());
+  }
+  
+  /**
    * get the new deprovisioning settings
    * @return the new configuration 
    */
   public GrouperDeprovisioningAttributeValue getGrouperDeprovisioningAttributeValueNew() {
-    if (StringUtils.isBlank(this.affiliation)) {
+    
+    if (StringUtils.isBlank(this.getAffiliation())) {
       return null;
     }
     this.grouperDeprovisioningOverallConfiguration = this.getGrouperDeprovisioningOverallConfiguration();
@@ -53,19 +86,40 @@ public class DeprovisioningContainer {
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
     
     // if theres no configuration, or if the configuration is inherited, then clear it out
-    if (grouperDeprovisioningAttributeValue == null || !grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+    if (grouperDeprovisioningAttributeValue == null) {
       grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
       grouperDeprovisioningAttributeValue.setAffiliationString(this.affiliation);
+      grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
       grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
     }
     
-    //set some defaults
-//    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getDeprovisionString())) {
-//      grouperDeprovisioningAttributeValue.setDeprovisionString("true");
-//    }
-    
     return grouperDeprovisioningAttributeValue;
   }
+  
+//  /**
+//   * get the new deprovisioning settings
+//   * @return the new configuration 
+//   */
+//  public GrouperDeprovisioningAttributeValue getGrouperDeprovisioningAttributeValueNewForEdit() {
+//    
+//    if (StringUtils.isBlank(this.getAffiliation())) {
+//      return null;
+//    }
+//
+//    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(this.affiliation);
+//
+//    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = this.getGrouperDeprovisioningAttributeValueNew();
+//    
+//    // if theres no configuration, or if the configuration is inherited, then clear it out
+//    if (grouperDeprovisioningAttributeValue == null || !grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+//      grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+//      grouperDeprovisioningAttributeValue.setAffiliationString(this.affiliation);
+//      grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+//      grouperDeprovisioningAttributeValue.setDeprovision(true);
+//    }
+//    
+//    return grouperDeprovisioningAttributeValue;
+//  }
   
   /**
    * get the grouper deprovisioning attribute values for all affiliations
@@ -108,7 +162,7 @@ public class DeprovisioningContainer {
       return false;
     }
     for (GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration : this.grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().values()) {
-      if (!StringUtils.isBlank(grouperDeprovisioningConfiguration.getOriginalConfig().getAffiliationString())) {
+      if (grouperDeprovisioningConfiguration.getOriginalConfig() != null && !StringUtils.isBlank(grouperDeprovisioningConfiguration.getOriginalConfig().getAffiliationString())) {
         return true;
       }
     }
@@ -422,6 +476,15 @@ public class DeprovisioningContainer {
    * @return affil
    */
   public String getAffiliation() {
+    
+    // if we are in a loop on the screen, then make sure this has the right affiliation
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    if (httpServletRequest != null) {
+      GuiDeprovisioningAffiliation guiDeprovisioningAffiliation = (GuiDeprovisioningAffiliation)httpServletRequest.getAttribute("guiDeprovisioningAffiliationFromJsp");
+      if (guiDeprovisioningAffiliation != null) {
+        this.affiliation = guiDeprovisioningAffiliation.getLabel();
+      }
+    }
     return this.affiliation;
   }
 

@@ -61,7 +61,8 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
     grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
-
+    grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
+    
     grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString("true");
     grouperDeprovisioningAttributeValue.setAutoChangeLoaderString("false");
     grouperDeprovisioningAttributeValue.setAutoselectForRemovalString("false");

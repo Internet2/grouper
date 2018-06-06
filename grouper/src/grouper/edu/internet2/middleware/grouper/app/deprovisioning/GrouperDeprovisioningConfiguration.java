@@ -1,5 +1,10 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -159,6 +164,7 @@ public class GrouperDeprovisioningConfiguration {
 
     if (originalConfig == null) {
       originalConfig = new GrouperDeprovisioningAttributeValue();
+      originalConfig.setGrouperDeprovisioningConfiguration(this);
       this.setOriginalConfig(originalConfig);
     }
     
@@ -254,6 +260,49 @@ public class GrouperDeprovisioningConfiguration {
     originalConfig.setStemScopeString(newConfig.getStemScopeString());
 
     return changeCount[0];
+  }
+
+  /**
+   * 
+   * @return true if has configuration (direct or inherited) in the database
+   */
+  public boolean isHasDatabaseConfiguration() {
+    return this.originalConfig != null;
+  }
+  
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this);
+    try {
+      // Bypass privilege checks.  If the group is loaded it is viewable.
+      toStringBuilder
+        .append( "hasDatabaseConfiguration", this.isHasDatabaseConfiguration());
+      
+      if (this.inheritedOwner != null) {
+        toStringBuilder.append("inheritedOwner", this.inheritedOwner.getName());
+      }
+      if (this.inheritedConfig != null) {
+        toStringBuilder.append("inheritedConfig", "exists");
+      }
+      if (this.attributeAssignBase != null) {
+        toStringBuilder.append("attributeAssignBase", this.attributeAssignBase.getId());
+      }
+      if (this.originalConfig != null) {
+        toStringBuilder.append("originalConfig", this.originalConfig);
+      }
+      if (this.newConfig != null) {
+        toStringBuilder.append("newConfig", this.newConfig);
+      }
+        
+    } catch (Exception e) {
+      //ignore, did all we could
+    }
+    return toStringBuilder.toString();
+
   }
 
   /**

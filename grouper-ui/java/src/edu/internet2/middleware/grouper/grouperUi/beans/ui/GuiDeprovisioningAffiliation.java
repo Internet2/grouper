@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 
-public class GuiDeprovisioningAffiliation {
+public class GuiDeprovisioningAffiliation implements Comparable<GuiDeprovisioningAffiliation> {
   
   private String label;
   
@@ -46,7 +48,7 @@ public class GuiDeprovisioningAffiliation {
   
   public static Set<GuiDeprovisioningAffiliation> convertFromGrouperDeprovisioningAffiliations(Collection<GrouperDeprovisioningAffiliation> affiliations) {
    
-    Set<GuiDeprovisioningAffiliation> guiAffiliations = new HashSet<GuiDeprovisioningAffiliation>();
+    Set<GuiDeprovisioningAffiliation> guiAffiliations = new TreeSet<GuiDeprovisioningAffiliation>();
     if (affiliations == null || affiliations.size() == 0) {
       return guiAffiliations;
     }
@@ -66,6 +68,16 @@ public class GuiDeprovisioningAffiliation {
     } else {
       return affiliationLabel;
     }
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(GuiDeprovisioningAffiliation other) {
+    if (other == null) {
+      return 1;
+    }
+    return new CompareToBuilder().append(this.label, other.label).toComparison();
   }
 
 }
