@@ -108,6 +108,14 @@ public class GrouperDeprovisioningAttributeValue {
   }
   
   /**
+   * 
+   * @param allowAddsWhileDeprovisioned true if show for removal
+   */
+  public void setAllowAddsWhileDeprovisioned(Boolean allowAddsWhileDeprovisioned) {
+    this.allowAddsWhileDeprovisionedString = (allowAddsWhileDeprovisioned == null || !allowAddsWhileDeprovisioned) ? null : "true";
+  }
+
+  /**
    * If allows adds to group of people who are deprovisioned
    * can be: blank, true, or false.  If blank, then will not allow adds unless auto change loader is false
    * @param allowAddsWhileDeprovisionedString1 the allowAddsWhileDeprovisionedString to set
@@ -133,6 +141,18 @@ public class GrouperDeprovisioningAttributeValue {
     return GrouperUtil.booleanValue(this.autoChangeLoaderString, defaultAutoChangeLoader);
     
   }
+  
+  /**
+   * 
+   * @param autochangeLoader true if autochange loader
+   */
+  public void setAutoChangeLoader(Boolean autochangeLoader) {
+
+    boolean defaultAutoChangeLoader = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autoChangeLoader", true);
+    
+    this.autoChangeLoaderString = (autochangeLoader == null || autochangeLoader == defaultAutoChangeLoader) ? null : Boolean.toString(autochangeLoader);
+  }
+
   
   /**
    * If this is a loader job, if being in a deprovisioned group means the user should not be in the loaded group.
@@ -174,6 +194,7 @@ public class GrouperDeprovisioningAttributeValue {
   public boolean isAutoselectForRemoval() {
     return GrouperUtil.booleanValue(this.autoselectForRemovalString, true);
   }
+  
   
   /**
    * If the deprovisioning screen should autoselect this object as an object to deprovision
@@ -524,6 +545,22 @@ public class GrouperDeprovisioningAttributeValue {
     return GrouperUtil.booleanValue(this.showForRemovalString, true);
   }
   
+  /**
+   * 
+   * @param showForRemoval true if show for removal
+   */
+  public void setShowForRemoval(Boolean showForRemoval) {
+    this.showForRemovalString = (showForRemoval == null || showForRemoval) ? null : "false";
+  }
+  
+  /**
+   * 
+   * @param autoselectForRemoval true if show for removal
+   */
+  public void setAutoselectForRemoval(Boolean autoselectForRemoval) {
+    this.autoselectForRemovalString = (autoselectForRemoval == null || autoselectForRemoval) ? null : "false";
+  }
+
   /**
    * @return the sendEmailString
    */

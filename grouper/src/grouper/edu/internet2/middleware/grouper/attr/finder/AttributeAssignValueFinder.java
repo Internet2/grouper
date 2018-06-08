@@ -501,23 +501,24 @@ public class AttributeAssignValueFinder {
       
       AttributeAssign attributeAssign = result.mapOwnerIdToAttributeAssign.get(ownerId);
       
-      Set<String> attributeAssignAssignIds = result.mapAttributeAssignIdToAssignAssignIds.get(attributeAssign.getId());
-      
-      for (String attributeAssignAssignId : GrouperUtil.nonNull(attributeAssignAssignIds)) {
-        AttributeAssign attributeAssignOnAssign = result.mapAttributeAssignIdToAttributeAssign.get(attributeAssignAssignId);
-            
-        AttributeDefName attributeDefName = result.mapAttributeDefNameIdToAttributeDefName.get(attributeAssignOnAssign.getAttributeDefNameId());
-
-        MultiKey multiKey = new MultiKey(ownerId, attributeDefName.getName());
+      if (attributeAssign != null) {
+        Set<String> attributeAssignAssignIds = result.mapAttributeAssignIdToAssignAssignIds.get(attributeAssign.getId());
         
-        if (result.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.get(multiKey) != null) {
-          throw new RuntimeException("Why does ownerId and attributeDefName already exist? " + ownerId + ", " + attributeDefName.getName());
+        for (String attributeAssignAssignId : GrouperUtil.nonNull(attributeAssignAssignIds)) {
+          AttributeAssign attributeAssignOnAssign = result.mapAttributeAssignIdToAttributeAssign.get(attributeAssignAssignId);
+              
+          AttributeDefName attributeDefName = result.mapAttributeDefNameIdToAttributeDefName.get(attributeAssignOnAssign.getAttributeDefNameId());
+  
+          MultiKey multiKey = new MultiKey(ownerId, attributeDefName.getName());
+          
+          if (result.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.get(multiKey) != null) {
+            throw new RuntimeException("Why does ownerId and attributeDefName already exist? " + ownerId + ", " + attributeDefName.getName());
+          }
+          
+          result.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.put(multiKey, attributeAssignOnAssign);
+          
         }
-        
-        result.mapOwnerIdAndNameOfAttributeDefNameToAttributeAssignOnAssign.put(multiKey, attributeAssignOnAssign);
-        
-      }
-      
+      }      
     }
     
     return result;

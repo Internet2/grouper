@@ -1,8 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -84,7 +84,7 @@ public class UiV2GroupAttributeAssignment {
     
     Set<AttributeAssign> attributeAssigns = group.getAttributeDelegate().getAttributeAssigns();
     
-    Set<GuiAttributeAssign> guiAttributeAssigns = new HashSet<GuiAttributeAssign>();
+    Set<GuiAttributeAssign> guiAttributeAssigns = new TreeSet<GuiAttributeAssign>();
     
     for (AttributeAssign attributeAssign : attributeAssigns) {
       

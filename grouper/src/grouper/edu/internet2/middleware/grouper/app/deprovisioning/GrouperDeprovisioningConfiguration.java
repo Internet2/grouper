@@ -323,7 +323,10 @@ public class GrouperDeprovisioningConfiguration {
     changeCount[0]++;
     if (newValue == null) {
       if (this.getAttributeAssignBase() != null) {
-        this.getAttributeAssignBase().getAttributeValueDelegate().deleteValue(attributeDefName.getName(), originalValue);
+
+        // remove attribute and value
+        this.getAttributeAssignBase().getAttributeDelegate().removeAttribute(attributeDefName);
+        
       }
     } else {
       

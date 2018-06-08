@@ -17,8 +17,11 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.stem.StemSet;
@@ -80,9 +83,11 @@ public class GrouperDeprovisioningOverallConfiguration {
   public static Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> retrieveConfigurationForStem(Stem stem, boolean includeStemConfigs) {
 
     Set<Group> childGroups = stem.getChildGroups(Scope.SUB);
+    Set<AttributeDef> childAttributeDefs = new AttributeDefFinder().assignParentStemId(stem.getId()).assignStemScope(Scope.SUB).findAttributes();
 
     Set<GrouperObject> grouperObjects = new HashSet<GrouperObject>();
     grouperObjects.addAll(childGroups);
+    grouperObjects.addAll(childAttributeDefs);
 
     if (includeStemConfigs) {
       // get all stems below and above this one
@@ -111,12 +116,6 @@ public class GrouperDeprovisioningOverallConfiguration {
       
       OUTER: for (GrouperObject grouperObject : grouperDeprovisioningOverallConfigurationMap.keySet()) {
         
-        if (!(grouperObject instanceof Group)) {
-          continue;
-        }
-        
-        Group group = (Group)grouperObject;
-        
         GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);
         
         for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
@@ -125,7 +124,8 @@ public class GrouperDeprovisioningOverallConfiguration {
           
           if (grouperDeprovisioningConfiguration != null) {
             // if direct then we dont need the parent stem
-            if (grouperDeprovisioningConfiguration.getOriginalConfig().isDirectAssignment()) {
+            GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
+            if (originalConfig != null && originalConfig.isDirectAssignment()) {
               continue;
             }
           }
@@ -133,8 +133,11 @@ public class GrouperDeprovisioningOverallConfiguration {
           // not direct, see what the parent stem is
           // note we have the assign id of the parent, but it might not be right, so look it up
           boolean isDirectParent = true;
-          Stem parent = group.getParentStem();
-          while (true) {
+          Stem parent = null;
+          if ((!(grouperObject instanceof Stem)) || (!((Stem)grouperObject).isRootStem() )) {
+            parent = grouperObject.getParentStem();
+          } 
+          while (true && parent != null) {
 
             GrouperDeprovisioningOverallConfiguration stemOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(parent);
 
@@ -144,7 +147,8 @@ public class GrouperDeprovisioningOverallConfiguration {
 
               if (stemDeprovisioningConfiguration != null) {
 
-                if (stemDeprovisioningConfiguration.getOriginalConfig().isDirectAssignment()) {
+                GrouperDeprovisioningAttributeValue originalConfig = stemDeprovisioningConfiguration.getOriginalConfig();
+                if (originalConfig != null && originalConfig.isDirectAssignment()) {
 
                   // make sure the stem scope is correct
                   if (isDirectParent || stemDeprovisioningConfiguration.getOriginalConfig().getStemScope() == Scope.SUB) {
@@ -210,15 +214,15 @@ public class GrouperDeprovisioningOverallConfiguration {
       }
 
       if (grouperObject instanceof Group) {
-        groupMap.put(grouperObject.getId(), grouperObject);
+        groupMap.put(((Group)grouperObject).getId(), grouperObject);
       }
       
       if (grouperObject instanceof Stem) {
-        stemMap.put(grouperObject.getId(), grouperObject);
+        stemMap.put(((Stem)grouperObject).getId(), grouperObject);
       }
 
       if (grouperObject instanceof AttributeDef) {
-        attributeDefMap.put(grouperObject.getId(), grouperObject);
+        attributeDefMap.put(((AttributeDef)grouperObject).getId(), grouperObject);
       }
 
     }

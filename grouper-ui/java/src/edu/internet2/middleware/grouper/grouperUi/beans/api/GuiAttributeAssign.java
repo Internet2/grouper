@@ -18,10 +18,11 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -42,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 @SuppressWarnings("serial")
-public class GuiAttributeAssign implements Serializable {
+public class GuiAttributeAssign implements Serializable, Comparable<GuiAttributeAssign> {
   
   /**
    * 
@@ -103,7 +105,7 @@ public class GuiAttributeAssign implements Serializable {
     Set<AttributeAssign> attributeAssigns = this.attributeAssign == null ? null 
         : this.attributeAssign.getAttributeDelegate().retrieveAssignments();
     
-    Set<GuiAttributeAssign> guiAttributeAssigns = new LinkedHashSet<GuiAttributeAssign>();
+    Set<GuiAttributeAssign> guiAttributeAssigns = new TreeSet<GuiAttributeAssign>();
     
     for (AttributeAssign theAttributeAssign : GrouperUtil.nonNull(attributeAssigns)) {
       GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
@@ -351,6 +353,20 @@ public class GuiAttributeAssign implements Serializable {
   
   public void setCanUpdateAttributeDefName(boolean canUpdateAttributeDefName) {
     this.canUpdateAttributeDefName = canUpdateAttributeDefName;
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(GuiAttributeAssign other) {
+    
+    AttributeDefName localAttributeDefName = this.attributeAssign == null ? null : this.attributeAssign.getAttributeDefName();
+    String nameOfLocalAttributeDefName = localAttributeDefName == null ? null : localAttributeDefName.getName();
+    
+    AttributeDefName otherAttributeDefName = other.attributeAssign == null ? null : other.attributeAssign.getAttributeDefName();
+    String nameOfOtherAttributeDefName = otherAttributeDefName == null ? null : otherAttributeDefName.getName();
+    
+    return new CompareToBuilder().append(nameOfLocalAttributeDefName, nameOfOtherAttributeDefName).toComparison();
   }
   
 }
