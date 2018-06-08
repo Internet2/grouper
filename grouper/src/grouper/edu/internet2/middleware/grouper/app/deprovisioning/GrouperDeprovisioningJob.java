@@ -116,63 +116,6 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
   }
 
   /**
-   * go through groups and folders marked with deprovisioning metadata and make sure its up to date with inheritance
-   * @param stem 
-   */
-  public static void updateDeprovisioningMetadata(Stem stem) {
-
-    Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> grouperDeprovisioningOverallConfigurationMap 
-      = GrouperDeprovisioningOverallConfiguration.retrieveConfigurationForStem(stem, true);
-
-    for (GrouperObject grouperObject: grouperDeprovisioningOverallConfigurationMap.keySet()) {
-
-      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);
-
-      for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
-        
-        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
-
-        // we good
-        if (grouperDeprovisioningConfiguration.getOriginalConfig().isDirectAssignment()) {
-          continue;
-        }
-        
-        GrouperDeprovisioningConfiguration inheritedConfiguration = grouperDeprovisioningConfiguration.getInheritedConfig();
-
-        if (inheritedConfiguration != null) {
-
-          GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-          GrouperDeprovisioningAttributeValue inheritedAttributeValue = inheritedConfiguration.getOriginalConfig();
-
-          grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString(inheritedAttributeValue.getAllowAddsWhileDeprovisionedString());
-          grouperDeprovisioningAttributeValue.setAutoChangeLoaderString(inheritedAttributeValue.getAutoChangeLoaderString());
-          grouperDeprovisioningAttributeValue.setAutoselectForRemovalString(inheritedAttributeValue.getAutoselectForRemovalString());
-          grouperDeprovisioningAttributeValue.setDeprovisionString(inheritedAttributeValue.getDeprovisionString());
-          grouperDeprovisioningAttributeValue.setDirectAssignmentString(inheritedAttributeValue.getDirectAssignmentString());
-          grouperDeprovisioningAttributeValue.setEmailAddressesString(inheritedAttributeValue.getEmailAddressesString());
-          grouperDeprovisioningAttributeValue.setEmailBodyString(inheritedAttributeValue.getEmailBodyString());
-          grouperDeprovisioningAttributeValue.setEmailSubjectString(inheritedAttributeValue.getEmailSubjectString());
-          grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString(inheritedAttributeValue.getInheritedFromFolderIdString());
-          grouperDeprovisioningAttributeValue.setMailToGroupString(inheritedAttributeValue.getMailToGroupString());
-          grouperDeprovisioningAttributeValue.setAffiliationString(inheritedAttributeValue.getAffiliationString());
-          grouperDeprovisioningAttributeValue.setSendEmailString(inheritedAttributeValue.getSendEmailString());
-          grouperDeprovisioningAttributeValue.setShowForRemovalString(inheritedAttributeValue.getShowForRemovalString());
-          grouperDeprovisioningAttributeValue.setStemScopeString(inheritedAttributeValue.getStemScopeString());
-          grouperDeprovisioningConfiguration.storeConfiguration();
-          
-        } else {
-
-          // there is no local config or inherited config, delete it all
-          grouperDeprovisioningConfiguration.setNewConfig(null);
-          grouperDeprovisioningConfiguration.storeConfiguration();
-        }
-        
-      }
-    }
-    
-  }
-  
-  /**
    * get map of email addresses to email objects for stem attributes 
    * @param attributeDef
    * @return

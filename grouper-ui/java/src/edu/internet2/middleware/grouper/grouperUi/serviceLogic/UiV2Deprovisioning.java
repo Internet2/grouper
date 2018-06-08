@@ -13,51 +13,56 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDeprovisioningMembershipSubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttestationContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.provider.SourceManager;
-//github.com/Internet2/grouper.git
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDeprovisioningMembershipSubjectContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
-import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContainer;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
 
 /**
  * 
@@ -102,6 +107,81 @@ public class UiV2Deprovisioning {
     
     return true;
   }
+  /**
+   * @param request
+   * @param FINISHED
+   * @param deprovisioningContainer
+   * @param guiScreenActions
+   * @param hasError
+   * @return
+   */
+  private boolean deprovisioningOnObjectEditSaveHelper(final HttpServletRequest request,
+      final boolean[] FINISHED, final DeprovisioningContainer deprovisioningContainer,
+      List<GuiScreenAction> guiScreenActions, boolean hasError, final GrouperObject grouperObject) {
+    String affiliation = request.getParameter("grouperDeprovisioningHasAffiliationName");
+    deprovisioningContainer.setAffiliation(affiliation);
+    if (StringUtils.isBlank(affiliation)) {
+      guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperDeprovisioningHasAffiliationId",
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningAffiliationRequired")));
+      hasError = true;
+    }
+    
+    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = deprovisioningContainer.getGrouperDeprovisioningAttributeValueNew();
+    
+    if (!hasError) {
+
+      GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().getAffiliationToConfiguration().get(affiliation);
+
+      // remove assignment
+      if (!grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+        grouperDeprovisioningConfiguration.setNewConfig(null);
+      }
+      
+      grouperDeprovisioningConfiguration.storeConfiguration();
+
+      if (!grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+        //update for this object since now potentially inherited
+        GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(grouperObject);
+      }
+
+      if (grouperObject instanceof Stem) {
+        final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+        Thread thread = new Thread(new Runnable() {
+  
+          public void run() {
+  
+            try {
+              GrouperSession.startRootSession();
+  
+              //since this is a folder, we need to update things for this object
+              GrouperDeprovisioningLogic.updateDeprovisioningMetadata((Stem)grouperObject);
+  
+              FINISHED[0] = true;
+            } catch (RuntimeException re) {
+              //log incase thread didnt finish when screen was drawing
+              LOG.error("Error updating deprovisioning stem parts", re);
+              RUNTIME_EXCEPTION[0] = re;
+            }
+            
+          }
+          
+        });
+  
+        thread.start();
+        
+        try {
+          thread.join(30000);
+        } catch (InterruptedException ie) {
+          throw new RuntimeException(ie);
+        }
+  
+        if (RUNTIME_EXCEPTION[0] != null) {
+          throw RUNTIME_EXCEPTION[0];
+        }
+      }
+    }
+    return hasError;
+  }
 
   /**
    * 
@@ -115,7 +195,9 @@ public class UiV2Deprovisioning {
     GrouperSession grouperSession = null;
   
     Stem stem = null;
-    
+
+    final boolean[] FINISHED = new boolean[]{false};
+
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -125,15 +207,38 @@ public class UiV2Deprovisioning {
       if (stem == null) {
         return;
       }
-  
-      if (!deprovisionOnFolderEditHelper(request, response)) {
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return false;
+          }
+          
+          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningFolder")));
+            return false;
+          }
+
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
         return;
       }
-
-      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
+  
+      if (!deprovisionOnObjectEditHelper(request, response, true, stem)) {
+        return;
+      }
       final Stem STEM = stem;
-
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -143,29 +248,20 @@ public class UiV2Deprovisioning {
           List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
           boolean hasError = false;
           
-          DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer
-              .retrieveFromRequestOrCreate().getDeprovisioningContainer();
-          
-          AttributeAssignable attributeAssignable = STEM;
-          
-          String affiliation = request.getParameter("grouperDeprovisioningHasAffiliationName");
-          deprovisioningContainer.setAffiliation(affiliation);
-          if (StringUtils.isBlank(affiliation)) {
-            guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperDeprovisioningHasAffiliationId",
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningAffiliationRequired")));
-            hasError = true;
-          } else {
-            GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = deprovisioningContainer.getGrouperDeprovisioningAttributeValueNew();
-          }
+          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, FINISHED, deprovisioningContainer, guiScreenActions, hasError, STEM);
           
           if (!hasError) {
-
-            deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().getAffiliationToConfiguration().get(affiliation).storeConfiguration();
-            
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolder&stemId=" + STEM.getId() + "')"));
 
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccess")));
+            if (!FINISHED[0]) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                  TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccessNotFinished")));
+
+            } else {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                  TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccess")));
+
+            }
 
           } else {
             
@@ -182,60 +278,95 @@ public class UiV2Deprovisioning {
           return null;
         }
       });
-      
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
 
-    
+
   }
+
 
 
   /**
    * process inputs on a save or on ajax
    * @param request 
    * @param response 
+   * @param onSubmit 
+   * @param attributeAssignable
    * @return true if proceed to page, false to just return an error message
    */
-  private boolean deprovisionOnFolderEditHelper(final HttpServletRequest request, final HttpServletResponse response) {
+  private boolean deprovisionOnObjectEditHelper(final HttpServletRequest request, final HttpServletResponse response, final boolean onSubmit, 
+      final AttributeAssignable attributeAssignable) {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
-    Stem stem = null;
-  
     try {
   
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
-      
-      if (stem == null) {
-        return false;
-      }
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      final Stem STEM = stem;
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer
+          .retrieveFromRequestOrCreate().getDeprovisioningContainer();
 
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          setupDeprovisioningConfiguration(attributeAssignable);
+          
+          String affiliation = request.getParameter("grouperDeprovisioningHasAffiliationName");
+          deprovisioningContainer.setAffiliation(affiliation);
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return false;
+      }
+
+      boolean switchedAffiliation = false;
+      {
+        String previousAffiliation = request.getParameter("grouperDeprovisioningPreviousAffiliationName");
+        String affiliation = request.getParameter("grouperDeprovisioningHasAffiliationName");
+        if (!StringUtils.isBlank(previousAffiliation)) {
+          switchedAffiliation = !StringUtils.equals(affiliation, previousAffiliation);
+        }
+      }      
+      final boolean SWITCHED_AFFILIATION = switchedAffiliation;
+      
       String groupIdToEmail = null;
       String groupNameToEmail = null;
       Group groupToEmail = null;
       
       {
-        String groupIdOrName = request.getParameter("grouperDeprovisioningEmailGroupIdMembersName");
+        String groupIdOrName = SWITCHED_AFFILIATION ? null : request.getParameter("grouperDeprovisioningEmailGroupIdMembersName");
+        if (groupIdOrName == null) {
+          
+          if (!StringUtils.isBlank(deprovisioningContainer.getAffiliation())) {
+
+            groupIdOrName = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer()
+                .getGrouperDeprovisioningAttributeValueNew().getMailToGroupString();
+          }
+        }
         if (!StringUtils.isBlank(groupIdOrName)) {
           
           //lets see if user can find the group, and can READ it
           groupToEmail = new GroupFinder().addGroupId(groupIdOrName).assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroup();
           
           if (groupToEmail == null) {
-            groupToEmail = new GroupFinder().addGroupId(groupIdOrName).assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroup();
+            groupToEmail = new GroupFinder().addGroupName(groupIdOrName).assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroup();
           }
           if (groupToEmail != null) {
             groupIdToEmail = groupToEmail.getId();
             groupNameToEmail = groupToEmail.getName();
+            deprovisioningContainer.setGrouperDeprovisioningEmailGuiGroup(new GuiGroup(groupToEmail));
+
           }
         }
       }
-      
+
       final Group GROUP_TO_EMAIL = groupToEmail;
       final String GROUP_ID_TO_EMAIL = groupIdToEmail;
       final String GROUP_NAME_TO_EMAIL = groupNameToEmail;
@@ -246,28 +377,12 @@ public class UiV2Deprovisioning {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          if (!checkDeprovisioning()) {
-            return false;
-          }
-          
           DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer
               .retrieveFromRequestOrCreate().getDeprovisioningContainer();
           
-          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningFolder")));
-            return false;
-          }
-
-          AttributeAssignable attributeAssignable = STEM;
-          
-          setupDeprovisioningConfiguration(attributeAssignable);
-          
-          String affiliation = request.getParameter("grouperDeprovisioningHasAffiliationName");
-          deprovisioningContainer.setAffiliation(affiliation);
-          if (!StringUtils.isBlank(affiliation)) {
+          if (!StringUtils.isBlank(deprovisioningContainer.getAffiliation())) {
             
-            boolean hasExistingConfiguration = deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().hasConfigurationForAffiliation(affiliation);
+            boolean hasExistingConfiguration = deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().hasConfigurationForAffiliation(deprovisioningContainer.getAffiliation());
             
             GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = deprovisioningContainer.getGrouperDeprovisioningAttributeValueNew();
 
@@ -275,79 +390,111 @@ public class UiV2Deprovisioning {
               grouperDeprovisioningAttributeValue.setDeprovision(true);
             }
 
-            Boolean hasConfiguration = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningHasConfigurationName"));
-            if (hasConfiguration != null) {
-              grouperDeprovisioningAttributeValue.setDirectAssignment(GrouperUtil.booleanValue(hasConfiguration, false));
-            }
-            
-            Scope scope = Scope.valueOfIgnoreCase(request.getParameter("grouperDeprovisioningFolderScopeName"), false);
-            if (scope != null) {
-              grouperDeprovisioningAttributeValue.setStemScope(scope);
-            }
-            
-            Boolean sendEmail = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningSendEmailName"));
-            if (sendEmail != null) {
-              grouperDeprovisioningAttributeValue.setSendEmail(GrouperUtil.booleanValue(sendEmail, false));
-            }
-            
-            if (sendEmail != null && sendEmail) {
-              Boolean emailManagers = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningEmailManagersName"));
-              
-              if (emailManagers != null && emailManagers) {
-                grouperDeprovisioningAttributeValue.setEmailAddressesString(null);
-                grouperDeprovisioningAttributeValue.setMailToGroupString(null);
-              }
-              if (emailManagers != null && !emailManagers) {
-                grouperDeprovisioningAttributeValue.setEmailManagers(false);
+            if (!SWITCHED_AFFILIATION) {
+              Boolean hasConfiguration = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningHasConfigurationName"));
+              if (hasConfiguration != null) {
+                grouperDeprovisioningAttributeValue.setDirectAssignment(GrouperUtil.booleanValue(hasConfiguration, false));
               }
               
-              if (!grouperDeprovisioningAttributeValue.isEmailManagers()) {
+              Scope scope = Scope.valueOfIgnoreCase(request.getParameter("grouperDeprovisioningFolderScopeName"), false);
+              if (scope != null) {
+                grouperDeprovisioningAttributeValue.setStemScope(scope);
+              }
+              
+              Boolean sendEmail = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningSendEmailName"));
+              if (sendEmail != null) {
+                grouperDeprovisioningAttributeValue.setSendEmail(GrouperUtil.booleanValue(sendEmail, false));
+              }
+              
+              if (sendEmail != null && sendEmail) {
+                Boolean emailManagers = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningEmailManagersName"));
                 
-                Boolean emailGroupMembers = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningEmailGroupMembersName"));
-                
-                if (emailGroupMembers != null && emailGroupMembers) {
+                if (emailManagers != null && emailManagers) {
                   grouperDeprovisioningAttributeValue.setEmailAddressesString(null);
+                  grouperDeprovisioningAttributeValue.setMailToGroupString(null);
                 }
-                if (emailGroupMembers != null && !emailGroupMembers) {
-                  grouperDeprovisioningAttributeValue.setEmailGroupMembers(false);
+                if (emailManagers != null && !emailManagers) {
+                  grouperDeprovisioningAttributeValue.setEmailManagers(false);
                 }
                 
-                if (!grouperDeprovisioningAttributeValue.isEmailGroupMembers()) {
-                  String emailAddresses = request.getParameter("grouperDeprovisioningEmailAddressesName");
-                  grouperDeprovisioningAttributeValue.setEmailAddressesString(emailAddresses);
-                } else {
-                  String groupIdOrName = request.getParameter("grouperDeprovisioningEmailGroupIdMembersName");
-                  if (StringUtils.isBlank(groupIdOrName)) {
-                    
-                    guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-                        "#grouperDeprovisioningEmailGroupIdMembersId",
-                        TextContainer.retrieveFromRequest().getText().get("deprovisioningGroupIdIsBlank")));
-                    
-                    return false;
-
+                if (!grouperDeprovisioningAttributeValue.isEmailManagers()) {
+                  
+                  Boolean emailGroupMembers = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningEmailGroupMembersName"));
+                  
+                  if (emailGroupMembers != null && emailGroupMembers) {
+                    grouperDeprovisioningAttributeValue.setEmailAddressesString(null);
+                  }
+                  if (emailGroupMembers != null && !emailGroupMembers) {
+                    grouperDeprovisioningAttributeValue.setEmailGroupMembers(false);
+                  }
+                  
+                  if (!grouperDeprovisioningAttributeValue.isEmailGroupMembers()) {
+                    String emailAddresses = request.getParameter("grouperDeprovisioningEmailAddressesName");
+                    grouperDeprovisioningAttributeValue.setEmailAddressesString(emailAddresses);
                   } else {
-
-                    if (GROUP_TO_EMAIL == null) {
-
-                      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-                          "#grouperDeprovisioningEmailGroupIdMembersId",
-                          TextContainer.retrieveFromRequest().getText().get("deprovisioningGroupIdNotFound")));
+                    String groupIdOrName = request.getParameter("grouperDeprovisioningEmailGroupIdMembersName");
+                    if (StringUtils.isBlank(groupIdOrName)) {
                       
-                      return false;
+                      if (onSubmit) {
+                        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                            "#grouperDeprovisioningEmailGroupIdMembersId",
+                            TextContainer.retrieveFromRequest().getText().get("deprovisioningGroupIdIsBlank")));
+                        
+                        return false;
+                      }
+                    } else {
+  
+                      if (GROUP_TO_EMAIL == null) {
+                        
+                        if (onSubmit) {
+                          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                            "#grouperDeprovisioningEmailGroupIdMembersId",
+                            TextContainer.retrieveFromRequest().getText().get("deprovisioningGroupIdNotFound")));
+                        
+                          return false;
+                        }
+                        
+                      }
                       
                     }
-                    
-                    deprovisioningContainer.setGrouperDeprovisioningEmailGuiGroup(new GuiGroup(GROUP_TO_EMAIL));
-
-                    grouperDeprovisioningAttributeValue.setMailToGroupString(GROUP_ID_TO_EMAIL);
                     
                   }
                   
                 }
+              } 
+              
+              Boolean showForRemovalBoolean = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningShowForRemovalName"));
+              
+              if (showForRemovalBoolean != null) {
+                grouperDeprovisioningAttributeValue.setShowForRemoval(showForRemovalBoolean);
+                
+                if (!showForRemovalBoolean) {
+                  grouperDeprovisioningAttributeValue.setAutoselectForRemoval(null);
+                } else {
+                  
+                  Boolean autoselectForRemovalBoolean = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningAutoselectForRemovalName"));
+                  
+                  if (autoselectForRemovalBoolean != null) {
+                    grouperDeprovisioningAttributeValue.setAutoselectForRemoval(autoselectForRemovalBoolean);
+                  }                
+                  
+                }
                 
               }
+              
+              Boolean allowAddsBoolean = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningAllowAddsName"));
+              
+              if (allowAddsBoolean != null) {
+                grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisioned(allowAddsBoolean);
+              }
+              
+              Boolean autoChangeLoaderBoolean = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningAutochangeLoaderName"));
+              
+              if (autoChangeLoaderBoolean != null) {
+                grouperDeprovisioningAttributeValue.setAutoChangeLoader(autoChangeLoaderBoolean);
+              }
+              
             }            
-            
           }
           
           return true;
@@ -372,15 +519,49 @@ public class UiV2Deprovisioning {
     
     GrouperSession grouperSession = null;
   
+    Stem stem = null;
+    
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      if (!deprovisionOnFolderEditHelper(request, response)) {
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
         return;
       }
 
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return false;
+          }
+          
+          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningFolder")));
+            return false;
+          }
+
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+      
+      if (!deprovisionOnObjectEditHelper(request, response, false, stem)) {
+        return;
+      }
+
 
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -430,6 +611,8 @@ public class UiV2Deprovisioning {
       
       final Stem STEM = stem;
       
+      deprovisionOnObjectHelper(stem);
+  
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -439,42 +622,75 @@ public class UiV2Deprovisioning {
           if (!checkDeprovisioning()) {
             return null;
           }
-          
-          DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer
-              .retrieveFromRequestOrCreate().getDeprovisioningContainer();
-          
-          if (!deprovisioningContainer.isCanReadDeprovisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToReadDeprovisioningFolder")));
-          }
-          
-          AttributeAssignable attributeAssignable = STEM;
-          
-          setupDeprovisioningConfiguration(attributeAssignable);
-          
-//          for (GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration : 
-//            deprovisioningContainer.getGrouperDeprovisioningOverallConfiguration().getAffiliationToConfiguration().values()) {
-//          
-//            if (!grouperDeprovisioningConfiguration.isHasDatabaseConfiguration()) {
-//  
-//              // if there is nothing in the database then dont deprovision
-//              grouperDeprovisioningConfiguration.getNewConfig().setDeprovision(false);
-//            }
-//            
-//          }
-
+            
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
               "/WEB-INF/grouperUi2/deprovisioning/deprovisioningFolderSettingsView.jsp"));
           
           return null;
         }
       });
-      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+
+  }
+  
+  /**
+   * 
+   * @param attributeAssignable
+   */
+  private void deprovisionOnObjectHelper(final AttributeAssignable attributeAssignable) {
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //switch over to admin so attributes work
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+        
+        if (!checkDeprovisioning()) {
+          return null;
+        }
+        
+        DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer
+            .retrieveFromRequestOrCreate().getDeprovisioningContainer();
+        
+        if (!deprovisioningContainer.isCanReadDeprovisioning()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToReadDeprovisioningFolder")));
+        }
+        
+        setupDeprovisioningConfiguration(attributeAssignable);
+        
+        return null;
+      }
+    });
     
+    
+    for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+
+      Group groupToEmail = null;
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer().setAffiliation(affiliation);
+      String groupIdOrName = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer()
+          .getGrouperDeprovisioningAttributeValueNew().getMailToGroupString();
+      if (!StringUtils.isBlank(groupIdOrName)) {
+        
+        //lets see if user can find the group, and can READ it
+        groupToEmail = new GroupFinder().addGroupId(groupIdOrName).assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroup();
+        
+        if (groupToEmail == null) {
+          groupToEmail = new GroupFinder().addGroupName(groupIdOrName).assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroup();
+        }
+        if (groupToEmail != null) {
+          DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer
+              .retrieveFromRequestOrCreate().getDeprovisioningContainer();
+          deprovisioningContainer.setGrouperDeprovisioningEmailGuiGroup(new GuiGroup(groupToEmail));
+        }
+      }
+    }
+
   }
   
   /**
@@ -1009,6 +1225,479 @@ public class UiV2Deprovisioning {
     
   }
   
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnGroup(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group != null) {
+        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      }
+      
+      if (group == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Group GROUP = group;
+      
+      deprovisionOnObjectHelper(group);
+  
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return null;
+          }
+            
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/deprovisioning/deprovisioningGroupSettingsView.jsp"));
+          
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  
+  }
+
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnGroupEdit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group != null) {
+        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      }
+      
+      if (group == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Group GROUP = group;
+
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return false;
+          }
+          
+          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningGroup")));
+            return false;
+          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+      
+      if (!deprovisionOnObjectEditHelper(request, response, false, group)) {
+        return;
+      }
+  
+  
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/deprovisioning/deprovisioningGroupSettingsEdit.jsp"));
+          
+          return null;
+        }
+      });
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnGroupEditSave(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group != null) {
+        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      }
+      
+      if (group == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Group GROUP = group;
+      
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return false;
+          }
+          
+          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningGroup")));
+            return false;
+          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+  
+      if (!deprovisionOnObjectEditHelper(request, response, true, group)) {
+        return;
+      }
+
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
+          boolean hasError = false;
+          
+          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, null, deprovisioningContainer, guiScreenActions, hasError, GROUP);
+          
+          if (!hasError) {
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningOnGroup&groupId=" + GROUP.getId() + "')"));
+  
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccess")));
+  
+          } else {
+            
+            guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+                "/WEB-INF/grouperUi2/deprovisioning/deprovisioningGroupSettingsEdit.jsp"));
+            
+            //add these after screen drawn
+            for (GuiScreenAction guiScreenAction : guiScreenActions) {
+              guiResponseJs.addAction(guiScreenAction);
+            }
+            
+          }
+  
+          return null;
+        }
+      });
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnAttributeDef(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+
+      if (attributeDef != null) {
+        attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      }
+      
+      if (attributeDef == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final AttributeDef ATTRIBUTE_DEF = attributeDef;
+      
+      deprovisionOnObjectHelper(attributeDef);
+  
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return null;
+          }
+            
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/deprovisioning/deprovisioningAttributeDefSettingsView.jsp"));
+          
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnAttributeDefEdit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+
+      if (attributeDef != null) {
+        attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      }
+      
+      if (attributeDef == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final AttributeDef ATTRIBUTE_DEF = attributeDef;
+  
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return false;
+          }
+          
+          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningAttributeDef")));
+            return false;
+          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+      
+      if (!deprovisionOnObjectEditHelper(request, response, false, attributeDef)) {
+        return;
+      }
+  
+  
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/deprovisioning/deprovisioningAttributeDefSettingsEdit.jsp"));
+          
+          return null;
+        }
+      });
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnAttributeDefEditSave(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    AttributeDef attributeDef = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+
+      if (attributeDef != null) {
+        attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      }
+      
+      if (attributeDef == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final AttributeDef ATTRIBUTE_DEF = attributeDef;
+      
+      final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkDeprovisioning()) {
+            return false;
+          }
+          
+          if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningAttributeDef")));
+            return false;
+          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+  
+      if (!deprovisionOnObjectEditHelper(request, response, true, attributeDef)) {
+        return;
+      }
+  
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
+          boolean hasError = false;
+          
+          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, null, deprovisioningContainer, guiScreenActions, hasError, ATTRIBUTE_DEF);
+          
+          if (!hasError) {
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=" + ATTRIBUTE_DEF.getId() + "')"));
+  
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccess")));
+  
+          } else {
+            
+            guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+                "/WEB-INF/grouperUi2/deprovisioning/deprovisioningAttributeDefSettingsEdit.jsp"));
+            
+            //add these after screen drawn
+            for (GuiScreenAction guiScreenAction : guiScreenActions) {
+              guiResponseJs.addAction(guiScreenAction);
+            }
+            
+          }
+  
+          return null;
+        }
+      });
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  
+  }
   private static GrouperDeprovisioningAffiliation retrieveAffiliation(HttpServletRequest request, Subject subject) {
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
