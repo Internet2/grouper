@@ -44,6 +44,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -135,6 +136,10 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
             
             // $$grouper.attribute.rootStem$$:attribute:loaderMetadata:loaderMetadataValueDef
             namesOfAttributeDefs.add(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataValueDef");
+            
+            // deprovisioning
+            namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef().getName());
+            namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName());
             
             if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
               namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));

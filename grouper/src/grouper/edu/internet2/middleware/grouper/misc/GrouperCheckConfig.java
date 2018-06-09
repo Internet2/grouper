@@ -801,7 +801,13 @@ public class GrouperCheckConfig {
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_EMAIL_BODY, 
             "custom email body for emails, if blank use the default configured body.  "
             + "Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$", wasInCheckConfig);
-        
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_LAST_EMAILED_DATE, 
+            "yyyy/mm/dd date that this was last emailed so multiple emails dont go out on same day", wasInCheckConfig);
+        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_CERTIFIED_MILLIS, 
+            "(String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers"
+            + " indicate that the deprovisioned users are ok being in the group and do not send email reminders about it" 
+            + " anymore until there are newly deprovisioned entities", wasInCheckConfig);
+
       }
       
       

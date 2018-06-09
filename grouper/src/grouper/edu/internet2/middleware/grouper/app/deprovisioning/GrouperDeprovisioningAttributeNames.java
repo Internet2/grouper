@@ -46,7 +46,8 @@ public class GrouperDeprovisioningAttributeNames {
    */
   public static final String DEPROVISIONING_DEPROVISION = "deprovisioningDeprovision";
   /**
-   * if deprovisioning configuration is directly assigned to the group or folder or inherited from parent
+   * if deprovisioning configuration is directly assigned to the group or folder or inherited from parent.
+   * true for direct, false for inherited, blank for not assigned
    */
   public static final String DEPROVISIONING_DIRECT_ASSIGNMENT = "deprovisioningDirectAssignment";
   /**
@@ -59,6 +60,19 @@ public class GrouperDeprovisioningAttributeNames {
    * Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
    */
   public static final String DEPROVISIONING_EMAIL_BODY = "deprovisioningEmailBody";
+  
+  /**
+   * yyyy/mm/dd date that this was last emailed so multiple emails dont go out on same day
+   */
+  public static final String DEPROVISIONING_LAST_EMAILED_DATE = "deprovisioningLastEmailedDate";
+  
+  /**
+   * (String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   */
+  public static final String DEPROVISIONING_CERTIFIED_MILLIS = "deprovisioningCertifiedMillis";
+  
   /**
    * custom subject for emails, if blank use the default configured subject. 
    * Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
@@ -174,7 +188,8 @@ public class GrouperDeprovisioningAttributeNames {
   
   }
   /**
-   * deprovisioning direct assignment attribute def name
+   * deprovisioning direct assignment attribute def name.
+   * true for direct, false for inherited, blank for not assigned
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameDirectAssignment() {
@@ -337,6 +352,38 @@ public class GrouperDeprovisioningAttributeNames {
     return attributeDefName;
   
   }
+  
+  /**
+   * deprovisioning last emailed date attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameLastEmailedDate() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_LAST_EMAILED_DATE);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant deprovisioning last emailed date attribute def name be found?");
+    }
+    return attributeDefName;
+  
+  }
+  /**
+   * deprovisioning certified millis attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameCertifiedMillis() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_CERTIFIED_MILLIS);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant deprovisioning certified millis attribute def name be found?");
+    }
+    return attributeDefName;
+  
+  }
+  
   /**
    * deprovisioning stem scope attribute def name
    * @return the attribute def name

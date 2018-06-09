@@ -218,6 +218,28 @@
                             
                           </c:if>
 
+                          <c:if test="${grouperDeprovisioningAttributeValue.sendEmail || grouperDeprovisioningAttributeValue.lastEmailedDate != null}">
+
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningLastEmailedDateLabel']}</strong></td>
+                              <td>
+                                ${grouperDeprovisioningAttributeValue.lastEmailedDate}
+                                <br />
+                                <span class="description">${textContainer.text['deprovisioningLastEmailedDateHint']}</span>
+                              </td>
+                            </tr>
+                          </c:if>
+
+                          <c:if test="${grouperDeprovisioningAttributeValue.sendEmail || grouperDeprovisioningAttributeValue.certifiedDate != null}">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningCertifiedDateLabel']}</strong></td>
+                              <td>
+                                ${grouperDeprovisioningAttributeValue.certifiedDate}
+                                <br />
+                                <span class="description">${textContainer.text['deprovisioningCertifiedDateHint']}</span>
+                              </td>
+                            </tr>
+                          </c:if>
 
                         </tbody>
                       </table>

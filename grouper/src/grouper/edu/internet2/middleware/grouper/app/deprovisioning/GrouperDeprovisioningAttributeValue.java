@@ -4,8 +4,13 @@
  */
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -69,9 +74,8 @@ public class GrouperDeprovisioningAttributeValue {
       this.deprovisionString = null;
     }
 
-    if (!this.isDirectAssignment() ) {
-      this.directAssignmentString = null;
-    }
+    // true for direct, false for inherited, blank for not assigned
+    this.directAssignmentString = this.isDirectAssignment() ? "true" : "false";
 
     if (!this.isSendEmail()) {
       this.sendEmailString = null;
@@ -305,6 +309,12 @@ public class GrouperDeprovisioningAttributeValue {
       if (!StringUtils.isBlank(this.getStemScopeString())) {
         toStringBuilder.append("stemScope", this.getStemScope());
       }
+      if (!StringUtils.isBlank(this.getCertifiedMillisString())) {
+        toStringBuilder.append("certifiedDate", this.getCertifiedDate());
+      }
+      if (!StringUtils.isBlank(this.getLastEmailedDateString())) {
+        toStringBuilder.append("lastEmailed", this.getLastEmailedDate());
+      }
         
     } catch (Exception e) {
       //ignore, did all we could
@@ -325,11 +335,13 @@ public class GrouperDeprovisioningAttributeValue {
 
   /**
    * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
+   * true for direct, false for inherited, blank for not assigned
    */
   private String directAssignmentString;
   
   /**
    * If deprovisioning configuration is directly assigned to the group or folder or inherited from parent
+   * true for direct, false for inherited, blank for not assigned
    * @return the directAssignmentString
    */
   public String getDirectAssignmentString() {
@@ -602,6 +614,127 @@ public class GrouperDeprovisioningAttributeValue {
     this.showForRemovalString = showForRemovalString1;
   }
 
+  /**
+   * yyyy/mm/dd date that this was last emailed so multiple emails dont go out on same day
+   */
+  private String lastEmailedDateString;
+  
+  /**
+   * yyyy/mm/dd date that this was last emailed so multiple emails dont go out on same day
+   * @return the deprovisioningLastEmailedDateString
+   */
+  public String getLastEmailedDateString() {
+    return this.lastEmailedDateString;
+  }
+  
+  /**
+   * yyyy/mm/dd date that this was last emailed so multiple emails dont go out on same day
+   * @param deprovisioningLastEmailedDateString1 the deprovisioningLastEmailedDateString to set
+   */
+  public void setLastEmailedDateString(String deprovisioningLastEmailedDateString1) {
+    this.lastEmailedDateString = deprovisioningLastEmailedDateString1;
+  }
+
+  /**
+   * 
+   * @param date
+   */
+  public void setLastEmailedDate(Date date) {
+    
+    this.lastEmailedDateString = date == null ? null : new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+
+  }
+  
+  /**
+   * yyyy/mm/dd date that this was last emailed so multiple emails dont go out on same day
+   * @return the deprovisioningLastEmailedDateString
+   */
+  public Date getLastEmailedDate() {
+    if (StringUtils.isBlank(this.lastEmailedDateString)) {
+      return null;
+    }
+    try {
+      return new SimpleDateFormat("yyyy/MM/dd").parse(this.lastEmailedDateString);
+    } catch (ParseException e) {
+      LOG.error("Could not convert '"+this.lastEmailedDateString+"' to date. " + this, e);
+      
+      //uh... just ignore
+      return null;
+    }
+
+  }
+  
+  /**
+   * (String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   */
+  private String certifiedMillisString;
+
+  /**
+   * (String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   * @return the deprovisioningCertifiedMillisString
+   */
+  public String getCertifiedMillisString() {
+    return this.certifiedMillisString;
+  }
+  
+  /**
+   * number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   * @return the deprovisioningCertifiedMillisString
+   */
+  public Long getCertifiedMillis() {
+    return GrouperUtil.longObjectValue(this.certifiedMillisString, true);
+  }
+  
+  /**
+   * date that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   * @return the deprovisioningCertifiedMillisString
+   */
+  public Date getCertifiedDate() {
+    
+    Long deprovisioningCertifiedMillis = this.getCertifiedMillis();
+    
+    Date deprovisioningCertifiedDate = deprovisioningCertifiedMillis == null ? null : new Date(deprovisioningCertifiedMillis);
+    
+    return deprovisioningCertifiedDate;
+  }
+  
+  /**
+   * (String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   * @param deprovisioningCertifiedMillisString1 the deprovisioningCertifiedMillisString to set
+   */
+  public void setCertifiedMillisString(String deprovisioningCertifiedMillisString1) {
+    this.certifiedMillisString = deprovisioningCertifiedMillisString1;
+  }
+
+  /**
+   * (String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   * @param deprovisioningCertifiedMillis the deprovisioningCertifiedMillisString to set
+   */
+  public void setCertifiedMillis(Long deprovisioningCertifiedMillis) {
+    this.certifiedMillisString = GrouperUtil.stringValue(deprovisioningCertifiedMillis);
+  }
+
+  /**
+   * (String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers 
+   * indicate that the deprovisioned users are ok being in the group and do not send email reminders about it 
+   * anymore until there are newly deprovisioned entities
+   * @param deprovisioningCertifiedDate the deprovisioningCertified date to set
+   */
+  public void setCertifiedDate(Date deprovisioningCertifiedDate) {
+    this.setCertifiedMillis(deprovisioningCertifiedDate == null ? null : deprovisioningCertifiedDate.getTime());
+  }
 
   /**
    * one|sub, if in folder only or in folder and all subfolders (default to sub)
@@ -613,6 +746,9 @@ public class GrouperDeprovisioningAttributeValue {
    * note this is not persisted in the database
    */
   private Boolean emailGroupMembers;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperDeprovisioningAttributeValue.class);
 
   
   /**
