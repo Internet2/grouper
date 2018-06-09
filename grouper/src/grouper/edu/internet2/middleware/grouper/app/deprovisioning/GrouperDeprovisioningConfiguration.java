@@ -4,19 +4,41 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * configuration on an object
  */
 public class GrouperDeprovisioningConfiguration {
 
+  /**
+   * we want to retain the last emailed date and last certified date
+   */
+  public void clearOutConfigurationButLeaveMetadata() {
+    //lets see if certified or emailed?
+    if (this.newConfig == null 
+        || (this.newConfig.getCertifiedDate() == null
+        && this.newConfig.getLastEmailedDate() == null)) {
+      this.setNewConfig(null);
+    } else {
+      GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValueNew = new GrouperDeprovisioningAttributeValue();
+      grouperDeprovisioningAttributeValueNew.setCertifiedDate(this.newConfig.getCertifiedDate());
+      grouperDeprovisioningAttributeValueNew.setLastEmailedDate(this.newConfig.getLastEmailedDate());
+      grouperDeprovisioningAttributeValueNew.setDeprovision(false);
+      grouperDeprovisioningAttributeValueNew.setAffiliationString(this.newConfig.getAffiliationString());
+      grouperDeprovisioningAttributeValueNew.setDirectAssignment(false);
+      this.setNewConfig(this.newConfig);
+      this.newConfig = grouperDeprovisioningAttributeValueNew;
+    }
+
+  }
+  
   /**
    * grouper deprovisioning overall configuration
    */
@@ -259,15 +281,38 @@ public class GrouperDeprovisioningConfiguration {
         newConfig.getStemScopeString(), changeCount);
     originalConfig.setStemScopeString(newConfig.getStemScopeString());
 
+    updateAttribute( 
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameCertifiedMillis(),
+        originalConfig.getCertifiedMillisString(),
+        newConfig.getCertifiedMillisString(), changeCount);
+    originalConfig.setCertifiedMillisString(newConfig.getCertifiedMillisString());
+
+    updateAttribute( 
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameLastEmailedDate(),
+        originalConfig.getLastEmailedDateString(),
+        newConfig.getLastEmailedDateString(), changeCount);
+    originalConfig.setLastEmailedDateString(newConfig.getLastEmailedDateString());
+
     return changeCount[0];
   }
 
   /**
    * 
-   * @return true if has configuration (direct or inherited) in the database
+   * @return true if has attributes (direct or inherited) in the database
+   */
+  public boolean isHasDatabaseAttributes() {
+    return this.originalConfig != null;
+  }
+  
+  /**
+   * 
+   * @return true if has attributes (direct or inherited) in the database
    */
   public boolean isHasDatabaseConfiguration() {
-    return this.originalConfig != null;
+    if (!this.isHasDatabaseAttributes()) {
+      return false;
+    }
+    return this.originalConfig.isDirectAssignment() || !StringUtils.isBlank(this.originalConfig.getInheritedFromFolderIdString());
   }
   
   /**
@@ -281,6 +326,8 @@ public class GrouperDeprovisioningConfiguration {
       // Bypass privilege checks.  If the group is loaded it is viewable.
       toStringBuilder
         .append( "hasDatabaseConfiguration", this.isHasDatabaseConfiguration());
+      toStringBuilder
+      .append( "hasDatabaseAttributes", this.isHasDatabaseAttributes());
       
       if (this.inheritedOwner != null) {
         toStringBuilder.append("inheritedOwner", this.inheritedOwner.getName());

@@ -77,25 +77,27 @@ public class GrouperDeprovisioningLogic {
         grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString(inheritedAttributeValue.getAllowAddsWhileDeprovisionedString());
         grouperDeprovisioningAttributeValue.setAutoChangeLoaderString(inheritedAttributeValue.getAutoChangeLoaderString());
         grouperDeprovisioningAttributeValue.setAutoselectForRemovalString(inheritedAttributeValue.getAutoselectForRemovalString());
+        // dont set certified date
         grouperDeprovisioningAttributeValue.setDeprovisionString(inheritedAttributeValue.getDeprovisionString());
         grouperDeprovisioningAttributeValue.setDirectAssignment(false);
         grouperDeprovisioningAttributeValue.setEmailAddressesString(inheritedAttributeValue.getEmailAddressesString());
         grouperDeprovisioningAttributeValue.setEmailBodyString(inheritedAttributeValue.getEmailBodyString());
         grouperDeprovisioningAttributeValue.setEmailSubjectString(inheritedAttributeValue.getEmailSubjectString());
         grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString(inheritedAttributeValue.getGrouperDeprovisioningConfiguration().getAttributeAssignBase().getOwnerStemId());
+        // dont set last emailed
         grouperDeprovisioningAttributeValue.setMailToGroupString(inheritedAttributeValue.getMailToGroupString());
         grouperDeprovisioningAttributeValue.setAffiliationString(inheritedAttributeValue.getAffiliationString());
         grouperDeprovisioningAttributeValue.setSendEmailString(inheritedAttributeValue.getSendEmailString());
         grouperDeprovisioningAttributeValue.setShowForRemovalString(inheritedAttributeValue.getShowForRemovalString());
         grouperDeprovisioningAttributeValue.setStemScopeString(inheritedAttributeValue.getStemScopeString());
-        grouperDeprovisioningConfiguration.storeConfiguration();
         
       } else {
 
-        // there is no local config or inherited config, delete it all
-        grouperDeprovisioningConfiguration.setNewConfig(null);
-        grouperDeprovisioningConfiguration.storeConfiguration();
+        // there is no local config or inherited config, delete it all (well most of it)
+        grouperDeprovisioningConfiguration.clearOutConfigurationButLeaveMetadata();
+
       }
+      grouperDeprovisioningConfiguration.storeConfiguration();
       
     }
 

@@ -132,7 +132,7 @@ public class UiV2Deprovisioning {
 
       // remove assignment
       if (!grouperDeprovisioningAttributeValue.isDirectAssignment()) {
-        grouperDeprovisioningConfiguration.setNewConfig(null);
+        grouperDeprovisioningConfiguration.clearOutConfigurationButLeaveMetadata();
       }
       
       grouperDeprovisioningConfiguration.storeConfiguration();

@@ -17,11 +17,9 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.stem.StemSet;
@@ -437,6 +435,14 @@ public class GrouperDeprovisioningOverallConfiguration {
         grouperDeprovisioningAttributeValue.setStemScopeString(
             nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameStemScope().getName()));
         newGrouperDeprovisioningAttributeValue.setStemScopeString(grouperDeprovisioningAttributeValue.getStemScopeString());
+  
+        grouperDeprovisioningAttributeValue.setCertifiedMillisString(
+            nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameCertifiedMillis().getName()));
+        newGrouperDeprovisioningAttributeValue.setCertifiedMillisString(grouperDeprovisioningAttributeValue.getCertifiedMillisString());
+  
+        grouperDeprovisioningAttributeValue.setLastEmailedDateString(
+            nameOfAttributeDefNameToValue.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameLastEmailedDate().getName()));
+        newGrouperDeprovisioningAttributeValue.setLastEmailedDateString(grouperDeprovisioningAttributeValue.getLastEmailedDateString());
   
       }
       
