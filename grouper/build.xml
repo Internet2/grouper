@@ -426,8 +426,11 @@
         <include name="*.example.*"/>
         <include name="*.base.*"/>
         <include name="*.txt"/>
+        <include name="GSHFileLoad.properties"/>
+        <include name="groovysh.profile"/>
       </fileset>
     </copy>
+    <copy file="${basedir}/../grouper-misc/grouperClient/conf/grouper.client.usage.example.txt" tofile="${dist.binary.zip}/conf/grouper.client.usage.example.txt" />
   	
     <mkdir dir="${dist.binary.zip}/misc"/>
     <copy todir="${dist.binary.zip}/misc">

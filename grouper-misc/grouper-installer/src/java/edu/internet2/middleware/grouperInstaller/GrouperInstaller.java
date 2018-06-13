@@ -5247,9 +5247,27 @@ public class GrouperInstaller {
     this.upgradeEhcacheXml();
     this.upgradeEhcacheXmlToProperties();
     this.upgradeSourcesXmlToProperties();
-
+    
     this.compareAndCopyFile(this.grouperUtf8File, 
         new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouperUtf8.txt"),
+        true,
+        new File(this.upgradeExistingClassesDirectoryString)
+        );
+    
+    this.compareAndCopyFile(this.gshFileLoadPropertiesFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "GSHFileLoad.properties"),
+        true,
+        new File(this.upgradeExistingClassesDirectoryString)
+        );
+    
+    this.compareAndCopyFile(this.groovyshProfileFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "groovysh.profile"),
+        true,
+        new File(this.upgradeExistingClassesDirectoryString)
+        );
+    
+    this.compareAndCopyFile(this.grouperClientUsageExampleFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouper.client.usage.example.txt"),
         true,
         new File(this.upgradeExistingClassesDirectoryString)
         );
@@ -6510,6 +6528,9 @@ public class GrouperInstaller {
         grouperInstaller.subjectBasePropertiesFile = grouperInstaller.findClasspathFile("subject.base.properties", false);
 
         grouperInstaller.grouperUtf8File = grouperInstaller.findClasspathFile("grouperUtf8.txt", false);
+        grouperInstaller.gshFileLoadPropertiesFile = grouperInstaller.findClasspathFile("GSHFileLoad.properties", false);
+        grouperInstaller.grouperClientUsageExampleFile = grouperInstaller.findClasspathFile("grouper.client.usage.example.txt", false);
+        grouperInstaller.groovyshProfileFile = grouperInstaller.findClasspathFile("groovysh.profile", false);
 
         //no need to check if it exists... its new in 2.2
         
@@ -8604,6 +8625,21 @@ public class GrouperInstaller {
    * grouperUtf8.txt
    */
   private File grouperUtf8File;
+  
+  /**
+   * GSHFileLoad.properties
+   */
+  private File gshFileLoadPropertiesFile;
+  
+  /**
+   * groovysh.profile
+   */
+  private File groovyshProfileFile;
+  
+  /**
+   * grouper.client.usage.example.txt
+   */
+  private File grouperClientUsageExampleFile;
   
   /**
    * grouper.example.properties
