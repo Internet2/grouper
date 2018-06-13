@@ -2786,7 +2786,7 @@ public enum GrouperLoaderType {
                         GrouperLoaderLogger.addLogEntry("membershipManagement", "exception", ExceptionUtils.getFullStackTrace(re));
                       
                       } finally {
-                        if (added) {
+                        if (added != null && added) {
                           GrouperLoaderLogger.doTheLogging("membershipManagement");
                         } else {
                           GrouperLoaderLogger.skipLogging("membershipManagement");
