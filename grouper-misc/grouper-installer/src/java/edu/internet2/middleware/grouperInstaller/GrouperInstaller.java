@@ -5991,6 +5991,11 @@ public class GrouperInstaller {
       System.out.println("Note: grouper will not run, but whatever you want to do!!!!");
     }
     
+    // the file may have been added during the install
+    if (this.grouperCachePropertiesFile == null) {
+      this.grouperCachePropertiesFile = findClasspathFile("grouper.cache.properties", false);
+    }
+    
     if (this.grouperCachePropertiesFile.exists()) {
       //see if there is anything in it
       Properties grouperCacheProperties = GrouperInstallerUtils.propertiesFromFile(this.grouperCachePropertiesFile);
@@ -6062,7 +6067,7 @@ public class GrouperInstaller {
    */
   public File backupAndDeleteFile(File file, boolean printDetails) {
 
-    if (file.exists()) {
+    if (file != null && file.exists()) {
 
       File bakFile = null;
 
