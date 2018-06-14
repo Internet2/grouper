@@ -252,7 +252,7 @@ public class GrouperInstaller {
    * @param localFileName
    * @param autorunUseLocalFilePropertiesKey key in properties file to automatically fill in a value if download exists, default true
    */
-  private static void downloadFile(String url, String localFileName, String autorunUseLocalFilePropertiesKey) {
+  private void downloadFile(String url, String localFileName, String autorunUseLocalFilePropertiesKey) {
     downloadFile(url, localFileName, false, null, autorunUseLocalFilePropertiesKey);
   }
 
@@ -265,7 +265,7 @@ public class GrouperInstaller {
    * @param autorunUseLocalFilePropertiesKey key in properties file to automatically fill in a value if download exists, default true
    * @return true if downloaded, false if not
    */
-  private static boolean downloadFile(final String url, final String localFileName, final boolean allow404, 
+  private boolean downloadFile(final String url, final String localFileName, final boolean allow404, 
       final String prefixFor404, final String autorunUseLocalFilePropertiesKey) {
 
     boolean useLocalFile = false;
@@ -273,8 +273,18 @@ public class GrouperInstaller {
     final File localFile = new File(localFileName);
 
     if (localFile.exists()) {
-      System.out.print("File exists: " + localFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
-      useLocalFile = readFromStdInBoolean(true, autorunUseLocalFilePropertiesKey);
+      
+      if (useAllLocalFiles != null && useAllLocalFiles == true) {
+        useLocalFile = true;
+      } else {
+        System.out.print("File exists: " + localFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
+        useLocalFile = readFromStdInBoolean(true, autorunUseLocalFilePropertiesKey);
+        
+        if (useLocalFile && useAllLocalFiles == null) {
+          System.out.print("Would you like to use all local files (t|f)? [t]: ");
+          useAllLocalFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllLocalFiles");
+        }
+      }
     }
     
     if (useLocalFile) {
@@ -6989,6 +6999,21 @@ public class GrouperInstaller {
   private Boolean revertAllPatches = null;
   
   /**
+   * if we should use all local files
+   */
+  private Boolean useAllLocalFiles = null;
+  
+  /**
+   * if we should use all unzipped files
+   */
+  private Boolean useAllUnzippedFiles = null;
+  
+  /**
+   * if we should use all untarred directories
+   */
+  private Boolean useAllUntarredDirectories = null;
+  
+  /**
    * default for revert all patches
    */
   private boolean revertAllPatchesDefault = false;
@@ -12724,7 +12749,7 @@ public class GrouperInstaller {
    * @param dirToUntarTo or null to keep in same dir as tarfile
    * @return the directory where the files are (assuming has a single dir the same name as the archive)
    */
-  private static File untar(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal,
+  private File untar(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal,
       File dirToUntarTo) {
 
     if (!fileName.endsWith(".tar")) {
@@ -12746,9 +12771,19 @@ public class GrouperInstaller {
     
     if (untarredFile.exists()) {
       
+      if (useAllUntarredDirectories != null && useAllUntarredDirectories == true) {
+        return untarredFile;
+      }
+      
       System.out.print("Untarred dir exists: " + untarredFileName + ", use untarred dir (t|f)? [t]: ");
       boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
       if (useUnzippedFile) {
+        
+        if (useAllUntarredDirectories == null) {
+          System.out.print("Would you like to use all existing untarred directories (t|f)? [t]: ");
+          useAllUntarredDirectories = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllUntarredDirectories");
+        }
+        
         return untarredFile;
       }
       
@@ -12879,7 +12914,6 @@ public class GrouperInstaller {
     File unzippedDir = new File(unzippedFileName);
 
     if (unzippedDir.exists()) {
-      
       System.out.print("Unzipped dir exists: " + unzippedFileName + ", use unzipped dir (t|f)? [t]: ");
       boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
       if (useUnzippedFile) {
@@ -12959,7 +12993,7 @@ public class GrouperInstaller {
    * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
    * @return the unzipped file
    */
-  private static File unzip(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
+  private File unzip(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
 
     if (!fileName.endsWith(".gz")) {
       throw new RuntimeException("File doesnt end in .gz: " + fileName);
@@ -12969,9 +13003,18 @@ public class GrouperInstaller {
     File unzippedFile = new File(unzippedFileName);
     if (unzippedFile.exists()) {
       
+      if (useAllUnzippedFiles != null && useAllUnzippedFiles == true) {
+        return unzippedFile;
+      }
+      
       System.out.print("Unzipped file exists: " + unzippedFileName + ", use unzipped file (t|f)? [t]: ");
       boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
       if (useUnzippedFile) {
+        if (useAllUnzippedFiles == null) {
+          System.out.print("Would you like to use all existing unzipped files (t|f)? [t]: ");
+          useAllUnzippedFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllUnzippedFiles");
+        }
+        
         return unzippedFile;
       }
       System.out.println("Deleting: " + unzippedFileName);
