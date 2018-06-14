@@ -3657,6 +3657,66 @@ public class UiV2GrouperLoader {
           }
           
           {
+            String scheduleType = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, false, false);
+            
+            StringBuilder schedule = new StringBuilder();
+            
+            if (!StringUtils.isBlank(scheduleType)) {
+              
+              schedule.append("<span style='white-space: nowrap'>");
+              
+              if (GrouperLoaderScheduleType.START_TO_START_INTERVAL.name().equalsIgnoreCase(scheduleType)) {
+              
+                schedule.append("INTERVAL");
+                
+              } else {
+              
+                schedule.append(GrouperUiUtils.escapeHtml(scheduleType, true));
+
+              }
+
+              if (GrouperLoaderScheduleType.CRON.name().equalsIgnoreCase(scheduleType)) {
+
+                
+                String cron = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, false, false);
+
+                schedule.append(": ").append(GrouperUiUtils.escapeHtml(cron, true)).append("<br />");
+                
+                if (!StringUtils.isBlank(cron)) {
+                  try {
+                    schedule.append(GrouperUiUtils.escapeHtml(CronExpressionDescriptor.getDescription(cron), true));
+                  } catch (Exception e) {
+                    
+                    LOG.error("Cant parse cron string:" + cron, e);
+                    
+                    schedule.append(TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError"));
+                  }
+                }
+                
+              } else if (GrouperLoaderScheduleType.START_TO_START_INTERVAL.name().equalsIgnoreCase(scheduleType)) {
+                
+                String intervalSeconds = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS, false, false);
+
+                schedule.append(": ").append(GrouperUiUtils.escapeHtml(intervalSeconds, true)).append(" ").append(TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalSeconds"));
+
+                int intervalSecondsInt = -1;
+                try {
+                  intervalSecondsInt = GrouperUtil.intValue(intervalSeconds);
+                } catch (Exception e) {
+                  LOG.error("Cant parse seconds: '" + intervalSecondsInt + "'");
+                }
+                schedule.append("<br />" + GrouperUiUtils.convertSecondsToString(intervalSecondsInt));
+                
+              }
+              
+              schedule.append("</span>");
+
+            }
+            
+            guiGrouperLoaderJob.setSchedule(schedule.toString());
+          }
+          
+          {
             String source = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_DB_NAME, false, false);
 
             guiGrouperLoaderJob.setSource(source);
@@ -3718,6 +3778,31 @@ public class UiV2GrouperLoader {
           
           guiGrouperLoaderJob.setSourceDescription(description);
           
+        }
+
+        {
+          String cron = ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
+          
+          StringBuilder schedule = new StringBuilder();
+          
+          if (!StringUtils.isBlank(cron)) {
+            
+            schedule.append("<span style='white-space: nowrap'>" + GrouperUiUtils.escapeHtml(cron, true)).append("<br />");
+              
+            try {
+              schedule.append(GrouperUiUtils.escapeHtml(CronExpressionDescriptor.getDescription(cron), true));
+            } catch (Exception e) {
+              
+              LOG.error("Cant parse cron string:" + cron, e);
+              
+              schedule.append(TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError"));
+            }
+            
+            schedule.append("</span>");
+
+          }
+          
+          guiGrouperLoaderJob.setSchedule(schedule.toString());
         }
 
         
