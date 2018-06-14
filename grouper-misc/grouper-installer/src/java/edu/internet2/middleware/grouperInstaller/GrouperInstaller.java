@@ -5973,6 +5973,11 @@ public class GrouperInstaller {
       return;
     }
     
+    // the file may have been added during the install
+    if (this.grouperCacheBasePropertiesFile == null) {
+      this.grouperCacheBasePropertiesFile = findClasspathFile("grouper.cache.base.properties", false);
+    }
+    
     //this file is done
     if ((this.ehcacheFile == null || !this.ehcacheFile.exists())
         && this.grouperCacheBasePropertiesFile.exists() && this.grouperCachePropertiesFile.exists()) {
@@ -7279,16 +7284,22 @@ public class GrouperInstaller {
                       //its ok if the patch is already reverted?
                       && !GrouperInstallerUtils.contentEquals(oldFileInPatch, newFileInGrouper))) {
                 
-                System.out.print("Problem reverting patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
-                    + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath()
-                    + "\n  Do you want to force revert this patch (t|f)? [f]: ");
+                // if it's just an example file and it didn't previously exist, then it's fine??
+                if (!newFileInGrouper.exists() && newFileInGrouper.getName().contains(".example.")) {
+                  System.out.println("Grouper file " + newFileInGrouper.getAbsolutePath() + " doesn't exist.  Reverting patch anyways since this is an example file.");
+                } else {
                 
-                boolean forceRevertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.forceRevertPatch");
-                
-                if (!forceRevertPatch) {
-                  System.out.println("\nCannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
-                      + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
-                  patchHasProblem = true;
+                  System.out.print("Problem reverting patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                      + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath()
+                      + "\n  Do you want to force revert this patch (t|f)? [f]: ");
+                  
+                  boolean forceRevertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.forceRevertPatch");
+                  
+                  if (!forceRevertPatch) {
+                    System.out.println("\nCannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                        + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
+                    patchHasProblem = true;
+                  }
                 }
               }
             }
