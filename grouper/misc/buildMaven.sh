@@ -10,7 +10,7 @@ then
   exit 1
 fi  
 
-OBJ=ldappcng
+OBJ=maven
 
 cd /tmp
 if [ ! -d /home/mchyzer/tmp/$OBJ ]; then
@@ -32,23 +32,20 @@ fi
 
 cd $buildDir
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/ldappcng/ldappcng/
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-parent
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/subject
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/morphString
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/grouperClient
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/ldappcng/grouper-shib
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/ldappcng/ldappcng
 
-cd $buildDir/$OBJ
+cd grouper-parent
 
 $M2_HOME/bin/mvn package -DskipTests
 
-cd /home/mchyzer/tmp/grouper/build_$USER/grouper
-
-ln -s $buildDir/ldappcng ../ldappcng_trunk
-
-$ANT_HOME/bin/ant ldappcng
-
-mv /home/mchyzer/tmp/grouper/build_$USER/grouper/dist/ldappcng/grouper.ldappcng-*.tar.gz /home/mchyzer/tmp/grouper/build_$USER
-
 echo
-echo "regular result is in $buildDir/" 
-echo "binary result is in $buildDir/" 
+echo "done"
 echo
 
 #allow someone from group to delete later on

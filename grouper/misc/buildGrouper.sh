@@ -1,20 +1,4 @@
 #!/bin/bash
-#
-# Copyright 2014 Internet2
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
 
 if [ $# -ne "1" ]
 then
@@ -46,15 +30,18 @@ fi
 
 cd $buildDir
 
-export CVSROOT=/home/cvs/i2mi
+#export CVSROOT=/home/cvs/i2mi
 
 #/usr/bin/cvs export -r $1 grouper
 
-if [ $1 == 'trunk' ]; then
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper/
-else
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
-fi
+#if [ $1 == 'trunk' ]; then
+#  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper/
+#else
+#  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+#fi
+
+cp -R /home/mchyzer/tmp/grouperDownload/build_$USER/grouper-$1/grouper $buildDir
+cp -R /home/mchyzer/tmp/grouperDownload/build_$USER/grouper-$1/grouper-misc $buildDir
 
 cd $buildDir/grouper
 
