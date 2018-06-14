@@ -104,6 +104,28 @@ public class GuiGrouperLoaderJob implements Serializable, Comparable<GuiGrouperL
   private String type;
   
   /**
+   * schedule of job
+   */
+  private String schedule;
+  
+  /**
+   * schedule of job
+   * @return the schedule
+   */
+  public String getSchedule() {
+    return this.schedule;
+  }
+
+  
+  /**
+   * schedule of job
+   * @param schedule1 the schedule to set
+   */
+  public void setSchedule(String schedule1) {
+    this.schedule = schedule1;
+  }
+
+  /**
    * GrouperLoaderType string e.g. SQL_SIMPLE
    * @return type
    */
