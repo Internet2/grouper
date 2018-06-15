@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,6 +29,8 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningEmailService;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningEmailService.EmailPerPerson;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
@@ -1178,11 +1181,14 @@ public class UiV2Deprovisioning {
       int successes = 0;
       int failures = 0;
       
+      Set<Membership> memberships = new HashSet<Membership>();
+      
       for (String membershipId : membershipsIds) {
         try {
           Membership membership = MembershipFinder.findByUuid(GrouperSession.start(loggedInSubject), membershipId, false, true);
           
           if (deprovisioningAffiliation.deprovisionSubject(membership)) {
+            memberships.add(membership);
             successes++;
           } else {
             failures++;
@@ -1193,6 +1199,11 @@ public class UiV2Deprovisioning {
           failures++;
         }
       }
+      
+      GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
+      Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
+          memberships, deprovisioningAffiliation, false);
+      emailService.sendEmailToUsers(emailObjects);
       
       if (failures == 0) {
         

@@ -19,7 +19,13 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 
@@ -37,5 +43,37 @@ public class GrouperEmailUtils {
   public static String emailAttributeNameForSource(String sourceId) {
     Source source = SourceManager.getInstance().getSource(sourceId);
     return source.getInitParam("emailAttributeName");
+  }
+  
+  /**
+   * get email address given a subject.
+   * @param subject
+   * @return emailAddress if it's there or null otherwise
+   */
+  public static String getEmail(Subject subject) {
+    String emailAttributeName = emailAttributeNameForSource(subject.getSourceId());
+    if (!StringUtils.isBlank(emailAttributeName)) {
+      String emailAddress = subject.getAttributeValue(emailAttributeName);
+      if (!StringUtils.isBlank(emailAddress)) {
+        return emailAddress;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * get email addresses for subjects
+   * @param subjects
+   * @return a unique set of emails
+   */
+  public static Set<String> getEmails(Set<Subject> subjects) {
+    Set<String> emails = new HashSet<String>();
+    for (Subject subject: subjects) {
+      String email = getEmail(subject);
+      if (StringUtils.isNotBlank(email)) {
+        emails.add(email);
+      }
+    }
+    return emails;
   }
 }
