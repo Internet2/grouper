@@ -70,7 +70,6 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     grouperDeprovisioningAttributeValue.setDirectAssignmentString("true");
     grouperDeprovisioningAttributeValue.setEmailAddressesString("jkl");
     grouperDeprovisioningAttributeValue.setEmailBodyString("mno");
-    grouperDeprovisioningAttributeValue.setEmailSubjectString("pqr");
     grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString("hgn");
     grouperDeprovisioningAttributeValue.setMailToGroupString("stu");
     grouperDeprovisioningAttributeValue.setAffiliationString("student");
@@ -95,7 +94,6 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     assertEquals(grouperDeprovisioningAttributeValue.getDirectAssignmentString(), grouperDeprovisioningAttributeValue2.getDirectAssignmentString());
     assertEquals(grouperDeprovisioningAttributeValue.getEmailAddressesString(), grouperDeprovisioningAttributeValue2.getEmailAddressesString());
     assertEquals(grouperDeprovisioningAttributeValue.getEmailBodyString(), grouperDeprovisioningAttributeValue2.getEmailBodyString());
-    assertEquals(grouperDeprovisioningAttributeValue.getEmailSubjectString(), grouperDeprovisioningAttributeValue2.getEmailSubjectString());
     assertEquals(grouperDeprovisioningAttributeValue.getInheritedFromFolderIdString(), grouperDeprovisioningAttributeValue2.getInheritedFromFolderIdString());
     assertEquals(grouperDeprovisioningAttributeValue.getMailToGroupString(), grouperDeprovisioningAttributeValue2.getMailToGroupString());
     assertEquals(grouperDeprovisioningAttributeValue.getAffiliationString(), grouperDeprovisioningAttributeValue2.getAffiliationString());

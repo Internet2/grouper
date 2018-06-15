@@ -240,12 +240,6 @@ public class GrouperDeprovisioningConfiguration {
     originalConfig.setEmailBodyString(newConfig.getEmailBodyString());
 
     updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailSubject(), 
-        originalConfig.getEmailSubjectString(),
-        newConfig.getEmailSubjectString(), changeCount);
-    originalConfig.setEmailSubjectString(newConfig.getEmailSubjectString());
-
-    updateAttribute( 
         GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameInheritedFromFolderId(), 
         originalConfig.getInheritedFromFolderIdString(),
         newConfig.getInheritedFromFolderIdString(), changeCount);

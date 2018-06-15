@@ -118,6 +118,18 @@
                               </c:choose>
                             
                             </c:if>
+
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperDeprovisioningEmailBodyId">${textContainer.text['deprovisioningEmailBodyLabel']}</label></strong></td>
+                              <td>
+                                <%-- only process the body if the body was sent back --%>
+                                <input type="hidden" style="width: 30em" value="true" name="grouperDeprovisioningHasEmailBodyName" />
+                                <textarea id="grouperDeprovisioningEmailBodyId" name="grouperDeprovisioningEmailBodyName" rows="6" cols="60" class="input-block-level"
+                                >${grouper:escapeHtml(grouperDeprovisioningAttributeValue.emailBodyString)}</textarea>
+                                <br />
+                                <span class="description">${textContainer.text['deprovisioningEmailBodyDescription']}</span>
+                              </td>
+                            </tr>
                           
                           </c:if>
                           

@@ -142,12 +142,20 @@
                                     </tr>
                                   </c:otherwise>
                                 </c:choose>
-                              
+
                               </c:if>
-                              
+                              <c:if test="${grouperDeprovisioningAttributeValue.hasEmailBody}">
+                                <tr>
+                                  <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningEmailBodyLabel']}</strong></td>
+                                  <td>
+                                    <pre>${grouper:escapeHtml(grouperDeprovisioningAttributeValue.emailBodyString)}</pre>
+                                    <br />
+                                    <span class="description">${textContainer.text['deprovisioningEmailBodyDescription']}</span>
+                                  </td>
+                                </tr>
+                              </c:if>
                             </c:if>
-                            
-                            
+
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningShowForRemovalLabel'] }</strong></td>
                               <td>
