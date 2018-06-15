@@ -88,7 +88,7 @@ public class GrouperDeprovisioningEmailService {
    * @param grouperSession
    * @param memberships
    * @param affiliation
-   * @param callFromDaemon - true means multiple emails can be sent the same day to the same people 
+   * @param callFromDaemon - true means multiple emails cannot be sent the same day to the same people 
    * @return email address to email per person object
    */
   public Map<String, EmailPerPerson> buildEmailObjectForOneDeprovisionedSubject(GrouperSession grouperSession, Set<Membership> memberships,
@@ -105,15 +105,30 @@ public class GrouperDeprovisioningEmailService {
       Subject subject = membership.getMember().getSubject();
       
       if (group != null) {
-        populatedEmailObjects(grouperSession, group, affiliation, subject, userEmailObjects, callFromDaemon, true);
+        populatedEmailObjects(grouperSession, group, affiliation, subject, userEmailObjects, callFromDaemon);
       } else if (stem != null) {
-        populatedEmailObjects(grouperSession, stem, affiliation, subject, userEmailObjects, callFromDaemon, true);
+        populatedEmailObjects(grouperSession, stem, affiliation, subject, userEmailObjects, callFromDaemon);
       } else if (attributeDef != null) {
-        populatedEmailObjects(grouperSession, attributeDef, affiliation, subject, userEmailObjects, callFromDaemon, true);
+        populatedEmailObjects(grouperSession, attributeDef, affiliation, subject, userEmailObjects, callFromDaemon);
       }
     }
     
     return userEmailObjects;
+  }
+  
+  private GrouperDeprovisioningAttributeValue getDeprovisioningAttributeValue(GrouperObject grouperObject, String affiliation) {
+    
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+    
+    if (!grouperDeprovisioningOverallConfiguration.hasConfigurationForAffiliation(affiliation)) {
+      return null;
+    }
+    
+    Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration();
+    
+    GrouperDeprovisioningConfiguration deprovisioningConfiguration = affiliationToConfiguration.get(affiliation);
+    
+    return deprovisioningConfiguration.getOriginalConfig();
   }
   
   /**
@@ -124,28 +139,22 @@ public class GrouperDeprovisioningEmailService {
    * @param subject
    * @param userEmailObjects
    * @param callFromDaemon
-   * @param lookupAtInheritedFolder
    */
   private void populatedEmailObjects(GrouperSession grouperSession, GrouperObject grouperObject, GrouperDeprovisioningAffiliation affiliation,
-      Subject subject, Map<String, EmailPerPerson> userEmailObjects, boolean callFromDaemon, boolean lookupAtInheritedFolder) {
-
-    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+      Subject subject, Map<String, EmailPerPerson> userEmailObjects, boolean callFromDaemon) {
     
-    if (!grouperDeprovisioningOverallConfiguration.hasConfigurationForAffiliation(affiliation.getLabel())) {
+    
+    GrouperDeprovisioningAttributeValue attributeValue = getDeprovisioningAttributeValue(grouperObject, affiliation.getLabel());
+    
+    if (attributeValue == null) {
       return;
     }
     
-    Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration();
-    
-    GrouperDeprovisioningConfiguration deprovisioningConfiguration = affiliationToConfiguration.get(affiliation.getLabel());
-    
-    GrouperDeprovisioningAttributeValue attributeValue = deprovisioningConfiguration.getOriginalConfig();
-    
     // don't send multiple emails same day to the same people when running daily job
-    if (attributeValue.getLastEmailedDate() != null) {
+    if (attributeValue.getLastEmailedDate() != null && callFromDaemon) {
       String today = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
 
-      if (callFromDaemon && StringUtils.equals(attributeValue.getLastEmailedDateString(), today)) {
+      if (StringUtils.equals(attributeValue.getLastEmailedDateString(), today)) {
         LOG.debug("For "+grouperObject.getName()+" deprovisioningLastEmailedDate is set to today so skipping sending email.");
         return;
       }
@@ -166,15 +175,14 @@ public class GrouperDeprovisioningEmailService {
     
     if (attributeValue.isDirectAssignment() && attributeValue.isSendEmail()) {
       populateEmailObjectsHelper(grouperSession, grouperObject, subject, attributeValue, userEmailObjects);
-    }
-    
-    String deprovisioningInheritedFromFolderId = attributeValue.getInheritedFromFolderIdString();
-    if (lookupAtInheritedFolder && StringUtils.isNotBlank(deprovisioningInheritedFromFolderId)) {
-      
+    } else {
+      String deprovisioningInheritedFromFolderId = attributeValue.getInheritedFromFolderIdString();
       try {
-        Stem stemToInheritConfigurationFrom = StemFinder.findByIdIndex(Long.valueOf(deprovisioningInheritedFromFolderId), true, new QueryOptions());
-        
-        populatedEmailObjects(grouperSession, stemToInheritConfigurationFrom, affiliation, subject, userEmailObjects, callFromDaemon, false);
+        Stem configurationStem = StemFinder.findByIdIndex(Long.valueOf(deprovisioningInheritedFromFolderId), true, new QueryOptions());
+        attributeValue = getDeprovisioningAttributeValue(configurationStem, affiliation.getLabel());
+        if (attributeValue != null) {
+          populateEmailObjectsHelper(grouperSession, grouperObject, subject, attributeValue, userEmailObjects);
+        }
         
       } catch(Exception e) {
         LOG.error(grouperObject.getName()+" has deprovisioningInheritedFromFolderId set to invalid folder id: "+deprovisioningInheritedFromFolderId);
@@ -259,7 +267,7 @@ public class GrouperDeprovisioningEmailService {
       }
       
       try {
-        new GrouperEmail().setBody(emailBody.toString()).setSubject(sub).setTo(entry.getKey()).send();
+        //new GrouperEmail().setBody(emailBody.toString()).setSubject(sub).setTo(entry.getKey()).send();
         objectsAssociatedWithEmail.addAll(emailPerPerson.deprovisioningGroupEmailObjects);
         objectsAssociatedWithEmail.addAll(emailPerPerson.deprovisioningStemEmailObjects);
         objectsAssociatedWithEmail.addAll(emailPerPerson.deprovisioningAttributeDefEmailObjects);
@@ -288,7 +296,9 @@ public class GrouperDeprovisioningEmailService {
       Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration();
       if (affiliationToConfiguration.containsKey(affiliation)) {
         GrouperDeprovisioningConfiguration configuration = affiliationToConfiguration.get(affiliation);
-        configuration.getOriginalConfig().setLastEmailedDate(new Date());
+        GrouperDeprovisioningAttributeValue newConfig = configuration.getNewConfig();
+        newConfig.setLastEmailedDate(new Date());
+        configuration.setNewConfig(newConfig);
         configuration.storeConfiguration();
       }
       
@@ -445,7 +455,7 @@ public class GrouperDeprovisioningEmailService {
       }
       
       if (group == null) {
-        LOG.error("For "+grouperObject.getName()+" mailToGroup doesn't exist.");
+        LOG.error("For "+attributeValue.getMailToGroupString()+" mailToGroup doesn't exist.");
         return emailAddresses;
       }
       

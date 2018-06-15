@@ -107,14 +107,13 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
   
   /**
    * @param membership
-   * @return true when subject is deprovisioned successfully, false otherwise.
    */
-  public boolean deprovisionSubject(final Membership membership) {
+  public void deprovisionSubject(final Membership membership) {
     
-    return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
       
       @Override
-      public Boolean callback(GrouperSession rootSession) throws GrouperSessionException {
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         
         Subject subject =  membership.getMember().getSubject();
 
@@ -142,10 +141,8 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
           for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
             ownerStem.revokePriv(subject, priv, false); 
           }
-        }
-        
-        Group deprovisionGroup = getUsersWhoHaveBeenDeprovisionedGroup();
-        return deprovisionGroup.addMember(subject, false);
+        }   
+        return null;
       }
     });
     
