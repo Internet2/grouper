@@ -10,6 +10,13 @@ if(request.getRemoteUser()==null || "y".equals(request.getParameter("badRole")))
 	location="home.do";
 }%>
 
+<c:if test="${grouperRequestContainer.commonRequestContainer.rootUiNewUi}">
+<%
+location="grouperUi";
+%>
+</c:if>
+
+
 <head><meta http-equiv="refresh" content="0;<%=location%>"/></head>
 
 <body onload="document.location.href='<%=location%>'">
