@@ -57,7 +57,7 @@ public class GrouperDeprovisioningAttributeNames {
   public static final String DEPROVISIONING_EMAIL_ADDRESSES = "deprovisioningEmailAddresses";
   /**
    * custom email body for emails, if blank use the default configured body. 
-   * Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
+   * Note there are template variables $$name$$ $$netId$$ $$userEmailAddress$$ $$userDescription$$
    */
   public static final String DEPROVISIONING_EMAIL_BODY = "deprovisioningEmailBody";
   
@@ -73,11 +73,6 @@ public class GrouperDeprovisioningAttributeNames {
    */
   public static final String DEPROVISIONING_CERTIFIED_MILLIS = "deprovisioningCertifiedMillis";
   
-  /**
-   * custom subject for emails, if blank use the default configured subject. 
-   * Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
-   */
-  public static final String DEPROVISIONING_EMAIL_SUBJECT = "deprovisioningEmailSubject";
   /**
    * Stem ID of the folder where the configuration is inherited from.  This is blank if this is a 
    * direct assignment and not inherited
@@ -229,21 +224,6 @@ public class GrouperDeprovisioningAttributeNames {
   
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant deprovisioning email body attribute def name be found?");
-    }
-    return attributeDefName;
-  
-  }
-  /**
-   * email subject attribute def name
-   * @return the attribute def name
-   */
-  public static AttributeDefName retrieveAttributeDefNameEmailSubject() {
-    
-    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
-        GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + DEPROVISIONING_EMAIL_SUBJECT);
-  
-    if (attributeDefName == null) {
-      throw new RuntimeException("Why cant deprovisioning email subject attribute def name be found?");
     }
     return attributeDefName;
   

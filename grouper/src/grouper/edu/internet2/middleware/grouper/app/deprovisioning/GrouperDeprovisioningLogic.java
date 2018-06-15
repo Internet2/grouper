@@ -82,7 +82,6 @@ public class GrouperDeprovisioningLogic {
         grouperDeprovisioningAttributeValue.setDirectAssignment(false);
         grouperDeprovisioningAttributeValue.setEmailAddressesString(inheritedAttributeValue.getEmailAddressesString());
         grouperDeprovisioningAttributeValue.setEmailBodyString(inheritedAttributeValue.getEmailBodyString());
-        grouperDeprovisioningAttributeValue.setEmailSubjectString(inheritedAttributeValue.getEmailSubjectString());
         grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString(inheritedAttributeValue.getGrouperDeprovisioningConfiguration().getAttributeAssignBase().getOwnerStemId());
         // dont set last emailed
         grouperDeprovisioningAttributeValue.setMailToGroupString(inheritedAttributeValue.getMailToGroupString());

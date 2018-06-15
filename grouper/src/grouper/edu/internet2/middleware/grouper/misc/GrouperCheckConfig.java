@@ -795,9 +795,6 @@ public class GrouperCheckConfig {
             "If configuration is assigned to a folder, then this is 'one' or 'sub'.  'one' means only applicable to objects"
             + " directly in this folder.  'sub' (default) means applicable to all objects in this folder and "
             + "subfolders.  Note, the inheritance stops when a sub folder or object has configuration assigned.", wasInCheckConfig);
-        checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_EMAIL_SUBJECT, 
-            "custom subject for emails, if blank use the default configured subject. "
-            + "Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$", wasInCheckConfig);
         checkAttribute(deprovisioningStem, deprovisioningAttrType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_EMAIL_BODY, 
             "custom email body for emails, if blank use the default configured body.  "
             + "Note there are template variables $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$", wasInCheckConfig);

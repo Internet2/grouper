@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -181,6 +183,93 @@ public class UiV2Deprovisioning {
     return hasError;
   }
 
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningReportOnFolder(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      if (!deprovisioningReportOnObjectHelper(stem)) {
+        return;
+      }
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * do a report on an object
+   * @param grouperObject 
+   * @return true to show report, false to not
+   */
+  private boolean deprovisioningReportOnObjectHelper(final GrouperObject grouperObject) {
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
+    
+    //switch over to admin so attributes work
+    boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+        
+        if (!checkDeprovisioning()) {
+          return false;
+        }
+        
+        if (!deprovisioningContainer.isCanWriteDeprovisioning()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("deprovisioningNotAllowedToWriteDeprovisioningFolder")));
+          return false;
+        }
+  
+        //get all deprovisioned users for realms where deprovisioning is on for this object
+        //are there any?
+        GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+        
+        Set<String> affiliationsWithDeprovisioning = new TreeSet<String>();
+        
+        for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+          
+          GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
+  
+          // we good
+          GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
+          if (originalConfig != null && originalConfig.isDeprovision()) {
+            affiliationsWithDeprovisioning.add(affiliation);
+          }
+        }
+        
+        if (GrouperUtil.length(affiliationsWithDeprovisioning) == 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("deprovisioningNoAffiliationsDeprovisionForThisObject")));
+          return false;
+        }
+        
+        return true;
+      }
+    });
+    return shouldContinue;
+  }
+  
   /**
    * 
    * @param request
@@ -405,6 +494,12 @@ public class UiV2Deprovisioning {
               }
               
               if (sendEmail != null && sendEmail) {
+
+                if (GrouperUtil.booleanValue(request.getParameter("grouperDeprovisioningHasEmailBodyName"), false)) {
+                  String emailBody = request.getParameter("grouperDeprovisioningEmailBodyName");
+                  grouperDeprovisioningAttributeValue.setEmailBodyString(StringUtils.trimToNull(emailBody));
+                }
+                
                 Boolean emailManagers = GrouperUtil.booleanObjectValue(request.getParameter("grouperDeprovisioningEmailManagersName"));
                 
                 if (emailManagers != null && emailManagers) {

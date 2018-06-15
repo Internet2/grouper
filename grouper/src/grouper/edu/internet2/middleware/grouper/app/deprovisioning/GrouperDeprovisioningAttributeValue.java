@@ -79,6 +79,11 @@ public class GrouperDeprovisioningAttributeValue {
 
     if (!this.isSendEmail()) {
       this.sendEmailString = null;
+      this.emailAddressesString = null;
+      this.emailBodyString = null;
+      this.emailGroupMembers = null;
+      this.mailToGroupString = null;
+
     }
     if (this.isShowForRemoval()) {
       this.showForRemovalString = null;
@@ -294,9 +299,6 @@ public class GrouperDeprovisioningAttributeValue {
       if (!StringUtils.isBlank(this.sendEmailString)) {
         toStringBuilder.append("sendEmail", this.isSendEmail());
       }
-      if (!StringUtils.isBlank(this.getEmailSubjectString())) {
-        toStringBuilder.append("emailSubjectString", this.isSendEmail());
-      }
       if (!StringUtils.isBlank(this.getInheritedFromFolderIdString())) {
         toStringBuilder.append("inheritedFromFolderIdString", this.getInheritedFromFolderIdString());
       }
@@ -405,6 +407,14 @@ public class GrouperDeprovisioningAttributeValue {
   }
 
   /**
+   * if there is an email body
+   * @return true if there is an email body
+   */
+  public boolean isHasEmailBody() {
+    return !StringUtils.isBlank(this.emailBodyString);
+  }
+  
+  /**
    * custom email body for emails, if blank use the default configured body. Note there are template variables 
    * $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
    */
@@ -462,35 +472,6 @@ public class GrouperDeprovisioningAttributeValue {
   public void setInheritedFromFolderIdString(String inheritedFromFolderIdString1) {
     this.inheritedFromFolderIdString = inheritedFromFolderIdString1;
   }
-
-  /**
-   * custom subject for emails, if blank use the default configured subject. Note there are template variables 
-   * $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
-   */
-  private String emailSubjectString;
-  
-
-  
-  /**
-   * custom subject for emails, if blank use the default configured subject. Note there are template variables 
-   * $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
-   * @return the emailSubjectString
-   */
-  public String getEmailSubjectString() {
-    return this.emailSubjectString;
-  }
-
-
-  
-  /**
-   * custom subject for emails, if blank use the default configured subject. Note there are template variables 
-   * $$name$$ $$netId$$ $$userSubjectId$$ $$userEmailAddress$$ $$userDescription$$
-   * @param emailSubjectString1 the emailSubjectString to set
-   */
-  public void setEmailSubjectString(String emailSubjectString1) {
-    this.emailSubjectString = emailSubjectString1;
-  }
-
 
   /**
    * Group ID which holds people to email members of that group to send deprovisioning messages (mutually exclusive with deprovisioningEmailAddresses)
