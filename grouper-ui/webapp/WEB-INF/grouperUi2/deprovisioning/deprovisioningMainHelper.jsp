@@ -12,7 +12,7 @@
                       <tr>
                         <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                           <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                      data-original-title="${textContainer.textEscapeDouble['grouperAttestationOverallColumnTooltipGroup']}">${textContainer.text['deprovisioningMainColumnHeaderSubject'] }</span></th>
+                      data-original-title="${textContainer.textEscapeDouble['deprovisioningMainColumnTooltipSubject']}">${textContainer.text['deprovisioningMainColumnHeaderSubject'] }</span></th>
                       </tr>
                     </thead>
                     <tbody>

@@ -1178,32 +1178,32 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      int successes = 0;
       int failures = 0;
       
-      Set<Membership> memberships = new HashSet<Membership>();
+      Set<Membership> membershipsDeprovisionedSuccessfully = new HashSet<Membership>();
       
       for (String membershipId : membershipsIds) {
         try {
           Membership membership = MembershipFinder.findByUuid(GrouperSession.start(loggedInSubject), membershipId, false, true);
-          
-          if (deprovisioningAffiliation.deprovisionSubject(membership)) {
-            memberships.add(membership);
-            successes++;
-          } else {
-            failures++;
-          }
-          
-        } catch (Exception e) {
+          deprovisioningAffiliation.deprovisionSubject(membership);
+          membershipsDeprovisionedSuccessfully.add(membership);
+          } catch (Exception e) {
           LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
           failures++;
         }
       }
       
-      GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
-      Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
-          memberships, deprovisioningAffiliation, false);
-      emailService.sendEmailToUsers(emailObjects);
+      if (membershipsDeprovisionedSuccessfully.size() > 0) {
+        Group deprovisionGroup = deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroup();
+        // subject is same for all memberships
+        boolean added = deprovisionGroup.addMember(membershipsDeprovisionedSuccessfully.iterator().next().getMember().getSubject(), false);
+        if (added) {
+          GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
+          Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
+              membershipsDeprovisionedSuccessfully, deprovisioningAffiliation, false);
+          emailService.sendEmailToUsers(emailObjects);
+        }
+      }
       
       if (failures == 0) {
         
