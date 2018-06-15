@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.deprovisioning;
 import static edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -34,7 +36,11 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.EmailObject;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * deprovisioning daemon
@@ -187,78 +193,9 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
    */
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
-    
-    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-      LOG.debug("Deprovisioning is not enabled!  Quitting daemon!");
-      return null;
-    }
-    
-    Map<String, GrouperDeprovisioningAffiliation> affiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
-    
-    AttributeDefName attributeDefName = retrieveAttributeDefNameBase();
-    
-    for (GrouperDeprovisioningAffiliation affiliation: affiliations.values()) {
-      
-      Set<Member> deprovisionedUsers = affiliation.getUsersWhoHaveBeenDeprovisioned();
-      
-      for (Member member: deprovisionedUsers) {
-        
-        Set<MembershipSubjectContainer> memberhipSubjectContainers = MembershipFinder.findAllImmediateMemberhipSubjectContainers(otherJobInput.getGrouperSession(), member.getSubject());
-        
-        for (MembershipSubjectContainer membershipSubjectContainer: memberhipSubjectContainers) {
-          
-          Group group = membershipSubjectContainer.getGroupOwner();
-          Stem stem = membershipSubjectContainer.getStemOwner();
-          AttributeDef attributeDef = membershipSubjectContainer.getAttributeDefOwner();
-          
-          if (group != null) {
-            buildEmailObjects(group, affiliation.getLabel());
-          } else if (stem != null) {
-            buildEmailObjects(stem, affiliation.getLabel());
-          } else if (attributeDef != null) {
-            buildEmailObjects(attributeDef, affiliation.getLabel());
-          }
-        }
-        
-      }
-      
-    }
-    
+    GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
+    emailService.sendEmailForAllAffiliations(otherJobInput.getGrouperSession());
     return null;
-  }
-  
-  private Map<String, EmailObject> buildEmailObject() {
-    return null;
-  }
-  
-  private Map<String, EmailObject> buildEmailObjects(GrouperObject grouperObject, String affiliation) {
-
-    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
-    Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration();
-    
-    if (!affiliationToConfiguration.containsKey(affiliation)) {
-      return new HashMap<String, EmailObject>();
-    }
-    
-    GrouperDeprovisioningConfiguration deprovisioningConfiguration = affiliationToConfiguration.get(affiliation);
-    
-    GrouperDeprovisioningAttributeValue attributeValue = deprovisioningConfiguration.getNewConfig();
-    
-    if (attributeValue.isDirectAssignment() && attributeValue.isSendEmail()) {
-      return buildEmailObject();
-    }
-    
-    String deprovisioningInheritedFromFolderId = attributeValue.getInheritedFromFolderIdString();
-    try {
-      Stem stemToInheritConfigurationFrom = StemFinder.findByIdIndex(Long.valueOf(deprovisioningInheritedFromFolderId), true, new QueryOptions());
-      
-      return buildEmailObjects(stemToInheritConfigurationFrom, affiliation);
-      
-    } catch(Exception e) {
-      LOG.error(grouperObject.getName()+" has deprovisioningInheritedFromFolderId set to invalid folder id: "+deprovisioningInheritedFromFolderId);
-      return new HashMap<String, EmailObject>();
-    }
-    
   }
   
   /**
@@ -405,6 +342,22 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
     }
     
     return emails;
+  }
+  
+  class EmailPerPerson {
+    private List<CustomEmail> customEmails;
+    private StandardEmail standardEmail;
+  }
+  
+  class CustomEmail {
+    private String subject;
+    private String body;
+  }
+  
+  class StandardEmail {
+    private int groupsCount;
+    private int stemsCount;
+    private int attributeDefCount;
   }
 
 }

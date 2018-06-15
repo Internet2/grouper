@@ -198,7 +198,7 @@ public class GrouperDeprovisioningOverallConfiguration {
   public static Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> retrieveConfiguration(Set<GrouperObject> groupsOrFoldersOrAttributeDefs) {
     
     if (GrouperUtil.length(groupsOrFoldersOrAttributeDefs) == 0) {
-      throw new NullPointerException("groupsOrFolders is empty");
+      throw new NullPointerException("groupsOrFoldersOrAttributeDefs is empty");
     }
 
     Map<String, GrouperObject> groupMap = new HashMap<String, GrouperObject>();
@@ -291,6 +291,7 @@ public class GrouperDeprovisioningOverallConfiguration {
   private static void retrieveConfigurationHelper(Collection<GrouperObject> groupsOrFoldersOrAttributeDefs,
       AttributeAssignValueFinderResult attributeAssignValueFinderResult,
       Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> result) {
+    
     for (GrouperObject groupOrFolderOrAttributeDef : groupsOrFoldersOrAttributeDefs) {
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration 
         = new GrouperDeprovisioningOverallConfiguration();
