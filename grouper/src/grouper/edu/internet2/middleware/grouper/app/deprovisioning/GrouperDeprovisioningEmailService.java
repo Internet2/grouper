@@ -403,13 +403,13 @@ public class GrouperDeprovisioningEmailService {
     String uiUrl = GrouperConfig.getGrouperUiUrl(false);
     if (StringUtils.isNotBlank(uiUrl)) {
       if (grouperObject instanceof Group) {
-        result = result.replace("$$grouperObjectLink$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroup&groupId="+grouperObject.getId());
+        result = result.replace("$$objectDeprovisioningUrl$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroup&groupId="+grouperObject.getId());
       }
       if (grouperObject instanceof Stem) {
-        result = result.replace("$$grouperObjectLink$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Stem.viewStem&stemId="+grouperObject.getId());
+        result = result.replace("$$objectDeprovisioningUrl$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Stem.viewStem&stemId="+grouperObject.getId());
       }
       if (grouperObject instanceof AttributeDef) {
-        result = result.replace("$$grouperObjectLink$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2AttributeDef.viewAttributeDef&attributeDefId="+grouperObject.getId());
+        result = result.replace("$$objectDeprovisioningUrl$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2AttributeDef.viewAttributeDef&attributeDefId="+grouperObject.getId());
       }
     }
     
