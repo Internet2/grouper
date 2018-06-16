@@ -519,6 +519,7 @@ public class UiV2Deprovisioning {
                   
                   if (emailGroupMembers != null && emailGroupMembers) {
                     grouperDeprovisioningAttributeValue.setEmailAddressesString(null);
+                    grouperDeprovisioningAttributeValue.setEmailGroupMembers(true);
                   }
                   if (emailGroupMembers != null && !emailGroupMembers) {
                     grouperDeprovisioningAttributeValue.setEmailGroupMembers(false);
@@ -543,13 +544,15 @@ public class UiV2Deprovisioning {
                       if (GROUP_TO_EMAIL == null) {
                         
                         if (onSubmit) {
-                          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
                             "#grouperDeprovisioningEmailGroupIdMembersId",
                             TextContainer.retrieveFromRequest().getText().get("deprovisioningGroupIdNotFound")));
                         
                           return false;
                         }
                         
+                      } else {
+                        grouperDeprovisioningAttributeValue.setMailToGroupString(groupIdOrName);
                       }
                       
                     }
