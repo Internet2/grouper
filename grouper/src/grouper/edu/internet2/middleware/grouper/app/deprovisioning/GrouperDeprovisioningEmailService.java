@@ -267,7 +267,7 @@ public class GrouperDeprovisioningEmailService {
       }
       
       try {
-        //new GrouperEmail().setBody(emailBody.toString()).setSubject(sub).setTo(entry.getKey()).send();
+        new GrouperEmail().setBody(emailBody.toString()).setSubject(sub).setTo(entry.getKey()).send();
         objectsAssociatedWithEmail.addAll(emailPerPerson.deprovisioningGroupEmailObjects);
         objectsAssociatedWithEmail.addAll(emailPerPerson.deprovisioningStemEmailObjects);
         objectsAssociatedWithEmail.addAll(emailPerPerson.deprovisioningAttributeDefEmailObjects);
