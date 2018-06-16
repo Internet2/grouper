@@ -539,7 +539,7 @@ public class GrouperDeprovisioningEmailService {
     
   }
   
-  private class GrouperObjectWithAffiliation {
+  protected class GrouperObjectWithAffiliation {
     
     public String affiliation;
     public GrouperObject grouperObject;

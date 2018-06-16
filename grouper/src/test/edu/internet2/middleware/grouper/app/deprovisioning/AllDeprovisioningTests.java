@@ -37,6 +37,7 @@ public class AllDeprovisioningTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperDeprovisioningJobTest.class);
     suite.addTestSuite(GrouperDeprovisioningOverallConfigurationTest.class);
+    suite.addTestSuite(GrouperDeprovisioningEmailServiceTest.class);
     //$JUnit-END$
     return suite;
   }
