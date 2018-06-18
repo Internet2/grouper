@@ -1,7 +1,11 @@
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import static edu.internet2.middleware.grouper.Field.FIELD_NAME_ATTR_ADMINS;
+import static edu.internet2.middleware.grouper.Field.FIELD_NAME_ATTR_UPDATERS;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -24,9 +28,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
-import edu.internet2.middleware.grouper.privs.AttributeDefResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -442,8 +445,21 @@ public class GrouperDeprovisioningEmailService {
        subjects.addAll(stem.getStemmers());
      } else if (grouperObject instanceof AttributeDef) {
        AttributeDef attributeDef = (AttributeDef) grouperObject;
-       subjects.addAll(AttributeDefResolverFactory.getInstance(grouperSession).getSubjectsWithPrivilege(attributeDef, AttributeDefPrivilege.ATTR_ADMIN));
-       subjects.addAll(AttributeDefResolverFactory.getInstance(grouperSession).getSubjectsWithPrivilege(attributeDef, AttributeDefPrivilege.ATTR_UPDATE));
+       
+       Set<MembershipSubjectContainer> membershipSubjectContainers = new MembershipFinder()
+           .addAttributeDefId(attributeDef.getId()).assignCheckSecurity(true)
+           .assignFieldType(FieldType.ATTRIBUTE_DEF)
+           .assignEnabled(true)
+           .assignHasFieldForMember(true)
+           .assignHasMembershipTypeForMember(true)
+           .assignSplitScopeForMember(true)
+           .assignFieldsByName(Arrays.asList(FIELD_NAME_ATTR_ADMINS, FIELD_NAME_ATTR_UPDATERS))
+           .findMembershipResult().getMembershipSubjectContainers();
+       
+       for (MembershipSubjectContainer membershipSubjectContainer: membershipSubjectContainers) {
+         subjects.add(membershipSubjectContainer.getMember().getSubject());
+       }
+       
      }
      
      emailAddresses.addAll(GrouperEmailUtils.getEmails(subjects));
@@ -491,6 +507,10 @@ public class GrouperDeprovisioningEmailService {
     
     String emailBody = attributeValue.getEmailBodyString();
     String affiliation = attributeValue.getAffiliationString();
+    
+    // don't send email to deprovisioned subject even if it's admin/updater of grouper object
+    String emailOfDeprovisionedSubject = GrouperEmailUtils.getEmail(subject);
+    emailsTo.remove(emailOfDeprovisionedSubject);
     
     for (String emailTo: emailsTo) {
       EmailPerPerson emailPerPerson = null;
