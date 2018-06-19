@@ -171,6 +171,12 @@ public class GrouperShell {
       eGS.printStackTrace();
       LOG.error("GSH is exiting: " + eGS.getMessage(), eGS);
       System.exit(1);
+    } catch (UnsatisfiedLinkError e) {
+      if (e.getMessage() != null && e.getMessage().contains("jansi")) {
+        System.err.println("\n\n\nUnable to start GSH.  Your tmpdir " + System.getProperty("java.io.tmpdir") + " may have the noexec flag set.  If so, set this environment variable: export GSH_JVMARGS=\"-Dlibrary.jansi.path=/some/other/temp/path/with/exec\"\n\n\n");
+      }
+      
+      throw new RuntimeException(e);
     }
     System.exit(0);
   } // public static void main(args)
