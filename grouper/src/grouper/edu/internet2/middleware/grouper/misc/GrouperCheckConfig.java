@@ -1451,7 +1451,7 @@ public class GrouperCheckConfig {
     checkJar("jta-1.1.jar", 15071, "javax.transaction.HeuristicCommitException", "null");
     checkJar("ldaptive-1.1.0.jar", 779848, "org.ldaptive.AbstractConfig", "null");
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");
-    checkJar("mailapi-1.4.3.jar", 250233, "com.sun.mail.handlers.text_html", "1.4.3");
+    checkJar("mail-1.4.7.jar", 521157, "javax.mail.NoSuchProviderException", "1.4.7");
     checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
     checkJar("morphString.jar", 78679, "edu.internet2.middleware.morphString.Crypto", "1.2");
     checkJar("oro-2.0.8.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");

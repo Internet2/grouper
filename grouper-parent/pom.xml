@@ -141,7 +141,7 @@
         <xom.version>1.2.5</xom.version>
         <xmlpull.version>1.1.3.1</xmlpull.version>
         <activation.version>1.1.1</activation.version>
-        <mail.version>1.4.3</mail.version>
+        <mail.version>1.4.7</mail.version>
         <jta.version>1.1</jta.version>
         <servlet.api.version>3.1.0</servlet.api.version>
         <xmlunit.version>1.5</xmlunit.version>
@@ -637,7 +637,7 @@
             </dependency>
             <dependency>
                 <groupId>javax.mail</groupId>
-                <artifactId>mailapi</artifactId>
+                <artifactId>mail</artifactId>
                 <version>${mail.version}</version>
             </dependency>
             <dependency>

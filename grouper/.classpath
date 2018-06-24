@@ -23,7 +23,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jta-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/jug-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/log4j-1.2.17.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/mailapi-1.4.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/mail-1.4.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/morphString.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/p6spy-3.6.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz-2.3.0.jar"/>
