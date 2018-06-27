@@ -7134,6 +7134,19 @@ public class GrouperUtil {
   }
   
   /**
+   * join a thread
+   * @param thread
+   * @param millis
+   */
+  public static void threadJoin(Thread thread, long millis) {
+    try {
+      thread.join(millis);
+    } catch (InterruptedException ie) {
+      throw new RuntimeException("Thread interrupted: " + thread.getName(), ie);
+    }
+  }
+  
+  /**
    * this method takes a long (less than 62) and converts it to a 1 character
    * string (a-z, A-Z, 0-9)
    *

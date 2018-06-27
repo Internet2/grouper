@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -53,7 +54,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -1388,6 +1391,76 @@ public class UiV2Deprovisioning {
   
   }
 
+  /**
+   * report on deprovisioning on group
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnGroupReport(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // needs UPDATE and READ
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      if (group == null) {
+        return;
+      }
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();      
+
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+      
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        throw new RuntimeException("Deprovisioning is disabled");
+      }
+
+      //get all the users who are deprovisioned
+      Set<Subject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwner(group);
+      
+      Set<MembershipSubjectContainer> membershipSubjectContainers = new TreeSet<MembershipSubjectContainer>();
+      
+      if (GrouperUtil.length(subjectsWhoAreDeprovisioned) > 0) {
+      
+        MembershipResult membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE)
+            .assignFieldType(FieldType.ACCESS).findMembershipResult();
+        
+        membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
+
+        membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE)
+            .assignFieldType(FieldType.LIST).findMembershipResult();
+        
+        //TODO merge these together
+        membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
+      }
+      
+      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
+      Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+      deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningGroupReport.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    
+  }
+  
   /**
    * 
    * @param request
