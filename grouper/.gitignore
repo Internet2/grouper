@@ -21,3 +21,5 @@ test.log
 /grouperHSQL.properties
 /grouperHSQL.script
 /grouperImportRecord*
+/.classpath
+/.project
