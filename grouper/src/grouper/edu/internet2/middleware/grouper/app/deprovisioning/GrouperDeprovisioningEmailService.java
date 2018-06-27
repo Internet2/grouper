@@ -16,10 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-<<<<<<< HEAD
-=======
 import edu.internet2.middleware.grouper.FieldType;
->>>>>>> branch 'GROUPER_2_3_BRANCH' of https://github.com/Internet2/grouper.git
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
