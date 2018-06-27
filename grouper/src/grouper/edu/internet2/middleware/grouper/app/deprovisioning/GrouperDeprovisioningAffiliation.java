@@ -28,6 +28,9 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * 
+ */
 public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDeprovisioningAffiliation> {
 
   /**
@@ -107,13 +110,14 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
   
   /**
    * @param membership
+   * @return true when subject is deprovisioned successfully, false otherwise.
    */
-  public void deprovisionSubject(final Membership membership) {
+  public boolean deprovisionSubject(final Membership membership) {
     
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
       
       @Override
-      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+      public Boolean callback(GrouperSession rootSession) throws GrouperSessionException {
         
         Subject subject =  membership.getMember().getSubject();
 
@@ -141,8 +145,10 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
           for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
             ownerStem.revokePriv(subject, priv, false); 
           }
-        }   
-        return null;
+        }
+        
+        Group deprovisionGroup = getUsersWhoHaveBeenDeprovisionedGroup();
+        return deprovisionGroup.addMember(subject, false);
       }
     });
     
