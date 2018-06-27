@@ -46,7 +46,7 @@ public class GrouperDeprovisioningEmailService {
   
   /**
    * send email about all new deprovisioned users. 
-s   * @param grouperSession
+   * @param grouperSession
    */
   public void sendEmailForAllAffiliations(GrouperSession grouperSession) {
     
