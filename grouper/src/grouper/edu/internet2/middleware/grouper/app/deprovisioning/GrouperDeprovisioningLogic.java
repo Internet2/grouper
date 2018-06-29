@@ -326,14 +326,14 @@ public class GrouperDeprovisioningLogic {
   public static Set<Subject> deprovisionedSubjectsForAffiliation(String affiliation, boolean useCache) {
     
     if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-      return null;
+      return new HashSet<Subject>();
     }
 
     GrouperDeprovisioningCache grouperDeprovisioningCache = grouperDeprovisioningCache(useCache);
-    
+
     MultiKey multiKey = multiKeyMapAffiliationDeprovisionedGroup(affiliation);
-    
-    return grouperDeprovisioningCache.getDeprovisionedSubjectSetMap().get(multiKey);
+
+    return GrouperUtil.nonNull(grouperDeprovisioningCache.getDeprovisionedSubjectSetMap().get(multiKey));
 
   }
 
@@ -568,41 +568,74 @@ public class GrouperDeprovisioningLogic {
     }
     return affiliationsToDeprovision;
   }
-  
+
   /**
    * subjects who are deprovisioned, on affiliations on the owner which are deprovisioning, 
    * and which are not in affilation groups of other deprovisionable groups
    * @param owner
+   * @param useCache 
    * @return the subjects to query
    */
-  public static Set<Subject> subjectsWhoAreDeprovisionedInRelationToOwner(GrouperObject owner) {
+  public static Set<Subject> subjectsWhoAreDeprovisionedInRelationToOwner(GrouperObject owner, boolean useCache) {
+    Set<Subject> result = new HashSet<Subject>();
+    for (DeprovisionedSubject deprovisionedSubject : subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(owner, useCache)) {
+      result.add(deprovisionedSubject.getSubject());
+    }
+    return result;
+  }
+
+  /**
+   * subjects who are deprovisioned, on affiliations on the owner which are deprovisioning, 
+   * and which are not in affilation groups of other deprovisionable groups
+   * @param owner
+   * @param useCache 
+   * @return the subjects to query
+   */
+  public static Set<DeprovisionedSubject> subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(GrouperObject owner, boolean useCache) {
     Set<String> affiliationsToDeprovision = GrouperDeprovisioningLogic.affiliationsToDeprovision(owner);
 
     //get all the users who are deprovisioned
-    Set<Subject> subjectsWhoAreDeprovisioned = new HashSet<Subject>();
-    for (String affiliation : GrouperUtil.nonNull(affiliationsToDeprovision)) {
-      subjectsWhoAreDeprovisioned.addAll(GrouperDeprovisioningLogic.deprovisionedSubjectsForAffiliation(affiliation, true));
-    }
+    Map<Subject, DeprovisionedSubject> subjectsWhoAreDeprovisioned = new HashMap<Subject, DeprovisionedSubject>();
 
+    for (String affiliation : GrouperUtil.nonNull(affiliationsToDeprovision)) {
+
+      for (Subject subject : GrouperDeprovisioningLogic.deprovisionedSubjectsForAffiliation(affiliation, useCache)) {
+        
+        DeprovisionedSubject deprovisionedSubject = subjectsWhoAreDeprovisioned.get(subject);
+        
+        if (deprovisionedSubject == null) {
+          deprovisionedSubject = new DeprovisionedSubject();
+          deprovisionedSubject.setSubject(subject);
+          deprovisionedSubject.setAffiliations(new TreeSet<String>());
+          subjectsWhoAreDeprovisioned.put(subject, deprovisionedSubject);
+        }
+        deprovisionedSubject.getAffiliations().add(affiliation);
+      }
+
+    }
+    
     //see if any of these subjects are in affiliation groups
-    Iterator<Subject> iterator = subjectsWhoAreDeprovisioned.iterator();
+    Iterator<Map.Entry<Subject, DeprovisionedSubject>> iterator = subjectsWhoAreDeprovisioned.entrySet().iterator();
     while (iterator.hasNext()) {
-      Subject subject = iterator.next();
+
+      Map.Entry<Subject, DeprovisionedSubject> entry = iterator.next();
+      Subject subject = entry.getKey();
+      
       //go through affiliations
       for (String affiliation : GrouperUtil.nonNull(affiliationsToDeprovision)) {
         
         // if deprovisioning this user, then deprovision
-        if (!GrouperDeprovisioningLogic.deprovisionedSubject(subject, affiliation, true)) {
+        if (!GrouperDeprovisioningLogic.deprovisionedSubject(subject, affiliation, useCache)) {
           
           // if in an affiliation group of an affiliation which is deprovisioned, then dont remove the user
-          if (GrouperDeprovisioningLogic.inAffiliationGroup(subject, affiliation, true)) {
+          if (GrouperDeprovisioningLogic.inAffiliationGroup(subject, affiliation, useCache)) {
             iterator.remove();
           }
         }
       }
     }
     
-    return subjectsWhoAreDeprovisioned;
+    return new HashSet<DeprovisionedSubject>(subjectsWhoAreDeprovisioned.values());
     
   }
   
