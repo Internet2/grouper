@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.deprovisioning.DeprovisionedSubject;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
@@ -1418,39 +1419,47 @@ public class UiV2Deprovisioning {
       if (group == null) {
         return;
       }
-      
+
+      final Group GROUP = group;
+
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();      
 
-      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
-      
-      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-        throw new RuntimeException("Deprovisioning is disabled");
-      }
-
-      //get all the users who are deprovisioned
-      Set<Subject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwner(group);
-      
-      Set<MembershipSubjectContainer> membershipSubjectContainers = new TreeSet<MembershipSubjectContainer>();
-      
-      if (GrouperUtil.length(subjectsWhoAreDeprovisioned) > 0) {
-      
-        MembershipResult membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE)
-            .assignFieldType(FieldType.ACCESS).findMembershipResult();
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
-        membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-        membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE)
-            .assignFieldType(FieldType.LIST).findMembershipResult();
-        
-        //TODO merge these together
-        membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
-      }
-      
-      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
-      Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
-      deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
-      
+          final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+          final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+          
+          if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+            throw new RuntimeException("Deprovisioning is disabled");
+          }
+
+          //get all the users who are deprovisioned
+          Set<DeprovisionedSubject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(GROUP, false);
+          
+          Set<MembershipSubjectContainer> membershipSubjectContainers = new HashSet<MembershipSubjectContainer>();
+          
+          if (GrouperUtil.length(subjectsWhoAreDeprovisioned) > 0) {
+          
+            Set<Subject> subjects = DeprovisionedSubject.retrieveSubjectsFromDeprovisionedSubject(subjectsWhoAreDeprovisioned);
+            
+            MembershipResult membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE).addGroup(GROUP)
+                .assignFieldType(FieldType.ACCESS).addSubjects(subjects).findMembershipResult();
+            
+            membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
+
+          }
+          
+          Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
+          Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = 
+              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+          GuiDeprovisioningMembershipSubjectContainer.markAffiliations(guiDeprovisioningContainers, subjectsWhoAreDeprovisioned);
+          deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
+          
+          return null;
+        }
+      });
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/deprovisioning/deprovisioningGroupReport.jsp"));
 
