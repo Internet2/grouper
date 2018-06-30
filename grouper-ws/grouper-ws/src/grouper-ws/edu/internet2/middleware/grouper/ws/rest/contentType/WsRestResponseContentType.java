@@ -248,12 +248,16 @@ public enum WsRestResponseContentType {
       xstream.omitField(WsSubject.class, "identifierLookup");
     }
     //dont try to get fancy
+    //XStream.setupDefaultSecurity(xstream); //CVE-2013-7285, this is needed for XStream 1.4.10 due to regression bug #108
     xstream.setMode(XStream.NO_REFERENCES);
     xstream.autodetectAnnotations(true);
     Map<String, Class<?>> aliasClassMap = WsRestClassLookup.getAliasClassMap();
     for (String key : aliasClassMap.keySet()) {
       xstream.alias(key, aliasClassMap.get(key));
     }
+    //optional, whitelist all the WS classes for extra protection
+    xstream.allowTypes(aliasClassMap.values().toArray(new Class[0])); //CVE-2013-7285
+
     return xstream;
   }
 

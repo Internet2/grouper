@@ -85,7 +85,7 @@
         <mchange.commons.version>0.2.14</mchange.commons.version>
         <cglib.version>3.1</cglib.version>
         <jamon.version>2.81</jamon.version>
-        <xstream.version>1.4.10</xstream.version>
+        <xstream.version>1.4.9</xstream.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
         <commons.cli.version>1.4</commons.cli.version>
