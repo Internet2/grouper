@@ -23,9 +23,7 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,6 +61,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
@@ -91,7 +90,6 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
-import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
@@ -2596,9 +2594,9 @@ public enum GrouperLoaderType {
     
     int totalCount = 0;
     
-    
     try {
 
+      final Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, true);
       int numberOfRows = grouperLoaderResultset.numberOfRows();
       hib3GrouploaderLog.setTotalCount(numberOfRows);
 
@@ -2914,7 +2912,10 @@ public enum GrouperLoaderType {
               break;
             }
           }
-          if (!andGroupsDoesntHaveSubject) {
+          
+          boolean addSubject = GrouperDeprovisioningLogic.shouldAddSubject(grouperSession, loaderGroup, subject);
+          
+          if (!andGroupsDoesntHaveSubject && addSubject) {
             if (LOG.isDebugEnabled()) {
               LOG.debug(groupName + " will add subject to group: " + subject.getSource().getName() + "/" + subject.getId() + ", " + count + " of " + numberOfRows + " subjects");
             }
@@ -3119,9 +3120,6 @@ public enum GrouperLoaderType {
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
         @Override
         public Void callLogic() {
-          
-          Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, true);
-          
           updateLoaderMetadataAttributes(hib3GrouploaderLog, THE_GROUP, loaderGroup);
           return null;
         }
@@ -4706,5 +4704,5 @@ public enum GrouperLoaderType {
     }
     TOTAL_COUNT[0]++;
   }
-
+  
 }

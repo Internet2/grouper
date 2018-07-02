@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -782,6 +783,63 @@ public class GrouperDeprovisioningLogic {
     
     return grouperDeprovisioningCache.getDeprovisionedSubjectSet().contains(multiKey);
     
+  }
+  
+  /**
+   * 
+   * @param grouperSession
+   * @param loaderGroup
+   * @param subject
+   * @return true if the subject has not been deprovisioned or autoChangeLoader is set to false
+   *  or some other affiliation's groupNameMeansInAffiliation contains this subject
+   */
+  public static boolean shouldAddSubject(GrouperSession grouperSession, Group loaderGroup, Subject subject) {
+    
+    Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
+    
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(loaderGroup);
+    
+    Set<String> affiliationsToDeprovision = GrouperDeprovisioningLogic.affiliationsToDeprovision(loaderGroup);
+    
+    for (String affiliation: affiliationsToDeprovision) {
+      
+      Set<Subject> subjectsForAffiliation = GrouperDeprovisioningLogic.deprovisionedSubjectsForAffiliation(affiliation, true);
+      
+      if (subjectsForAffiliation.contains(subject)) {
+        boolean autoChangeLoader = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration()
+            .get(affiliation).getOriginalConfig().isAutoChangeLoader();
+        
+        if (!autoChangeLoader) {
+          return true;
+        }
+        
+        boolean subjectInAnotherGroupMeansInAffiliation = false;
+        
+        // go through the rest of the affiliations and if subject is member of groupNameMeansInAffiliation 
+        // then subject should still be added
+        Set<String> affiliationsToDeprovisionRest = GrouperDeprovisioningLogic.affiliationsToDeprovision(loaderGroup);
+        affiliationsToDeprovisionRest.remove(affiliation);
+        
+        for (String affiliationToCheck: affiliationsToDeprovisionRest) {
+          GrouperDeprovisioningAffiliation grouperDeprovisioningAffiliation = allAffiliations.get(affiliationToCheck);
+          if (StringUtils.isNotBlank(grouperDeprovisioningAffiliation.getGroupNameMeansInAffiliation())) {
+            String groupNameMeansInAffiliation = grouperDeprovisioningAffiliation.getGroupNameMeansInAffiliation();
+            Group groupMeansInAffiliation = GroupFinder.findByName(grouperSession, groupNameMeansInAffiliation, false);
+            if (groupMeansInAffiliation != null && groupMeansInAffiliation.hasMember(subject)) {
+              subjectInAnotherGroupMeansInAffiliation = true;
+            }
+          }
+        }
+        
+        if (!subjectInAnotherGroupMeansInAffiliation) {
+          return false;
+        }
+      }
+      
+    }
+    
+    return true;
+
   }
 
 }
