@@ -112,7 +112,7 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    * @param membership
    * @return true when subject is deprovisioned successfully, false otherwise.
    */
-  public boolean deprovisionSubject(final Membership membership) {
+  public Boolean deprovisionMembership(final Membership membership) {
     
     return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
       
