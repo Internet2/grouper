@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -58,6 +59,8 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -216,6 +219,263 @@ public class UiV2Deprovisioning {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+  }
+
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningReportOnFolderSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final Set<String> memberIds = new HashSet<String>();
+      
+      for (int i=0;i<10000;i++) {
+        String memberId = request.getParameter("memberIds_" + i + "[]");
+        if (!StringUtils.isBlank(memberId)) {
+          memberIds.add(memberId);
+        }
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (GrouperUtil.length(memberIds) > 0) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoMembersSelected")));
+        
+        return;
+      }
+      
+      final Stem STEM = stem;
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          int failures = 0;
+
+          for (String memberId : GrouperUtil.nonNull(memberIds)) {
+            try {
+              
+              Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+              Subject subject = member.getSubject();
+              GrouperDeprovisioningLogic.removeAccess(STEM, subject);
+              
+            } catch (Exception e) {
+              LOG.error("Error with removing priv: " + memberId + ", " + STEM.getName(), e);
+              failures++;
+            }
+          }
+          
+          if (failures == 0) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnFolder&stemId=" + STEM.getId() + "')"));
+            
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
+          }
+          return null;
+        }
+      });
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningReportOnAttributeDefSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+
+      if (attributeDef != null) {
+        attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      }
+      
+      if (attributeDef == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final AttributeDef ATTRIBUTE_DEF = attributeDef;
+      
+      final Set<String> memberIds = new HashSet<String>();
+      
+      for (int i=0;i<10000;i++) {
+        String memberId = request.getParameter("memberIds_" + i + "[]");
+        if (!StringUtils.isBlank(memberId)) {
+          memberIds.add(memberId);
+        }
+      }
+      
+      if (GrouperUtil.length(memberIds) > 0) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoMembersSelected")));
+        
+        return;
+      }
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          int failures = 0;
+
+          for (String memberId : GrouperUtil.nonNull(memberIds)) {
+            try {
+              
+              Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+              Subject subject = member.getSubject();
+              GrouperDeprovisioningLogic.removeAccess(ATTRIBUTE_DEF, subject);
+              
+            } catch (Exception e) {
+              LOG.error("Error with removing priv: " + memberId + ", " + ATTRIBUTE_DEF.getName(), e);
+              failures++;
+            }
+          }
+          
+          if (failures == 0) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnAttributeDef&attributeDefId=" + ATTRIBUTE_DEF.getId() + "')"));
+            
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
+          }
+          return null;
+        }
+      });
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningReportOnGroupSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group != null) {
+        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      }
+      
+      if (group == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Group GROUP = group;
+      
+      final Set<String> memberIds = new HashSet<String>();
+      
+      for (int i=0;i<10000;i++) {
+        String memberId = request.getParameter("memberIds_" + i + "[]");
+        if (!StringUtils.isBlank(memberId)) {
+          memberIds.add(memberId);
+        }
+      }
+      
+      if (GrouperUtil.length(memberIds) > 0) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoMembersSelected")));
+        
+        return;
+      }
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          int failures = 0;
+
+          for (String memberId : GrouperUtil.nonNull(memberIds)) {
+            try {
+              
+              Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+              Subject subject = member.getSubject();
+              GrouperDeprovisioningLogic.removeAccess(GROUP, subject);
+              
+            } catch (Exception e) {
+              LOG.error("Error with removing priv: " + memberId + ", " + GROUP.getName(), e);
+              failures++;
+            }
+          }
+          
+          if (failures == 0) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnGroup&groupId=" + GROUP.getId() + "')"));
+            
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
+          }
+          return null;
+        }
+      });
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   /**
@@ -1112,6 +1372,9 @@ public class UiV2Deprovisioning {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          Member member = MemberFinder.findBySubject(grouperSession, SUBJECT, true);
+          deprovisioningContainer.setDeprovisionedMemberId(member.getId());
           
           Set<MembershipSubjectContainer> membershipSubjectContainers = MembershipFinder.findAllImmediateMemberhipSubjectContainers(grouperSession, SUBJECT);
           
@@ -1175,20 +1438,14 @@ public class UiV2Deprovisioning {
 
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      if (membershipsIds.size() == 0) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningRemoveNoAssignmentsSelects")));
-        return;
-      }
-      
       int failures = 0;
       
       Set<Membership> membershipsDeprovisionedSuccessfully = new HashSet<Membership>();
       
-      for (String membershipId : membershipsIds) {
+      for (String membershipId : GrouperUtil.nonNull(membershipsIds)) {
         try {
           Membership membership = MembershipFinder.findByUuid(GrouperSession.start(loggedInSubject), membershipId, false, true);
-          deprovisioningAffiliation.deprovisionSubject(membership);
+          GrouperDeprovisioningLogic.removeAccess(membership);
           membershipsDeprovisionedSuccessfully.add(membership);
           } catch (Exception e) {
           LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
@@ -1196,10 +1453,14 @@ public class UiV2Deprovisioning {
         }
       }
       
-      if (membershipsDeprovisionedSuccessfully.size() > 0) {
+      if (membershipsDeprovisionedSuccessfully.size() > 0 || GrouperUtil.length(membershipsIds) == 0) {
+        
+        String memberId = request.getParameter("memberId");
+        Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+        
         Group deprovisionGroup = deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroup();
         // subject is same for all memberships
-        boolean added = deprovisionGroup.addMember(membershipsDeprovisionedSuccessfully.iterator().next().getMember().getSubject(), false);
+        boolean added = deprovisionGroup.addMember(member.getSubject(), false);
         if (added) {
           GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
           Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
@@ -1322,7 +1583,10 @@ public class UiV2Deprovisioning {
       if (deprovisioningAffiliation == null) {
         return;
       }
-      
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
           "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserSearch.jsp"));
             
@@ -1803,6 +2067,193 @@ public class UiV2Deprovisioning {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  
+  }
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningReportOnGroup(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      if (!deprovisioningReportOnObjectHelper(group)) {
+        return;
+      }
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void updateAttributeDefLastCertifiedDate(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+
+      if (attributeDef != null) {
+        attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      }
+
+      if (attributeDef == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(attributeDef);
+      
+      deprovisioningReportOnFolder(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedUpdateSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void updateGroupLastCertifiedDate(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group != null) {
+        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      }
+      
+      if (group == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(group);
+      
+      deprovisioningReportOnFolder(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedUpdateSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void updateFolderLastCertifiedDate(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+        
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(stem);
+      
+      deprovisioningReportOnFolder(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedUpdateSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+
+  
+  /**
+   * @param request
+   * @param response
+   */
+  public void deprovisioningReportOnAttributeDef(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+
+      if (attributeDef == null) {
+        return;
+      }
+      
+      if (!deprovisioningReportOnObjectHelper(attributeDef)) {
+        return;
+      }
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   
   }
   private static GrouperDeprovisioningAffiliation retrieveAffiliation(HttpServletRequest request, Subject subject) {

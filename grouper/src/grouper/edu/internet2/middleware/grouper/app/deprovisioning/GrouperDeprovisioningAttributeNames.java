@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
@@ -243,7 +244,7 @@ public class GrouperDeprovisioningAttributeNames {
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
-          return AttributeDefNameFinder.findByName(name, false);
+          return AttributeDefNameFinder.findByName(name, false, new QueryOptions().secondLevelCache(false));
           
         }
         
@@ -430,7 +431,7 @@ public class GrouperDeprovisioningAttributeNames {
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
-          return AttributeDefFinder.findByName(name, false);
+          return AttributeDefFinder.findByName(name, false, new QueryOptions().secondLevelCache(false));
           
         }
         

@@ -238,6 +238,27 @@ public class DeprovisioningContainer {
   }
 
   /**
+   * member id to be deprovisioned
+   */
+  private String deprovisionedMemberId;
+  
+  /**
+   * member id to be deprovisioned
+   * @return member id
+   */
+  public String getDeprovisionedMemberId() {
+    return this.deprovisionedMemberId;
+  }
+
+  /**
+   * member id to be deprovisioned
+   * @param theDeprovisionedMemberId1
+   */
+  public void setDeprovisionedMemberId(String theDeprovisionedMemberId1) {
+    this.deprovisionedMemberId = theDeprovisionedMemberId1;
+  }
+
+  /**
    * make sure deprovisioning is enabled and allowed
    */
   public void assertDeprovisioningEnabledAndAllowed() {

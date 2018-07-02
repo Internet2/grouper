@@ -5,8 +5,10 @@ ${textContainer.text['deprovisioningUserResultsDescription'] }
 <br /><br />
                 <form id="deprovisionUserFormId">
                 <input type="hidden" name="affiliation" value="${grouperRequestContainer.deprovisioningContainer.affiliation}">
+                <input type="hidden" name="memberId" value="${grouperRequestContainer.deprovisioningContainer.deprovisionedMemberId}">
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
+                  <%--
                     <tr>
                       <td colspan="2" class="table-toolbar gradient-background">
                         <b>${textContainer.text['deprovisionUserNotesLabel'] }</b></td>
@@ -14,6 +16,7 @@ ${textContainer.text['deprovisioningUserResultsDescription'] }
                         <textarea rows="2" cols="30" name="deprovisioningReason"></textarea>
                       </td>
                     </tr>
+                    --%>
                     <tr>
                       <td colspan="6" class="table-toolbar gradient-background">
                         <a href="#" onclick="ajax('../app/UiV2Deprovisioning.deprovisionUserDeprovisionSubmit', 

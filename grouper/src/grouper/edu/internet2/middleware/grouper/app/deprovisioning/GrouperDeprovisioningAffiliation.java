@@ -106,49 +106,6 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
   }
   
   /**
-   * @param membership
-   */
-  public void deprovisionSubject(final Membership membership) {
-    
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-      
-      @Override
-      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
-        
-        Subject subject =  membership.getMember().getSubject();
-
-        Group ownerGroup = membership.getOwnerGroupId() != null ? membership.getOwnerGroup(): null;
-        if (ownerGroup != null) {
-          ownerGroup.deleteMember(membership.getMember(), false);
-          
-          for (Privilege priv: AccessPrivilege.ALL_PRIVILEGES) {
-            ownerGroup.revokePriv(subject, priv, false);
-          }
-          
-        }
-        
-        AttributeDef ownerAttributeDef = membership.getOwnerAttrDefId() != null ? membership.getOwnerAttributeDef(): null;
-            
-        if (ownerAttributeDef != null) {
-          for (Privilege priv: AttributeDefPrivilege.ALL_PRIVILEGES) {
-            ownerAttributeDef.getPrivilegeDelegate().revokePriv(subject, priv, false);
-          }
-        }
-        
-        Stem ownerStem = membership.getOwnerStemId() != null ? membership.getOwnerStem(): null;
-        if (ownerStem != null) {
-          
-          for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
-            ownerStem.revokePriv(subject, priv, false); 
-          }
-        }   
-        return null;
-      }
-    });
-    
-  }
-
-  /**
    * get users members who have been deprovisioned
    * @return users
    */

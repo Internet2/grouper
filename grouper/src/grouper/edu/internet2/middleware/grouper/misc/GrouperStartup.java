@@ -266,7 +266,8 @@ public class GrouperStartup {
         return false;
       }
       started = true;
-  
+      finishedStartupSuccessfully = false;
+      
       printConfigOnce();
   
       //check java version
@@ -345,6 +346,9 @@ public class GrouperStartup {
       verifyUtf8andTransactions();
       
       finishedStartupSuccessfully = true;
+      
+      //uncache config settings
+      GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
       
       return true;
     } catch (RuntimeException re) {

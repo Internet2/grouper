@@ -68,7 +68,14 @@ public class RegistryReset {
    * @param args 
    */
   public static void main(String[] args) {
-    if (args != null && args.length == 1 && StringUtils.equals("addSubjects", args[0])) {
+    
+    if (args != null && args.length == 1 && StringUtils.equals("justAddSubjects", args[0])) {
+    
+      RegistryReset rr = new RegistryReset();
+
+      rr._addSubjects();
+            
+    } else if (args != null && args.length == 1 && StringUtils.equals("addSubjects", args[0])) {
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
     } else {
       RegistryReset.reset();

@@ -685,8 +685,9 @@ public class GrouperCheckConfig {
         
       }
       
-      if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-
+      //if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+      // always add these objects
+      {
         String deprovisioningRootStemName = GrouperDeprovisioningSettings.deprovisioningStemName();
         
         Stem deprovisioningStem = StemFinder.findByName(grouperSession, deprovisioningRootStemName, false);
