@@ -69,6 +69,8 @@ public class AuditFieldType {
 
     initAuditFieldTypesDone = true;
     
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_ADD, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_DELETE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ATTESTATION_UPDATE, "stemId");
@@ -104,7 +106,8 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE, "groupId");
     addAuditFieldType(AUDIT_TYPE_ATTESTATION_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE, "groupId");
 
-        
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE, "groupId");
@@ -145,6 +148,7 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, "memberId");
 
+    addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBER_DEPROVISIONING, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBER_CHANGE_SUBJECT, "oldMemberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBER_CHANGE_SUBJECT, "newMemberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_ADD, "memberId");

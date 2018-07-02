@@ -541,6 +541,41 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE(new AuditType("groupAttestation", "clearGroupLastCertifiedDate", null, "groupId", "groupName")),
 
   /**
+   * update last certified date for attr def
+   */
+  ATTR_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE(new AuditType("attrDeprovisioning", "updateAttrDepCertifiedDate", null, "attributeDefId", "attributeDefName")),
+
+  /**
+   * clear last certified date for attr def
+   */
+  ATTR_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE(new AuditType("attrDeprovisioning", "clearAttrDepCertifiedDate", null, "attributeDefId", "attributeDefName")),
+
+  /**
+   * update last certified date for group
+   */
+  GROUP_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE(new AuditType("groupDeprovisioning", "updateGroupDepCertifiedDate", null, "groupId", "groupName")),
+
+  /**
+   * update last certified date for group
+   */
+  MEMBER_DEPROVISIONING(new AuditType("memberDeprovisioning", "deprovision", null, "memberId", "affiliation")),
+
+  /**
+   * clear last certified date for group
+   */
+  GROUP_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE(new AuditType("groupDeprovisioning", "clearGroupDepCertifiedDate", null, "groupId", "groupName")),
+
+  /**
+   * update last certified date for stem
+   */
+  STEM_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE(new AuditType("stemDeprovisioning", "updateStemDepCertifiedDate", null, "stemId", "stemName")),
+
+  /**
+   * clear last certified date for stem
+   */
+  STEM_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE(new AuditType("stemDeprovisioning", "clearStemDepCertifiedDate", null, "stemId", "stemName")),
+
+  /**
    * add attestation for stem
    */
   STEM_ATTESTATION_ADD(new AuditType("stemAttestation", "addStemAttestation", null, "stemId", "stemName")),
