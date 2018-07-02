@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +40,8 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDeprovisioningMembershipSubjectContainer;
@@ -56,6 +59,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -63,8 +72,6 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -399,7 +406,7 @@ public class UiV2Deprovisioning {
    * @param request
    * @param response
    */
-  public void deprovisioningReportOnGroupSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  public void deprovisioningOnGroupReportSubmit(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -434,7 +441,7 @@ public class UiV2Deprovisioning {
         }
       }
       
-      if (GrouperUtil.length(memberIds) > 0) {
+      if (GrouperUtil.length(memberIds) == 0) {
         
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("deprovisioningNoMembersSelected")));
@@ -464,10 +471,10 @@ public class UiV2Deprovisioning {
           
           if (failures == 0) {
             
-            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnGroup&groupId=" + GROUP.getId() + "')"));
+            deprovisioningOnGroupReport(request, response);
             
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("")));
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
           } else {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
@@ -1457,14 +1464,15 @@ public class UiV2Deprovisioning {
         }
       }
       
+      String memberId = request.getParameter("memberId");
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+      Subject subject = member.getSubject();
+
       if (membershipsDeprovisionedSuccessfully.size() > 0 || GrouperUtil.length(membershipsIds) == 0) {
-        
-        String memberId = request.getParameter("memberId");
-        Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-        
+                
         Group deprovisionGroup = deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroup();
         // subject is same for all memberships
-        boolean added = deprovisionGroup.addMember(member.getSubject(), false);
+        boolean added = deprovisionGroup.addMember(subject, false);
         if (added) {
           GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
           Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
@@ -1474,6 +1482,11 @@ public class UiV2Deprovisioning {
       }
       
       if (failures == 0) {
+        
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBER_DEPROVISIONING, 
+            "memberId", member.getId(), "affiliation", deprovisioningAffiliation.getLabel());
+        auditEntry.setDescription("Deprovisioned user: " + GrouperUtil.subjectToString(subject) + " from affiliation: " + deprovisioningAffiliation.getLabel());
+        deprovisioningSaveAudit(auditEntry);
         
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&affiliation=" + deprovisioningAffiliation.getLabel() + "')"));
         
@@ -1713,6 +1726,20 @@ public class UiV2Deprovisioning {
             
             membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
 
+            membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE).addGroup(GROUP)
+                .assignFieldType(FieldType.LIST).addSubjects(subjects).findMembershipResult();
+            
+            OUTER: for (MembershipSubjectContainer membershipSubjectContainer : GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers())) {
+              
+              //see if already there, update the membership
+              for (MembershipSubjectContainer existingSubjectContainer : membershipSubjectContainers) {
+                if (StringUtils.equals(existingSubjectContainer.getMember().getUuid(), membershipSubjectContainer.getMember().getUuid())) {
+                  existingSubjectContainer.getMembershipContainers().putAll(membershipSubjectContainer.getMembershipContainers());
+                  continue OUTER;
+                }
+              }
+              membershipSubjectContainers.add(membershipSubjectContainer);
+            }
           }
           
           Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
@@ -2212,9 +2239,14 @@ public class UiV2Deprovisioning {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      GrouperDeprovisioningLogic.updateLastCertifiedDate(attributeDef);
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(attributeDef, new Date());
       
-      deprovisioningReportOnFolder(request, response);
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTR_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE, 
+          "attributeDefId", attributeDef.getId(), "attributeDefName", attributeDef.getName());
+      auditEntry.setDescription("Update last certified date deprovisioning attribute of attribute def: " + attributeDef.getName());
+      deprovisioningSaveAudit(auditEntry);
+
+      //deprovisioningReportOnFolder(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedUpdateSuccess")));
@@ -2223,6 +2255,24 @@ public class UiV2Deprovisioning {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+
+  /**
+   * 
+   * @param auditEntry
+   */
+  private static void deprovisioningSaveAudit(final AuditEntry auditEntry) {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                
+                auditEntry.saveOrUpdate(true);
+                return null;
+              }
+        });
+
   }
 
   /**
@@ -2254,9 +2304,14 @@ public class UiV2Deprovisioning {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      GrouperDeprovisioningLogic.updateLastCertifiedDate(group);
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(group, new Date());
       
-      deprovisioningReportOnFolder(request, response);
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE, 
+          "groupId", group.getId(), "groupName", group.getName());
+      auditEntry.setDescription("Update last certified date deprovisioning attribute of group: " + group.getName());
+      deprovisioningSaveAudit(auditEntry);
+      
+      deprovisioningOnGroupReport(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedUpdateSuccess")));
@@ -2292,9 +2347,14 @@ public class UiV2Deprovisioning {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      GrouperDeprovisioningLogic.updateLastCertifiedDate(stem);
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(stem, new Date());
       
-      deprovisioningReportOnFolder(request, response);
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE, 
+          "stemId", stem.getId(), "stemName", stem.getName());
+      auditEntry.setDescription("Update last certified date deprovisioning attribute of folder: " + stem.getName());
+      deprovisioningSaveAudit(auditEntry);
+
+      //deprovisioningReportOnFolder(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedUpdateSuccess")));
@@ -2337,6 +2397,138 @@ public class UiV2Deprovisioning {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void updateAttributeDefLastCertifiedDateClear(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, true).getAttributeDef();
+  
+      if (attributeDef != null) {
+        attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_UPDATE, true).getAttributeDef();
+      }
+  
+      if (attributeDef == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(attributeDef, null);
+      
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTR_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE, 
+          "attributeDefId", attributeDef.getId(), "attributeDefName", attributeDef.getName());
+      auditEntry.setDescription("Clear last certified date deprovisioning attribute of attribute def: " + attributeDef.getName());
+      deprovisioningSaveAudit(auditEntry);
+
+      //deprovisioningReportOnFolder(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedClearSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void updateFolderLastCertifiedDateClear(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+        
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(stem, null);
+      
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE, 
+          "stemId", stem.getId(), "stemName", stem.getName());
+      auditEntry.setDescription("Clear last certified date deprovisioning attribute of folder: " + stem.getName());
+      deprovisioningSaveAudit(auditEntry);
+
+      //deprovisioningReportOnFolder(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedClearSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void updateGroupLastCertifiedDateClear(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group != null) {
+        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      }
+      
+      if (group == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperDeprovisioningLogic.updateLastCertifiedDate(group, null);
+      
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE, 
+          "groupId", group.getId(), "groupName", group.getName());
+      auditEntry.setDescription("Clear last certified date deprovisioning attribute of group: " + group.getName());
+      deprovisioningSaveAudit(auditEntry);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningLastCertifiedClearSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
   private static GrouperDeprovisioningAffiliation retrieveAffiliation(HttpServletRequest request, Subject subject) {
     

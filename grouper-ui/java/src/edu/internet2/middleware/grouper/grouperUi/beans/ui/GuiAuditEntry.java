@@ -418,6 +418,18 @@ public class GuiAuditEntry {
             
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_DELETE");
 
+        case GROUP_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE");
+
+        case GROUP_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE:
+          
+          this.setupGroup();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE");
+
         case GROUP_ATTESTATION_UPDATE:
           
           this.setupGroup();
@@ -454,12 +466,30 @@ public class GuiAuditEntry {
 
           return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_UPDATE");
 
+        case STEM_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE:
+
+          this.setupStem();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE");
+
+        case STEM_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE:
+
+          this.setupStem();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE");
+
         case ATTRIBUTE_ASSIGN_ANYMSHIP_ADD:
           
           this.setupMember();
           this.setupAttributeDefName();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD");
+          
+        case MEMBER_DEPROVISIONING:
+          
+          this.setupMember();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_MEMBER_DEPROVISIONING");
           
         case ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE:
         
@@ -493,9 +523,21 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ASSIGN_UPDATE");
         
-        case ATTRIBUTE_ASSIGN_ATTRDEF_ADD:
+        case ATTR_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE:
           
           this.setupAttributeDefName();
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTR_DEPROVISIONING_UPDATE_LAST_CERTIFIED_DATE");
+        
+        case ATTR_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE:
+          
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTR_DEPROVISIONING_CLEAR_LAST_CERTIFIED_DATE");
+        
+        case ATTRIBUTE_ASSIGN_ATTRDEF_ADD:
+          
           this.setupAttributeDef();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ATTRDEF_ADD");

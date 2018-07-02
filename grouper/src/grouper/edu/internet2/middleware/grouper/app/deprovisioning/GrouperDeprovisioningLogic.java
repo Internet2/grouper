@@ -396,8 +396,9 @@ public class GrouperDeprovisioningLogic {
   /**
    * update last certified date to now
    * @param grouperObject
+   * @param lastCertifiedDate or null to remove
    */
-  public static void updateLastCertifiedDate(GrouperObject grouperObject) {
+  public static void updateLastCertifiedDate(GrouperObject grouperObject, Date lastCertifiedDate) {
     
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
 
@@ -407,8 +408,8 @@ public class GrouperDeprovisioningLogic {
       
       if (grouperDeprovisioningConfiguration.isHasDatabaseConfiguration() && grouperDeprovisioningConfiguration.getOriginalConfig().isDeprovision()) {
         
-        grouperDeprovisioningConfiguration.getNewConfig().setCertifiedDate(new Date());
-        
+        grouperDeprovisioningConfiguration.getNewConfig().setCertifiedDate(lastCertifiedDate);
+        grouperDeprovisioningConfiguration.storeConfiguration();
       }
       
     }

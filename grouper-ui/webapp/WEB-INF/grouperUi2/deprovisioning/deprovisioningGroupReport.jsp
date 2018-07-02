@@ -24,61 +24,79 @@
         <%@ include file="deprovisioningGroupMoreActionsButtonContents.jsp"%>
       </div>
     </div>
-
-              <form id="deprovisionUserFormId">
-                <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
-                  <thead>
-                    <tr>
-                      <td colspan="6" class="table-toolbar gradient-background">
-                        <a href="#" onclick="ajax('../app/UiV2Deprovisioning.deprovisioningOnGroupReportSubmit', 
-                        {formIds: 'deprovisionUserFormId'}); return false;" 
-                        class="btn" role="button">${textContainer.text['deprovisionUserDeprovisionReportButtonSubmit'] }</a></td>
-                    </tr>
-                    <tr>
-                      <th>
+    <div class="row-fluid">
+      <div class="span9"> <p>${textContainer.text['deprovisionReportDescription'] }</p></div>
+    </div>
+    
+    <c:choose>
+      <c:when test="${fn:length(grouperRequestContainer.deprovisioningContainer.guiDeprovisioningMembershipSubjectContainers) > 0}">
+        <form id="deprovisionUserFormId">
+          <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
+            <thead>
+              <tr>
+                <td colspan="6" class="table-toolbar gradient-background">
+                  <a href="#" onclick="ajax('../app/UiV2Deprovisioning.deprovisioningOnGroupReportSubmit', 
+                    {formIds: 'deprovisionUserFormId'}); return false;" 
+                    class="btn" role="button">${textContainer.text['deprovisionUserDeprovisionReportButtonSubmit'] }</a>
+                  &nbsp;
+                  <a href="#" onclick="ajax('../app/UiV2Deprovisioning.updateGroupLastCertifiedDate', 
+                    {formIds: 'deprovisionUserFormId'}); return false;" 
+                    class="btn" role="button">${textContainer.text['deprovisionReportUpdateCertifyDateButtonSubmit'] }</a>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label class="checkbox checkbox-no-padding">
+                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" checked="checked"
+                      onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                  </label>
+                </th>
+                <th>${textContainer.text['deprovisioningSubjectColumn'] }</th>
+                <th>${textContainer.text['deprovisioningFromColumn'] }</th>
+                <th>${textContainer.text['deprovisioningMemberColumn'] }</th>
+                <th data-hide="phone,medium">${textContainer.text['deprovisioningPrivilegeColumn'] }</th>
+              </tr>
+            </thead>
+            <tbody>
+                <c:set var="i" value="0" />
+                <c:forEach items="${grouperRequestContainer.deprovisioningContainer.guiDeprovisioningMembershipSubjectContainers}" 
+                  var="guiDeprovisioningMembershipSubjectContainer" >
+                  <c:set var="guiMembershipSubjectContainer" value="${guiDeprovisioningMembershipSubjectContainer.guiMembershipSubjectContainer}"/>
+                  <c:set var="objectType" value="${guiMembershipSubjectContainer.guiGroup != null ? 'group' : 
+                  ( guiMembershipSubjectContainer.guiStem != null ? 'stem' : 
+                  ( guiMembershipSubjectContainer.guiAttributeDef != null ? 'attributeDef' : 'unknown' ) )}" />
+                  <c:set var="guiMembershipContainer" value="${guiMembershipSubjectContainer.someGuiMembershipContainer}" />
+                  <tr>
+                    <td>
+                      <c:if test="${guiDeprovisioningMembershipSubjectContainer.showCheckbox}">
                         <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" checked="checked"
-                            onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <input type="checkbox" name="memberIds_${i}" 
+                            ${guiDeprovisioningMembershipSubjectContainer.checkCheckbox ? 'checked="checked"' : '' }
+                            aria-label="${textContainer.text['groupMembershipsInOtherGropusCheckboxAriaLabel'] }"
+                            value="${guiMembershipContainer.membershipContainer.immediateMembership.memberUuid}" class="membershipCheckbox" />
                         </label>
-                      </th>
-                      <th>${textContainer.text['deprovisioningSubjectColumn'] }</th>
-                      <th>${textContainer.text['deprovisioningFromColumn'] }</th>
-                      <th>${textContainer.text['deprovisioningMemberColumn'] }</th>
-                      <th data-hide="phone,medium">${textContainer.text['deprovisioningPrivilegeColumn'] }</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                      <c:set var="i" value="0" />
-                      <c:forEach items="${grouperRequestContainer.deprovisioningContainer.guiDeprovisioningMembershipSubjectContainers}" 
-                        var="guiDeprovisioningMembershipSubjectContainer" >
-                        <c:set var="guiMembershipSubjectContainer" value="${guiDeprovisioningMembershipSubjectContainer.guiMembershipSubjectContainer}"/>
-                        <c:set var="objectType" value="${guiMembershipSubjectContainer.guiGroup != null ? 'group' : 
-                        ( guiMembershipSubjectContainer.guiStem != null ? 'stem' : 
-                        ( guiMembershipSubjectContainer.guiAttributeDef != null ? 'attributeDef' : 'unknown' ) )}" />
-                        <c:set var="guiMembershipContainer" value="${guiMembershipSubjectContainer.someGuiMembershipContainer}" />
-                        <tr>
-                          <td>
-                            <c:if test="${guiDeprovisioningMembershipSubjectContainer.showCheckbox}">
-                              <label class="checkbox checkbox-no-padding">
-                                <input type="checkbox" name="membershipRow_${i}" 
-                                  ${guiDeprovisioningMembershipSubjectContainer.checkCheckbox ? 'checked="checked"' : '' }
-                                  aria-label="${textContainer.text['groupMembershipsInOtherGropusCheckboxAriaLabel'] }"
-                                  value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
-                              </label>
-                            </c:if>
-                          </td>
-                          <td>${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}</td>
-                          <td>${guiDeprovisioningMembershipSubjectContainer.deprovisionedFromAffiliationsString}</td>
-                          <td>${guiMembershipSubjectContainer.guiGroup == null ? textContainer.text['deprovisioningMemberColumnCantBeMember'] : ( guiMembershipContainer == null ? textContainer.text['deprovisioningMemberColumnIsNotMember']  : textContainer.text['deprovisioningMemberColumnIsMember'] )}</td>
-                          <td data-hide="phone,medium">
-                            ${guiMembershipSubjectContainer.privilegesCommaSeparated}
-                          </td>
-                        </tr>
-                        <c:set var="i" value="${i+1}" />
-                      </c:forEach>
-                  </tbody>
-                </table>
-                </form>
+                      </c:if>
+                    </td>
+                    <td>${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}</td>
+                    <td>${guiDeprovisioningMembershipSubjectContainer.deprovisionedFromAffiliationsString}</td>
+                    <td>${guiMembershipSubjectContainer.guiGroup == null ? textContainer.text['deprovisioningMemberColumnCantBeMember'] : ( guiMembershipContainer == null ? textContainer.text['deprovisioningMemberColumnIsNotMember']  : textContainer.text['deprovisioningMemberColumnIsMember'] )}</td>
+                    <td data-hide="phone,medium">
+                      ${guiMembershipSubjectContainer.privilegesCommaSeparated}
+                    </td>
+                  </tr>
+                  <c:set var="i" value="${i+1}" />
+                </c:forEach>
+            </tbody>
+          </table>
+        </form>
+      </c:when>
+      <c:otherwise>
+        <div class="row-fluid">
+          <div class="span9"> <p><b>${textContainer.text['deprovisioningReportNoEntitiesFoundOnGroup'] }</b></p></div>
+        </div>
+      </c:otherwise>
+    </c:choose>
+
   </div>
 </div>
                 
