@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,13 +19,19 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -384,6 +391,122 @@ public class GrouperDeprovisioningLogic {
    * 
    */
   public GrouperDeprovisioningLogic() {
+  }
+
+  /**
+   * update last certified date to now
+   * @param grouperObject
+   */
+  public static void updateLastCertifiedDate(GrouperObject grouperObject) {
+    
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+
+    for (String affiliation : grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().keySet()) {
+
+      GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
+      
+      if (grouperDeprovisioningConfiguration.isHasDatabaseConfiguration() && grouperDeprovisioningConfiguration.getOriginalConfig().isDeprovision()) {
+        
+        grouperDeprovisioningConfiguration.getNewConfig().setCertifiedDate(new Date());
+        
+      }
+      
+    }
+    
+  }
+  
+  /**
+   * @param membership
+   */
+  public static void removeAccess(final Membership membership) {
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+        Subject subject =  membership.getMember().getSubject();
+
+        Group ownerGroup = membership.getOwnerGroupId() != null ? membership.getOwnerGroup(): null;
+        if (ownerGroup != null) {
+          removeAccess(ownerGroup, subject);
+        }
+
+        AttributeDef ownerAttributeDef = membership.getOwnerAttrDefId() != null ? membership.getOwnerAttributeDef(): null;
+
+        if (ownerAttributeDef != null) {
+          removeAccess(ownerAttributeDef, subject);
+        }
+
+        Stem ownerStem = membership.getOwnerStemId() != null ? membership.getOwnerStem(): null;
+        if (ownerStem != null) {
+          removeAccess(ownerStem, subject);
+        }
+        return null;
+      }
+    });
+
+  }
+
+  /**
+   * @param membership
+   */
+  public static void removeAccess(final Group group, final Subject subject) {
+    
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        group.deleteMember(subject, false);
+        
+        for (Privilege priv: AccessPrivilege.ALL_PRIVILEGES) {
+          group.revokePriv(subject, priv, false);
+        }
+          
+        return null;
+      }
+    });
+    
+  }
+  /**
+   * @param attributeDef
+   * @param subject
+   */
+  public static void removeAccess(final AttributeDef attributeDef, final Subject subject) {
+    
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        for (Privilege priv: AttributeDefPrivilege.ALL_PRIVILEGES) {
+          attributeDef.getPrivilegeDelegate().revokePriv(subject, priv, false);
+        }
+
+        return null;
+      }
+    });
+    
+  }
+
+
+  /**
+   * @param membership
+   */
+  public static void removeAccess(final Stem stem, final Subject subject) {
+    
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
+          stem.revokePriv(subject, priv, false); 
+        }
+        return null;
+      }
+    });
+    
   }
 
   /**

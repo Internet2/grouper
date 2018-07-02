@@ -23,7 +23,7 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsOverallDeprovision'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnFolder'); return false;"
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsDeprovisioningReport'] }</a></li>
                             
                       </ul>
