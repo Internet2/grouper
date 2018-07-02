@@ -28,6 +28,9 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * 
+ */
 public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDeprovisioningAffiliation> {
 
   /**
@@ -105,6 +108,52 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
     return GrouperDeprovisioningSettings.deprovisioningStemName() + ":usersWhoHaveBeenDeprovisioned_" + this.label;
   }
   
+  /**
+   * @param membership
+   * @return true when subject is deprovisioned successfully, false otherwise.
+   */
+  public boolean deprovisionSubject(final Membership membership) {
+    
+    return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Boolean callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        Subject subject =  membership.getMember().getSubject();
+
+        Group ownerGroup = membership.getOwnerGroupId() != null ? membership.getOwnerGroup(): null;
+        if (ownerGroup != null) {
+          ownerGroup.deleteMember(membership.getMember(), false);
+          
+          for (Privilege priv: AccessPrivilege.ALL_PRIVILEGES) {
+            ownerGroup.revokePriv(subject, priv, false);
+          }
+          
+        }
+        
+        AttributeDef ownerAttributeDef = membership.getOwnerAttrDefId() != null ? membership.getOwnerAttributeDef(): null;
+            
+        if (ownerAttributeDef != null) {
+          for (Privilege priv: AttributeDefPrivilege.ALL_PRIVILEGES) {
+            ownerAttributeDef.getPrivilegeDelegate().revokePriv(subject, priv, false);
+          }
+        }
+        
+        Stem ownerStem = membership.getOwnerStemId() != null ? membership.getOwnerStem(): null;
+        if (ownerStem != null) {
+          
+          for (Privilege priv: NamingPrivilege.ALL_PRIVILEGES) {
+            ownerStem.revokePriv(subject, priv, false); 
+          }
+        }
+        
+        Group deprovisionGroup = getUsersWhoHaveBeenDeprovisionedGroup();
+        return deprovisionGroup.addMember(subject, false);
+      }
+    });
+    
+  }
+
   /**
    * get users members who have been deprovisioned
    * @return users

@@ -62,7 +62,7 @@ public class GuiDeprovisioningAffiliation implements Comparable<GuiDeprovisionin
     
   }
   
-  private static String getAffiliationTranslatedLabel(String affiliationLabel) {
+  public static String getAffiliationTranslatedLabel(String affiliationLabel) {
     if (TextContainer.retrieveFromRequest().getText().containsKey("deprovisioningAffiliationLabel_" + affiliationLabel)) {
       return TextContainer.retrieveFromRequest().getText().get("deprovisioningAffiliationLabel_" + affiliationLabel);
     } else {

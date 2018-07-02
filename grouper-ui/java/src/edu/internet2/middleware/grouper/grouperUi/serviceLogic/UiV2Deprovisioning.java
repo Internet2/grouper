@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.deprovisioning.DeprovisionedSubject;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
@@ -54,7 +56,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -1652,6 +1656,84 @@ public class UiV2Deprovisioning {
   
   }
 
+  /**
+   * report on deprovisioning on group
+   * @param request
+   * @param response
+   */
+  public void deprovisioningOnGroupReport(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // needs UPDATE and READ
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      if (group == null) {
+        return;
+      }
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      final Group GROUP = group;
+
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();      
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+          final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
+          
+          if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+            throw new RuntimeException("Deprovisioning is disabled");
+          }
+
+          //get all the users who are deprovisioned
+          Set<DeprovisionedSubject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(GROUP, false);
+          
+          Set<MembershipSubjectContainer> membershipSubjectContainers = new HashSet<MembershipSubjectContainer>();
+          
+          if (GrouperUtil.length(subjectsWhoAreDeprovisioned) > 0) {
+          
+            Set<Subject> subjects = DeprovisionedSubject.retrieveSubjectsFromDeprovisionedSubject(subjectsWhoAreDeprovisioned);
+            
+            MembershipResult membershipResult = new MembershipFinder().assignMembershipType(MembershipType.IMMEDIATE).addGroup(GROUP)
+                .assignFieldType(FieldType.ACCESS).addSubjects(subjects).findMembershipResult();
+            
+            membershipSubjectContainers.addAll(GrouperUtil.nonNull(membershipResult.getMembershipSubjectContainers()));
+
+          }
+          
+          Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
+          Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = 
+              GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
+          GuiDeprovisioningMembershipSubjectContainer.markAffiliations(guiDeprovisioningContainers, subjectsWhoAreDeprovisioned);
+          deprovisioningContainer.setGuiDeprovisioningMembershipSubjectContainers(guiDeprovisioningContainers);
+          
+          return null;
+        }
+      });
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningGroupReport.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    
+  }
+  
   /**
    * 
    * @param request
