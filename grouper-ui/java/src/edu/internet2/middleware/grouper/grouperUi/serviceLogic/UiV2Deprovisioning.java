@@ -204,7 +204,7 @@ public class UiV2Deprovisioning {
    * @param request
    * @param response
    */
-  public void deprovisioningReportOnFolder(final HttpServletRequest request, final HttpServletResponse response) {
+  public void xxx_deprovisioningReportOnFolder(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -236,7 +236,7 @@ public class UiV2Deprovisioning {
    * @param request
    * @param response
    */
-  public void deprovisioningReportOnFolderSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  public void xxx_deprovisioningReportOnFolderSubmit(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -319,7 +319,7 @@ public class UiV2Deprovisioning {
    * @param request
    * @param response
    */
-  public void deprovisioningReportOnAttributeDefSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  public void xxx_deprovisioningReportOnAttributeDefSubmit(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -494,7 +494,7 @@ public class UiV2Deprovisioning {
    * @param grouperObject 
    * @return true to show report, false to not
    */
-  private boolean deprovisioningReportOnObjectHelper(final GrouperObject grouperObject) {
+  private boolean xxx_deprovisioningReportOnObjectHelper(final GrouperObject grouperObject) {
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     final DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer();
@@ -1100,9 +1100,6 @@ public class UiV2Deprovisioning {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers", 
-          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningSelectAffiliation.jsp"));
-      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1342,7 +1339,7 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject);
+      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, true);
       
       if (deprovisioningAffiliation == null) {
         return;
@@ -1430,7 +1427,7 @@ public class UiV2Deprovisioning {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      GrouperDeprovisioningAffiliation deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject);
+      GrouperDeprovisioningAffiliation deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, true);
       
       if (deprovisioningAffiliation == null) {
         return;
@@ -1518,7 +1515,7 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject);
+      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, true);
       
       if (deprovisioningAffiliation == null) {
         return;
@@ -1551,21 +1548,20 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject);
-      
-      if (deprovisioningAffiliation == null) {
-        return;
-      }
-      
-      Set<Member> usersWhoHaveBeenDeprovisioned = deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisioned();
-      
-      deprovisioningContainer.setDeprovisionedGuiMembers(GuiMember.convertFromMembers(usersWhoHaveBeenDeprovisioned));
+      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningViewRecent.jsp"));
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
-          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMainHelper.jsp"));
+      if (!GrouperUtil.isBlank(deprovisioningAffiliation)) {
+        Set<Member> usersWhoHaveBeenDeprovisioned = deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisioned();
+        
+        deprovisioningContainer.setDeprovisionedGuiMembers(GuiMember.convertFromMembers(usersWhoHaveBeenDeprovisioned));
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
+            "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMainHelper.jsp"));
+        
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1595,17 +1591,16 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject);
+      GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, false);
       
-      if (deprovisioningAffiliation == null) {
-        return;
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUser.jsp"));
+
+      if (deprovisioningAffiliation != null) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
+            "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserSearch.jsp"));
       }
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
-
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#deprovisioningUsers",
-          "/WEB-INF/grouperUi2/deprovisioning/deprovisioningUserSearch.jsp"));
             
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -2182,7 +2177,7 @@ public class UiV2Deprovisioning {
    * @param request
    * @param response
    */
-  public void deprovisioningReportOnGroup(final HttpServletRequest request, final HttpServletResponse response) {
+  public void xxx_deprovisioningReportOnGroup(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -2371,7 +2366,7 @@ public class UiV2Deprovisioning {
    * @param request
    * @param response
    */
-  public void deprovisioningReportOnAttributeDef(final HttpServletRequest request, final HttpServletResponse response) {
+  public void xxx_deprovisioningReportOnAttributeDef(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -2530,7 +2525,7 @@ public class UiV2Deprovisioning {
     }
     
   }
-  private static GrouperDeprovisioningAffiliation retrieveAffiliation(HttpServletRequest request, Subject subject) {
+  private static GrouperDeprovisioningAffiliation retrieveAffiliation(HttpServletRequest request, Subject subject, boolean requireAffiliation) {
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -2538,12 +2533,15 @@ public class UiV2Deprovisioning {
     
     String affiliation = request.getParameter("affiliation");
     if (StringUtils.isBlank(affiliation)) {
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-          TextContainer.retrieveFromRequest().getText().get("deprovisioningNoAffiliationSelected")));
+      if (requireAffiliation) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoAffiliationSelected")));
+      }
       return null;
     }
     
     GrouperDeprovisioningAffiliation deprovisioningAffiliation = GrouperDeprovisioningAffiliation.retrieveAllAffiliations().get(affiliation);
+
     if (deprovisioningAffiliation == null) {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
           TextContainer.retrieveFromRequest().getText().get("deprovisioningNoAffiliationSelected")));

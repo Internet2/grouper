@@ -9,7 +9,7 @@
                             
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
-                  <div class="lead span9"><h1>${textContainer.text['miscellaneousDeprovisioningMainDecription'] }</h1></div>
+                  <div class="lead span9"><h1>${textContainer.text['miscellaneousDeprovisioningViewRecentDecription'] }</h1></div>
                   <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
 	                  <div class="span3" id="deprovisioningMainMoreActionsButtonContentsDivId">
 	                    <%@ include file="deprovisioningMainMoreActionsButtonContents.jsp" %>
@@ -18,10 +18,10 @@
                 </div>
                 <div class="row-fluid">
                   <div class="span12">
-                    <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousDeprovisioningMainSubtitle']}</p>
+                    <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousDeprovisioningViewRecentSubtitle']}</p>
                   </div>
                 </div>
-                <c:set var="deprovisioningSelectAffiliationTarget" value="deprovisioningAffiliationSubmit" scope="request" />
+                <c:set var="deprovisioningSelectAffiliationTarget" value="viewRecentlyDeprovisionedUsers" scope="request" />
                 <%@ include file="../deprovisioning/deprovisioningSelectAffiliation.jsp"%>
               </div>
               
