@@ -222,7 +222,7 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      if (!deprovisioningReportOnObjectHelper(stem)) {
+      if (!xxx_deprovisioningReportOnObjectHelper(stem)) {
         return;
       }
   
@@ -2195,7 +2195,7 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      if (!deprovisioningReportOnObjectHelper(group)) {
+      if (!xxx_deprovisioningReportOnObjectHelper(group)) {
         return;
       }
   
@@ -2384,7 +2384,7 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      if (!deprovisioningReportOnObjectHelper(attributeDef)) {
+      if (!xxx_deprovisioningReportOnObjectHelper(attributeDef)) {
         return;
       }
   
