@@ -15,6 +15,8 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import static edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic.shouldAddSubject;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,6 +52,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
@@ -547,7 +550,7 @@ public class GrouperLoaderIncrementalJob implements Job {
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addDeleteCount(1);
           }
-        } else if (!isMemberInGroup && isMemberInSourceAfterAndGroupsConsideration) {
+        } else if (!isMemberInGroup && isMemberInSourceAfterAndGroupsConsideration && shouldAddSubject(grouperSession, loaderGroup, subject)) {
           loaderGroup.addMember(subject);
           added = true;
           synchronized (hib3GrouperloaderLog) {
@@ -656,21 +659,24 @@ public class GrouperLoaderIncrementalJob implements Job {
             setRowCompleted(connection, tableName, id);
             continue;
           }
-          theGroup.addMember(subject);
           
-          GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+          if (shouldAddSubject(grouperSession, loaderGroup, subject)) {
+            theGroup.addMember(subject);
+            
+            GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
 
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+            GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+            GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+            GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
+            GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
 
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+            GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
 
-          GrouperLoaderLogger.doTheLogging("membershipManagement");
+            GrouperLoaderLogger.doTheLogging("membershipManagement");
 
-          synchronized (hib3GrouperloaderLog) {
-            hib3GrouperloaderLog.addInsertCount(1);
+            synchronized (hib3GrouperloaderLog) {
+              hib3GrouperloaderLog.addInsertCount(1);
+            }
           }
           
           if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
