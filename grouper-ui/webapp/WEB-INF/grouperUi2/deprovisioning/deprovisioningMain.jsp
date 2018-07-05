@@ -25,7 +25,7 @@
                 <%@ include file="../deprovisioning/deprovisioningSelectAffiliation.jsp"%>
               </div>
               
-              <!-- <div class="row-fluid">
+              <!-- a <div class="row-fluid">
 			         
 			        </div> -->
               

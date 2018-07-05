@@ -5,7 +5,7 @@
                    <div class="control-group">
                      <label class="control-label">${textContainer.text['deprovisioningSelectAffiliationLabel'] }</label>
                      <div class="controls">
-                       
+                       <%-- --%>
                        <select id="affiliationFilter" class="span2" name="affiliation" 
                               onchange="return guiV2link('operation=UiV2Deprovisioning.${deprovisioningSelectAffiliationTarget}', {optionalFormElementNamesToSend: 'affiliation'});"
                               >
