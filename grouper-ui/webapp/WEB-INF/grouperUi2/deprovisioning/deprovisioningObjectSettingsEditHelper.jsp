@@ -48,6 +48,20 @@
                               <span class="description">${textContainer.text['deprovisioningDeprovisionHint']}</span>
                             </td>
                           </tr>
+                          <c:if test="${ObjectType == 'Folder' }">
+                          
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperDeprovisioningStemScopeId">${textContainer.text['deprovisioningStemScopeLabel']}</label></strong></td>
+	                            <td>
+	                              <select name="grouperDeprovisioningStemScopeName" id="grouperDeprovisioningStemScopeId" style="width: 30em">
+	                                <option value="sub" ${grouperDeprovisioningAttributeValue.stemScopeSub ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['deprovisioningStemScopeAllLabel']}</option>
+	                                <option value="one" ${grouperDeprovisioningAttributeValue.stemScopeSub ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['deprovisioningStemScopeOneLabel']}</option>
+	                              </select>
+	                              <br />
+	                              <span class="description">${textContainer.text['deprovisioningStemScopeHint']}</span>
+	                            </td>
+	                          </tr>
+                          </c:if>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperDeprovisioningSendEmailId">${textContainer.text['deprovisioningSendEmailLabel']}</label></strong></td>
                             <td>

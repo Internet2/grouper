@@ -22,6 +22,8 @@
                     <%@ include file="deprovisioningFolderMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
+                <c:set var="ObjectType" 
+                    value="Folder" />
                 <%@ include file="deprovisioningObjectSettingsView.jsp"%>
 
               </div>

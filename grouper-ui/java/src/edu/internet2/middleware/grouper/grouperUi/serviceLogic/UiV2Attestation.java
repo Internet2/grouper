@@ -1779,7 +1779,7 @@ public class UiV2Attestation {
       try {
         thread.join(45000);
       } catch (Exception e) {
-        throw new RuntimeException("Exception in thread");
+        throw new RuntimeException("Exception in thread", e);
       }
 
       if (DONE[0]) {

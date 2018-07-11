@@ -23,7 +23,20 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsOverallDeprovision'] }</a></li>
 
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDefReport&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                              >${textContainer.text['deprovisioningMoreActionsDeprovisioningReport'] }</a></li>
+                        </c:if>
 
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.updateAttributeDefLastCertifiedDateClear'); return false;"
+                              >${textContainer.text['deprovisioningMoreActionsClearCertify'] }</a></li>
+                        </c:if>
+
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canRunDaemon}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.runDaemon'); return false;"
+                              >${textContainer.text['groupDeprovisioningMoreActionsRunDaemon'] }</a></li>
+                        </c:if>
                       </ul>
                     </div>
 
