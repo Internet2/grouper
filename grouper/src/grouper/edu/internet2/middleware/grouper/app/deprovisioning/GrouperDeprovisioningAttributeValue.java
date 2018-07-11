@@ -70,9 +70,7 @@ public class GrouperDeprovisioningAttributeValue {
       this.autoselectForRemovalString = null;
     }
     
-    if (this.isDeprovision()) {
-      this.deprovisionString = null;
-    }
+    this.deprovisionString = this.isDeprovision() ? "true" : "false";
 
     // true for direct, false for inherited, blank for not assigned
     this.directAssignmentString = this.isDirectAssignment() ? "true" : "false";
@@ -748,6 +746,14 @@ public class GrouperDeprovisioningAttributeValue {
       return Scope.SUB;
     }
     return Scope.valueOfIgnoreCase(this.stemScopeString, true);
+  }
+  
+  /**
+   * if stem scope sub
+   * @return if sub
+   */
+  public boolean isStemScopeSub() {
+    return Scope.SUB == this.getStemScope();
   }
   
   /**

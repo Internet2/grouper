@@ -23,10 +23,20 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsOverallDeprovision'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningReportOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                            >${textContainer.text['deprovisioningMoreActionsDeprovisioningReport'] }</a></li>
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
+	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolderReport&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+	                            >${textContainer.text['deprovisioningMoreActionsDeprovisioningReport'] }</a></li>
+	                    </c:if>
                             
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.updateFolderLastCertifiedDateClear'); return false;"
+                              >${textContainer.text['deprovisioningMoreActionsClearCertify'] }</a></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canRunDaemon}" >
+                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.runDaemon'); return false;"  	                            >${textContainer.text['groupDeprovisioningMoreActionsRunDaemon'] }</a></li>
+	                    </c:if>
                       </ul>
+
                     </div>
 
                     <!-- end deprovisioning/deprovisioningFolderMoreActionsButtonContents.jsp -->

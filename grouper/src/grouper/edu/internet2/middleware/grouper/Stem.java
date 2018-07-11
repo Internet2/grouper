@@ -52,6 +52,8 @@ import org.hibernate.type.LongType;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -2319,7 +2321,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
       + ", group dExtension: " + dExtn + ", uuid: " + uuid + ", typeOfGroup: " + typeOfGroup;
     
-    return (Group)HibernateSession.callbackHibernateSession(
+    Group group = (Group)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
   
@@ -2461,6 +2463,16 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             }
           }
         });
+    
+    //update inherited attribute after creating objects
+    if (!GrouperLoader.isDryRun()) {
+      // do these in thread?
+      GrouperAttestationJob.updateAttestationMetadataForSingleObject(group, true);
+      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(group);
+      
+    }
+    
+    return group;
   }
 
   /**
@@ -2568,7 +2580,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     final String errorMessageSuffix = ", stem name: " + this.name + ", attrDef extension: " + extn
       + ", uuid: " + id + ", ";
     
-    return (AttributeDef)HibernateSession.callbackHibernateSession(
+    AttributeDef attributeDef = (AttributeDef)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
 
@@ -2636,6 +2648,16 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             }
           }
         });
+    
+    //update inherited attribute after creating objects
+    if (!GrouperLoader.isDryRun()) {
+      // do these in thread?
+      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(attributeDef);
+      
+    }
+
+    return attributeDef;
+    
   } 
 
   /**
@@ -2873,6 +2895,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       }
     }
     
+    //update inherited attribute after creating objects
+    if (!GrouperLoader.isDryRun()) {
+      // do these in thread?
+      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(stem);
+      
+    }
+
     
     return stem;
   }

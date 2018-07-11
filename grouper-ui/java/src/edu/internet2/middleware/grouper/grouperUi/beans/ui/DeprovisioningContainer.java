@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.deprovisioning.GuiGrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -515,6 +516,20 @@ public class DeprovisioningContainer {
    */
   public void setAffiliation(String affiliation1) {
     this.affiliation = affiliation1;
+  }
+
+  /**
+   * 
+   * @return true if can run daemon
+   */
+  public boolean isCanRunDaemon() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    return false;
   }
   
 }

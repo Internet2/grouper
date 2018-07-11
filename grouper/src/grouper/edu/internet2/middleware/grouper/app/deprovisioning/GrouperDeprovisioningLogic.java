@@ -554,9 +554,11 @@ public class GrouperDeprovisioningLogic {
         continue;
       }
       
+      grouperDeprovisioningOverallConfiguration.calculateInheritedConfig();
+      
       GrouperDeprovisioningConfiguration inheritedConfiguration = grouperDeprovisioningConfiguration.getInheritedConfig();
 
-      if (inheritedConfiguration != null) {
+      if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null) {
 
         GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
         GrouperDeprovisioningAttributeValue inheritedAttributeValue = inheritedConfiguration.getOriginalConfig();

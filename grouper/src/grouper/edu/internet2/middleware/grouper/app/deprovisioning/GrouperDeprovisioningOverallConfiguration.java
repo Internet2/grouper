@@ -32,6 +32,46 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class GrouperDeprovisioningOverallConfiguration {
 
   /**
+   * only get inherited config once
+   */
+  private boolean inheritedConfigCalculated = false;
+  
+  /**
+   * calculate inherited configs
+   */
+  public void calculateInheritedConfig() {
+    
+    if (!this.inheritedConfigCalculated) {
+
+      if (this.originalOwner instanceof Stem && ((Stem)this.originalOwner).isRootStem()) {
+        this.inheritedConfigCalculated = true;
+        return;
+      }
+      
+      Stem parentStem = this.originalOwner.getParentStem();
+  
+      GrouperDeprovisioningOverallConfiguration parentConfig = retrieveConfiguration(parentStem);
+      
+      for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+        GrouperDeprovisioningConfiguration thisConfiguration = this.getAffiliationToConfiguration().get(affiliation);
+        GrouperDeprovisioningConfiguration parentConfiguration = parentConfig.getAffiliationToConfiguration().get(affiliation);
+        
+        if (parentConfiguration != null) {
+          if (thisConfiguration == null) {
+            thisConfiguration = new GrouperDeprovisioningConfiguration();
+            this.getAffiliationToConfiguration().put(affiliation, thisConfiguration);
+          }
+          thisConfiguration.setInheritedConfig(parentConfiguration);
+        }
+        
+      }
+    }
+    
+    this.inheritedConfigCalculated = true;
+  }
+  
+
+  /**
    * 
    */
   public GrouperDeprovisioningOverallConfiguration() {

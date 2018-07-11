@@ -54,7 +54,6 @@
                                 <span class="description">${textContainer.text['deprovisioningHasDeprovisioningHint']}</span>
                               </td>
                             </tr>
-
                             <c:if test="${!grouperDeprovisioningAttributeValue.directAssignment}">
 
                               <tr>
@@ -67,6 +66,25 @@
                               </tr>
 
                             </c:if>
+                            <c:if test="${ObjectType == 'Folder' }">
+                            
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningStemScopeLabel']}</strong></td>
+                                <td>
+                                  <c:choose>
+                                    <c:when test="${grouperDeprovisioningAttributeValue.stemScopeSub}">
+                                      ${textContainer.textEscapeXml['deprovisioningStemScopeAllLabel']}
+                                    </c:when>
+                                    <c:otherwise>
+                                      ${textContainer.textEscapeXml['deprovisioningStemScopeOneLabel']}                              
+                                    </c:otherwise>
+                                  </c:choose>
+                                  <br />
+                                  <span class="description">${textContainer.text['deprovisioningStemScopeHint']}</span>
+                                </td>
+                              </tr>
+                            </c:if>
+
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['deprovisioningSendEmailLabel'] }</strong></td>
                               <td>
