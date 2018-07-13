@@ -4304,7 +4304,7 @@ public class GrouperInstaller {
         File subjectProperties = new File(sourcesXmlFile.getParentFile().getAbsolutePath() + File.separator + "subject.properties");
 
         {
-          System.out.print("Enter the location of the subject.base.properties file [" + subjectProperties.getAbsolutePath() + "]: ");
+          System.out.print("Enter the location of the subject.properties file [" + subjectProperties.getAbsolutePath() + "]: ");
           String grouperCacheBasePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertSubjectPropertiesLocation");
   
           if (!GrouperInstallerUtils.isBlank(grouperCacheBasePropertiesLocation)) {
