@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -346,12 +347,16 @@ public class GrouperAttestationJob extends OtherJobBase {
   }
 
   /**
-   * @param grouperObject 
-   * @param grouperDeprovisioningOverallConfiguration 
+   * @param group
    * @param resetCalculatedDaysLeft
    */
   public static void updateAttestationMetadataForSingleObject(Group group, boolean resetCalculatedDaysLeft) {
 
+    if (GrouperCheckConfig.isInCheckConfig()) {
+      //things might not be setup yet
+      return;
+    }
+    
     if (group == null) {
       return;
     }
