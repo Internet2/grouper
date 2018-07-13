@@ -1094,8 +1094,6 @@ public class UiV2Deprovisioning {
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
     
-    deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -1104,6 +1102,8 @@ public class UiV2Deprovisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
+      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
+      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
             
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1327,8 +1327,6 @@ public class UiV2Deprovisioning {
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
     
-    deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -1337,6 +1335,8 @@ public class UiV2Deprovisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
+      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
+      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       String subjectString = request.getParameter("groupAddMemberComboName");
@@ -1427,14 +1427,14 @@ public class UiV2Deprovisioning {
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
     
-    deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
+      
+      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
       
       GrouperDeprovisioningAffiliation deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, true);
       
@@ -1588,8 +1588,6 @@ public class UiV2Deprovisioning {
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
     
-    deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -1597,6 +1595,8 @@ public class UiV2Deprovisioning {
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
+      
+      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
