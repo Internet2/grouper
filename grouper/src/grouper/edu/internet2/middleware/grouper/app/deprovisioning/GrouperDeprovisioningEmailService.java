@@ -253,13 +253,13 @@ public class GrouperDeprovisioningEmailService {
       Integer end = GrouperConfig.retrieveConfig().propertyValueInt("deprovisioning.email.object.count", 100);
       
       addLinksToEmailBody(emailPerPerson.deprovisioningGroupEmailObjects, emailBody, objectCount, start,
-          end, "grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroup&groupId=");
+          end, "grouperUi/app/UiV2Main.index?operation=UiV2Deprovisioning.deprovisioningOnGroupReport&groupId=");
       
       addLinksToEmailBody(emailPerPerson.deprovisioningStemEmailObjects, emailBody, objectCount, start,
-          end, "grouperUi/app/UiV2Main.index?operation=UiV2Stem.viewStem&stemId=");
+          end, "grouperUi/app/UiV2Main.index?operation=UiV2Deprovisioning.deprovisioningOnFolderReport&stemId=");
       
       addLinksToEmailBody(emailPerPerson.deprovisioningAttributeDefEmailObjects, emailBody, objectCount, start,
-          end, "grouperUi/app/UiV2Main.index?operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=");
+          end, "grouperUi/app/UiV2Main.index?operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=");
       
       emailBody.append("\n");
       
