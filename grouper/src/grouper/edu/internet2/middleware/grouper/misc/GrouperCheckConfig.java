@@ -1840,6 +1840,14 @@ public class GrouperCheckConfig {
   }
   
   /**
+   * return if in check config
+   * @return if in check config
+   */
+  public static boolean isInCheckConfig() {
+    return inCheckConfig;
+  }
+  
+  /**
    * compare a properties file with an example file, compare all the properties
    * @param resourceName
    * @param resourceExampleName

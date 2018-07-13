@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -35,18 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperDeprovisioningJob extends OtherJobBase {
   
 
-  /**
-   * enter a group or the group which controls a loader job
-   * @param group
-   * @return true if group should be deprovisioned
-   */
-  public static boolean deprovisionGroup(Group group) {
-    
-    //TODO fill in logic
-    
-    return true;
-  }
-  
+
   /**
    * group that users who are allowed to deprovision other users are in
    * @param affiliation deprovi
@@ -179,6 +169,11 @@ public class GrouperDeprovisioningJob extends OtherJobBase {
    */
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //update metadata
+    GrouperDeprovisioningLogic.updateDeprovisioningMetadata(StemFinder.findRootStem(grouperSession));
+    
     GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
     emailService.sendEmailForAllAffiliations(otherJobInput.getGrouperSession());
     return null;
