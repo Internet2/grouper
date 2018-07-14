@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.DeprovisionedSubject;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
