@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
@@ -137,8 +138,15 @@ public class GrouperDeprovisioningOverallConfiguration {
       for (StemSet stemSet : GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(stem.getId())) {
         stemIds.add(stemSet.getIfHasStemId());
       }
-
-      Set<Stem> stems = StemFinder.findByUuids(GrouperSession.staticGrouperSession(), stemIds, null);
+      
+      Set<Stem> stems = new HashSet<Stem>();
+      // go through 100 ids each time because of the restrictions applied by StemFinder.findByUuids
+      while (stemIds.size() > 0) {
+        Set<String> shortenedStemIds = GrouperUtilElSafe.setShorten(stemIds, 100);
+        stemIds.removeAll(shortenedStemIds);
+        stems.addAll(StemFinder.findByUuids(GrouperSession.staticGrouperSession(), shortenedStemIds, null));
+      }
+      
       Map<String, Stem> stemIdToStem = new HashMap<String, Stem>();
       for (Stem theStem : stems) {
         stemIdToStem.put(theStem.getId(), theStem);
