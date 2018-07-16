@@ -81,7 +81,7 @@
                   <c:otherwise>
                   <div class="row-fluid">
                     <div class="span9">
-                      <span>${textContainer.text['groupPermissionsGroupNotRoleText'] }</span>
+                      <span>${textContainer.text['groupPermissionsGroupNotRoleText'] }</span> &nbsp;
                       <a href="#" class="btn btn-primary"
                         onclick="return guiV2link('operation=UiV2Group.convertGroupToRole&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupPermissionsGroupToRoleButton'] }
                       </a>
