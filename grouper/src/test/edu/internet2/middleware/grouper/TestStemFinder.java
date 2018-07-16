@@ -32,10 +32,9 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import junit.framework.Assert;
-import junit.textui.TestRunner;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
@@ -51,12 +50,15 @@ import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Stem}.
@@ -71,7 +73,7 @@ public class TestStemFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemFinder("testFindByAttributeDefName"));
+    TestRunner.run(new TestStemFinder("testFindByUuids"));
   }
   
   // Private Class Constants
@@ -93,6 +95,23 @@ public class TestStemFinder extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   */
+  public void testFindByUuids() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Set<String> uuids = new HashSet<String>();
+    
+    for (int i=0;i<1000;i++) {
+      Stem stem = StemHelper.addChildStem(root, "edu" + i, "educational" + i);
+      uuids.add(stem.getId());
+    }
+    
+    Set<Stem> stems = StemFinder.findByUuids(s, uuids, new QueryOptions().secondLevelCache(false));
+    assertEquals(1000, GrouperUtil.length(stems));
+  }
+  
   /**
    * 
    */
