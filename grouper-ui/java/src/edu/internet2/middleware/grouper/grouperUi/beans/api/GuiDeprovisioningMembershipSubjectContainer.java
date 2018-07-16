@@ -2,17 +2,15 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.deprovisioning.DeprovisionedSubject;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 public class GuiDeprovisioningMembershipSubjectContainer {
   
@@ -140,6 +138,8 @@ public class GuiDeprovisioningMembershipSubjectContainer {
     
     Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = new LinkedHashSet<GuiDeprovisioningMembershipSubjectContainer>();
     
+    Set<GrouperObject> uniqueGrouperObjects = new HashSet<GrouperObject>();
+    
     for (GuiMembershipSubjectContainer guiMembershipSubjectContainer: sortedMembershipSubjectContainers) {
       
       GrouperObject grouperObject = guiMembershipSubjectContainer.getMembershipSubjectContainer().getGroupOwner();
@@ -156,10 +156,15 @@ public class GuiDeprovisioningMembershipSubjectContainer {
         continue;
       }
       
-      GrouperDeprovisioningOverallConfiguration config = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+      if (!uniqueGrouperObjects.contains(grouperObject)) {
+        GrouperDeprovisioningOverallConfiguration config = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+        
+        guiDeprovisioningContainers.add(new GuiDeprovisioningMembershipSubjectContainer(guiMembershipSubjectContainer,
+            config.isShowForRemoval(), config.isAutoselectForRemoval()));
+        
+        uniqueGrouperObjects.add(grouperObject);
+      }
       
-      guiDeprovisioningContainers.add(new GuiDeprovisioningMembershipSubjectContainer(guiMembershipSubjectContainer,
-          config.isShowForRemoval(), config.isAutoselectForRemoval()));
     }
     
     return guiDeprovisioningContainers;

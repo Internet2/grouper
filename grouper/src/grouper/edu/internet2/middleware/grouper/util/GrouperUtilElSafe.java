@@ -151,12 +151,14 @@ public class GrouperUtilElSafe {
    */
   public static <T> Set<T> setShorten(Set<T> theSet, int maxSize) {
     
+    Set<T> newList = new LinkedHashSet<T>();
+    
     if (length(theSet) < maxSize) {
-      return theSet;
+      newList.addAll(theSet);
+      return newList;
     }
     
     //truncate the list
-    Set<T> newList = new LinkedHashSet<T>();
     int i=0;
 
     //TODO test this logic
