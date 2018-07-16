@@ -2395,38 +2395,45 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @see StemDAO#findByUuids(Collection, QueryOptions)
    */
   public Set<Stem> findByUuids(Collection<String> uuids, QueryOptions queryOptions) {
-    int uuidsLength = GrouperUtil.length(uuids);
-    if (uuidsLength > 100) {
-      throw new RuntimeException("Dont pass more than 100 ids: " + uuidsLength);
-    }
-    
+
     Set<Stem> results = new LinkedHashSet<Stem>();
-    
-    if (uuidsLength == 0) {
+
+    if (GrouperUtil.length(uuids) == 0) {
       return results;
     }
 
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    int batchSize = 150;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(uuids, batchSize);
 
-    StringBuilder sql = new StringBuilder();
+    List<String> uuidsList = new ArrayList<String>(uuids);
     
-    sql.append("from Stem as ns where ns.uuid in (");
-    
-    sql.append(HibUtils.convertToInClause(uuids, byHqlStatic));
-    sql.append(") ");
-   
-    if (queryOptions != null) {
-      massageSortFields(queryOptions.getQuerySort());
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> uuidsBatch = GrouperUtil.batchList(uuidsList, batchSize, i);
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder();
+      
+      sql.append("from Stem as ns where ns.uuid in (");
+      
+      sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic));
+      sql.append(") ");
+     
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
+      Set<Stem> stems = byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuids")
+        .options(queryOptions)
+        .listSet(Stem.class);
+      results.addAll(stems);
     }
 
-    Set<Stem> stems = byHqlStatic
-      .createQuery(sql.toString())
-      .setCacheable(true)
-      .setCacheRegion(KLASS + ".FindByUuids")
-      .options(queryOptions)
-      .listSet(Stem.class);
-
-    return stems;
+    return results;
   }
 
   /**
