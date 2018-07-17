@@ -1060,9 +1060,10 @@ public class GuiAuditEntry {
     
     String attributeDefNameId = this.auditEntry.retrieveStringValue(attributeDefNameIdName);
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
-    GuiAttributeDefName guiAttributeDefName = new GuiAttributeDefName(attributeDefName);
-    this.setGuiAttributeDefName(guiAttributeDefName);
-    
+    if (attributeDefName != null) {
+      GuiAttributeDefName theGuiAttributeDefName = new GuiAttributeDefName(attributeDefName);
+      this.setGuiAttributeDefName(theGuiAttributeDefName);
+    }    
   }
 
   /**

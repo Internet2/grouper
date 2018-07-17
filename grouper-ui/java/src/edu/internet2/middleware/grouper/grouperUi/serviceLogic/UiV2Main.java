@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer.IndexPanel;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -100,6 +101,23 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  */
 public class UiV2Main extends UiServiceLogicBase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
+        .assignSubject(SubjectTestHelper.SUBJ0)
+        .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
+        .findAttributeNames();
+    for (AttributeDefName attributeDefName : attributeDefNames) {
+      System.out.println(attributeDefName.getName());
+    }
+
+  }
   
   /** logger */
   private static final Log LOG = LogFactory.getLog(UiV2Main.class);
@@ -1224,11 +1242,11 @@ public class UiV2Main extends UiServiceLogicBase {
      */
     private void myServicesHelper(HttpServletRequest request, HttpServletResponse response) {
   
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
       final String myServicesFilter = StringUtils.trimToEmpty(request.getParameter("myServicesFilter"));
       
-      IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+      final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
   
       //too short of a query
       if (myServicesFilter.length() == 1) {
@@ -1247,38 +1265,40 @@ public class UiV2Main extends UiServiceLogicBase {
 
       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
 
-      @SuppressWarnings("unchecked")
-      Set<AttributeDefName> results = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
+      final Subject SUBJECT = GrouperSession.staticGrouperSession().getSubject();
+      
+      GrouperSession.internal_callbackRootGrouperSession( 
           new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
           AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().assignAnyRole(true)
-              .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+              .assignSubject(SUBJECT)
               .assignQueryOptions(queryOptions);
 
           if (!StringUtils.isBlank(myServicesFilter)) {
             attributeDefNameFinder.assignSplitScope(true);
             attributeDefNameFinder.assignScope(myServicesFilter);
           }
+          Set<AttributeDefName> results = attributeDefNameFinder.findAttributeNames();
+          //this shouldnt be null, but make sure
+          if (results == null) {
+            results = new HashSet<AttributeDefName>();
+          }
           
-          return attributeDefNameFinder.findAttributeNames();
+          if (GrouperUtil.length(results) == 0) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("myServicesNoResultsFound")));
+          }
+          
+          indexContainer.setGuiMyServices(GuiService.convertFromAttributeDefNames(results));
+          
+
+          return null;
           
         }
       });
-      
-      //this shouldnt be null, but make sure
-      if (results == null) {
-        results = new HashSet<AttributeDefName>();
-      }
-      
-      if (GrouperUtil.length(results) == 0) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("myServicesNoResultsFound")));
-      }
-      
-      indexContainer.setGuiMyServices(GuiService.convertFromAttributeDefNames(results));
       
       guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 
@@ -1576,29 +1596,39 @@ public class UiV2Main extends UiServiceLogicBase {
     
     final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
     
+    final Subject SUBJECT = GrouperSession.staticGrouperSession().getSubject();
+    
     GrouperCallable<Void> callable = new GrouperCallable<Void>(
         "GrouperUi.UiV2Main.initMyServices()") {
       
       @Override
       public Void callLogic() {
         
-        {
-          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myServices.widgetMillis", -1);
-          if (millisToSleepForTest > 0) {
-            GrouperUtil.sleep(millisToSleepForTest);
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            {
+              int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myServices.widgetMillis", -1);
+              if (millisToSleepForTest > 0) {
+                GrouperUtil.sleep(millisToSleepForTest);
+              }
+            }
+
+            Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
+                .assignSubject(SUBJECT)
+                .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
+                .findAttributeNames();
+                
+            indexContainer.setGuiMyServices(GuiService.convertFromAttributeDefNames(attributeDefNames));
+
+            indexContainer.setMyServicesRetrieved(true);
+            return null;
           }
-        }
-
-        Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
-            .assignSubject(GrouperSession.staticGrouperSession().getSubject())
-            .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
-            .findAttributeNames();
-            
-        indexContainer.setGuiMyServices(GuiService.convertFromAttributeDefNames(attributeDefNames));
-
-        indexContainer.setMyServicesRetrieved(true);
+        });
+        
         return null;
       }
+
     };
     
     int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
