@@ -138,8 +138,6 @@ public class GuiDeprovisioningMembershipSubjectContainer {
     
     Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = new LinkedHashSet<GuiDeprovisioningMembershipSubjectContainer>();
     
-    Set<GrouperObject> uniqueGrouperObjects = new HashSet<GrouperObject>();
-    
     for (GuiMembershipSubjectContainer guiMembershipSubjectContainer: sortedMembershipSubjectContainers) {
       
       GrouperObject grouperObject = guiMembershipSubjectContainer.getMembershipSubjectContainer().getGroupOwner();
@@ -156,15 +154,11 @@ public class GuiDeprovisioningMembershipSubjectContainer {
         continue;
       }
       
-      if (!uniqueGrouperObjects.contains(grouperObject)) {
-        GrouperDeprovisioningOverallConfiguration config = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
-        
-        guiDeprovisioningContainers.add(new GuiDeprovisioningMembershipSubjectContainer(guiMembershipSubjectContainer,
-            config.isShowForRemoval(), config.isAutoselectForRemoval()));
-        
-        uniqueGrouperObjects.add(grouperObject);
-      }
-      
+      GrouperDeprovisioningOverallConfiguration config = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+    
+      guiDeprovisioningContainers.add(new GuiDeprovisioningMembershipSubjectContainer(guiMembershipSubjectContainer,
+        config.isShowForRemoval(), config.isAutoselectForRemoval()));
+              
     }
     
     return guiDeprovisioningContainers;
