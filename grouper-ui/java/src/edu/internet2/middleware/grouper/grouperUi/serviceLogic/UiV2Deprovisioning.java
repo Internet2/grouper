@@ -1392,11 +1392,24 @@ public class UiV2Deprovisioning {
           Member member = MemberFinder.findBySubject(grouperSession, SUBJECT, true);
           deprovisioningContainer.setDeprovisionedMemberId(member.getId());
           
-          Set<MembershipSubjectContainer> membershipSubjectContainers = MembershipFinder.findAllImmediateMemberhipSubjectContainers(grouperSession, SUBJECT);
+          Set<MembershipSubjectContainer> membershipSubjectContainers = new HashSet<MembershipSubjectContainer>();
+          
+          Set<MembershipSubjectContainer> membershipSubjectContainersSet = MembershipFinder.findAllImmediateMemberhipSubjectContainers(grouperSession, SUBJECT);
+          
+          OUTER: for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainersSet) {
+              
+            //see if already there, update the membership
+            for (MembershipSubjectContainer existingSubjectContainer : membershipSubjectContainersSet) {
+              if (shouldMembershipSubjectContainerBeMerged(membershipSubjectContainer, existingSubjectContainer)) {
+                existingSubjectContainer.getMembershipContainers().putAll(membershipSubjectContainer.getMembershipContainers());
+                membershipSubjectContainers.add(existingSubjectContainer);
+                continue OUTER;
+              }
+            }
+            membershipSubjectContainers.add(membershipSubjectContainer);
+          }
           
           Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(membershipSubjectContainers);
-          
-          //guiMembershipSubjectContainers.iterator().next().getGuiMember()
           
           Set<GuiDeprovisioningMembershipSubjectContainer> guiDeprovisioningContainers = GuiDeprovisioningMembershipSubjectContainer.convertFromGuiMembershipSubjectContainers(guiMembershipSubjectContainers);
           
@@ -2948,6 +2961,31 @@ public class UiV2Deprovisioning {
     deprovisioningContainer.setAffiliation(affiliation);
     return deprovisioningAffiliation;
     
+  }
+  
+  private boolean shouldMembershipSubjectContainerBeMerged(MembershipSubjectContainer container1, MembershipSubjectContainer container2) {
+	  
+	  String uuid1 = container1.getMember().getUuid();
+	  String uuid2 = container2.getMember().getUuid();
+	  
+	  Group group1 = container1.getGroupOwner();
+	  Group group2 = container2.getGroupOwner();
+	  
+	  Stem stem1 = container1.getStemOwner();
+	  Stem stem2 = container2.getStemOwner();
+	  
+	  AttributeDef attributeDef1 = container1.getAttributeDefOwner();
+	  AttributeDef attributeDef2 = container2.getAttributeDefOwner();
+	  
+	  if (StringUtils.equals(uuid1, uuid2) &&
+			   (group1 != null && group2 != null && StringUtils.equals(group1.getUuid(), group2.getUuid() ))  ||
+			   (stem1 != null && stem2 != null && StringUtils.equals(stem1.getUuid(), stem2.getUuid()))  ||
+			   (attributeDef1 != null && attributeDef2 != null && StringUtils.equals(attributeDef1.getUuid(), attributeDef2.getUuid()))) {
+		  return true;
+	  }
+	  
+	  return false;
+	  
   }
   
 }
