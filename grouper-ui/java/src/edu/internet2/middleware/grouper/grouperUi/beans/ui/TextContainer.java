@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,7 +100,7 @@ public class TextContainer {
         return null;
       }
       LOG.error("Cant find text for variable: '" + key + "'");
-      return "$$not found: " + key + "$$";
+      return "$$not found: " + StringEscapeUtils.escapeHtml(key) + "$$";
     }
     
     //if there might be a scriptlet
