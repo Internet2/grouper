@@ -1361,12 +1361,23 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       throw new RuntimeException("Illegal query, you need to pass in attributeAssignIds and/or attributeDefId(s) and/or groupId(s) and/or groupNames and/or attributeDefNameIds");
     }
     
-    //too many bind vars
-    if (attributeAssignIdsSize + groupIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
-      throw new RuntimeException("Too many attributeAssignIdsSize " + attributeAssignIdsSize 
-          + " groupIdsSize " + groupIdsSize + " or attributeDefIdsSize " 
-          + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
-    }
+    int groupBatchSize = 95;
+    int numberOfGroupBatches = GrouperUtil.batchNumberOfBatches(groupIds, groupBatchSize);
+// TODO
+//    Set<AttributeAssign> result = new LinkedHash<String>(group);
+//    
+//    for (int i=0;i<numberOfBatches;i++) {
+//      
+//      List<String> uuidsBatch = GrouperUtil.batchList(uuidsList, batchSize, i);
+//
+//    
+//    
+//    //too many bind vars
+//    if (attributeAssignIdsSize + groupIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
+//      throw new RuntimeException("Too many attributeAssignIdsSize " + attributeAssignIdsSize 
+//          + " groupIdsSize " + groupIdsSize + " or attributeDefIdsSize " 
+//          + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
+//    }
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -3641,6 +3652,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       throw new RuntimeException("Illegal query, you need to pass in attributeAssignIds and/or attributeDefId(s) and/or stemId(s) and/or stemName(s) and/or attributeDefNameIds");
     }
     
+    // TODO
     //too many bind vars
     if (attributeAssignIdsSize + stemIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
       throw new RuntimeException("Too many attributeAssignIdsSize " + attributeAssignIdsSize 
