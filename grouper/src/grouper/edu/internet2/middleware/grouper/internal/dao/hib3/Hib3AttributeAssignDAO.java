@@ -1359,7 +1359,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     if (attributeAssignIdsSize == 0 && groupIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
       throw new RuntimeException("Illegal query, you need to pass in attributeAssignIds and/or attributeDefId(s) and/or groupId(s) and/or groupNames and/or attributeDefNameIds");
     }
-
+    
     int groupBatchSize = 100;
     int numberOfGroupBatches = GrouperUtil.batchNumberOfBatches(groupIdsSize, groupBatchSize);
     List<String> groupIdList = groupIds == null ? new ArrayList<String>() : new ArrayList(groupIds);
