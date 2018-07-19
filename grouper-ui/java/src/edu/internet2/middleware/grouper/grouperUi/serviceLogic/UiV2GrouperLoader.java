@@ -2438,7 +2438,7 @@ public class UiV2GrouperLoader {
               }
               foundSubjectIdCol = true;              
             } else if (!StringUtils.equals("GROUP_NAME", columnName) && !StringUtils.equals("SUBJECT_SOURCE_ID", columnName)) {
-              loaderReport.append("<font color='orange'>WANING:</font> Found " + columnName + " col, which is not used by grouper\n");
+              loaderReport.append("<font color='orange'>WARNING:</font> Found " + columnName + " col, which is not used by grouper\n");
               
             }
           }
