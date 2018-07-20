@@ -34,11 +34,14 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupExtension;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
+import edu.internet2.middleware.grouper.ws.scim.membership.MembershipResource;
 import edu.internet2.middleware.subject.Subject;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
 import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
+import edu.psu.swe.scim.server.provider.UpdateRequest;
+import edu.psu.swe.scim.server.schema.Registry;
 import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
 import edu.psu.swe.scim.spec.resources.ScimGroup;
 
@@ -267,6 +270,7 @@ public class TierGroupServiceTest {
     //given
     ScimGroup scimGroup = new ScimGroup();
     scimGroup.setDisplayName("test:test123");
+    scimGroup.setId("uuid");
     
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
@@ -285,8 +289,12 @@ public class TierGroupServiceTest {
       }
     }
     
+    Registry registry = new Registry();
+    UpdateRequest<ScimGroup> updateRequest = new UpdateRequest<ScimGroup>(registry);
+    updateRequest.initWithResource(scimGroup.getId(), scimGroup, scimGroup);
+    
     //when
-    ScimGroup scimGroup2 = new TierGroupServiceToBeTested().update("uuid", scimGroup);
+    ScimGroup scimGroup2 = new TierGroupServiceToBeTested().update(updateRequest);
     
     //then
     verifyStatic();
@@ -303,15 +311,20 @@ public class TierGroupServiceTest {
     
     //given
     ScimGroup scimGroup = new ScimGroup();
+    scimGroup.setId("non existent uuid");
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false)).thenReturn(null);
     
     mock(GrouperSession.class);
     when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
     
+    Registry registry = new Registry();
+    UpdateRequest<ScimGroup> updateRequest = new UpdateRequest<ScimGroup>(registry);
+    updateRequest.initWithResource(scimGroup.getId(), scimGroup, scimGroup);
+    
     try {
       //when
-      groupService.update("non existent uuid", scimGroup);
+      groupService.update(updateRequest);
       fail("UnableToUpdateResourceException should have been thrown");
     } catch (UnableToUpdateResourceException e) {
       //then

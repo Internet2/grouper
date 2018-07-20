@@ -36,6 +36,7 @@ import edu.psu.swe.scim.server.exception.UnableToRetrieveExtensionsException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
 import edu.psu.swe.scim.server.provider.Provider;
+import edu.psu.swe.scim.server.provider.UpdateRequest;
 import edu.psu.swe.scim.spec.protocol.filter.AttributeComparisonExpression;
 import edu.psu.swe.scim.spec.protocol.filter.CompareOperator;
 import edu.psu.swe.scim.spec.protocol.filter.FilterExpression;
@@ -129,25 +130,27 @@ public class TierMembershipService implements Provider<MembershipResource> {
   }
 
   @Override
-  public MembershipResource update(String id, MembershipResource resource) throws UnableToUpdateResourceException {
+  public MembershipResource update(UpdateRequest<MembershipResource> updateRequest) throws UnableToUpdateResourceException {
     
     GrouperSession grouperSession = null;
-    LOG.info("Starting to update a membership with id: "+id);
+    LOG.info("Starting to update a membership with id: "+updateRequest.getOriginal().getId());
     try {
       Subject authenticatedSubject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(authenticatedSubject);
-      Membership membership = MembershipFinder.findByUuid(grouperSession, id, false, false);
+      MembershipResource originalResource = updateRequest.getOriginal();
+      MembershipResource newResource = updateRequest.getResource();
+      Membership membership = MembershipFinder.findByUuid(grouperSession, originalResource.getId(), false, false);
       if (membership == null) {
-        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "Membership with id "+id+" doesn't exist.");
+        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "Membership with id "+originalResource.getId()+" doesn't exist.");
       }
       
       boolean needsUpdate = false;
-      if (resource.getDisabledTime() != null) {
-        membership.setDisabledTime(Timestamp.valueOf(resource.getDisabledTime()));
+      if (newResource.getDisabledTime() != null) {
+        membership.setDisabledTime(Timestamp.valueOf(newResource.getDisabledTime()));
         needsUpdate = true;
       }
-      if (resource.getEnabledTime() != null) {
-        membership.setEnabledTime(Timestamp.valueOf(resource.getEnabledTime()));
+      if (newResource.getEnabledTime() != null) {
+        membership.setEnabledTime(Timestamp.valueOf(newResource.getEnabledTime()));
         needsUpdate = true;
       }
       if (needsUpdate) {

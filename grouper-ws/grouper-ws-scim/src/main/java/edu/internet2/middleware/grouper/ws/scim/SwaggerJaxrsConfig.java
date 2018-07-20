@@ -7,6 +7,8 @@ import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 
 import io.swagger.util.Json;
@@ -22,8 +24,14 @@ public class SwaggerJaxrsConfig implements ServletContextListener {
     System.out.println("Initializing Swagger");
 
     try {
-      Json.mapper().registerModule(new JaxbAnnotationModule());
-      Yaml.mapper().registerModule(new JaxbAnnotationModule());
+    	Json.mapper().registerModule(new JaxbAnnotationModule());
+        Json.mapper().registerModule(new JavaTimeModule());
+        Json.mapper().registerModule(new Jdk8Module());
+        Json.mapper().findAndRegisterModules();
+        
+        Yaml.mapper().registerModule(new JaxbAnnotationModule());
+        Yaml.mapper().registerModule(new JavaTimeModule());
+        Yaml.mapper().registerModule(new Jdk8Module());
 
     } catch (Exception e) {
       LOGGER.error("Error initializing swagger", e);

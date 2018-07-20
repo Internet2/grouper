@@ -22,6 +22,7 @@ import edu.psu.swe.scim.server.exception.UnableToRetrieveExtensionsException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
 import edu.psu.swe.scim.server.provider.Provider;
+import edu.psu.swe.scim.server.provider.UpdateRequest;
 import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
 import edu.psu.swe.scim.spec.protocol.filter.AttributeComparisonExpression;
 import edu.psu.swe.scim.spec.protocol.filter.CompareOperator;
@@ -42,7 +43,7 @@ public class TierUserService implements Provider<ScimUser> {
   }
 
   @Override
-  public ScimUser update(String id, ScimUser resource) throws UnableToUpdateResourceException {
+  public ScimUser update(UpdateRequest<ScimUser> updateRequest) throws UnableToUpdateResourceException {
     throw new UnableToUpdateResourceException(BAD_REQUEST, "Method not supported");
   }
 

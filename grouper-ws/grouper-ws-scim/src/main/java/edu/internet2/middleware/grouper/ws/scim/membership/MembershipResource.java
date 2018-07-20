@@ -5,12 +5,16 @@ package edu.internet2.middleware.grouper.ws.scim.membership;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import edu.psu.swe.scim.spec.adapter.LocalDateTimeAdapter;
 import edu.psu.swe.scim.spec.annotation.ScimAttribute;

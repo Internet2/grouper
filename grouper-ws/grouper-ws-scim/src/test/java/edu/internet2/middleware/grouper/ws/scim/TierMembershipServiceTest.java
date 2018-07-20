@@ -40,6 +40,8 @@ import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
 import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
+import edu.psu.swe.scim.server.provider.UpdateRequest;
+import edu.psu.swe.scim.server.schema.Registry;
 import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
 
 /**
@@ -277,9 +279,14 @@ public class TierMembershipServiceTest {
     MembershipResource resource = new MembershipResource();
     resource.setDisabledTime(disabledTime);
     resource.setEnabledTime(enabledTime);
+    resource.setId("uuid");
+    
+    Registry registry = new Registry();
+    UpdateRequest<MembershipResource> updateRequest = new UpdateRequest<MembershipResource>(registry);
+    updateRequest.initWithResource(resource.getId(), resource, resource);
     
     //when
-    MembershipResource membershipResourceOutput = membershipService.update("uuid", resource);
+    MembershipResource membershipResourceOutput = membershipService.update(updateRequest);
     
     //then
     verify(mockMembership, Mockito.times(1)).update();
@@ -297,9 +304,16 @@ public class TierMembershipServiceTest {
     mockStatic(MembershipFinder.class);
     when(MembershipFinder.findByUuid(mockGrouperSession, "non existent uuid", false, false)).thenReturn(null);
     
+    MembershipResource resource = new MembershipResource();
+    resource.setId("non existent uuid");
+    
+    Registry registry = new Registry();
+    UpdateRequest<MembershipResource> updateRequest = new UpdateRequest<MembershipResource>(registry);
+    updateRequest.initWithResource(resource.getId(), resource, resource);
+    
     try {
       //when
-      membershipService.update("non existent uuid", new MembershipResource());
+      membershipService.update(updateRequest);
       fail("UnableToDeleteResourceException should have been thrown");
     } catch (UnableToUpdateResourceException e) {
       //then

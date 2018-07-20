@@ -60,6 +60,7 @@ import edu.psu.swe.scim.server.exception.UnableToRetrieveExtensionsException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
 import edu.psu.swe.scim.server.provider.Provider;
+import edu.psu.swe.scim.server.provider.UpdateRequest;
 import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
 import edu.psu.swe.scim.spec.protocol.filter.AttributeComparisonExpression;
 import edu.psu.swe.scim.spec.protocol.filter.CompareOperator;
@@ -196,7 +197,7 @@ public class TierGroupService implements Provider<ScimGroup> {
   }
 
   @Override
-  public ScimGroup update(String id, ScimGroup scimGroup) throws UnableToUpdateResourceException {
+  public ScimGroup update(UpdateRequest<ScimGroup> updateRequest) throws UnableToUpdateResourceException {
     
     GrouperSession grouperSession = null;
     GrouperSession rootSession = null;
@@ -205,13 +206,13 @@ public class TierGroupService implements Provider<ScimGroup> {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
       rootSession = GrouperSession.startRootSession();
-      Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
+      Optional<Group> optionalGroup = findGroup(updateRequest.getOriginal().getId(), subject, rootSession);
       
       if (!optionalGroup.isPresent()) {
-        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "group " + id + " not found.");
+        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "group " + updateRequest.getOriginal().getId() + " not found.");
       }
       
-      Group savedGroup = updateGroup(grouperSession, scimGroup, optionalGroup.get().getUuid());
+      Group savedGroup = updateGroup(grouperSession, updateRequest.getResource(), optionalGroup.get().getUuid());
       scimGroupOutput = convertGrouperGroupToScimGroup(savedGroup, false);
       
       TierMetaExtension tierMetaExtension = new TierMetaExtension();
@@ -226,7 +227,7 @@ public class TierGroupService implements Provider<ScimGroup> {
     } catch(InvalidExtensionException e) {
       throw new UnableToUpdateResourceException(Status.INTERNAL_SERVER_ERROR, "Invalid extension");
     } catch(RuntimeException ie) {
-      LOG.error("Unable to update group with id "+id, ie);
+      LOG.error("Unable to update group with id "+updateRequest.getOriginal().getId(), ie);
       throw new UnableToUpdateResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
