@@ -69,7 +69,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer.IndexPanel;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -108,14 +107,14 @@ public class UiV2Main extends UiServiceLogicBase {
   public static void main(String[] args) {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
-    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
-        .assignSubject(SubjectTestHelper.SUBJ0)
-        .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
-        .findAttributeNames();
-    for (AttributeDefName attributeDefName : attributeDefNames) {
-      System.out.println(attributeDefName.getName());
-    }
+//    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+//    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
+//        .assignSubject(SubjectTestHelper.SUBJ0)
+//        .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
+//        .findAttributeNames();
+//    for (AttributeDefName attributeDefName : attributeDefNames) {
+//      System.out.println(attributeDefName.getName());
+//    }
 
   }
   
