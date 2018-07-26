@@ -170,124 +170,132 @@ public class GrouperDeprovisioningConfiguration {
    * @return how many changes made
    */
   public int storeConfiguration() {
-        
-    GrouperDeprovisioningAttributeValue newConfig = this.getNewConfig();
-    GrouperDeprovisioningAttributeValue originalConfig = this.getOriginalConfig();
 
-    if (newConfig == null
-        && originalConfig == null) {
-      return 0;
+    try {
+      GrouperDeprovisioningAttributeValue newConfig = this.getNewConfig();
+      GrouperDeprovisioningAttributeValue originalConfig = this.getOriginalConfig();
+  
+      if (newConfig == null
+          && originalConfig == null) {
+        return 0;
+      }
+  
+      if (newConfig == null) {
+        this.getAttributeAssignBase().deleteAndStore();
+        return 1;
+      }
+  
+      if (originalConfig == null) {
+        originalConfig = new GrouperDeprovisioningAttributeValue();
+        originalConfig.setGrouperDeprovisioningConfiguration(this);
+        this.setOriginalConfig(originalConfig);
+      }
+      
+      //make sure things are set to null if default
+      newConfig.flattenValues();
+      originalConfig.flattenValues();
+      
+      int[] changeCount = new int[]{0};
+  
+      //it has both new and old, lets compare and do the saves
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAllowAddsWhileDeprovisioned(), 
+          originalConfig.getAllowAddsWhileDeprovisionedString(),
+          newConfig.getAllowAddsWhileDeprovisionedString(), changeCount);
+      originalConfig.setAllowAddsWhileDeprovisionedString(newConfig.getAllowAddsWhileDeprovisionedString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoChangeLoader(), 
+          originalConfig.getAutoChangeLoaderString(),
+          newConfig.getAutoChangeLoaderString(), changeCount);
+      originalConfig.setAutoChangeLoaderString(newConfig.getAutoChangeLoaderString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoSelectForRemoval(),
+          originalConfig.getAutoselectForRemovalString(),
+          newConfig.getAutoselectForRemovalString(), changeCount);
+      originalConfig.setAutoselectForRemovalString(newConfig.getAutoselectForRemovalString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision(), 
+          originalConfig.getDeprovisionString(),
+          newConfig.getDeprovisionString(), changeCount);
+      originalConfig.setDeprovisionString(newConfig.getDeprovisionString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment(), 
+          originalConfig.getDirectAssignmentString(),
+          newConfig.getDirectAssignmentString(), changeCount);
+      originalConfig.setDirectAssignmentString(newConfig.getDirectAssignmentString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailAddresses(), 
+          originalConfig.getEmailAddressesString(),
+          newConfig.getEmailAddressesString(), changeCount);
+      originalConfig.setEmailAddressesString(newConfig.getEmailAddressesString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailBody(), 
+          originalConfig.getEmailBodyString(),
+          newConfig.getEmailBodyString(), changeCount);
+      originalConfig.setEmailBodyString(newConfig.getEmailBodyString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameInheritedFromFolderId(), 
+          originalConfig.getInheritedFromFolderIdString(),
+          newConfig.getInheritedFromFolderIdString(), changeCount);
+      originalConfig.setInheritedFromFolderIdString(newConfig.getInheritedFromFolderIdString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup(), 
+          originalConfig.getMailToGroupString(),
+          newConfig.getMailToGroupString(), changeCount);
+      originalConfig.setMailToGroupString(newConfig.getMailToGroupString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation(), 
+          originalConfig.getAffiliationString(),
+          newConfig.getAffiliationString(), changeCount);
+      originalConfig.setAffiliationString(newConfig.getAffiliationString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameSendEmail(), 
+          originalConfig.getSendEmailString(),
+          newConfig.getSendEmailString(), changeCount);
+      originalConfig.setSendEmailString(newConfig.getSendEmailString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameShowForRemoval(), 
+          originalConfig.getShowForRemovalString(),
+          newConfig.getShowForRemovalString(), changeCount);
+      originalConfig.setShowForRemovalString(newConfig.getShowForRemovalString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameStemScope(), 
+          originalConfig.getStemScopeString(),
+          newConfig.getStemScopeString(), changeCount);
+      originalConfig.setStemScopeString(newConfig.getStemScopeString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameCertifiedMillis(),
+          originalConfig.getCertifiedMillisString(),
+          newConfig.getCertifiedMillisString(), changeCount);
+      originalConfig.setCertifiedMillisString(newConfig.getCertifiedMillisString());
+  
+      updateAttribute( 
+          GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameLastEmailedDate(),
+          originalConfig.getLastEmailedDateString(),
+          newConfig.getLastEmailedDateString(), changeCount);
+      originalConfig.setLastEmailedDateString(newConfig.getLastEmailedDateString());
+      return changeCount[0];
+    } finally {
+      if (this.getGrouperDeprovisioningOverallConfiguration() != null 
+          && this.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner() != null) {
+        //clear the entire cache
+        GrouperDeprovisioningOverallConfiguration.cacheClear(this.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner());
+      }      
     }
 
-    if (newConfig == null) {
-      this.getAttributeAssignBase().deleteAndStore();
-      return 1;
-    }
-
-    if (originalConfig == null) {
-      originalConfig = new GrouperDeprovisioningAttributeValue();
-      originalConfig.setGrouperDeprovisioningConfiguration(this);
-      this.setOriginalConfig(originalConfig);
-    }
-    
-    //make sure things are set to null if default
-    newConfig.flattenValues();
-    originalConfig.flattenValues();
-    
-    int[] changeCount = new int[]{0};
-
-    //it has both new and old, lets compare and do the saves
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAllowAddsWhileDeprovisioned(), 
-        originalConfig.getAllowAddsWhileDeprovisionedString(),
-        newConfig.getAllowAddsWhileDeprovisionedString(), changeCount);
-    originalConfig.setAllowAddsWhileDeprovisionedString(newConfig.getAllowAddsWhileDeprovisionedString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoChangeLoader(), 
-        originalConfig.getAutoChangeLoaderString(),
-        newConfig.getAutoChangeLoaderString(), changeCount);
-    originalConfig.setAutoChangeLoaderString(newConfig.getAutoChangeLoaderString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoSelectForRemoval(),
-        originalConfig.getAutoselectForRemovalString(),
-        newConfig.getAutoselectForRemovalString(), changeCount);
-    originalConfig.setAutoselectForRemovalString(newConfig.getAutoselectForRemovalString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision(), 
-        originalConfig.getDeprovisionString(),
-        newConfig.getDeprovisionString(), changeCount);
-    originalConfig.setDeprovisionString(newConfig.getDeprovisionString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment(), 
-        originalConfig.getDirectAssignmentString(),
-        newConfig.getDirectAssignmentString(), changeCount);
-    originalConfig.setDirectAssignmentString(newConfig.getDirectAssignmentString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailAddresses(), 
-        originalConfig.getEmailAddressesString(),
-        newConfig.getEmailAddressesString(), changeCount);
-    originalConfig.setEmailAddressesString(newConfig.getEmailAddressesString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailBody(), 
-        originalConfig.getEmailBodyString(),
-        newConfig.getEmailBodyString(), changeCount);
-    originalConfig.setEmailBodyString(newConfig.getEmailBodyString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameInheritedFromFolderId(), 
-        originalConfig.getInheritedFromFolderIdString(),
-        newConfig.getInheritedFromFolderIdString(), changeCount);
-    originalConfig.setInheritedFromFolderIdString(newConfig.getInheritedFromFolderIdString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup(), 
-        originalConfig.getMailToGroupString(),
-        newConfig.getMailToGroupString(), changeCount);
-    originalConfig.setMailToGroupString(newConfig.getMailToGroupString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation(), 
-        originalConfig.getAffiliationString(),
-        newConfig.getAffiliationString(), changeCount);
-    originalConfig.setAffiliationString(newConfig.getAffiliationString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameSendEmail(), 
-        originalConfig.getSendEmailString(),
-        newConfig.getSendEmailString(), changeCount);
-    originalConfig.setSendEmailString(newConfig.getSendEmailString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameShowForRemoval(), 
-        originalConfig.getShowForRemovalString(),
-        newConfig.getShowForRemovalString(), changeCount);
-    originalConfig.setShowForRemovalString(newConfig.getShowForRemovalString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameStemScope(), 
-        originalConfig.getStemScopeString(),
-        newConfig.getStemScopeString(), changeCount);
-    originalConfig.setStemScopeString(newConfig.getStemScopeString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameCertifiedMillis(),
-        originalConfig.getCertifiedMillisString(),
-        newConfig.getCertifiedMillisString(), changeCount);
-    originalConfig.setCertifiedMillisString(newConfig.getCertifiedMillisString());
-
-    updateAttribute( 
-        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameLastEmailedDate(),
-        originalConfig.getLastEmailedDateString(),
-        newConfig.getLastEmailedDateString(), changeCount);
-    originalConfig.setLastEmailedDateString(newConfig.getLastEmailedDateString());
-
-    return changeCount[0];
   }
 
   /**

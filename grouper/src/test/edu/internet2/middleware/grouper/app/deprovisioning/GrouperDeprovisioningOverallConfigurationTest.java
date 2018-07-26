@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.textui.TestRunner;
 
@@ -14,6 +15,15 @@ import junit.textui.TestRunner;
  *
  */
 public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
+
+  /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+    GrouperCheckConfig.waitUntilDoneWithExtraConfig();
+  }
 
   /**
    * main
@@ -48,7 +58,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
         .assignCreateParentStemsIfNotExist(true).save();
 
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = 
-        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup);
+        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup, false);
     
     assertEquals(someGroup, grouperDeprovisioningOverallConfiguration.getOriginalOwner());
     
@@ -82,7 +92,7 @@ public class GrouperDeprovisioningOverallConfigurationTest extends GrouperTest {
     EhcacheController.ehcacheController().flushCache();
     
     grouperDeprovisioningOverallConfiguration = 
-        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup);
+        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup, false);
     
     GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration2 = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("student");
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue2 = grouperDeprovisioningConfiguration2.getOriginalConfig();
