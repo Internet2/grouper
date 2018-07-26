@@ -158,7 +158,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelCreator'] }</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.creatorGuiSubject.shortLinkWithIcon}</td>
+                            <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.groupContainer.guiGroup.group.creatorUuid)}</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelLastEdited']}</strong></td>
@@ -166,7 +166,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelLastEditedBy']}</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.lastUpdatedByGuiSubject.shortLinkWithIcon}</td>
+                            <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.groupContainer.guiGroup.group.modifierUuid)}</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelTypeLabel']}</strong></td>

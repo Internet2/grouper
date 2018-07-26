@@ -191,15 +191,11 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['attributeDefLabelCreator'] }</strong></td>
-                            <td>${grouperRequestContainer.attributeDefContainer.guiAttributeDef.creatorGuiSubject.shortLinkWithIcon}</td>
+                            <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.creatorId)}</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['attributeDefLabelLastEdited']}</strong></td>
                             <td>${grouperRequestContainer.attributeDefContainer.guiAttributeDef.lastEditedString}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['attributeDefLabelLastEditedBy']}</strong></td>
-                            <td>${grouperRequestContainer.attributeDefContainer.guiAttributeDef.lastUpdatedByGuiSubject.shortLinkWithIcon}</td>
                           </tr>
                           <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin }">
                             <tr>

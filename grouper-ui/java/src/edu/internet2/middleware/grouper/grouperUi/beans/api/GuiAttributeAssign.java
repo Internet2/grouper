@@ -366,7 +366,7 @@ public class GuiAttributeAssign implements Serializable, Comparable<GuiAttribute
     AttributeDefName otherAttributeDefName = other.attributeAssign == null ? null : other.attributeAssign.getAttributeDefName();
     String nameOfOtherAttributeDefName = otherAttributeDefName == null ? null : otherAttributeDefName.getName();
     
-    return new CompareToBuilder().append(nameOfLocalAttributeDefName, nameOfOtherAttributeDefName).toComparison();
+    return new CompareToBuilder().append(nameOfLocalAttributeDefName, nameOfOtherAttributeDefName).append(this.attributeAssign.getId(), other.attributeAssign.getId()).toComparison();
   }
   
 }
