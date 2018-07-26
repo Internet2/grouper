@@ -13,10 +13,20 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import junit.textui.TestRunner;
 
 public class GrouperDeprovisioningEmailServiceTest extends GrouperTest {
   
+  /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+    GrouperCheckConfig.waitUntilDoneWithExtraConfig();
+  }
+
   /**
    * main
    * @param args
@@ -74,7 +84,7 @@ public class GrouperDeprovisioningEmailServiceTest extends GrouperTest {
         .assignCreateParentStemsIfNotExist(true).save();
     
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = 
-        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup);
+        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(someGroup, false);
     
     GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
     grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);

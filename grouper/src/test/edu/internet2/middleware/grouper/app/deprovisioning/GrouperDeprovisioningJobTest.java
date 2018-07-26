@@ -49,6 +49,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     GrouperCheckConfig.checkGroups();
+    GrouperCheckConfig.waitUntilDoneWithExtraConfig();
   }
 
   /**
@@ -129,7 +130,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     Group groupInheritAssigned1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test3:test3b:group2").save();
     
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = 
-        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem0);
+        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem0, false);
  
     GrouperDeprovisioningConfiguration studentConfiguration = new GrouperDeprovisioningConfiguration();
         

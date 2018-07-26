@@ -121,7 +121,7 @@ public class GrouperDeprovisioningEmailService {
   
   private GrouperDeprovisioningAttributeValue getDeprovisioningAttributeValue(GrouperObject grouperObject, String affiliation) {
     
-    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject, true);
     
     if (!grouperDeprovisioningOverallConfiguration.hasConfigurationForAffiliation(affiliation)) {
       return null;
@@ -295,7 +295,7 @@ public class GrouperDeprovisioningEmailService {
       GrouperObject grouperObject = grouperObjectWithAffiliation.getGrouperObject();
       String affiliation = grouperObjectWithAffiliation.getAffiliation();
       
-      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject, true);
       Map<String, GrouperDeprovisioningConfiguration> affiliationToConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration();
       if (affiliationToConfiguration.containsKey(affiliation)) {
         GrouperDeprovisioningConfiguration configuration = affiliationToConfiguration.get(affiliation);

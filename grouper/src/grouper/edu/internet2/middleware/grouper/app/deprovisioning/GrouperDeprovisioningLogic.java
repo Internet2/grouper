@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -26,6 +27,12 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -402,7 +409,7 @@ public class GrouperDeprovisioningLogic {
    */
   public static void updateLastCertifiedDate(GrouperObject grouperObject, Date lastCertifiedDate) {
     
-    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject, true);
 
     for (String affiliation : grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().keySet()) {
 
@@ -535,64 +542,125 @@ public class GrouperDeprovisioningLogic {
    * @param grouperObject 
    */
   public static void updateDeprovisioningMetadataForSingleObject(GrouperObject grouperObject) {
-    
+
     // dont do this now
-    if (GrouperCheckConfig.isInCheckConfig()) {
+    if (GrouperCheckConfig.isInCheckConfig() || !GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       return;
     }
-    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
-    updateDeprovisioningMetadataForSingleObject(grouperObject, grouperDeprovisioningOverallConfiguration);
+
+    Map<String, Object> debugMap = null;
+    long startNanos = System.nanoTime();
+
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+    }
+    try {
+      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject, true);
+      updateDeprovisioningMetadataForSingleObject(grouperObject, grouperDeprovisioningOverallConfiguration);
+      
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        long elapsedMillis = (System.nanoTime() - startNanos) / 1000000;
+        debugMap.put("took", elapsedMillis + "ms");
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
   }
 
   /**
    * @param grouperObject 
    * @param grouperDeprovisioningOverallConfiguration 
    */
-  public static void updateDeprovisioningMetadataForSingleObject(GrouperObject grouperObject, GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration) {
+  public static void updateDeprovisioningMetadataForSingleObject(final GrouperObject grouperObject, final GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration) {
 
-    for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+    if (grouperObject == null) {
+      return;
+    }
+    
+    for (final String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
       
-      GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
-
-      // we good
-      GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
-      if (originalConfig != null && originalConfig.isDirectAssignment()) {
-        continue;
-      }
+          
+      Map<String, Object> debugMap = null;
+      long startNanos = System.nanoTime();
       
-      grouperDeprovisioningOverallConfiguration.calculateInheritedConfig();
+      try {
       
-      GrouperDeprovisioningConfiguration inheritedConfiguration = grouperDeprovisioningConfiguration.getInheritedConfig();
-
-      if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null) {
-
-        GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-        GrouperDeprovisioningAttributeValue inheritedAttributeValue = inheritedConfiguration.getOriginalConfig();
-
-        grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString(inheritedAttributeValue.getAllowAddsWhileDeprovisionedString());
-        grouperDeprovisioningAttributeValue.setAutoChangeLoaderString(inheritedAttributeValue.getAutoChangeLoaderString());
-        grouperDeprovisioningAttributeValue.setAutoselectForRemovalString(inheritedAttributeValue.getAutoselectForRemovalString());
-        // dont set certified date
-        grouperDeprovisioningAttributeValue.setDeprovisionString(inheritedAttributeValue.getDeprovisionString());
-        grouperDeprovisioningAttributeValue.setDirectAssignment(false);
-        grouperDeprovisioningAttributeValue.setEmailAddressesString(inheritedAttributeValue.getEmailAddressesString());
-        grouperDeprovisioningAttributeValue.setEmailBodyString(inheritedAttributeValue.getEmailBodyString());
-        grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString(inheritedAttributeValue.getGrouperDeprovisioningConfiguration().getAttributeAssignBase().getOwnerStemId());
-        // dont set last emailed
-        grouperDeprovisioningAttributeValue.setMailToGroupString(inheritedAttributeValue.getMailToGroupString());
-        grouperDeprovisioningAttributeValue.setAffiliationString(inheritedAttributeValue.getAffiliationString());
-        grouperDeprovisioningAttributeValue.setSendEmailString(inheritedAttributeValue.getSendEmailString());
-        grouperDeprovisioningAttributeValue.setShowForRemovalString(inheritedAttributeValue.getShowForRemovalString());
-        grouperDeprovisioningAttributeValue.setStemScopeString(inheritedAttributeValue.getStemScopeString());
+        if (LOG.isDebugEnabled()) {
+          debugMap = new LinkedHashMap<String, Object>();
+          debugMap.put("method", "updateDeprovisioningMetadataForSingleObject");
+          debugMap.put("object", grouperObject.getName());
+          debugMap.put("affiliation", affiliation);
+        }
         
-      } else {
+        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
 
-        // there is no local config or inherited config, delete it all (well most of it)
-        grouperDeprovisioningConfiguration.clearOutConfigurationButLeaveMetadata();
+        // we good
+        GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
+        if (originalConfig != null && originalConfig.isDirectAssignment()) {
+          
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("directAssign", true);
+          }
+          
+          continue;
+        }
+        
+        grouperDeprovisioningOverallConfiguration.calculateInheritedConfig();
+        
+        GrouperDeprovisioningConfiguration inheritedConfiguration = grouperDeprovisioningConfiguration.getInheritedConfig();
 
+        if (inheritedConfiguration != null && inheritedConfiguration.getOriginalConfig() != null) {
+
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("inheritedFrom", inheritedConfiguration.getGrouperDeprovisioningOverallConfiguration().getOriginalOwner().getName());
+          }
+
+          GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
+          GrouperDeprovisioningAttributeValue inheritedAttributeValue = inheritedConfiguration.getOriginalConfig();
+
+          grouperDeprovisioningAttributeValue.setAllowAddsWhileDeprovisionedString(inheritedAttributeValue.getAllowAddsWhileDeprovisionedString());
+          grouperDeprovisioningAttributeValue.setAutoChangeLoaderString(inheritedAttributeValue.getAutoChangeLoaderString());
+          grouperDeprovisioningAttributeValue.setAutoselectForRemovalString(inheritedAttributeValue.getAutoselectForRemovalString());
+          // dont set certified date
+          grouperDeprovisioningAttributeValue.setDeprovisionString(inheritedAttributeValue.getDeprovisionString());
+          grouperDeprovisioningAttributeValue.setDirectAssignment(false);
+          grouperDeprovisioningAttributeValue.setEmailAddressesString(inheritedAttributeValue.getEmailAddressesString());
+          grouperDeprovisioningAttributeValue.setEmailBodyString(inheritedAttributeValue.getEmailBodyString());
+          grouperDeprovisioningAttributeValue.setInheritedFromFolderIdString(inheritedAttributeValue.getGrouperDeprovisioningConfiguration().getAttributeAssignBase().getOwnerStemId());
+          // dont set last emailed
+          grouperDeprovisioningAttributeValue.setMailToGroupString(inheritedAttributeValue.getMailToGroupString());
+          grouperDeprovisioningAttributeValue.setAffiliationString(inheritedAttributeValue.getAffiliationString());
+          grouperDeprovisioningAttributeValue.setSendEmailString(inheritedAttributeValue.getSendEmailString());
+          grouperDeprovisioningAttributeValue.setShowForRemovalString(inheritedAttributeValue.getShowForRemovalString());
+          grouperDeprovisioningAttributeValue.setStemScopeString(inheritedAttributeValue.getStemScopeString());
+
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("inheritedConfig", true);
+          }
+
+        } else {
+
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("inheritedConfig", false);
+          }
+          
+          // there is no local config or inherited config, delete it all (well most of it)
+          grouperDeprovisioningConfiguration.clearOutConfigurationButLeaveMetadata();
+
+        }
+        int changesMade = grouperDeprovisioningConfiguration.storeConfiguration();
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("changesMade", changesMade);
+        }
+        
+      } finally {
+        if (LOG.isDebugEnabled()) {
+          long elapsedMillis = (System.nanoTime() - startNanos) / 1000000;
+          debugMap.put("took", elapsedMillis + "ms");
+          LOG.debug(GrouperUtil.mapToString(debugMap));
+        }
       }
-      grouperDeprovisioningConfiguration.storeConfiguration();
-      
     }
 
   }
@@ -690,7 +758,7 @@ public class GrouperDeprovisioningLogic {
     Set<String> affiliationsToDeprovision = new TreeSet<String>();
     
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = 
-      GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(owner);
+      GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(owner, true);
     
     for (GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration : grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().values()) {
       
@@ -805,7 +873,7 @@ public class GrouperDeprovisioningLogic {
     
     Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
     
-    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(loaderGroup);
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(loaderGroup, true);
     
     Set<String> affiliationsToDeprovision = GrouperDeprovisioningLogic.affiliationsToDeprovision(loaderGroup);
     

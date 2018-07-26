@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.deprovisioning;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -20,11 +21,12 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
@@ -36,11 +38,19 @@ public class GrouperDeprovisioningOverallConfiguration {
    * only get inherited config once
    */
   private boolean inheritedConfigCalculated = false;
-  
+
   /**
    * calculate inherited configs
    */
   public void calculateInheritedConfig() {
+    calculateInheritedConfig(null);
+  }
+
+  /**
+   * @param grouperDeprovisioningOverallConfigurationMap or null if not provided
+   * calculate inherited configs
+   */
+  public void calculateInheritedConfig(Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> grouperDeprovisioningOverallConfigurationMap) {
     
     if (!this.inheritedConfigCalculated) {
 
@@ -49,22 +59,80 @@ public class GrouperDeprovisioningOverallConfiguration {
         return;
       }
       
-      Stem parentStem = this.originalOwner.getParentStem();
-  
-      GrouperDeprovisioningOverallConfiguration parentConfig = retrieveConfiguration(parentStem);
+      Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> alreadyRetrievedOverallConfigurationMap 
+        = new HashMap<GrouperObject, GrouperDeprovisioningOverallConfiguration>();
       
-      for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
-        GrouperDeprovisioningConfiguration thisConfiguration = this.getAffiliationToConfiguration().get(affiliation);
-        GrouperDeprovisioningConfiguration parentConfiguration = parentConfig.getAffiliationToConfiguration().get(affiliation);
-        
-        if (parentConfiguration != null) {
-          if (thisConfiguration == null) {
-            thisConfiguration = new GrouperDeprovisioningConfiguration();
-            this.getAffiliationToConfiguration().put(affiliation, thisConfiguration);
+      GrouperObject grouperObject = this.originalOwner;
+      
+      INNER: for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
+
+        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = this.getAffiliationToConfiguration().get(affiliation);
+
+        if (grouperDeprovisioningConfiguration != null) {
+          if (grouperDeprovisioningConfiguration.getInheritedConfig() != null) {
+            continue;
           }
-          thisConfiguration.setInheritedConfig(parentConfiguration);
+          // if direct then we dont need the parent stem
+          GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
+          if (originalConfig != null && originalConfig.isDirectAssignment()) {
+            continue;
+          }
         }
         
+        // not direct, see what the parent stem is
+        // note we have the assign id of the parent, but it might not be right, so look it up
+        boolean isDirectParent = true;
+        Stem parent = null;
+        if ((!(grouperObject instanceof Stem)) || (!((Stem)grouperObject).isRootStem() )) {
+          parent = grouperObject.getParentStem();
+        } 
+        while (true && parent != null) {
+
+          GrouperDeprovisioningOverallConfiguration stemOverallConfiguration = null;
+          
+          if (grouperDeprovisioningOverallConfigurationMap != null) {
+            stemOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(parent);
+          } else {
+            if (alreadyRetrievedOverallConfigurationMap.containsKey(parent)) {
+              stemOverallConfiguration = alreadyRetrievedOverallConfigurationMap.get(parent);
+            } else {
+              //cache if retrieved
+              stemOverallConfiguration = retrieveConfiguration(parent, true);
+              alreadyRetrievedOverallConfigurationMap.put(parent, stemOverallConfiguration);
+            }
+          }
+
+          if (stemOverallConfiguration != null) {
+
+            GrouperDeprovisioningConfiguration stemDeprovisioningConfiguration = stemOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
+
+            if (stemDeprovisioningConfiguration != null) {
+
+              GrouperDeprovisioningAttributeValue originalConfig = stemDeprovisioningConfiguration.getOriginalConfig();
+              if (originalConfig != null && originalConfig.isDirectAssignment()) {
+
+                // make sure the stem scope is correct
+                if (isDirectParent || stemDeprovisioningConfiguration.getOriginalConfig().getStemScope() == Scope.SUB) {
+
+                  if (grouperDeprovisioningConfiguration == null) {
+                    grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
+                    grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(this);
+                    this.getAffiliationToConfiguration().put(affiliation, grouperDeprovisioningConfiguration);
+                  }
+                  grouperDeprovisioningConfiguration.setInheritedConfig(stemDeprovisioningConfiguration);
+                  //we done
+                  continue INNER;
+                }
+              }
+            }
+          }
+
+          if (parent.isRootStem()) {
+            break;
+          }
+          parent = parent.getParentStem();
+          isDirectParent = false;
+        }
       }
     }
     
@@ -140,12 +208,7 @@ public class GrouperDeprovisioningOverallConfiguration {
       }
       
       Set<Stem> stems = new HashSet<Stem>();
-      // go through 100 ids each time because of the restrictions applied by StemFinder.findByUuids
-      while (stemIds.size() > 0) {
-        Set<String> shortenedStemIds = GrouperUtilElSafe.setShorten(stemIds, 100);
-        stemIds.removeAll(shortenedStemIds);
-        stems.addAll(StemFinder.findByUuids(GrouperSession.staticGrouperSession(), shortenedStemIds, null));
-      }
+      stems.addAll(StemFinder.findByUuids(GrouperSession.staticGrouperSession(), stemIds, null));
       
       Map<String, Stem> stemIdToStem = new HashMap<String, Stem>();
       for (Stem theStem : stems) {
@@ -160,82 +223,135 @@ public class GrouperDeprovisioningOverallConfiguration {
     
     if (includeStemConfigs) {
       
-      OUTER: for (GrouperObject grouperObject : grouperDeprovisioningOverallConfigurationMap.keySet()) {
+      for (GrouperObject grouperObject : grouperDeprovisioningOverallConfigurationMap.keySet()) {
         
         GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);
         
-        for (String affiliation : GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet()) {
-          
-          GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
-          
-          if (grouperDeprovisioningConfiguration != null) {
-            // if direct then we dont need the parent stem
-            GrouperDeprovisioningAttributeValue originalConfig = grouperDeprovisioningConfiguration.getOriginalConfig();
-            if (originalConfig != null && originalConfig.isDirectAssignment()) {
-              continue;
-            }
-          }
-
-          // not direct, see what the parent stem is
-          // note we have the assign id of the parent, but it might not be right, so look it up
-          boolean isDirectParent = true;
-          Stem parent = null;
-          if ((!(grouperObject instanceof Stem)) || (!((Stem)grouperObject).isRootStem() )) {
-            parent = grouperObject.getParentStem();
-          } 
-          while (true && parent != null) {
-
-            GrouperDeprovisioningOverallConfiguration stemOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(parent);
-
-            if (stemOverallConfiguration != null) {
-
-              GrouperDeprovisioningConfiguration stemDeprovisioningConfiguration = stemOverallConfiguration.getAffiliationToConfiguration().get(affiliation);
-
-              if (stemDeprovisioningConfiguration != null) {
-
-                GrouperDeprovisioningAttributeValue originalConfig = stemDeprovisioningConfiguration.getOriginalConfig();
-                if (originalConfig != null && originalConfig.isDirectAssignment()) {
-
-                  // make sure the stem scope is correct
-                  if (isDirectParent || stemDeprovisioningConfiguration.getOriginalConfig().getStemScope() == Scope.SUB) {
-
-                    if (grouperDeprovisioningConfiguration == null) {
-                      grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
-                      grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
-                      grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put(affiliation, grouperDeprovisioningConfiguration);
-                    }
-                    grouperDeprovisioningConfiguration.setInheritedConfig(stemDeprovisioningConfiguration);
-                    //we done
-                    continue OUTER;
-                  }
-                }
-              }
-            }
-
-            if (parent.isRootStem()) {
-              break;
-            }
-            parent = parent.getParentStem();
-            isDirectParent = false;
-          }
-
-        }
+        grouperDeprovisioningOverallConfiguration.calculateInheritedConfig(grouperDeprovisioningOverallConfigurationMap);
         
       }
       
     }
     
+    for (GrouperObject grouperObject : grouperDeprovisioningOverallConfigurationMap.keySet()) {
+      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);
+      cacheAdd(grouperObject, grouperDeprovisioningOverallConfiguration);
+    }
+
     return grouperDeprovisioningOverallConfigurationMap;
   }
   
+  /**
+   * remove all caches
+   */
+  public static void cacheClear() {
+    overallConfigCache.clear();
+  }
+
+  /**
+   * remove from cache
+   * @param grouperObject 
+   */
+  public static void cacheClear(GrouperObject grouperObject) {
+    if (grouperObject != null) {
+      overallConfigCache.remove(cacheKey(grouperObject));
+    }
+  }
+
+  /**
+   * 
+   * @param grouperObject
+   * @return multikey
+   */
+  private static MultiKey cacheKey(GrouperObject grouperObject) {
+    if (grouperObject == null) {
+      return null;
+    }
+    return new MultiKey(grouperObject.getClass().getSimpleName(), grouperObject.getId());
+  }
+
+  /**
+   * cache configuration by object id
+   */
+  private static GrouperCache<MultiKey, GrouperDeprovisioningOverallConfiguration> overallConfigCache = new GrouperCache(
+      "edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration.overallConfigCache", 10000, false, 120, 120, false);
+
+  /**
+   * 
+   * @param groupOrFolderOrAttributeDef
+   * @param useCache
+   * @return 
+   */
+  private static GrouperDeprovisioningOverallConfiguration cacheRetrieve(GrouperObject groupOrFolderOrAttributeDef, boolean useCache) {
+    if (!useCache || groupOrFolderOrAttributeDef == null) {
+      return null;
+    }
+    MultiKey multiKey = cacheKey(groupOrFolderOrAttributeDef);
+    return overallConfigCache.get(multiKey);
+  }
+  
+  /**
+   * 
+   * @param groupOrFolderOrAttributeDef
+   * @param grouperDeprovisioningOverallConfiguration 
+   */
+  private static void cacheAdd(GrouperObject groupOrFolderOrAttributeDef, GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration) {
+    if (groupOrFolderOrAttributeDef == null) {
+      return;
+    }
+    MultiKey multiKey = cacheKey(groupOrFolderOrAttributeDef);
+    overallConfigCache.put(multiKey, grouperDeprovisioningOverallConfiguration);
+  }
+
   /**
    * 
    * @param groupOrFolderOrAttributeDef
    * @return the configuration
    */
   public static GrouperDeprovisioningOverallConfiguration retrieveConfiguration(GrouperObject groupOrFolderOrAttributeDef) {
-    Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> configMap = retrieveConfiguration(GrouperUtil.toSet(groupOrFolderOrAttributeDef));
-    return configMap.get(groupOrFolderOrAttributeDef);
+    return retrieveConfiguration(groupOrFolderOrAttributeDef, true);
+  }
+  
+  /**
+   * 
+   * @param groupOrFolderOrAttributeDef
+   * @param useCache 
+   * @return the configuration
+   */
+  public static GrouperDeprovisioningOverallConfiguration retrieveConfiguration(GrouperObject groupOrFolderOrAttributeDef, boolean useCache) {
+    Map<String, Object> debugMap = null;
+    long startNanos = System.nanoTime();
+
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "retrieveConfiguration.GrouperObject");
+      debugMap.put("objectType", groupOrFolderOrAttributeDef == null ? null : groupOrFolderOrAttributeDef.getClass().getSimpleName());
+      debugMap.put("objectName", groupOrFolderOrAttributeDef == null ? null : groupOrFolderOrAttributeDef.getName());
+    }
+    
+    try {
+
+      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = cacheRetrieve(groupOrFolderOrAttributeDef, useCache);
+      if (grouperDeprovisioningOverallConfiguration != null) {
+        debugMap.put("fromCache", true);
+        return grouperDeprovisioningOverallConfiguration;
+      } else {
+        debugMap.put("fromCache", false);
+      }
+
+      Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> configMap = retrieveConfiguration(GrouperUtil.toSet(groupOrFolderOrAttributeDef));
+      grouperDeprovisioningOverallConfiguration = configMap.get(groupOrFolderOrAttributeDef);
+      
+      cacheAdd(groupOrFolderOrAttributeDef, grouperDeprovisioningOverallConfiguration);
+      return grouperDeprovisioningOverallConfiguration;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        long elapsedMillis = (System.nanoTime() - startNanos) / 1000000;
+        debugMap.put("took", elapsedMillis + "ms");
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
   }
 
   /**
@@ -328,6 +444,11 @@ public class GrouperDeprovisioningOverallConfiguration {
 
     }
 
+    for (GrouperObject grouperObject : result.keySet()) {
+      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = result.get(grouperObject);
+      cacheAdd(grouperObject, grouperDeprovisioningOverallConfiguration);
+    }
+    
     return result;
   }
 
@@ -369,7 +490,8 @@ public class GrouperDeprovisioningOverallConfiguration {
         AttributeAssign attributeAssignNew = attributeAssignValueFinderResult
             .getMapAttributeAssignIdToAttributeAssign().get(attributeAssignId);
         
-        String affiliation = attributeDefNameAndValueStrings.get(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName());
+        String wasAffiliation = GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName();
+        String affiliation = attributeDefNameAndValueStrings.get(wasAffiliation);
 
         if (!StringUtils.isBlank(affiliation)) {
 
@@ -393,20 +515,21 @@ public class GrouperDeprovisioningOverallConfiguration {
             
           affiliationToAttributeDefNameToValueString.put(affiliation, attributeDefNameAndValueStrings);
           affiliationToAttributeAssign.put(affiliation, attributeAssignNew);
+
+          GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
+          grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
+          
+          grouperDeprovisioningOverallConfiguration.affiliationToConfiguration.put(affiliation, grouperDeprovisioningConfiguration);
+                
+          //lets get the base attribute assign
+          grouperDeprovisioningConfiguration.setAttributeAssignBase(attributeAssignNew);
         } else {
           // has no affiliation!!!!
-          LOG.error("Cant find affiliation for deprovisioning, deleting: " + groupOrFolderOrAttributeDef);
+          LOG.error("Cant find affiliation '" + wasAffiliation + "' for deprovisioning, deleting: " + groupOrFolderOrAttributeDef);
           attributeAssignNew.delete();
         }
         
         
-        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
-        grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
-        
-        grouperDeprovisioningOverallConfiguration.affiliationToConfiguration.put(affiliation, grouperDeprovisioningConfiguration);
-              
-        //lets get the base attribute assign
-        grouperDeprovisioningConfiguration.setAttributeAssignBase(attributeAssignNew);
       }
       
       //loop through affiliations and setup the configuration
