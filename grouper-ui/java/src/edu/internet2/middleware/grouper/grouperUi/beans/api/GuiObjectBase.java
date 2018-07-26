@@ -169,7 +169,7 @@ public abstract class GuiObjectBase {
         creator = ((GuiAttributeDef)this).getAttributeDef().getCreateSubject();
       }
     } catch (SubjectNotFoundException snfe) {
-      LOG.warn("Cant find creator of:" + this.getNameColonSpaceSeparated(), snfe );
+      LOG.info("Cant find creator of:" + this.getNameColonSpaceSeparated(), snfe );
     }
     return creator == null ? null : new GuiSubject(creator);
   }
@@ -206,7 +206,7 @@ public abstract class GuiObjectBase {
         lastUpdater = ((GuiStem)this).getStem().getModifySubject();
       }
     } catch (SubjectNotFoundException snfe) {
-      LOG.warn("Cant find creator of:" + this.getNameColonSpaceSeparated(), snfe );
+      LOG.info("Cant find updater of:" + this.getNameColonSpaceSeparated(), snfe );
     }
 
     //note: attributes dont have this attribute

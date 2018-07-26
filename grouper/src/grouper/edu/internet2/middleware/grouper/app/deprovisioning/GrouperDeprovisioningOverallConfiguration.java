@@ -333,9 +333,12 @@ public class GrouperDeprovisioningOverallConfiguration {
 
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = cacheRetrieve(groupOrFolderOrAttributeDef, useCache);
       if (grouperDeprovisioningOverallConfiguration != null) {
-        debugMap.put("fromCache", true);
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("fromCache", true);
+        }
         return grouperDeprovisioningOverallConfiguration;
-      } else {
+      }
+      if (LOG.isDebugEnabled()) {
         debugMap.put("fromCache", false);
       }
 
