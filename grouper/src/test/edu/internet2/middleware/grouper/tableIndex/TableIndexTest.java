@@ -165,7 +165,8 @@ public class TableIndexTest extends GrouperTest {
       assertFalse(idIndexes.contains(idIndex));
       idIndexes.add(idIndex);
     }
-    assertEquals(originalNumberOfTimesIndexesReserved+9, Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes);
+    assertTrue(9 <= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
+    assertTrue(11 >= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
   }
 
   /**
