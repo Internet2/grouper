@@ -77,8 +77,9 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     canInviteOthers = resolver.canInviteExternalPeople();
     
     //see if we can invite
+    // since the lite UI uses jsp to check property settings, it's safe to check for just the new UI property
     if (canInviteOthers && GrouperUiConfig.retrieveConfig().propertyValueBoolean(
-        "inviteExternalPeople.link-from-lite-ui", false)) {
+        "inviteExternalPeople.link-from-new-ui", false)) {
 
       return true;
     

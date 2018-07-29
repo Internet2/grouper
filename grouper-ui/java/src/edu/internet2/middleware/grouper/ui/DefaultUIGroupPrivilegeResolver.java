@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Internet2
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,7 +56,6 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -70,7 +69,7 @@ import edu.internet2.middleware.subject.Subject;
  * your own business logic, and configure in media.properties using the key:
  * edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver
  * see https://bugs.internet2.edu/jira/browse/GRP-72
- * 
+ *
  * @author Gary Brown.
  * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
@@ -91,7 +90,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 * @see edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver#init()
 	 */
 	public void init() {
-				
+
 	}
 
 	/* (non-Javadoc)
@@ -138,14 +137,14 @@ public class DefaultUIGroupPrivilegeResolver implements
 		  if (!field.startsWith(stemName)) {
 		    return group.canWriteField(FieldFinder.find(field, true));
 		  }
-		  
+
       String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
       AttributeDefName legacyAttribute = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(field, false);
       if (legacyAttribute == null) {
         // probably not allowed to see attribute def
         return false;
       }
-      
+
       AttributeDef legacyAttributeDef = legacyAttribute.getAttributeDef();
       String groupTypeName = legacyAttributeDef.getExtension().substring(attributeDefPrefix.length());
 
@@ -163,7 +162,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver#canReadField(java.lang.String)
 	 */
@@ -173,14 +172,14 @@ public class DefaultUIGroupPrivilegeResolver implements
       if (!field.startsWith(stemName)) {
         return group.canReadField(FieldFinder.find(field, true));
       }
-      
+
       String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
       AttributeDefName legacyAttribute = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(field, false);
       if (legacyAttribute == null) {
         // probably not allowed to see attribute def
         return false;
       }
-      
+
       AttributeDef legacyAttributeDef = legacyAttribute.getAttributeDef();
       String groupTypeName = legacyAttributeDef.getExtension().substring(attributeDefPrefix.length());
 
@@ -199,7 +198,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 		}
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver#canManageAnyCustomField()
 	 */
@@ -210,7 +209,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver#canOptinGroup()
 	 */
@@ -301,7 +300,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 					fieldManageMap.put(field.getName(), canManageField(field.getName()));
 					fieldReadMap.put(field.getName(), canReadField(field.getName()));
 				}
-        
+
         for(AttributeDefName legacyAttribute : type.getLegacyAttributes()) {
           fieldManageMap.put(legacyAttribute.getName(), canManageField(legacyAttribute.getName()));
           fieldReadMap.put(legacyAttribute.getName(), canReadField(legacyAttribute.getName()));
@@ -311,18 +310,19 @@ public class DefaultUIGroupPrivilegeResolver implements
 		return map;
 	}
 
+
 	/**
 	 * @see UIGroupPrivilegeResolver#canInviteExternalPeople()
 	 */
   @Override
   public boolean canInviteExternalPeople() {
-    
+
     StringBuilder logMessage = new StringBuilder();
-    
+
     boolean result = true;
-    
+
     try {
-    
+
       //if it is altogether enabled
       boolean mediaEnableInvitation = GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.enableInvitation", false);
       if (LOG.isDebugEnabled()) {
@@ -332,30 +332,40 @@ public class DefaultUIGroupPrivilegeResolver implements
         result = false;
         return false;
       }
-      
+
       //if this is the wheel group, and not allowed to invite wheel, then no
       boolean groupIsNull = this.group == null;
-      boolean filterGroup = InviteExternalSubjects.filterGroup(this.group);
+
+      // Originally from InviteExternalSubjects class, now moved to legacy UI
+      //boolean filterGroup = InviteExternalSubjects.filterGroup(this.group);
+      boolean filterGroup = false;
+      boolean allowWheel = GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.allowWheelInInvite", false);
+      boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
+      String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
+      if (!allowWheel && useWheel && !StringUtils.isBlank(wheelName) && StringUtils.equals(wheelName, this.group.getName())) {
+        filterGroup = true;
+      }
+
       if (LOG.isDebugEnabled()) {
         logMessage.append("groupIsNull: ").append(groupIsNull).append(", filterGroup: ").append(filterGroup).append(", ");
       }
-      
+
       if (groupIsNull || filterGroup) {
         result = false;
         return false;
       }
-      
+
       boolean canManageMembers = this.canManageMembers();
-      
+
       if (LOG.isDebugEnabled()) {
         logMessage.append("canManageMembers: ").append(canManageMembers).append(", ");
       }
-      
+
       if (!canManageMembers) {
         result = false;
         return false;
       }
-      
+
       final String requireGroupName = GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.inviteExternalSubjects.logins");
       if (!StringUtils.isBlank(requireGroupName)) {
         GrouperSession grouperSession = this.s;
@@ -364,9 +374,9 @@ public class DefaultUIGroupPrivilegeResolver implements
           grouperSession = this.s.internal_getRootSession();
         }
         boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-          
+
           /**
-           * 
+           *
            */
           @Override
           public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
@@ -383,11 +393,11 @@ public class DefaultUIGroupPrivilegeResolver implements
           return false;
         }
       }
-      
+
       //lets see if the source is available for this group...
       String sourceId = ExternalSubject.sourceId();
       if (!StringUtils.isBlank(sourceId)) {
-        
+
         String stemName = this.group.getParentStemName();
         RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sourceId);
 
@@ -397,7 +407,7 @@ public class DefaultUIGroupPrivilegeResolver implements
           return false;
         }
       }
-      
+
       result = true;
       return true;
     } finally {

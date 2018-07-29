@@ -15,11 +15,19 @@
 ====
 
 
-This module contains source code and configuration files for the legacy "Admin UI" interface
-that was removed in Grouper release 2.4.0.
+INTRODUCTION
+------------
+
+This module contains source code and configuration files for the legacy "Admin UI" and "Lite UI"
+interfaces that were removed in Grouper release 2.4.0. While the classes and supporting files have
+been removed from the main UI module, they exist in this legacy module in case your installation
+still needs the functionality.
 
 
-There are a few steps to restoring the previous Admin UI functionality into your web application.
+INSTALLING
+----------
+
+There are a few steps to restoring the previous Admin UI and Lite UI functionality into your web application.
 
 1) Back up your existing grouper webapp folder! While this process works at the point in time of the 2.4.0
 release, future changes to the UI module may adversely affect this legacy code
@@ -126,3 +134,24 @@ specific roles into the application, set the grouperRole to the correct value.
 </security-constraint>
 
 ```
+
+
+REBUILDING THIS LEGACY MODULE FROM SOURCE
+-----------------------------------------
+
+The ant settings for this folder are set up to compile the classes and package everything into
+the grouper-legacy-ui.tar.gz file. From the command line, simple type
+
+```
+ant
+```
+
+OR
+
+```
+ant package
+```
+
+The process will clean out any existing compiled files and staging files, and then rebuild the output
+file into dist/grouper-legacy-ui.tar.gz.
+

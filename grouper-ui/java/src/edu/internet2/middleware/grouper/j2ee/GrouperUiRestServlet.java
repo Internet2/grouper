@@ -44,16 +44,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateFilter;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateMenu;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleGroupUpdateFilter;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateFilter;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateMenu;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateFilter;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Admin;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefAttributeAssignment;
@@ -109,43 +100,13 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
-      InviteExternalSubjects.class.getSimpleName() + ".groupToAssignFilter",
       MiscMenu.class.getSimpleName() + ".miscMenuStructure",
-      SimpleMembershipUpdateFilter.class.getSimpleName() + ".filterUsers", 
-      "SimpleMembershipUpdateFilter.filterGroups",
-      SimpleMembershipUpdateMenu.class.getSimpleName() + ".advancedMenuStructure", 
-      SimpleMembershipUpdateImportExport.class.getSimpleName() + ".exportSubjectIdsCsv",
-      "SimpleMembershipUpdateImportExport.exportAllCsv", "SimpleMembershipUpdateMenu.memberMenuStructure",
-      "SimpleMembershipUpdateFilter.filterMembers", "SimpleAttributeUpdateFilter.filterAttributeDefs",
-      "SimpleAttributeUpdateFilter.filterCreatableNamespace", 
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers",
-      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterGroups",
-      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterCreatableNamespace",
-      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers",
-      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterRoles",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterAttributeDefsByOwnerType",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterAttributeNamesByOwnerType",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterGroups",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterGroupsForMembershipAssignment",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterStems",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterSubjects",
-      SimpleAttributeUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterPermissionAttributeDefs",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterPermissionResources",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterRoles",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterSubjects",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterActions",
-      SimplePermissionUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitDefinitions",
-      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitNames",
-      SimplePermissionUpdateMenu.class.getSimpleName() + ".limitMenuStructure",
       UiV2SubjectPermission.class.getSimpleName() + ".assignmentMenuStructure",
       UiV2SubjectPermission.class.getSimpleName() + ".limitMenuStructure",
       UiV2SubjectPermission.class.getSimpleName() + ".limitValueMenuStructure",
       UiV2GroupPermission.class.getSimpleName() + ".assignmentMenuStructure",
       UiV2GroupPermission.class.getSimpleName() + ".limitMenuStructure",
       UiV2GroupPermission.class.getSimpleName() + ".limitValueMenuStructure",
-      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterGroupsRolesEntities",
       UiV2Main.class.getSimpleName() + ".index",
       UiV2Main.class.getSimpleName() + ".folderMenu",
       UiV2Group.class.getSimpleName() + ".addMemberFilter",
