@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
@@ -55,7 +56,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
       + "  \"replyToQueueOrTopicName\": \"someQueue\","
       + "  \"replyToQueueOrTopic\": \"queue\","
       + "  \"httpMethod\": \"PUT\","
-      + "  \"httpPath\": \"http://localhost:8085/test123\""
+      + "  \"httpPath\": \"/test123\""
       + "},"
       + "\"WsRestAddMemberRequest\":{ \"subjectLookups\":[{"
       + "  \"subjectId\":\"test.subject.0\","
@@ -79,6 +80,10 @@ public class MessageConsumerDaemonTest extends GrouperTest {
       + "   \"wsGroupLookup\":{ \"groupName\":\"test:testGroup\" }  }}";
   
   public void testProcessMessagesHappyPath() throws IOException {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.url", 
+        "http://localhost:8085/grouper-ws");
+    
     MessageConsumerDaemon daemon = new MessageConsumerDaemon();
     FakeGrouperMessageSystem grouperMessageSystem = new FakeGrouperMessageSystem();
     
@@ -128,7 +133,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     
     void launchHttpServer() throws IOException {
       httpServer = HttpServer.create(new InetSocketAddress(8085), 0);
-      httpServer.createContext("/test123", new HttpHandler() {
+      httpServer.createContext("/grouper-ws/test123", new HttpHandler() {
         public void handle(HttpExchange exchange) throws IOException {
           webServiceCalled = true;
           byte[] response = "\"result\": {\"success\": true }".getBytes();
