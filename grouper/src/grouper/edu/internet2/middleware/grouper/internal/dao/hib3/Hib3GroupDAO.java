@@ -1145,7 +1145,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1186,7 +1186,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1229,7 +1229,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1272,7 +1272,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1313,7 +1313,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1356,7 +1356,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1397,7 +1397,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1440,7 +1440,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1504,7 +1504,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         hql, "theGroup.uuid", inPrivSet);
 
-    if (changedQuery) {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
     } else {
       hql.append(" where ");
@@ -1688,7 +1688,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-    if (changedQuery) {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
     } else {
       sql.append(" where ");
@@ -2758,7 +2758,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQueryNotWithPriv = grouperSession.getAccessResolver().hqlFilterGroupsNotWithPrivWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", privilege, considerAllSubject);
 
-    if (changedQuery || changedQueryNotWithPriv) {
+    if ((changedQuery || changedQueryNotWithPriv)  && sql.toString().contains(" where ")) {
       sql.append(" and ");
     } else {
       sql.append(" where ");
@@ -3336,7 +3336,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           }
         }
         
-        if (changedQuery) {
+        if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");
         } else {
           sql.append(" where ");
@@ -3541,7 +3541,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
           sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-      if (changedQuery) {
+      if (changedQuery && sql.toString().contains(" where ")) {
         sql.append(" and ");
       } else {
         sql.append(" where ");
@@ -3629,7 +3629,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
           sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
 
-      if (changedQuery) {
+      if (changedQuery && sql.toString().contains(" where ")) {
         sql.append(" and ");
       } else {
         sql.append(" where ");
@@ -3818,7 +3818,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQueryNotWithPriv = grouperSession.getAccessResolver().hqlFilterGroupsWithPrivWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", privilege, considerAllSubject);
   
-    if (changedQuery || changedQueryNotWithPriv) {
+    if ((changedQuery || changedQueryNotWithPriv) && sql.toString().contains(" where ")) {
       sql.append(" and ");
     } else {
       sql.append(" where ");

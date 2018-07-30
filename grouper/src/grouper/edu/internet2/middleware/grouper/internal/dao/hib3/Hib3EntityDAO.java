@@ -94,7 +94,7 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic,
         sql, "theGroup.uuid", inPrivSet);
 
-    if (changedQuery) {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
     } else {
       sql.append(" where ");

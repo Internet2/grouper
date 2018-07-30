@@ -1417,7 +1417,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
       StringBuilder sql;
       
-      if (changedQuery) {
+      if (changedQuery && sqlTables.toString().contains(" where ")) {
         sqlTables.append(" and ");
       } else {
         sqlTables.append(" where ");
@@ -1952,7 +1952,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "ime.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
@@ -2129,7 +2129,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
@@ -2428,7 +2428,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerGroupId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
   
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
@@ -2709,7 +2709,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "ime.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
   
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
@@ -2979,7 +2979,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerStemId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
   
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
@@ -3108,7 +3108,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         grouperSessionSubject, byHqlStatic, 
         sqlTables, "aa.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
   
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
     } else {
       sqlTables.append(" where ");
@@ -3702,7 +3702,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       boolean changedQuery = false;
-      
+
       if (attributeCheckReadOnAttributeDef) {
         changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
           grouperSessionSubject, byHqlStatic, 
@@ -3711,7 +3711,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       StringBuilder sql;
       
-      if (changedQuery) {
+      if (changedQuery && sqlTables.toString().contains(" where ")) {
         sqlTables.append(" and ");
       } else {
         sqlTables.append(" where ");
@@ -4914,15 +4914,15 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       boolean changedQuery = false;
       
       if (attributeCheckReadOnAttributeDef) {
-  
+
         changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
           grouperSessionSubject, byHqlStatic, 
-          sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+          sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
       }
       
       StringBuilder sql;
       
-      if (changedQuery) {
+      if (changedQuery && sqlTables.toString().contains(" where ")) {
         sqlTables.append(" and ");
       } else {
         sqlTables.append(" where ");

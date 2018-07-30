@@ -1492,7 +1492,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           if (whereClause.length() > 0) {
             whereClause.append(" and ");
           } else {
-            if (changedQuery) {
+            if (changedQuery && whereClause.toString().contains(" where ")) {
               whereClause.append(" and ");
             } else {
               whereClause.append(" where ");
@@ -1529,7 +1529,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
       if (!StringUtils.isBlank(idOfAttributeDefName)) {
 
-        if (changedQuery) {
+        if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");
         }  else {
           sql.append(" where ");
@@ -1608,7 +1608,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       
       if (GrouperUtil.length(stemIds) > 0) {
 
-        if (changedQuery) {
+        if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");
         }  else {
           sql.append(" where ");
@@ -1621,7 +1621,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       }
 
       if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-        if (changedQuery) {
+        if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");
         }  else {
           sql.append(" where ");
@@ -1646,7 +1646,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   
       if (GrouperUtil.length(userHasInGroupFields) > 0) {
         
-        if (changedQuery) {
+        if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");
         } else {
           sql.append(" where ");
@@ -1670,7 +1670,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       
       if (GrouperUtil.length(userHasInAttributeFields) > 0) {
         
-        if (changedQuery) {
+        if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");
         } else {
           sql.append(" where ");
@@ -1791,7 +1791,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           
           long startMillis = System.currentTimeMillis();
           try {
-            if (changedQuery) {
+            if (changedQuery && sql.toString().contains(" where ")) {
               sql.append(" and ");
             } else {
               sql.append(" where ");
@@ -2260,7 +2260,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
 
-    if (changedQuery) {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
     } else {
       sql.append(" where ");

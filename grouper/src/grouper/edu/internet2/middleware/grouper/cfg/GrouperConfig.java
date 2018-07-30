@@ -196,7 +196,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
               //put back in cache
               attributeDefIdsToIgnoreChangeLogAndAuditSetCache.put(namesOfAttributeDefsCommaSeparated, result);
             } else {
-              result = tempResult;
+              result = GrouperUtil.nonNull(tempResult);
             }
             this.attributeDefIdsToIgnoreChangeLogAndAuditSet = result;
               
@@ -206,7 +206,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
       }
       
     }
-    return this.attributeDefIdsToIgnoreChangeLogAndAuditSet;
+    return GrouperUtil.nonNull(this.attributeDefIdsToIgnoreChangeLogAndAuditSet);
     
   }
   
@@ -299,7 +299,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
             //put back in cache
             attributeDefNameIdsToIgnoreChangeLogAndAuditSetCache.put(namesOfAttributeDefNamesCommaSeparated, result);
           } else {
-            result = tempResult;
+            result = GrouperUtil.nonNull(tempResult);
           }
           this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet = result;
             
@@ -309,7 +309,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
       
     }
 
-    return this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet;
+    return GrouperUtil.nonNull(this.attributeDefNameIdsToIgnoreChangeLogAndAuditSet);
     
   }
   

@@ -875,7 +875,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         }
       }
       
-      if (changedQuery) {
+      if (changedQuery && sql.toString().contains(" where ")) {
         sql.append(" and ");      
       } else {
         sql.append(" where ");

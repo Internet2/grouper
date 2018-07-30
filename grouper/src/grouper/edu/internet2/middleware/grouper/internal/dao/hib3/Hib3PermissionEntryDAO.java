@@ -224,7 +224,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
           sqlTables, "gr.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
       StringBuilder sql;
-      if (changedQuery) {
+      if (changedQuery && sqlTables.toString().contains(" where ")) {
         if (sqlWhereClause.length() > 0) {
           sql = sqlTables.append(" and ").append(sqlWhereClause);
         } else {
@@ -574,7 +574,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         sqlTables, "gr.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       if (sqlWhereClause.length() > 0) {
         sql = sqlTables.append(" and ").append(sqlWhereClause);
       } else {
@@ -687,7 +687,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       if (sqlWhereClause.length() > 0) {
         sql = sqlTables.append(" and ").append(sqlWhereClause);
       } else {
@@ -818,7 +818,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       if (sqlWhereClause.length() > 0) {
         sql = sqlTables.append(" and ").append(sqlWhereClause);
       } else {

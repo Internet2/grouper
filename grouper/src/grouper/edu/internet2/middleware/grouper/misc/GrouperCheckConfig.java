@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -513,6 +514,9 @@ public class GrouperCheckConfig {
       checkGroups();
       
       checkAttributes();
+      
+      postSteps();
+      
       GrouperSession grouperSession = GrouperSession.startRootSession(false);
       GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
       
@@ -526,6 +530,120 @@ public class GrouperCheckConfig {
     } finally {
       inCheckConfig = false;
     }
+  }
+  
+  public static void postSteps() {
+
+    boolean theTesting = false;
+    try {
+      String grouperTestClassName = "edu.internet2.middleware.grouper.helper.GrouperTest";
+      Class grouperTestClass = GrouperUtil.forName(grouperTestClassName);
+      theTesting = (Boolean)GrouperUtil.callMethod(grouperTestClass, "isTesting");
+    } catch (Exception e) {
+      //ignore
+      LOG.debug("Likely non-fatal error seeing if testing", e);
+    }
+    final boolean testing = theTesting;
+    
+    // do this in a thread so we dont delay startup
+    Thread thread = new Thread(new Runnable() {
+
+      public void run() {
+        
+        doneWithExtraConfig = false;
+        try {
+
+          if (!testing) {
+            //wait a sec for other things to get all initted
+            GrouperUtil.sleep(5000);
+          }
+          
+          GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+          if (grouperContext != null && grouperContext.getGrouperEngine() == GrouperEngineBuiltin.JUNIT) {
+            return;
+          }
+          
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDeprovisioningCheckSettingsOnDeprovisionedGroups", true)) {
+          
+            try {
+              GrouperSession grouperSession = GrouperSession.startRootSession();
+              
+              // group that users who are allowed to deprovision other users are in
+              for (String affiliation : GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) {
+
+                // group that deprovisioned users go in (temporarily, but history will always be there)
+                String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned(affiliation);
+                
+                Group group = GroupFinder.findByName(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, false);
+                if (group != null) {
+                  GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group, false);
+                  
+                  // group that users who are allowed to deprovision other users are in
+                  for (String affiliationToConfigure : GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) {
+                    
+                    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliationToConfigure);
+                    
+                    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
+                    
+                    boolean hasChange = false;
+                    // if theres no configuration, or if the configuration is inherited, then clear it out
+                    if (grouperDeprovisioningAttributeValue == null) {
+                      grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+                      grouperDeprovisioningAttributeValue.setAffiliationString(affiliationToConfigure);
+                      grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
+                      grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+                      hasChange = true;
+                    }
+                    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getDirectAssignmentString()) || !grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+                      grouperDeprovisioningAttributeValue.setDirectAssignment(true);
+                      hasChange = true;
+                    }
+                    
+                    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getDeprovisionString()) || grouperDeprovisioningAttributeValue.isDeprovision()) {
+                      grouperDeprovisioningAttributeValue.setDeprovision(false);
+                      hasChange = true;
+                    }
+                    
+                    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getAutoselectForRemovalString()) || grouperDeprovisioningAttributeValue.isAutoselectForRemoval()) {
+                      grouperDeprovisioningAttributeValue.setAutoselectForRemoval(false);
+                      hasChange = true;
+                    }
+                    
+                    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getAutoChangeLoaderString()) || grouperDeprovisioningAttributeValue.isAutoChangeLoader()) {
+                      grouperDeprovisioningAttributeValue.setAutoChangeLoader(false);
+                      hasChange = true;
+                    }
+                    
+                    if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getShowForRemovalString()) || grouperDeprovisioningAttributeValue.isShowForRemoval()) {
+                      grouperDeprovisioningAttributeValue.setShowForRemoval(false);
+                      hasChange = true;
+                    }
+                    
+                    if (hasChange) {
+                      grouperDeprovisioningConfiguration.storeConfiguration();
+                    }
+                  }
+                  
+                }
+              }
+                
+            } catch (RuntimeException re) {
+              //log incase thread didnt finish when screen was drawing
+              LOG.error("Error with additional config", re);
+            }
+          }
+        } finally {
+          doneWithExtraConfig = true;
+        }
+      }
+    });
+
+    thread.setDaemon(true);
+    thread.start();
+    if (testing) {
+      GrouperUtil.threadJoin(thread);
+    }
+
   }
   
   /**
@@ -849,100 +967,6 @@ public class GrouperCheckConfig {
             + " indicate that the deprovisioned users are ok being in the group and do not send email reminders about it" 
             + " anymore until there are newly deprovisioned entities", wasInCheckConfig);
 
-        // do this in a thread so we dont delay startup
-        Thread thread = new Thread(new Runnable() {
-
-          public void run() {
-            
-            try {
-              doneWithExtraConfig = false;
-              
-              //wait a sec for other things to get all initted
-              GrouperUtil.sleep(5000);
-  
-              GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
-              if (grouperContext != null && grouperContext.getGrouperEngine() == GrouperEngineBuiltin.JUNIT) {
-                return;
-              }
-              
-              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDeprovisioningCheckSettingsOnDeprovisionedGroups", true)) {
-              
-                try {
-                  GrouperSession grouperSession = GrouperSession.startRootSession();
-                  
-                  // group that users who are allowed to deprovision other users are in
-                  for (String affiliation : GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) {
-  
-                    // group that deprovisioned users go in (temporarily, but history will always be there)
-                    String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned(affiliation);
-                    
-                    Group group = GroupFinder.findByName(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, false);
-                    if (group != null) {
-                      GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group, false);
-                      
-                      // group that users who are allowed to deprovision other users are in
-                      for (String affiliationToConfigure : GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) {
-                        
-                        GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get(affiliationToConfigure);
-                        
-                        GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-                        
-                        boolean hasChange = false;
-                        // if theres no configuration, or if the configuration is inherited, then clear it out
-                        if (grouperDeprovisioningAttributeValue == null) {
-                          grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
-                          grouperDeprovisioningAttributeValue.setAffiliationString(affiliationToConfigure);
-                          grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
-                          grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
-                          hasChange = true;
-                        }
-                        if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getDirectAssignmentString()) || !grouperDeprovisioningAttributeValue.isDirectAssignment()) {
-                          grouperDeprovisioningAttributeValue.setDirectAssignment(true);
-                          hasChange = true;
-                        }
-                        
-                        if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getDeprovisionString()) || grouperDeprovisioningAttributeValue.isDeprovision()) {
-                          grouperDeprovisioningAttributeValue.setDeprovision(false);
-                          hasChange = true;
-                        }
-                        
-                        if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getAutoselectForRemovalString()) || grouperDeprovisioningAttributeValue.isAutoselectForRemoval()) {
-                          grouperDeprovisioningAttributeValue.setAutoselectForRemoval(false);
-                          hasChange = true;
-                        }
-                        
-                        if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getAutoChangeLoaderString()) || grouperDeprovisioningAttributeValue.isAutoChangeLoader()) {
-                          grouperDeprovisioningAttributeValue.setAutoChangeLoader(false);
-                          hasChange = true;
-                        }
-                        
-                        if (StringUtils.isBlank(grouperDeprovisioningAttributeValue.getShowForRemovalString()) || grouperDeprovisioningAttributeValue.isShowForRemoval()) {
-                          grouperDeprovisioningAttributeValue.setShowForRemoval(false);
-                          hasChange = true;
-                        }
-                        
-                        if (hasChange) {
-                          grouperDeprovisioningConfiguration.storeConfiguration();
-                        }
-                      }
-                      
-                    }
-                  }
-                    
-                } catch (RuntimeException re) {
-                  //log incase thread didnt finish when screen was drawing
-                  LOG.error("Error with additional config", re);
-                }
-              }
-            } finally {
-              doneWithExtraConfig = true;
-            }
-          }
-        });
-
-        thread.setDaemon(true);
-        thread.start();
-        
       }
       
       
