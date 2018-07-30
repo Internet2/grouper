@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -814,6 +815,12 @@ public class TestGroupFinder extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef attributeDef = AttributeDefFinder.findByName("etc:attribute:attestation:attestationValueDef", true);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    attributeDef = AttributeDefFinder.findByName("etc:attribute:attestation:attestationDef", true);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
     
     // this group has attestation
     Group groupA = new GroupSave(grouperSession).assignName("testA:groupA").assignCreateParentStemsIfNotExist(true).save();

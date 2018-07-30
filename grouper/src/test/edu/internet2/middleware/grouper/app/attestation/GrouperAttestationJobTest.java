@@ -253,14 +253,6 @@ public class GrouperAttestationJobTest extends GrouperTest {
    * 
    */
   public void testGrouperAttestationPrivileges() {
-
-    GrouperSession.startRootSession();
-    
-    AttributeDef attributeDef = AttributeDefFinder.findByName("etc:attribute:attestation:attestationValueDef", true);
-    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
-    
-    attributeDef = AttributeDefFinder.findByName("etc:attribute:attestation:attestationDef", true);
-    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
     new TestGroupFinder().testFindByAttributeAssignOnAssignValuesAndPrivilege();
   }
   
