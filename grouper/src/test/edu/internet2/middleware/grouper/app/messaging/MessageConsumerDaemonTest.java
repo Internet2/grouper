@@ -84,6 +84,18 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.url", 
         "http://localhost:8085/grouper-ws");
     
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.username", 
+        "GrouperSystem");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.password", 
+        "admin123");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.actAsSubjectSourceId", 
+        "g:isa");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.actAsSubjectId", 
+        "GrouperSystem");
+    
     MessageConsumerDaemon daemon = new MessageConsumerDaemon();
     FakeGrouperMessageSystem grouperMessageSystem = new FakeGrouperMessageSystem();
     
