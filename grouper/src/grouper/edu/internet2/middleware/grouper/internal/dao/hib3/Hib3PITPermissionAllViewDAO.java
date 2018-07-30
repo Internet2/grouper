@@ -94,7 +94,7 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
         sqlTables, "gr.sourceId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
     
     StringBuilder sql;
-    if (changedQuery) {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       if (sqlWhereClause.length() > 0) {
         sql = sqlTables.append(" and ").append(sqlWhereClause);
       } else {

@@ -75,7 +75,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindAttributeAssigns"));
+    TestRunner.run(new AttributeAssignTest("testFindAttrDefAttributeAssignmentsByValue"));
   }
   
   /**
@@ -1918,7 +1918,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertTrue("" + attributeAssigns.size(), attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));

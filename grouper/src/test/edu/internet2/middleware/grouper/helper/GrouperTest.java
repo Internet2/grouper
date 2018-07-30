@@ -94,6 +94,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperTest extends TestCase {
 
+  public static boolean isTesting() {
+    return testing;
+  }
+  
   /**
    * Asserts that two subjects are equal. If they are not
    * an AssertionFailedError is thrown with the given message.
