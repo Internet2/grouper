@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 
+
 import javax.imageio.stream.FileImageInputStream;
 
 import org.apache.commons.digester3.Digester;
@@ -213,26 +214,17 @@ public class SourceManager {
       result.append("subject.properties read from: " + subjectPropertiesFileLocation + "\n");
 
       if (!StringUtils.isBlank(sourcesXmlLocation)) {
-
-        String sourcesXmlFileLocation = sourcesXmlLocation;
-        if (sourcesXmlLocation != null && sourcesXmlLocation.startsWith("classpath:")) {
-          sourcesXmlLocation = sourcesXmlLocation.substring("classpath:".length());
-          File sourcesXmlFile = SubjectUtils.fileFromResourceName(sourcesXmlLocation);
-          sourcesXmlFileLocation = sourcesXmlFile == null ? (" [cant find sources.xml configured as: " + sourcesXmlLocation + "]")
-              : SubjectUtils.fileCanonicalPath(sourcesXmlFile);
-        }
-  
-        result.append("sources.xml read from:        " + sourcesXmlFileLocation + "\n");
-        result.append("sources configured in:        sources.xml\n");
-      } else { 
-        result.append("sources configured in:        subject.properties\n");
-        File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
-        if (sourcesXmlFile != null && sourcesXmlFile.exists() && sourcesXmlFile.isFile()) {
-          String sourcesError = "NON-FATAL ERROR:              subject sources are read from subject.properties but you "
-              + "still have a sources.xml on the classpath which is confusing, please backup and remove this file: " + sourcesXmlFile.getAbsolutePath();
-          result.append(sourcesError + "\n");
-          log.error(sourcesError);
-        }
+        String message = "ERROR: sources.xml is no longer supported, please convert to subject.properties and remove sources.xml";
+        log.error(message);
+        System.out.println(message);
+      }
+      result.append("sources configured in:        subject.properties\n");
+      File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
+      if (sourcesXmlFile != null && sourcesXmlFile.exists() && sourcesXmlFile.isFile()) {
+        String sourcesError = "NON-FATAL ERROR:              subject sources are read from subject.properties but you "
+            + "still have a sources.xml on the classpath which is confusing, please backup and remove this file: " + sourcesXmlFile.getAbsolutePath();
+        result.append(sourcesError + "\n");
+        log.error(sourcesError);
       }
       
       //at this point, we have a sources.xml...  now check it out
