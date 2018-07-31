@@ -4228,10 +4228,11 @@ public class GrouperUtil {
     }
 
     if (objectOrArrayOrCollection instanceof Collection) {
-      Collection collection = (Collection) objectOrArrayOrCollection;
+      Collection<Object> collection = (Collection<Object>) objectOrArrayOrCollection;
       Object first = collection.iterator().next();
-      return toArray(collection, first == null ? Object.class : first
-          .getClass());
+      Class<Object> theClass = first == null ? (Class)Object.class : (Class)first
+          .getClass();
+      return toArray(collection, theClass);
     }
     // make an array of the type of object passed in, size one
     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),

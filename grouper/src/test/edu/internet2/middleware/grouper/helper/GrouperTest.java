@@ -1116,18 +1116,17 @@ public class GrouperTest extends TestCase {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("default.subject.source.id", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "true");
+    
+    //dont send emails
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("mail.smtp.server", "testing");
+
     setupConfigs();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("default.subject.source.id", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "false");
-    
-    //dont send emails
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("mail.smtp.server", "testing");
-    
     GrouperEmail.testingEmails().clear();
 
   }

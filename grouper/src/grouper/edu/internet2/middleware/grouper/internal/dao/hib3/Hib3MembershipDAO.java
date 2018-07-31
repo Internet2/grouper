@@ -741,10 +741,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               sql, "ms.ownerGroupId", privilegesTheUserHasFinal);
           }
 
-          if (!changedQuery) {
-            sql.append(" where ");
-          } else {
+          if (changedQuery && sql.toString().contains(" where ")) {
             sql.append(" and ");
+          } else {
+            sql.append(" where ");
           }
           
           sql.append(" ms.ownerGroupId = g.uuid "
@@ -2040,10 +2040,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
     }
 
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
 
     // I'm adding a check for the immediate field id and type to help with performance 
@@ -3736,10 +3736,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               sql, "ms.ownerStemId", NamingPrivilege.ADMIN_PRIVILEGES);
           }
           
-          if (!changedQuery) {
-            sql.append(" where ");
-          } else {
+          if (changedQuery && sql.toString().contains(" where ")) {
             sql.append(" and ");
+          } else {
+            sql.append(" where ");
           }
           
           sql.append(" ms.ownerStemId = s.uuid "

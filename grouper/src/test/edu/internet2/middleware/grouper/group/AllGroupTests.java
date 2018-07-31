@@ -57,6 +57,7 @@ public class AllGroupTests {
     suite.addTestSuite(Test_I_API_Group_delete.class);
     suite.addTestSuite(Test_I_API_Group_deleteMember.class);
     suite.addTestSuite(Test_api_GrouperAPI.class);
+    suite.addTestSuite(TestGroupReadonlyViewonly.class);
     //$JUnit-END$
     return suite;
   }

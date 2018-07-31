@@ -298,10 +298,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                     hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
             }
             
-            if (!changedQuery) {
-              hql.append(" where ");
-            } else {
+            if (changedQuery && hql.toString().contains(" where ")) {
               hql.append(" and ");
+            } else {
+              hql.append(" where ");
             }
                         
             hql.append(" (lower(theGroup.nameDb) like :value or ");
@@ -330,10 +330,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                   hql, "theGroup.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
             }
             
-            if (!changedQuery) {
-              hql.append(" where ");
-            } else {
+            if (changedQuery && hql.toString().contains(" where ")) {
               hql.append(" and ");
+            } else {
+              hql.append(" where ");
             }
             
             if (sqlWhereClause.toString().trim().length() > 0) {
@@ -448,10 +448,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               }
             }
             
-            if (!changedQuery) {
-              hql.append(" where ");
-            } else {
+            if (changedQuery && hql.toString().contains(" where ")) {
               hql.append(" and ");
+            } else {
+              hql.append(" where ");
             }
             
             if (sqlWhereClause.toString().trim().length() > 0) {
@@ -992,10 +992,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               }
             }
             
-            if (!changedQuery) {
-              hql.append(" where ");
-            } else {
+            if (changedQuery && hql.toString().contains(" where ")) {
               hql.append(" and ");
+            } else {
+              hql.append(" where ");
             }
             
             if (sqlWhereClause.toString().trim().length() > 0) {
@@ -1931,10 +1931,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               }
             }
             
-            if (!changedQuery) {
-              hql.append(" where ");
-            } else {
+            if (changedQuery && hql.toString().contains(" where ")) {
               hql.append(" and ");
+            } else {
+              hql.append(" where ");
             }
             
             if (sqlWhereClause.toString().trim().length() > 0) {
@@ -2108,10 +2108,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
 
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
 
     //this should be lower to make it easier to search for stuff
@@ -2180,10 +2180,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
 
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     
     sql.append(" theGroup.parentUuid = :parent ");
@@ -2317,10 +2317,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
   
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     if (hasScope) {
       sql.append(" theGroup.nameDb like :scope and ");
@@ -2415,10 +2415,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
   
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     
     sql.append(" theGroup.parentUuid = :parent " +
@@ -2565,10 +2565,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(accessSubject, byHqlStatic, 
         sql, "theGroup.uuid", inPrivSet);
   
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     if (hasScope) {
       sql.append(" theGroup.nameDb like :scope and ");
@@ -3429,10 +3429,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                 grouperSession.getSubject(), byHqlStatic, 
                 hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
           
-            if (!changedQuery) {
-              hql.append(" where ");
-            } else {
+            if (changedQuery && hql.toString().contains(" where ")) {
               hql.append(" and ");
+            } else {
+              hql.append(" where ");
             }
             String lowerName = StringUtils.defaultString(name).toLowerCase();
             hql.append(" ( ");
@@ -3700,10 +3700,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           grouperSession.getSubject(), byHql, 
           hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
     
-    if (!changedQuery) {
-      hql.append(" where ");
-    } else {
+    if (changedQuery && hql.toString().contains(" where ")) {
       hql.append(" and ");
+    } else {
+      hql.append(" where ");
     }
 
 

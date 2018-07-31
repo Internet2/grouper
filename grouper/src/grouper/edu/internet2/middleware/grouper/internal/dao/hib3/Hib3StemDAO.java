@@ -1341,10 +1341,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
         sql, "ns.uuid", inPrivSet);
   
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     
     sql.append(" ns.parentUuid = :parent ");
@@ -1492,7 +1492,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           if (whereClause.length() > 0) {
             whereClause.append(" and ");
           } else {
-            if (changedQuery && whereClause.toString().contains(" where ")) {
+            if (changedQuery && (whereClause.toString().contains(" where ") || sql.toString().contains("where"))) {
               whereClause.append(" and ");
             } else {
               whereClause.append(" where ");

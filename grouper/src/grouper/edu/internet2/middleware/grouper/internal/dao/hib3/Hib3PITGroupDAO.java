@@ -269,10 +269,10 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(accessSubject, byHqlStatic, 
         sql, "thePITGroup.sourceId", inPrivSet);
   
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     
     if (hasScope) {

@@ -1654,7 +1654,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         grouperSessionSubject, byHqlStatic, 
         sql, "ownerAa.ownerStemId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
     
-    if (!changedQuery) {
+    if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" where ");
     } else {
       sql.append(" and ");
@@ -3405,10 +3405,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
   
     StringBuilder sql;
-    if (!changedQuery) {
-      sqlTables.append(" where ");
-    } else {
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
       sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
     }
     sql = sqlTables.append(sqlWhereClause);
     
@@ -4288,8 +4288,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "ownerAa.ownerGroupId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
     
     StringBuilder sql;
-    sql = sqlTables.append(changedQuery ? " and " : " where ").append(sqlWhereClause);
-  
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
+      sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
+    }
+    sql = sqlTables.append(sqlWhereClause);
+
     attributeAssignAssignQueryStart(attributeAssignIds, attributeDefIds,
         attributeDefNameIds, actions, enabled, attributeDefType, ownerAttributeAssignIds,
         ownerAttributeDefIds, ownerAttributeDefNameIds, ownerActions,
@@ -4536,7 +4541,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "ime.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
     
     StringBuilder sql;
-    sql = sqlTables.append(changedQuery ? " and " : " where ").append(sqlWhereClause);
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
+      sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
+    }
+    sql = sqlTables.append(sqlWhereClause);
   
     attributeAssignAssignQueryStart(attributeAssignIds, attributeDefIds,
         attributeDefNameIds, actions, enabled, attributeDefType, ownerAttributeAssignIds,
@@ -4662,7 +4672,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "me.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
     
     StringBuilder sql;
-    sql = sqlTables.append(changedQuery ? " and " : " where ").append(sqlWhereClause);
+    if (changedQuery && sqlTables.toString().contains(" where ")) {
+      sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
+    }
+    sql = sqlTables.append(sqlWhereClause);
   
     attributeAssignAssignQueryStart(attributeAssignIds, attributeDefIds,
         attributeDefNameIds, actions, enabled, attributeDefType, ownerAttributeAssignIds,
