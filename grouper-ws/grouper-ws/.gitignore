@@ -11,3 +11,5 @@ webapp/WEB-INF/services/*.ondeck
 webservices/classes
 target
 /bin/
+.project
+.classpath
