@@ -156,8 +156,8 @@
             debug="true"
             deprecation="${compile.deprecation}"
             optimize="${compile.optimize}"
-            source="1.5"
-            target="1.5"
+            source="8"
+            target="8"
     >
       <classpath refid="project.noesb.classpath" />
 <!--  TODO 20061011 I'll eventually have to deal with this migration
@@ -170,8 +170,7 @@
             debug="true"
             deprecation="${compile.deprecation}"
             optimize="${compile.optimize}"
-            source="1.5"
-            target="1.5"
+            source="8"
     >
       <classpath refid="project.classpath" />
     </javac>
@@ -945,7 +944,7 @@
   >
     <record name="${test.log}" action="start" append="yes"/>
     <javac srcdir="${src.dir.test}" destdir="${build.dir.test}" debug="true"
-      source="1.5" target="1.5">
+      source="8" target="8">
       <classpath  refid="test.classpath"/>
       <include name="**/*.java" />
     </javac>

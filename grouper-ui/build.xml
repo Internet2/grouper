@@ -21,7 +21,6 @@
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): grouper.role" unless="grouper.role" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): ui.make.jar" unless="ui.make.jar" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): should.copy.context.xml.to.metainf" unless="should.copy.context.xml.to.metainf" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): web.xml.overwrite" unless="web.xml.overwrite" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): copy.grouper.jdbc.sample.drivers" unless="copy.grouper.jdbc.sample.drivers" />
   
   
@@ -449,7 +448,7 @@
 	  </if>
 	  
 		<javac destdir="${ui.javac.dest}" classpathref="ui.class.path" 
-		  debuglevel="${debug.level}" debug="true" target="1.5" source="1.5">
+		  debuglevel="${debug.level}" debug="true" target="8" source="8">
 		  <src path="${ui.folder}/contrib/penn-auth/java/src"/>
                 <src path="${ui.folder}/contrib/yale-cas-auth/java/src"/>
                 <src path="${ui.folder}/java/src" />
@@ -508,22 +507,6 @@
 			<equals arg1="${webapp.folder}" arg2="${ui.folder}/webapp"/>
 		</condition>
 		<antcall target="-copyContent"/>
-		<echo message="Processing web.xml"/>
-		<copy file="${ui.folder}/webapp/WEB-INF/web.core-filters.xml" tofile="${temp.dir}/99.web.core-filters.xml"/>
-		<path id="web.xml.files">
-			<fileset dir="${temp.dir}">
-				<include name="**/*.xml"/>
-			</fileset>
-		</path>
-		<property name="web.xmls" refid="web.xml.files"/>
-		<condition property="web.xmls.isempty">
-			<equals arg1="${web.xmls}" arg2=""/>
-		</condition>
-		<echo message="web.xmls.isempty=:${web.xmls.isempty}:"/>
-		<antcall target="-merge-xmls">
-			<reference refid="ui.class.path.for.run" torefid="merge.class.path"/>
-		</antcall>
-		<antcall target="-copy-core-web-xml"/>
 		
 		<antcall target="-copyContextXmlToMetaInf"/>
 
@@ -562,70 +545,11 @@
 	</target>
 	
 	<!--
-		Merge any xml files in temp directory with web.core.xml 
-	-->
-	<target name="-merge-xmls" unless="web.xmls.isempty">
-	  
-	 <if>
-		<or>
-			<not><available file="webapp/WEB-INF/web.xml" /></not>
-			<not><equals arg1="${web.xml.overwrite}" arg2="false" /></not>
-		</or>
-	    <then>
-			    <echo message="temp.dir : ${temp.dir}" />
-				<echo message="final.web.xmls : ${final.web.xmls}" />
-				<echo message="ui.folder : ${ui.folder}" />
-				<echo message="webapp.folder : ${webapp.folder}" />
-				<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml" filtering="true"/>
-				<copy file="${ui.folder}/webapp/WEB-INF/web.ajax.xml" tofile="${temp.dir}/60.web.ajax.xml" filtering="true"/>
-
-				<path id="final.web.xml.files">
-					<fileset dir="${temp.dir}">
-						<include name="**/*.xml"/>
-					</fileset>
-				</path>
-				<property name="final.web.xmls" refid="final.web.xml.files"/>
-	  
-	  
-			<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="merge.class.path" outputproperty="mergeOutput" resultProperty="result">
-				<arg value="${temp.dir}"/>
-				<arg value="${final.web.xmls}"/>
-				<arg value="${ui.folder}/web-xml-merge.xsl"/>
-				<arg value="${ui.folder}/web-xml-merge-tags.xml"/>
-				<arg value="${webapp.folder}/WEB-INF/web.xml"/>
-			</java>
-			<echo message="${mergeOutput}"/>
-			<echo message="Result: ${result}"/>
-			<condition property="failed">
-				<not>
-					<equals arg1="0" arg2="${result}"/>
-				</not>
-			</condition>
-		</then>
-		 <else>
-			<echo message="web.xml exists and web.xml.overwrite=false, so NOT rebuilding web.xml. Delete web.xml to force a rebuild" />
-		</else>
-	  </if> 
-    
-		<fail if="failed">Something went wrong processing web.xmls - check output for details</fail>
-			  <!-- copy file="webapp/WEB-INF/web.xml" 
-	          tofile="${webapp.folder}/WEB-INF/web.xml" /-->
-		
-	</target>
-	
-	<!--
-		 If nothing to merge just copy core file
-	-->
-	<target name="-copy-core-web-xml" if="web.xmls.isempty">
-		<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${webapp.folder}/WEB-INF/web.xml" overwrite="true" filtering="true"/>
-	</target>
-	
-	<!--
 		If configured, compile grouper source  -handy if changing both code sets
 	-->
 	<target name="-compileGrouper" if="grouper.compile.api">
 		<echo message="Compiling the Grouper api"/>
-		<javac srcdir="${grouper.folder}/src/grouper" source="1.6" target="1.6" 
+		<javac srcdir="${grouper.folder}/src/grouper" source="8" target="8" 
 		   destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true"/>
 		<copy todir="${webapp.class.folder}">
 			<fileset dir="${grouper.folder}/src/grouper">
