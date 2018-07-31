@@ -73,7 +73,7 @@ public class ExternalSubjectAttributeTest extends GrouperTest {
     
     ExternalSubject externalSubject = new ExternalSubject();
     externalSubject.setEmail("a@b.c");
-    externalSubject.setIdentifier("a@id.b.c");
+    externalSubject.setIdentifier("a@idp.example.edu");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
     externalSubject.setDescription("My Description");
@@ -87,7 +87,7 @@ public class ExternalSubjectAttributeTest extends GrouperTest {
 
     //lets find subject by hib api
     //externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a@id.b.c", true, null);
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@id.b.c", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.example.edu", true, null);
     
     if (hasJabber) {
       assertEquals("a@w.e", externalSubject.retrieveAttribute("jabber", true).getAttributeValue());
@@ -101,7 +101,7 @@ public class ExternalSubjectAttributeTest extends GrouperTest {
     }
     
     //externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a@id.b.c", true, null);
-    externalSubject =  ExternalSubjectStorageController.findByIdentifier("a@id.b.c", true, null);
+    externalSubject =  ExternalSubjectStorageController.findByIdentifier("a@idp.example.edu", true, null);
     
     if (hasJabber) {
       assertNull(externalSubject.retrieveAttribute("jabber", false));
@@ -122,7 +122,7 @@ public class ExternalSubjectAttributeTest extends GrouperTest {
     
     ExternalSubject externalSubject = new ExternalSubject();
     externalSubject.setEmail("a@b.c");
-    externalSubject.setIdentifier("a@id.b.c");
+    externalSubject.setIdentifier("a@idp.example.edu");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
     externalSubject.setDescription("My Description");
