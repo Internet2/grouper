@@ -29,11 +29,6 @@ replace.grouper.home=true
 #log into the UI
 grouper.role=*
 
-# Set to false if you want to make manual changes to web.xml or to speed up build
-# If you set to false you will need to delete the web.xml to force it to be 
-# re-built 
-web.xml.overwrite=true
-
 #Switches to UI specific log4j.properties
 #use.local.log4j=true
 

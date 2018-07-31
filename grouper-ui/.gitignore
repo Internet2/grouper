@@ -7,7 +7,6 @@ temp
 tomcat-context.xml
 webapp/WEB-INF/classes
 webapp/WEB-INF/lib/*.jar
-webapp/WEB-INF/web.xml
 /.settings/
 /.project
 /.classpath
