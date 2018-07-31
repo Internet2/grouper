@@ -19,14 +19,15 @@
  */
 package edu.internet2.middleware.grouper.app;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.app.attestation.AllAttestationTests;
+import edu.internet2.middleware.grouper.app.deprovisioning.AllDeprovisioningTests;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
 import edu.internet2.middleware.grouper.app.messaging.MessageConsumerDaemonTest;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 
 /**
@@ -49,6 +50,7 @@ public class AllAppTests {
     }
     
     suite.addTest(AllAttestationTests.suite());
+    suite.addTest(AllDeprovisioningTests.suite());
     suite.addTest(AllUsduTests.suite());
     return suite;
   }

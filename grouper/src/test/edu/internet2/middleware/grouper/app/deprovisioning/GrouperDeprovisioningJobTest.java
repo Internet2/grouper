@@ -57,7 +57,7 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDeprovisioningJobTest("testDaemonUpdatingMetadataOnGroups"));
+    TestRunner.run(new GrouperDeprovisioningJobTest("testRetrieveAffiliations"));
   }
   
   /**
@@ -136,6 +136,8 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
         
     grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put("student", studentConfiguration);
     
+    studentConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
+    
     GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
     grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(studentConfiguration);
 
@@ -176,14 +178,14 @@ public class GrouperDeprovisioningJobTest extends GrouperTest {
     groupInheritAssigned1.addMember(SubjectTestHelper.SUBJ0);
     groupInheritAssigned1.addMember(SubjectTestHelper.SUBJ3);
 
-    //lets deprovision a user
-    Group deprovisionedUsersGroup = GroupFinder.findByName(grouperSession, GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.group.which.has.been.deprovisioned"), true);
-
-    deprovisionedUsersGroup.addMember(SubjectTestHelper.SUBJ0);
-    
-    
-    
-    
+//    //lets deprovision a user
+//    Group deprovisionedUsersGroup = GroupFinder.findByName(grouperSession, GrouperConfig.retrieveConfig().propertyValueString("deprovisioning.group.which.has.been.deprovisioned"), true);
+//
+//    deprovisionedUsersGroup.addMember(SubjectTestHelper.SUBJ0);
+//    
+//    
+//    
+//    
 //    AttributeDefName attribute = GrouperDeprovisioningJob.retrieveAttributeDefNameValueDef();
 //
 //    AttributeAssign attributeAssignBase = new AttributeAssignSave(grouperSession).assignOwnerGroup(groupDirectAssigned).assignAttributeDefName(attribute).save();
