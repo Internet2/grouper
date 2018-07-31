@@ -285,6 +285,11 @@ public class EhcacheController implements CacheController {
             ehcacheUrl = null;
           } else {
             ehcacheUrl = this.getClass().getResource("/ehcache.xml");
+            if (ehcacheUrl != null) {
+              LOG.error("ERROR: You have an ehache.xml on the classpath, "
+                  + "you must convert the ehcache.xml file to grouper.cache.properties and remove it.");
+            }
+            ehcacheUrl = null;
           }
 
           //trying to avoid warning of using the same dir
@@ -312,44 +317,44 @@ public class EhcacheController implements CacheController {
 
               boolean configured = false;
               
-              //if no grouper.cache.properties url, and an ehcache.xml, then use that
-              if (ehcacheXmlEligible && grouperCachePropertiesUrl == null && ehcacheUrl != null) {
-                LOG.debug("Configuring ehcache with ehcache.xml");
-                //now it should be using a unique directory
-                this.mgr = new CacheManager(ehcacheUrl);
-
-                configured = true;
-              }
+//              //if no grouper.cache.properties url, and an ehcache.xml, then use that
+//              if (ehcacheXmlEligible && grouperCachePropertiesUrl == null && ehcacheUrl != null) {
+//                LOG.debug("Configuring ehcache with ehcache.xml");
+//                //now it should be using a unique directory
+//                this.mgr = new CacheManager(ehcacheUrl);
+//
+//                configured = true;
+//              }
               
               GrouperCacheConfig grouperCacheConfig = configured ? null : GrouperCacheConfig.retrieveConfig();
-              if (!configured) {
-
-                //use config file?
-                String ehcacheXmlFile = grouperCacheConfig.propertyValueString("grouper.cache.ehcache.xml.filename");
-                
-                if (!StringUtils.isBlank(ehcacheXmlFile)) {
-                  LOG.debug("Configuring ehcache with xml file configured in grouper.cache.properties: " + ehcacheXmlFile);
-                  try {
-                    ehcacheUrl = new File(ehcacheXmlFile).toURI().toURL();
-                  } catch (MalformedURLException mue) {
-                    throw new RuntimeException(mue);
-                  }
-                  this.mgr = new CacheManager(ehcacheUrl);
-                  configured = true;
-                }
-              }
-              if (!configured) {
-
-                //use config file?
-                String ehcacheXmlResource = grouperCacheConfig.propertyValueString("grouper.cache.ehcache.xml.resource");
-                
-                if (!StringUtils.isBlank(ehcacheXmlResource)) {
-                  LOG.debug("Configuring ehcache with xml resource configured in grouper.cache.properties: " + ehcacheXmlResource);
-                  ehcacheUrl = this.getClass().getResource(ehcacheXmlResource);
-                  this.mgr = new CacheManager(ehcacheUrl);
-                  configured = true;
-                }
-              }
+//              if (!configured) {
+//
+//                //use config file?
+//                String ehcacheXmlFile = grouperCacheConfig.propertyValueString("grouper.cache.ehcache.xml.filename");
+//                
+//                if (!StringUtils.isBlank(ehcacheXmlFile)) {
+//                  LOG.debug("Configuring ehcache with xml file configured in grouper.cache.properties: " + ehcacheXmlFile);
+//                  try {
+//                    ehcacheUrl = new File(ehcacheXmlFile).toURI().toURL();
+//                  } catch (MalformedURLException mue) {
+//                    throw new RuntimeException(mue);
+//                  }
+//                  this.mgr = new CacheManager(ehcacheUrl);
+//                  configured = true;
+//                }
+//              }
+//              if (!configured) {
+//
+//                //use config file?
+//                String ehcacheXmlResource = grouperCacheConfig.propertyValueString("grouper.cache.ehcache.xml.resource");
+//                
+//                if (!StringUtils.isBlank(ehcacheXmlResource)) {
+//                  LOG.debug("Configuring ehcache with xml resource configured in grouper.cache.properties: " + ehcacheXmlResource);
+//                  ehcacheUrl = this.getClass().getResource(ehcacheXmlResource);
+//                  this.mgr = new CacheManager(ehcacheUrl);
+//                  configured = true;
+//                }
+//              }
 
               if (!configured) {
                 this.configuredViaProperties = true;
