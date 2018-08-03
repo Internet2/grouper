@@ -1,3 +1,5 @@
 bin
 conf/grouper-ws-generated.properties
 target
+.project
+.classpath
