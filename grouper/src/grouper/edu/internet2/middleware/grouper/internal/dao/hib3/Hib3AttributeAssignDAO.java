@@ -1655,9 +1655,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sql, "ownerAa.ownerStemId", NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
     
     if (changedQuery && sql.toString().contains(" where ")) {
-      sql.append(" where ");
-    } else {
       sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
     
     sql.append(sqlWhereClause);
