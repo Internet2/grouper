@@ -218,7 +218,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetMemberships"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
   }
 
   /**
@@ -2155,7 +2155,6 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
     assertEquals("You must pass in some criteria", WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
         wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
-
     
     //#################################################
     //invalid attrdef
@@ -3345,14 +3344,13 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, stemName, null, null, null, null, null, null, false, null, false, null, null, null, null);
 
     assertEquals(GrouperUtil.toStringForLog(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()), 
-        3, GrouperUtil.length(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()));
+        2, GrouperUtil.length(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()));
     
     //stem.grantPriv(subjectWithAdminPriv, NamingPrivilege.STEM);
     //stem.grantPriv(subjectWithUpdatePriv, NamingPrivilege.CREATE);
 
     assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), stemName, subjectWithUpdatePriv, NamingPrivilege.CREATE);
     assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), stemName, subjectWithAdminPriv, NamingPrivilege.STEM_ADMIN);
-    assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), stemName, SubjectFinder.findRootSubject(), NamingPrivilege.STEM_ADMIN);
 
     //#################################
     //## test that an unprivileged user cant see privileges
@@ -8696,11 +8694,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
           null, null, null, null, null, null, null, null);
 
       assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
-          3, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
 
       assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithAdminPriv, FieldFinder.find("stemmers", true));
       assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithUpdatePriv, FieldFinder.find("creators", true));
-      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, SubjectFinder.findRootSubject(), FieldFinder.find("stemmers", true));
 
       //#################################
       //## test that a privileged user can see privileges on a stem, filter by field
