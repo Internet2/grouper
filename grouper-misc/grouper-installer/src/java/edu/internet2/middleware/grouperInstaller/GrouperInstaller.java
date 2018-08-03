@@ -1253,16 +1253,6 @@ public class GrouperInstaller {
     }
   }
   
-  /**
-   * 
-   */
-  private void addDriverJarToClasspath() {
-    String jarName = this.giDbUtils.builtinJarName();
-    
-    File driverJar = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "lib" + File.separator + "jdbcSamples" + File.separator + jarName);
-    GrouperInstallerUtils.classpathAddFile(driverJar);
-  }
-
   /** db url */
   private String dbUrl;
 

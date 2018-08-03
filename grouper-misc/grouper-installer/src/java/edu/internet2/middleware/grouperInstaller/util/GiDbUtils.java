@@ -44,29 +44,6 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.L
 public class GiDbUtils {
 
   /**
-   * 
-   * @return jar name
-   */
-  public String builtinJarName() {
-    if (this.isHsql()) {
-      return "hsqldb.jar";
-    }
-    if (this.isMysql()) {
-      return "mysql-connector-java-bin.jar";
-    }
-    if (this.isOracle()) {
-      return "ojdbc14.jar";
-    }
-    if (this.isPostgres()) {
-      return "postgresql.jar";
-    }
-    if (this.isSQLServer()) {
-      return "sqljdbc4.jar";
-    }
-    throw new RuntimeException("Cant find which database type from URL: " + this.url);
-  }
-  
-  /**
    * url of db
    */
   private String url;
