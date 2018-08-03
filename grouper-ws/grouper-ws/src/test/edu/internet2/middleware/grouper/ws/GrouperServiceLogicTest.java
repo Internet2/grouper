@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -218,7 +219,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignPermissionsAllowDeny"));
   }
 
   /**
@@ -5874,6 +5875,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     role.addMember(SubjectTestHelper.SUBJ4, false);
     attributeDef.setAssignToEffMembership(true); 
     attributeDef.store();
+    GrouperCacheUtils.clearAllCaches();
     wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
         GROUPER_VERSION, PermissionType.role_subject, 
         new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
@@ -6336,6 +6338,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     role.addMember(SubjectTestHelper.SUBJ4, false);
     attributeDef.setAssignToEffMembership(true); 
     attributeDef.store();
+    GrouperCacheUtils.clearAllCaches();
     wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
         GROUPER_VERSION, PermissionType.role_subject, 
         new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
