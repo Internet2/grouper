@@ -8266,6 +8266,12 @@ public class GrouperServiceLogic {
         for (Set<PermissionLimitBean> permissionLimitBeanSet : permissionLimitMap.values()) {
           for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
             AttributeAssign attributeAssign = permissionLimitBean.getLimitAssign();
+            if (attributeDefNameIds == null) {
+              attributeDefNameIds = new HashSet<String>();
+            }
+            if (attributeDefIds == null) {
+              attributeDefIds = new HashSet<String>();
+            }
             if (!attributeDefNameIds.contains(attributeAssign.getAttributeDefNameId())) {
               attributeDefNameIds.add(attributeAssign.getAttributeDefNameId());
               attributeDefIds.add(attributeAssign.getAttributeDef().getId());
