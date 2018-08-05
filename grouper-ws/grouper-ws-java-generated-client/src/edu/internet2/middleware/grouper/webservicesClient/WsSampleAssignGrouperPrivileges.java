@@ -30,13 +30,13 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AssignGrouperPrivileges;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAssignGrouperPrivilegesResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAssignGrouperPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AssignGrouperPrivileges;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  *

@@ -29,14 +29,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExternalSubjectSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectAttribute;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectSaveResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectSaveResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectToSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.ExternalSubjectSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectSaveResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectToSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 
 /**

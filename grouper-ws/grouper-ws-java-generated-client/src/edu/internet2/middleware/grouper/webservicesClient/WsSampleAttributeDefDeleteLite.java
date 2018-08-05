@@ -25,9 +25,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDeleteLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDeleteLiteResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDeleteLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDeleteLiteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteLiteResult;
 
 /**
  * @author mchyzer

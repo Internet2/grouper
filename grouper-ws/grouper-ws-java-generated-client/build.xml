@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="jar.client">
+<?xml version="1.0" encoding="UTF-8"?><project basedir="." default="jar.client">
     <!--Auto generated ant build file-->
     <property environment="env"/>
     <property name="axis2.home" value="${env.AXIS2_HOME}"/>

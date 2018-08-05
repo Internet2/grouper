@@ -25,12 +25,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDelete;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDeleteResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDeleteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  * @author mchyzer

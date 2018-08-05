@@ -26,12 +26,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GetAttributeAssignActions;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeAssignActionTuple;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGetAttributeAssignActionsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetAttributeAssignActions;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetAttributeAssignActionsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  *

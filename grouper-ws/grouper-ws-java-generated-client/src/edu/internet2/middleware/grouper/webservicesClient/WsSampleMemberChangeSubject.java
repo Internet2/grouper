@@ -29,10 +29,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.MemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.MemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 
 /**
