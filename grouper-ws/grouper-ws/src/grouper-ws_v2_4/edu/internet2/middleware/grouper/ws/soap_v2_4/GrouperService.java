@@ -600,7 +600,7 @@ public class GrouperService {
       String displayExtension,String description,  String saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String typeOfGroup) {
+      String paramName1, String paramValue1, String typeOfGroup, String alternateName) {
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "groupSaveLite",
         new Object[]{clientVersion,
@@ -608,7 +608,7 @@ public class GrouperService {
       displayExtension,description,  saveMode,
       actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, includeGroupDetail, paramName0, paramValue0,
-      paramName1, paramValue1, typeOfGroup});
+      paramName1, paramValue1, typeOfGroup, alternateName});
     
     return (WsGroupSaveLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -3443,6 +3443,8 @@ public class GrouperService {
    * @param clientVersion
    * @param queueOrTopicName
    * @param messageSystemName
+   * @param routingKey 
+   * @param autocreateObjects 
    * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)
    * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)
    * @param actAsSubjectLookup
@@ -3450,12 +3452,14 @@ public class GrouperService {
    * @return the results of message receive call
    */
   public WsMessageResults receiveMessage(final String clientVersion,
-      String queueOrTopicName, String messageSystemName,
+      String queueOrTopicName, String messageSystemName, String routingKey,
+      final boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+    
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "receiveMessage",
-        new Object[]{clientVersion, queueOrTopicName, messageSystemName, blockMillis, maxMessagesToReceiveAtOnce,
+        new Object[]{clientVersion, queueOrTopicName, messageSystemName, routingKey, autocreateObjects, blockMillis, maxMessagesToReceiveAtOnce,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       });
@@ -3469,6 +3473,8 @@ public class GrouperService {
    * @param queueType - queue or topic (required)
    * @param queueOrTopicName
    * @param messageSystemName
+   * @param routingKey 
+   * @param autocreateObjects 
    * @param messages
    * @param actAsSubjectLookup
    * @param params
@@ -3476,11 +3482,11 @@ public class GrouperService {
    */
   public WsMessageResults sendMessage(final String clientVersion,
       String queueType, String queueOrTopicName, String messageSystemName,
-      WsMessage[] messages,
+      String routingKey, boolean autocreateObjects, WsMessage[] messages,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "sendMessage",
-        new Object[]{clientVersion, queueType, queueOrTopicName, messageSystemName,
+        new Object[]{clientVersion, queueType, queueOrTopicName, messageSystemName, routingKey, autocreateObjects, 
       GrouperUtil.changeToVersion(messages, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),

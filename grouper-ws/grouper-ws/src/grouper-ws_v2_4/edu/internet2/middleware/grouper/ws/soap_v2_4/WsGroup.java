@@ -95,6 +95,11 @@ public class WsGroup {
   private String uuid;
 
   /**
+   * alternate name for the group
+   */
+  private String alternateName;
+
+  /**
    * if requested, return the detail properties of the group
    */
   private WsGroupDetail detail;
@@ -220,4 +225,19 @@ public class WsGroup {
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
   }
+    
+  /**
+   * @return the alternateName
+   */
+  public String getAlternateName() {
+    return this.alternateName;
+  }
+  
+  /**
+   * @param alternateName1 the alternateName to set
+   */
+  public void setAlternateName(String alternateName1) {
+    this.alternateName = alternateName1;
+  }
+
 }
