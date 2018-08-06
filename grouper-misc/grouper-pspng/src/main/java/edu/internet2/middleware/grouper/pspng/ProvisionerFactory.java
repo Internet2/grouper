@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ public class ProvisionerFactory {
   
 
   private static Map<String, Provisioner> provisioners=new ConcurrentHashMap<String, Provisioner>();
+  private static ConcurrentMap<String, ProvisionerCoordinator> provisionerCoordinators=new ConcurrentHashMap<>();
+
 
   public static Provisioner getProvisioner(String consumerName) throws PspException {
     synchronized (provisioners) {
@@ -67,7 +70,14 @@ public class ProvisionerFactory {
     return provisioners.get(consumerName);
   }
 
-  
+
+  public static ProvisionerCoordinator getProvisionerCoordinator(String provisionerName) {
+    if ( !provisionerCoordinators.containsKey(provisionerName) ) {
+      provisionerCoordinators.putIfAbsent(provisionerName, new ProvisionerCoordinator(provisionerName));
+    }
+
+    return provisionerCoordinators.get(provisionerName);
+  }
   /**
    * This constructs a provisioner based on the properties found for provisioner 'name'
    * @param name

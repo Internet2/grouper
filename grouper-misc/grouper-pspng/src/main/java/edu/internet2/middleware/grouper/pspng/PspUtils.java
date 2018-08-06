@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
+import org.ldaptive.LdapEntry;
 
 
 public class PspUtils {
@@ -274,5 +275,4 @@ public class PspUtils {
 
     return s;
   }
-
 }

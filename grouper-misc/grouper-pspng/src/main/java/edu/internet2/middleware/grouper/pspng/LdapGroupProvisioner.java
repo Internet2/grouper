@@ -21,16 +21,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldif.LDIFReader;
 import org.apache.commons.lang.StringUtils;
-import org.ldaptive.AttributeModification;
-import org.ldaptive.AttributeModificationType;
-import org.ldaptive.Connection;
-import org.ldaptive.LdapAttribute;
-import org.ldaptive.LdapEntry;
-import org.ldaptive.ModifyRequest;
-import org.ldaptive.SearchFilter;
-import org.ldaptive.SearchRequest;
-import org.ldaptive.SearchResult;
+import org.ldaptive.*;
+import org.ldaptive.asn1.DN;
 import org.ldaptive.io.LdifReader;
 
 import edu.internet2.middleware.subject.Subject;
@@ -186,6 +181,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       cacheGroup(grouperGroupInfo, ldapGroup);
       return;
+    } else {
+        // The LDAP group exists, let's make sure the non-membership attributes are still accurate
+        ldapGroup = updateGroupFromTemplate(grouperGroupInfo, ldapGroup);
+        cacheGroup(grouperGroupInfo, ldapGroup);
     }
 
     // Delete an empty group if the schema requires a membership
@@ -209,6 +208,12 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
 
     Collection<String> currentMembershipValues = getStringSet(ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
+
+    LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
+            new Object[] {getName(), grouperGroupInfo, correctMembershipValues.size(), currentMembershipValues.size()});
+
+    LOG.debug("{}: Full-sync comparison: Correct: {}",getName(), correctMembershipValues);
+    LOG.debug("{}: Full-sync comparison: Actual: {}", getName(), currentMembershipValues);
 
     // EXTRA = CURRENT - CORRECT
     {
@@ -236,6 +241,41 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, missingValues);
     }
   }
+
+  /**
+   * This method compares the existing LdapGroup to how the groupCreationTemplate might have
+   * changed due to group changes (eg, a changed group name) or due to template changes
+   * @param grouperGroupInfo
+   * @param existingLdapGroup
+   * @return An up-to-date LdapGroup: either existingLdapGroup if no changes were needed, or a newly-read group
+   */
+  protected LdapGroup updateGroupFromTemplate(GrouperGroupInfo grouperGroupInfo, LdapGroup existingLdapGroup) throws PspException {
+    LOG.debug("{}: Making sure (non-membership) attributes of group are up to date: {}", getName(), existingLdapGroup.dn);
+
+    try {
+      String ldifFromTemplate = getGroupLdifFromTemplate(grouperGroupInfo);
+      LdapEntry ldapEntryFromTemplate = getLdapEntryFromLdif(ldifFromTemplate);
+
+      ensureLdapOusExist(ldapEntryFromTemplate.getDn(), false);
+      if ( getLdapSystem().makeLdapObjectCorrect(ldapEntryFromTemplate, existingLdapGroup.ldapObject.ldapEntry) ) {
+        LdapGroup result = fetchTargetSystemGroup(grouperGroupInfo);
+        return result;
+      }
+      else {
+        return existingLdapGroup;
+      }
+    }
+    catch (PspException e) {
+      LOG.error("{}: Problem checking and updating group's template attributes", getName(), e);
+      throw e;
+    }
+    catch (IOException e) {
+      LOG.error("{}: Problem checking and updating group's tempalte attributes", getName(), e);
+      throw new PspException("IO Exception while checking and updating group's template attributes", e);
+    }
+  }
+
+
 
   @Override
 	protected void doFullSync_cleanupExtraGroups(
@@ -297,9 +337,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
 
     LOG.info("Creating LDAP group for GrouperGroup: {} ", grouperGroup);
-    String ldif = config.getGroupCreationLdifTemplate();
-    ldif = ldif.replaceAll("\\|\\|", "\n");
-    ldif = evaluateJexlExpression(ldif, null, null, grouperGroup, null);
+    String ldif = getGroupLdifFromTemplate(grouperGroup);
 
     // If initialMembers were specified, then add the ldif necessary to include them
     if ( initialMembers != null && initialMembers.size() > 0 ) {
@@ -327,14 +365,16 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     Connection conn = getLdapSystem().getLdapConnection();
     try {
       LOG.debug("{}: LDIF for new group (with partial DN): {}", getName(), ldif.replaceAll("\\n", "||"));
-      Reader reader = new StringReader(ldif);
-      LdifReader ldifReader = new LdifReader(reader);
-      SearchResult ldifResult = ldifReader.read();
-      LdapEntry ldifEntry = ldifResult.getEntry();
-      // Update DN to be relative to groupCreationBaseDn
-      String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getGroupCreationBaseDn());
-      ldifEntry.setDn(actualDn);
+      LdapEntry ldifEntry = getLdapEntryFromLdif(ldif);
 
+      // Check to see if any attributes ended up without any values/
+      for ( String attributeName : ldifEntry.getAttributeNames() ) {
+        LdapAttribute attribute = ldifEntry.getAttribute(attributeName);
+        if ( LdapSystem.attributeHasNoValues(attribute) ) {
+          LOG.warn("{}: LDIF for new group did not define any values for {}", getName(), attributeName);
+          ldifEntry.removeAttribute(attributeName);
+        }
+      }
       LOG.debug("{}: Adding group: {}", getName(), ldifEntry);
       
       performLdapAdd(ldifEntry);
@@ -352,6 +392,39 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     finally {
       conn.close();
     }
+  }
+
+  /**
+   * This returns an LdapEntry from the provided ldif. NOTE: The DN of the LDIF is extended
+   * with the configuration's groupCreationBaseDn.
+   *
+   * @param ldif
+   * @return
+   * @throws IOException
+   */
+  private LdapEntry getLdapEntryFromLdif(String ldif) throws IOException {
+    Reader reader = new StringReader(ldif);
+    LdifReader ldifReader = new LdifReader(reader);
+    SearchResult ldifResult = ldifReader.read();
+    LdapEntry ldifEntry = ldifResult.getEntry();
+
+    // Update DN to be relative to groupCreationBaseDn
+    String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getGroupCreationBaseDn());
+    ldifEntry.setDn(actualDn);
+    return ldifEntry;
+  }
+
+  /**
+   * Fills in the GroupCreationLdifTemplate for the provided group
+   * @param grouperGroup
+   * @return
+   * @throws PspException
+   */
+  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup) throws PspException {
+    String ldif = config.getGroupCreationLdifTemplate();
+    ldif = ldif.replaceAll("\\|\\|", "\n");
+    ldif = evaluateJexlExpression(ldif, null, null, grouperGroup, null);
+    return ldif;
   }
 
   @Override

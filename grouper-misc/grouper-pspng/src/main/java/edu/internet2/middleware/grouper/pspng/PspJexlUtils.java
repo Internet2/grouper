@@ -130,7 +130,7 @@ public class PspJexlUtils extends GrouperUtilElSafe {
 
     // This is wrapping the Value in quotes so the RDN class will consider
     // all the dn-relevant characters (eg: ,+;) as escaped
-    RDN rdn = new RDN(rdnAttribute, String.format("\"%s\"", rdnValue));
+    RDN rdn = new RDN(rdnAttribute, rdnValue);
     return rdn.toMinimallyEncodedString();
   }
 
