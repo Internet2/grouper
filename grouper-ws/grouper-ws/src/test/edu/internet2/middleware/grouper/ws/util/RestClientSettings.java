@@ -208,9 +208,7 @@ public class RestClientSettings {
         
         RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
         
-        GrouperCheckConfig.checkAttributes();
-
-        GrouperCheckConfig.checkGroups();
+        GrouperCheckConfig.checkObjects();
 
         String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
         

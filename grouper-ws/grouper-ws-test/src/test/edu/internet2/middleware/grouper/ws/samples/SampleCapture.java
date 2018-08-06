@@ -254,13 +254,13 @@ public class SampleCapture {
    */
   public static void main(String[] args) {
 
-//    setupData();
+    setupData();
 
 //    captureAssignAttributesWithValue();
 
 //    captureGetGrouperPrivileges();
 
-//    captureGroupSave();
+    captureGroupSave();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
@@ -293,7 +293,7 @@ public class SampleCapture {
 //    captureGetGrouperPrivileges();
 //    captureGetGroups();
 //    captureGetMembers();
-    captureGetMemberships();
+//    captureGetMemberships();
 //    captureGetPermissionAssignments();
 //    captureGetSubjects();
 //    captureGroupDelete();
@@ -495,9 +495,7 @@ public class SampleCapture {
 
       RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
       
-      GrouperCheckConfig.checkAttributes();
-
-      GrouperCheckConfig.checkGroups();
+      GrouperCheckConfig.checkObjects();
 
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem", true);
       

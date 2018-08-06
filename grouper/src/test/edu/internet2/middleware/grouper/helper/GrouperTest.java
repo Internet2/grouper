@@ -1353,8 +1353,7 @@ public class GrouperTest extends TestCase {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
   
-          GrouperCheckConfig.checkGroups();
-          GrouperCheckConfig.checkAttributes();
+          GrouperCheckConfig.checkObjects();
           return null;
         }
       });

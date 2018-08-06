@@ -104,7 +104,7 @@
       </then>
     </if>
   
-    <available file="${grouper.lib.dir}/commons-lang.jar" property="grouper.lib.dir.exists" value="true" />
+    <available file="${grouper.lib.dir}/grouperClient.jar" property="grouper.lib.dir.exists" value="true" />
   
     <if>
       <not>
@@ -149,9 +149,6 @@
       <fileset dir="${grouper.lib.dir}">
         <include name="grouperClient.jar"/>
       </fileset>
-    </copy>
-    <copy todir="${basedir}/webapp/WEB-INF">
-      <fileset file="${dist.home}/${webapp.name}/WEB-INF/web.xml" />
     </copy>
   </target>
 
@@ -415,11 +412,6 @@
     			<!-- Last, but not least, make Grouper API available -->
 				<include unless="grouper.compile.api" name="grouper.jar"/>
 			</fileset>
-			
-			
-			 
-			
-			
 		
       <fileset dir="${ui.folder}/contrib">
         <include name="**/*.jar"/>

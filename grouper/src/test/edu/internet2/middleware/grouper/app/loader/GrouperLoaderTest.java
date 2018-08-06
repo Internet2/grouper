@@ -824,8 +824,7 @@ public class GrouperLoaderTest extends GrouperTest {
       
       GrouperStartup.initIncludeExcludeType();
 
-      GrouperCheckConfig.checkAttributes();
-      
+      GrouperCheckConfig.checkObjects();
       
     } catch (Exception e) {
       throw new RuntimeException(e);

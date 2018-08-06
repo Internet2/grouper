@@ -630,7 +630,7 @@ public class GrouperCheckConfig {
     }
 
   }
-  
+
   /**
    * make sure configured groups are there 
    */
@@ -2014,11 +2014,19 @@ public class GrouperCheckConfig {
   public static String loaderMetadataStemName() {
     return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:loaderMetadata";
   }
+
+  /**
+   * call this to init data in grouper
+   */
+  public static void checkObjects() {
+    checkGroups();
+    checkAttributes();
+  }
   
   /**
    * make sure configured attributes are there 
    */
-  public static void checkAttributes() {
+  private static void checkAttributes() {
     
     boolean autoconfigure = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", false);
     if (!autoconfigure) {
