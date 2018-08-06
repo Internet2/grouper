@@ -28,18 +28,7 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
-import org.ldaptive.AttributeModification;
-import org.ldaptive.AttributeModificationType;
-import org.ldaptive.Connection;
-import org.ldaptive.DnParser;
-import org.ldaptive.LdapAttribute;
-import org.ldaptive.LdapEntry;
-import org.ldaptive.LdapException;
-import org.ldaptive.ModifyRequest;
-import org.ldaptive.ResultCode;
-import org.ldaptive.SearchFilter;
-import org.ldaptive.SearchRequest;
-import org.ldaptive.SearchResult;
+import org.ldaptive.*;
 import org.ldaptive.io.LdifReader;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -298,8 +287,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         workItem.markAsSuccess("Modification complete");
       
     } catch (PspException e1) {
-      LOG.warn("Optimized, coalesced ldap provisioning failed", e1);
-      LOG.warn("RETRYING: Performing much slower, unoptimized ldap provisioning after optimized provisioning failed");
+      LOG.warn("(THIS WILL BE RETRIED) Optimized, coalesced ldap provisioning failed: {}", e1.getMessage());
+      LOG.warn("RETRYING: Performing slower, unoptimized ldap provisioning after optimized provisioning failed");
       
         for ( ProvisioningWorkItem workItem : workItems ) {
           try {
@@ -500,8 +489,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             LOG.info("Performing LDAP modification: {}", getLoggingSummary(mod) );
             conn.getProviderConnection().modify(mod);
           } catch (LdapException e) {
-            LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}",
-                new Object[]{dn, mod, e});
+            LOG.warn("(THIS WILL BE RETRIED) Problem doing coalesced ldap modification: {} / {}: {}",
+                new Object[]{dn, mod, e.getMessage()});
             throw new PspException("Coalesced LDAP Modification failed: %s",e.getMessage());
           } 
         }
@@ -561,49 +550,12 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     LOG.debug("{}: Implementing changes for work item {}", getName(), workItem);
     for ( ModifyRequest mod : mods ) {
-      Connection conn = getLdapSystem().getLdapConnection();
       try {
-        conn.open();
-        conn.getProviderConnection().modify(mod);
-      } catch (LdapException e) {
-        
-        // Since we are a plan b provisioning attempt, it is possible that some of our 
-        // modifications have already been done. So, we look for the errors you get when
-        // you try to add something that already exists or try to delete something that doesn't exist
-        
-        // We're only doing this check if we have only one attribute in our modification request
-        
-        if ( mod.getAttributeModifications().length == 1 &&
-             mod.getAttributeModifications()[0].getAttributeModificationType() == AttributeModificationType.REMOVE &&
-             (e.getResultCode() == ResultCode.NO_SUCH_ATTRIBUTE || 
-              e.getResultCode() == ResultCode.NO_SUCH_OBJECT) )
-          LOG.info("{}: Ignoring NO_SUCH_ATTRIBUTE/NO_SUCH_OBJECT error on an attribute removal operation: {}", 
-              getName(), mod);
-        
-        else if ( mod.getAttributeModifications().length == 1 &&
-            mod.getAttributeModifications()[0].getAttributeModificationType() == AttributeModificationType.ADD &&
-            e.getResultCode() == ResultCode.ATTRIBUTE_OR_VALUE_EXISTS )
-         LOG.info("{}: Ignoring ATTRIBUTE_OR_VALUE_EXISTS error on an attribute add operation: {}", getName(), mod);
-        
-        else if ( schemaRelatedLdapErrors.contains(e.getResultCode()) ) {
-          // Is this possibly a problem with empty groups not being supported?
-          if ( !config.areEmptyGroupsSupported() ) {
-            LOG.warn("{}: Scheduling full sync due to possibly-schema-related error for {} / {} [error: {}]",
-                new Object[]{getName(), workItem, mod, e.getMessage()});
-            scheduleFullSync(workItem.getGroupInfo(this), "sync-after-possible-schema-violation");
-          }
-          else {
-            LOG.error("{}: LDAP Error that might be schema related. Perhaps you need to set emptyGroupsSupported=no?. {}/{}",
-                new Object[]{getName(), workItem, mod, e});
-            throw new PspException("LDAP Provisioning failed. %s", e.getMessage());
-          }
-        }
-        else {
-          LOG.error("{}: Ldap provisioning failed for {} / {}", new Object[]{getName(), workItem, mod, e});
-          throw new PspException("LDAP Provisioning failed: %s", e.getMessage());
-        }
-      } finally {
-        conn.close();
+        getLdapSystem().performLdapModify(mod);
+      } catch (PspException e) {
+        LOG.error("{}: Ldap provisioning failed for {} / {}", new Object[]{getName(), workItem, mod, e});
+
+        throw e;
       }
     }
   }
@@ -769,8 +721,9 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
   protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
     LOG.info("{}: Creating LDAP object: {}", getName(), entryToAdd.getDn());
-  
+
     ensureLdapOusExist(entryToAdd.getDn(), false);
     ldapSystem.performLdapAdd(entryToAdd);
   }
+
 }

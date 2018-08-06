@@ -127,7 +127,14 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     List<LdapUser> currentMatches = new ArrayList<LdapUser>(currentMatches_ldapObjects.size());
     for ( LdapObject ldapObject : currentMatches_ldapObjects )
       currentMatches.add(new LdapUser(ldapObject));
-    
+
+    LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
+      new Object[] {getName(), grouperGroupInfo, correctTSUsers.size(), currentMatches.size()});
+
+    LOG.debug("{}: Full-sync comparison: Correct: {}",getName(), correctTSUsers);
+    LOG.debug("{}: Full-sync comparison: Actual: {}", getName(), currentMatches);
+
+
     // EXTRA MATCHES = CURRENT_MATCHES - CORRECT_MATCHES
     Set<LdapUser> extraMatches = new HashSet<LdapUser>(currentMatches);
     extraMatches.removeAll(correctTSUsers);

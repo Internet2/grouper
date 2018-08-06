@@ -55,6 +55,7 @@ public class FullSyncStarter
         extends ChangeLogConsumerBase
         implements Job {
   protected final static Logger LOG = LoggerFactory.getLogger(FullSyncStarter.class);
+  private ThreadLocal<Hib3GrouperLoaderLog> currentLoaderLogEntry = new ThreadLocal<>();
 
   /**
    * Called directly by quartz from a loader property like: otherJob.key-related-to-provisioner-name.class=...FullSyncStarter
@@ -94,6 +95,8 @@ public class FullSyncStarter
       }
 
       hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+      currentLoaderLogEntry.set(hib3GrouploaderLog);
+
       hib3GrouploaderLog.setJobName(jobName);
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
       hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));

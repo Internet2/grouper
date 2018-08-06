@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pspng;
 import java.util.*;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 
@@ -97,7 +98,13 @@ public class GrouperGroupInfo {
     if ( group != null ) {
       result.put("group", group);
       result.put("name", group.getName());
-      
+      result.put("displayName", group.getDisplayName());
+
+      result.put("extension", group.getExtension());
+      result.put("displayExtension", group.getDisplayExtension());
+
+      result.put("description", group.getDescription());
+
       if ( group.getIdIndex() != null )
         result.put("idIndex", group.getIdIndex());
       
@@ -110,7 +117,7 @@ public class GrouperGroupInfo {
     else if ( pitGroup != null ) {
       result.put("pitGroup", pitGroup);
       result.put("name", pitGroup.getName());
-      
+
       // TODO: populate idIndex, but pitGroup does not have getIdIndex()
       //result.put("idIndex", pitGroup.getIdIndex());
       

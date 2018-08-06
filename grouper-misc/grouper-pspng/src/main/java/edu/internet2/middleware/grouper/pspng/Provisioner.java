@@ -16,33 +16,8 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.log4j.MDC;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -59,6 +34,16 @@ import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.log4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -444,6 +429,44 @@ public abstract class Provisioner
     return result;
   }
 
+  public void startCoordination(List<ProvisioningWorkItem> workItems) {
+    for (ProvisioningWorkItem workItem : workItems) {
+      String groupName = workItem.getGroupName();
+      if (groupName == null)
+        // Nothing to do before batch is processed
+        continue;
+      GrouperGroupInfo grouperGroupInfo = getGroupInfo(groupName);
+      if (grouperGroupInfo != null) {
+        if (isFullSyncMode()) {
+          getProvisionerCoordinator().startFullSyncIfNoIncrementalIsUnderway(grouperGroupInfo);
+        } else {
+          getProvisionerCoordinator().startIncrementalProvisioningIfNoFullSyncIsUnderway(grouperGroupInfo);
+        }
+      }
+    }
+  }
+
+  public void finishCoordination(List<ProvisioningWorkItem> workItems, boolean wasSuccessful) {
+
+    for ( ProvisioningWorkItem workItem : workItems ) {
+      GrouperGroupInfo groupInfo = workItem.getGroupInfo(this);
+      if ( groupInfo != null ) {
+        if ( isFullSyncMode() ) {
+          getProvisionerCoordinator().stopFullSync(groupInfo, wasSuccessful);
+        }
+        else {
+          getProvisionerCoordinator().stopIncrementalProvisioning(groupInfo);
+        }
+      }
+    }
+
+    tsUserCache_shortTerm.clear();
+    tsGroupCache_shortTerm.clear();
+
+    LOG.debug("Done with provisining batch");
+  }
+
+
   /**
    * Get ready for a provisioning batch. If this is overridden, make sure you call super()
    * at the beginning of your overridden version.
@@ -455,18 +478,17 @@ public abstract class Provisioner
     LOG.debug("Starting provisioning batch of {} items", workItems.size());
     Set<Subject> subjects = new HashSet<Subject>();
     
-    // Use this Set to remove duplicate group names that are referenced in multiple workItems
+    // Use this Set to remove duplicate group names that are referenced in multiple workItemsß
     Set<GrouperGroupInfo> grouperGroupInfos = new HashSet<GrouperGroupInfo>();
-    
+
     for ( ProvisioningWorkItem workItem : workItems) {
       String groupName = workItem.getGroupName();
       if ( groupName == null )
     	  // Nothing to do before batch is processed
     	  continue;
       GrouperGroupInfo grouperGroupInfo = getGroupInfo(groupName);
-      if ( grouperGroupInfo != null )
-        grouperGroupInfos.add(grouperGroupInfo);
-    
+      grouperGroupInfos.add(grouperGroupInfo);
+
       Subject s = workItem.getSubject(this);
       if ( s != null )
         subjects.add(s);
@@ -475,13 +497,17 @@ public abstract class Provisioner
     prepareGroupCache(grouperGroupInfos);
     prepareUserCache(subjects);
   }
-  
+
+  private ProvisionerCoordinator getProvisionerCoordinator() {
+    return ProvisionerFactory.getProvisionerCoordinator(getName());
+  }
+
   // Finish and/or clean up after a provisioning batch. If this is overridden, make sure you 
   // call super() at the END of your overridden version
   public void finishProvisioningBatch(List<ProvisioningWorkItem> workItems) throws PspException {
     tsUserCache_shortTerm.clear();
     tsGroupCache_shortTerm.clear();
-    
+
     LOG.debug("Done with provisining batch");
   }
   
@@ -698,17 +724,25 @@ public abstract class Provisioner
       return;
     
     Collection<GrouperGroupInfo> groupsToFetch = new ArrayList<GrouperGroupInfo>();
-    
-    for (GrouperGroupInfo grouperGroupInfo : groupInfoSet) {
-      // See if the group is already cached.
-      TSGroupClass cachedTSG = targetSystemGroupCache.get(grouperGroupInfo);
-      if ( cachedTSG != null )
-        // Cache group in shortTerm cache as well as refresh it in longterm cache
-        cacheGroup(grouperGroupInfo, cachedTSG);
-      else
-        groupsToFetch.add(grouperGroupInfo);
+
+    // Don't used cached groups in full-sync mode because fullSync means to take a fresh
+    // look and make sure everything is correct
+    if ( fullSyncMode ) {
+      LOG.info("{}: Not using cached group information for full sync", getName());
+      groupsToFetch.addAll(groupInfoSet);
+    } else {
+      for (GrouperGroupInfo grouperGroupInfo : groupInfoSet) {
+        // See if the group is already cached.
+        TSGroupClass cachedTSG = targetSystemGroupCache.get(grouperGroupInfo);
+        if (cachedTSG != null)
+          // Cache group in shortTerm cache as well as refresh it in longterm cache
+          cacheGroup(grouperGroupInfo, cachedTSG);
+        else
+          groupsToFetch.add(grouperGroupInfo);
+      }
     }
-    
+
+
     if ( groupsToFetch.size() == 0 )
       return;
     
@@ -997,6 +1031,51 @@ public abstract class Provisioner
         }
         deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
       }
+      else if ( workItem.getGroupInfo(this) != null ) {
+        // This is a changelog entry that modifies the group. Do a FullSync to see if any
+        // provisioned information changed. Unfortunately, this will do a membership sync which
+        // might slow down the processing of this changelog entry. However, non-membership
+        // changes are expected to be infrequent, so we aren't creating an optimized code path
+        // that doesn't sync memberships.
+
+        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+
+        // We need to remove our lock so full-sync can occur
+        getProvisionerCoordinator().stopIncrementalProvisioning(grouperGroupInfo);
+
+        FullSyncProvisioner.FullSyncQueueItem fullSyncStatus = getFullSyncer()
+                .scheduleGroupForSync(workItem.getGroupInfo(this), String.format("Changelog: %s", workItem), true);
+
+        // Wait up to 5 minutes for full sync to occur
+        int fullSyncTimeout_secs = 300;
+        while ( !fullSyncStatus.hasBeenProcessed() && fullSyncStatus.getAge_ms() < 1000L*fullSyncTimeout_secs ) {
+          if ( fullSyncStatus.stats.processingStartTime != null ) {
+            LOG.info("{}: Triggered change: Awaiting completion of active full sync: {}",
+                    new Object[]{getName(), fullSyncStatus});
+          }
+          else {
+            LOG.info("{}: Triggered change: Awaiting start full sync of {}", getName(), grouperGroupInfo);
+          }
+
+          GrouperUtil.sleep(1000);
+        }
+
+        if ( fullSyncStatus.hasBeenProcessed() ) {
+          if ( fullSyncStatus.wasSuccessful ) {
+            workItem.markAsSuccess("Handled with FullSync");
+          }
+          else {
+            workItem.markAsFailure("FullSync attempted, but failed");
+          }
+        }
+        else {
+          workItem.markAsFailure("FullSync timed out after %d seconds", fullSyncTimeout_secs);
+        }
+      }
+      else if ( workItem.shouldBeHandledBySyncingAllGroups(this) ) {
+        LOG.info("{}: Performing sync of all groups to process work item: {}", getName(), workItem);
+        getFullSyncer().queueAllGroupsForFullSync(String.format("Work item invokes full sync: %s", workItem));
+      }
       else
       {
         workItem.markAsSuccess("Nothing to do (not a supported change)");
@@ -1117,6 +1196,13 @@ public abstract class Provisioner
       }
     }
 
+    LOG.debug("{}/{}: All correct member subjects: {}",
+              new Object[] {getName(), grouperGroupInfo, correctSubjects});
+
+    LOG.info("{}/{}: {} correct member subjects. Sample: {}...",
+      new Object[] {getName(), grouperGroupInfo, correctSubjects.size(),
+              new ArrayList<Subject>(correctSubjects).subList(0, Math.min(10, correctSubjects.size()))});
+
     try {
       MDC.put("step", "prov/");
       doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers, stats);
@@ -1216,10 +1302,14 @@ public abstract class Provisioner
    * @param group
    */
   public void scheduleFullSync(GrouperGroupInfo group, String reason) throws PspException {
-    FullSyncProvisionerFactory.getFullSyncer(this).scheduleGroupForSync(group, reason, true);
+    getFullSyncer().scheduleGroupForSync(group, reason, true);
   }
-  
-  
+
+  private FullSyncProvisioner getFullSyncer() throws PspException {
+    return FullSyncProvisionerFactory.getFullSyncer(this);
+  }
+
+
   /**
    * This method looks for groups that are marked for provisioning as determined by 
    * the GroupSelectionExpression. 
@@ -1327,91 +1417,94 @@ public abstract class Provisioner
   }
 
   public void provisionBatchOfItems(List<ProvisioningWorkItem> allWorkItems) {
-	  
-	// Mark the items as successful if we are not enabled.
-	// Note: They are being marked as successful so that there is an easy mechanism
-	// to get a provisioner up to date with the changelog (or other event system). 
-	// Additionally, if you just don't want to process events, then you can remove
-	// this provisioner from the configuration.
-	if ( ! config.isEnabled() ) {
-		for ( ProvisioningWorkItem workItem : allWorkItems ) 
-			workItem.markAsSkippedAndWarn("Provisioner %s is not enabled", getName());
-		return;
-	}
-	
-	// Let's see if there is a reason to flush our group cache. In particular, 
-	// we flush group information when groups and their attributes are edited
-	// because we don't know what attributes of groups could be used in various
-	// JEXL expressions
-	MDC.put("step", "cache_eval");
-	try {
-	  flushCachesIfNecessary(allWorkItems);
-	}
-    catch (PspException e) {
+    List<ProvisioningWorkItem> filteredWorkItems=null;
+
+    // Mark the items as successful if we are not enabled.
+    // Note: They are being marked as successful so that there is an easy mechanism
+    // to get a provisioner up to date with the changelog (or other event system).
+    // Additionally, if you just don't want to process events, then you can remove
+    // this provisioner from the configuration.
+    if (!config.isEnabled()) {
+      for (ProvisioningWorkItem workItem : allWorkItems)
+        workItem.markAsSkippedAndWarn("Provisioner %s is not enabled", getName());
+      return;
+    }
+
+    // Let's see if there is a reason to flush our group cache. In particular,
+    // we flush group information when groups and their attributes are edited
+    // because we don't know what attributes of groups could be used in various
+    // JEXL expressions
+    MDC.put("step", "cache_eval");
+    try {
+      flushCachesIfNecessary(allWorkItems);
+    } catch (PspException e) {
       LOG.error("Unable to evaluate our caches", e);
       MDC.remove("step");
       throw new RuntimeException("No entries provisioned. Cache evaluation failed: " + e.getMessage(), e);
     }
-	
-	// Let the provisioner filter out any unnecessary work items.
-	// This particularly filters out groups that we're not supposed to provision
-	List<ProvisioningWorkItem> filteredWorkItems;
+
+    // Let the provisioner filter out any unnecessary work items.
+    // This particularly filters out groups that we're not supposed to provision
     MDC.put("step", "filter/");
     try {
       filteredWorkItems = filterWorkItems(allWorkItems);
       LOG.info("{}: {} work items need to be processed further", getName(), filteredWorkItems.size());
-    }
-    catch (PspException e) {
+    } catch (PspException e) {
       LOG.error("Unable to filter the provisioning batch", e);
       MDC.remove("step");
       throw new RuntimeException("No entries provisioned. Batch-filtering failed: " + e.getMessage(), e);
     }
-    
+
     // Tell the provisioner about this batch of workItems
     MDC.put("step", "start/");
     try {
-      startProvisioningBatch(filteredWorkItems);
-    }
-    catch (PspException e) {
-      LOG.error("Unable to begin the provisioning batch", e);
+      startCoordination(filteredWorkItems);
+
+      try {
+        startProvisioningBatch(filteredWorkItems);
+      } catch (PspException e) {
+        LOG.error("Unable to begin the provisioning batch", e);
+        MDC.remove("step");
+        throw new RuntimeException("No entries provisioned. Batch-Start failed: " + e.getMessage(), e);
+      }
+
+      // Go through the workItems that were not marked as processed by the startProvisioningBatch
+      // and provision them
+      for (ProvisioningWorkItem workItem : allWorkItems) {
+        MDC.put("step", String.format("prov/%s/", workItem.getMdcLabel()));
+        if (!workItem.hasBeenProcessed()) {
+          try {
+            provisionItem(workItem);
+          } catch (PspException e) {
+            LOG.error("Problem provisioning {}", workItem, e);
+            workItem.markAsFailure(e.getMessage());
+          }
+        }
+      }
+
+      // Do 'finish' task for workItems that are not marked as processed before now
+
+      MDC.put("step", "fin/");
+      List<ProvisioningWorkItem> workItemsToFinish = new ArrayList<ProvisioningWorkItem>();
+      try {
+        for (ProvisioningWorkItem workItem : allWorkItems) {
+          if (!workItem.hasBeenProcessed())
+            workItemsToFinish.add(workItem);
+        }
+        finishProvisioningBatch(workItemsToFinish);
+        finishCoordination(filteredWorkItems, true);
+      } catch (PspException e) {
+        LOG.error("Problem completing provisioning batch", e);
+        for (ProvisioningWorkItem workItem : workItemsToFinish) {
+          if (!workItem.hasBeenProcessed())
+            workItem.markAsFailure("Unable to finish provisioning (%s)", e.getMessage());
+        }
+      }
       MDC.remove("step");
-      throw new RuntimeException("No entries provisioned. Batch-Start failed: " + e.getMessage(), e);
     }
-    
-    // Go through the workItems that were not marked as processed by the startProvisioningBatch
-    // and provision them
-    for ( ProvisioningWorkItem workItem : allWorkItems ) {
-      MDC.put("step", String.format("prov/%s/", workItem.getMdcLabel()));
-      if ( !workItem.hasBeenProcessed() ) {
-        try {
-          provisionItem(workItem);
-        }
-        catch (PspException e) {
-          LOG.error( "Problem provisioning {}", workItem, e);
-          workItem.markAsFailure(e.getMessage());
-        }
-      }
+    finally{
+      finishCoordination(filteredWorkItems, false);
     }
-    
-    // Do 'finish' task for workItems that are not marked as processed before now
-    
-    MDC.put("step", "fin/");
-    List<ProvisioningWorkItem> workItemsToFinish = new ArrayList<ProvisioningWorkItem>();
-    try {
-      for ( ProvisioningWorkItem workItem : allWorkItems ) {
-        if ( !workItem.hasBeenProcessed() )
-          workItemsToFinish.add(workItem);
-      }
-      finishProvisioningBatch(workItemsToFinish);
-    }
-    catch (PspException e) {
-      LOG.error("Problem completing provisioning batch", e);
-      for ( ProvisioningWorkItem workItem : workItemsToFinish ) {
-        if ( !workItem.hasBeenProcessed() )
-          workItem.markAsFailure("Unable to finish provisioning (%s)", e.getMessage());
-      }
-    }
-    MDC.remove("step");
   }
 
 
@@ -1446,8 +1539,12 @@ public abstract class Provisioner
   protected boolean workItemMightAffectCachedData(ProvisioningWorkItem workItem) {
     if ( workItem.isChangingGroupOrStemInformation() )
       return true;
-    else
+    else if ( workItem.action.equalsIgnoreCase("fullsync") ) {
+      return true;
+    }
+    else {
       return false;
+    }
   }
 
 
