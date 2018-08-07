@@ -1562,6 +1562,7 @@ public class GrouperCheckConfig {
     checkJar("backport-util-concurrent-3.1.jar", 331716, "edu.emory.mathcs.backport.java.util.AbstractCollection", "null");
     checkJar("bsh-2.0b5.jar", 383846, "bsh.BSHFormalComment", "2.0b5 2005-06-12 04:50:41");
     checkJar("c3p0-0.9.5.2.jar", 497865, "com.mchange.v2.c3p0.ConnectionTester", "0.9.5.2");
+    checkJar("c3p0-oracle-thin-extras-0.9.5.jar", 2710, "com.mchange.v2.c3p0.dbms.OracleUtils", "null");
     checkJar("commons-beanutils-1.9.3.jar", 246174, "org.apache.commons.beanutils.locale.LocaleConverter", "1.9.3");
     checkJar("commons-cli-1.4.jar", 53820, "org.apache.commons.cli.GnuParser", "1.4");
     checkJar("commons-codec-1.11.jar", 335042, "org.apache.commons.codec.binary.Base32OutputStream", "1.11");
@@ -1582,7 +1583,7 @@ public class GrouperCheckConfig {
     checkJar("ehcache-core-2.4.8.jar", 1030367, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph-1.0.6.jar", 86487, "net.sf.ezmorph.MorphException", "null");
     checkJar("groovy-all-2.5.0-beta-2.jar", 7715312, "groovy.beans.Bindable", "2.5.0-beta-2");
-    checkJar("grouperClient.jar", 4395609, "edu.internet2.middleware.grouperClient.ClientOperation", "2.4.0");
+    checkJar("grouperClient.jar", 4397537, "edu.internet2.middleware.grouperClient.ClientOperation", "2.4.0");
     checkJar("hibernate-c3p0-5.0.12.Final.jar", 11606, "org.hibernate.c3p0.internal.C3P0MessageLogger", "5.0.12.Final");
     checkJar("hibernate-commons-annotations-5.0.1.Final.jar", 75288, "org.hibernate.annotations.common.Version", "5.0.1.Final");
     checkJar("hibernate-core-5.0.12.Final.jar", 5619332, "org.hibernate.SessionException", "5.0.12.Final");
@@ -1590,7 +1591,6 @@ public class GrouperCheckConfig {
     checkJar("hibernate-jpa-2.1-api-1.0.0.Final.jar", 113371, "javax.persistence.Convert", "1.0.0.Final");
     checkJar("jandex-2.0.4.Final.jar", 186793, "org.jboss.jandex.AnnotationInstance", "2.0.4.Final");
     checkJar("javassist-3.22.0-GA.jar", 739582, "javassist.ByteArrayClassPath", "null");
-    //checkJar("javax.servlet-api-3.1.0.jar", 95806, "javax.servlet.annotation.HandlesTypes", "3.1.0");
     checkJar("jboss-logging-3.3.1.Final.jar", 66023, "org.jboss.logging.Field", "3.3.1.Final");
     checkJar("jline-2.14.5.jar", 268597, "jline.AnsiWindowsTerminal", "null");
     checkJar("joda-time-2.9.9.jar", 634048, "org.joda.time.base.AbstractDateTime", "2.9.9");
@@ -1662,13 +1662,13 @@ public class GrouperCheckConfig {
         if (c3p0Pattern.matcher(file.getName()).matches()) {
           sampleClass = GrouperUtil.forName("com.mchange.v2.c3p0.ConnectionTester");
         }
-        //requires java8.  after upgrading to java8 you can remove this
-        if (sampleClass == null && c3p0ExtrasPattern.matcher(file.getName()).matches()) {
-          continue;
-        }
         //default would output org.xmlpull.v1.XmlPullParser which is also in smack; instead use factory which is unique
         if (xmlpullPattern.matcher(file.getName()).matches()) {
           sampleClass = GrouperUtil.forName("org.xmlpull.v1.XmlPullParserFactory");
+        }
+        //dont do tomcat jars
+        if (file.getName().startsWith("javax")) {
+          continue;
         }
         //who cares about sources
         if (file.getName().endsWith("-sources.jar")) {
