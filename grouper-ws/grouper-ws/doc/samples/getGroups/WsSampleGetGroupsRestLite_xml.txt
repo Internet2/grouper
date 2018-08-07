@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouper-ws/servicesRest/xml/v2_2_000/subjects/10021368/groups HTTP/1.1
+GET /grouper-ws/servicesRest/xml/v2_4_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -24,25 +24,23 @@ Host: localhost:8092
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:38:56 GMT
+Date: Mon, 06 Aug 2018 16:40:43 GMT
 Connection: close
 
-3f7
+3f6
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null
@@ -54,8 +52,8 @@ fieldName1: null
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>74</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>3</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -65,8 +63,8 @@ fieldName1: null
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>f34ab432f45149509900e3002e744c77</uuid>
-      <idIndex>10001</idIndex>
+      <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
+      <idIndex>10005</idIndex>
     </WsGroup>
     <WsGroup>
       <extension>aGroup2</extension>
@@ -78,8 +76,8 @@ typeOfGroup>
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>53a86121806d499289bbeca7e5b9f5b1</uuid>
-      <idIndex>10002</idIndex>
+      <uuid>08cc1f2ccd3248ff801db35946e03823</uuid>
+      <idIndex>10006</idIndex>
     </WsGroup>
     <WsGroup>
       <extension>sysadmingroup</extension>
@@ -87,8 +85,8 @@ typeOfGroup>
       <displayExtension>sysadmingroup</displayExtension>
       <displayName>etc:sysadmingroup</displayName>
       <name>etc:sysadmingroup</name>
-      <uuid>67bcbaa4c7fb4e8282f19fc1d15eef6f</uuid>
-      <idIndex>10005</idIndex>
+      <uuid>5cbabdd15c1d49ceae302f8e844b0009</uuid>
+      <idIndex>10009</idIndex>
     </WsGroup>
     <WsGroup>
       <extension>webServiceActAsGroup</extension>
@@ -96,8 +94,8 @@ typeOfGroup>
       <displayExtension>webServiceActAsGroup</displayExtension>
       <displayName>etc:webServiceActAsGroup</displayName>
       <name>etc:webServiceActAsGroup</name>
-      <uuid>cf872191c45c4e8bb8b55cbd34eae765</uuid>
-      <idIndex>10004</idIndex>
+      <uuid>a3b9b6852757437981d39b7a14a0bfd7</uuid>
+      <idIndex>10008</idIndex>
     </WsGroup>
   </wsGroups>
   <wsSubject>
@@ -258,7 +256,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null

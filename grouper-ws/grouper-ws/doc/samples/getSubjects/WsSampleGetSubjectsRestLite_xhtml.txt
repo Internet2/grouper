@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite,
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v2_2_000/subjects/test.subject.0 HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v2_4_000/subjects/test.subject.0 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -24,22 +24,20 @@ Host: localhost:8092
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:02:19 GMT
+Date: Mon, 06 Aug 2018 16:42:14 GMT
 Connection: close
 
-3b0
-<?xml version='1.0' encoding='iso-8859-1'?>
+3aa
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -48,9 +46,9 @@ Connection: close
   <body>
     <div title="WsGetSubjectsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">12</p>
+        <p class="millis">2</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -221,4 +219,4 @@ public class WsSampleGetSubjectsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Queried 1 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Queried 1 subjects

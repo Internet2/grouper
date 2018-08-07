@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRest, manually written lite/rest, format: xml, for version: 2.3.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 2224
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAttributeDefSaveRequest>
   <wsAttributeDefsToSave>
@@ -80,15 +80,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:34:48 GMT
+Date: Mon, 06 Aug 2018 16:37:14 GMT
 Connection: close
 
 3f8
@@ -96,11 +95,11 @@ Connection: close
   <results>
     <WsAttributeDefSaveResult>
       <wsAttributeDef>
-        <idIndex>10052</idIndex>
+        <idIndex>10073</idIndex>
         <extension>testAttributeDef_xml</extension>
         <description>This is a description1 rest xml</description>
         <name>test1:testAttributeDef_xml</name>
-        <uuid>35b40a15940548598476f17d6dd9af3c</uuid>
+        <uuid>ecd46d619ac744acbb0e5eeba3b3fb12</uuid>
         <attributeDefType>attr</attributeDefType>
         <multiAssignable>F</multiAssignable>
         <multiValued>F</multiValued>
@@ -128,11 +127,11 @@ assignToStemAssignment>
     </WsAttributeDefSaveResult>
     <WsAttributeDefSaveResult>
       <wsAttributeDef>
-        <idIndex>10053</idIndex>
+        <idIndex>10074</idIndex>
         <extension>testAttributDef2ToSave1Rest_xml</extension>
         <description>This is a description2 rest xml</description>
         <name>test1:testAttributDef2ToSave1Rest_xml</name>
-        <uuid>f15cb92cdbd0477c82d41bc8792499a2</uuid>
+        <uuid>954406ea249249fd9137ed0131fcb6c2</uuid>
         <attributeDefType>attr</attributeDefType>
         <multiAssignable>F</multiAssignable>
         <multiValued>F</multiValued>
@@ -145,7 +144,7 @@ assignToStemAssignment>
         <assignToGroupAssignment>F</assignToGroupAssignment>
         <assignToImmediateMembership>F</assignToImmediateMembership>
         <
-3e7
+3ff
 assignToImmediateMembershipAssignment>
         </assignToImmediateMembershipAssignment>
         <assignToMember>F</assignToMember>
@@ -161,7 +160,7 @@ assignToImmediateMembershipAssignment>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
+    <resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
 wsAttributeDef=WsAttributeDef[description=This is a description1 rest xml,name=test1:testAttributeDef_xml,attributeDefType=attr,multiAssignable=F,multiVa...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
@@ -169,12 +168,10 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xml,name=t
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>21598</millis>
-    <serverVersion>2.3.0</serverVersion>
+    <millis>221</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
-</
-1a
-WsAttributeDefSaveResults>
+</WsAttributeDefSaveResults>
 0
 
 
@@ -395,7 +392,7 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
   wsAttributeDef=WsAttributeDef[description=This is a description1 rest xml,name=test1:testAttributeDef_xml,attributeDefType=attr,multiAssignable=F,multiVa...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

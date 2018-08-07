@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: http_json, for version: 2.1.1
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v2_1_001/subjects/10021368/memberships HTTP/1.1
+GET /grouper-ws/servicesRest/json/v2_4_000/subjects/10021368/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -24,31 +24,137 @@ Host: localhost:8092
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 212
-Date: Sun, 01 Jul 2012 15:56:50 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2968
+Date: Mon, 06 Aug 2018 16:41:47 GMT
 Connection: close
 
 {
   "WsGetMembershipsResults":{
-    "responseMetadata":{
-      "millis":"20",
-      "serverVersion":"2.1.1"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Found 0 results involving 0 groups and 0 subjects",
-      "success":"T"
-    }
+      "resultMessage":"Found 4 results involving 4 groups and 1 subjects"
+    },
+    "wsMemberships":[
+      {
+        "membershipType":"immediate",
+        "immediateMembershipId":"c063e7ebe5284fde956d0f53e1d47fbb",
+        "groupId":"03aae7141082467eaaa866e6c6edfda5",
+        "membershipId":"c063e7ebe5284fde956d0f53e1d47fbb:86f7a1fbdd5a48ac8653c7affd20c712",
+        "listType":"list",
+        "enabled":"T",
+        "subjectId":"10021368",
+        "groupName":"aStem:aGroup",
+        "createTime":"2018/08/06 12:37:40.392",
+        "listName":"members",
+        "subjectSourceId":"jdbc",
+        "memberId":"8ba2b7659552439c98a8e71e59b36f63"
+      },
+      {
+        "membershipType":"immediate",
+        "immediateMembershipId":"82a140a2a32741798121870185e87b79",
+        "groupId":"08cc1f2ccd3248ff801db35946e03823",
+        "membershipId":"82a140a2a32741798121870185e87b79:704640cf0dd04a808038c0d9a8146923",
+        "listType":"list",
+        "enabled":"T",
+        "subjectId":"10021368",
+        "groupName":"aStem:aGroup2",
+        "createTime":"2018/08/06 11:04:00.726",
+        "listName":"members",
+        "subjectSourceId":"jdbc",
+        "memberId":"8ba2b7659552439c98a8e71e59b36f63"
+      },
+      {
+        "membershipType":"immediate",
+        "immediateMembershipId":"9862d3f0bb5c4ac9a38a5a564bd469f9",
+        "groupId":"5cbabdd15c1d49ceae302f8e844b0009",
+        "membershipId":"9862d3f0bb5c4ac9a38a5a564bd469f9:74084e0c21dc43f2a8cd46514039d98f",
+        "listType":"list",
+        "enabled":"T",
+        "subjectId":"10021368",
+        "groupName":"etc:sysadmingroup",
+        "createTime":"2018/08/06 11:04:01.133",
+        "listName":"members",
+        "subjectSourceId":"jdbc",
+        "memberId":"8ba2b7659552439c98a8e71e59b36f63"
+      },
+      {
+        "membershipType":"immediate",
+        "immediateMembershipId":"dc561ed926b2497fa14254e49adfb88d",
+        "groupId":"a3b9b6852757437981d39b7a14a0bfd7",
+        "membershipId":"dc561ed926b2497fa14254e49adfb88d:3e16879243e44f23aecff3ceb54d5782",
+        "listType":"list",
+        "enabled":"T",
+        "subjectId":"10021368",
+        "groupName":"etc:webServiceActAsGroup",
+        "createTime":"2018/08/06 11:04:01.076",
+        "listName":"members",
+        "subjectSourceId":"jdbc",
+        "memberId":"8ba2b7659552439c98a8e71e59b36f63"
+      }
+    ]
+    ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"17"
+    },
+    "wsGroups":[
+      {
+        "displayExtension":"a group",
+        "extension":"aGroup",
+        "displayName":"a stem:a group",
+        "name":"aStem:aGroup",
+        "description":"a group description",
+        "typeOfGroup":"group",
+        "idIndex":"10005",
+        "uuid":"03aae7141082467eaaa866e6c6edfda5"
+      },
+      {
+        "displayExtension":"a group2",
+        "extension":"aGroup2",
+        "displayName":"a stem:a group2",
+        "name":"aStem:aGroup2",
+        "description":"a group description2",
+        "typeOfGroup":"group",
+        "idIndex":"10006",
+        "uuid":"08cc1f2ccd3248ff801db35946e03823"
+      },
+      {
+        "displayExtension":"sysadmingroup",
+        "extension":"sysadmingroup",
+        "displayName":"etc:sysadmingroup",
+        "name":"etc:sysadmingroup",
+        "typeOfGroup":"group",
+        "idIndex":"10009",
+        "uuid":"5cbabdd15c1d49ceae302f8e844b0009"
+      },
+      {
+        "displayExtension":"webServiceActAsGroup",
+        "extension":"webServiceActAsGroup",
+        "displayName":"etc:webServiceActAsGroup",
+        "name":"etc:webServiceActAsGroup",
+        "typeOfGroup":"group",
+        "idIndex":"10008",
+        "uuid":"a3b9b6852757437981d39b7a14a0bfd7"
+      }
+    ]
+    ,
+    "wsSubjects":[
+      {
+        "sourceId":"jdbc",
+        "success":"T",
+        "resultCode":"SUCCESS",
+        "id":"10021368"
+      }
+    ]
   }
 }
 
@@ -198,4 +304,4 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Found 0 results involving 0 groups and 0 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects

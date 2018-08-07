@@ -1,4 +1,4 @@
-Grouper web service sample of service: sendMessage, WsSampleSendMessage, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: sendMessage, WsSampleSendMessage, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,21 +9,24 @@ Grouper web service sample of service: sendMessage, WsSampleSendMessage, code ge
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:sendMessage"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-293
+363
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:sendMessage xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:sendMessage xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:queueType>queue</ns1:queueType>
       <ns1:queueOrTopicName>def</ns1:queueOrTopicName>
+      <ns1:messageSystemName></ns1:messageSystemName>
+      <ns1:routingKey></ns1:routingKey>
+      <ns1:autocreateObjects>F</ns1:autocreateObjects>
       <ns1:messages>
         <ns1:messageBody>Test message body</ns1:messageBody>
       </ns1:messages>
@@ -33,6 +36,7 @@ Transfer-Encoding: chunked
       <ns1:actAsSubjectLookup>
         <ns1:subjectId>test.subject.0</ns1:subjectId>
       </ns1:actAsSubjectLookup>
+      <ns1:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
     </ns1:sendMessage>
   </soapenv:Body>
 </soapenv:Envelope>
@@ -47,23 +51,22 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:sendMessageResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:38:28 GMT
+Date: Tue, 07 Aug 2018 17:36:09 GMT
 
-4cd
+4d3
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:sendMessageResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:sendMessageResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsMessageResults">
-        <ns:messageSystemName xsi:nil="true" />
+        <ns:messageSystemName></ns:messageSystemName>
         <ns:messages xsi:type="ns:WsMessage">
           <ns:fromMemberId xsi:nil="true" />
           <ns:id xsi:nil="true" />
@@ -78,7 +81,7 @@ Date: Tue, 21 Jun 2016 19:38:28 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -130,10 +133,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.SendMessage;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMessage;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMessageResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.SendMessage;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  * @author vsachdeva
@@ -189,7 +193,11 @@ public class WsSampleSendMessage implements WsSampleGenerated {
       sendMessage.setMessages(new WsMessage[] { wsMessage1, wsMessage2 });
       sendMessage.setQueueOrTopicName("def");
       sendMessage.setQueueType("queue");
-
+      sendMessage.setAutocreateObjects("F");
+      sendMessage.setMessageSystemName("");
+      sendMessage.setParams(new WsParam[]{null});
+      sendMessage.setRoutingKey("");
+      
       WsMessageResults wsMessageResults = stub.sendMessage(sendMessage).get_return();
 
       System.out.println(ToStringBuilder.reflectionToString(
@@ -223,9 +231,9 @@ public class WsSampleSendMessage implements WsSampleGenerated {
 #########################################
 
 
-WsMessageResults[localMessageSystemNameTracker=false,
-  localMessages={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMessage@775e6740,edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMessage@56ccd7f9},localMessagesTracker=true,localQueueOrTopicName=def,localQueueOrTopicNameTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@227748f4,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@45569cd9,localResultMetadataTracker=true]
+WsMessageResults[localMessageSystemName=,localMessageSystemNameTracker=true,
+  localMessages={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage@295d54d6,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage@398f0516},localMessagesTracker=true,localQueueOrTopicName=def,localQueueOrTopicNameTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@4a7db5a,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@56b66a26,localResultMetadataTracker=true]
 WsMessage[localFromMemberIdTracker=false,localIdTracker=false,localMessageBody=Test message body,localMessageBodyTracker=true]
 WsMessage[localFromMemberIdTracker=false,localIdTracker=false,localMessageBody=Test another message body,localMessageBodyTracker=true]

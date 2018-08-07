@@ -1,4 +1,4 @@
-Grouper web service sample of service: externalSubjectDelete, WsSampleExternalSubjectDelete, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: externalSubjectDelete, WsSampleExternalSubjectDelete, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: externalSubjectDelete, WsSampleExternalSu
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:externalSubjectDelete"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:externalSubjectDelete xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:externalSubjectDelete xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsExternalSubjectLookups>
         <ns1:identifier>a_ident@b.c</ns1:identifier>
       </ns1:wsExternalSubjectLookups>
@@ -42,32 +42,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:externalSubjectDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 02 Aug 2016 19:57:40 GMT
+Date: Mon, 06 Aug 2018 16:37:48 GMT
 
-86b
+793
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:externalSubjectDeleteResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:externalSubjectDeleteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsExternalSubjectDeleteResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.3.0, wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: Empty array</ns:resultMessage>
@@ -76,26 +75,23 @@ Date: Tue, 02 Aug 2016 19:57:40 GMT
         <ns:results xsi:type="ns:WsExternalSubjectDeleteResult">
           <ns:resultMetadata xsi:type="ns:WsResultMeta">
             <ns:params xsi:nil="true" />
-            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode>SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND</ns:resultCode>
             <ns:resultCode2 xsi:nil="true" />
-            <ns:resultMessage>ExternalSubject 'a_ident@b.c', 'My Name' was deleted.</ns:resultMessage>
+            <ns:resultMessage>Cant find external subject: 'WsExternalSubjectLookup[identifier=a_ident@b.c,
+externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]'.</ns:resultMessage>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsExternalSubject xsi:type="ns:WsExternalSubject">
-            <ns:description>[unverifiedInfo] My Name [externalUserID] a_ident@b.c</ns:description>
-            <ns:email>a@b.c</ns:email>
+            <ns:description xsi:nil="true" />
+            <ns:email xsi:nil="true" />
             <ns:enabled>T</ns:enabled>
             <ns:identifier>a_ident@b.c</ns:identifier>
             <ns:institution xsi:nil="true" />
-            <ns:name>My Name</ns:name>
-            <ns:searchStringLower>my name, a_ident@b.c, a@b.c</ns:searchStringLower>
-            <ns:uuid>f5c0c368c9934ff59c052d231a06d721</ns:uuid>
+            <ns:name xsi:nil="true" />
+            <ns:searchStringLower xsi:nil="true" />
+            <ns:uuid xsi:nil="true" />
             <ns:vettedEmailAddresses xsi:nil="true" />
-            <ns:wsExternalSubjectAttributes xsi:type="ns:WsExternalSubjectAttribute">
-              <ns:attributeSystemName>jabber</ns:attributeSystemName>
-              <ns:attributeValue>a_jabber@b.c</ns:attributeValue>
-              <ns:uuid>a1371bb1d7784a56ae522ecb8aeb391b</ns:uuid>
-            </ns:wsExternalSubjectAttributes>
+            <ns:wsExternalSubjectAttributes xsi:nil="true" />
           </ns:wsExternalSubject>
         </ns:results>
       </ns:return>
@@ -144,11 +140,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExternalSubjectDelete;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.ExternalSubjectDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 
 /**
@@ -237,9 +233,9 @@ public class WsSampleExternalSubjectDelete implements WsSampleGenerated {
 
 
 WsExternalSubjectDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@322c0ca2,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@69f17969,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectDeleteResult@d8a9586},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@748cec7c,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@94752eb,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectDeleteResult@a605498},localResultsTracker=true]
 WsExternalSubjectDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@5231bc5,localResultMetadataTracker=true,
-  localWsExternalSubject=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubject@43f42525,localWsExternalSubjectTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@2aff7f66,localResultMetadataTracker=true,
+  localWsExternalSubject=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubject@56f40e22,localWsExternalSubjectTracker=true]

@@ -1,4 +1,4 @@
-Grouper web service sample of service: receiveMessage, WsSampleReceiveMessageRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: receiveMessage, WsSampleReceiveMessageRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: receiveMessage, WsSampleReceiveMessageRes
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/messaging HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 110
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestReceiveMessageRequest":{
@@ -35,31 +35,30 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
+Content-Type: application/json;charset=UTF-8
 Content-Length: 229
-Date: Tue, 21 Jun 2016 19:38:02 GMT
+Date: Tue, 07 Aug 2018 17:24:40 GMT
 Connection: close
 
 {
   "WsMessageResults":{
+    "resultMetadata":{
+      "success":"T",
+      "resultCode":"SUCCESS",
+      "resultMessage":"0 messages were received from def"
+    },
+    "queueOrTopicName":"def",
     "messages":[
     ]
     ,
-    "queueOrTopicName":"def",
     "responseMetadata":{
-      "millis":"119",
-      "serverVersion":"2.3.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"0 messages were received from def",
-      "success":"T"
+      "serverVersion":"2.4.0",
+      "millis":"115"
     }
   }
 }
@@ -256,4 +255,4 @@ public class WsSampleReceiveMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: 0 messages were received from def
+Server version: 2.4.0, result code: SUCCESS, result message: 0 messages were received from def

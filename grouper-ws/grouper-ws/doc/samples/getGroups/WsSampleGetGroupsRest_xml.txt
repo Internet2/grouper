@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 289
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGetGroupsRequest>
   <subjectLookups>
@@ -40,15 +40,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:37:09 GMT
+Date: Mon, 06 Aug 2018 16:40:36 GMT
 Connection: close
 
 3ff
@@ -63,8 +62,8 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>5f329760c7b94adfa12942c8600d54f1</uuid>
-          <idIndex>10001</idIndex>
+          <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
+          <idIndex>10005</idIndex>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
@@ -73,8 +72,8 @@ Connection: close
           <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>46bff4af794844b88aaf1908d3bc57b9</uuid>
-          <idIndex>10002</idIndex>
+          <uuid>08cc1f2ccd3248ff801db35946e03823</uuid>
+          <idIndex>10006</idIndex>
         </WsGroup>
         <WsGroup>
           <extension>sysadmingroup</extension>
@@ -82,8 +81,8 @@ Connection: close
           <displayExtension>sysadmingroup</displayExtension>
           <displayName>etc:sysadmingroup</displayName>
           <name>etc:sysadmingroup</name>
-          <uuid>940231109ed34f7fa74ee8f052863835</uuid>
-          <idIndex>10005</idIndex>
+          <uuid>5cbabdd15c1d49ceae302f8e844b0009</uuid>
+          <idIndex>10009</idIndex>
         </WsGroup>
         <WsGroup>
           <extension>webServiceActAsGroup</extension>
@@ -93,8 +92,8 @@ Connection: close
           <displayExtension>webServiceActAsGroup</displayExtension>
           <displayName>etc:webServiceActAsGroup</displayName>
           <name>etc:webServiceActAsGroup</name>
-          <uuid>bb5743b462f449aca97506ae208db25a</uuid>
-          <idIndex>10004</idIndex>
+          <uuid>a3b9b6852757437981d39b7a14a0bfd7</uuid>
+          <idIndex>10008</idIndex>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -121,8 +120,8 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>5f329760c7b94adfa12942c8600d54f1</uuid>
-          <idIndex>10001</idIndex>
+          <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
+          <idIndex>10005</idIndex>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
@@ -133,8 +132,8 @@ Connection: close
 ion2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>46bff4af794844b88aaf1908d3bc57b9</uuid>
-          <idIndex>10002</idIndex>
+          <uuid>08cc1f2ccd3248ff801db35946e03823</uuid>
+          <idIndex>10006</idIndex>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -155,7 +154,7 @@ ion2</description>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.4.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
@@ -166,15 +165,15 @@ fieldName1: null
 , pointInTimeFrom: null, pointInTimeTo: null</resultMessage>
     <success>T</success>
   </resultMetadata
-de
+dd
 >
   <subjectAttributeNames>
     <string>description</string>
   </subjectAttributeNames>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>84</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>8</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsGetGroupsResults>
 0
@@ -358,7 +357,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

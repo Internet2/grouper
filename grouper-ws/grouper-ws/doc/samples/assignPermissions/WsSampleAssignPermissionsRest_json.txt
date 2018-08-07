@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,32 +9,32 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 245
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestAssignPermissionsRequest":{
+    "permissionType":"role",
+    "permissionAssignOperation":"assign_permission",
+    "roleLookups":[
+      {
+        "groupName":"aStem:role"
+      }
+    ]
+    ,
     "actions":[
       "write"
     ]
     ,
-    "permissionAssignOperation":"assign_permission",
     "permissionDefNameLookups":[
       {
         "name":"aStem:permissionDefName",
         "uuid":""
-      }
-    ]
-    ,
-    "permissionType":"role",
-    "roleLookups":[
-      {
-        "groupName":"aStem:role"
       }
     ]
   }
@@ -49,90 +49,102 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1656
-Date: Wed, 28 May 2014 22:57:49 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2025
+Date: Mon, 06 Aug 2018 16:36:15 GMT
 Connection: close
 
 {
   "WsAssignPermissionsResults":{
-    "responseMetadata":{
-      "millis":"173",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
+      "resultMessage":", Found 1 results."
     },
-    "wsAssignPermissionResults":[
+    "wsAttributeDefs":[
       {
-        "changed":"T",
-        "deleted":"F",
-        "wsAttributeAssigns":[
-          {
-            "attributeAssignActionId":"732ba47e04cf454e98af5ea794a25d88",
-            "attributeAssignActionName":"write",
-            "attributeAssignActionType":"immediate",
-            "attributeAssignDelegatable":"FALSE",
-            "attributeAssignType":"group",
-            "attributeDefId":"60ecae2f0408435f96200178d2c0e530",
-            "attributeDefName":"aStem:permissionDef",
-            "attributeDefNameId":"a8c4ed190435487d8004ae28240ff68a",
-            "attributeDefNameName":"aStem:permissionDefName",
-            "createdOn":"2014/05/28 18:57:49.444",
-            "disallowed":"F",
-            "enabled":"T",
-            "id":"bb88e05272794d5d93ec05333b284722",
-            "lastUpdated":"2014/05/28 18:57:49.444",
-            "ownerGroupId":"67fff4cda9b24788a3222d2dba362fe7",
-            "ownerGroupName":"aStem:role"
-          }
-        ]
+        "attributeDefType":"perm",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
+        "extension":"permissionDef",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"4d46bcc488724fc2b3a40b0b75e14a2b",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
+        "multiAssignable":"F",
+        "valueType":"marker",
+        "name":"aStem:permissionDef",
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10046",
+        "multiValued":"F",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
+      }
+    ]
+    ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"26"
+    },
+    "wsGroups":[
+      {
+        "displayExtension":"role",
+        "extension":"role",
+        "displayName":"a stem:role",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "idIndex":"10022",
+        "uuid":"c94e8975d1524eacb3e5f3a7b0b55086"
       }
     ]
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"60ecae2f0408435f96200178d2c0e530",
-        "attributeDefName":"aStem:permissionDef",
+        "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
         "displayExtension":"permissionDefName",
-        "displayName":"a stem:permissionDefName",
         "extension":"permissionDefName",
-        "idIndex":"10117",
+        "displayName":"a stem:permissionDefName",
         "name":"aStem:permissionDefName",
-        "uuid":"a8c4ed190435487d8004ae28240ff68a"
+        "attributeDefName":"aStem:permissionDef",
+        "idIndex":"10155",
+        "uuid":"397ea151404d489aae915be38d0f4b4f"
       }
     ]
     ,
-    "wsAttributeDefs":[
+    "wsAssignPermissionResults":[
       {
-        "attributeDefType":"perm",
-        "extension":"permissionDef",
-        "idIndex":"10033",
-        "multiAssignable":"F",
-        "multiValued":"F",
-        "name":"aStem:permissionDef",
-        "uuid":"60ecae2f0408435f96200178d2c0e530",
-        "valueType":"marker"
-      }
-    ]
-    ,
-    "wsGroups":[
-      {
-        "displayExtension":"role",
-        "displayName":"a stem:role",
-        "extension":"role",
-        "idIndex":"10008",
-        "name":"aStem:role",
-        "typeOfGroup":"role",
-        "uuid":"67fff4cda9b24788a3222d2dba362fe7"
+        "deleted":"F",
+        "wsAttributeAssigns":[
+          {
+            "attributeAssignDelegatable":"FALSE",
+            "disallowed":"F",
+            "createdOn":"2018/08/06 12:36:10.749",
+            "enabled":"T",
+            "attributeAssignType":"group",
+            "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
+            "lastUpdated":"2018/08/06 12:36:10.749",
+            "attributeAssignActionId":"73cb43e7d8634c3c968bf04ca892378e",
+            "ownerGroupName":"aStem:role",
+            "id":"55aed0f4e60c4e589d5ac132fee37d24",
+            "ownerGroupId":"c94e8975d1524eacb3e5f3a7b0b55086",
+            "attributeDefName":"aStem:permissionDef",
+            "attributeDefNameName":"aStem:permissionDefName",
+            "attributeAssignActionName":"write",
+            "attributeDefNameId":"397ea151404d489aae915be38d0f4b4f",
+            "attributeAssignActionType":"immediate"
+          }
+        ]
+        ,
+        "changed":"F"
       }
     ]
     ,
@@ -321,4 +333,4 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

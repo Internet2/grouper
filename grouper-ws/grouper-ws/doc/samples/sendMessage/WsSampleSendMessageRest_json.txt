@@ -1,4 +1,4 @@
-Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,19 +9,20 @@ Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/messaging HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 223
-Content-Type: text/x-json; charset=UTF-8
+Content-Length: 220
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestSendMessageRequest":{
     "actAsSubjectLookup":{
       "subjectId":"test.subject.0"
     },
+    "queueOrTopicName":"def",
     "messages":[
       {
         "messageBody":"Test message body"
@@ -31,8 +32,7 @@ Content-Type: text/x-json; charset=UTF-8
       }
     ]
     ,
-    "queueOrTopic":"queue",
-    "queueOrTopicName":"def"
+    "queueType":"queue"
   }
 }
 
@@ -45,19 +45,24 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
+Content-Type: application/json;charset=UTF-8
 Content-Length: 302
-Date: Tue, 21 Jun 2016 19:38:20 GMT
+Date: Tue, 07 Aug 2018 17:36:13 GMT
 Connection: close
 
 {
   "WsMessageResults":{
+    "resultMetadata":{
+      "success":"T",
+      "resultCode":"SUCCESS",
+      "resultMessage":"2 messages were sent to def"
+    },
+    "queueOrTopicName":"def",
     "messages":[
       {
         "messageBody":"Test message body"
@@ -67,15 +72,9 @@ Connection: close
       }
     ]
     ,
-    "queueOrTopicName":"def",
     "responseMetadata":{
-      "millis":"383",
-      "serverVersion":"2.3.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"2 messages were sent to def",
-      "success":"T"
+      "serverVersion":"2.4.0",
+      "millis":"207"
     }
   }
 }
@@ -182,7 +181,7 @@ public class WsSampleSendMessageRest implements WsSampleRest {
       
       sendMessageRequest.setMessages(new WsMessage[] {wsMessage1, wsMessage2});
       sendMessageRequest.setQueueOrTopicName("def");
-      sendMessageRequest.setQueueOrTopic("queue");
+      sendMessageRequest.setQueueType("queue");
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
       wsSubjectLookup.setSubjectId(SubjectTestHelper.SUBJ0.getId());
       sendMessageRequest.setActAsSubjectLookup(wsSubjectLookup);
@@ -277,4 +276,4 @@ public class WsSampleSendMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: 2 messages were sent to def
+Server version: 2.4.0, result code: SUCCESS, result message: 2 messages were sent to def

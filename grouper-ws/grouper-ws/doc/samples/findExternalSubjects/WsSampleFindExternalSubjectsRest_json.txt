@@ -1,4 +1,4 @@
-Grouper web service sample of service: findExternalSubjects, WsSampleFindExternalSubjectsRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: findExternalSubjects, WsSampleFindExternalSubjectsRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: findExternalSubjects, WsSampleFindExterna
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_1_005/externalSubjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/externalSubjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 148
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestFindExternalSubjectsRequest":{
@@ -39,46 +39,26 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 769
-Date: Tue, 02 Aug 2016 16:51:52 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 384
+Date: Mon, 06 Aug 2018 16:39:09 GMT
 Connection: close
 
 {
   "WsFindExternalSubjectsResults":{
-    "externalSubjectResults":[
-      {
-        "description":"null [externalUserID] a_ident@b.c",
-        "email":"a@b.c",
-        "enabled":"T",
-        "identifier":"a_ident@b.c",
-        "name":"My Name",
-        "searchStringLower":"my name, a_ident@b.c, a@b.c",
-        "uuid":"d6eae6311f92416887fde494d43257ba",
-        "wsExternalSubjectAttributes":[
-          {
-            "attributeSystemName":"jabber",
-            "attributeValue":"a_jabber@b.c",
-            "uuid":"e078d34510d64cba8bcb18c41dbb5f02"
-          }
-        ]
-      }
-    ]
-    ,
-    "responseMetadata":{
-      "millis":"18",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.5, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null\n, wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null\n, wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"6"
     }
   }
 }
@@ -258,6 +238,6 @@ public class WsSampleFindExternalSubjectsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.5, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null
 , wsExternalSubjectLookups: Array size: 1: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]

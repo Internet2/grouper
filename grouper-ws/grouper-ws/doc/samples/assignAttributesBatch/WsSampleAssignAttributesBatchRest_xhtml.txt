@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatchRest, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatchRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttr
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 2756
+Content-Length: 2751
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -98,19 +98,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 22:20:14 GMT
+Date: Mon, 06 Aug 2018 16:35:29 GMT
 Connection: close
 
-17f3
-<?xml version='1.0' encoding='iso-8859-1'?>
+2000
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -119,14 +118,14 @@ Connection: close
   <body>
     <div title="WsAssignAttributesBatchResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">117</p>
+        <p class="millis">27</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
 , paramNames:
 , params: null
 , wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],</p>
@@ -145,27 +144,27 @@ Connection: close
           <p class="valuesChanged">F</p>
           <ul class="wsAttributeAssigns">
             <li title="WsAttributeAssign">
-              <p class="attributeAssignActionId">20a2b284bc2341df8a04f92642778f22</p>
+              <p class="attributeAssignActionId">4b87e89855c44780bae4dfb3b71281e2</p>
               <p class="attributeAssignActionName">assign</p>
               <p class="attributeAssignActionType">immediate</p>
               <p class="attributeAssignDelegatable">FALSE</p>
               <p class="attributeAssignType">group</p>
-              <p class="attributeDefId">e5070a5081c94b768970fbbeb3901087</p>
+              <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
               <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-              <p class="attributeDefNameId">9113fb1008b548218d5dc18a3c01649a</p>
+              <p class="attributeDefNameId">ebb18ed6ee0f4577b5704805fceb7986</p>
               <p class="attributeDefNameName">test:testAttributeAssignDefName</p>
-              <p class="createdOn">2014/05/28 18:20:11.955</p>
+              <p class="createdOn">2018/08/06 12:34:54.147</p>
               <p class="disabledTime" />
               <p class="disallowed">F</p>
               <p class="enabled">T</p>
               <p class="enabledTime" />
-              <p class="id">c7f868959c5f44d4b742569fb2ec39aa</p>
-              <p class="lastUpdated">2014/05/28 18:20:11.955</p>
+              <p class="id">635f99e61f9e46a6b4e680fcecd1871f</p>
+              <p class="lastUpdated">2018/08/06 12:34:54.147</p>
               <p class="notes" />
               <p class="ownerAttributeAssignId" />
               <p class="ownerAttributeDefId" />
               <p class="ownerAttributeDefName" />
-              <p class="ownerGroupId">1200d9aa372e44ea9bafaa61a9a2e5bb</p>
+              <p class="ownerGroupId">1283a3268f654f5e95942676fa6d242f</p>
               <p class="ownerGroupName">test:groupTestAttrAssign</p>
               <p class="ownerMemberId" />
               <p class="ownerMemberSourceId" />
@@ -175,17 +174,274 @@ Connection: close
               <p class="ownerStemName" />
               <ul class="wsAttributeAssignValues">
                 <li title="WsAttributeAssignValue">
-                  <p class="id">10ada52a301745f09559def335910288</p>
+                  <p class="id">051987b270004731bb5a7cc513159412</p>
                   <p class="valueFormatted" />
                   <p class="valueSystem">15</p>
                 </li>
                 <li title="WsAttributeAssignValue">
-                  <p class="id">545b38a72f534ee2a8fa6b0733ff7bc8</p>
+                  <p class="id">0ed822d11544415db59ea97b43c58705</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">268e3c49a9a64d2f8c7245443e65fa91</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">3fe09e00e9d449c6a1d11b9c3bb29626</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">47490cba828948d1b3364a90ce05d4f1</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">4838e23fb6b74fa482d9133c29c8e957</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">58c53f70dda34fb8b28321c7ee096fd9</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">6eb17ac222174ced80e52e106365db06</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">737cc806208e4dc8924d7e0e2df1c342</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">741d7cd1d1e3413e969d2dadd3afc306</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">8a3d204397104dd4acbbba5f1bec037f</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">98cb4fa38d3c4564a41aad6596896113</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">9a1056b9642844c789d151bace8afbfc</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">b464ff6a18e74037aeba6016645039bd</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">b8fb7f2de8d1410dbec694daf408ee58</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">d5610e8478124f6da9822a1029ac0a7c</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">e5f7db40270d45858a37db4946169466</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">e85734757b9e44c1b570888596a5aa5e</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">04dc1670cd954aefa1ac2831bcbcd1af</p>
                   <p class="valueFormatted" />
                   <p class="valueSystem">5</p>
                 </li>
                 <li title="WsAttributeAssignValue">
-                  <p class="id">bfcae96220d349bcb8c933774cb42b78</p>
+                  <p class="id">05825eb830ef40d3917efb6074caa020</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">1a9c96549a764a1da1d11707e1e5d573</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">1ed52fb84c2d4b08a5bb44d52ac4a570</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">3e49be905bc2407089b001a71998f76d</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">419bc023f2f242af828cc54def877784</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">42cea855c5124f2ea1a56de8da25ee2c</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">4b2ceac7023744dfb7e0db2669bd51bf</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">4ed9d48ebd1c486cbbae5d37507ffb01</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">56e0b41a592a49c6836d1c0d5b63c535</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">574a7c6f91c34114a4de59078de005b9</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">5d89230527ba4542aedb22dd6cdc57b3</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">61c926d4ad984893b1b2d21e19ecb868</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">625c40b8ab594e0b9a19cf08b8210bc3</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">70272c9198d249c6b48a3646d220b955</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">7b89ba24a88d44d28ba8602a18c3cf5b</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">8740712f28bc4c04ae57b4f354a7a254</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">87461e794097488bb3ae10c605a96fb7</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">96c17a02955f4f37bcfff0af1c76485d</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p cl
+1719
+ass="id">a19153990e144eefbc4e4e6fc2f68300</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">c16bf85c093b4c68a789fe7c054206e5</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">cc4c8b2814434286bcc622811f4e4f83</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">cce0c90a9b6347958a3217c63431ff24</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">cf5de08ac7c343b58592fd7241e180a5</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">d5373b2c2a8b42d3972a8335faa40f11</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">da23a7adecaf47b8874292d861ee029e</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">dd37edafe5b244ba8bcc66c8415b0bca</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">de21162274d64ed08a0370bb8915e6b2</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">e5cd3605a179422cbbc4f5b14625a14e</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">e65ffaa874af442b8a9de6cf1caf310f</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">ebb03c28fa8f401bb83e54db8fd96e35</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">eeeac16c51854f1cb2f35e6bcde35403</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">f2ca01a7c79b43c49a4d46f638713b4f</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">f2e29bc3914149cfabb1ada2e347904f</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">fb60555ec8c845989af9cfd7322635a1</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">fc9e8a4ccf914931a3f68502aadf0ec3</p>
                   <p class="valueFormatted" />
                   <p class="valueSystem">5</p>
                 </li>
@@ -205,24 +461,24 @@ Connection: close
           <p class="valuesChanged">F</p>
           <ul class="wsAttributeAssigns">
             <li title="WsAttributeAssign">
-              <p class="attributeAssignActionId">ccf8eb8c87604e43bfde4dcbefe653e9</p>
+              <p class="attributeAssignActionId">8e79a0a39b0848f3a138ff24c9668ae4</p>
               <p class="attributeAssignActionName">assign</p>
               <p class="attributeAssignActionType">immediate</p>
               <p class="attributeAssignDelegatable">FALSE</p>
               <p class="attributeAssignType">group_asgn</p>
-              <p class="attributeDefId">dc5ed4dfe80b4ee9840574f8fa66578a</p>
+              <p class="attributeDefId">66e63dafcd504859a8278b512d95aa39</p>
               <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
-              <p class="attributeDefNameId">4441a493215544ae880ba0960901593c</p>
+              <p class="attributeDefNameId">12509178aa134ca6b5a3afdef93dce26</p>
               <p class="attributeDefNameName">test:testAttributeAssignAssignName</p>
-              <p class="createdOn">2014/05/28 18:20:11.996</p>
+              <p class="createdOn">2018/08/06 12:34:54.176</p>
               <p class="disabledTime" />
               <p class="disallowed">F</p>
               <p class="enabled">T</p>
               <p class="enabledTime" />
-              <p class="id">e5404a1fe9ae4829b7d4e0fae656fc97</p>
-              <p class="lastUpdated">2014/05/28 18:20:11.996</p>
+              <p class="id">843fcf6d91b24113914daeea59f5a1a8</p>
+              <p class="lastUpdated">2018/08/06 12:34:54.176</p>
               <p class="notes" />
-              <p class="ownerAttributeAssignId">c7f868959c5f44d4b742569fb2ec39aa</p>
+              <p class="ownerAttributeAssignId">635f99e61f9e46a6b4e680fcecd1871f</p>
               <p class="ownerAttributeDefId" />
               <p class="ownerAttributeDefName" />
               <p class="ownerGroupId" />
@@ -239,41 +495,54 @@ Connection: close
       </ul>
       <ul class="wsAttributeDefNames">
         <li title="WsAttributeDefName">
-          <p class="attributeDefId">e5070a5081c94b768970fbbeb3901087</p>
+          <p class="attributeDefId">431a9914cdba4564ad5943c7ec7de988</p>
           <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
           <p class="description" />
           <p class="displayExtension">testAttributeAssignDefName</p>
           <p class="displayName">test:testAttributeAssignDefName</p>
           <p class="extension">testAttributeAssignDefName</p>
-          <p class="idIndex">10115</p>
+          <p class="idIndex">10153</p>
           <p class="name">test:testAttributeAssignDefName</p>
-          <p class="uuid">9113fb1008b548218d5dc18a3c01649a</p>
+          <p class="uuid">ebb18ed6ee0f4577b5704805fceb7986</p>
         </li>
       </ul>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
+          <p class="assignToAttributeDef">F</p>
+          <p class="assignToAttributeDefAssignment">F</p>
+          <p class="assignToEffectiveMembership">F</p>
+          <p class="assignToEffectiveMembershipAssignment">F</p>
+          <p class="assignToGroup">F</p>
+          <p class="assignToGroupAssignment">F</p>
+          <p class="assignToImmediateMembership">F</p>
+          <p class="assignToImmediateMembershipAssignment">F</p>
+          <p class="assignToMember">F</p>
+          <p class="assignToMemberAssignment">F</p>
+          <p class="assignToStem">F</p>
+          <p class="assignToStemAssignment">F</p>
           <p class="attributeDefType">attr</p>
           <p class="description" />
           <p class="extension">testAttributeAssignDefNameDef</p>
-          <p class="idIndex">10031</p>
+          <p class="idIndex">10044</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">T</p>
           <p class="name">test:testAttributeAssignDefNameDef</p>
-          <p class="uuid">e5070a5081c94b768970fbbeb3901087</p>
+          <p class="uuid">431a9914cdba4564ad5943c7ec7de988</p>
           <p class="valueType">integer</p>
         </li>
       </ul>
       <ul class="wsGroups">
         <li title="WsGroup">
+          <p class="alternateName" />
           <p class="description">description</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="displayExtension">groupTestAttrAssign</p>
           <p class="displayName">test:groupTestAttrAssign</p>
           <p class="extension">groupTestAttrAssign</p>
-          <p class="idIndex">10006</p>
+          <p class="idIndex">10020</p>
           <p class="name">test:groupTestAttrAssign</p>
           <p class="typeOfGroup">group</p>
-          <p class="uuid">1200d9aa372e44ea9bafaa61a9a2e5bb</p>
+          <p class="uuid">1283a3268f654f5e95942676fa6d242f</p>
         </li>
       </ul>
     </div>
@@ -517,23 +786,23 @@ public class WsSampleAssignAttributesBatchRest implements WsSampleRest {
 
 
 WsAssignAttributesBatchResults[
-  wsAttributeDefs={WsAttributeDef[idIndex=10031,extension=testAttributeAssignDefNameDef,name=test:testAttributeAssignDefNameDef,uuid=e5070a5081c94b768970fbbeb3901087,attributeDefType=attr,multiAssignable=F,multiValued=T,valueType=integer]},
-  wsAttributeDefNames={WsAttributeDefName[idIndex=10115,extension=testAttributeAssignDefName,displayExtension=testAttributeAssignDefName,displayName=test:testAttributeAssignDefName,name=test:testAttributeAssignDefName,uuid=9113fb1008b548218d5dc18a3c01649a,attributeDefId=e5070a5081c94b768970fbbeb3901087,attributeDefName=test:testAttributeAssignDefNameDef]},
-  wsAssignAttributeBatchResultArray={edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@1c1e9a0,edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@61d10846},
-  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+  wsAttributeDefs={WsAttributeDef[idIndex=10044,extension=testAttributeAssignDefNameDef,name=test:testAttributeAssignDefNameDef,uuid=431a9914cdba4564ad5943c7ec7de988,attributeDefType=attr,multiAssignable=F,multiValued=T,valueType=integer,assignToAttributeDef=F,assignToAttributeDefAssignment=F,assignToEffectiveMembership=F,assignToEffectiveMembershipAssignment=F,assignToGroup=F,assignToGroupAssignment=F,assignToImmediateMembership=F,assignToImmediateMembershipAssignment=F,assignToMember=F,assignToMemberAssignment=F,assignToStem=F,assignToStemAssignment=F]},
+  wsAttributeDefNames={WsAttributeDefName[idIndex=10153,extension=testAttributeAssignDefName,displayExtension=testAttributeAssignDefName,displayName=test:testAttributeAssignDefName,name=test:testAttributeAssignDefName,uuid=ebb18ed6ee0f4577b5704805fceb7986,attributeDefId=431a9914cdba4564ad5943c7ec7de988,attributeDefName=test:testAttributeAssignDefNameDef]},
+  wsAssignAttributeBatchResultArray={edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@516bcc7f,edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@45abf1ec},
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.4.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
 , paramNames: 
 , params: null
 , wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],,success=T,httpStatusCode=500],
-  responseMetadata=WsResponseMeta[millis=117,millisStart=0,serverVersion=2.2.0],
-  wsGroups={WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=1200d9aa372e44ea9bafaa61a9a2e5bb,idIndex=10006]}]
+  responseMetadata=WsResponseMeta[millis=27,millisStart=0,serverVersion=2.4.0],
+  wsGroups={WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=1283a3268f654f5e95942676fa6d242f,idIndex=10020]}]
 WsAssignAttributeBatchResult[changed=F,valuesChanged=F,deleted=F,
   resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=, Found 1 results.,success=T,httpStatusCode=500],
-  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@1b1e4cd5}]
+  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@2248378e}]
 WsAssignAttributeBatchResult[changed=F,valuesChanged=F,deleted=F,
   resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=, Found 1 results.,success=T,httpStatusCode=500],
-  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@7f9bad2e}]
-WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=1200d9aa372e44ea9bafaa61a9a2e5bb,idIndex=10006]
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@2ca3020f}]
+WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=1283a3268f654f5e95942676fa6d242f,idIndex=10020]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
 , paramNames: 
 , params: null
 , wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],

@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.2.0
+Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 176
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestFindGroupsLiteRequest>
   <queryFilterType>FIND_BY_GROUP_NAME_APPROXIMATE</queryFilterType>
@@ -32,15 +32,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:21:35 GMT
+Date: Mon, 06 Aug 2018 16:39:26 GMT
 Connection: close
 
 3fe
@@ -53,8 +52,8 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>9fbc3462635c4d3fa5b81110adc29601</uuid>
-      <idIndex>10001</idIndex>
+      <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
+      <idIndex>10005</idIndex>
     </WsGroup>
     <WsGroup>
       <extension>aGroup2</extension>
@@ -63,13 +62,13 @@ Connection: close
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>6d463ce63d094f469d26ba8adde53e82</uuid>
-      <idIndex>10002</idIndex>
+      <uuid>08cc1f2ccd3248ff801db35946e03823</uuid>
+      <idIndex>10006</idIndex>
     </WsGroup>
   </groupResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+    <resultMessage>Success for: clientVersion: 2.4.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: null, paramNames:
 , params: null
 , wsGroupLookups: null</resultMessage>
@@ -79,8 +78,8 @@ Connection: close
 92
 responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>68</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>28</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsFindGroupsResults>
 0
@@ -257,7 +256,7 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: null, paramNames: 
 , params: null
 , wsGroupLookups: null

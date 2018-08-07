@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 931
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAttributeDefNameSaveRequest>
   <wsAttributeDefNameToSaves>
@@ -50,15 +50,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:06:21 GMT
+Date: Mon, 06 Aug 2018 16:37:02 GMT
 Connection: close
 
 3ff
@@ -66,14 +65,14 @@ Connection: close
   <results>
     <WsAttributeDefNameSaveResult>
       <wsAttributeDefName>
-        <idIndex>10150</idIndex>
+        <idIndex>10210</idIndex>
         <extension>testAttributeAssignDefNameToSave1Rest_xml</extension>
         <displayExtension>My new attribute def name to save 1 rest xml</displayExtension>
         <description>This is a description 1 rest xml</description>
         <displayName>test:My new attribute def name to save 1 rest xml</displayName>
         <name>test:testAttributeAssignDefNameToSave1Rest_xml</name>
-        <uuid>354f64383559411890d21dcd877ebc60</uuid>
-        <attributeDefId>03bef7f0aa8d45e787711424e314a98f</attributeDefId>
+        <uuid>d9a76f79806441a2bec48a83e8dbf803</uuid>
+        <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
       </wsAttributeDefName>
       <resultMetadata>
@@ -83,7 +82,7 @@ Connection: close
     </WsAttributeDefNameSaveResult>
     <WsAttributeDefNameSaveResult>
       <wsAttributeDefName>
-        <idIndex>10130</idIndex>
+        <idIndex>10211</idIndex>
         <extension>testAttributeAssignDefNameToSave2Rest_xml</extension>
         <displayExtension>My new attribute def name to save 2 rest xml</displayExtension>
         <description>This is a d
@@ -91,8 +90,8 @@ Connection: close
 escription 2 rest xml</description>
         <displayName>test:My new attribute def name to save 2 rest xml</displayName>
         <name>test:testAttributeAssignDefNameToSave2Rest_xml</name>
-        <uuid>8b79499e62a04274af8fd2e8d1056e60</uuid>
-        <attributeDefId>03bef7f0aa8d45e787711424e314a98f</attributeDefId>
+        <uuid>5186e8d7a45f44bc8050a507d8461784</uuid>
+        <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
       </wsAttributeDefName>
       <resultMetadata>
@@ -103,7 +102,7 @@ escription 2 rest xml</description>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+    <resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xml,description=This is a description 1 rest xml,name...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
@@ -114,8 +113,8 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
     </
 7a
 resultWarnings>
-    <millis>263</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>213</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefNameSaveResults>
 0
@@ -321,7 +320,7 @@ public class WsSampleAttributeDefNameSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xml,description=This is a description 1 rest xml,name...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

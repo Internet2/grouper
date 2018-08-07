@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: json, for version: 2.3.0
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,23 +9,23 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
 Content-Length: 1160
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGroupSaveRequest":{
     "wsGroupToSaves":[
       {
         "wsGroup":{
-          "description":"whateverGroupLeftDesc",
           "displayExtension":"whateverGroupLeftDispExt",
           "extension":"whateverGroupLeft",
-          "name":"aStem:whateverGroupLeft"
+          "name":"aStem:whateverGroupLeft",
+          "description":"whateverGroupLeftDesc"
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroupLeft"
@@ -34,10 +34,10 @@ Content-Type: text/x-json; charset=UTF-8
       },
       {
         "wsGroup":{
-          "description":"whateverGroupRightDesc",
           "displayExtension":"whateverGroupRightDispExt",
           "extension":"whateverGroupRight",
-          "name":"aStem:whateverGroupRight"
+          "name":"aStem:whateverGroupRight",
+          "description":"whateverGroupRightDesc"
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroupRight"
@@ -46,41 +46,42 @@ Content-Type: text/x-json; charset=UTF-8
       },
       {
         "wsGroup":{
+          "displayExtension":"disp1",
+          "extension":"whateverGroup",
+          "name":"aStem:whateverGroup",
           "description":"desc1",
           "detail":{
-            "attributeNames":[
-              "attr_1",
-              "attr2_1"
-            ]
-            ,
             "attributeValues":[
               "val_1",
               "val2_1"
             ]
             ,
-            "compositeType":"intersection",
-            "hasComposite":"T",
-            "leftGroup":{
-              "description":"whateverGroupLeftDesc",
-              "displayExtension":"whateverGroupLeftDispExt",
-              "extension":"whateverGroupLeft",
-              "name":"aStem:whateverGroupLeft"
-            },
-            "rightGroup":{
-              "description":"whateverGroupRightDesc",
-              "displayExtension":"whateverGroupRightDispExt",
-              "extension":"whateverGroupRight",
-              "name":"aStem:whateverGroupRight"
-            },
             "typeNames":[
               "aType",
               "aType2"
             ]
-            
-          },
-          "displayExtension":"disp1",
-          "extension":"whateverGroup",
-          "name":"aStem:whateverGroup"
+            ,
+            "attributeNames":[
+              "attr_1",
+              "attr2_1"
+            ]
+            ,
+            "rightGroup":{
+              "displayExtension":"whateverGroupRightDispExt",
+              "extension":"whateverGroupRight",
+              "name":"aStem:whateverGroupRight",
+              "description":"whateverGroupRightDesc"
+            },
+            "hasComposite":"T",
+            "leftGroup":{
+              "displayExtension":"whateverGroupLeftDispExt",
+              "extension":"whateverGroupLeft",
+              "name":"aStem:whateverGroupLeft",
+              "description":"whateverGroupLeftDesc"
+            },
+            "compositeType":"intersection"
+          }
+          
         },
         "wsGroupLookup":{
           "groupName":"aStem:whateverGroup"
@@ -99,77 +100,76 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1507
-Date: Tue, 12 Apr 2016 18:46:26 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1533
+Date: Mon, 06 Aug 2018 15:24:02 GMT
 Connection: close
 
 {
   "WsGroupSaveResults":{
-    "responseMetadata":{
-      "millis":"820",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"57"
     },
     "results":[
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
         },
         "wsGroup":{
-          "description":"whateverGroupLeftDesc",
           "displayExtension":"whateverGroupLeftDispExt",
-          "displayName":"a stem:whateverGroupLeftDispExt",
           "extension":"whateverGroupLeft",
-          "idIndex":"10034",
+          "displayName":"a stem:whateverGroupLeftDispExt",
           "name":"aStem:whateverGroupLeft",
+          "description":"whateverGroupLeftDesc",
           "typeOfGroup":"group",
-          "uuid":"8a26731cfbac4865ad7ea36ea8c0814c"
+          "idIndex":"10051",
+          "uuid":"0002fcb01ed14407ba7dd3db1f84ae03"
         }
         
       },
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
         },
         "wsGroup":{
-          "description":"whateverGroupRightDesc",
           "displayExtension":"whateverGroupRightDispExt",
-          "displayName":"a stem:whateverGroupRightDispExt",
           "extension":"whateverGroupRight",
-          "idIndex":"10035",
+          "displayName":"a stem:whateverGroupRightDispExt",
           "name":"aStem:whateverGroupRight",
+          "description":"whateverGroupRightDesc",
           "typeOfGroup":"group",
-          "uuid":"c439e1ea5d5a4bcb9e8b601feaa3c0b0"
+          "idIndex":"10052",
+          "uuid":"104d12e7140b481fb03bca2d997b7acf"
         }
         
       },
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
         },
         "wsGroup":{
-          "description":"desc1",
           "displayExtension":"disp1",
-          "displayName":"a stem:disp1",
           "extension":"whateverGroup",
-          "idIndex":"10036",
+          "displayName":"a stem:disp1",
           "name":"aStem:whateverGroup",
+          "description":"desc1",
           "typeOfGroup":"group",
-          "uuid":"bb7837f826744e0286d83076b9a3f41a"
+          "idIndex":"10038",
+          "uuid":"0b957bb1336e4a9a87e1557d67c0fa15"
         }
       }
     ]
@@ -389,7 +389,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
   wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
 , actAsSubject: null, txType: NONE, paramNames: 

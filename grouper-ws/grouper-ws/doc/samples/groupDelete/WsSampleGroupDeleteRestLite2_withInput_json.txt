@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.2.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,18 +9,18 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/groups/aStem%3AaGroup123 HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 92
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGroupDeleteLiteRequest":{
-    "actAsSubjectId":"GrouperSystem",
-    "includeGroupDetail":"T"
+    "includeGroupDetail":"T",
+    "actAsSubjectId":"GrouperSystem"
   }
 }
 
@@ -33,31 +33,30 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
+Content-Type: application/json;charset=UTF-8
 Content-Length: 603
-Date: Thu, 29 May 2014 00:09:58 GMT
+Date: Mon, 06 Aug 2018 16:42:43 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
-    "responseMetadata":{
-      "millis":"31",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'."
     },
     "wsGroup":{
       "extension":"aGroup123",
       "name":"aStem:aGroup123"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"11"
     }
   }
 }
@@ -234,7 +233,7 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+Server version: 2.4.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,

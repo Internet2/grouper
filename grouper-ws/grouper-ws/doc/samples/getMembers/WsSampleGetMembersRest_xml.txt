@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 270
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGetMembersRequest>
   <wsGroupLookups>
@@ -39,15 +39,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:46:04 GMT
+Date: Mon, 06 Aug 2018 16:41:10 GMT
 Connection: close
 
 3ff
@@ -59,7 +58,7 @@ Connection: close
   </subjectAttributeNames>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+    <resultMessage>Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid
@@ -73,8 +72,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>92</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>15</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <results>
     <WsGetMembersResult>
@@ -84,25 +83,13 @@ Connection: close
         <displayExtension>a group</displayExtension>
         <description>a group description</description>
         <displayName>a
-3fc
+3ff
 stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>a3194a14986c4132a7b6da48a8966a30</uuid>
-        <idIndex>10001</idIndex>
+        <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
+        <idIndex>10005</idIndex>
       </wsGroup>
       <wsSubjects>
-        <WsSubject>
-          <resultCode>SUCCESS</resultCode>
-          <success>T</success>
-          <id>10039438</id>
-          <name>10039438</name>
-          <sourceId>jdbc</sourceId>
-          <attributeValues>
-            <string></string>
-            <string></string>
-            <string>10039438</string>
-          </attributeValues>
-        </WsSubject>
         <WsSubject>
           <resultCode>SUCCESS</resultCode>
           <success>T</success>
@@ -112,7 +99,19 @@ stem:a group</displayName>
           <attributeValues>
             <string>GrouperSysAdmin</string>
             <string></string>
-            <string>EveryEntity</string>
+            <string>GrouperSysAdmin</string>
+          </attributeValues>
+        </WsSubject>
+        <WsSubject>
+          <resultCode>SUCCESS</resultCode>
+          <success>T</success>
+          <id>test.subject.1</id>
+          <name>my name is test.subject.1</name>
+          <sourceId>jdbc</sourceId>
+          <attributeValues>
+            <string>description.test.subject.1</string>
+            <string>id.test.subject.1</string>
+            <string>my name is test.subject.1</string>
           </attributeValues>
         </WsSubject>
         <WsSubject>
@@ -125,6 +124,20 @@ stem:a group</displayName>
             <string></string>
             <string></string>
             <string>10021368</string>
+          </attributeValues>
+        </WsSubject>
+        <WsSubject>
+          <resultCode>SUCCESS</resultCode>
+          <success>T</success>
+          <id>
+13c
+10039438</id>
+          <name>10039438</name>
+          <sourceId>jdbc</sourceId>
+          <attributeValues>
+            <string></string>
+            <string></string>
+            <string>10039438</string>
           </attributeValues>
         </WsSubject>
       </wsSubjects>
@@ -330,7 +343,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid

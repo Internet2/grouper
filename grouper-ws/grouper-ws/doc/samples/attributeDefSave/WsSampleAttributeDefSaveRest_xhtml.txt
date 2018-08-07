@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 2625
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -103,18 +103,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:33:56 GMT
+Date: Mon, 06 Aug 2018 16:37:11 GMT
 Connection: close
 
-ce4
+ce3
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -124,14 +123,14 @@ ce4
   <body>
     <div title="WsAttributeDefSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">2806</p>
+        <p class="millis">171</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
 wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name=test1:testAttributeDef_xhtml,attributeDefType=attr,multiAssignable=F,mul...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</p>
@@ -161,11 +160,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
             <p class="attributeDefType">attr</p>
             <p class="description">This is a description1 rest xhtml</p>
             <p class="extension">testAttributeDef_xhtml</p>
-            <p class="idIndex">10048</p>
+            <p class="idIndex">10069</p>
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributeDef_xhtml</p>
-            <p class="uuid">00cccd5247a643c2b39cdc4041d8c4de</p>
+            <p class="uuid">ba405edde8304bf4a8f2e2b2b996cc53</p>
             <p class="valueType">string</p>
           </div>
         </li>
@@ -192,11 +191,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
             <p class="attributeDefType">attr</p>
             <p class="description">This is a description2 rest xhtml</p>
             <p class="extension">testAttributDef2ToSave1Rest_xhtml</p>
-            <p class="idIndex">10049</p>
+            <p class="idIndex">10070</p>
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributDef2ToSave1Rest_xhtml</p>
-            <p class="uuid">3ba72645107743298e2853cb5463c756</p>
+            <p class="uuid">7147e64f22124a39b7de9bba19eaa814</p>
             <p class="valueType">string</p>
           </div>
         </li>
@@ -424,7 +423,7 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
   wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name=test1:testAttributeDef_xhtml,attributeDefType=attr,multiAssignable=F,mul...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

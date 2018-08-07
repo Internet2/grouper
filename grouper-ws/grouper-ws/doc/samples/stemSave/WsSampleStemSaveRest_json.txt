@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,23 +9,23 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 380
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestStemSaveRequest":{
     "wsStemToSaves":[
       {
         "wsStem":{
-          "description":"desc1",
           "displayExtension":"disp1",
           "extension":"whateverStem",
-          "name":"aStem:whateverStem"
+          "name":"aStem:whateverStem",
+          "description":"desc1"
         },
         "wsStemLookup":{
           "stemName":"aStem:whateverStem"
@@ -34,10 +34,10 @@ Content-Type: text/x-json; charset=UTF-8
       },
       {
         "wsStem":{
-          "description":"descs",
           "displayExtension":"disp2",
           "extension":"whateverStem2",
-          "name":"aStem:whateverStem2"
+          "name":"aStem:whateverStem2",
+          "description":"descs"
         },
         "wsStemLookup":{
           "stemName":"aStem:whateverStem2"
@@ -56,58 +56,57 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1032
-Date: Thu, 29 May 2014 00:36:41 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1049
+Date: Mon, 06 Aug 2018 16:44:03 GMT
 Connection: close
 
 {
   "WsStemSaveResults":{
-    "responseMetadata":{
-      "millis":"448",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],\n  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],\n  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"11"
     },
     "results":[
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
         },
         "wsStem":{
-          "description":"desc1",
           "displayExtension":"disp1",
-          "displayName":"a stem:disp1",
           "extension":"whateverStem",
-          "idIndex":"10038",
+          "displayName":"a stem:disp1",
           "name":"aStem:whateverStem",
-          "uuid":"7b61a70f28f145d6b2dd982cad78b757"
+          "description":"desc1",
+          "idIndex":"10046",
+          "uuid":"ff43c1b175aa438393934896604b75c6"
         }
         
       },
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
         },
         "wsStem":{
-          "description":"descs",
           "displayExtension":"disp2",
-          "displayName":"a stem:disp2",
           "extension":"whateverStem2",
-          "idIndex":"10039",
+          "displayName":"a stem:disp2",
           "name":"aStem:whateverStem2",
-          "uuid":"d9213615faf642749a22b71dd8037d85"
+          "description":"descs",
+          "idIndex":"10047",
+          "uuid":"f506163dbb9a46cba7a8831e45cf1ef0"
         }
       }
     ]
@@ -307,7 +306,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
   wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 

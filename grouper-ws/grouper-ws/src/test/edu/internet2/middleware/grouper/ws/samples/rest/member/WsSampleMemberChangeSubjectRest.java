@@ -28,7 +28,9 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
@@ -131,16 +133,19 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
       
+      EhcacheController.ehcacheController().flushCache();
+
       GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
       boolean startedSession = false;
       if (grouperSession == null) {
         grouperSession = GrouperSession.startRootSession();
         startedSession = true;
       }
+      
       try {
         //lets make sure the old member was deleted
         try {
-          GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+          Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
           throw new RuntimeException("Should not find renamed member: test.subject.0!");
         } catch (MemberNotFoundException mnfe) {
           //good

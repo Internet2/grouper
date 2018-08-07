@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite,
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v2_2_000/subjects/test.subject.0 HTTP/1.1
+GET /grouper-ws/servicesRest/json/v2_4_000/subjects/test.subject.0 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -24,38 +24,36 @@ Host: localhost:8092
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 307
-Date: Thu, 29 May 2014 00:03:07 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 306
+Date: Mon, 06 Aug 2018 16:42:17 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
-    "responseMetadata":{
-      "millis":"10",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Queried 1 subjects",
-      "success":"T"
+      "resultMessage":"Queried 1 subjects"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"1"
     },
     "wsSubjects":[
       {
-        "id":"test.subject.0",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.0",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.0"
       }
     ]
   }
@@ -208,4 +206,4 @@ public class WsSampleGetSubjectsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Queried 1 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Queried 1 subjects

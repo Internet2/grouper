@@ -1,4 +1,4 @@
-Grouper web service sample of service: acknowledgeMessage, WsSampleAcknowledgeMessage, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: acknowledgeMessage, WsSampleAcknowledgeMessage, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: acknowledgeMessage, WsSampleAcknowledgeMe
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:acknowledge"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,11 +20,11 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:acknowledge xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:acknowledge xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:queueOrTopicName>def</ns1:queueOrTopicName>
       <ns1:acknowledgeType>mark_as_processed</ns1:acknowledgeType>
-      <ns1:messageIds>164b6ef01c1f46079a2d19b324ef57e1</ns1:messageIds>
+      <ns1:messageIds>0efb3a7e9d4843889eeaaef2eb2c8a0c</ns1:messageIds>
       <ns1:actAsSubjectLookup>
         <ns1:subjectId>test.subject.0</ns1:subjectId>
       </ns1:actAsSubjectLookup>
@@ -42,29 +42,28 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:acknowledgeResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:33:08 GMT
+Date: Tue, 07 Aug 2018 17:39:14 GMT
 
 3d9
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:acknowledgeResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:acknowledgeResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsMessageAcknowledgeResults">
-        <ns:messageIds>164b6ef01c1f46079a2d19b324ef57e1</ns:messageIds>
+        <ns:messageIds>0efb3a7e9d4843889eeaaef2eb2c8a0c</ns:messageIds>
         <ns:messageSystemName xsi:nil="true" />
         <ns:queueOrTopicName>def</ns:queueOrTopicName>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -116,10 +115,10 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.Acknowledge;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AcknowledgeResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMessageAcknowledgeResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.Acknowledge;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AcknowledgeResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageAcknowledgeResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
@@ -219,4 +218,4 @@ public class WsSampleAcknowledgeMessage implements WsSampleGenerated {
 
 
 AcknowledgeResponse[
-  local_return=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsMessageAcknowledgeResults@22b75500,local_returnTracker=true]
+  local_return=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageAcknowledgeResults@48aa0813,local_returnTracker=true]

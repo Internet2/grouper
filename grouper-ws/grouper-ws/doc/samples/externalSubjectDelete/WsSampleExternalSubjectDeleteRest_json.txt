@@ -1,4 +1,4 @@
-Grouper web service sample of service: externalSubjectDelete, WsSampleExternalSubjectDeleteRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: externalSubjectDelete, WsSampleExternalSubjectDeleteRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: externalSubjectDelete, WsSampleExternalSu
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_1_005/externalSubjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/externalSubjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 131
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestExternalSubjectDeleteRequest":{
@@ -39,62 +39,49 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1273
-Date: Tue, 02 Aug 2016 19:57:57 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1047
+Date: Mon, 06 Aug 2018 16:37:51 GMT
 Connection: close
 
 {
   "WsExternalSubjectDeleteResults":{
-    "responseMetadata":{
-      "millis":"32",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.5, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]\n[1]: WsExternalSubjectLookup[identifier=doesntExist@b.c]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]\n[1]: WsExternalSubjectLookup[identifier=doesntExist@b.c]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"5"
     },
     "results":[
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS",
-          "resultMessage":"ExternalSubject 'a_ident@b.c', 'My Name' was deleted.",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND",
+          "resultMessage":"Cant find external subject: 'WsExternalSubjectLookup[identifier=a_ident@b.c,\n  externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]'."
         },
         "wsExternalSubject":{
-          "description":"[unverifiedInfo] My Name [externalUserID] a_ident@b.c",
-          "email":"a@b.c",
-          "enabled":"T",
           "identifier":"a_ident@b.c",
-          "name":"My Name",
-          "searchStringLower":"my name, a_ident@b.c, a@b.c",
-          "uuid":"cbeff60e48d545f48ef04e6681ab4888",
-          "wsExternalSubjectAttributes":[
-            {
-              "attributeSystemName":"jabber",
-              "attributeValue":"a_jabber@b.c",
-              "uuid":"f5e1004fdc144d38970de6ab4a41004f"
-            }
-          ]
+          "enabled":"T"
         }
         
       },
       {
         "resultMetadata":{
+          "success":"T",
           "resultCode":"SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND",
-          "resultMessage":"Cant find external subject: 'WsExternalSubjectLookup[identifier=doesntExist@b.c,\n  externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]'.",
-          "success":"T"
+          "resultMessage":"Cant find external subject: 'WsExternalSubjectLookup[identifier=doesntExist@b.c,\n  externalSubjectFindResult=EXTERNAL_SUBJECT_NOT_FOUND]'."
         },
         "wsExternalSubject":{
-          "enabled":"T",
-          "identifier":"doesntExist@b.c"
+          "identifier":"doesntExist@b.c",
+          "enabled":"T"
         }
       }
     ]
@@ -274,7 +261,7 @@ public class WsSampleExternalSubjectDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.5, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsExternalSubjectLookups: Array size: 2: [0]: WsExternalSubjectLookup[identifier=a_ident@b.c]
 [1]: WsExternalSubjectLookup[identifier=doesntExist@b.c]
 
 , actAsSubject: null, txType: NONE, paramNames: 

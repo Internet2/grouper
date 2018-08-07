@@ -9,13 +9,13 @@ Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAt
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 108
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGetAttributeAssignActionsLiteRequest":{
@@ -32,30 +32,70 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 227
-Date: Tue, 21 Jun 2016 15:38:24 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1240
+Date: Mon, 06 Aug 2018 16:38:28 GMT
 Connection: close
 
 {
   "WsGetAttributeAssignActionsResults":{
-    "responseMetadata":{
-      "millis":"37",
-      "serverVersion":"2.4.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 0 results.",
-      "success":"T"
+      "resultMessage":", Found 3 results."
     },
     "wsAttributeAssignActionTuples":[
+      {
+        "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
+        "action":"view",
+        "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
+      },
+      {
+        "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
+        "action":"read",
+        "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
+      },
+      {
+        "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
+        "action":"assign",
+        "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
+      }
     ]
+    ,
+    "wsAttributeDefs":[
+      {
+        "attributeDefType":"attr",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
+        "extension":"testAttributeAssignDefNameDef",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"431a9914cdba4564ad5943c7ec7de988",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
+        "multiAssignable":"F",
+        "valueType":"integer",
+        "name":"test:testAttributeAssignDefNameDef",
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10044",
+        "multiValued":"T",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
+      }
+    ]
+    ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"20"
+    }
   }
 }
 
@@ -228,4 +268,4 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: , Found 0 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.

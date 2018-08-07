@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 223
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGroupDeleteRequest>
   <wsGroupLookups>
@@ -37,15 +37,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:07:22 GMT
+Date: Mon, 06 Aug 2018 16:42:33 GMT
 Connection: close
 
 3ff
@@ -78,7 +77,7 @@ groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
+    <resultMessage>Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
 [1]: WsGroupLookup[groupName=aStem:whatever2]
 
 , actAsSubject: null, txType: NONE, includ
@@ -89,8 +88,8 @@ eGroupDetail: false, paramNames:
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>39</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>10</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsGroupDeleteResults>
 0
@@ -268,7 +267,7 @@ public class WsSampleGroupDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
 [1]: WsGroupLookup[groupName=aStem:whatever2]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 

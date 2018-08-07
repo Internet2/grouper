@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 461
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAssignPermissionsRequest>
   <permissionAssignOperation>assign_permission</permissionAssignOperation>
@@ -45,40 +45,53 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 22:58:16 GMT
+Date: Mon, 06 Aug 2018 16:36:17 GMT
 Connection: close
 
-3ed
+3f4
 <WsAssignPermissionsResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10033</idIndex>
+      <idIndex>10046</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>3513923c55d2461d94c805fb28929079</uuid>
+      <uuid>4d46bcc488724fc2b3a40b0b75e14a2b</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
       <valueType>marker</valueType>
+      <assignToAttributeDef>F</assignToAttributeDef>
+      <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
+      <assignToEffectiveMembership>F</assignToEffectiveMembership>
+      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
+      <assignToGroup>F</assignToGroup>
+      <assignToGroupAssignment>F</assignToGroupAssignment>
+      <assignToImmediateMembership>F</assignToImmediateMembership>
+      <assignToImmediateMembershipAssignment>F</assignToImmediateMembershipAssignment>
+      <assignToMember>F</assignToMember>
+      <assignToMemberAssignment>F</assignToMemberAssignment>
+      <assignToStem>F</assignToStem>
+      <assignToStemAssignment>F</assignToStemAssignment>
     </WsAttributeDef>
   </wsAttributeDefs>
-  <wsAttributeDefNames>
+  <
+3f1
+wsAttributeDefNames>
     <WsAttributeDefName>
-      <idIndex>10117</idIndex>
+      <idIndex>10155</idIndex>
       <extension>permissionDefName</extension>
       <displayExtension>permissionDefName</displayExtension>
       <displayName>a stem:permissionDefName</displayName>
       <name>aStem:permissionDefName</name>
-      <uuid>ac0091e90e3f4df38f4279fbe3a8e17e</uuid>
-      <attributeDefId>3513923c55d2461d94c805fb28929079</attributeDefId>
+      <uuid>397ea151404d489aae915be38d0f4b4f</uuid>
+      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -88,41 +101,38 @@ Connection: close
         <WsAttributeAssign>
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
-          <
-3fe
-attributeAssignDelegatable>
-          </attributeAssignDelegatable>
-          <attributeAssignActionId>66a1765d2e9f427c906bee730ee7fbee</attributeAssignActionId>
+          <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
+          <attributeAssignActionId>73cb43e7d8634c3c968bf04ca892378e</attributeAssignActionId>
           <attributeAssignActionName>write</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>ac0091e90e3f4df38f4279fbe3a8e17e</attributeDefNameId>
-          <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
-          <attributeDefId>3513923c55d2461d94c805fb28929079</attributeDefId>
+          <attributeDefNameId>397ea151404d489aae915be38d0f4b4f</attributeDefNameId>
+          <attributeDefNameName>
+          </
+3ff
+attributeDefNameName>
+          <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
           <attributeDefName>aStem:permissionDef</attributeDefName>
-          <createdOn>2014/05/28 18:58:16.465</createdOn>
+          <createdOn>2018/08/06 12:36:10.749</createdOn>
           <enabled>T</enabled>
-          <id>0a2c37c831bd40f187e5defe186435f1</id>
-          <lastUpdated>2014/05/28 18:58:16.465</lastUpdated>
-          <ownerGroupId>b0bf2bcda6794eb8b804190eb9b39b2d</ownerGroupId>
+          <id>55aed0f4e60c4e589d5ac132fee37d24</id>
+          <lastUpdated>2018/08/06 12:36:10.749</lastUpdated>
+          <ownerGroupId>c94e8975d1524eacb3e5f3a7b0b55086</ownerGroupId>
           <ownerGroupName>aStem:role</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
-      <changed>T</changed>
+      <changed>F</changed>
       <deleted>F</deleted>
     </WsAssignPermissionResult>
   </wsAssignPermissionResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
     <resultMessage>, Found 1 results.  </resultMessage>
-    <success>
-    </
-1ce
-success>
+    <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>105</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>16</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -131,8 +141,10 @@ success>
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>b0bf2bcda6794eb8b804190eb9b39b2d</uuid>
-      <idIndex>10008</idIndex>
+      <uuid>c94e8975d1524eacb3e5f3a7b0b55086</uuid
+58
+>
+      <idIndex>10022</idIndex>
     </WsGroup>
   </wsGroups>
   <wsSubjects/>
@@ -319,4 +331,4 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

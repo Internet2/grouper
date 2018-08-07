@@ -79,9 +79,9 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       WsExternalSubjectToSave wsExternalSubjectToSave = new WsExternalSubjectToSave();
       
       WsExternalSubject wsExternalSubject = new WsExternalSubject();
-      wsExternalSubject.setIdentifier("b_ident@c.d");
+      wsExternalSubject.setIdentifier("b_ident@c.com");
       wsExternalSubject.setName("Another Name");
-      wsExternalSubject.setEmail("b@c.d");
+      wsExternalSubject.setEmail("b@c.com");
       WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
       wsExternalSubjectAttribute.setAttributeSystemName("jabber");
       wsExternalSubjectAttribute.setAttributeValue("b_jabber@c.d");
@@ -89,10 +89,10 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
 
       WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup();
-      wsExternalSubjectLookup.setIdentifier("b_ident@c.d");
+      wsExternalSubjectLookup.setIdentifier("b_ident@c.com");
       wsExternalSubjectToSave.setWsExternalSubjectLookup(wsExternalSubjectLookup);
 
-      wsExternalSubjectToSave.setWsExternalSubjectLookup(new WsExternalSubjectLookup("b_ident@c.d"));
+      wsExternalSubjectToSave.setWsExternalSubjectLookup(new WsExternalSubjectLookup("b_ident@c.com"));
 
       WsExternalSubjectToSave[] wsExternalSubjectToSaves = new WsExternalSubjectToSave[] {wsExternalSubjectToSave};
       

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: 2.3.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
 Content-Length: 615
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGroupSaveRequest>
   <wsGroupToSaves>
@@ -53,15 +53,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 18:45:10 GMT
+Date: Mon, 06 Aug 2018 15:22:58 GMT
 Connection: close
 
 3ff
@@ -75,11 +74,11 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>3a7c127ef1b049f082058fed60bb768a</uuid>
-        <idIndex>10041</idIndex>
+        <uuid>0b957bb1336e4a9a87e1557d67c0fa15</uuid>
+        <idIndex>10038</idIndex>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS_INSERTED</resultCode>
+        <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
         <success>T</success>
       </resultMetadata>
     </WsGroupSaveResult>
@@ -91,20 +90,20 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>0fa015f6fe674451bf39bf7a50a83e72</uuid>
-        <idIndex>10030</idIndex>
+        <uuid>3e41f419a3c246f79d7a7e85c9b74461</uuid>
+        <idIndex>10039</idIndex>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS_INSERTED</resultCode>
+        <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
         <success>T</success>
       </resultMetadata>
     </WsGroupSaveResult>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.3.0, wsGroupToSaves:
-1d0
-Array size: 2: [0]: WsGroupToSave[
+    <resultMessage>Success for: clientVersion: 2.4.0
+1e1
+, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
 wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -113,8 +112,8 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>636</millis>
-    <serverVersion>2.3.0</serverVersion>
+    <millis>66</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>
 0
@@ -312,7 +311,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
   wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 

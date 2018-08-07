@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1456
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -70,18 +70,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:35:12 GMT
+Date: Mon, 06 Aug 2018 16:37:16 GMT
 Connection: close
 
-753
+751
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -91,14 +90,14 @@ Connection: close
   <body>
     <div title="WsAttributeDefSaveLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">20435</p>
+        <p class="millis">141</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
 wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],
 wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -121,11 +120,11 @@ wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:
         <p class="attributeDefType">attr</p>
         <p class="description">This is a test description</p>
         <p class="extension">testAttributeDef</p>
-        <p class="idIndex">10054</p>
+        <p class="idIndex">10075</p>
         <p class="multiAssignable">F</p>
         <p class="multiValued">F</p>
         <p class="name">test1:testAttributeDef</p>
-        <p class="uuid">26d37656b31e40c5b910dd50885842bd</p>
+        <p class="uuid">512af2c1c0544263a673e2daee8bcc91</p>
         <p class="valueType">string</p>
       </div>
     </div>
@@ -310,7 +309,7 @@ public class WsSampleAttributeDefSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
+Server version: 2.4.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
   wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],
   wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...
 , actAsSubject: null, txType: NONE, paramNames: 

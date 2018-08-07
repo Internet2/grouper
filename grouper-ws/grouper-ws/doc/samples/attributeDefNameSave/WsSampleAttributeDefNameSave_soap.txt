@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSave, code generated classes, format: soap, for version: 2.2.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSave, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:attributeDefNameSave"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:attributeDefNameSave xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
+    <ns1:attributeDefNameSave xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsAttributeDefNameToSaves>
         <ns1:wsAttributeDefName>
           <ns1:attributeDefName>test:testAttributeAssignDefNameDef</ns1:attributeDefName>
@@ -52,32 +52,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefNameSaveResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:04:33 GMT
+Date: Mon, 06 Aug 2018 16:36:55 GMT
 
 c09
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:attributeDefNameSaveResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:attributeDefNameSaveResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAttributeDefNameSaveResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.2.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 soap,description=This is a description 1 soap,name=test:te...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: Empty array</ns:resultMessage>
@@ -92,15 +91,15 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
-            <ns:attributeDefId>5af044891fb946cea5f3fd54255d4ebb</ns:attributeDefId>
+            <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
             <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
             <ns:description>This is a description 1 soap</ns:description>
             <ns:displayExtension>My new attribute def name to save 1 soap</ns:displayExtension>
             <ns:displayName>test:My new attribute def name to save 1 soap</ns:displayName>
             <ns:extension>testAttributeAssignDefNameToSave1_soap</ns:extension>
-            <ns:idIndex>10143</ns:idIndex>
+            <ns:idIndex>10203</ns:idIndex>
             <ns:name>test:testAttributeAssignDefNameToSave1_soap</ns:name>
-            <ns:uuid>64e0211e921e41a3890a9eda2375dd43</ns:uuid>
+            <ns:uuid>4ece140eae4b4580976dc17068d10201</ns:uuid>
           </ns:wsAttributeDefName>
         </ns:results>
         <ns:results xsi:type="ns:WsAttributeDefNameSaveResult">
@@ -112,15 +111,15 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
-            <ns:attributeDefId>5af044891fb946cea5f3fd54255d4ebb</ns:attributeDefId>
+            <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
             <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
             <ns:description>This is a description 2 soap</ns:description>
             <ns:displayExtension>My new attribute def name to save 2 soap</ns:displayExtension>
             <ns:displayName>test:My new attribute def name to save 2 soap</ns:displayName>
             <ns:extension>testAttributeAssignDefNameToSave2_soap</ns:extension>
-            <ns:idIndex>10144</ns:idIndex>
+            <ns:idIndex>10204</ns:idIndex>
             <ns:name>test:testAttributeAssignDefNameToSave2_soap</ns:name>
-            <ns:uuid>b884c8474a6042b9b551e49e876da3dc</ns:uuid>
+            <ns:uuid>b8097b6b7dfd4c0398db72e957477a6b</ns:uuid>
           </ns:wsAttributeDefName>
         </ns:results>
       </ns:return>
@@ -169,12 +168,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AttributeDefNameSaveResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameSaveResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameSaveResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameToSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefNameSaveResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameSaveResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameToSave;
 
 
 /**
@@ -291,12 +290,12 @@ public class WsSampleAttributeDefNameSave implements WsSampleGenerated {
 
 
 WsAttributeDefNameSaveResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@572cd803,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@4119d9ab,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameSaveResult@5228d862,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameSaveResult@77963411},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@4b82aba1,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4f17bac7,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameSaveResult@440c3bdb,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameSaveResult@1a8d5f58},localResultsTracker=true]
 WsAttributeDefNameSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@4223cab3,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@3bd0cfb1,localWsAttributeDefNameTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@1866698,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@24f14790,localWsAttributeDefNameTracker=true]
 WsAttributeDefNameSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@9f38c25,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@5475d63d,localWsAttributeDefNameTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@5476abc9,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@4c2a9a64,localWsAttributeDefNameTracker=true]

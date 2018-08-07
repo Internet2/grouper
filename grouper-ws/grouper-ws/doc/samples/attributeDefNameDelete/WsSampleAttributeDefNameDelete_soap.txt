@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDelete, code generated classes, format: soap, for version: 2.2.0
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDelete, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:attributeDefNameDelete"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:attributeDefNameDelete xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
+    <ns1:attributeDefNameDelete xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsAttributeDefNameLookups>
         <ns1:name>test:testAttributeAssignDefNameToDelete1_soap</ns1:name>
       </ns1:wsAttributeDefNameLookups>
@@ -42,32 +42,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefNameDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:00:31 GMT
+Date: Mon, 06 Aug 2018 16:36:40 GMT
 
 c04
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:attributeDefNameDeleteResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:attributeDefNameDeleteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAttributeDefNameDeleteResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.2.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1_soap]
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1_soap]
 [1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttribut...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: Empty array</ns:resultMessage>
@@ -161,11 +160,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AttributeDefNameDelete;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AttributeDefNameDeleteResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefNameDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefNameDeleteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameLookup;
 
 
 /**
@@ -262,12 +261,12 @@ public class WsSampleAttributeDefNameDelete implements WsSampleGenerated {
 
 
 WsAttributeDefNameDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@62a7a29c,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@6ba4e25d,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameDeleteResult@4968f114,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameDeleteResult@8ab7db3},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@8d572f1,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@8d56d6e,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameDeleteResult@7bae88b9,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefNameDeleteResult@58cf2fc7},localResultsTracker=true]
 WsAttributeDefNameDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@48b1d5ed,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@1353dfe4,localWsAttributeDefNameTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@526d5a8d,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@5d09eb39,localWsAttributeDefNameTracker=true]
 WsAttributeDefNameDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@678ffba5,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@1dd242c1,localWsAttributeDefNameTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@7c194648,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefName@1399c999,localWsAttributeDefNameTracker=true]

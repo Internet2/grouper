@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/xml/v2_2_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xml/v2_4_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 431
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAssignPermissionsLiteRequest>
   <action>read</action>
@@ -36,39 +36,52 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:00:04 GMT
+Date: Mon, 06 Aug 2018 16:36:23 GMT
 Connection: close
 
-3f5
+3f8
 <WsAssignPermissionsLiteResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10033</idIndex>
+      <idIndex>10046</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>503031ab76c041739bf74968df833507</uuid>
+      <uuid>4d46bcc488724fc2b3a40b0b75e14a2b</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
       <valueType>marker</valueType>
+      <assignToAttributeDef>F</assignToAttributeDef>
+      <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
+      <assignToEffectiveMembership>F</assignToEffectiveMembership>
+      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
+      <assignToGroup>F</assignToGroup>
+      <assignToGroupAssignment>F</assignToGroupAssignment>
+      <assignToImmediateMembership>F</assignToImmediateMembership>
+      <assignToImmediateMembershipAssignment>F</assignToImmediateMembershipAssignment>
+      <assignToMember>F</assignToMember>
+      <assignToMemberAssignment>F</assignToMemberAssignment>
+      <assignToStem>F</assignToStem>
+      <assignToStemAssignment>F</assignToStemAssignment>
     </WsAttributeDef>
   </wsAttributeDefs>
-  <wsAttributeDefName>
-    <idIndex>10117</idIndex>
+  <
+3bf
+wsAttributeDefName>
+    <idIndex>10155</idIndex>
     <extension>permissionDefName</extension>
     <displayExtension>permissionDefName</displayExtension>
     <displayName>a stem:permissionDefName</displayName>
     <name>aStem:permissionDefName</name>
-    <uuid>c68fa85c18644eca9d4bb2678840a629</uuid>
-    <attributeDefId>503031ab76c041739bf74968df833507</attributeDefId>
+    <uuid>397ea151404d489aae915be38d0f4b4f</uuid>
+    <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
     <attributeDefName>aStem:permissionDef</attributeDefName>
   </wsAttributeDefName>
   <wsPermissionAssignResult>
@@ -80,12 +93,10 @@ Connection: close
     <resultMessage>, Found 1 results.  </resultMessage>
     <success>T</success>
   </resultMetadata>
-  <
-13e
-responseMetadata>
+  <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>50</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>11</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -267,4 +278,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,24 +9,25 @@ Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefD
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 136
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestAttributeDefDeleteRequest":{
-    "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem"
-    },
     "wsAttributeDefLookups":[
       {
         "name":"test:test1"
       }
     ]
+    ,
+    "actAsSubjectLookup":{
+      "subjectId":"GrouperSystem"
+    }
   }
 }
 
@@ -39,50 +40,49 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1070
-Date: Tue, 21 Jun 2016 19:33:19 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1069
+Date: Mon, 06 Aug 2018 16:36:26 GMT
 Connection: close
 
 {
   "WsAttributeDefDeleteResults":{
-    "responseMetadata":{
-      "millis":"28",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"3"
     },
     "results":[
       {
         "resultMetadata":{
+          "success":"T",
           "resultCode":"SUCCESS_ATTRIBUTE_DEF_NOT_FOUND",
-          "resultMessage":"Cant find attribute def: 'WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1,\n  attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]'.",
-          "success":"T"
+          "resultMessage":"Cant find attribute def: 'WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1,\n  attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]'."
         },
         "wsAttributeDef":{
           "assignToAttributeDef":"F",
-          "assignToAttributeDefAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToGroup":"F",
-          "assignToGroupAssignment":"F",
-          "assignToImmediateMembership":"F",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToMember":"F",
-          "assignToMemberAssignment":"F",
-          "assignToStem":"F",
           "assignToStemAssignment":"F",
           "extension":"test1",
-          "name":"test:test1"
+          "assignToMemberAssignment":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToEffectiveMembershipAssignment":"F",
+          "assignToStem":"F",
+          "assignToGroupAssignment":"F",
+          "assignToMember":"F",
+          "name":"test:test1",
+          "assignToAttributeDefAssignment":"F",
+          "assignToGroup":"F",
+          "assignToImmediateMembership":"F"
         }
       }
     ]
@@ -274,7 +274,7 @@ public class WsSampleAttributeDefDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , paramNames: 
 , params: null

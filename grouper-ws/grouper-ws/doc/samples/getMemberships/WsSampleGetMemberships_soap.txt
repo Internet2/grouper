@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMemberships, code generated classes, format: soap, for version: 2.2.0
+Grouper web service sample of service: getMemberships, WsSampleGetMemberships, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMemberships, c
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getMemberships"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getMemberships xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
+    <ns1:getMemberships xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsGroupLookups>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookups>
@@ -55,92 +55,163 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
-X-Grouper-resultCode: EXCEPTION
-X-Grouper-success: F
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembershipsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:49:26 GMT
+Date: Mon, 06 Aug 2018 16:41:24 GMT
 
-15cc
+17f1
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getMembershipsResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:getMembershipsResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetMembershipsResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.2.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
-          <ns:resultCode>EXCEPTION</ns:resultCode>
+          <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
-, wsMemberFilter: Immediate, includeSubjectDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, fieldType: null, subjectAttributeNames: Empty array
-, paramNames:
-, params: Empty array
-, wsSubjectLookups: Empty array
-, sourceIds: Empty array
-, scope: , wsStemLookup: null, stemScope: null, enabled: T
-, serviceRole: null, serviceLookup: null
-, membershipIds: Empty array
-, wsStemLookups: Empty array
-, wsAttributeDefLookups: Empty array, java.lang.NullPointerException&#xd;
-at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO.findAllByGroupOwnerOptionsHelper(Hib3MembershipDAO.java:652)&#xd;
-at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO.findAllByGroupOwnerOptions(Hib3MembershipDAO.java:575)&#xd;
-at edu.internet2.middleware.grouper.MembershipFinder.findMembershipsGroupsMembers(MembershipFinder.java:734)&#xd;
-at edu.internet2.middleware.grouper.MembershipFinder.findMembershipsMembers(MembershipFinder.java:687)&#xd;
-at edu.internet2.middleware.grouper.ws.GrouperServiceLogic.getMemberships(GrouperServiceLogic.java:1766)&#xd;
-at edu.internet2.middleware.grouper.ws.coresoap.GrouperService.getMemberships(GrouperService.java:2433)&#xd;
-at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#xd;
-at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)&#xd;
-at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)&#xd;
-at java.lang.reflect.Method.invoke(Method.java:597)&#xd;
-at edu.internet2.middleware.grouper.util.GrouperUtil.callMethodWithMoreParams(GrouperUtil.java:11248)&#xd;
-at edu.internet2.middleware.grouper.ws.soap_v2_2.GrouperService.getMemberships(GrouperService.java:1567)&#xd;
-at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#xd;
-at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)&#xd;
-at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)&#xd;
-at java.lang.reflect.Method.invoke(Method.java:597)&#xd;
-at org.apache.axis2.rpc.receivers.RPCUtil.invokeServiceClass(RPCUtil.java:212)&#xd;
-at org.apache.axis2.rpc.receivers.RPCMessageReceiver.invokeBusinessLogic(RPCMessageReceiver.java:117)&#xd;
-at org.apache.axis2.receivers.AbstractInOutMessageReceiver.invokeBusinessLogic(AbstractInOutMessageReceiver.java:40)&#xd;
-at org.apache.axis2.receivers.AbstractMessageReceiver.receive(AbstractMessageReceiver.java:110)&#xd;
-at org.apache.axis2.engine.AxisEngine.receive(AxisEngine.java:181)&#xd;
-at org.apache.axis2.transport.http.HTTPTransportUtils.processHTTPPostRequest(HTTPTransportUtils.java:172)&#xd;
-at org.apache.axis2.transport.http.AxisServlet.doPost(AxisServlet.java:146)&#xd;
-at javax.servlet.http.HttpServlet.service(HttpServlet.java:643)&#xd;
-at javax.servlet.http.HttpServlet.service(HttpServlet.java:723)&#xd;
-at edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet.service(GrouperServiceAxisServlet.java:75)&#xd;
-at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:290)&#xd;
-at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)&#xd;
-at edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee.doFilter(GrouperServiceJ2ee.java:657)&#xd;
-at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:235)&#xd;
-at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)&#xd;
-at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:233)&#xd;
-at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:191)&#xd;
-at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:563)&#xd;
-at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)&#xd;
-at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:103)&#xd;
-at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:109)&#xd;
-at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:293)&#xd;
-at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:861)&#xd;
-at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:606)&#xd;
-at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:489)&#xd;
-at java.lang.Thread.run(Thread.java:662)</ns:resultMessage>
-          <ns:success>F</ns:success>
+          <ns:resultMessage>Found 4 results involving 1 groups and 4 subjects</ns:resultMessage>
+          <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:subjectAttributeNames xsi:nil="true" />
         <ns:wsAttributeDefs xsi:nil="true" />
-        <ns:wsGroups xsi:nil="true" />
-        <ns:wsMemberships xsi:nil="true" />
+        <ns:wsGroups xsi:type="ns:WsGroup">
+          <ns:alternateName xsi:nil="true" />
+          <ns:description>a group description</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>a group</ns:displayExtension>
+          <ns:displayName>a stem:a group</ns:displayName>
+          <ns:extension>aGroup</ns:extension>
+          <ns:idIndex>10005</ns:idIndex>
+          <ns:name>aStem:aGroup</ns:name>
+          <ns:typeOfGroup>group</ns:typeOfGroup>
+          <ns:uuid>03aae7141082467eaaa866e6c6edfda5</ns:uuid>
+        </ns:wsGroups>
+        <ns:wsMemberships xsi:type="ns:WsMembership">
+          <ns:createTime>2018/08/06 11:04:00.594</ns:createTime>
+          <ns:disabledTime xsi:nil="true" />
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true" />
+          <ns:groupId>03aae7141082467eaaa866e6c6edfda5</ns:groupId>
+          <ns:groupName>aStem:aGroup</ns:groupName>
+          <ns:immediateMembershipId>b203136cf0c845359e49de75093aa74d</ns:immediateMembershipId>
+          <ns:listName>members</ns:listName>
+          <ns:listType>list</ns:listType>
+          <ns:memberId>181714d1c2464dcdb3b8e4c4bca590ae</ns:memberId>
+          <ns:membershipId>b203136cf0c845359e49de75093aa74d:86f7a1fbdd5a48ac8653c7affd20c712</ns:membershipId>
+          <ns:membershipType>immediate</ns:membershipType>
+          <ns:ownerIdOfAttributeDef xsi:nil="true" />
+          <ns:ownerNameOfAttributeDef xsi:nil="true" />
+          <ns:ownerStemId xsi:nil="true" />
+          <ns:ownerStemName xsi:nil="true" />
+          <ns:subjectId>GrouperSystem</ns:subjectId>
+          <ns:subjectSourceId>g:isa</ns:subjectSourceId>
+        </ns:wsMemberships>
+        <ns:wsMemberships xsi:type="ns:WsMembership">
+          <ns:createTime>2018/08/06 12:37:40.392</ns:createTime>
+          <ns:disabledTime xsi:nil="true" />
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true" />
+          <ns:groupId>03aae7141082467eaaa866e6c6edfda5</ns:groupId>
+          <ns:groupName>aStem:aGroup</ns:groupName>
+          <ns:immediateMembershipId>c063e7ebe5284fde956d0f53e1d47fbb</ns:immediateMembershipId>
+          <ns:listName>members</ns:listName>
+          <ns:listType>list</ns:listType>
+          <ns:memberId>8ba2b7659552439c98a8e71e59b36f63</ns:memberId>
+          <ns:membershipId>c063e7ebe5284fde956d0f53e1d47fbb:86f7a1fbdd5a48ac8653c7affd20c712</ns:membershipId>
+          <ns:membershipType>immediate</ns:membershipType>
+          <ns:ownerIdOfAttributeDef xsi:nil="true" />
+          <ns:ownerNameOfAttributeDef xsi:nil="true" />
+          <ns:ownerStemId xsi:nil="true" />
+          <ns:ownerStemName xsi:nil="true" />
+          <ns:subjectId>10021368</ns:subjectId>
+          <ns:subjectSourceId>jdbc</ns:subjectSourceId>
+        </ns:wsMemberships>
+        <ns:wsMemberships xsi:type="ns:WsMembership">
+          <ns:createTime>2018/08/06 12:37:33.628</ns:createTime>
+          <ns:disabledTime xsi:nil="true" />
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true" />
+          <ns:groupId>03aae7141082467eaaa866e6c6edfda5</ns:groupId>
+          <ns:groupName>aStem:aGroup</ns:groupName>
+          <ns:immediateMembershipId>61dfb849be444fc7b15500d437148cf0</ns:immediateMembershipId>
+          <ns:listName>members</ns:listName>
+          <ns:listType>list</ns:listType>
+          <ns:memberId>df781653f8ba492ab90bff498a75bce2</ns:memberId>
+          <ns:membershipId>61dfb849be444fc7b15500d437148cf0:86f7a1fbdd5a48ac8653c7affd20c712</ns:membershipId>
+          <ns:membershipType>immediate</ns:membershipType>
+          <ns:ownerIdOfAttributeDef xsi:nil="true" />
+          <ns:ownerNameOfAttributeDef xsi:nil="true" />
+          <ns:ownerStemId xsi:nil="true" />
+          <ns:ownerStemName xsi:nil="true" />
+          <ns:subjectId>10039438</ns:subjectId>
+          <ns:subjectSourceId>jdbc</ns:subjectSourceId>
+        </ns:wsMemberships>
+        <ns:wsMemberships xsi:type="ns:WsMembership">
+          <ns:createTime>2018/08/06 11:30:16.182</ns:createTime>
+          <ns:disabledTime xsi:nil="true" />
+          <ns:enabled>T</ns:enabled>
+          <ns:enabledTime xsi:nil="true" />
+          <ns:groupId>03aae7141082467eaaa866e6c6edfda5</ns:groupId>
+          <ns:groupName>aStem:aGroup</ns:groupName>
+          <ns:immediateMembershipId>efc96a40479a4e0a8994027f9d814254</ns:immediateMembershipId>
+          <ns:listName>members</ns:listName>
+          <ns:listType>list</ns:listType>
+          <ns:memberId>687f0cd196ce486e830891ffc185e3f2</ns:memberId>
+          <ns:membershipId>efc96a40479a4e0a8994027f9d814254:86f7a1fbdd5a48ac8653c7affd20c712</ns:membershipId>
+          <ns:membershipType>immediate</ns:membershipType>
+          <ns:ownerIdOfAttributeDef xsi:nil="true" />
+          <ns:ownerNameOfAttributeDef xsi:nil="true" />
+          <ns:ownerStemId xsi:nil="true" />
+          <ns:ownerStemName xsi:nil="true" />
+          <ns:subjectId>test.subject.1</ns:subjectId>
+          <ns:subjectSourceId>jdbc</ns:subjectSourceId>
+        </ns:wsMemberships>
         <ns:wsStems xsi:nil="true" />
-        <ns:wsSubjects xsi:nil="true" />
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true" />
+          <ns:id>GrouperSystem</ns:id>
+          <ns:identifierLookup xsi:nil="true" />
+          <ns:name>GrouperSysAdmin</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>g:isa</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true" />
+          <ns:id>10021368</ns:id>
+          <ns:identifierLookup xsi:nil="true" />
+          <ns:name>10021368</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>jdbc</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true" />
+          <ns:id>10039438</ns:id>
+          <ns:identifierLookup xsi:nil="true" />
+          <ns:name>10039438</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>jdbc</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true" />
+          <ns:id>test.subject.1</ns:id>
+          <ns:identifierLookup xsi:nil="true" />
+          <ns:name>my name is test.subject.1</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>jdbc</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
       </ns:return>
     </ns:getMembershipsResponse>
   </soapenv:Body>
@@ -178,23 +249,29 @@ at java.lang.Thread.run(Thread.java:662)</ns:resultMessage>
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetMemberships;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsMembership;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetMemberships;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMembership;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouperClient.GrouperClient;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  *
@@ -270,6 +347,19 @@ public class WsSampleGetMemberships implements WsSampleGenerated {
       
       getMemberships.setWsSubjectLookups(new WsSubjectLookup[]{null});
       getMemberships.setWsStemLookup(new WsStemLookup());
+      
+//      --pageSize=1 --pageNumber=1 --sortString=displayName --ascending=true",
+//      --pageSizeForMember=1 --pageNumberForMember=1 --sortStringForMember=name --ascendingForMember=true
+//      getMemberships.setPageSize("1");
+//      getMemberships.setPageNumber("1");
+//      getMemberships.setSortString("displayName");
+//      getMemberships.setAscending("true");
+
+//      getMemberships.setPageSizeForMember("1");
+//      getMemberships.setPageNumberForMember("1");
+//      getMemberships.setSortStringForMember("name");
+//      getMemberships.setAscendingForMember("true");
+      
       WsGetMembershipsResults wsGetMembershipsResults = stub.getMemberships(getMemberships)
           .get_return();
 
@@ -313,14 +403,23 @@ public class WsSampleGetMemberships implements WsSampleGenerated {
 
 
 WsGetMembershipsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@7e610457,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@13642c93,localResultMetadataTracker=true,
-  localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@5dee6dda,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@7a065766,localResultMetadataTracker=true,localSubjectAttributeNamesTracker=false,
   localWsAttributeDefs={<null>},localWsAttributeDefsTracker=true,
-  localWsGroups={<null>},localWsGroupsTracker=true,
-  localWsMemberships={<null>},localWsMembershipsTracker=true,
+  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGroup@537e17be},localWsGroupsTracker=true,
+  localWsMemberships={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMembership@10a77eff,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMembership@6c203a35,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMembership@4f4003e8,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMembership@ab07897},localWsMembershipsTracker=true,
   localWsStems={<null>},localWsStemsTracker=true,
-  localWsSubjects={<null>},localWsSubjectsTracker=true]
-<null>
-<null>
-<null>
+  localWsSubjects={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@347dd17,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@a3a7928,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@76f0a1a8,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubject@4144128},localWsSubjectsTracker=true]
+WsMembership[localCreateTime=2018/08/06 11:04:00.594,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=03aae7141082467eaaa866e6c6edfda5,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=b203136cf0c845359e49de75093aa74d,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=181714d1c2464dcdb3b8e4c4bca590ae,localMemberIdTracker=true,localMembershipId=b203136cf0c845359e49de75093aa74d:86f7a1fbdd5a48ac8653c7affd20c712,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localOwnerIdOfAttributeDefTracker=false,localOwnerNameOfAttributeDefTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,localSubjectId=GrouperSystem,localSubjectIdTracker=true,localSubjectSourceId=g:isa,localSubjectSourceIdTracker=true]
+WsMembership[localCreateTime=2018/08/06 12:37:40.392,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=03aae7141082467eaaa866e6c6edfda5,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=c063e7ebe5284fde956d0f53e1d47fbb,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=8ba2b7659552439c98a8e71e59b36f63,localMemberIdTracker=true,localMembershipId=c063e7ebe5284fde956d0f53e1d47fbb:86f7a1fbdd5a48ac8653c7affd20c712,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localOwnerIdOfAttributeDefTracker=false,localOwnerNameOfAttributeDefTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,localSubjectId=10021368,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
+WsMembership[localCreateTime=2018/08/06 12:37:33.628,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=03aae7141082467eaaa866e6c6edfda5,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=61dfb849be444fc7b15500d437148cf0,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=df781653f8ba492ab90bff498a75bce2,localMemberIdTracker=true,localMembershipId=61dfb849be444fc7b15500d437148cf0:86f7a1fbdd5a48ac8653c7affd20c712,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localOwnerIdOfAttributeDefTracker=false,localOwnerNameOfAttributeDefTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,localSubjectId=10039438,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
+WsMembership[localCreateTime=2018/08/06 11:30:16.182,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=03aae7141082467eaaa866e6c6edfda5,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=efc96a40479a4e0a8994027f9d814254,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=687f0cd196ce486e830891ffc185e3f2,localMemberIdTracker=true,localMembershipId=efc96a40479a4e0a8994027f9d814254:86f7a1fbdd5a48ac8653c7affd20c712,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localOwnerIdOfAttributeDefTracker=false,localOwnerNameOfAttributeDefTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,localSubjectId=test.subject.1,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
+WsGroup[localAlternateNameTracker=false,localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localIdIndex=10005,localIdIndexTracker=true,localName=aStem:aGroup,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=03aae7141082467eaaa866e6c6edfda5,localUuidTracker=true]
+WsSubject[
+  localAttributeValues={<null>},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+WsSubject[
+  localAttributeValues={<null>},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+WsSubject[
+  localAttributeValues={<null>},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+WsSubject[
+  localAttributeValues={<null>},localAttributeValuesTracker=true,localId=test.subject.1,localIdTracker=true,localIdentifierLookupTracker=false,localName=my name is test.subject.1,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]

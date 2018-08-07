@@ -1,4 +1,4 @@
-Grouper web service sample of service: acknowledgeMessage, WsSampleAcknowledgeMessageRest, manually written lite/rest, format: xml, for version: 2.3.0
+Grouper web service sample of service: acknowledgeMessage, WsSampleAcknowledgeMessageRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: acknowledgeMessage, WsSampleAcknowledgeMe
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/messaging HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 294
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAcknowledgeMessageRequest>
   <queueOrTopicName>ghi</queueOrTopicName>
@@ -37,15 +37,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:33:04 GMT
+Date: Tue, 07 Aug 2018 17:39:19 GMT
 Connection: close
 
 1b0
@@ -61,8 +60,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>93</millis>
-    <serverVersion>2.3.0</serverVersion>
+    <millis>24</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsMessageAcknowledgeResults>
 0
@@ -150,11 +149,6 @@ public class WsSampleAcknowledgeMessageRest implements WsSampleRest {
       httpClient.getState().setCredentials(
           new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
       
-      GrouperSession.startRootSession();
-      GrouperBuiltinMessagingSystem.createQueue("ghi");
-      GrouperBuiltinMessagingSystem.allowSendToQueue("ghi", SubjectTestHelper.SUBJ0);
-      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("ghi", SubjectTestHelper.SUBJ0);
-
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
 
@@ -258,4 +252,4 @@ public class WsSampleAcknowledgeMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: 1 messages were acknowledged in ghi
+Server version: 2.4.0, result code: SUCCESS, result message: 1 messages were acknowledged in ghi

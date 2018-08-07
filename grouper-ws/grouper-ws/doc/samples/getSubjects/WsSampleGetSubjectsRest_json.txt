@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,30 +9,30 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 195
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGetSubjectsRequest":{
-    "subjectAttributeNames":[
-      "description",
-      "loginid",
-      "name"
-    ]
-    ,
     "wsSubjectLookups":[
       {
         "subjectId":"test.subject.0"
       },
       {
-        "subjectId":"test.subject.1",
-        "subjectSourceId":"jdbc"
+        "subjectSourceId":"jdbc",
+        "subjectId":"test.subject.1"
       }
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description",
+      "loginid",
+      "name"
     ]
   }
 }
@@ -46,27 +46,22 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 672
-Date: Thu, 29 May 2014 00:01:27 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 671
+Date: Mon, 06 Aug 2018 16:42:11 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
-    "responseMetadata":{
-      "millis":"49",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Queried 2 subjects",
-      "success":"T"
+      "resultMessage":"Queried 2 subjects"
     },
     "subjectAttributeNames":[
       "description",
@@ -74,32 +69,36 @@ Connection: close
       "name"
     ]
     ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"5"
+    },
     "wsSubjects":[
       {
+        "sourceId":"jdbc",
+        "success":"T",
         "attributeValues":[
           "description.test.subject.0",
           "id.test.subject.0",
           "my name is test.subject.0"
         ]
         ,
-        "id":"test.subject.0",
         "name":"my name is test.subject.0",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.0"
       },
       {
+        "sourceId":"jdbc",
+        "success":"T",
         "attributeValues":[
           "description.test.subject.1",
           "id.test.subject.1",
           "my name is test.subject.1"
         ]
         ,
-        "id":"test.subject.1",
         "name":"my name is test.subject.1",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.1"
       }
     ]
   }
@@ -283,4 +282,4 @@ public class WsSampleGetSubjectsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Queried 2 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Queried 2 subjects

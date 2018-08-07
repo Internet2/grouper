@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest2, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest2, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/memberships HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1096
+Content-Length: 1313
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -26,6 +26,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGetMembershipsRequest">
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="ascending" />
+      <p class="ascendingForMember" />
       <p class="clientVersion" />
       <p class="enabled" />
       <p class="fieldName">members</p>
@@ -33,9 +35,15 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <p class="memberFilter">Immediate</p>
+      <p class="pageNumber" />
+      <p class="pageNumberForMember" />
+      <p class="pageSize" />
+      <p class="pageSizeForMember" />
       <p class="scope" />
       <div class="serviceLookup" title="WsAttributeDefNameLookup" />
       <p class="serviceRole" />
+      <p class="sortString" />
+      <p class="sortStringForMember" />
       <p class="stemScope" />
       <ul class="wsGroupLookups">
         <li title="WsGroupLookup">
@@ -65,19 +73,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:51:24 GMT
+Date: Mon, 06 Aug 2018 16:41:32 GMT
 Connection: close
 
-2b7
-<?xml version='1.0' encoding='iso-8859-1'?>
+2b2
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -86,9 +93,9 @@ Connection: close
   <body>
     <div title="WsGetMembershipsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">80</p>
+        <p class="millis">76</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -281,4 +288,4 @@ public class WsSampleGetMembershipsRest2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Found 0 results involving 0 groups and 0 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Found 0 results involving 0 groups and 0 subjects

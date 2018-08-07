@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, m
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v2_2_000/groups/aStem%3AaGroup/members HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v2_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -24,22 +24,20 @@ Host: localhost:8092
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:46:26 GMT
+Date: Mon, 06 Aug 2018 16:41:12 GMT
 Connection: close
 
-7e7
-<?xml version='1.0' encoding='iso-8859-1'?>
+8bd
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -48,14 +46,14 @@ Connection: close
   <body>
     <div title="WsGetMembersLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">26</p>
+        <p class="millis">33</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: null
 , paramNames:
@@ -65,17 +63,34 @@ Connection: close
         <p class="success">T</p>
       </div>
       <div class="wsGroup" title="WsGroup">
+        <p class="alternateName" />
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="displayExtension">a group</p>
         <p class="displayName">a stem:a group</p>
         <p class="extension">aGroup</p>
-        <p class="idIndex">10001</p>
+        <p class="idIndex">10005</p>
         <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
-        <p class="uuid">62a44a69626c4ef5807b894f63e73b07</p>
+        <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
       </div>
       <ul class="wsSubjects">
+        <li title="WsSubject">
+          <p class="id">GrouperSystem</p>
+          <p class="identifierLookup" />
+          <p class="name" />
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">g:isa</p>
+          <p class="success">T</p>
+        </li>
+        <li title="WsSubject">
+          <p class="id">test.subject.1</p>
+          <p class="identifierLookup" />
+          <p class="name" />
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
+        </li>
         <li title="WsSubject">
           <p class="id">10021368</p>
           <p class="identifierLookup" />
@@ -90,14 +105,6 @@ Connection: close
           <p class="name" />
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">GrouperSystem</p>
-          <p class="identifierLookup" />
-          <p class="name" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">g:isa</p>
           <p class="success">T</p>
         </li>
       </ul>
@@ -252,7 +259,7 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: null
 , paramNames: 

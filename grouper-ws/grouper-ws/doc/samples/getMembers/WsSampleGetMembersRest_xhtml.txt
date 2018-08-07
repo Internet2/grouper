@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 911
+Content-Length: 906
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -62,19 +62,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:45:11 GMT
+Date: Mon, 06 Aug 2018 16:41:07 GMT
 Connection: close
 
-a41
-<?xml version='1.0' encoding='iso-8859-1'?>
+bb6
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -83,14 +82,14 @@ a41
   <body>
     <div title="WsGetMembersResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">62</p>
+        <p class="millis">18</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid
@@ -111,26 +110,40 @@ a41
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
+            <p class="alternateName" />
             <p class="description">a group description</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">a group</p>
             <p class="displayName">a stem:a group</p>
             <p class="extension">aGroup</p>
-            <p class="idIndex">10001</p>
+            <p class="idIndex">10005</p>
             <p class="name">aStem:aGroup</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">1fe02d87401441879789d7219abb63c7</p>
+            <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
           </div>
           <ul class="wsSubjects">
             <li title="WsSubject">
               <ul class="attributeValues">
+                <li>GrouperSysAdmin</li>
                 <li />
-                <li />
-                <li>10039438</li>
+                <li>GrouperSysAdmin</li>
               </ul>
-              <p class="id">10039438</p>
+              <p class="id">GrouperSystem</p>
               <p class="identifierLookup" />
-              <p class="name">10039438</p>
+              <p class="name">GrouperSysAdmin</p>
+              <p class="resultCode">SUCCESS</p>
+              <p class="sourceId">g:isa</p>
+              <p class="success">T</p>
+            </li>
+            <li title="WsSubject">
+              <ul class="attributeValues">
+                <li>description.test.subject.1</li>
+                <li>id.test.subject.1</li>
+                <li>my name is test.subject.1</li>
+              </ul>
+              <p class="id">test.subject.1</p>
+              <p class="identifierLookup" />
+              <p class="name">my name is test.subject.1</p>
               <p class="resultCode">SUCCESS</p>
               <p class="sourceId">jdbc</p>
               <p class="success">T</p>
@@ -150,15 +163,15 @@ a41
             </li>
             <li title="WsSubject">
               <ul class="attributeValues">
-                <li>GrouperSysAdmin</li>
                 <li />
-                <li>EveryEntity</li>
+                <li />
+                <li>10039438</li>
               </ul>
-              <p class="id">GrouperSystem</p>
+              <p class="id">10039438</p>
               <p class="identifierLookup" />
-              <p class="name">GrouperSysAdmin</p>
+              <p class="name">10039438</p>
               <p class="resultCode">SUCCESS</p>
-              <p class="sourceId">g:isa</p>
+              <p class="sourceId">jdbc</p>
               <p class="success">T</p>
             </li>
           </ul>
@@ -367,7 +380,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid

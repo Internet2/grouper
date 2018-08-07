@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.2.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 56
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGetSubjectsLiteRequest":{
@@ -32,119 +32,125 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1721
-Date: Thu, 29 May 2014 00:04:21 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1839
+Date: Mon, 06 Aug 2018 16:42:22 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
-    "responseMetadata":{
-      "millis":"60",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Queried 13 subjects",
-      "success":"T"
+      "resultMessage":"Queried 14 subjects"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"13"
     },
     "wsSubjects":[
       {
-        "id":"2b6a255d6f6e4f2a812b23097bfee7c9",
-        "name":"test:groupTestAttrAssign2",
-        "resultCode":"SUCCESS",
         "sourceId":"g:gsa",
-        "success":"T"
-      },
-      {
-        "id":"346c6455351c4adeb819e76c6bae759f",
+        "success":"T",
         "name":"test:groupTestAttrAssign",
         "resultCode":"SUCCESS",
-        "sourceId":"g:gsa",
-        "success":"T"
+        "id":"1283a3268f654f5e95942676fa6d242f"
       },
       {
-        "id":"eccb89bb21b84bd1b4c2389400cdfb4d",
+        "sourceId":"g:gsa",
+        "success":"T",
+        "name":"aStem:test",
+        "resultCode":"SUCCESS",
+        "id":"4f7f93403b53451bbcddeb9a92b27acc"
+      },
+      {
+        "sourceId":"g:gsa",
+        "success":"T",
+        "name":"test:groupTestAttrAssign2",
+        "resultCode":"SUCCESS",
+        "id":"a048d305d72744e7acba0e4172ad7921"
+      },
+      {
+        "sourceId":"g:gsa",
+        "success":"T",
         "name":"test:testGroup",
         "resultCode":"SUCCESS",
-        "sourceId":"g:gsa",
-        "success":"T"
+        "id":"f651723de0f549ed97906e28df006ced"
       },
       {
-        "id":"test.subject.0",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.0",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.0"
       },
       {
-        "id":"test.subject.1",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.1",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.1"
       },
       {
-        "id":"test.subject.2",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.2",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.2"
       },
       {
-        "id":"test.subject.3",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.3",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.3"
       },
       {
-        "id":"test.subject.4",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.4",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.4"
       },
       {
-        "id":"test.subject.5",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.5",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.5"
       },
       {
-        "id":"test.subject.6",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.6",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.6"
       },
       {
-        "id":"test.subject.7",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.7",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.7"
       },
       {
-        "id":"test.subject.8",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.8",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.8"
       },
       {
-        "id":"test.subject.9",
+        "sourceId":"jdbc",
+        "success":"T",
         "name":"my name is test.subject.9",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "id":"test.subject.9"
       }
     ]
   }
@@ -314,4 +320,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Queried 13 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Queried 14 subjects

@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRestLite, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRestLite, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,21 +9,21 @@ Grouper web service sample of service: assignAttributes, WsSampleAssignAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/json/v2_2_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/json/v2_4_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 248
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestAssignAttributesLiteRequest":{
-    "actAsSubjectId":"GrouperSystem",
-    "attributeAssignOperation":"assign_attr",
-    "attributeAssignType":"group",
     "wsAttributeDefNameName":"test:testAttributeAssignDefName",
-    "wsOwnerGroupName":"test:groupTestAttrAssign"
+    "attributeAssignType":"group",
+    "wsOwnerGroupName":"test:groupTestAttrAssign",
+    "actAsSubjectId":"GrouperSystem",
+    "attributeAssignOperation":"assign_attr"
   }
 }
 
@@ -36,100 +36,232 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 2065
-Date: Wed, 28 May 2014 22:46:15 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 4245
+Date: Mon, 06 Aug 2018 16:35:23 GMT
 Connection: close
 
 {
   "WsAssignAttributesLiteResults":{
-    "responseMetadata":{
-      "millis":"76",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
-    },
-    "wsAttributeAssignResult":{
-      "changed":"F",
-      "deleted":"F",
-      "valuesChanged":"F",
-      "wsAttributeAssigns":[
-        {
-          "attributeAssignActionId":"19489c6e25234c4a8d51d1b76917f767",
-          "attributeAssignActionName":"assign",
-          "attributeAssignActionType":"immediate",
-          "attributeAssignDelegatable":"FALSE",
-          "attributeAssignType":"group",
-          "attributeDefId":"888dfb87de8a442bb2e478e98723215a",
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "attributeDefNameId":"7b4d3b140df4458cb52bae160b73de97",
-          "attributeDefNameName":"test:testAttributeAssignDefName",
-          "createdOn":"2014/05/28 18:46:13.463",
-          "disallowed":"F",
-          "enabled":"T",
-          "id":"8527dbeb07fa4bb98e10b5db319542b8",
-          "lastUpdated":"2014/05/28 18:46:13.463",
-          "ownerGroupId":"abbe87a5a29a4fb2a7fd55a86ae6bca5",
-          "ownerGroupName":"test:groupTestAttrAssign",
-          "wsAttributeAssignValues":[
-            {
-              "id":"c7bb2e452a4544d394ec1f9b7c2c25bc",
-              "valueSystem":"15"
-            },
-            {
-              "id":"6b4a41a2af9c4855967ac2e0a682fae6",
-              "valueSystem":"5"
-            },
-            {
-              "id":"c42daef484124af6b325dc5300f843a3",
-              "valueSystem":"5"
-            }
-          ]
-        }
-      ]
-      
+      "resultMessage":", Found 1 results."
     },
     "wsAttributeDefName":{
-      "attributeDefId":"888dfb87de8a442bb2e478e98723215a",
-      "attributeDefName":"test:testAttributeAssignDefNameDef",
+      "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
       "displayExtension":"testAttributeAssignDefName",
-      "displayName":"test:testAttributeAssignDefName",
       "extension":"testAttributeAssignDefName",
-      "idIndex":"10115",
+      "displayName":"test:testAttributeAssignDefName",
       "name":"test:testAttributeAssignDefName",
-      "uuid":"7b4d3b140df4458cb52bae160b73de97"
+      "attributeDefName":"test:testAttributeAssignDefNameDef",
+      "idIndex":"10153",
+      "uuid":"ebb18ed6ee0f4577b5704805fceb7986"
+    },
+    "wsGroup":{
+      "displayExtension":"groupTestAttrAssign",
+      "extension":"groupTestAttrAssign",
+      "displayName":"test:groupTestAttrAssign",
+      "name":"test:groupTestAttrAssign",
+      "description":"description",
+      "typeOfGroup":"group",
+      "idIndex":"10020",
+      "uuid":"1283a3268f654f5e95942676fa6d242f"
     },
     "wsAttributeDefs":[
       {
         "attributeDefType":"attr",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
         "extension":"testAttributeAssignDefNameDef",
-        "idIndex":"10031",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"431a9914cdba4564ad5943c7ec7de988",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
         "multiAssignable":"F",
-        "multiValued":"T",
+        "valueType":"integer",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"888dfb87de8a442bb2e478e98723215a",
-        "valueType":"integer"
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10044",
+        "multiValued":"T",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
       }
     ]
     ,
-    "wsGroup":{
-      "description":"description",
-      "displayExtension":"groupTestAttrAssign",
-      "displayName":"test:groupTestAttrAssign",
-      "extension":"groupTestAttrAssign",
-      "idIndex":"10006",
-      "name":"test:groupTestAttrAssign",
-      "typeOfGroup":"group",
-      "uuid":"abbe87a5a29a4fb2a7fd55a86ae6bca5"
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"30"
+    },
+    "wsAttributeAssignResult":{
+      "deleted":"F",
+      "wsAttributeAssigns":[
+        {
+          "attributeAssignDelegatable":"FALSE",
+          "disallowed":"F",
+          "createdOn":"2018/08/06 12:34:54.147",
+          "enabled":"T",
+          "attributeAssignType":"group",
+          "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
+          "lastUpdated":"2018/08/06 12:34:54.147",
+          "attributeAssignActionId":"4b87e89855c44780bae4dfb3b71281e2",
+          "ownerGroupName":"test:groupTestAttrAssign",
+          "id":"635f99e61f9e46a6b4e680fcecd1871f",
+          "wsAttributeAssignValues":[
+            {
+              "id":"051987b270004731bb5a7cc513159412",
+              "valueSystem":"15"
+            },
+            {
+              "id":"268e3c49a9a64d2f8c7245443e65fa91",
+              "valueSystem":"15"
+            },
+            {
+              "id":"3fe09e00e9d449c6a1d11b9c3bb29626",
+              "valueSystem":"15"
+            },
+            {
+              "id":"47490cba828948d1b3364a90ce05d4f1",
+              "valueSystem":"15"
+            },
+            {
+              "id":"6eb17ac222174ced80e52e106365db06",
+              "valueSystem":"15"
+            },
+            {
+              "id":"737cc806208e4dc8924d7e0e2df1c342",
+              "valueSystem":"15"
+            },
+            {
+              "id":"98cb4fa38d3c4564a41aad6596896113",
+              "valueSystem":"15"
+            },
+            {
+              "id":"b464ff6a18e74037aeba6016645039bd",
+              "valueSystem":"15"
+            },
+            {
+              "id":"b8fb7f2de8d1410dbec694daf408ee58",
+              "valueSystem":"15"
+            },
+            {
+              "id":"d5610e8478124f6da9822a1029ac0a7c",
+              "valueSystem":"15"
+            },
+            {
+              "id":"e5f7db40270d45858a37db4946169466",
+              "valueSystem":"15"
+            },
+            {
+              "id":"04dc1670cd954aefa1ac2831bcbcd1af",
+              "valueSystem":"5"
+            },
+            {
+              "id":"1a9c96549a764a1da1d11707e1e5d573",
+              "valueSystem":"5"
+            },
+            {
+              "id":"1ed52fb84c2d4b08a5bb44d52ac4a570",
+              "valueSystem":"5"
+            },
+            {
+              "id":"3e49be905bc2407089b001a71998f76d",
+              "valueSystem":"5"
+            },
+            {
+              "id":"42cea855c5124f2ea1a56de8da25ee2c",
+              "valueSystem":"5"
+            },
+            {
+              "id":"4b2ceac7023744dfb7e0db2669bd51bf",
+              "valueSystem":"5"
+            },
+            {
+              "id":"4ed9d48ebd1c486cbbae5d37507ffb01",
+              "valueSystem":"5"
+            },
+            {
+              "id":"5d89230527ba4542aedb22dd6cdc57b3",
+              "valueSystem":"5"
+            },
+            {
+              "id":"625c40b8ab594e0b9a19cf08b8210bc3",
+              "valueSystem":"5"
+            },
+            {
+              "id":"7b89ba24a88d44d28ba8602a18c3cf5b",
+              "valueSystem":"5"
+            },
+            {
+              "id":"87461e794097488bb3ae10c605a96fb7",
+              "valueSystem":"5"
+            },
+            {
+              "id":"a19153990e144eefbc4e4e6fc2f68300",
+              "valueSystem":"5"
+            },
+            {
+              "id":"c16bf85c093b4c68a789fe7c054206e5",
+              "valueSystem":"5"
+            },
+            {
+              "id":"cc4c8b2814434286bcc622811f4e4f83",
+              "valueSystem":"5"
+            },
+            {
+              "id":"cf5de08ac7c343b58592fd7241e180a5",
+              "valueSystem":"5"
+            },
+            {
+              "id":"d5373b2c2a8b42d3972a8335faa40f11",
+              "valueSystem":"5"
+            },
+            {
+              "id":"da23a7adecaf47b8874292d861ee029e",
+              "valueSystem":"5"
+            },
+            {
+              "id":"de21162274d64ed08a0370bb8915e6b2",
+              "valueSystem":"5"
+            },
+            {
+              "id":"e65ffaa874af442b8a9de6cf1caf310f",
+              "valueSystem":"5"
+            },
+            {
+              "id":"f2ca01a7c79b43c49a4d46f638713b4f",
+              "valueSystem":"5"
+            },
+            {
+              "id":"f2e29bc3914149cfabb1ada2e347904f",
+              "valueSystem":"5"
+            },
+            {
+              "id":"fc9e8a4ccf914931a3f68502aadf0ec3",
+              "valueSystem":"5"
+            }
+          ]
+          ,
+          "ownerGroupId":"1283a3268f654f5e95942676fa6d242f",
+          "attributeDefName":"test:testAttributeAssignDefNameDef",
+          "attributeDefNameName":"test:testAttributeAssignDefName",
+          "attributeAssignActionName":"assign",
+          "attributeDefNameId":"ebb18ed6ee0f4577b5704805fceb7986",
+          "attributeAssignActionType":"immediate"
+        }
+      ]
+      ,
+      "valuesChanged":"F",
+      "changed":"F"
     }
   }
 }
@@ -304,4 +436,4 @@ public class WsSampleAssignAttributesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

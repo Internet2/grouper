@@ -1,4 +1,4 @@
-Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAttributeAssignActionsRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAttributeAssignActionsRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAtt
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 93
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGetAttributeAssignActionsLiteRequest":{
@@ -32,70 +32,70 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1165
-Date: Tue, 31 May 2016 21:50:37 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1164
+Date: Mon, 06 Aug 2018 16:40:04 GMT
 Connection: close
 
 {
   "WsGetAttributeAssignActionsResults":{
-    "responseMetadata":{
-      "millis":"278",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 3 results.",
-      "success":"T"
+      "resultMessage":", Found 3 results."
     },
     "wsAttributeAssignActionTuples":[
       {
-        "action":"assign",
-        "attributeDefId":"5eb4c815f6874b02a91ca9e147e854a4",
-        "nameOfAttributeDef":"aStem:permissionDef"
-      },
-      {
-        "action":"write",
-        "attributeDefId":"5eb4c815f6874b02a91ca9e147e854a4",
-        "nameOfAttributeDef":"aStem:permissionDef"
-      },
-      {
+        "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
         "action":"read",
-        "attributeDefId":"5eb4c815f6874b02a91ca9e147e854a4",
+        "nameOfAttributeDef":"aStem:permissionDef"
+      },
+      {
+        "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
+        "action":"write",
+        "nameOfAttributeDef":"aStem:permissionDef"
+      },
+      {
+        "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
+        "action":"assign",
         "nameOfAttributeDef":"aStem:permissionDef"
       }
     ]
     ,
     "wsAttributeDefs":[
       {
-        "assignToAttributeDef":"F",
-        "assignToAttributeDefAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToGroup":"F",
-        "assignToGroupAssignment":"F",
-        "assignToImmediateMembership":"F",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToMember":"F",
-        "assignToMemberAssignment":"F",
-        "assignToStem":"F",
-        "assignToStemAssignment":"F",
         "attributeDefType":"perm",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
         "extension":"permissionDef",
-        "idIndex":"10035",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"4d46bcc488724fc2b3a40b0b75e14a2b",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
         "multiAssignable":"F",
-        "multiValued":"F",
+        "valueType":"marker",
         "name":"aStem:permissionDef",
-        "uuid":"5eb4c815f6874b02a91ca9e147e854a4",
-        "valueType":"marker"
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10046",
+        "multiValued":"F",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
       }
     ]
+    ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"13"
+    }
   }
 }
 
@@ -268,4 +268,4 @@ public class WsSampleGetAttributeAssignActionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.

@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/stems/aStem%3AaStemToSave HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/stems/aStem%3AaStemToSave HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 787
+Content-Length: 782
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -53,19 +53,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
-X-Grouper-resultCode: SUCCESS_INSERTED
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS_NO_CHANGES_NEEDED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:39:31 GMT
+Date: Mon, 06 Aug 2018 16:44:13 GMT
 Connection: close
 
-4fa
-<?xml version='1.0' encoding='iso-8859-1'?>
+4fe
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -74,14 +73,14 @@ Connection: close
   <body>
     <div title="WsStemSaveLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">94</p>
+        <p class="millis">10</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_INSERTED</p>
+        <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
 wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
 wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 
@@ -94,9 +93,9 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
         <p class="displayExtension">disp1</p>
         <p class="displayName">a stem:disp1</p>
         <p class="extension">aStemToSave</p>
-        <p class="idIndex">10033</p>
+        <p class="idIndex">10048</p>
         <p class="name">aStem:aStemToSave</p>
-        <p class="uuid">b9c3ef944d01465fa1351f0c46cf60c9</p>
+        <p class="uuid">0186adfdb5194aaaa505853b4008287e</p>
       </div>
     </div>
   </body>
@@ -276,7 +275,7 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+Server version: 2.4.0, result code: SUCCESS_NO_CHANGES_NEEDED, result message: Success for: clientVersion: 2.4.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
   wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 

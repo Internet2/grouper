@@ -9,7 +9,7 @@ Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAt
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getAttributeAssignActions"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getAttributeAssignActions xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:getAttributeAssignActions xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsAttributeDefLookups>
         <ns1:name>test:testAttributeAssignDefNameDef</ns1:name>
       </ns1:wsAttributeDefLookups>
@@ -42,21 +42,20 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getAttributeAssignActionsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 15:38:37 GMT
+Date: Mon, 06 Aug 2018 16:38:32 GMT
 
-665
+8ab
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getAttributeAssignActionsResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:getAttributeAssignActionsResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetAttributeAssignActionsResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
@@ -67,12 +66,22 @@ Date: Tue, 21 Jun 2016 15:38:37 GMT
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>, Found 1 results.</ns:resultMessage>
+          <ns:resultMessage>, Found 3 results.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsAttributeAssignActionTuples xsi:type="ns:WsAttributeAssignActionTuple">
+          <ns:action>view</ns:action>
+          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:nameOfAttributeDef>test:testAttributeAssignDefNameDef</ns:nameOfAttributeDef>
+        </ns:wsAttributeAssignActionTuples>
+        <ns:wsAttributeAssignActionTuples xsi:type="ns:WsAttributeAssignActionTuple">
+          <ns:action>read</ns:action>
+          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
+          <ns:nameOfAttributeDef>test:testAttributeAssignDefNameDef</ns:nameOfAttributeDef>
+        </ns:wsAttributeAssignActionTuples>
+        <ns:wsAttributeAssignActionTuples xsi:type="ns:WsAttributeAssignActionTuple">
           <ns:action>assign</ns:action>
-          <ns:attributeDefId>17259035e0984c86a0d45aa17689d583</ns:attributeDefId>
+          <ns:attributeDefId>431a9914cdba4564ad5943c7ec7de988</ns:attributeDefId>
           <ns:nameOfAttributeDef>test:testAttributeAssignDefNameDef</ns:nameOfAttributeDef>
         </ns:wsAttributeAssignActionTuples>
         <ns:wsAttributeDefs xsi:type="ns:WsAttributeDef">
@@ -80,11 +89,11 @@ Date: Tue, 21 Jun 2016 15:38:37 GMT
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
           <ns:extension>testAttributeAssignDefNameDef</ns:extension>
-          <ns:idIndex>10033</ns:idIndex>
+          <ns:idIndex>10044</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-          <ns:uuid>17259035e0984c86a0d45aa17689d583</ns:uuid>
+          <ns:uuid>431a9914cdba4564ad5943c7ec7de988</ns:uuid>
           <ns:valueType>integer</ns:valueType>
         </ns:wsAttributeDefs>
       </ns:return>
@@ -132,11 +141,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GetAttributeAssignActions;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeAssignActionTuple;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGetAttributeAssignActionsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.GetAttributeAssignActions;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsGetAttributeAssignActionsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  *
@@ -223,8 +232,10 @@ public class WsSampleFindAttributeAssignAction implements WsSampleGenerated {
 
 
 WsGetAttributeAssignActionsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@655af9df,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@37cad375,localResultMetadataTracker=true,
-  localWsAttributeAssignActionTuples={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeAssignActionTuple@14fe4e5e},localWsAttributeAssignActionTuplesTracker=true,
-  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@467fff1f},localWsAttributeDefsTracker=true]
-WsAttributeAssignActionTuple[localAction=assign,localActionTracker=true,localAttributeDefId=17259035e0984c86a0d45aa17689d583,localAttributeDefIdTracker=true,localNameOfAttributeDef=test:testAttributeAssignDefNameDef,localNameOfAttributeDefTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@263590d1,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@5a810f36,localResultMetadataTracker=true,
+  localWsAttributeAssignActionTuples={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple@4292498,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple@e108fd4,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeAssignActionTuple@5cbad99f},localWsAttributeAssignActionTuplesTracker=true,
+  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@6eb015f6},localWsAttributeDefsTracker=true]
+WsAttributeAssignActionTuple[localAction=view,localActionTracker=true,localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localNameOfAttributeDef=test:testAttributeAssignDefNameDef,localNameOfAttributeDefTracker=true]
+WsAttributeAssignActionTuple[localAction=read,localActionTracker=true,localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localNameOfAttributeDef=test:testAttributeAssignDefNameDef,localNameOfAttributeDefTracker=true]
+WsAttributeAssignActionTuple[localAction=assign,localActionTracker=true,localAttributeDefId=431a9914cdba4564ad5943c7ec7de988,localAttributeDefIdTracker=true,localNameOfAttributeDef=test:testAttributeAssignDefNameDef,localNameOfAttributeDefTracker=true]

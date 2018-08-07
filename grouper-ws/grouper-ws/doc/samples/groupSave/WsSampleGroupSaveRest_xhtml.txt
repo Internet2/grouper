@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
-Content-Length: 1608
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 1662
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -34,6 +34,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <p class="createParentStemsIfNotExist" />
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
+            <p class="alternateName" />
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">disp1</p>
@@ -54,6 +55,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <p class="createParentStemsIfNotExist" />
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
+            <p class="alternateName" />
             <p class="description">descs</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">disp2</p>
@@ -84,18 +86,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 18:43:55 GMT
+Date: Mon, 06 Aug 2018 15:21:55 GMT
 Connection: close
 
-86e
+8b5
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -105,14 +106,14 @@ Connection: close
   <body>
     <div title="WsGroupSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">880</p>
+        <p class="millis">38</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],
 wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -122,40 +123,42 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
       <ul class="results">
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS_INSERTED</p>
+            <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
             <p class="resultCode2" />
             <p class="resultMessage" />
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
+            <p class="alternateName" />
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">disp1</p>
             <p class="displayName">a stem:disp1</p>
             <p class="extension">whateverGroup</p>
-            <p class="idIndex">10037</p>
+            <p class="idIndex">10038</p>
             <p class="name">aStem:whateverGroup</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">634d3161186d40dcb833f13637bda7c2</p>
+            <p class="uuid">0b957bb1336e4a9a87e1557d67c0fa15</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS_INSERTED</p>
+            <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
             <p class="resultCode2" />
             <p class="resultMessage" />
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
+            <p class="alternateName" />
             <p class="description">descs</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">disp2</p>
             <p class="displayName">a stem:disp2</p>
             <p class="extension">whateverGroup2</p>
-            <p class="idIndex">10038</p>
+            <p class="idIndex">10039</p>
             <p class="name">aStem:whateverGroup2</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">a99908574efe4cea8549c4f2ad50afbc</p>
+            <p class="uuid">3e41f419a3c246f79d7a7e85c9b74461</p>
           </div>
         </li>
       </ul>
@@ -357,7 +360,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],
   wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...
 , actAsSubject: null, txType: NONE, paramNames: 

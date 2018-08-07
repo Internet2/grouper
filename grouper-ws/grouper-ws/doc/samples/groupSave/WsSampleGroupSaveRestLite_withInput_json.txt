@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: 2.3.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,20 +9,20 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/groups/aStem%3AaGroup HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
 Content-Length: 141
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGroupSaveLiteRequest":{
-    "actAsSubjectId":"GrouperSystem",
     "description":"desc1",
     "displayExtension":"disp1",
-    "groupName":"aStem:aGroup"
+    "groupName":"aStem:aGroup",
+    "actAsSubjectId":"GrouperSystem"
   }
 }
 
@@ -35,37 +35,36 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 723
-Date: Tue, 12 Apr 2016 18:50:42 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 722
+Date: Mon, 06 Aug 2018 15:27:44 GMT
 Connection: close
 
 {
   "WsGroupSaveLiteResult":{
-    "responseMetadata":{
-      "millis":"160",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS_UPDATED",
-      "resultMessage":"Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null"
     },
     "wsGroup":{
-      "description":"desc1",
       "displayExtension":"disp1",
-      "displayName":"a stem:disp1",
       "extension":"aGroup",
-      "idIndex":"10003",
+      "displayName":"a stem:disp1",
       "name":"aStem:aGroup",
+      "description":"desc1",
       "typeOfGroup":"group",
-      "uuid":"314c4fe9d66a4488a42a30bd52984231"
+      "idIndex":"10005",
+      "uuid":"03aae7141082467eaaa866e6c6edfda5"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"72"
     }
   }
 }
@@ -243,7 +242,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+Server version: 2.4.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.4.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
   wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 

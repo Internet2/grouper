@@ -1,4 +1,4 @@
-Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: sendMessage, WsSampleSendMessageRest, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/messaging HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 879
+Content-Length: 931
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -44,8 +44,10 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <p class="messageBody">Test another message body</p>
         </li>
       </ul>
-      <p class="queueOrTopic">queue</p>
       <p class="queueOrTopicName">def</p>
+      <p class="queueType">queue</p>
+      <p class="routingKey" />
+      <p class="autocreateObjects" />
     </div>
   </body>
 </html>
@@ -59,18 +61,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:38:15 GMT
+Date: Tue, 07 Aug 2018 17:36:11 GMT
 Connection: close
 
-3d4
+3d5
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -94,9 +95,9 @@ Connection: close
       </ul>
       <p class="queueOrTopicName">def</p>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">48</p>
+        <p class="millis">147</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -211,7 +212,7 @@ public class WsSampleSendMessageRest implements WsSampleRest {
       
       sendMessageRequest.setMessages(new WsMessage[] {wsMessage1, wsMessage2});
       sendMessageRequest.setQueueOrTopicName("def");
-      sendMessageRequest.setQueueOrTopic("queue");
+      sendMessageRequest.setQueueType("queue");
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
       wsSubjectLookup.setSubjectId(SubjectTestHelper.SUBJ0.getId());
       sendMessageRequest.setActAsSubjectLookup(wsSubjectLookup);
@@ -306,4 +307,4 @@ public class WsSampleSendMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: 2 messages were sent to def
+Server version: 2.4.0, result code: SUCCESS, result message: 2 messages were sent to def

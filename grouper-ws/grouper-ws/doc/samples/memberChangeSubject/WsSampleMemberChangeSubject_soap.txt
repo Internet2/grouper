@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubject, code generated classes, format: soap, for version: 2.2.0
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubject, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:memberChangeSubject"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:memberChangeSubject xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
+    <ns1:memberChangeSubject xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsMemberChangeSubjects>
         <ns1:newSubjectLookup>
           <ns1:subjectId>test.subject.1</ns1:subjectId>
@@ -57,32 +57,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:memberChangeSubjectResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:24:19 GMT
+Date: Tue, 07 Aug 2018 17:40:30 GMT
 
-f09
+f0d
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:memberChangeSubjectResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:memberChangeSubjectResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsMemberChangeSubjectResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.2.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
@@ -134,7 +133,7 @@ newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem],deleteOldMember=F]
           </ns:resultMetadata>
           <ns:wsSubjectNew xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
-            <ns:attributeValues>EveryEntity</ns:attributeValues>
+            <ns:attributeValues>GrouperSysAdmin</ns:attributeValues>
             <ns:attributeValues>GrouperSysAdmin</ns:attributeValues>
             <ns:id>GrouperSystem</ns:id>
             <ns:identifierLookup xsi:nil="true" />
@@ -206,10 +205,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.MemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.MemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 
 /**

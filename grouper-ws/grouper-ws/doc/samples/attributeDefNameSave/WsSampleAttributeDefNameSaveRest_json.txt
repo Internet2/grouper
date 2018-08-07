@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 630
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestAttributeDefNameSaveRequest":{
@@ -25,19 +25,19 @@ Content-Type: text/x-json; charset=UTF-8
     "wsAttributeDefNameToSaves":[
       {
         "wsAttributeDefName":{
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "description":"This is a description 1 rest json",
           "displayExtension":"My new attribute def name to save 1 rest json",
-          "name":"test:testAttributeAssignDefNameToSave1Rest_json"
+          "name":"test:testAttributeAssignDefNameToSave1Rest_json",
+          "description":"This is a description 1 rest json",
+          "attributeDefName":"test:testAttributeAssignDefNameDef"
         }
         
       },
       {
         "wsAttributeDefName":{
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "description":"This is a description 2 rest json",
           "displayExtension":"My new attribute def name to save 2 rest json",
-          "name":"test:testAttributeAssignDefNameToSave2Rest_json"
+          "name":"test:testAttributeAssignDefNameToSave2Rest_json",
+          "description":"This is a description 2 rest json",
+          "attributeDefName":"test:testAttributeAssignDefNameDef"
         }
       }
     ]
@@ -53,62 +53,61 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
+Content-Type: application/json;charset=UTF-8
 Content-Length: 1659
-Date: Wed, 28 May 2014 23:05:54 GMT
+Date: Mon, 06 Aug 2018 16:37:00 GMT
 Connection: close
 
 {
   "WsAttributeDefNameSaveResults":{
-    "responseMetadata":{
-      "millis":"159",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[\n  wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest json,description=This is a description 1 rest json,na...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[\n  wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest json,description=This is a description 1 rest json,na...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"214"
     },
     "results":[
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_INSERTED"
         },
         "wsAttributeDefName":{
-          "attributeDefId":"3019775332c94bdcb88f378ffb605df2",
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "description":"This is a description 1 rest json",
+          "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
           "displayExtension":"My new attribute def name to save 1 rest json",
-          "displayName":"test:My new attribute def name to save 1 rest json",
           "extension":"testAttributeAssignDefNameToSave1Rest_json",
-          "idIndex":"10148",
+          "displayName":"test:My new attribute def name to save 1 rest json",
           "name":"test:testAttributeAssignDefNameToSave1Rest_json",
-          "uuid":"7a0dbcf7d26e43f594cde6825d6233c6"
+          "description":"This is a description 1 rest json",
+          "attributeDefName":"test:testAttributeAssignDefNameDef",
+          "idIndex":"10208",
+          "uuid":"4e98f4c4d5bd4913945352b5de201582"
         }
         
       },
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_INSERTED"
         },
         "wsAttributeDefName":{
-          "attributeDefId":"3019775332c94bdcb88f378ffb605df2",
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "description":"This is a description 2 rest json",
+          "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
           "displayExtension":"My new attribute def name to save 2 rest json",
-          "displayName":"test:My new attribute def name to save 2 rest json",
           "extension":"testAttributeAssignDefNameToSave2Rest_json",
-          "idIndex":"10149",
+          "displayName":"test:My new attribute def name to save 2 rest json",
           "name":"test:testAttributeAssignDefNameToSave2Rest_json",
-          "uuid":"7c481cc3c7354d59bac7fe967277ccb5"
+          "description":"This is a description 2 rest json",
+          "attributeDefName":"test:testAttributeAssignDefNameDef",
+          "idIndex":"10209",
+          "uuid":"df1f342114ca4c0180134e9a56c3c277"
         }
       }
     ]
@@ -316,7 +315,7 @@ public class WsSampleAttributeDefNameSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest json,description=This is a description 1 rest json,na...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

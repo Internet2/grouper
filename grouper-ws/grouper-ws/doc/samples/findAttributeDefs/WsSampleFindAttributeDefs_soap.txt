@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefs, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefs, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeD
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:findAttributeDefs"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:findAttributeDefs xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:findAttributeDefs xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:scope>test:</ns1:scope>
       <ns1:wsAttributeDefLookups>
         <ns1:name>test:test1</ns1:name>
@@ -40,32 +40,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findAttributeDefsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:37:50 GMT
+Date: Mon, 06 Aug 2018 16:39:02 GMT
 
 a5f
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:findAttributeDefsResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:findAttributeDefsResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsFindAttributeDefsResults">
         <ns:attributeDefResults xsi:type="ns:WsAttributeDef">
           <ns:assignableTos xsi:nil="true" />
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
           <ns:extension>testAttrNameDef</ns:extension>
-          <ns:idIndex>10032</ns:idIndex>
+          <ns:idIndex>10043</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttrNameDef</ns:name>
-          <ns:uuid>83e1798acc514827b8def0e453c2df7c</ns:uuid>
+          <ns:uuid>11e00ce273094c209826fba7cad5f027</ns:uuid>
           <ns:valueType>string</ns:valueType>
         </ns:attributeDefResults>
         <ns:attributeDefResults xsi:type="ns:WsAttributeDef">
@@ -73,35 +72,35 @@ a5f
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
           <ns:extension>testAttributeAssignAssignNameDef</ns:extension>
-          <ns:idIndex>10034</ns:idIndex>
+          <ns:idIndex>10045</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>test:testAttributeAssignAssignNameDef</ns:name>
-          <ns:uuid>a52ed9428a264619b47a32828a98c51c</ns:uuid>
-          <ns:valueType>marker</ns:valueType>
+          <ns:uuid>66e63dafcd504859a8278b512d95aa39</ns:uuid>
+          <ns:valueType>string</ns:valueType>
         </ns:attributeDefResults>
         <ns:attributeDefResults xsi:type="ns:WsAttributeDef">
           <ns:assignableTos xsi:nil="true" />
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
           <ns:extension>testAttributeAssignDefNameDef</ns:extension>
-          <ns:idIndex>10033</ns:idIndex>
+          <ns:idIndex>10044</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-          <ns:uuid>2354b363de984414ba8355440343b2ef</ns:uuid>
+          <ns:uuid>431a9914cdba4564ad5943c7ec7de988</ns:uuid>
           <ns:valueType>integer</ns:valueType>
         </ns:attributeDefResults>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.3.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
@@ -150,10 +149,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.FindAttributeDefs;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.FindAttributeDefsResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsFindAttributeDefsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.FindAttributeDefs;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.FindAttributeDefsResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsFindAttributeDefsResults;
 
 /**
  * @author mchyzer
@@ -240,8 +239,8 @@ public class WsSampleFindAttributeDefs implements WsSampleGenerated {
 
 
 WsFindAttributeDefsResults[
-  localAttributeDefResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@4c9e3219,edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@25eb2e9b,edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@7340d58f},localAttributeDefResultsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@2584da66,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@351e71c8,localResultMetadataTracker=true]
+  localAttributeDefResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@4a336a7c,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@9d0e9f7,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@30e2b958},localAttributeDefResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@49b38d8c,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@18826e4c,localResultMetadataTracker=true]
 WsAttributeDef[
-  localAssignableTos={<null>},localAssignableTosTracker=true,localAttributeDefType=attr,localAttributeDefTypeTracker=true,localDescriptionTracker=false,localExtension=testAttrNameDef,localExtensionTracker=true,localIdIndex=10032,localIdIndexTracker=true,localMultiAssignable=F,localMultiAssignableTracker=true,localMultiValued=T,localMultiValuedTracker=true,localName=test:testAttrNameDef,localNameTracker=true,localUuid=83e1798acc514827b8def0e453c2df7c,localUuidTracker=true,localValueType=string,localValueTypeTracker=true]
+  localAssignableTos={<null>},localAssignableTosTracker=true,localAttributeDefType=attr,localAttributeDefTypeTracker=true,localDescriptionTracker=false,localExtension=testAttrNameDef,localExtensionTracker=true,localIdIndex=10043,localIdIndexTracker=true,localMultiAssignable=F,localMultiAssignableTracker=true,localMultiValued=T,localMultiValuedTracker=true,localName=test:testAttrNameDef,localNameTracker=true,localUuid=11e00ce273094c209826fba7cad5f027,localUuidTracker=true,localValueType=string,localValueTypeTracker=true]

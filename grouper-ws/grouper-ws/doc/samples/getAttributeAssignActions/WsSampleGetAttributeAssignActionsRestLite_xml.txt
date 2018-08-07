@@ -1,4 +1,4 @@
-Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAttributeAssignActionsRestLite, manually written lite/rest, format: xml, for version: 2.3.0
+Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAttributeAssignActionsRestLite, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAtt
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 205
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGetAttributeAssignActionsRequest>
   <wsAttributeDefLookups>
@@ -34,48 +34,47 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 31 May 2016 21:51:00 GMT
+Date: Mon, 06 Aug 2018 16:40:10 GMT
 Connection: close
 
 3f9
 <WsGetAttributeAssignActionsResults>
   <wsAttributeAssignActionTuples>
     <WsAttributeAssignActionTuple>
-      <action>assign</action>
-      <attributeDefId>0d90c6c20c984defb4e0ba341224b5b9</attributeDefId>
+      <action>read</action>
+      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
       <nameOfAttributeDef>aStem:permissionDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
       <action>write</action>
-      <attributeDefId>0d90c6c20c984defb4e0ba341224b5b9</attributeDefId>
+      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
       <nameOfAttributeDef>aStem:permissionDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
     <WsAttributeAssignActionTuple>
-      <action>read</action>
-      <attributeDefId>0d90c6c20c984defb4e0ba341224b5b9</attributeDefId>
+      <action>assign</action>
+      <attributeDefId>4d46bcc488724fc2b3a40b0b75e14a2b</attributeDefId>
       <nameOfAttributeDef>aStem:permissionDef</nameOfAttributeDef>
     </WsAttributeAssignActionTuple>
   </wsAttributeAssignActionTuples>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10035</idIndex>
+      <idIndex>10046</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>0d90c6c20c984defb4e0ba341224b5b9</uuid>
+      <uuid>4d46bcc488724fc2b3a40b0b75e14a2b</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
       <valueType>
       </
-3dc
+3db
 valueType>
       <assignToAttributeDef>F</assignToAttributeDef>
       <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
@@ -98,8 +97,8 @@ valueType>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>285</millis>
-    <serverVersion>2.3.0</serverVersion>
+    <millis>11</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsGetAttributeAssignActionsResults>
 0
@@ -277,4 +276,4 @@ public class WsSampleGetAttributeAssignActionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.

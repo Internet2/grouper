@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 110
-Content-Type: text/x-json; charset=UTF-8
+Content-Length: 130
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGetPermissionAssignmentsRequest":{
@@ -25,6 +25,8 @@ Content-Type: text/x-json; charset=UTF-8
         "uuid":""
       }
     ]
+    ,
+    "includeLimits":"T"
   }
 }
 
@@ -37,113 +39,124 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 2473
-Date: Wed, 28 May 2014 23:57:29 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2842
+Date: Mon, 06 Aug 2018 17:14:51 GMT
 Connection: close
 
 {
   "WsGetPermissionAssignmentsResults":{
-    "responseMetadata":{
-      "millis":"106",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 3 results.",
-      "success":"T"
+      "resultMessage":", Found 3 results."
     },
     "wsAttributeDefs":[
       {
         "attributeDefType":"perm",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
         "extension":"permissionDef",
-        "idIndex":"10033",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"c056b6eafc584704be188886bc8e1435",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
         "multiAssignable":"F",
-        "multiValued":"F",
+        "valueType":"marker",
         "name":"aStem:permissionDef",
-        "uuid":"a1c3455f554f42618363896f689db2aa",
-        "valueType":"marker"
-      }
-    ]
-    ,
-    "wsGroups":[
-      {
-        "displayExtension":"role",
-        "displayName":"a stem:role",
-        "extension":"role",
-        "idIndex":"10008",
-        "name":"aStem:role",
-        "typeOfGroup":"role",
-        "uuid":"8be031282a69443e8c347402c5b7ccd1"
-      },
-      {
-        "displayExtension":"role2",
-        "displayName":"a stem:role2",
-        "extension":"role2",
-        "idIndex":"10009",
-        "name":"aStem:role2",
-        "typeOfGroup":"role",
-        "uuid":"67874218d8094e1fb4af6f58129e0481"
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10049",
+        "multiValued":"F",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
       }
     ]
     ,
     "wsPermissionAssigns":[
       {
-        "action":"read",
-        "allowedOverall":"T",
-        "attributeAssignId":"c864b571daf14f5b9de674e8f16e58dd",
-        "attributeDefId":"a1c3455f554f42618363896f689db2aa",
+        "sourceId":"jdbc",
+        "permissionType":"role",
+        "roleId":"58c208ec75e84b36a7942876df7491c8",
         "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"9b024ee7579c4157842aebc2198bec4a",
         "attributeDefNameName":"aStem:permissionDefName",
+        "membershipId":"16aec416d28743b3a3c15f4971fa0875:6b8ffe19d0c2470da27bd42065b79fa1",
         "disallowed":"F",
         "enabled":"T",
-        "membershipId":"e6bd262ad3db41988d1d8bb8fce30921:9a79719a53f8484fab90203f0cd89b79",
-        "permissionType":"role",
-        "roleId":"8be031282a69443e8c347402c5b7ccd1",
+        "subjectId":"test.subject.0",
+        "attributeDefId":"c056b6eafc584704be188886bc8e1435",
+        "attributeDefNameId":"813af61d5d06469d822852367da88c78",
+        "allowedOverall":"T",
         "roleName":"aStem:role",
-        "sourceId":"jdbc",
-        "subjectId":"test.subject.0"
+        "action":"read",
+        "attributeAssignId":"7628c198a33644ac82b830831ad9d34f"
       },
       {
-        "action":"read",
-        "allowedOverall":"T",
-        "attributeAssignId":"c864b571daf14f5b9de674e8f16e58dd",
-        "attributeDefId":"a1c3455f554f42618363896f689db2aa",
+        "sourceId":"jdbc",
+        "permissionType":"role",
+        "roleId":"58c208ec75e84b36a7942876df7491c8",
         "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"9b024ee7579c4157842aebc2198bec4a",
         "attributeDefNameName":"aStem:permissionDefName",
+        "membershipId":"5c70de3615db412ab079f30019a7f3bd:6b8ffe19d0c2470da27bd42065b79fa1",
         "disallowed":"F",
         "enabled":"T",
-        "membershipId":"921f906eb6ce447bb9f7c4991b0d3dea:9a79719a53f8484fab90203f0cd89b79",
-        "permissionType":"role",
-        "roleId":"8be031282a69443e8c347402c5b7ccd1",
+        "subjectId":"test.subject.4",
+        "attributeDefId":"c056b6eafc584704be188886bc8e1435",
+        "attributeDefNameId":"813af61d5d06469d822852367da88c78",
+        "allowedOverall":"T",
         "roleName":"aStem:role",
-        "sourceId":"jdbc",
-        "subjectId":"test.subject.4"
+        "action":"read",
+        "attributeAssignId":"7628c198a33644ac82b830831ad9d34f"
       },
       {
-        "action":"write",
-        "allowedOverall":"T",
-        "attributeAssignId":"8a39d4810cbc4424b03c8878fc779961",
-        "attributeDefId":"a1c3455f554f42618363896f689db2aa",
-        "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"f1026a20954647f9824ff5d6676abac0",
-        "attributeDefNameName":"aStem:permissionDefName2",
-        "disallowed":"F",
-        "enabled":"T",
-        "membershipId":"78455476c57e46f99679c9216b5c761c:46ead7a8250a4dd990753bb5d3c962ed",
+        "sourceId":"jdbc",
         "permissionType":"role_subject",
-        "roleId":"67874218d8094e1fb4af6f58129e0481",
+        "roleId":"6cb12df9425e493d9e4436b28a51ab54",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameName":"aStem:permissionDefName2",
+        "membershipId":"62bbc15300634a6d9e7e4e5324b6efce:8fa8d248d1444b70870fd1a1c7c1f29c",
+        "disallowed":"F",
+        "enabled":"T",
+        "subjectId":"test.subject.1",
+        "attributeDefId":"c056b6eafc584704be188886bc8e1435",
+        "attributeDefNameId":"09fe17dde5b34608ba0d348da7e151df",
+        "allowedOverall":"T",
         "roleName":"aStem:role2",
-        "sourceId":"jdbc",
-        "subjectId":"test.subject.1"
+        "action":"write",
+        "attributeAssignId":"0777751648bc4ca2a6e67ac6034a1824"
+      }
+    ]
+    ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"59"
+    },
+    "wsGroups":[
+      {
+        "displayExtension":"role",
+        "extension":"role",
+        "displayName":"a stem:role",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "idIndex":"10033",
+        "uuid":"58c208ec75e84b36a7942876df7491c8"
+      },
+      {
+        "displayExtension":"role2",
+        "extension":"role2",
+        "displayName":"a stem:role2",
+        "name":"aStem:role2",
+        "typeOfGroup":"role",
+        "idIndex":"10034",
+        "uuid":"6cb12df9425e493d9e4436b28a51ab54"
       }
     ]
     ,
@@ -240,6 +253,7 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
       WsRestGetPermissionAssignmentsRequest getPermissionAssignments = new WsRestGetPermissionAssignmentsRequest();
 
       
+      getPermissionAssignments.setIncludeLimits("T");
       
       WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup();
       wsAttributeDefLookup.setUuid("");
@@ -327,4 +341,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.

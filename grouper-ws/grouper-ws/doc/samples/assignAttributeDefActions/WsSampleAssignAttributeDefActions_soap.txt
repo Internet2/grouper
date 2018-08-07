@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActions, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActions, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributeDefActions, WsSampleAssign
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:assignAttributeDefActions"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:assignAttributeDefActions xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:assignAttributeDefActions xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsAttributeDefLookup>
         <ns1:name>test:testAttributeAssignDefNameDef</ns1:name>
         <ns1:uuid></ns1:uuid>
@@ -48,34 +48,33 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignAttributeDefActionsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 01 Jun 2016 21:32:48 GMT
+Date: Mon, 06 Aug 2018 16:34:55 GMT
 
-633
+649
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:assignAttributeDefActionsResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:assignAttributeDefActionsResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAttributeDefAssignActionResults">
         <ns:actions xsi:type="ns:WsAttributeDefActionOperationPerformed">
           <ns:action>read</ns:action>
-          <ns:status>ADDED</ns:status>
+          <ns:status>ASSIGNED_ALREADY</ns:status>
         </ns:actions>
         <ns:actions xsi:type="ns:WsAttributeDefActionOperationPerformed">
           <ns:action>view</ns:action>
-          <ns:status>ADDED</ns:status>
+          <ns:status>ASSIGNED_ALREADY</ns:status>
         </ns:actions>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -89,11 +88,11 @@ Date: Wed, 01 Jun 2016 21:32:48 GMT
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
           <ns:extension>testAttributeAssignDefNameDef</ns:extension>
-          <ns:idIndex>10033</ns:idIndex>
+          <ns:idIndex>10044</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-          <ns:uuid>54957faff1e04828acf7c61c99c3a5eb</ns:uuid>
+          <ns:uuid>431a9914cdba4564ad5943c7ec7de988</ns:uuid>
           <ns:valueType>integer</ns:valueType>
         </ns:wsAttributeDef>
       </ns:return>
@@ -141,12 +140,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AssignAttributeDefActions;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefActionOperationPerformed;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefAssignActionResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AssignAttributeDefActions;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefActionOperationPerformed;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefAssignActionResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  *
@@ -236,9 +235,9 @@ public class WsSampleAssignAttributeDefActions implements WsSampleGenerated {
 
 
 WsAttributeDefAssignActionResults[
-  localActions={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefActionOperationPerformed@530f722e,edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefActionOperationPerformed@1b11549c},localActionsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@ec9dba6,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@667376df,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@26815f05,localWsAttributeDefTracker=true]
-WsAttributeDefActionOperationPerformed[localAction=read,localActionTracker=true,localStatus=ADDED,localStatusTracker=true]
-WsAttributeDefActionOperationPerformed[localAction=view,localActionTracker=true,localStatus=ADDED,localStatusTracker=true]
+  localActions={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefActionOperationPerformed@690113f0,edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefActionOperationPerformed@509e4d53},localActionsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@6f915016,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@533165e7,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@324e62e2,localWsAttributeDefTracker=true]
+WsAttributeDefActionOperationPerformed[localAction=read,localActionTracker=true,localStatus=ASSIGNED_ALREADY,localStatusTracker=true]
+WsAttributeDefActionOperationPerformed[localAction=view,localActionTracker=true,localStatus=ASSIGNED_ALREADY,localStatusTracker=true]

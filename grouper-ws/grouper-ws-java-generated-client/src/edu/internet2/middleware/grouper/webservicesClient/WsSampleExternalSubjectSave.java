@@ -93,9 +93,9 @@ public class WsSampleExternalSubjectSave implements WsSampleGenerated {
             WsExternalSubjectToSave wsExternalSubjectToSave = WsExternalSubjectToSave.class.newInstance();
             WsExternalSubject wsExternalSubject = WsExternalSubject.class.newInstance();
             
-            wsExternalSubject.setIdentifier("b_ident@c.d");
+            wsExternalSubject.setIdentifier("b_ident@c.com");
             wsExternalSubject.setName("Another Name");
-            wsExternalSubject.setEmail("b@c.d");
+            wsExternalSubject.setEmail("b@c.com");
             WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
             wsExternalSubjectAttribute.setAttributeSystemName("jabber");
             wsExternalSubjectAttribute.setAttributeValue("b_jabber@c.d");
@@ -103,7 +103,7 @@ public class WsSampleExternalSubjectSave implements WsSampleGenerated {
             wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
 
             WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup();
-            wsExternalSubjectLookup.setIdentifier("b_ident@c.d");
+            wsExternalSubjectLookup.setIdentifier("b_ident@c.com");
             wsExternalSubjectToSave.setWsExternalSubjectLookup(wsExternalSubjectLookup);
 
             externalSubjectSave.setWsExternalSubjectToSaves(new WsExternalSubjectToSave[] {wsExternalSubjectToSave});

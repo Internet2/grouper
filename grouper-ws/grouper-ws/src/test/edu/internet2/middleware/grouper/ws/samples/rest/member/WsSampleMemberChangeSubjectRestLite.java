@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -123,6 +124,8 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
       
+      EhcacheController.ehcacheController().flushCache();
+
       //lets make sure the old member was deleted
       GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
       boolean startedSession = false;

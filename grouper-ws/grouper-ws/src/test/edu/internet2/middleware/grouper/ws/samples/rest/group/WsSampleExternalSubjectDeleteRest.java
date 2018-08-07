@@ -73,8 +73,8 @@ public class WsSampleExternalSubjectDeleteRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestExternalSubjectDeleteRequest externalSubjectDelete = new WsRestExternalSubjectDeleteRequest();
       
-      WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup("a_ident@b.c");
-      WsExternalSubjectLookup wsExternalSubjectLookup2 = new WsExternalSubjectLookup("doesntExist@b.c");
+      WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup("a_ident@b.com");
+      WsExternalSubjectLookup wsExternalSubjectLookup2 = new WsExternalSubjectLookup("doesntExist@b.com");
       WsExternalSubjectLookup[] wsExternalSubjectLookups = new WsExternalSubjectLookup[]{wsExternalSubjectLookup, wsExternalSubjectLookup2};
       externalSubjectDelete.setWsExternalSubjectLookups(wsExternalSubjectLookups);
       

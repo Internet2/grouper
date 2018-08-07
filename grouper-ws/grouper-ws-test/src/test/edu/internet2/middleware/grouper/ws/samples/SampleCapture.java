@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -39,7 +40,9 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -47,7 +50,9 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectSave;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -254,57 +259,57 @@ public class SampleCapture {
    */
   public static void main(String[] args) {
 
-    setupData();
+//    setupData();
 
 //    captureAssignAttributesWithValue();
 
 //    captureGetGrouperPrivileges();
 
-    captureGroupSave();
+//    captureGroupSave();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
-//    captureAcknowledgeMessage();  
-//    captureAddMember();
-//    captureAssignAttributeDefActions();
-//    captureAssignAttributeDefNameInheritance();
-//    captureAssignAttributes();
-//    captureAssignAttributesBatch();
-//    captureAssignAttributesWithValue();
-//    captureAssignGrouperPrivileges();
-//    captureAssignPermissions();
-//    captureAttributeDefDelete();
-//    captureAttributeDefNameDelete();
-//    captureAttributeDefNameSave();
-//    captureAttributeDefSave();
-//    captureDeleteMember();
-//    captureExternalSubjectDelete();
-//    captureExternalSubjectSave();
-//    captureFindAttributeAssignAction();
-//    captureFindAttributeDefNames();
-//    captureFindAttributeDefs();
-//    captureFindExternalSubjects();
-//    captureFindGroups();
-//    captureFindStems();
-//    captureGetAttributeAssignments();
-//    captureGetAttributeAssignActions();
-//    captureGetGrouperPrivileges();
-//    captureGetGroups();
-//    captureGetMembers();
-//    captureGetMemberships();
-//    captureGetPermissionAssignments();
-//    captureGetSubjects();
-//    captureGroupDelete();
-//    captureGroupSave();
-//    captureHasMember();
-//    captureMemberChangeSubject();
-//    captureReceiveMessage();
+////    captureAcknowledgeMessage();  
+////    captureAddMember();
+////    captureAssignAttributeDefActions();
+////    captureAssignAttributeDefNameInheritance();
+////    captureAssignAttributes();
+////    captureAssignAttributesBatch();
+////    captureAssignAttributesWithValue();
+////    captureAssignGrouperPrivileges();
+////    captureAssignPermissions();
+////    captureAttributeDefDelete();
+////    captureAttributeDefNameDelete();
+////    captureAttributeDefNameSave();
+////    captureAttributeDefSave();
+////    captureDeleteMember();
+////    captureExternalSubjectDelete();
+////    captureExternalSubjectSave();
+////    captureFindAttributeAssignAction();
+////    captureFindAttributeDefNames();
+////    captureFindAttributeDefs();
+////    captureFindExternalSubjects();
+////    captureFindGroups();
+////    captureFindStems();
+////    captureGetAttributeAssignments();
+////    captureGetAttributeAssignActions();
+////    captureGetGrouperPrivileges();
+////    captureGetGroups();
+////    captureGetMembers();
+////    captureGetMemberships();
+////    captureGetPermissionAssignments();
+////    captureGetSubjects();
+////    captureGroupDelete();
+////    captureGroupSave();
+////    captureHasMember();
+    captureMemberChangeSubject();
+////    captureReceiveMessage();
 ////    captureRampart();
-//      captureSendMessage();
-//    captureStemDelete();
-//    captureStemSave();
+////    captureSendMessage();
+////    captureStemDelete();
+////    captureStemSave();
     
 
   }
@@ -313,10 +318,10 @@ public class SampleCapture {
    * receive message
    */
   public static void captureSendMessage() {
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleSendMessageRest.class, "sendMessage", null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleSendMessage.class, "sendMessage", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleSendMessageRest.class, "sendMessage", null);
     
   }
 
@@ -324,10 +329,10 @@ public class SampleCapture {
    * receive message
    */
   public static void captureReceiveMessage() {
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleReceiveMessageRest.class, "receiveMessage", null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleReceiveMessage.class, "receiveMessage", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleReceiveMessageRest.class, "receiveMessage", null);
 
   }
 
@@ -335,10 +340,10 @@ public class SampleCapture {
    * acknowledge message
    */
   public static void captureAcknowledgeMessage() {
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleAcknowledgeMessageRest.class, "acknowledgeMessage", null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleAcknowledgeMessage.class, "acknowledgeMessage", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAcknowledgeMessageRest.class, "acknowledgeMessage", null);
     
   }
 
@@ -420,10 +425,31 @@ public class SampleCapture {
   /** certain data has to exist for samples to run */
   private static void setupData() {
     GrouperSession grouperSession = null;
+    HibUtils.assignDisallowCacheThreadLocal();
     try {
 
       grouperSession = GrouperSession.startRootSession();
 
+      RegistryReset rr = new RegistryReset();
+      rr._addSubjects();
+
+      {
+        Group testGroup = GroupFinder.findByName(grouperSession, "aStem:testGroup", false);
+        // if this created group exists, delete it
+        if (testGroup != null) {
+          testGroup.delete();
+        }
+      }
+      
+      {
+        Group testStem = GroupFinder.findByName(grouperSession, "aStem:testStem", false);
+        // if this created group exists, delete it
+        if (testStem != null) {
+          testStem.delete();
+        }
+        
+      }
+      
       //make sure to create with the same id
       
       String groupTypeId = null;
@@ -493,10 +519,6 @@ public class SampleCapture {
         
       }
 
-      RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
-      
-      GrouperCheckConfig.checkObjects();
-
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem", true);
       
       try {
@@ -547,7 +569,7 @@ public class SampleCapture {
       
       new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
       
-      aGroup.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.ADMIN);
+      aGroup.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.ADMIN, false);
       
       Group aGroup2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null,"aStem:aGroup2", 
           "a group2","a group description2",   null, false);
@@ -591,7 +613,6 @@ public class SampleCapture {
       groupType2.addAttribute(grouperSession, "attr2_2", false, groupType2Attribute2Id);
       groupType3.addAttribute(grouperSession, "attr3_1", false, groupType3Attribute1Id);
       groupType3.addAttribute(grouperSession, "attr3_2", false, groupType3Attribute2Id);
-
       
       //new attribute framework
       //###################################
@@ -602,7 +623,6 @@ public class SampleCapture {
       attrDef.setMultiValued(true);
       attrDef.setValueType(AttributeDefValueType.string);
       attrDef.store();
-      
 
       AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
       AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
@@ -612,13 +632,21 @@ public class SampleCapture {
       attributeDef.setValueType(AttributeDefValueType.integer);
       attributeDef.setMultiValued(true);
       attributeDef.store();
+
+      if (attributeDef.getAttributeDefActionDelegate().findAction("assign", false) == null) {
+        attributeDef.getAttributeDefActionDelegate().addAction("assign");
+      }
       
       final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
       
       attributeDef2.setAssignToGroup(false);
       attributeDef2.setAssignToGroupAssn(true);
       attributeDef2.store();
-      
+
+      if (attributeDef2.getAttributeDefActionDelegate().findAction("assign", false) == null) {
+        attributeDef2.getAttributeDefActionDelegate().addAction("assign");
+      }
+
       Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
         .assignDescription("description").save();
@@ -628,8 +656,8 @@ public class SampleCapture {
         .assignDescription("description").save();
 
       //test subject 0 can view and read
-      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
-      group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+      group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW, false);
       attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
 
       AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
@@ -647,24 +675,26 @@ public class SampleCapture {
       //Permission framework
       
       //parent implies child
-      Role role = aStem.addChildRole("role", "role");
-      Role role2 = aStem.addChildRole("role2", "role2");
+      Role role = new GroupSave(grouperSession).assignName("aStem:role").assignTypeOfGroup(TypeOfGroup.role).save();
+      Role role2 = new GroupSave(grouperSession).assignName("aStem:role2").assignTypeOfGroup(TypeOfGroup.role).save();
           
-      ((Group)role).addMember(SubjectTestHelper.SUBJ0);    
-      ((Group)role).addMember(SubjectTestHelper.SUBJ4);    
-      ((Group)role2).addMember(SubjectTestHelper.SUBJ1);    
+      ((Group)role).addMember(SubjectTestHelper.SUBJ0, false);    
+      ((Group)role).addMember(SubjectTestHelper.SUBJ4, false);    
+      ((Group)role2).addMember(SubjectTestHelper.SUBJ1, false);    
       
-      AttributeDef permissionDef = aStem.addChildAttributeDef("permissionDef", AttributeDefType.perm);
-      permissionDef.setAssignToEffMembership(true);
-      permissionDef.setAssignToGroup(true);
-      permissionDef.store();
-      AttributeDefName permissionDefName = aStem.addChildAttributeDefName(permissionDef, "permissionDefName", "permissionDefName");
-      AttributeDefName permissionDefName2 = aStem.addChildAttributeDefName(permissionDef, "permissionDefName2", "permissionDefName2");
-      AttributeDefName permissionDefName3 = aStem.addChildAttributeDefName(permissionDef, "permissionDefName3", "permissionDefName3");
-      AttributeDefName permissionDefName4 = aStem.addChildAttributeDefName(permissionDef, "permissionDefName4", "permissionDefName4");
+      AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName("aStem:permissionDef").assignAttributeDefType(AttributeDefType.perm).assignToEffMembership(true).assignToGroup(true).save();
+      
+      AttributeDefName permissionDefName = new AttributeDefNameSave(grouperSession, permissionDef).assignName("aStem:permissionDefName").save();
+      AttributeDefName permissionDefName2 = new AttributeDefNameSave(grouperSession, permissionDef).assignName("aStem:permissionDefName2").save();
+      AttributeDefName permissionDefName3 = new AttributeDefNameSave(grouperSession, permissionDef).assignName("aStem:permissionDefName3").save();
+      AttributeDefName permissionDefName4 = new AttributeDefNameSave(grouperSession, permissionDef).assignName("aStem:permissionDefName4").save();
 
-      permissionDef.getAttributeDefActionDelegate().addAction("read");
-      permissionDef.getAttributeDefActionDelegate().addAction("write");
+      if (permissionDef.getAttributeDefActionDelegate().findAction("read", false) == null) {
+        permissionDef.getAttributeDefActionDelegate().addAction("read");
+      }
+      if (permissionDef.getAttributeDefActionDelegate().findAction("write", false) == null) {
+        permissionDef.getAttributeDefActionDelegate().addAction("write");
+      }
       
       //subject 0 has a "role" permission of permissionDefName with "action" in 
       //subject 1 has a "role_subject" permission of permissionDefName2 with action2
@@ -679,7 +709,7 @@ public class SampleCapture {
 
       ExternalSubjectSave externalSubjectSave = new ExternalSubjectSave(GrouperServiceUtils.testSession)
           .assignName("My Name")
-          .assignIdentifier("a_ident@idp.example.edu").assignEmail("a@b.c");
+          .assignIdentifier("a_ident@idp.example.edu").assignEmail("a@b.com");
       
       boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
 
@@ -688,12 +718,21 @@ public class SampleCapture {
       }
       externalSubjectSave.save();
 
+      GrouperBuiltinMessagingSystem.createQueue("ghi");
+      GrouperBuiltinMessagingSystem.allowSendToQueue("ghi", SubjectTestHelper.SUBJ0);
+      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("ghi", SubjectTestHelper.SUBJ0);
+
+      GrouperBuiltinMessagingSystem.createQueue("def");
+      GrouperBuiltinMessagingSystem.allowSendToQueue("def", SubjectTestHelper.SUBJ0);
+      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("def", SubjectTestHelper.SUBJ0);
+
       //anything else?
 
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+      HibUtils.clearDisallowCacheThreadLocal();
     }
      
   }
@@ -860,20 +899,21 @@ public class SampleCapture {
    * all group save captures
    */
   public static void captureGroupSave() {
+    
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupSave.class, "groupSave", (String)null, 30000);
+        WsSampleGroupSave.class, "groupSave", (String)null, 5000);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupDetailSave.class, "groupSave", "_withDetail", 30000);
+        WsSampleGroupDetailSave.class, "groupSave", "_withDetail", 5000);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupSaveLite.class, "groupSave", null, 30000);
+        WsSampleGroupSaveLite.class, "groupSave", null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupSaveRest.class, "groupSave", null, 30000);
+        WsSampleGroupSaveRest.class, "groupSave", null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupDetailSaveRest.class, "groupSave", "_withDetail", 30000);
+        WsSampleGroupDetailSaveRest.class, "groupSave", "_withDetail", 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupSaveRestLite.class, "groupSave", null, 30000);
+        WsSampleGroupSaveRestLite.class, "groupSave", null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupSaveRestLite.class, "groupSave", "_withInput", 30000);
+        WsSampleGroupSaveRestLite.class, "groupSave", "_withInput", 5000);
     
   }
 
@@ -1365,9 +1405,9 @@ public class SampleCapture {
    */
   public static void captureExternalSubjectSave() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleExternalSubjectSave.class, "externalSubjectSave", (String)null, 30000);
+        WsSampleExternalSubjectSave.class, "externalSubjectSave", (String)null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleExternalSubjectSaveRest.class, "externalSubjectSave", null, 30000);
+        WsSampleExternalSubjectSaveRest.class, "externalSubjectSave", null, 5000);
     
   }
   

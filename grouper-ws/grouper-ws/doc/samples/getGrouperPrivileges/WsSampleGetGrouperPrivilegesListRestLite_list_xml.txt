@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: 2.2.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 234
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGetGrouperPrivilegesLiteRequest>
   <subjectId>test.subject.9</subjectId>
@@ -33,15 +33,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 03 Jun 2014 22:27:00 GMT
+Date: Mon, 06 Aug 2018 16:40:25 GMT
 Connection: close
 
 3fe
@@ -70,8 +69,8 @@ Connection: close
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>0fab9b998a734d9a9c33a1a69ba54e69</uuid>
-        <idIndex>10001</idIndex>
+        <uuid>03aae7141082467eaaa866e6c6edfda5</uuid>
+        <idIndex>10005</idIndex>
       </wsGroup>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
@@ -88,7 +87,7 @@ Connection: close
     </
 61
 millis>
-    <serverVersion>2.2.0</serverVersion>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
 0
@@ -297,11 +296,8 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: null
+Server version: 2.4.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
-  privilegeResults={WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc],privilegeName=admin,privilegeType=access,revokable=T,
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=0fab9b998a734d9a9c33a1a69ba54e69,idIndex=10001],
-  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=96,millisStart=0,serverVersion=2.2.0]]
+  privilegeResults={subject: jdbc - test.subject.9, ownerSubject: jdbc - test.subject.9, admin, group: aStem:aGroup, },
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=21,millisStart=0,serverVersion=2.4.0]]

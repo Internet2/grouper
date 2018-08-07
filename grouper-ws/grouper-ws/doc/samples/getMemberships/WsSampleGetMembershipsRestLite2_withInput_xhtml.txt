@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v2_1_001/subjects/10021368/memberships HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v2_4_000/subjects/10021368/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -24,20 +24,20 @@ Host: localhost:8092
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 15:56:20 GMT
+Transfer-Encoding: chunked
+Date: Mon, 06 Aug 2018 16:41:44 GMT
 Connection: close
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+15f0
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -45,20 +45,163 @@ Connection: close
   </head>
   <body>
     <div title="WsGetMembershipsResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">33</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.4.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Found 0 results involving 0 groups and 0 subjects</p>
+        <p class="resultMessage">Found 4 results involving 4 groups and 1 subjects</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">110</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
+      <ul class="wsGroups">
+        <li title="WsGroup">
+          <p class="alternateName" />
+          <p class="description">a group description</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">a group</p>
+          <p class="displayName">a stem:a group</p>
+          <p class="extension">aGroup</p>
+          <p class="idIndex">10005</p>
+          <p class="name">aStem:aGroup</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
+        </li>
+        <li title="WsGroup">
+          <p class="alternateName" />
+          <p class="description">a group description2</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">a group2</p>
+          <p class="displayName">a stem:a group2</p>
+          <p class="extension">aGroup2</p>
+          <p class="idIndex">10006</p>
+          <p class="name">aStem:aGroup2</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">08cc1f2ccd3248ff801db35946e03823</p>
+        </li>
+        <li title="WsGroup">
+          <p class="alternateName" />
+          <p class="description" />
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">sysadmingroup</p>
+          <p class="displayName">etc:sysadmingroup</p>
+          <p class="extension">sysadmingroup</p>
+          <p class="idIndex">10009</p>
+          <p class="name">etc:sysadmingroup</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">5cbabdd15c1d49ceae302f8e844b0009</p>
+        </li>
+        <li title="WsGroup">
+          <p class="alternateName" />
+          <p class="description" />
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">webServiceActAsGroup</p>
+          <p class="displayName">etc:webServiceActAsGroup</p>
+          <p class="extension">webServiceActAsGroup</p>
+          <p class="idIndex">10008</p>
+          <p class="name">etc:webServiceActAsGroup</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">a3b9b6852757437981d39b7a14a0bfd7</p>
+        </li>
+      </ul>
+      <ul class="wsMemberships">
+        <li title="WsMembership">
+          <p class="createTime">2018/08/06 12:37:40.392</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">03aae7141082467eaaa866e6c6edfda5</p>
+          <p class="groupName">aStem:aGroup</p>
+          <p class="immediateMembershipId">c063e7ebe5284fde956d0f53e1d47fbb</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">8ba2b7659552439c98a8e71e59b36f63</p>
+          <p class="membershipId">c063e7ebe5284fde956d0f53e1d47fbb:86f7a1fbdd5a48ac8653c7affd20c712</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">10021368</p>
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+        <li title="WsMembership">
+          <p class="createTime">2018/08/06 11:04:00.726</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">08cc1f2ccd3248ff801db35946e03823</p>
+          <p class="groupName">aStem:aGroup2</p>
+          <p class="immediateMembershipId">82a140a2a32741798121870185e87b79</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">8ba2b7659552439c98a8e71e59b36f63</p>
+          <p class="membershipId">82a140a2a32741798121870185e87b79:704640cf0dd04a808038c0d9a8146923</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">10021368</p>
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+        <li title="WsMembership">
+          <p class="createTime">2018/08/06 11:04:01.133</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">5cbabdd15c1d49ceae302f8e844b0009</p>
+          <p class="groupName">etc:sysadmingroup</p>
+          <p class="immediateMembershipId">9862d3f0bb5c4ac9a38a5a564bd469f9</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">8ba2b7659552439c98a8e71e59b36f63</p>
+          <p class="membershipId">9862d3f0bb5c4ac9a38a5a564bd469f9:74084e0c21dc43f2a8cd46514039d98f</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">10021368</p>
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+        <li title="WsMembership">
+          <p class="createTime">2018/08/06 11:04:01.076</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">a3b9b6852757437981d39b7a14a0bfd7</p>
+          <p class="groupName">etc:webServiceActAsGroup</p>
+          <p class="immediateMembershipId">dc561ed926b2497fa14254e49adfb88d</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">8ba2b7659552439c98a8e71e59b36f63</p>
+          <p class="membershipId">dc561ed926b2497fa14254e49adfb88d:3e16879243e44f23aecff3ceb54d5782</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">10021368</p>
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+      </ul>
+      <ul class="wsSubjects">
+        <li title="WsSubject">
+          <p class="id">10021368</p>
+          <p class="identifierLookup" />
+          <p class="name" />
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
+        </li>
+      </ul>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -206,4 +349,4 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Found 0 results involving 0 groups and 0 subjects
+Server version: 2.4.0, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects

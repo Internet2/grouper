@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 659
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestMemberChangeSubjectRequest>
   <actAsSubjectLookup>
@@ -51,15 +51,14 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:26:17 GMT
+Date: Tue, 07 Aug 2018 17:41:02 GMT
 Connection: close
 
 3e7
@@ -110,7 +109,7 @@ WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+    <resultMessage>Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
@@ -123,8 +122,8 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>352</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>272</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsMemberChangeSubjectResults>
 0
@@ -170,7 +169,9 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
@@ -273,16 +274,19 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
       
+      EhcacheController.ehcacheController().flushCache();
+
       GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
       boolean startedSession = false;
       if (grouperSession == null) {
         grouperSession = GrouperSession.startRootSession();
         startedSession = true;
       }
+      
       try {
         //lets make sure the old member was deleted
         try {
-          GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+          Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
           throw new RuntimeException("Should not find renamed member: test.subject.0!");
         } catch (MemberNotFoundException mnfe) {
           //good
@@ -341,7 +345,7 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[

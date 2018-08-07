@@ -1,4 +1,4 @@
-Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAttributeAssignActionsRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAttributeAssignActionsRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getAttributeAssignActions, WsSampleGetAtt
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 735
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -50,18 +50,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 31 May 2016 21:50:30 GMT
+Date: Mon, 06 Aug 2018 16:40:02 GMT
 Connection: close
 
-86e
+86c
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -71,9 +70,9 @@ Connection: close
   <body>
     <div title="WsGetAttributeAssignActionsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">1434</p>
+        <p class="millis">14</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -83,18 +82,18 @@ Connection: close
       </div>
       <ul class="wsAttributeAssignActionTuples">
         <li title="WsAttributeAssignActionTuple">
-          <p class="action">assign</p>
-          <p class="attributeDefId">76254762fdf34d35a2f7178bd4e6d34d</p>
+          <p class="action">read</p>
+          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
           <p class="nameOfAttributeDef">aStem:permissionDef</p>
         </li>
         <li title="WsAttributeAssignActionTuple">
           <p class="action">write</p>
-          <p class="attributeDefId">76254762fdf34d35a2f7178bd4e6d34d</p>
+          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
           <p class="nameOfAttributeDef">aStem:permissionDef</p>
         </li>
         <li title="WsAttributeAssignActionTuple">
-          <p class="action">read</p>
-          <p class="attributeDefId">76254762fdf34d35a2f7178bd4e6d34d</p>
+          <p class="action">assign</p>
+          <p class="attributeDefId">4d46bcc488724fc2b3a40b0b75e14a2b</p>
           <p class="nameOfAttributeDef">aStem:permissionDef</p>
         </li>
       </ul>
@@ -115,11 +114,11 @@ Connection: close
           <p class="attributeDefType">perm</p>
           <p class="description" />
           <p class="extension">permissionDef</p>
-          <p class="idIndex">10035</p>
+          <p class="idIndex">10046</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
           <p class="name">aStem:permissionDef</p>
-          <p class="uuid">76254762fdf34d35a2f7178bd4e6d34d</p>
+          <p class="uuid">4d46bcc488724fc2b3a40b0b75e14a2b</p>
           <p class="valueType">marker</p>
         </li>
       </ul>
@@ -297,4 +296,4 @@ public class WsSampleGetAttributeAssignActionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.

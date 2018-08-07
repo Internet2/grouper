@@ -1,4 +1,4 @@
-Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSave, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSave, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,23 +9,23 @@ Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubj
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:externalSubjectSave"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-391
+397
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:externalSubjectSave xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:externalSubjectSave xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsExternalSubjectToSaves>
         <ns1:wsExternalSubject>
-          <ns1:email>b@c.d</ns1:email>
-          <ns1:identifier>b_ident@c.d</ns1:identifier>
+          <ns1:email>b@c.com</ns1:email>
+          <ns1:identifier>b_ident@c.com</ns1:identifier>
           <ns1:name>Another Name</ns1:name>
           <ns1:wsExternalSubjectAttributes>
             <ns1:attributeSystemName>jabber</ns1:attributeSystemName>
@@ -33,7 +33,7 @@ Transfer-Encoding: chunked
           </ns1:wsExternalSubjectAttributes>
         </ns1:wsExternalSubject>
         <ns1:wsExternalSubjectLookup>
-          <ns1:identifier>b_ident@c.d</ns1:identifier>
+          <ns1:identifier>b_ident@c.com</ns1:identifier>
         </ns1:wsExternalSubjectLookup>
       </ns1:wsExternalSubjectToSaves>
       <ns1:actAsSubjectLookup>
@@ -53,34 +53,33 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:externalSubjectSaveResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 02 Aug 2016 21:38:52 GMT
+Date: Mon, 06 Aug 2018 17:13:44 GMT
 
-8c8
+8d2
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:externalSubjectSaveResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:externalSubjectSaveResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsExternalSubjectSaveResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.3.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
-wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.d],
-wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
+wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],
+wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
@@ -94,19 +93,19 @@ wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsExternalSubject xsi:type="ns:WsExternalSubject">
-            <ns:description>[unverifiedInfo] Another Name [externalUserID] b_ident@c.d</ns:description>
-            <ns:email>b@c.d</ns:email>
+            <ns:description>[unverifiedInfo] Another Name [externalUserID] b_ident@c.com</ns:description>
+            <ns:email>b@c.com</ns:email>
             <ns:enabled>T</ns:enabled>
-            <ns:identifier>b_ident@c.d</ns:identifier>
+            <ns:identifier>b_ident@c.com</ns:identifier>
             <ns:institution xsi:nil="true" />
             <ns:name>Another Name</ns:name>
-            <ns:searchStringLower>another name, b_ident@c.d, b@c.d</ns:searchStringLower>
-            <ns:uuid>69bdbcae4aba4eb8a8f4ebfa3a8ac76f</ns:uuid>
+            <ns:searchStringLower>another name, b_ident@c.com, b@c.com</ns:searchStringLower>
+            <ns:uuid>7520cffd3a3e476da7705148537b072a</ns:uuid>
             <ns:vettedEmailAddresses xsi:nil="true" />
             <ns:wsExternalSubjectAttributes xsi:type="ns:WsExternalSubjectAttribute">
               <ns:attributeSystemName>jabber</ns:attributeSystemName>
               <ns:attributeValue>b_jabber@c.d</ns:attributeValue>
-              <ns:uuid>8580d7d2671647daa9645eecc51854e9</ns:uuid>
+              <ns:uuid>333edf1a72b940c8be1339e056837e9a</ns:uuid>
             </ns:wsExternalSubjectAttributes>
           </ns:wsExternalSubject>
         </ns:results>
@@ -158,14 +157,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExternalSubjectSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectAttribute;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectSaveResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectSaveResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectToSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.ExternalSubjectSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectSaveResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectToSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 
 /**
@@ -222,9 +221,9 @@ public class WsSampleExternalSubjectSave implements WsSampleGenerated {
             WsExternalSubjectToSave wsExternalSubjectToSave = WsExternalSubjectToSave.class.newInstance();
             WsExternalSubject wsExternalSubject = WsExternalSubject.class.newInstance();
             
-            wsExternalSubject.setIdentifier("b_ident@c.d");
+            wsExternalSubject.setIdentifier("b_ident@c.com");
             wsExternalSubject.setName("Another Name");
-            wsExternalSubject.setEmail("b@c.d");
+            wsExternalSubject.setEmail("b@c.com");
             WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
             wsExternalSubjectAttribute.setAttributeSystemName("jabber");
             wsExternalSubjectAttribute.setAttributeValue("b_jabber@c.d");
@@ -232,7 +231,7 @@ public class WsSampleExternalSubjectSave implements WsSampleGenerated {
             wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
 
             WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup();
-            wsExternalSubjectLookup.setIdentifier("b_ident@c.d");
+            wsExternalSubjectLookup.setIdentifier("b_ident@c.com");
             wsExternalSubjectToSave.setWsExternalSubjectLookup(wsExternalSubjectLookup);
 
             externalSubjectSave.setWsExternalSubjectToSaves(new WsExternalSubjectToSave[] {wsExternalSubjectToSave});
@@ -269,9 +268,9 @@ public class WsSampleExternalSubjectSave implements WsSampleGenerated {
 
 
 WsExternalSubjectSaveResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@31c4893d,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@5e0e1d51,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubjectSaveResult@5c0321d3},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@603a34e5,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@160d68b8,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubjectSaveResult@1d77d9c6},localResultsTracker=true]
 WsExternalSubjectSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@57190978,localResultMetadataTracker=true,
-  localWsExternalSubject=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsExternalSubject@2cbcd1f4,localWsExternalSubjectTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@51eeae0a,localResultMetadataTracker=true,
+  localWsExternalSubject=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsExternalSubject@76c2d002,localWsExternalSubjectTracker=true]

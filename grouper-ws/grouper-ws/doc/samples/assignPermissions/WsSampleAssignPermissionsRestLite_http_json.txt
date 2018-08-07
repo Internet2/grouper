@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/json/v2_2_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/json/v2_4_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 273
 
@@ -27,61 +27,72 @@ wsLiteObjectType=WsRestAssignPermissionsLiteRequest&actAsSubjectId=GrouperSystem
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 918
-Date: Wed, 28 May 2014 22:59:36 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1287
+Date: Mon, 06 Aug 2018 16:36:22 GMT
 Connection: close
 
 {
   "WsAssignPermissionsLiteResults":{
-    "responseMetadata":{
-      "millis":"96",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
+      "resultMessage":", Found 1 results."
     },
     "wsAttributeDefName":{
-      "attributeDefId":"38600b259be54f1eb6d87ba98f828f17",
-      "attributeDefName":"aStem:permissionDef",
+      "attributeDefId":"4d46bcc488724fc2b3a40b0b75e14a2b",
       "displayExtension":"permissionDefName",
-      "displayName":"a stem:permissionDefName",
       "extension":"permissionDefName",
-      "idIndex":"10117",
+      "displayName":"a stem:permissionDefName",
       "name":"aStem:permissionDefName",
-      "uuid":"2e5de417caa54bad9f7062156d838d7b"
+      "attributeDefName":"aStem:permissionDef",
+      "idIndex":"10155",
+      "uuid":"397ea151404d489aae915be38d0f4b4f"
+    },
+    "wsPermissionAssignResult":{
+      "deleted":"T",
+      "changed":"F"
     },
     "wsAttributeDefs":[
       {
         "attributeDefType":"perm",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
         "extension":"permissionDef",
-        "idIndex":"10033",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"4d46bcc488724fc2b3a40b0b75e14a2b",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
         "multiAssignable":"F",
-        "multiValued":"F",
+        "valueType":"marker",
         "name":"aStem:permissionDef",
-        "uuid":"38600b259be54f1eb6d87ba98f828f17",
-        "valueType":"marker"
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10046",
+        "multiValued":"F",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
       }
     ]
     ,
-    "wsPermissionAssignResult":{
-      "changed":"F",
-      "deleted":"T"
-    },
     "wsSubject":{
-      "id":"test.subject.4",
+      "sourceId":"jdbc",
+      "success":"T",
       "name":"my name is test.subject.4",
       "resultCode":"SUCCESS",
-      "sourceId":"jdbc",
-      "success":"T"
+      "id":"test.subject.4"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"4"
     }
   }
 }
@@ -256,4 +267,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

@@ -9,13 +9,13 @@ Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAt
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 116
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestGetAttributeAssignActionsRequest":{
@@ -36,60 +36,70 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 984
-Date: Tue, 21 Jun 2016 15:38:12 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1239
+Date: Mon, 06 Aug 2018 16:38:23 GMT
 Connection: close
 
 {
   "WsGetAttributeAssignActionsResults":{
-    "responseMetadata":{
-      "millis":"80",
-      "serverVersion":"2.4.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
+      "resultMessage":", Found 3 results."
     },
     "wsAttributeAssignActionTuples":[
       {
+        "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
+        "action":"view",
+        "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
+      },
+      {
+        "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
+        "action":"read",
+        "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
+      },
+      {
+        "attributeDefId":"431a9914cdba4564ad5943c7ec7de988",
         "action":"assign",
-        "attributeDefId":"f1c379e1ba0140559fba42be20f5d453",
         "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
       }
     ]
     ,
     "wsAttributeDefs":[
       {
-        "assignToAttributeDef":"F",
-        "assignToAttributeDefAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToGroup":"F",
-        "assignToGroupAssignment":"F",
-        "assignToImmediateMembership":"F",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToMember":"F",
-        "assignToMemberAssignment":"F",
-        "assignToStem":"F",
-        "assignToStemAssignment":"F",
         "attributeDefType":"attr",
+        "assignToAttributeDef":"F",
+        "assignToStemAssignment":"F",
         "extension":"testAttributeAssignDefNameDef",
-        "idIndex":"10033",
+        "assignToMemberAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "uuid":"431a9914cdba4564ad5943c7ec7de988",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToStem":"F",
+        "assignToGroupAssignment":"F",
+        "assignToMember":"F",
         "multiAssignable":"F",
-        "multiValued":"T",
+        "valueType":"integer",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"f1c379e1ba0140559fba42be20f5d453",
-        "valueType":"integer"
+        "assignToAttributeDefAssignment":"F",
+        "idIndex":"10044",
+        "multiValued":"T",
+        "assignToGroup":"F",
+        "assignToImmediateMembership":"F"
       }
     ]
+    ,
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"6"
+    }
   }
 }
 
@@ -265,5 +275,5 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 #########################################
 
 
-{"WsGetAttributeAssignActionsResults":{"responseMetadata":{"millis":"80","serverVersion":"2.4.0"},"resultMetadata":{"resultCode":"SUCCESS","resultMessage":", Found 1 results.","success":"T"},"wsAttributeAssignActionTuples":[{"action":"assign","attributeDefId":"f1c379e1ba0140559fba42be20f5d453","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"}],"wsAttributeDefs":[{"assignToAttributeDef":"F","assignToAttributeDefAssignment":"F","assignToEffectiveMembership":"F","assignToEffectiveMembershipAssignment":"F","assignToGroup":"F","assignToGroupAssignment":"F","assignToImmediateMembership":"F","assignToImmediateMembershipAssignment":"F","assignToMember":"F","assignToMemberAssignment":"F","assignToStem":"F","assignToStemAssignment":"F","attributeDefType":"attr","extension":"testAttributeAssignDefNameDef","idIndex":"10033","multiAssignable":"F","multiValued":"T","name":"test:testAttributeAssignDefNameDef","uuid":"f1c379e1ba0140559fba42be20f5d453","valueType":"integer"}]}}
-Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.
+{"WsGetAttributeAssignActionsResults":{"resultMetadata":{"success":"T","resultCode":"SUCCESS","resultMessage":", Found 3 results."},"wsAttributeAssignActionTuples":[{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"view","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"},{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"read","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"},{"attributeDefId":"431a9914cdba4564ad5943c7ec7de988","action":"assign","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"}],"wsAttributeDefs":[{"attributeDefType":"attr","assignToAttributeDef":"F","assignToStemAssignment":"F","extension":"testAttributeAssignDefNameDef","assignToMemberAssignment":"F","assignToEffectiveMembership":"F","uuid":"431a9914cdba4564ad5943c7ec7de988","assignToImmediateMembershipAssignment":"F","assignToEffectiveMembershipAssignment":"F","assignToStem":"F","assignToGroupAssignment":"F","assignToMember":"F","multiAssignable":"F","valueType":"integer","name":"test:testAttributeAssignDefNameDef","assignToAttributeDefAssignment":"F","idIndex":"10044","multiValued":"T","assignToGroup":"F","assignToImmediateMembership":"F"}],"responseMetadata":{"serverVersion":"2.4.0","millis":"6"}}}
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 3 results.

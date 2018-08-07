@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRestLite, manually written lite/rest, format: http_json, for version: 2.3.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 255
 
@@ -27,50 +27,49 @@ wsLiteObjectType=WsRestAttributeDefSaveLiteRequest&assignToAttributeDef=T&attrib
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS_INSERTED
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS_NO_CHANGES_NEEDED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1148
-Date: Tue, 21 Jun 2016 19:36:01 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1153
+Date: Mon, 06 Aug 2018 16:37:19 GMT
 Connection: close
 
 {
   "WsAttributeDefSaveLiteResult":{
-    "responseMetadata":{
-      "millis":"20293",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
-      "resultCode":"SUCCESS_INSERTED",
-      "resultMessage":"Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[\n  wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],\n  wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "success":"T",
+      "resultCode":"SUCCESS_NO_CHANGES_NEEDED",
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[\n  wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],\n  wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"3"
     },
     "wsAttributeDef":{
-      "assignToAttributeDef":"F",
-      "assignToAttributeDefAssignment":"F",
-      "assignToEffectiveMembership":"F",
-      "assignToEffectiveMembershipAssignment":"F",
-      "assignToGroup":"F",
-      "assignToGroupAssignment":"F",
-      "assignToImmediateMembership":"F",
-      "assignToImmediateMembershipAssignment":"F",
-      "assignToMember":"F",
-      "assignToMemberAssignment":"F",
-      "assignToStem":"F",
-      "assignToStemAssignment":"F",
       "attributeDefType":"attr",
-      "description":"This is a test description",
+      "assignToAttributeDef":"F",
+      "assignToStemAssignment":"F",
       "extension":"testAttributeDef",
-      "idIndex":"10040",
+      "description":"This is a test description",
+      "assignToMemberAssignment":"F",
+      "assignToEffectiveMembership":"F",
+      "uuid":"512af2c1c0544263a673e2daee8bcc91",
+      "assignToImmediateMembershipAssignment":"F",
+      "assignToEffectiveMembershipAssignment":"F",
+      "assignToStem":"F",
+      "assignToGroupAssignment":"F",
+      "assignToMember":"F",
       "multiAssignable":"F",
-      "multiValued":"F",
+      "valueType":"string",
       "name":"test1:testAttributeDef",
-      "uuid":"9de2f4ec0d844e8389d777073b43b722",
-      "valueType":"string"
+      "assignToAttributeDefAssignment":"F",
+      "idIndex":"10075",
+      "multiValued":"F",
+      "assignToGroup":"F",
+      "assignToImmediateMembership":"F"
     }
   }
 }
@@ -252,7 +251,7 @@ public class WsSampleAttributeDefSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
+Server version: 2.4.0, result code: SUCCESS_NO_CHANGES_NEEDED, result message: Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
   wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[]],
   wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:testAtt...
 , actAsSubject: null, txType: NONE, paramNames: 

@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefsRest, manually written lite/rest, format: xml, for version: 2.3.0
+Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefsRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeD
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 277
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestFindAttributeDefsRequest>
   <scope>test:</scope>
@@ -38,25 +38,24 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:37:30 GMT
+Date: Mon, 06 Aug 2018 16:38:54 GMT
 Connection: close
 
 3f9
 <WsFindAttributeDefsResults>
   <attributeDefResults>
     <WsAttributeDef>
-      <idIndex>10032</idIndex>
+      <idIndex>10043</idIndex>
       <extension>testAttrNameDef</extension>
       <name>test:testAttrNameDef</name>
-      <uuid>07fb597c3970436682cac2f742d61631</uuid>
+      <uuid>11e00ce273094c209826fba7cad5f027</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -81,11 +80,11 @@ idIndex>
       </idIndex>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>9a6a5441cafa4408814c0bc1d524610f</uuid>
+      <uuid>66e63dafcd504859a8278b512d95aa39</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
-      <valueType>marker</valueType>
+      <valueType>string</valueType>
       <assignToAttributeDef>F</assignToAttributeDef>
       <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
       <assignToEffectiveMembership>F</assignToEffectiveMembership>
@@ -100,12 +99,12 @@ idIndex>
       <assignToStemAssignment>F</assignToStemAssignment>
     </WsAttributeDef>
     <WsAttributeDef>
-      <idIndex>10033</idIndex>
+      <idIndex>10044</idIndex>
       <extension>test
 3ff
 AttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>0b550c19cd9143fbaa9da83a05b8a8c4</uuid>
+      <uuid>431a9914cdba4564ad5943c7ec7de988</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -127,16 +126,16 @@ AttributeAssignDefNameDef</extension>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
     <resultMessage>Success for:
-257
-clientVersion: 2.3.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+242
+clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[name=test:test1]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
 , params: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>876</millis>
-    <serverVersion>2.3.0</serverVersion>
+    <millis>16</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefsResults>
 0
@@ -320,6 +319,6 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[name=test:test1]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null

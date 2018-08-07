@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRest, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRest, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 530
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAssignAttributeDefNameInheritanceRequest>
   <wsAttributeDefNameLookup>
@@ -44,28 +44,27 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 22:31:21 GMT
+Date: Mon, 06 Aug 2018 16:35:04 GMT
 Connection: close
 
-1b8
+1b7
 <WsAssignAttributeDefNameInheritanceResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.  </resultMessage>
+    <resultMessage>Had 0 successful adds, 2 adds which already existed, 0 successful removes, and 0 removes which didnt exist.  </resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>119</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>16</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsAssignAttributeDefNameInheritanceResults>
 0
@@ -265,4 +264,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.4.0, result code: SUCCESS, result message: Had 0 successful adds, 2 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

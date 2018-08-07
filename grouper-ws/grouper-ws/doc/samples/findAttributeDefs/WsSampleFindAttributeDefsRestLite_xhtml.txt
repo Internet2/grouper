@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefsRestLite, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeDefsRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findAttributeDefs, WsSampleFindAttributeD
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1036
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -62,18 +62,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:37:34 GMT
+Date: Mon, 06 Aug 2018 16:38:56 GMT
 Connection: close
 
-e33
+40a
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -82,86 +81,15 @@ e33
   </head>
   <body>
     <div title="WsFindAttributeDefsResults">
-      <ul class="attributeDefResults">
-        <li title="WsAttributeDef">
-          <p class="assignToAttributeDef">F</p>
-          <p class="assignToAttributeDefAssignment">F</p>
-          <p class="assignToEffectiveMembership">F</p>
-          <p class="assignToEffectiveMembershipAssignment">F</p>
-          <p class="assignToGroup">F</p>
-          <p class="assignToGroupAssignment">F</p>
-          <p class="assignToImmediateMembership">F</p>
-          <p class="assignToImmediateMembershipAssignment">F</p>
-          <p class="assignToMember">F</p>
-          <p class="assignToMemberAssignment">F</p>
-          <p class="assignToStem">F</p>
-          <p class="assignToStemAssignment">F</p>
-          <p class="attributeDefType">attr</p>
-          <p class="description" />
-          <p class="extension">testAttrNameDef</p>
-          <p class="idIndex">10032</p>
-          <p class="multiAssignable">F</p>
-          <p class="multiValued">T</p>
-          <p class="name">test:testAttrNameDef</p>
-          <p class="uuid">6009eb624eac4ce8a1ec3580d7568860</p>
-          <p class="valueType">string</p>
-        </li>
-        <li title="WsAttributeDef">
-          <p class="assignToAttributeDef">F</p>
-          <p class="assignToAttributeDefAssignment">F</p>
-          <p class="assignToEffectiveMembership">F</p>
-          <p class="assignToEffectiveMembershipAssignment">F</p>
-          <p class="assignToGroup">F</p>
-          <p class="assignToGroupAssignment">F</p>
-          <p class="assignToImmediateMembership">F</p>
-          <p class="assignToImmediateMembershipAssignment">F</p>
-          <p class="assignToMember">F</p>
-          <p class="assignToMemberAssignment">F</p>
-          <p class="assignToStem">F</p>
-          <p class="assignToStemAssignment">F</p>
-          <p class="attributeDefType">attr</p>
-          <p class="description" />
-          <p class="extension">testAttributeAssignAssignNameDef</p>
-          <p class="idIndex">10034</p>
-          <p class="multiAssignable">F</p>
-          <p class="multiValued">F</p>
-          <p class="name">test:testAttributeAssignAssignNameDef</p>
-          <p class="uuid">6c3edf5f8d04419382520565984ab48a</p>
-          <p class="valueType">marker</p>
-        </li>
-        <li title="WsAttributeDef">
-          <p class="assignToAttributeDef">F</p>
-          <p class="assignToAttributeDefAssignment">F</p>
-          <p class="assignToEffectiveMembership">F</p>
-          <p class="assignToEffectiveMembershipAssignment">F</p>
-          <p class="assignToGroup">F</p>
-          <p class="assignToGroupAssignment">F</p>
-          <p class="assignToImmediateMembership">F</p>
-          <p class="assignToImmediateMembershipAssignment">F</p>
-          <p class="assignToMember">F</p>
-          <p class="assignToMemberAssignment">F</p>
-          <p class="assignToStem">F</p>
-          <p class="assignToStemAssignment">F</p>
-          <p class="attributeDefType">attr</p>
-          <p class="description" />
-          <p class="extension">testAttributeAssignDefNameDef</p>
-          <p class="idIndex">10033</p>
-          <p class="multiAssignable">F</p>
-          <p class="multiValued">T</p>
-          <p class="name">test:testAttributeAssignDefNameDef</p>
-          <p class="uuid">b47fc746d78943509a3c7982afb9fc6f</p>
-          <p class="valueType">integer</p>
-        </li>
-      </ul>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">70</p>
+        <p class="millis">129</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.3.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
 , params: null</p>
         <p class="success">T</p>
@@ -341,6 +269,6 @@ public class WsSampleFindAttributeDefsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, scope: test:, splitScope: null, wsAttributeDefLookup: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef_xhtml]
 , privilegeName: null, stemScope: null, parentStemId: null, findByUuidOrName: false, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: 
 , params: null

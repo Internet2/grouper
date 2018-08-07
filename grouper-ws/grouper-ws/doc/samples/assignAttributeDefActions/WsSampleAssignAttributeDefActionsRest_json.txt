@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActionsRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: assignAttributeDefActions, WsSampleAssignAttributeDefActionsRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,26 +9,26 @@ Grouper web service sample of service: assignAttributeDefActions, WsSampleAssign
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/attributeDefActions HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 177
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestAssignAttributeDefActionsRequest":{
+    "replaceAllExisting":"T",
     "actions":[
       "read",
       "view"
     ]
     ,
-    "assign":"T",
-    "replaceAllExisting":"T",
     "wsAttributeDefLookup":{
       "name":"test:testAttributeAssignDefNameDef"
-    }
+    },
+    "assign":"T"
   }
 }
 
@@ -41,22 +41,37 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 902
-Date: Wed, 01 Jun 2016 21:32:38 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 975
+Date: Mon, 06 Aug 2018 16:34:51 GMT
 Connection: close
 
 {
   "WsAttributeDefAssignActionResults":{
+    "resultMetadata":{
+      "success":"T",
+      "resultCode":"SUCCESS"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"199"
+    },
     "actions":[
       {
         "action":"assign",
+        "status":"DELETED"
+      },
+      {
+        "action":"read",
+        "status":"DELETED"
+      },
+      {
+        "action":"view",
         "status":"DELETED"
       },
       {
@@ -69,35 +84,27 @@ Connection: close
       }
     ]
     ,
-    "responseMetadata":{
-      "millis":"3335",
-      "serverVersion":"2.3.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "success":"T"
-    },
     "wsAttributeDef":{
-      "assignToAttributeDef":"F",
-      "assignToAttributeDefAssignment":"F",
-      "assignToEffectiveMembership":"F",
-      "assignToEffectiveMembershipAssignment":"F",
-      "assignToGroup":"F",
-      "assignToGroupAssignment":"F",
-      "assignToImmediateMembership":"F",
-      "assignToImmediateMembershipAssignment":"F",
-      "assignToMember":"F",
-      "assignToMemberAssignment":"F",
-      "assignToStem":"F",
-      "assignToStemAssignment":"F",
       "attributeDefType":"attr",
+      "assignToAttributeDef":"F",
+      "assignToStemAssignment":"F",
       "extension":"testAttributeAssignDefNameDef",
-      "idIndex":"10033",
+      "assignToMemberAssignment":"F",
+      "assignToEffectiveMembership":"F",
+      "uuid":"431a9914cdba4564ad5943c7ec7de988",
+      "assignToImmediateMembershipAssignment":"F",
+      "assignToEffectiveMembershipAssignment":"F",
+      "assignToStem":"F",
+      "assignToGroupAssignment":"F",
+      "assignToMember":"F",
       "multiAssignable":"F",
-      "multiValued":"T",
+      "valueType":"integer",
       "name":"test:testAttributeAssignDefNameDef",
-      "uuid":"5ee922f892714298bf0271b0653fc816",
-      "valueType":"integer"
+      "assignToAttributeDefAssignment":"F",
+      "idIndex":"10044",
+      "multiValued":"T",
+      "assignToGroup":"F",
+      "assignToImmediateMembership":"F"
     }
   }
 }
@@ -283,4 +290,4 @@ public class WsSampleAssignAttributeDefActionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: null
+Server version: 2.4.0, result code: SUCCESS, result message: null

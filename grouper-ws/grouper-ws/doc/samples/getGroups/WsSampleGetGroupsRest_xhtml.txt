@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1137
+Content-Length: 1132
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -69,19 +69,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:36:20 GMT
+Date: Mon, 06 Aug 2018 16:40:33 GMT
 Connection: close
 
-110d
-<?xml version='1.0' encoding='iso-8859-1'?>
+11aa
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -90,14 +89,14 @@ Connection: close
   <body>
     <div title="WsGetGroupsResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">83</p>
+        <p class="millis">19</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.2.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
@@ -118,48 +117,52 @@ fieldName1: null
           </div>
           <ul class="wsGroups">
             <li title="WsGroup">
+              <p class="alternateName" />
               <p class="description">a group description</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="displayExtension">a group</p>
               <p class="displayName">a stem:a group</p>
               <p class="extension">aGroup</p>
-              <p class="idIndex">10001</p>
+              <p class="idIndex">10005</p>
               <p class="name">aStem:aGroup</p>
               <p class="typeOfGroup">group</p>
-              <p class="uuid">73a2b2c4a4f24a83bec3a4f081b10d8e</p>
+              <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
             </li>
             <li title="WsGroup">
+              <p class="alternateName" />
               <p class="description">a group description2</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="displayExtension">a group2</p>
               <p class="displayName">a stem:a group2</p>
               <p class="extension">aGroup2</p>
-              <p class="idIndex">10002</p>
+              <p class="idIndex">10006</p>
               <p class="name">aStem:aGroup2</p>
               <p class="typeOfGroup">group</p>
-              <p class="uuid">dc4218cbc8524eecb9c5b3f4baf60429</p>
+              <p class="uuid">08cc1f2ccd3248ff801db35946e03823</p>
             </li>
             <li title="WsGroup">
+              <p class="alternateName" />
               <p class="description" />
               <div class="detail" title="WsGroupDetail" />
               <p class="displayExtension">sysadmingroup</p>
               <p class="displayName">etc:sysadmingroup</p>
               <p class="extension">sysadmingroup</p>
-              <p class="idIndex">10005</p>
+              <p class="idIndex">10009</p>
               <p class="name">etc:sysadmingroup</p>
               <p class="typeOfGroup">group</p>
-              <p class="uuid">2fee629b0b5248ac85c66a56282856ba</p>
+              <p class="uuid">5cbabdd15c1d49ceae302f8e844b0009</p>
             </li>
             <li title="WsGroup">
+              <p class="alternateName" />
               <p class="description" />
               <div class="detail" title="WsGroupDetail" />
               <p class="displayExtension">webServiceActAsGroup</p>
               <p class="displayName">etc:webServiceActAsGroup</p>
               <p class="extension">webServiceActAsGroup</p>
-              <p class="idIndex">10004</p>
+              <p class="idIndex">10008</p>
               <p class="name">etc:webServiceActAsGroup</p>
               <p class="typeOfGroup">group</p>
-              <p class="uuid">6c02bc19ba264fb88e2879028423509e</p>
+              <p class="uuid">a3b9b6852757437981d39b7a14a0bfd7</p>
             </li>
           </ul>
           <div class="wsSubject" title="WsSubject">
@@ -183,26 +186,28 @@ fieldName1: null
           </div>
           <ul class="wsGroups">
             <li title="WsGroup">
+              <p class="alternateName" />
               <p class="description">a group description</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="displayExtension">a group</p>
               <p class="displayName">a stem:a group</p>
               <p class="extension">aGroup</p>
-              <p class="idIndex">10001</p>
+              <p class="idIndex">10005</p>
               <p class="name">aStem:aGroup</p>
               <p class="typeOfGroup">group</p>
-              <p class="uuid">73a2b2c4a4f24a83bec3a4f081b10d8e</p>
+              <p class="uuid">03aae7141082467eaaa866e6c6edfda5</p>
             </li>
             <li title="WsGroup">
+              <p class="alternateName" />
               <p class="description">a group description2</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="displayExtension">a group2</p>
               <p class="displayName">a stem:a group2</p>
               <p class="extension">aGroup2</p>
-              <p class="idIndex">10002</p>
+              <p class="idIndex">10006</p>
               <p class="name">aStem:aGroup2</p>
               <p class="typeOfGroup">group</p>
-              <p class="uuid">dc4218cbc8524eecb9c5b3f4baf60429</p>
+              <p class="uuid">08cc1f2ccd3248ff801db35946e03823</p>
             </li>
           </ul>
           <div class="wsSubject" title="WsSubject">
@@ -405,7 +410,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

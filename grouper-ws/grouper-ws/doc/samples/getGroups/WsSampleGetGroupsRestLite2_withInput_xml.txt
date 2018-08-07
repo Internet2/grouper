@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.2.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 191
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestGetGroupsLiteRequest>
   <actAsSubjectId>GrouperSystem</actAsSubjectId>
@@ -32,22 +32,21 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 03 Jun 2014 22:08:13 GMT
+Date: Mon, 06 Aug 2018 16:41:02 GMT
 Connection: close
 
 3ff
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+    <resultMessage>Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
@@ -63,8 +62,8 @@ fieldName1: null
   </subjectAttributeNames>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>295</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>84</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -73,19 +72,58 @@ fieldName1: null
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>ecb0ef6b7bb74279a4c
-295
-2bed227b31f21</uuid>
+      <uuid>c94e8975d1524eacb3e5
+3f6
+f3a7b0b55086</uuid>
       <detail>
         <hasComposite>F</hasComposite>
         <typeNames/>
         <createSubjectId>GrouperSystem</createSubjectId>
-        <createTime>2014/06/03 18:08:11.573</createTime>
+        <createTime>2018/08/06 11:04:03.596</createTime>
         <isCompositeFactor>F</isCompositeFactor>
         <modifySubjectId>GrouperSystem</modifySubjectId>
-        <modifyTime>2014/06/03 18:08:11.581</modifyTime>
+        <modifyTime>2018/08/06 11:04:03.601</modifyTime>
       </detail>
-      <idIndex>10008</idIndex>
+      <idIndex>10022</idIndex>
+    </WsGroup>
+    <WsGroup>
+      <extension>grouperMessageRole</extension>
+      <typeOfGroup>role</typeOfGroup>
+      <displayExtension>grouperMessageRole</displayExtension>
+      <displayName>etc:attribute:messages:grouperMessageRole</displayName>
+      <name>etc:attribute:messages:grouperMessageRole</name>
+      <uuid>d318bed9be7d43b5a7d21d1fcc064820</uuid>
+      <detail>
+        <hasComposite>F</hasComposite>
+        <typeNames/>
+        <createSubjectId>GrouperSystem</createSubjectId>
+        <createTime>2018/08/06 11:03:52.690</createTime>
+        <isCompositeFactor>F</isCompositeFactor>
+        <modifySubjectId>GrouperSystem</modifySubjectId>
+        <modifyTime>2018/08/06 11:03:52.697</modifyTime>
+      </detail>
+      <idIndex>10001</idIndex>
+    </WsGroup>
+    <WsGroup>
+      <extension>testGroup</extension>
+      <
+33f
+typeOfGroup>
+      </typeOfGroup>
+      <displayExtension>testGroup</displayExtension>
+      <displayName>test:testGroup</displayName>
+      <name>test:testGroup</name>
+      <uuid>f651723de0f549ed97906e28df006ced</uuid>
+      <detail>
+        <hasComposite>F</hasComposite>
+        <typeNames/>
+        <createSubjectId>GrouperSystem</createSubjectId>
+        <createTime>2018/08/06 11:04:00.343</createTime>
+        <isCompositeFactor>F</isCompositeFactor>
+        <modifySubjectId>GrouperSystem</modifySubjectId>
+        <modifyTime>2018/08/06 12:41:00.546</modifyTime>
+      </detail>
+      <idIndex>10004</idIndex>
     </WsGroup>
   </wsGroups>
   <wsSubject>
@@ -275,7 +313,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

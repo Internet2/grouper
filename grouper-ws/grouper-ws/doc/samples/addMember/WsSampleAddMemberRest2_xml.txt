@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manual
 #########################################
 
 
-PUT /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
+PUT /grouper-ws/servicesRest/v2_4_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 261
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAddMemberRequest>
   <wsGroupLookup>
@@ -38,18 +38,16 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 22:25:41 GMT
+Date: Mon, 06 Aug 2018 15:40:27 GMT
 Connection: close
 
 3ff
@@ -64,7 +62,7 @@ Connection: close
         <sourceId>jdbc</sourceId>
       </wsSubject>
       <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
+        <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
         <success>T</success>
       </resultMetadata>
     </WsAddMemberResult>
@@ -75,24 +73,24 @@ Connection: close
     <displayExtension>testGroup</displayExtension>
     <displayName>test:testGroup</displayName>
     <name>test:testGroup</name>
-    <uuid>f6b03c0ff963488a8dc86b6599fd49fe</uuid>
-    <idIndex>10000</idIndex>
+    <uuid>f651723de0f549ed97906e28df006ced</uuid>
+    <idIndex>10004</idIndex>
   </wsGroupAssigned>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+    <resultMessage>Success for: clientVersion: 2.4.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
-, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttribu
-10c
-teNames: null
+, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false
+11b
+, subjectAttributeNames: null
 , params: null
 , disabledDate: null, enabledDate: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>140</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>22</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
 </WsAddMemberResults>
 0
@@ -277,7 +275,7 @@ public class WsSampleAddMemberRest2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

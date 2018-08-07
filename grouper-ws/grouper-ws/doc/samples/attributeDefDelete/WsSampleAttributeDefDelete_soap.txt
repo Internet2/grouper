@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDelete, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDelete, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefD
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:attributeDefDelete"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:attributeDefDelete xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:attributeDefDelete xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:wsAttributeDefLookups>
         <ns1:name>test:test1</ns1:name>
       </ns1:wsAttributeDefLookups>
@@ -42,32 +42,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:33:45 GMT
+Date: Mon, 06 Aug 2018 16:36:37 GMT
 
 763
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:attributeDefDeleteResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:attributeDefDeleteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAttributeDefDeleteResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , paramNames:
 , params: Empty array</ns:resultMessage>
@@ -139,12 +138,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDelete;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefDeleteResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefDeleteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
  * @author mchyzer
@@ -239,9 +238,9 @@ public class WsSampleAttributeDefDelete implements WsSampleGenerated {
 
 
 WsAttributeDefDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@521c49e5,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@3f378380,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResult@c5e89dc},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@2a7c7d5b,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@4fa2adee,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefDeleteResult@ad9b452},localResultsTracker=true]
 WsAttributeDefDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@fc42518,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@165f52be,localWsAttributeDefTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@19119ea4,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@5f539b58,localWsAttributeDefTracker=true]

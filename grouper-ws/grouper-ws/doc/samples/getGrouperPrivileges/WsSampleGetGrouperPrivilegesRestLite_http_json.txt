@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 172
 
@@ -27,26 +27,25 @@ wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&actAsSubjectId=GrouperSys
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
+Content-Type: application/json;charset=UTF-8
 Content-Length: 165
-Date: Wed, 28 May 2014 23:31:54 GMT
+Date: Mon, 06 Aug 2018 16:40:16 GMT
 Connection: close
 
 {
   "WsGetGrouperPrivilegesLiteResult":{
-    "responseMetadata":{
-      "millis":"60",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
-      "resultCode":"SUCCESS_NOT_ALLOWED",
-      "success":"T"
+      "success":"T",
+      "resultCode":"SUCCESS_NOT_ALLOWED"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"25"
     }
   }
 }
@@ -224,4 +223,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.4.0, result code: SUCCESS_NOT_ALLOWED, result message: null

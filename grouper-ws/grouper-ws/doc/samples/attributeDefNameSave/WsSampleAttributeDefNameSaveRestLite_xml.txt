@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 407
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestAttributeDefNameSaveLiteRequest>
   <attributeDefLookupName>test:testAttributeAssignDefNameDef</attributeDefLookupName>
@@ -33,22 +33,21 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:08:06 GMT
+Date: Mon, 06 Aug 2018 16:37:09 GMT
 Connection: close
 
 3ff
 <WsAttributeDefNameSaveLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_INSERTED</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+    <resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
 wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -57,20 +56,20 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>100</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>24</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <wsAttributeDefName>
-    <idIndex>10134</idIndex>
+    <idIndex>10215</idIndex>
     <extension>testAttributeAssignDefNameToSave1RestLite_xml</extension>
     <displayExtension>My new attribute def name to save 1 rest lite xml</displayExtension>
     <description>This is a description 1 rest lite xml</description>
     <displayName>test:My new attribute def name to save 1 rest lite xml</displayName>
     <name>test:testAttributeAssignDefNameToSave1RestLite_xml</name>
-    <uuid>
-e7
-47f3a75182d441928ffd640d0750e1ce</uuid>
-    <attributeDefId>f517b302d13e44bea5748da198141646</attributeDefId>
+    <uuid>d
+e6
+9f4f3d4e2914ec09e43656c8cecdd8c</uuid>
+    <attributeDefId>431a9914cdba4564ad5943c7ec7de988</attributeDefId>
     <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
   </wsAttributeDefName>
 </WsAttributeDefNameSaveLiteResult>
@@ -247,7 +246,7 @@ public class WsSampleAttributeDefNameSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+Server version: 2.4.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.4.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
   wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames: 

@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 948
+Content-Length: 943
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -56,19 +56,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:26:44 GMT
+Date: Tue, 07 Aug 2018 17:41:04 GMT
 Connection: close
 
-5a9
-<?xml version='1.0' encoding='iso-8859-1'?>
+5a3
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -77,14 +76,14 @@ Connection: close
   <body>
     <div title="WsMemberChangeSubjectLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">141</p>
+        <p class="millis">68</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 
@@ -155,6 +154,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -249,6 +249,8 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
       
+      EhcacheController.ehcacheController().flushCache();
+
       //lets make sure the old member was deleted
       GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
       boolean startedSession = false;
@@ -306,7 +308,7 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 

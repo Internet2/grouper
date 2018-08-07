@@ -1,4 +1,4 @@
-Grouper web service sample of service: receiveMessage, WsSampleReceiveMessageRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: receiveMessage, WsSampleReceiveMessageRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: receiveMessage, WsSampleReceiveMessageRes
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_3_000/messaging HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 657
+Content-Length: 712
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -35,6 +35,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="maxMessagesToReceiveAtOnce" />
       <p class="messageSystemName" />
       <p class="queueOrTopicName">def</p>
+      <p class="routingKey" />
+      <p class="autocreateObjects" />
     </div>
   </body>
 </html>
@@ -48,18 +50,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:37:58 GMT
+Date: Tue, 07 Aug 2018 17:24:38 GMT
 Connection: close
 
-2d7
+5b1
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -69,16 +70,38 @@ Connection: close
   <body>
     <div title="WsMessageResults">
       <p class="messageSystemName" />
+      <ul class="messages">
+        <li title="WsMessage">
+          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
+          <p class="id">8bbe21eca3e34fef9d42144169d4ab40</p>
+          <p class="messageBody">message body</p>
+        </li>
+        <li title="WsMessage">
+          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
+          <p class="id">7acc749e2c0147ceac39c564391ac9fe</p>
+          <p class="messageBody">message body</p>
+        </li>
+        <li title="WsMessage">
+          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
+          <p class="id">220820501ea04613ba7d37fd1c030720</p>
+          <p class="messageBody">message body</p>
+        </li>
+        <li title="WsMessage">
+          <p class="fromMemberId">956e5a4fd1d8436198fa3f17af0b0298</p>
+          <p class="id">42b42de7af8441b89dd0161690e5685c</p>
+          <p class="messageBody">message body</p>
+        </li>
+      </ul>
       <p class="queueOrTopicName">def</p>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">384</p>
+        <p class="millis">162</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">0 messages were received from def</p>
+        <p class="resultMessage">4 messages were received from def</p>
         <p class="success">T</p>
       </div>
     </div>
@@ -278,4 +301,4 @@ public class WsSampleReceiveMessageRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: 0 messages were received from def
+Server version: 2.4.0, result code: SUCCESS, result message: 4 messages were received from def

@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest2, manually written lite/rest, format: xhtml, for version: 2.2.0
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest2, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1206
+Content-Length: 1201
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -52,7 +52,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       </ul>
       <ul class="wsOwnerMembershipLookups">
         <li title="WsMembershipLookup">
-          <p class="uuid">9ccfaba3d5f14546b5b25ae02debcbab</p>
+          <p class="uuid">29053cbf936f41a7b3df504f40884ae8</p>
         </li>
       </ul>
     </div>
@@ -68,19 +68,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 22:50:08 GMT
+Date: Mon, 06 Aug 2018 16:35:43 GMT
 Connection: close
 
-104e
-<?xml version='1.0' encoding='iso-8859-1'?>
+1233
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -89,9 +88,9 @@ Connection: close
   <body>
     <div title="WsAssignAttributesResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">188</p>
+        <p class="millis">258</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.2.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -109,7 +108,7 @@ Connection: close
               <p class="changed">T</p>
               <p class="deleted">F</p>
               <div class="wsAttributeAssignValue" title="WsAttributeAssignValue">
-                <p class="id">5677789b2f72481eb6cb7a583766b2e3</p>
+                <p class="id">d56189eef68b4a149e9a7c3e374ebc64</p>
                 <p class="valueFormatted" />
                 <p class="valueSystem">some_value</p>
               </div>
@@ -117,22 +116,22 @@ Connection: close
           </ul>
           <ul class="wsAttributeAssigns">
             <li title="WsAttributeAssign">
-              <p class="attributeAssignActionId">d7b35a2ac7064e4fb7386da39af03322</p>
+              <p class="attributeAssignActionId">9519231f303343de801a4647855fb496</p>
               <p class="attributeAssignActionName">assign</p>
               <p class="attributeAssignActionType">immediate</p>
               <p class="attributeAssignDelegatable">FALSE</p>
               <p class="attributeAssignType">imm_mem</p>
-              <p class="attributeDefId">a8398ae5b67e49ada8bff113a7833461</p>
+              <p class="attributeDefId">11e00ce273094c209826fba7cad5f027</p>
               <p class="attributeDefName">test:testAttrNameDef</p>
-              <p class="attributeDefNameId">41e870ede6774ee692b66702eb57fc6c</p>
+              <p class="attributeDefNameId">f989f8fcb110440fbdcfbf13722685fc</p>
               <p class="attributeDefNameName">test:testAttrName</p>
-              <p class="createdOn">2014/05/28 18:50:08.870</p>
+              <p class="createdOn">2018/08/06 12:35:43.452</p>
               <p class="disabledTime" />
               <p class="disallowed">F</p>
               <p class="enabled">T</p>
               <p class="enabledTime" />
-              <p class="id">66bde794266a40fda2e43737f458d5d8</p>
-              <p class="lastUpdated">2014/05/28 18:50:08.870</p>
+              <p class="id">146a3b54659e4b2fab5279186ef2a285</p>
+              <p class="lastUpdated">2018/08/06 12:35:43.452</p>
               <p class="notes" />
               <p class="ownerAttributeAssignId" />
               <p class="ownerAttributeDefId" />
@@ -142,12 +141,12 @@ Connection: close
               <p class="ownerMemberId" />
               <p class="ownerMemberSourceId" />
               <p class="ownerMemberSubjectId" />
-              <p class="ownerMembershipId">9ccfaba3d5f14546b5b25ae02debcbab</p>
+              <p class="ownerMembershipId">29053cbf936f41a7b3df504f40884ae8</p>
               <p class="ownerStemId" />
               <p class="ownerStemName" />
               <ul class="wsAttributeAssignValues">
                 <li title="WsAttributeAssignValue">
-                  <p class="id">5677789b2f72481eb6cb7a583766b2e3</p>
+                  <p class="id">d56189eef68b4a149e9a7c3e374ebc64</p>
                   <p class="valueFormatted" />
                   <p class="valueSystem">some_value</p>
                 </li>
@@ -158,43 +157,55 @@ Connection: close
       </ul>
       <ul class="wsAttributeDefNames">
         <li title="WsAttributeDefName">
-          <p class="attributeDefId">a8398ae5b67e49ada8bff113a7833461</p>
+          <p class="attributeDefId">11e00ce273094c209826fba7cad5f027</p>
           <p class="attributeDefName">test:testAttrNameDef</p>
           <p class="description" />
           <p class="displayExtension">testAttrName</p>
           <p class="displayName">test:testAttrName</p>
           <p class="extension">testAttrName</p>
-          <p class="idIndex">10114</p>
+          <p class="idIndex">10152</p>
           <p class="name">test:testAttrName</p>
-          <p class="uuid">41e870ede6774ee692b66702eb57fc6c</p>
+          <p class="uuid">f989f8fcb110440fbdcfbf13722685fc</p>
         </li>
       </ul>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
+          <p class="assignToAttributeDef">F</p>
+          <p class="assignToAttributeDefAssignment">F</p>
+          <p class="assignToEffectiveMembership">F</p>
+          <p class="assignToEffectiveMembershipAssignment">F</p>
+          <p class="assignToGroup">F</p>
+          <p class="assignToGroupAssignment">F</p>
+          <p class="assignToImmediateMembership">F</p>
+          <p class="assignToImmediateMembershipAssignment">F</p>
+          <p class="assignToMember">F</p>
+          <p class="assignToMemberAssignment">F</p>
+          <p class="assignToStem">F</p>
+          <p class="assignToStemAssignment">F</p>
           <p class="attributeDefType">attr</p>
           <p class="description" />
           <p class="extension">testAttrNameDef</p>
-          <p class="idIndex">10030</p>
+          <p class="idIndex">10043</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">T</p>
           <p class="name">test:testAttrNameDef</p>
-          <p class="uuid">a8398ae5b67e49ada8bff113a7833461</p>
+          <p class="uuid">11e00ce273094c209826fba7cad5f027</p>
           <p class="valueType">string</p>
         </li>
       </ul>
       <ul class="wsMemberships">
         <li title="WsMembership">
-          <p class="createTime">2014/05/28 18:50:07.044</p>
+          <p class="createTime">2018/08/06 11:04:03.740</p>
           <p class="disabledTime" />
           <p class="enabled">T</p>
           <p class="enabledTime" />
-          <p class="groupId">4f0eaa7b89d64154b4e2cbfba04d7736</p>
+          <p class="groupId">c94e8975d1524eacb3e5f3a7b0b55086</p>
           <p class="groupName">aStem:role</p>
-          <p class="immediateMembershipId">9ccfaba3d5f14546b5b25ae02debcbab</p>
+          <p class="immediateMembershipId">29053cbf936f41a7b3df504f40884ae8</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
-          <p class="memberId">9dd4d3d6d0ae4a41a9c6cc22da2cd250</p>
-          <p class="membershipId">9ccfaba3d5f14546b5b25ae02debcbab:a6f64b01f36841b9b416f0dc251602e7</p>
+          <p class="memberId">fc6b1899115541038c8194f8bfc3c342</p>
+          <p class="membershipId">29053cbf936f41a7b3df504f40884ae8:fa3f178adc4b4b3a9995d1b74d540c65</p>
           <p class="membershipType">immediate</p>
           <p class="ownerIdOfAttributeDef" />
           <p class="ownerNameOfAttributeDef" />
@@ -406,4 +417,4 @@ public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

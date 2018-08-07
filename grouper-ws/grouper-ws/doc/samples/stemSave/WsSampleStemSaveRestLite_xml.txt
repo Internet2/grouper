@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, format: xml, for version: 2.2.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, format: xml, for version: 2.4.0
 
 
 #########################################
@@ -9,13 +9,13 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/stems/aStem%3AaStemToSave HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/stems/aStem%3AaStemToSave HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 213
-Content-Type: text/xml; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
 
 <WsRestStemSaveLiteRequest>
   <description>desc1</description>
@@ -33,22 +33,21 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
-X-Grouper-resultCode: SUCCESS_INSERTED
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS_NO_CHANGES_NEEDED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
+Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:39:05 GMT
+Date: Mon, 06 Aug 2018 16:44:12 GMT
 Connection: close
 
-372
+37a
 <WsStemSaveLiteResult>
   <resultMetadata>
-    <resultCode>SUCCESS_INSERTED</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+    <resultCode>SUCCESS_NO_CHANGES_NEEDED</resultCode>
+    <resultMessage>Success for: clientVersion: 2.4.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
 wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
 wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 
@@ -58,17 +57,17 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>107</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>18</millis>
+    <serverVersion>2.4.0</serverVersion>
   </responseMetadata>
   <wsStem>
-    <idIndex>10032</idIndex>
+    <idIndex>10048</idIndex>
     <extension>aStemToSave</extension>
     <displayExtension>disp1</displayExtension>
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aStemToSave</name>
-    <uuid>c9982cde53d04c5fa09d3f6acab1fb1d</uuid>
+    <uuid>0186adfdb5194aaaa505853b4008287e</uuid>
   </wsStem>
 </WsStemSaveLiteResult>
 0
@@ -246,7 +245,7 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+Server version: 2.4.0, result code: SUCCESS_NO_CHANGES_NEEDED, result message: Success for: clientVersion: 2.4.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
   wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 

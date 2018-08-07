@@ -611,20 +611,20 @@ public class GrouperServiceJ2ee implements Filter {
   private static Subject retrieveSubjectActAsHelper(WsSubjectLookup actAsLookup)
       throws WsInvalidQueryException {
 
-    Subject loggedInSubject = retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = retrieveSubjectLoggedIn();
 
     HooksContext.assignSubjectLoggedIn(loggedInSubject);
     
     //make sure allowed
-    String userGroupName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
+    final String userGroupName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
     
-    String loggedInSubjectId = loggedInSubject.getId();
+    final String loggedInSubjectId = loggedInSubject.getId();
     if (!StringUtils.isBlank(userGroupName)) {
       GrouperSession grouperSession = null;
       
       try {
         //cache key to get or set if a user can act as another
-        MultiKey cacheKey = new MultiKey(loggedInSubjectId, 
+        final MultiKey cacheKey = new MultiKey(loggedInSubjectId, 
             loggedInSubject.getSource().getId());
 
         Boolean allowedInCache = subjectAllowedCache().get(cacheKey);
@@ -632,14 +632,19 @@ public class GrouperServiceJ2ee implements Filter {
         //if not in cache
         if (allowedInCache == null) {
           grouperSession = GrouperSession.startRootSession();
-
-          Group group = GroupFinder.findByName(grouperSession, userGroupName, true);
-          if (!group.hasMember(loggedInSubject)) {
-            //not allowed, cache it
-            subjectAllowedCache().put(cacheKey, false);
-            throw new RuntimeException("User is not authorized: " + loggedInSubject + ", " + group);
-          }
-          subjectAllowedCache().put(cacheKey, true);
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
+              Group group = GroupFinder.findByName(rootGrouperSession, userGroupName, true);
+              if (!group.hasMember(loggedInSubject)) {
+                //not allowed, cache it
+                subjectAllowedCache().put(cacheKey, false);
+                throw new RuntimeException("User is not authorized: " + loggedInSubject + ", " + group);
+              }
+              subjectAllowedCache().put(cacheKey, true);
+              return null;
+            }
+          });
         } else {
           //if in cache, reflect that
           if (!allowedInCache) {

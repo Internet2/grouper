@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveLite, code generated classes, format: soap, for version: 2.3.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveLite, code generated classes, format: soap, for version: 2.4.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_3 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_4 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:attributeDefSaveLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:attributeDefSaveLite xmlns:ns1="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_3_000</ns1:clientVersion>
+    <ns1:attributeDefSaveLite xmlns:ns1="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_4_000</ns1:clientVersion>
       <ns1:attributeDefLookupUuid></ns1:attributeDefLookupUuid>
       <ns1:attributeDefLookupName></ns1:attributeDefLookupName>
       <ns1:uuidOfAttributeDef></ns1:uuidOfAttributeDef>
@@ -66,32 +66,31 @@ Transfer-Encoding: chunked
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS_INSERTED
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS_NO_CHANGES_NEEDED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 21 Jun 2016 19:37:17 GMT
+Date: Mon, 06 Aug 2018 16:37:24 GMT
 
-6bf
+6c8
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:attributeDefSaveLiteResponse xmlns:ns="http://soap_v2_3.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:attributeDefSaveLiteResponse xmlns:ns="http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAttributeDefSaveLiteResult">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.3.0</ns:serverVersion>
+          <ns:serverVersion>2.4.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
-          <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
+          <ns:resultCode>SUCCESS_NO_CHANGES_NEEDED</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.3.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
+          <ns:resultMessage>Success for: clientVersion: 2.4.0, wsAttributeDefsToSave: Array size: 1: [0]: WsAttributeDefToSave[
 wsAttributeDefLookup=WsAttributeDefLookup[pitAttributeDefs=[],uuid=,name=],
 wsAttributeDef=WsAttributeDef[description=This is a description1 soap soap,...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, paramNames:
@@ -103,11 +102,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 soap soap,...
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description>This is a description1 soap soap</ns:description>
           <ns:extension>testAttributeDef_soap</ns:extension>
-          <ns:idIndex>10044</ns:idIndex>
+          <ns:idIndex>10076</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>test1:testAttributeDef_soap</ns:name>
-          <ns:uuid>e84c7ee7b871421eaea2db4b32638b5d</ns:uuid>
+          <ns:uuid>369a3579f4734b328266a21b38a4d567</ns:uuid>
           <ns:valueType>string</ns:valueType>
         </ns:wsAttributeDef>
       </ns:return>
@@ -156,9 +155,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefSaveLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefSaveLiteResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefSaveLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.AttributeDefSaveLiteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDefSaveLiteResult;
 
 
 /**
@@ -269,6 +268,6 @@ public class WsSampleAttributeDefSaveLite implements WsSampleGenerated {
 
 
 WsAttributeDefSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@23dcb18c,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@6e0c70b8,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@72bc7879,localWsAttributeDefTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResponseMeta@7ca1a967,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsResultMeta@14e596e6,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsAttributeDef@3de0397f,localWsAttributeDefTracker=true]

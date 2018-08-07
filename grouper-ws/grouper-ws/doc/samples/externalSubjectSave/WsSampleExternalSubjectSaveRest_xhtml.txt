@@ -1,4 +1,4 @@
-Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSaveRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSaveRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubj
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_1_005/externalSubjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/externalSubjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1175
+Content-Length: 1181
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='utf-8'?>
@@ -33,9 +33,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <p class="saveMode" />
           <div class="wsExternalSubject" title="WsExternalSubject">
             <p class="description" />
-            <p class="email">b@c.d</p>
+            <p class="email">b@c.com</p>
             <p class="enabled">T</p>
-            <p class="identifier">b_ident@c.d</p>
+            <p class="identifier">b_ident@c.com</p>
             <p class="institution" />
             <p class="name">Another Name</p>
             <p class="searchStringLower" />
@@ -50,7 +50,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
             </ul>
           </div>
           <div class="wsExternalSubjectLookup" title="WsExternalSubjectLookup">
-            <p class="identifier">b_ident@c.d</p>
+            <p class="identifier">b_ident@c.com</p>
           </div>
         </li>
       </ul>
@@ -67,18 +67,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 02 Aug 2016 21:39:30 GMT
+Date: Mon, 06 Aug 2018 17:13:51 GMT
 Connection: close
 
-75e
+772
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -88,16 +87,16 @@ Connection: close
   <body>
     <div title="WsExternalSubjectSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">88</p>
+        <p class="millis">111</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.5, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
-wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.d],
-wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...
+        <p class="resultMessage">Success for: clientVersion: 2.4.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
+wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],
+wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
         <p class="success">T</p>
@@ -105,26 +104,26 @@ wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...
       <ul class="results">
         <li title="WsExternalSubjectSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS_INSERTED</p>
+            <p class="resultCode">SUCCESS_NO_CHANGES_NEEDED</p>
             <p class="resultCode2" />
             <p class="resultMessage" />
             <p class="success">T</p>
           </div>
           <div class="wsExternalSubject" title="WsExternalSubject">
-            <p class="description">[unverifiedInfo] Another Name [externalUserID] b_ident@c.d</p>
-            <p class="email">b@c.d</p>
+            <p class="description">[unverifiedInfo] Another Name [externalUserID] b_ident@c.com</p>
+            <p class="email">b@c.com</p>
             <p class="enabled">T</p>
-            <p class="identifier">b_ident@c.d</p>
+            <p class="identifier">b_ident@c.com</p>
             <p class="institution" />
             <p class="name">Another Name</p>
-            <p class="searchStringLower">another name, b_ident@c.d, b@c.d</p>
-            <p class="uuid">d494fcb4af61441682ba9e32e75befb3</p>
+            <p class="searchStringLower">another name, b_ident@c.com, b@c.com</p>
+            <p class="uuid">7520cffd3a3e476da7705148537b072a</p>
             <p class="vettedEmailAddresses" />
             <ul class="wsExternalSubjectAttributes">
               <li title="WsExternalSubjectAttribute">
                 <p class="attributeSystemName">jabber</p>
                 <p class="attributeValue">b_jabber@c.d</p>
-                <p class="uuid">e94cf88a223648cf9a9398cc11aabc96</p>
+                <p class="uuid">333edf1a72b940c8be1339e056837e9a</p>
               </li>
             </ul>
           </div>
@@ -227,9 +226,9 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       WsExternalSubjectToSave wsExternalSubjectToSave = new WsExternalSubjectToSave();
       
       WsExternalSubject wsExternalSubject = new WsExternalSubject();
-      wsExternalSubject.setIdentifier("b_ident@c.d");
+      wsExternalSubject.setIdentifier("b_ident@c.com");
       wsExternalSubject.setName("Another Name");
-      wsExternalSubject.setEmail("b@c.d");
+      wsExternalSubject.setEmail("b@c.com");
       WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
       wsExternalSubjectAttribute.setAttributeSystemName("jabber");
       wsExternalSubjectAttribute.setAttributeValue("b_jabber@c.d");
@@ -237,10 +236,10 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
 
       WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup();
-      wsExternalSubjectLookup.setIdentifier("b_ident@c.d");
+      wsExternalSubjectLookup.setIdentifier("b_ident@c.com");
       wsExternalSubjectToSave.setWsExternalSubjectLookup(wsExternalSubjectLookup);
 
-      wsExternalSubjectToSave.setWsExternalSubjectLookup(new WsExternalSubjectLookup("b_ident@c.d"));
+      wsExternalSubjectToSave.setWsExternalSubjectLookup(new WsExternalSubjectLookup("b_ident@c.com"));
 
       WsExternalSubjectToSave[] wsExternalSubjectToSaves = new WsExternalSubjectToSave[] {wsExternalSubjectToSave};
       
@@ -329,8 +328,8 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.5, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
-  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.d],
-  wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
+  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],
+  wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

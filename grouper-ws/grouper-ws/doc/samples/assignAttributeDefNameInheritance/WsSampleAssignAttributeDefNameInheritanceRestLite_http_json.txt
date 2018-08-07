@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 174
 
@@ -27,27 +27,26 @@ wsLiteObjectType=WsRestAssignAttributeDefNameInheritanceLiteRequest&assign=T&att
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 289
-Date: Wed, 28 May 2014 22:42:32 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 288
+Date: Mon, 06 Aug 2018 16:35:09 GMT
 Connection: close
 
 {
   "WsAssignAttributeDefNameInheritanceResults":{
-    "responseMetadata":{
-      "millis":"57",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.",
-      "success":"T"
+      "resultMessage":"Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist."
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"4"
     }
   }
 }
@@ -227,4 +226,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.4.0, result code: SUCCESS, result message: Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

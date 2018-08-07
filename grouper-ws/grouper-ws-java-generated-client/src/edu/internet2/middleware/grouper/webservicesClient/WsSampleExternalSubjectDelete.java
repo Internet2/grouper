@@ -83,7 +83,7 @@ public class WsSampleExternalSubjectDelete implements WsSampleGenerated {
             externalSubjectDelete.setActAsSubjectLookup(actAsSubject);
 
             WsExternalSubjectLookup wsExternalSubjectLookup = WsExternalSubjectLookup.class.newInstance();
-            wsExternalSubjectLookup.setIdentifier("a_ident@b.c");
+            wsExternalSubjectLookup.setIdentifier("a_ident@b.com");
             externalSubjectDelete.setWsExternalSubjectLookups(new WsExternalSubjectLookup[] { wsExternalSubjectLookup });
 
             WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = stub.externalSubjectDelete(externalSubjectDelete)

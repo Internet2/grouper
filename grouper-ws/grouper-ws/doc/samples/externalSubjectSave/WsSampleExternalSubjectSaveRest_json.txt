@@ -1,4 +1,4 @@
-Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSaveRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSaveRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,33 +9,32 @@ Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubj
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_1_005/externalSubjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/externalSubjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 322
-Content-Type: text/x-json; charset=UTF-8
+Content-Length: 328
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestExternalSubjectSaveRequest":{
     "wsExternalSubjectToSaves":[
       {
+        "wsExternalSubjectLookup":{
+          "identifier":"b_ident@c.com"
+        },
         "wsExternalSubject":{
-          "email":"b@c.d",
-          "enabled":"T",
-          "identifier":"b_ident@c.d",
+          "identifier":"b_ident@c.com",
           "name":"Another Name",
+          "email":"b@c.com",
+          "enabled":"T",
           "wsExternalSubjectAttributes":[
             {
-              "attributeSystemName":"jabber",
-              "attributeValue":"b_jabber@c.d"
+              "attributeValue":"b_jabber@c.d",
+              "attributeSystemName":"jabber"
             }
           ]
-          
-        },
-        "wsExternalSubjectLookup":{
-          "identifier":"b_ident@c.d"
         }
       }
     ]
@@ -51,47 +50,46 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+HTTP/1.1 201
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 989
-Date: Tue, 02 Aug 2016 21:40:08 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1008
+Date: Mon, 06 Aug 2018 17:13:58 GMT
 Connection: close
 
 {
   "WsExternalSubjectSaveResults":{
-    "responseMetadata":{
-      "millis":"100",
-      "serverVersion":"2.3.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.5, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[\n  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.d],\n  wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[\n  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],\n  wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"109"
     },
     "results":[
       {
         "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
+          "success":"T",
+          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
         },
         "wsExternalSubject":{
-          "description":"[unverifiedInfo] Another Name [externalUserID] b_ident@c.d",
-          "email":"b@c.d",
-          "enabled":"T",
-          "identifier":"b_ident@c.d",
+          "identifier":"b_ident@c.com",
+          "searchStringLower":"another name, b_ident@c.com, b@c.com",
           "name":"Another Name",
-          "searchStringLower":"another name, b_ident@c.d, b@c.d",
-          "uuid":"4486376bee8245de998cc7acc710fdb7",
+          "description":"[unverifiedInfo] Another Name [externalUserID] b_ident@c.com",
+          "uuid":"7520cffd3a3e476da7705148537b072a",
+          "email":"b@c.com",
+          "enabled":"T",
           "wsExternalSubjectAttributes":[
             {
-              "attributeSystemName":"jabber",
               "attributeValue":"b_jabber@c.d",
-              "uuid":"34342992695b4da39b54376a5c48f1ae"
+              "uuid":"333edf1a72b940c8be1339e056837e9a",
+              "attributeSystemName":"jabber"
             }
           ]
         }
@@ -192,9 +190,9 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       WsExternalSubjectToSave wsExternalSubjectToSave = new WsExternalSubjectToSave();
       
       WsExternalSubject wsExternalSubject = new WsExternalSubject();
-      wsExternalSubject.setIdentifier("b_ident@c.d");
+      wsExternalSubject.setIdentifier("b_ident@c.com");
       wsExternalSubject.setName("Another Name");
-      wsExternalSubject.setEmail("b@c.d");
+      wsExternalSubject.setEmail("b@c.com");
       WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
       wsExternalSubjectAttribute.setAttributeSystemName("jabber");
       wsExternalSubjectAttribute.setAttributeValue("b_jabber@c.d");
@@ -202,10 +200,10 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
 
       WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup();
-      wsExternalSubjectLookup.setIdentifier("b_ident@c.d");
+      wsExternalSubjectLookup.setIdentifier("b_ident@c.com");
       wsExternalSubjectToSave.setWsExternalSubjectLookup(wsExternalSubjectLookup);
 
-      wsExternalSubjectToSave.setWsExternalSubjectLookup(new WsExternalSubjectLookup("b_ident@c.d"));
+      wsExternalSubjectToSave.setWsExternalSubjectLookup(new WsExternalSubjectLookup("b_ident@c.com"));
 
       WsExternalSubjectToSave[] wsExternalSubjectToSaves = new WsExternalSubjectToSave[] {wsExternalSubjectToSave};
       
@@ -294,8 +292,8 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.5, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
-  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.d],
-  wsExternalSubject=WsExternalSubject[email=b@c.d,enabled=T,identifier=b_iden...
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
+  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],
+  wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

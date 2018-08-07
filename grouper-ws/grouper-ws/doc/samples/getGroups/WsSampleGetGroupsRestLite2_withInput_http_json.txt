@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: http_json, for version: 2.2.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 116
 
@@ -27,68 +27,106 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&actAsSubjectId=GrouperSystem&include
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1280
-Date: Tue, 03 Jun 2014 22:07:45 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2170
+Date: Mon, 06 Aug 2018 16:41:00 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
-    "responseMetadata":{
-      "millis":"71",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
+      "success":"T",
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null"
     },
     "subjectAttributeNames":[
       "name",
       "description"
     ]
     ,
-    "wsGroups":[
-      {
-        "detail":{
-          "createSubjectId":"GrouperSystem",
-          "createTime":"2014/06/03 18:07:43.081",
-          "hasComposite":"F",
-          "isCompositeFactor":"F",
-          "modifySubjectId":"GrouperSystem",
-          "modifyTime":"2014/06/03 18:07:43.090",
-          "typeNames":[
-          ]
-          
-        },
-        "displayExtension":"role",
-        "displayName":"a stem:role",
-        "extension":"role",
-        "idIndex":"10008",
-        "name":"aStem:role",
-        "typeOfGroup":"role",
-        "uuid":"f7a8a480cbe74da4bf9771bd27861bb5"
-      }
-    ]
-    ,
     "wsSubject":{
+      "sourceId":"jdbc",
+      "success":"T",
       "attributeValues":[
         "my name is test.subject.0",
         "description.test.subject.0"
       ]
       ,
-      "id":"test.subject.0",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
-      "sourceId":"jdbc",
-      "success":"T"
-    }
+      "id":"test.subject.0"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"235"
+    },
+    "wsGroups":[
+      {
+        "displayExtension":"role",
+        "extension":"role",
+        "displayName":"a stem:role",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "detail":{
+          "typeNames":[
+          ]
+          ,
+          "modifyTime":"2018/08/06 11:04:03.601",
+          "createTime":"2018/08/06 11:04:03.596",
+          "isCompositeFactor":"F",
+          "hasComposite":"F",
+          "createSubjectId":"GrouperSystem",
+          "modifySubjectId":"GrouperSystem"
+        },
+        "idIndex":"10022",
+        "uuid":"c94e8975d1524eacb3e5f3a7b0b55086"
+      },
+      {
+        "displayExtension":"grouperMessageRole",
+        "extension":"grouperMessageRole",
+        "displayName":"etc:attribute:messages:grouperMessageRole",
+        "name":"etc:attribute:messages:grouperMessageRole",
+        "typeOfGroup":"role",
+        "detail":{
+          "typeNames":[
+          ]
+          ,
+          "modifyTime":"2018/08/06 11:03:52.697",
+          "createTime":"2018/08/06 11:03:52.690",
+          "isCompositeFactor":"F",
+          "hasComposite":"F",
+          "createSubjectId":"GrouperSystem",
+          "modifySubjectId":"GrouperSystem"
+        },
+        "idIndex":"10001",
+        "uuid":"d318bed9be7d43b5a7d21d1fcc064820"
+      },
+      {
+        "displayExtension":"testGroup",
+        "extension":"testGroup",
+        "displayName":"test:testGroup",
+        "name":"test:testGroup",
+        "typeOfGroup":"group",
+        "detail":{
+          "typeNames":[
+          ]
+          ,
+          "modifyTime":"2018/08/06 12:40:58.613",
+          "createTime":"2018/08/06 11:04:00.343",
+          "isCompositeFactor":"F",
+          "hasComposite":"F",
+          "createSubjectId":"GrouperSystem",
+          "modifySubjectId":"GrouperSystem"
+        },
+        "idIndex":"10004",
+        "uuid":"f651723de0f549ed97906e28df006ced"
+      }
+    ]
   }
 }
 
@@ -265,7 +303,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.4.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

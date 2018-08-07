@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: json, for version: 2.2.0
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -9,22 +9,22 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_4_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 198
-Content-Type: text/x-json; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
 
 {
   "WsRestAssignGrouperPrivilegesLiteRequest":{
-    "actAsSubjectId":"GrouperSystem",
     "allowed":"T",
-    "groupName":"aStem:aGroup",
+    "subjectId":"test.subject.0",
     "privilegeName":"optin",
-    "privilegeType":"access",
-    "subjectId":"test.subject.0"
+    "groupName":"aStem:aGroup",
+    "actAsSubjectId":"GrouperSystem",
+    "privilegeType":"access"
   }
 }
 
@@ -37,47 +37,46 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
-X-Grouper-resultCode: SUCCESS_ALLOWED
+HTTP/1.1 200
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
+X-Grouper-resultCode: SUCCESS_ALLOWED_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 934
-Date: Wed, 28 May 2014 22:55:14 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 949
+Date: Mon, 06 Aug 2018 16:36:05 GMT
 Connection: close
 
 {
   "WsAssignGrouperPrivilegesLiteResult":{
-    "privilegeName":"optin",
-    "privilegeType":"access",
-    "responseMetadata":{
-      "millis":"160",
-      "serverVersion":"2.2.0"
-    },
     "resultMetadata":{
-      "resultCode":"SUCCESS_ALLOWED",
-      "resultMessage":"Success for: clientVersion: 2.2.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]\n, group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin\n, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false\n, params: null",
-      "success":"T"
+      "success":"T",
+      "resultCode":"SUCCESS_ALLOWED_ALREADY_EXISTED",
+      "resultMessage":"Success for: clientVersion: 2.4.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]\n, group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin\n, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false\n, params: null"
     },
     "wsGroup":{
-      "description":"a group description",
       "displayExtension":"a group",
-      "displayName":"a stem:a group",
       "extension":"aGroup",
-      "idIndex":"10001",
+      "displayName":"a stem:a group",
       "name":"aStem:aGroup",
+      "description":"a group description",
       "typeOfGroup":"group",
-      "uuid":"6778ba3b15d649799bf24c155b871c81"
+      "idIndex":"10005",
+      "uuid":"03aae7141082467eaaa866e6c6edfda5"
     },
     "wsSubject":{
-      "id":"test.subject.0",
+      "sourceId":"jdbc",
+      "success":"T",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
-      "sourceId":"jdbc",
-      "success":"T"
-    }
+      "id":"test.subject.0"
+    },
+    "responseMetadata":{
+      "serverVersion":"2.4.0",
+      "millis":"10"
+    },
+    "privilegeType":"access",
+    "privilegeName":"optin"
   }
 }
 
@@ -256,7 +255,7 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS_ALLOWED, result message: Success for: clientVersion: 2.2.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+Server version: 2.4.0, result code: SUCCESS_ALLOWED_ALREADY_EXISTED, result message: Success for: clientVersion: 2.4.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
 , group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null
