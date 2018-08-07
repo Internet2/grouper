@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -8187,10 +8188,10 @@ public class GrouperServiceLogic {
       StringBuilder errorMessage = new StringBuilder();
   
       //get the attributedefs to retrieve
-      Set<String> attributeDefIds = wsAttributeDefLookups == null ? null : GrouperUtil.nonNull(WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
+      Set<String> attributeDefIds = (wsAttributeDefLookups == null || wsAttributeDefLookups.length == 0) ? null : GrouperUtil.nonNull(WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
       
       //get the attributeDefNames to retrieve
-      Set<String> attributeDefNameIds = wsAttributeDefNameLookups == null ? null : GrouperUtil.nonNull(WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
+      Set<String> attributeDefNameIds = (wsAttributeDefNameLookups == null || wsAttributeDefNameLookups.length == 0) ? null : GrouperUtil.nonNull(WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
       
       //if you sent some in, and none are remaining, then that is bad...
       if (GrouperUtil.length(attributeDefNameIds) == 0 && GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
@@ -9973,7 +9974,7 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
       final GrouperMessageQueueType queueType, final String queueOrTopicName,
-      final String messageSystemName, String routingKey, boolean autocreateObjects,
+      final String messageSystemName, String routingKey, Boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
@@ -10008,6 +10009,8 @@ public class GrouperServiceLogic {
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
 
+      autocreateObjects = GrouperUtil.defaultIfNull(autocreateObjects, false);
+      
       if (StringUtils.isBlank(queueOrTopicName)) {
         throw new WsInvalidQueryException(
             "You need to pass in queueOrTopicName to which the messages need to be sent.");
@@ -10073,7 +10076,7 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults receiveMessage(final GrouperVersion clientVersion,
       final String queueOrTopicName, final String messageSystemName,
-      String routingKey, boolean autocreateObjects,
+      String routingKey, Boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
@@ -10109,6 +10112,8 @@ public class GrouperServiceLogic {
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
 
+      autocreateObjects = GrouperUtil.defaultIfNull(autocreateObjects, false);
+      
       if (StringUtils.isBlank(queueOrTopicName)) {
         throw new WsInvalidQueryException(
             "You need to pass in queueOrTopicName from which the messages need to be received.");

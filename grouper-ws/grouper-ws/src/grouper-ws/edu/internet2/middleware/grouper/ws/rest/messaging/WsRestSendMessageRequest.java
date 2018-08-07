@@ -41,7 +41,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   }
   
   /** queue or topic **/
-  private String queueOrTopic;
+  private String queueType;
   
   /** queue or topic name **/
   private String queueOrTopicName;
@@ -53,7 +53,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   private String routingKey;
   
   /** create queue/topic if doesn't exist already. **/
-  private boolean autocreateObjects;
+  private String autocreateObjects;
 
   /** messages to be sent **/
   private WsMessage[] messages;
@@ -92,16 +92,16 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    * queue or topic
    * @return queueOrTopic
    */
-  public String getQueueOrTopic() {
-    return this.queueOrTopic;
+  public String getQueueType() {
+    return this.queueType;
   }
 
   /**
    * queue or topic
-   * @param queueOrTopic1
+   * @param queueType1
    */
-  public void setQueueOrTopic(String queueOrTopic1) {
-    this.queueOrTopic = queueOrTopic1;
+  public void setQueueType(String queueType1) {
+    this.queueType = queueType1;
   }
 
   /** 
@@ -155,7 +155,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    * create queue/topic if doesn't exist already.
    * @return autocreateObjects
    */
-  public boolean isAutocreateObjects() {
+  public String isAutocreateObjects() {
     return this.autocreateObjects;
   }
 
@@ -163,7 +163,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    * create queue/topic if doesn't exist already.
    * @param autocreateObjects1
    */
-  public void setAutocreateObjects(boolean autocreateObjects1) {
+  public void setAutocreateObjects(String autocreateObjects1) {
     this.autocreateObjects = autocreateObjects1;
   }
 

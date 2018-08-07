@@ -70,11 +70,6 @@ public class WsSampleAcknowledgeMessageRest implements WsSampleRest {
       httpClient.getState().setCredentials(
           new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
       
-      GrouperSession.startRootSession();
-      GrouperBuiltinMessagingSystem.createQueue("ghi");
-      GrouperBuiltinMessagingSystem.allowSendToQueue("ghi", SubjectTestHelper.SUBJ0);
-      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("ghi", SubjectTestHelper.SUBJ0);
-
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
 

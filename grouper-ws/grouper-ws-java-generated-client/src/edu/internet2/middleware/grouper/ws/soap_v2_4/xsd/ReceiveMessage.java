@@ -198,7 +198,7 @@
                         */
 
                         
-                                    protected boolean localAutocreateObjects ;
+                                    protected java.lang.String localAutocreateObjects ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
@@ -214,9 +214,9 @@
 
                            /**
                            * Auto generated getter method
-                           * @return boolean
+                           * @return java.lang.String
                            */
-                           public  boolean getAutocreateObjects(){
+                           public  java.lang.String getAutocreateObjects(){
                                return localAutocreateObjects;
                            }
 
@@ -226,11 +226,8 @@
                                * Auto generated setter method
                                * @param param AutocreateObjects
                                */
-                               public void setAutocreateObjects(boolean param){
-                            
-                                       // setting primitive attribute tracker to true
-                                       localAutocreateObjectsTracker =
-                                       true;
+                               public void setAutocreateObjects(java.lang.String param){
+                            localAutocreateObjectsTracker = true;
                                    
                                             this.localAutocreateObjects=param;
                                     
@@ -243,7 +240,7 @@
                         */
 
                         
-                                    protected int localBlockMillis ;
+                                    protected java.lang.String localBlockMillis ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
@@ -259,9 +256,9 @@
 
                            /**
                            * Auto generated getter method
-                           * @return int
+                           * @return java.lang.String
                            */
-                           public  int getBlockMillis(){
+                           public  java.lang.String getBlockMillis(){
                                return localBlockMillis;
                            }
 
@@ -271,11 +268,8 @@
                                * Auto generated setter method
                                * @param param BlockMillis
                                */
-                               public void setBlockMillis(int param){
-                            
-                                       // setting primitive attribute tracker to true
-                                       localBlockMillisTracker =
-                                       param != java.lang.Integer.MIN_VALUE;
+                               public void setBlockMillis(java.lang.String param){
+                            localBlockMillisTracker = true;
                                    
                                             this.localBlockMillis=param;
                                     
@@ -288,7 +282,7 @@
                         */
 
                         
-                                    protected int localMaxMessagesToReceiveAtOnce ;
+                                    protected java.lang.String localMaxMessagesToReceiveAtOnce ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
@@ -304,9 +298,9 @@
 
                            /**
                            * Auto generated getter method
-                           * @return int
+                           * @return java.lang.String
                            */
-                           public  int getMaxMessagesToReceiveAtOnce(){
+                           public  java.lang.String getMaxMessagesToReceiveAtOnce(){
                                return localMaxMessagesToReceiveAtOnce;
                            }
 
@@ -316,11 +310,8 @@
                                * Auto generated setter method
                                * @param param MaxMessagesToReceiveAtOnce
                                */
-                               public void setMaxMessagesToReceiveAtOnce(int param){
-                            
-                                       // setting primitive attribute tracker to true
-                                       localMaxMessagesToReceiveAtOnceTracker =
-                                       param != java.lang.Integer.MIN_VALUE;
+                               public void setMaxMessagesToReceiveAtOnce(java.lang.String param){
+                            localMaxMessagesToReceiveAtOnceTracker = true;
                                    
                                             this.localMaxMessagesToReceiveAtOnce=param;
                                     
@@ -584,39 +575,54 @@
                                     namespace = "http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "autocreateObjects", xmlWriter);
                              
-                                               if (false) {
-                                           
-                                                         throw new org.apache.axis2.databinding.ADBException("autocreateObjects cannot be null!!");
-                                                      
-                                               } else {
-                                                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAutocreateObjects));
-                                               }
+
+                                          if (localAutocreateObjects==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localAutocreateObjects);
+                                            
+                                          }
                                     
                                    xmlWriter.writeEndElement();
                              } if (localBlockMillisTracker){
                                     namespace = "http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "blockMillis", xmlWriter);
                              
-                                               if (localBlockMillis==java.lang.Integer.MIN_VALUE) {
-                                           
-                                                         throw new org.apache.axis2.databinding.ADBException("blockMillis cannot be null!!");
-                                                      
-                                               } else {
-                                                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localBlockMillis));
-                                               }
+
+                                          if (localBlockMillis==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localBlockMillis);
+                                            
+                                          }
                                     
                                    xmlWriter.writeEndElement();
                              } if (localMaxMessagesToReceiveAtOnceTracker){
                                     namespace = "http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "maxMessagesToReceiveAtOnce", xmlWriter);
                              
-                                               if (localMaxMessagesToReceiveAtOnce==java.lang.Integer.MIN_VALUE) {
-                                           
-                                                         throw new org.apache.axis2.databinding.ADBException("maxMessagesToReceiveAtOnce cannot be null!!");
-                                                      
-                                               } else {
-                                                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMaxMessagesToReceiveAtOnce));
-                                               }
+
+                                          if (localMaxMessagesToReceiveAtOnce==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localMaxMessagesToReceiveAtOnce);
+                                            
+                                          }
                                     
                                    xmlWriter.writeEndElement();
                              } if (localActAsSubjectLookupTracker){
@@ -870,21 +876,21 @@
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "autocreateObjects"));
                                  
-                                elementList.add(
-                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAutocreateObjects));
-                            } if (localBlockMillisTracker){
+                                         elementList.add(localAutocreateObjects==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAutocreateObjects));
+                                    } if (localBlockMillisTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "blockMillis"));
                                  
-                                elementList.add(
-                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localBlockMillis));
-                            } if (localMaxMessagesToReceiveAtOnceTracker){
+                                         elementList.add(localBlockMillis==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localBlockMillis));
+                                    } if (localMaxMessagesToReceiveAtOnceTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "maxMessagesToReceiveAtOnce"));
                                  
-                                elementList.add(
-                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMaxMessagesToReceiveAtOnce));
-                            } if (localActAsSubjectLookupTracker){
+                                         elementList.add(localMaxMessagesToReceiveAtOnce==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMaxMessagesToReceiveAtOnce));
+                                    } if (localActAsSubjectLookupTracker){
                             elementList.add(new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "actAsSubjectLookup"));
                             
@@ -1107,11 +1113,20 @@
                                 
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd","autocreateObjects").equals(reader.getName())){
                                 
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setAutocreateObjects(
-                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToBoolean(content));
-                                              
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
                                         reader.next();
                                     
                               }  // End of if for expected property start element
@@ -1125,19 +1140,26 @@
                                 
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd","blockMillis").equals(reader.getName())){
                                 
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setBlockMillis(
-                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToInt(content));
-                                              
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
                                         reader.next();
                                     
                               }  // End of if for expected property start element
                                 
                                     else {
                                         
-                                               object.setBlockMillis(java.lang.Integer.MIN_VALUE);
-                                           
                                     }
                                 
                                     
@@ -1145,19 +1167,26 @@
                                 
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_4.ws.grouper.middleware.internet2.edu/xsd","maxMessagesToReceiveAtOnce").equals(reader.getName())){
                                 
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setMaxMessagesToReceiveAtOnce(
-                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToInt(content));
-                                              
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
                                         reader.next();
                                     
                               }  // End of if for expected property start element
                                 
                                     else {
                                         
-                                               object.setMaxMessagesToReceiveAtOnce(java.lang.Integer.MIN_VALUE);
-                                           
                                     }
                                 
                                     

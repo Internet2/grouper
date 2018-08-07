@@ -40,8 +40,8 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
   private String anotherQueueOrTopicName;
 	  
   /** destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic **/
-  private String anotherQueueOrTopic;
-  
+  private String anotherQueueType;
+    
   /**
    * @return the messages to be marked as processed
    */
@@ -120,16 +120,16 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
    * destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic
    * @return anotherQueueOrTopic
    */
-  public String getAnotherQueueOrTopic() {
-    return this.anotherQueueOrTopic;
+  public String getAnotherQueueType() {
+    return this.anotherQueueType;
   }
 
   /**
    * destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic
    * @param anotherQueueOrTopic1
    */
-  public void setAnotherQueueOrTopic(String anotherQueueOrTopic1) {
-    this.anotherQueueOrTopic = anotherQueueOrTopic1;
+  public void setAnotherQueueType(String anotherQueueOrTopic1) {
+    this.anotherQueueType = anotherQueueOrTopic1;
   }
 
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */

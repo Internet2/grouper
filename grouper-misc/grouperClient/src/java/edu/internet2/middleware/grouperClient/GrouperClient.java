@@ -2619,6 +2619,32 @@ public class GrouperClient {
    * @param argMapNotUsed
    * @return the list of params or empty list if none
    */
+  private static List<WsMessage> retrieveMessagesFromArgs(
+      Map<String, String> argMap, Map<String, String> argMapNotUsed) {
+
+    List<WsMessage> messages = new ArrayList<WsMessage>();
+    int index = 0;
+    while (true) {
+
+      String messageBody = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "messageBody" + index, false);
+      if (GrouperClientUtils.isBlank(messageBody)) {
+        break;
+      }
+      WsMessage wsMessage = new WsMessage();
+      wsMessage.setMessageBody(messageBody);
+      messages.add(wsMessage);
+
+      index++;
+    }
+    return messages;
+  }
+  
+  /**
+   * retrieve params from args
+   * @param argMap
+   * @param argMapNotUsed
+   * @return the list of params or empty list if none
+   */
   private static List<WsPermissionEnvVar> retrieveLimitEnvVarsFromArgs(
       Map<String, String> argMap, Map<String, String> argMapNotUsed) {
 
@@ -6584,12 +6610,9 @@ public class GrouperClient {
     
     GcMessageSend messageSend = new GcMessageSend();
     
-    List<String> messages = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "messages", false);
-    
-    for (String message : messages) {
-    	WsMessage wsMessage = new WsMessage();
-    	wsMessage.setMessageBody(message);
-    	messageSend.addMessage(wsMessage);
+    List<WsMessage> messages = retrieveMessagesFromArgs(argMap, argMapNotUsed);
+    for (WsMessage wsMessage : GrouperClientUtils.nonNull(messages)) {
+      messageSend.addMessage(wsMessage);
     }
     
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -6602,11 +6625,17 @@ public class GrouperClient {
     String queueOrTopicName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "queueOrTopicName", false);
     messageSend.assignQueueOrTopicName(queueOrTopicName);
     
-    String queueOrTopic = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "queueOrTopic", false);
-    messageSend.assignQueueOrTopic(queueOrTopic);
+    String queueType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "queueType", false);
+    messageSend.assignQueueType(queueType);
     
     String messageSystemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "messageSystemName", false);
     messageSend.assignMessageSystemName(messageSystemName);
+    
+    String routingKey = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "routingKey", false);
+    messageSend.assignRoutingKey(routingKey);
+
+    Boolean autocreateObjects = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "autocreateObjects");
+    messageSend.assignAutocreateObjets(autocreateObjects);
     
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
     
@@ -6675,6 +6704,12 @@ public class GrouperClient {
     
     Integer maxMessagesToReceiveAtOnce = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, "maxMessagesToReceiveAtOnce", false, 1);
     messageReceive.assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce);
+    
+    Boolean autocreateObjects = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "autocreateObjects");
+    messageReceive.assignAutocreateObjets(autocreateObjects);
+
+    String routingKey = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "routingKey", false);
+    messageReceive.assignRoutingKey(routingKey);
     
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
     
@@ -6749,8 +6784,8 @@ public class GrouperClient {
     String anotherQueueOrTopicName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "anotherQueueOrTopicName", false);
     messageAcknowledge.assignAnotherQueueOrTopicName(anotherQueueOrTopicName);
     
-    String anotherQueueOrTopic = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "anotherQueueOrTopic", false);
-    messageAcknowledge.assignAnotherQueueOrTopic(anotherQueueOrTopic);
+    String anotherQueueType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "anotherQueueType", false);
+    messageAcknowledge.assignAnotherQueueType(anotherQueueType);
     
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
     

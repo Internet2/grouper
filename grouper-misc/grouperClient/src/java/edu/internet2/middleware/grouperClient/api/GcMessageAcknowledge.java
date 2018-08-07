@@ -46,7 +46,7 @@ public class GcMessageAcknowledge {
   private String anotherQueueOrTopicName;
   
   /** destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic **/
-  private String anotherQueueOrTopic;
+  private String anotherQueueType;
   
   /**
    * 
@@ -60,7 +60,7 @@ public class GcMessageAcknowledge {
   
   /**
    * @param theAnotherQueueOrTopicName
-   * @return
+   * @return this for chaining
    */
   public GcMessageAcknowledge assignAnotherQueueOrTopicName(String theAnotherQueueOrTopicName) {
     this.anotherQueueOrTopicName = theAnotherQueueOrTopicName;
@@ -69,10 +69,10 @@ public class GcMessageAcknowledge {
   
   /**
    * @param theAnotherQueueOrTopic
-   * @return
+   * @return this for chaining
    */
-  public GcMessageAcknowledge assignAnotherQueueOrTopic(String theAnotherQueueOrTopic) {
-    this.anotherQueueOrTopic = theAnotherQueueOrTopic;
+  public GcMessageAcknowledge assignAnotherQueueType(String theAnotherQueueOrTopic) {
+    this.anotherQueueType = theAnotherQueueOrTopic;
     return this;
   }
   
@@ -185,8 +185,8 @@ public class GcMessageAcknowledge {
       messageAcknowledgeRequest.setMessageSystemName(this.messageSystemName);
       messageAcknowledgeRequest.setMessageIds(GrouperClientUtils.toArray(this.messageIds, String.class));
       messageAcknowledgeRequest.setAcknowledgeType(this.acknowledgeType);
-      messageAcknowledgeRequest.setAnotherQueueOrTopic(this.anotherQueueOrTopic);
-      messageAcknowledgeRequest.setAnotherQueueOrTopicName(anotherQueueOrTopicName);
+      messageAcknowledgeRequest.setAnotherQueueType(this.anotherQueueType);
+      messageAcknowledgeRequest.setAnotherQueueOrTopicName(this.anotherQueueOrTopicName);
       
       //add params if there are any
       if (this.params.size() > 0) {

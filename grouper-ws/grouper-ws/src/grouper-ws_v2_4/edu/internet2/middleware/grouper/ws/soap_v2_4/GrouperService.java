@@ -3453,8 +3453,8 @@ public class GrouperService {
    */
   public WsMessageResults receiveMessage(final String clientVersion,
       String queueOrTopicName, String messageSystemName, String routingKey,
-      final boolean autocreateObjects,
-      final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
+      final String autocreateObjects,
+      final String blockMillis, final String maxMessagesToReceiveAtOnce,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
     
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
@@ -3482,7 +3482,7 @@ public class GrouperService {
    */
   public WsMessageResults sendMessage(final String clientVersion,
       String queueType, String queueOrTopicName, String messageSystemName,
-      String routingKey, boolean autocreateObjects, WsMessage[] messages,
+      String routingKey, String autocreateObjects, WsMessage[] messages,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "sendMessage",

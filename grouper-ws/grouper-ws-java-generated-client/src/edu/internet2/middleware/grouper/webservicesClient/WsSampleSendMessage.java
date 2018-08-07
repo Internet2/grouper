@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.SendMessage;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 
 /**
@@ -83,7 +84,11 @@ public class WsSampleSendMessage implements WsSampleGenerated {
       sendMessage.setMessages(new WsMessage[] { wsMessage1, wsMessage2 });
       sendMessage.setQueueOrTopicName("def");
       sendMessage.setQueueType("queue");
-
+      sendMessage.setAutocreateObjects("F");
+      sendMessage.setMessageSystemName("");
+      sendMessage.setParams(new WsParam[]{null});
+      sendMessage.setRoutingKey("");
+      
       WsMessageResults wsMessageResults = stub.sendMessage(sendMessage).get_return();
 
       System.out.println(ToStringBuilder.reflectionToString(

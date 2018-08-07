@@ -42,6 +42,22 @@ public class GcMessageReceive {
   /** max number of messages to receive at once, though can't be more than the server maximum (optional) **/
   private Integer maxMessagesToReceiveAtOnce; 
   
+  /** routing key - valid for rabbitmq only; **/
+  private String routingKey;
+  
+  /** create queue/topic if doesn't exist already. **/
+  private Boolean autocreateObjects;
+
+  /**
+   * create queue/topic if doesn't exist already.
+   * @param theAutocreateObjects
+   * @return this for chaining
+   */
+  public GcMessageReceive assignAutocreateObjets(Boolean theAutocreateObjects) {
+    this.autocreateObjects = theAutocreateObjects;
+    return this;
+  }
+
   /**
    * @param theBlockMillis
    * @return
@@ -66,10 +82,19 @@ public class GcMessageReceive {
    * @return
    */
   public GcMessageReceive assignQueueOrTopicName(String theQueueOrTopicName) {
-	this.queueOrTopicName = theQueueOrTopicName;
-	return this;
+  	this.queueOrTopicName = theQueueOrTopicName;
+  	return this;
   }
-  
+
+  /**
+   * @param theRoutingKey
+   * @return
+   */
+  public GcMessageReceive assignRoutingKey(String theRoutingKey) {
+    this.routingKey = theRoutingKey;
+    return this;
+  }
+
   /**
    * @param theMessageSystemName
    * @return
@@ -155,9 +180,11 @@ public class GcMessageReceive {
       messageReceiveRequest.setActAsSubjectLookup(this.actAsSubject);
       messageReceiveRequest.setQueueOrTopicName(this.queueOrTopicName);
       messageReceiveRequest.setMessageSystemName(this.messageSystemName);
-      messageReceiveRequest.setBlockMillis(this.blockMillis);
-      messageReceiveRequest.setMaxMessagesToReceiveAtOnce(this.maxMessagesToReceiveAtOnce);
-
+      messageReceiveRequest.setRoutingKey(this.routingKey);
+      messageReceiveRequest.setBlockMillis(this.blockMillis == null ? null : this.blockMillis.toString());
+      messageReceiveRequest.setMaxMessagesToReceiveAtOnce(this.maxMessagesToReceiveAtOnce == null ? null : this.maxMessagesToReceiveAtOnce.toString());
+      messageReceiveRequest.setAutocreateObjects(this.autocreateObjects == null ? null : (this.autocreateObjects ? "T" : "F"));
+      
       //add params if there are any
       if (this.params.size() > 0) {
         messageReceiveRequest.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));

@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.ReceiveMessage;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessage;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsParam;
 import edu.internet2.middleware.grouper.ws.soap_v2_4.xsd.WsSubjectLookup;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
@@ -87,7 +88,13 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       receiveMessage.setActAsSubjectLookup(wsSubjectLookup);
 
       receiveMessage.setQueueOrTopicName("def");
-
+      receiveMessage.setMessageSystemName("");
+      receiveMessage.setRoutingKey("");
+      receiveMessage.setAutocreateObjects("F");
+      receiveMessage.setBlockMillis("-1");
+      receiveMessage.setMaxMessagesToReceiveAtOnce("-1");
+      receiveMessage.setParams(new WsParam[]{});
+      
       WsMessageResults wsMessageResults = stub.receiveMessage(receiveMessage).get_return();
 
       System.out.println(ToStringBuilder.reflectionToString(

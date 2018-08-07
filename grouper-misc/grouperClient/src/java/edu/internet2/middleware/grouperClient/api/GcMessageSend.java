@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 public class GcMessageSend {
 	
   /** queue or topic **/
-  private String queueOrTopic;
+  private String queueType;
   
   /** queue or topic name **/
   private String queueOrTopicName;
@@ -44,11 +44,40 @@ public class GcMessageSend {
   private List<WsMessage> messages = new ArrayList<WsMessage>();
   
   /**
-   * @param theQueueOrTopic
-   * @return
+   * routing key for rabbitmq 
+   **/
+  private String routingKey;
+  
+  /** create queue/topic if doesn't exist already.
    */
-  public GcMessageSend assignQueueOrTopic(String theQueueOrTopic) {
-	this.queueOrTopic = theQueueOrTopic;
+  private Boolean autocreateObjects;
+
+  /**
+   * routing key for rabbitmq 
+   * @param theRoutingKey 
+   * @return  this for chaining
+   */
+  public GcMessageSend assignRoutingKey(String theRoutingKey) {
+    this.routingKey = theRoutingKey;
+    return this;
+  }
+
+  /**
+   * create queue/topic if doesn't exist already.
+   * @param theAutocreateObjects
+   * @return this for chaining
+   */
+  public GcMessageSend assignAutocreateObjets(Boolean theAutocreateObjects) {
+    this.autocreateObjects = theAutocreateObjects;
+    return this;
+  }
+  
+  /**
+   * @param theQueueOrTopic
+   * @return this for chaining
+   */
+  public GcMessageSend assignQueueType(String theQueueOrTopic) {
+	this.queueType = theQueueOrTopic;
 	return this;
   }
   
@@ -73,7 +102,7 @@ public class GcMessageSend {
   /**
    * add a message to the list
    * @param wsMessage
-   * @return
+   * @return this for chaining
    */
   public GcMessageSend addMessage(WsMessage wsMessage) {
 	this.messages.add(wsMessage);
@@ -127,12 +156,12 @@ public class GcMessageSend {
     if (GrouperClientUtils.isBlank(queueOrTopicName)) {
       throw new RuntimeException("Need queue or topic name where the message(s) needs to be sent "+this);
     }
-    if (GrouperClientUtils.isBlank(queueOrTopic)) {
+    if (GrouperClientUtils.isBlank(queueType) || (!GrouperClientUtils.equalsIgnoreCase("queue", this.queueType) && !GrouperClientUtils.equalsIgnoreCase("topic", this.queueType))) {
       throw new RuntimeException("Need type of destination. Valid values are queue and topic) "+this);
     }
-    
+
   }	
-  
+
   /** client version */
   private String clientVersion;
 
@@ -161,7 +190,7 @@ public class GcMessageSend {
       WsRestSendMessageRequest messageSendRequest = new WsRestSendMessageRequest();
 
       messageSendRequest.setActAsSubjectLookup(this.actAsSubject);
-      messageSendRequest.setQueueOrTopic(this.queueOrTopic);
+      messageSendRequest.setQueueType(this.queueType);
       messageSendRequest.setQueueOrTopicName(this.queueOrTopicName);
       messageSendRequest.setMessageSystemName(this.messageSystemName);
       messageSendRequest.setMessages(GrouperClientUtils.toArray(this.messages, WsMessage.class));

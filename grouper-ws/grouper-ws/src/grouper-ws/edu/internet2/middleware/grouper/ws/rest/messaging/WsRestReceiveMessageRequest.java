@@ -49,13 +49,13 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   private String routingKey;
   
   /** the millis to block waiting for messages, max of 20000 (optional) **/
-  Integer blockMillis;
+  private String blockMillis;
   
   /** max number of messages to receive at once, though can't be more than the server maximum (optional) **/
-  Integer maxMessagesToReceiveAtOnce;
+  private String maxMessagesToReceiveAtOnce;
   
   /** create queue/topic if doesn't exist already. **/
-  private boolean autocreateObjects;
+  private String autocreateObjects;
   
   /** 
    * @return queueOrTopicName
@@ -102,28 +102,28 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   /**
    * @return the millis to block waiting for messages, max of 20000 (optional)
    */
-  public Integer getBlockMillis() {
+  public String getBlockMillis() {
     return this.blockMillis;
   }
 
   /**
    * @param blockMillis1 - the millis to block waiting for messages, max of 20000 (optional)
    */
-  public void setBlockMillis(Integer blockMillis1) {
+  public void setBlockMillis(String blockMillis1) {
     this.blockMillis = blockMillis1;
   }
 
   /**
    * @return max number of messages to receive at once, though can't be more than the server maximum (optional)
    */
-  public Integer getMaxMessagesToReceiveAtOnce() {
+  public String getMaxMessagesToReceiveAtOnce() {
     return this.maxMessagesToReceiveAtOnce;
   }
 
   /**
    * @param maxMessagesToReceiveAtOnce1 - max number of messages to receive at once, though can't be more than the server maximum (optional)
    */
-  public void setMaxMessagesToReceiveAtOnce(Integer maxMessagesToReceiveAtOnce1) {
+  public void setMaxMessagesToReceiveAtOnce(String maxMessagesToReceiveAtOnce1) {
     this.maxMessagesToReceiveAtOnce = maxMessagesToReceiveAtOnce1;
   }
   
@@ -131,7 +131,7 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    * create queue/topic if doesn't exist already.
    * @return autocreateObjects
    */
-  public boolean isAutocreateObjects() {
+  public String isAutocreateObjects() {
     return this.autocreateObjects;
   }
 
@@ -139,7 +139,7 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    * create queue/topic if doesn't exist already.
    * @param autocreateObjects1
    */
-  public void setAutocreateObjects(boolean autocreateObjects1) {
+  public void setAutocreateObjects(String autocreateObjects1) {
     this.autocreateObjects = autocreateObjects1;
   }
 

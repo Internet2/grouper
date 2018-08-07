@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
 public class WsRestSendMessageRequest implements WsRequestBean {
   
   /** queue or topic **/
-  private String queueOrTopic;
+  private String queueType;
   
   /** queue or topic name **/
   private String queueOrTopicName;
@@ -52,18 +52,18 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   
   /**
    * queue or topic
-   * @return queueOrTopic
+   * @return queueType
    */
-  public String getQueueOrTopic() {
-    return this.queueOrTopic;
+  public String getQueueType() {
+    return this.queueType;
   }
 
   /**
    * queue or topic
-   * @param queueOrTopic1
+   * @param queueType1
    */
-  public void setQueueOrTopic(String queueOrTopic1) {
-    this.queueOrTopic = queueOrTopic1;
+  public void setQueueType(String queueType1) {
+    this.queueType = queueType1;
   }
 
   /** 

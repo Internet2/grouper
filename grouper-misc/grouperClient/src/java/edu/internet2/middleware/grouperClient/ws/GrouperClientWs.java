@@ -545,9 +545,6 @@ public class GrouperClientWs {
    * @param clientVersion 
    * @param readOnly true if readonly, false if readwrite
    * @return the response object
-   * @throws UnsupportedEncodingException
-   * @throws HttpException
-   * @throws IOException
    */
   public Object executeService(final String urlSuffix, final Object toSend, 
       final String labelForLog, final String clientVersion, final boolean readOnly)  {

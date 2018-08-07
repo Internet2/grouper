@@ -89,7 +89,7 @@ public class WsSampleSendMessageRest implements WsSampleRest {
       
       sendMessageRequest.setMessages(new WsMessage[] {wsMessage1, wsMessage2});
       sendMessageRequest.setQueueOrTopicName("def");
-      sendMessageRequest.setQueueOrTopic("queue");
+      sendMessageRequest.setQueueType("queue");
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
       wsSubjectLookup.setSubjectId(SubjectTestHelper.SUBJ0.getId());
       sendMessageRequest.setActAsSubjectLookup(wsSubjectLookup);
