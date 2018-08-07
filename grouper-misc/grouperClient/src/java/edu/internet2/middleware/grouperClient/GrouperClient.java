@@ -6729,9 +6729,9 @@ public class GrouperClient {
     substituteMap.put("grouperClientUtils", new GrouperClientUtils());
     substituteMap.put("resultMetadata", wsMessageResults.getResultMetadata());
     substituteMap.put("numberOfMessages", wsMessageResults.getMessages().length);
-  
+
     String outputTemplate = null;
-  
+    
     if (argMap.containsKey("outputTemplate")) {
       outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
       outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
@@ -6742,9 +6742,19 @@ public class GrouperClient {
       System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
           "grouperClientUtils, resultMetadata");
     }
-    
-    String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
-    result.append(output);
+    int index=0;
+    for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessageResults.getMessages(), WsMessage.class)) {
+
+      substituteMap.put("index", index);
+      substituteMap.put("wsMessage", wsMessage);
+
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate,
+          substituteMap);
+      result.append(output);
+
+      index++;
+    }
+
     return result.toString();
   }
   

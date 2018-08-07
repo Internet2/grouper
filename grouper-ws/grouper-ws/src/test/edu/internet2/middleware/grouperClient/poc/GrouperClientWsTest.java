@@ -115,7 +115,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNames"));
+    TestRunner.run(new GrouperClientWsTest("testReceiveMessage"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
 
@@ -38464,7 +38464,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperBuiltinMessagingSystem.allowReceiveFromQueue("test_queue", SubjectTestHelper.SUBJ0);
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=sendMessageWs --queueOrTopic=queue --queueOrTopicName=test_queue --messages=Test_body,Another_test_body --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
+          "--operation=sendMessageWs --queueType=queue --queueOrTopicName=test_queue --messageBody0=Test_body --messageBody1=Another_test_body --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
           " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -38487,7 +38487,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[0], "2", matcher.group(3));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
-              GrouperClientWs.mostRecentRequest.contains("queueOrTopic"));
+              GrouperClientWs.mostRecentRequest.contains("queueType"));
      assertFalse(GrouperClientWs.mostRecentRequest,
               GrouperClientWs.mostRecentRequest.contains("messageSystemName"));
 
@@ -38535,14 +38535,15 @@ public class GrouperClientWsTest extends GrouperTest {
 
       assertEquals(1, outputLines.length);
 
-      pattern = Pattern.compile("^Success: (T|F), queueOrTopicName: (.*), numberOfMessages: (\\d+)$");
+      pattern = Pattern.compile("^Index ([0-9]+): success: (T|F), queueOrTopicName: (.*), messageBody: (.*)$");
       matcher = pattern.matcher(outputLines[0]);
 
       assertTrue(outputLines[0], matcher.matches());
 
-      assertEquals(outputLines[0], "T", matcher.group(1));
-      assertEquals(outputLines[0], "test_queue", matcher.group(2));
-      assertTrue(outputLines[0], Integer.valueOf(matcher.group(3)) >= 1);
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "T", matcher.group(2));
+      assertEquals(outputLines[0], "test_queue", matcher.group(3));
+      assertEquals(outputLines[0], "message body", matcher.group(4));
       
       // ############################
       // max messages to receive at once
@@ -38572,9 +38573,10 @@ public class GrouperClientWsTest extends GrouperTest {
 
       assertTrue(outputLines[0], matcher.matches());
 
-      assertEquals(outputLines[0], "T", matcher.group(1));
-      assertEquals(outputLines[0], "test_queue", matcher.group(2));
-      assertTrue(outputLines[0], Integer.valueOf(matcher.group(3)) == 1); // one message is received only because maxMessagesToReceiveAtOnce is set to 1
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "T", matcher.group(2));
+      assertEquals(outputLines[0], "test_queue", matcher.group(3));
+      assertEquals(outputLines[0], "message body", matcher.group(4));
 
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("maxMessagesToReceiveAtOnce"));
@@ -38656,7 +38658,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=acknowledgeMessageWs --queueOrTopicName=test_queue "
-              + "--acknowledgeType=send_to_another_queue --anotherQueueOrTopicName=test_another_queue --anotherQueueOrTopic=queue"
+              + "--acknowledgeType=send_to_another_queue --anotherQueueOrTopicName=test_another_queue --anotherQueueType=queue"
               + " --messageIds="+grouperMessage.getId()+" --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
               " "));
       System.out.flush();

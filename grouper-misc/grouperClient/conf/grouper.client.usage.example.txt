@@ -233,17 +233,17 @@ externalSubjectDeleteWs web service usage:
 sendMessageWs web service usage:
   java -jar grouperClient.jar --operation=sendMessageWs --messageBody0=someMessage --queueOrTopicName=myQueue [--queueType=queue|topic] [--routingKey=someKey] [--messageSystemName=rabbitmq] [--messageBody1..n=anotherMessage] [--autocreateObjects=T|F] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion] [--grouperActAsSubjectId=subjId] [--grouperActAsSubjectIdentifier=subjIdent] [--grouperActAsSubjectSource=source]
   e.g.: java -jar grouperClient.jar --operation=sendMessageWs --messageBody0=someMessage --queueOrTopicName=myQueue
-  output line: Index 0: success: T: code: SUCCESS: a@b.c: John Smith
+  output line: Success: T, queueOrTopicName: test_queue, numberOfMessages: 2
 
 receiveMessageWs web service usage:
   java -jar grouperClient.jar --operation=receiveMessageWs --queueOrTopicName=myQueue [--maxMessagesToReceiveAtOnce=20] [--blockMillis=20000] [--routingKey=someKey] [--messageSystemName=rabbitmq] [--autocreateObjects=T|F] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion] [--grouperActAsSubjectId=subjId] [--grouperActAsSubjectIdentifier=subjIdent] [--grouperActAsSubjectSource=source]
   e.g.: java -jar grouperClient.jar --operation=receiveMessageWs --queueOrTopicName=myQueue
-  output line: Index 0: success: T: code: SUCCESS: a@b.c: John Smith
+  output line: Index 0: success: T, queueOrTopicName: test_queue, messageBody: message body
 
 acknowledgeMessageWs web service usage:
   java -jar grouperClient.jar --operation=acknowledgeMessageWs  --queueOrTopicName=myQueue --messageIds=abc,bcd,def --acknowledgeType=mark_as_processed|return_to_queue|return_to_end_of_queue|send_to_another_queue [--anotherQueueOrTopicName=abc] [--anotherQueueType=queue|topic] [--messageSystemName=rabbitmq] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion] [--grouperActAsSubjectId=subjId] [--grouperActAsSubjectIdentifier=subjIdent] [--grouperActAsSubjectSource=source]
   e.g.: java -jar grouperClient.jar --operation=acknowledgeMessageWs --messageIds=abc --queueOrTopicName=myQueue --acknowledgeType=mark_as_processed
-  output line: Index 0: success: T: code: SUCCESS: a@b.c: John Smith
+  output line: Success: T, queueOrTopicName: test_queue, numberOfMessages: 1
 
 ###############################################
 Common options:
