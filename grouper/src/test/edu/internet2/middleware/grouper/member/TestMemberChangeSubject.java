@@ -37,6 +37,13 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -46,11 +53,13 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -70,7 +79,7 @@ public class TestMemberChangeSubject extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberChangeSubject("testChangeSubjectDidExistAudit"));
+    TestRunner.run(new TestMemberChangeSubject("testChangeSubjectDidExist"));
     //TestRunner.run(new TestMemberChangeSubject(""));
     //TestRunner.run(TestMemberChangeSubject.class);
   }
@@ -119,6 +128,36 @@ public class TestMemberChangeSubject extends GrouperTest {
    * subj0 membership
    */
   private Membership membershipSubj0;
+
+  /**
+   * attr def name
+   */
+  private AttributeDefName attributeDefName;
+  
+  /**
+   * attr def
+   */
+  private AttributeDef attributeDef;
+
+  /**
+   * attr def name2
+   */
+  private AttributeDefName attributeDefName2;
+  
+  /**
+   * attr assign
+   */
+  private AttributeAssign attributeAssign;
+  
+  /**
+   * attr assign2
+   */
+  private AttributeAssign attributeAssign2;
+  
+  /**
+   * attr def2
+   */
+  private AttributeDef attributeDef2;
 
   /**
    * composite
@@ -189,6 +228,47 @@ public class TestMemberChangeSubject extends GrouperTest {
             sysadmingroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE);
             sysadmingroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
             groupType = GroupType.createType(grouperSession, "groupType");
+
+            Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+            
+            attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+            
+            attributeDef = attributeDefName.getAttributeDef();
+            
+            attributeDef.setAssignToGroup(false);
+            attributeDef.setAssignToMember(true);
+            attributeDef.setValueType(AttributeDefValueType.string);
+            attributeDef.store();
+            
+            attributeDef.setCreatorId(member.getId());
+            GrouperDAOFactory.getFactory().getAttributeDef().saveOrUpdate(attributeDef);
+            
+            
+            attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName2");
+            
+            attributeDef2 = attributeDefName2.getAttributeDef();
+            
+            attributeDef2.setAssignToEffMembership(true);
+            attributeDef2.setAssignToGroup(false);
+            attributeDef2.setValueType(AttributeDefValueType.memberId);
+            attributeDef2.store();
+
+            //test subject 0 can read the assignment on assignment
+            attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+
+            AttributeAssignResult attributeAssignResult = member.getAttributeDelegate().assignAttribute(attributeDefName);
+            
+            attributeAssign = attributeAssignResult.getAttributeAssign();
+            
+            attributeAssign.getValueDelegate().assignValueString(member.getId());
+
+            AttributeAssignResult attributeAssignResult2 = group.getAttributeDelegateEffMship(member).assignAttribute(attributeDefName2);
+
+            attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+
+            attributeAssign2.getValueDelegate().assignValueMember(member.getId());
+
+          
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -197,6 +277,8 @@ public class TestMemberChangeSubject extends GrouperTest {
         
       });
       sysadmingroup.addMember(SubjectTestHelper.SUBJ0);      
+      
+      
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -406,6 +488,25 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertEquals("new uuid", member1uuid, stemCreatorId);
     stemModifierId = this.edu.getModifierUuid();
     assertEquals("new uuid", member1uuid, stemModifierId);
+
+    GrouperSession.startRootSession();
+    
+    AttributeDef theAttributeDef = AttributeDefFinder.findByName(this.attributeDef.getName(), true, new QueryOptions().secondLevelCache(false));
+    assertEquals(attributeDef.getName(), theAttributeDef.getName());
+    assertEquals(member1uuid, theAttributeDef.getCreatorId());
+    
+    AttributeAssign theAttributeAssign = member1.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+
+    assertEquals(attributeAssign.getId(), theAttributeAssign.getId());
+    
+    assertEquals(member1uuid, theAttributeAssign.getValueDelegate().retrieveValueString());
+    
+    AttributeAssign theAttributeAssign2 = group.getAttributeDelegateEffMship(member1).retrieveAssignment("assign", attributeDefName2, false, true);
+
+    assertEquals(attributeAssign2.getId(), theAttributeAssign2.getId());
+    
+    assertEquals(member1uuid, theAttributeAssign2.getValueDelegate().retrieveValueMemberId());
+
   }
 
   /**

@@ -1590,7 +1590,7 @@ public class GrouperCheckConfig {
     checkJar("hibernate-jpa-2.1-api-1.0.0.Final.jar", 113371, "javax.persistence.Convert", "1.0.0.Final");
     checkJar("jandex-2.0.4.Final.jar", 186793, "org.jboss.jandex.AnnotationInstance", "2.0.4.Final");
     checkJar("javassist-3.22.0-GA.jar", 739582, "javassist.ByteArrayClassPath", "null");
-    checkJar("javax.servlet-api-3.1.0.jar", 95806, "javax.servlet.annotation.HandlesTypes", "3.1.0");
+    //checkJar("javax.servlet-api-3.1.0.jar", 95806, "javax.servlet.annotation.HandlesTypes", "3.1.0");
     checkJar("jboss-logging-3.3.1.Final.jar", 66023, "org.jboss.logging.Field", "3.3.1.Final");
     checkJar("jline-2.14.5.jar", 268597, "jline.AnsiWindowsTerminal", "null");
     checkJar("joda-time-2.9.9.jar", 634048, "org.joda.time.base.AbstractDateTime", "2.9.9");
@@ -1970,7 +1970,16 @@ public class GrouperCheckConfig {
     AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(attributeDefNameName, false, new QueryOptions().secondLevelCache(false));
 
     if (attributeDefName == null) {
-      attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, displayExtension);
+      try {
+        attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, displayExtension);
+      } catch (RuntimeException theException) {
+        GrouperUtil.sleep(3000);
+        attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(attributeDefNameName, false, new QueryOptions().secondLevelCache(false));
+        if (attributeDefName == null) {
+          throw theException;
+        }
+        return attributeDefName;
+      }
       attributeDefName.setDescription(description);
       attributeDefName.store();
       

@@ -40,6 +40,12 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
    */
   public void saveOrUpdate(AttributeAssignValue attributeAssignValue);
   
+  /**
+   * find by member id column
+   * @param value
+   */
+  public Set<AttributeAssignValue> findByValueMemberId(String value);
+
   /** 
    * delete an attribute assign value object 
    * @param attributeAssignValue 

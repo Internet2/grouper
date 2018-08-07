@@ -409,6 +409,29 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
   }
 
   /**
+   * @see AttributeAssignValueDAO#findByValueMemberId(String)
+   */
+  public Set<AttributeAssignValue> findByValueMemberId(String value) {
+    
+    if (StringUtils.isBlank(value)) {
+      throw new RuntimeException("value cant be blank");
+    }
+    ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic();
+      
+    StringBuilder sql = new StringBuilder("select distinct theAttributeAssignValue " +
+        "from AttributeAssignValue as theAttributeAssignValue where ");
+    sql.append(" theAttributeAssignValue.valueMemberId = :theValueString");
+    byHqlStatic.setString("theValueString", value);
+    
+    Set<AttributeAssignValue> attributeAssignValues = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .listSet(AttributeAssignValue.class);
+        
+    //return attributeAssignValues
+    return attributeAssignValues;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#findLegacyAttributesByGroupId(java.lang.String)
    */
   public Map<String, AttributeAssignValue> findLegacyAttributesByGroupId(String groupId) {

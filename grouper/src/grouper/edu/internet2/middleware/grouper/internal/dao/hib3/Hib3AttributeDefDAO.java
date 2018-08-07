@@ -25,7 +25,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -441,6 +443,24 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       QueryOptions queryOptions) {
     return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, 
         queryOptions, false, null, null, null, null, false, null);
+  }
+
+  /**
+   * find attribute defs by creator
+   * @param member
+   * @return the attribute defs
+   */
+  public Set<AttributeDef> findByCreator(Member member) {
+    if (member == null || StringUtils.isBlank(member.getUuid())) {
+      throw new RuntimeException("Need to pass in a member");
+    }
+    Set<AttributeDef> attributeDefs = HibernateSession.byHqlStatic()
+      .createQuery("from AttributeDef as theAttributeDef where theAttributeDef.creatorId = :uuid")
+      .setCacheable(false)
+      .setString( "uuid", member.getUuid() )
+      .listSet(AttributeDef.class);
+    return attributeDefs;
+
   }
 
   /**

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -50,6 +51,13 @@ public interface AttributeDefDAO extends GrouperDAO {
    */
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound);
   
+  /**
+   * find attribute defs by creator
+   * @param member
+   * @return the attribute defs
+   */
+  public Set<AttributeDef> findByCreator(Member member);
+
   /**
    * find by ids secure
    * @param ids

@@ -37,6 +37,7 @@ import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -1427,7 +1428,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
         AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_FLOATING) ||
         AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_STRING) ||
         AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_MEMBER_ID)) {
-      throw new RuntimeException("Cannot update values.  Must delete and re-add db rows.");
+      if (!Member.inMemberChangeSubject()) {
+        throw new RuntimeException("Cannot update values.  Must delete and re-add db rows.");
+      }
     }
     
     if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_ID)) {

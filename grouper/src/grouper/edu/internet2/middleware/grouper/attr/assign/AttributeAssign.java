@@ -2253,7 +2253,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         this.dbVersionDifferentFields().contains(FIELD_OWNER_ATTRIBUTE_ASSIGN_ID) ||
         this.dbVersionDifferentFields().contains(FIELD_OWNER_MEMBER_ID) ||
         this.dbVersionDifferentFields().contains(FIELD_OWNER_MEMBERSHIP_ID)) {
-      throw new RuntimeException("cannot update owner columns");
+      if (!Member.inMemberChangeSubject()) {
+        throw new RuntimeException("cannot update owner columns");
+      }
     }
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 

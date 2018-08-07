@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Perform low-level operations on the Groups Registry.
@@ -169,6 +171,26 @@ public class RegistryReset {
   {
     for (int i=start; i<end; i++) {
       String id   = "test.subject." + i;
+      
+      Subject subject = null;
+      boolean createdSession = false;
+      GrouperSession grouperSession = null;
+      try {
+        grouperSession = GrouperSession.staticGrouperSession(false);
+        if (grouperSession == null) {
+          grouperSession = GrouperSession.startRootSession();
+          createdSession = true;
+        }
+        subject = SubjectFinder.findById(id, false);
+      } finally {
+        if (createdSession) {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+      }
+      if (subject != null) {
+        continue;
+      }
+      
       String name = "my name is " + id;
       RegistrySubject registrySubject = new RegistrySubject();
       registrySubject.setId(id);
