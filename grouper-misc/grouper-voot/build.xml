@@ -23,7 +23,7 @@
   <fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
   <property file="build.properties" />
   
-  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar,distPackage">
   </target>
 
   <target name="init">
@@ -115,7 +115,7 @@
     <echo message="Output is: dist/${main.appName}.jar" />
    </target>
   
-  <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
+  <target name="distPackage" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
     <mkdir dir="dist/binary/${binName}"/>
     <copy todir="dist/binary/${binName}">    
       <fileset dir="dist">
