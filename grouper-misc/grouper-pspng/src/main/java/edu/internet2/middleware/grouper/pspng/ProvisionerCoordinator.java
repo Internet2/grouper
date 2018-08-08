@@ -56,7 +56,7 @@ public class ProvisionerCoordinator {
             this.group = group;
         }
 
-        void startFullSyncWhenNoIncrementalIsUnderway() {
+        void lockForFullSyncWhenNoIncrementalIsUnderway() {
             // We'll give up after COORDINATION_TIME_SECS
             long giveUpTimeMillis = System.currentTimeMillis() + 1000L * COORDINATION_TIMEOUT_SECS;
 
@@ -84,7 +84,14 @@ public class ProvisionerCoordinator {
             isBeingFullSynced = true;
         }
 
-        synchronized void stopFullSync( boolean fullSyncWasSuccessful) {
+        synchronized void unlockAfterFullSync(boolean fullSyncWasSuccessful) {
+            // If we've already been unlocked, don't do anything
+            // This is common when there is an unlock-with-success in the body of a method
+            // and an unlock-with-failure as a safetynet in a finally block
+            if ( ! isBeingFullSynced ) {
+                return;
+            }
+
             if (fullSyncWasSuccessful) {
                 lastSuccessfulFullSyncStart = lastFullSyncStart;
             }
@@ -92,11 +99,11 @@ public class ProvisionerCoordinator {
             this.notify();
         }
 
-        synchronized void stopFullSync() {
-            stopFullSync(false);
+        synchronized void unlockAfterFullSync() {
+            unlockAfterFullSync(false);
         }
 
-        void startIncrementalProvisioningWhenNoFullSyncIsUnderway() {
+        void lockForIncrementalProvisioningWhenNoFullSyncIsUnderway() {
             // We'll give up after COORDINATION_TIME_SECS
             long giveUpTimeMillis = System.currentTimeMillis() + 1000L * COORDINATION_TIMEOUT_SECS;
 
@@ -124,7 +131,14 @@ public class ProvisionerCoordinator {
             isBeingIncrementallyProvisioned = true;
         }
 
-        synchronized void stopIncrementalProvisioning() {
+        synchronized void unlockAfterIncrementalProvisioning() {
+            // If we've already been unlocked, don't do anything
+            // This is common when there is an unlock-with-success in the body of a method
+            // and an unlock-with-failure as a safetynet in a finally block
+            if ( ! isBeingIncrementallyProvisioned ) {
+                return;
+            }
+
             isBeingIncrementallyProvisioned = false;
             this.notify();
         }
@@ -161,17 +175,17 @@ public class ProvisionerCoordinator {
      * Used by the Full-Sync provisioners to wait and then lock the group from being incrementally provisioned.
      * @param group
      */
-    public void startFullSyncIfNoIncrementalIsUnderway(GrouperGroupInfo group) {
-        get(group).startFullSyncWhenNoIncrementalIsUnderway();
+    public void lockForFullSyncIfNoIncrementalIsUnderway(GrouperGroupInfo group) {
+        get(group).lockForFullSyncWhenNoIncrementalIsUnderway();
     }
 
-    public void stopFullSync( GrouperGroupInfo group, boolean fullSyncWasSuccessful) {
-        get(group).stopFullSync(fullSyncWasSuccessful);
+    public void unlockAfterFullSync(GrouperGroupInfo group, boolean fullSyncWasSuccessful) {
+        get(group).unlockAfterFullSync(fullSyncWasSuccessful);
     }
 
 
-    public void stopFullSync( GrouperGroupInfo group) {
-        get(group).stopFullSync();
+    public void unlockAfterFullSync(GrouperGroupInfo group) {
+        get(group).unlockAfterFullSync();
     }
 
 
@@ -184,11 +198,11 @@ public class ProvisionerCoordinator {
      * Used by the incremental provisioners to wait and then lock the group from full-sync operations
      * @param group
      */
-    public void startIncrementalProvisioningIfNoFullSyncIsUnderway(GrouperGroupInfo group) {
-        get(group).startIncrementalProvisioningWhenNoFullSyncIsUnderway();
+    public void lockForIncrementalProvisioningIfNoFullSyncIsUnderway(GrouperGroupInfo group) {
+        get(group).lockForIncrementalProvisioningWhenNoFullSyncIsUnderway();
     }
 
-    public void stopIncrementalProvisioning(GrouperGroupInfo group) {
-        get(group).stopIncrementalProvisioning();
+    public void unlockAfterIncrementalProvisioning(GrouperGroupInfo group) {
+        get(group).unlockAfterIncrementalProvisioning();
     }
 }

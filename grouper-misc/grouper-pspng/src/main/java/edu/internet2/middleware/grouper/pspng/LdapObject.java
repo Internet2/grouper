@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.lang.StringUtils;
@@ -62,41 +63,38 @@ public class LdapObject {
    * logger 
    */
   private static final Logger LOG = LoggerFactory.getLogger(LdapObject.class);
-  
-  // When we do a search, or create an LdapObject, it is easiest for us to have a 
-  // java array of attributes that were fetched. We want, however, to keep
-  // Sets around for fast lookup into the list of attributes that were fetched.
-  // HOWEVER, we don't want to keep millions of Sets around, but just keep one
-  // for each combination of attributes.
-  // This allows us to cache a (case-insensitive) Set for each List of attributes
-  private static final ConcurrentHashMap<List<String>, Set<String>> attributeSetCache
-    = new ConcurrentHashMap<List<String>, Set<String>>();
 
-  protected final Set<String> attributesRequested;
+  protected final Set<String> attributesRequested = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
   private static final UnboundIDUtils unboundIdUtils = new UnboundIDUtils();
+
+  // This is a snapshot of who created this LdapObject. We are saving this because
+  // it can be hard to track down where an LdapObject was fetched. In particular,
+  // this was added when it was hard to track down when an LdapObject had been
+  // fetched with insufficient attributes
+  private final StackTraceElement[] creationStackTrace = new Throwable().getStackTrace();
+
+  // Who fetched this object
+  public final Provisioner provisioner = Provisioner.activeProvisioner.get();
+
+  // More debugging to be able to look back in debug logs and see when LdapObjects were fetched
+  private static AtomicLong ldapObjectCounter = new AtomicLong();
+  private final long id = ldapObjectCounter.incrementAndGet();
+
+
   Date fetchTime = new Date();
   LdapEntry ldapEntry;
   
   Entry unboundidEntry;
   
   
-  private static Set<String> getStringSetForStringArray(String values[]) {
-    List<String> valueList = Arrays.asList(values);
-    if ( !attributeSetCache.contains(valueList) ) {
-      Set<String> set = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-      set.addAll(valueList);
-      attributeSetCache.put(valueList, set);
-    }
-    
-    return attributeSetCache.get(valueList);
-  }
-  
   public LdapObject(LdapEntry ldapEntry, String attributesRequested[]) {
+    LOG.debug("LdapObject #{}: {}", id, ldapEntry);
+
     this.ldapEntry = ldapEntry;
     if ( attributesRequested == null || attributesRequested.length == 0 )
       attributesRequested=new String[] {"dn"};
     
-    this.attributesRequested = getStringSetForStringArray(attributesRequested);
+    this.attributesRequested.addAll(Arrays.asList(attributesRequested));
   }
   
   
@@ -127,8 +125,14 @@ public class LdapObject {
     
     if ( attributesRequested.contains(attributeName) )
       return ldapEntry.getAttribute(attributeName);
-    
-    throw new IllegalStateException(String.format("Attribute was not requested from ldap server: %s", attributeName));
+
+    LOG.error("LdapObject #{}: Attribute '{}' was not requested from ldap server. Fetched attributes were: {}",
+            new Object[]{id, attributeName, attributesRequested});
+    LOG.error("Stack trace that fetched this ldap object without the necessary attributes: {}",
+            Arrays.toString(creationStackTrace));
+    LOG.error("Incomplete ldap object was created by: {}", provisioner);
+
+    throw new IllegalStateException(String.format("Attribute '%s' was not requested from ldap server", attributeName));
   }
   
   
@@ -279,7 +283,8 @@ public class LdapObject {
   @Override
   public String toString() {
     ToStringBuilder result = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    
+
+    result.append("id", id);
     if ( attributesRequested.contains("cn") )
       result.append("cn", getStringValues("cn"));
 
@@ -289,6 +294,9 @@ public class LdapObject {
       result.append("samAccountName", getStringValue("samAccountName"));
 
     result.append("dn", getDn());
+
+    result.append("provisioner", provisioner.toString());
+    result.append("attributesRequested", attributesRequested.toString());
 
     return result.toString();
   }

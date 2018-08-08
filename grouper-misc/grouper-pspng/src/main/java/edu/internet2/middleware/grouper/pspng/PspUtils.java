@@ -34,13 +34,19 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.hibernate.*;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 import org.ldaptive.LdapEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class PspUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(PspUtils.class);
+
   public static final String THREAD_ID_MDC = "pspng.threadid";
 
   private static final ThreadLocal<String> threadId = new ThreadLocal<>();
@@ -275,4 +281,24 @@ public class PspUtils {
 
     return s;
   }
+
+  /**
+   * This method rereads the Grouper objects from the database in order to
+   * avoid L2 caching when database objects change.
+   */
+
+  static void hibernateRefresh(final Object objectToHibernateRefresh) {
+      LOG.debug("Rereading group information from database: {}/{}", objectToHibernateRefresh.getClass(), objectToHibernateRefresh);
+
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+              AuditControl.WILL_NOT_AUDIT,
+              new HibernateHandler() {
+                @Override
+                public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+                  hibernateHandlerBean.getHibernateSession().getSession().refresh(objectToHibernateRefresh);
+                  return objectToHibernateRefresh;
+                }
+              }
+      );
+    }
 }
