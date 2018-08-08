@@ -78,7 +78,7 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
-    <javac  target="1.6"
+    <javac  target="1.8"
       srcdir="${main.sourceDir}" destdir="${main.binDir}" classpath="${main.theClasspath}" debug="true" />
   </target>
 
