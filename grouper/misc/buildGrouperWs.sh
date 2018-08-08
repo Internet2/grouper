@@ -48,8 +48,8 @@ cd $buildDir/grouper-ws/grouper-ws
 
 cp -v build.i2mi.properties build.properties
 
-$ANT_HOME/bin/ant dist
 $ANT_HOME/bin/ant distPackage
+$ANT_HOME/bin/ant dist
 
 echo
 echo "result is in $buildDir/" 
