@@ -21,11 +21,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 
-import com.unboundid.ldap.sdk.Entry;
-import com.unboundid.ldif.LDIFReader;
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.*;
-import org.ldaptive.asn1.DN;
 import org.ldaptive.io.LdifReader;
 
 import edu.internet2.middleware.subject.Subject;
@@ -41,8 +38,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerConfiguration> {
 
-  public LdapGroupProvisioner(String provisionerName, LdapGroupProvisionerConfiguration config) {
-    super(provisionerName, config);
+  public LdapGroupProvisioner(String provisionerName, LdapGroupProvisionerConfiguration config, boolean fullSyncMode) {
+    super(provisionerName, config, fullSyncMode);
 
     LOG.debug("Constructing LdapGroupProvisioner: {}", provisionerName);
   }
@@ -62,7 +59,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     if ( ldapUser == null ) {
       LOG.warn("{}: Skipping adding membership to group {} because ldap user does not exist: {}",
-          new Object[]{getName(), grouperGroupInfo, subject});
+          new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
     }
 
@@ -109,13 +106,13 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Subject subject, LdapUser ldapUser) throws PspException {
     if ( ldapGroup  == null ) {
       LOG.warn("{}: Ignoring request to remove {} from a group that doesn't exist: {}",
-          new Object[]{getName(), subject.getId(), grouperGroupInfo});
+          new Object[]{getDisplayName(), subject.getId(), grouperGroupInfo});
       return;
     }
 
     if ( ldapUser == null ) {
       LOG.warn("{}: Skipping removing membership from group {} because ldap user does not exist: {}",
-          new Object[]{getName(), grouperGroupInfo, subject});
+          new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
     }
 
@@ -165,13 +162,18 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     stats.totalCount.set(correctSubjects.size());
 
+    // Looking for bug
+    // Make sure the group we've been passed has been fetched with the membership attribute
+    if ( ldapGroup != null )
+      ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
+
     // If the group does not exist yet, then create it with all the correct members
     if ( ldapGroup  == null ) {
 
       // If the schema requires member attribute, then don't do anything if there aren't any members
       if ( config.areEmptyGroupsSupported() ) {
         if ( correctSubjects.size() == 0 ) {
-          LOG.info("{}: Nothing to do because empty group already not present in ldap system", getName() );
+          LOG.info("{}: Nothing to do because empty group already not present in ldap system", getDisplayName() );
           return;
         }
       }
@@ -189,7 +191,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     // Delete an empty group if the schema requires a membership
     if ( !config.areEmptyGroupsSupported() && correctSubjects.size() == 0 ) {
-      LOG.info("{}: Deleting empty group because schema requires its member attribute", getName());
+      LOG.info("{}: Deleting empty group because schema requires its member attribute", getDisplayName());
       deleteGroup(grouperGroupInfo, ldapGroup);
 
       // Update stats with the number of values removed by group deletion
@@ -210,10 +212,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     Collection<String> currentMembershipValues = getStringSet(ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
 
     LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
-            new Object[] {getName(), grouperGroupInfo, correctMembershipValues.size(), currentMembershipValues.size()});
+            new Object[] {getDisplayName(), grouperGroupInfo, correctMembershipValues.size(), currentMembershipValues.size()});
 
-    LOG.debug("{}: Full-sync comparison: Correct: {}",getName(), correctMembershipValues);
-    LOG.debug("{}: Full-sync comparison: Actual: {}", getName(), currentMembershipValues);
+    LOG.debug("{}: Full-sync comparison: Correct: {}", getDisplayName(), correctMembershipValues);
+    LOG.debug("{}: Full-sync comparison: Actual: {}", getDisplayName(), currentMembershipValues);
 
     // EXTRA = CURRENT - CORRECT
     {
@@ -223,7 +225,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       stats.deleteCount.set(extraValues.size());
 
       LOG.info("{}: Group {} has {} extra values",
-          new Object[] {getName(), grouperGroupInfo, extraValues.size()});
+          new Object[] {getDisplayName(), grouperGroupInfo, extraValues.size()});
       if ( extraValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, extraValues);
     }
@@ -236,7 +238,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       stats.insertCount.set(missingValues.size());
 
       LOG.info("{}: Group {} has {} missing values",
-          new Object[]{getName(), grouperGroupInfo, missingValues.size()});
+          new Object[]{getDisplayName(), grouperGroupInfo, missingValues.size()});
       if ( missingValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, missingValues);
     }
@@ -250,7 +252,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
    * @return An up-to-date LdapGroup: either existingLdapGroup if no changes were needed, or a newly-read group
    */
   protected LdapGroup updateGroupFromTemplate(GrouperGroupInfo grouperGroupInfo, LdapGroup existingLdapGroup) throws PspException {
-    LOG.debug("{}: Making sure (non-membership) attributes of group are up to date: {}", getName(), existingLdapGroup.dn);
+    LOG.debug("{}: Making sure (non-membership) attributes of group are up to date: {}", getDisplayName(), existingLdapGroup.dn);
 
     try {
       String ldifFromTemplate = getGroupLdifFromTemplate(grouperGroupInfo);
@@ -266,11 +268,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
     }
     catch (PspException e) {
-      LOG.error("{}: Problem checking and updating group's template attributes", getName(), e);
+      LOG.error("{}: Problem checking and updating group's template attributes", getDisplayName(), e);
       throw e;
     }
     catch (IOException e) {
-      LOG.error("{}: Problem checking and updating group's tempalte attributes", getName(), e);
+      LOG.error("{}: Problem checking and updating group's tempalte attributes", getDisplayName(), e);
       throw new PspException("IO Exception while checking and updating group's template attributes", e);
     }
   }
@@ -291,14 +293,14 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     String filterString = config.getAllGroupSearchFilter();
     if ( StringUtils.isEmpty(filterString) ) {
-      LOG.error("{}: Cannot cleanup extra groups without a configured all-group search filter", getName());
+      LOG.error("{}: Cannot cleanup extra groups without a configured all-group search filter", getDisplayName());
       return;
     }
 
     String baseDn = config.getGroupSearchBaseDn();
 
     if ( StringUtils.isEmpty(baseDn)) {
-      LOG.error("{}: Cannot cleanup extra groups without a configured group-search base dn", getName());
+      LOG.error("{}: Cannot cleanup extra groups without a configured group-search base dn", getDisplayName());
       return;
     }
 
@@ -316,7 +318,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
     }
 
-    LOG.info("{}: There are {} groups that we should delete", getName(), groupsToDelete.size());
+    LOG.info("{}: There are {} groups that we should delete", getDisplayName(), groupsToDelete.size());
 
     int numMembershipsBeingDeleted = 0;
 
@@ -364,18 +366,18 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     Connection conn = getLdapSystem().getLdapConnection();
     try {
-      LOG.debug("{}: LDIF for new group (with partial DN): {}", getName(), ldif.replaceAll("\\n", "||"));
+      LOG.debug("{}: LDIF for new group (with partial DN): {}", getDisplayName(), ldif.replaceAll("\\n", "||"));
       LdapEntry ldifEntry = getLdapEntryFromLdif(ldif);
 
       // Check to see if any attributes ended up without any values/
       for ( String attributeName : ldifEntry.getAttributeNames() ) {
         LdapAttribute attribute = ldifEntry.getAttribute(attributeName);
         if ( LdapSystem.attributeHasNoValues(attribute) ) {
-          LOG.warn("{}: LDIF for new group did not define any values for {}", getName(), attributeName);
+          LOG.warn("{}: LDIF for new group did not define any values for {}", getDisplayName(), attributeName);
           ldifEntry.removeAttribute(attributeName);
         }
       }
-      LOG.debug("{}: Adding group: {}", getName(), ldifEntry);
+      LOG.debug("{}: Adding group: {}", getDisplayName(), ldifEntry);
       
       performLdapAdd(ldifEntry);
       
@@ -459,7 +461,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       List<LdapObject> searchResult;
 
       LOG.debug("{}: Searching for {} groups with:: {}",
-              new Object[]{getName(), grouperGroupsToFetch.size(), combinedLdapFilter});
+              new Object[]{getDisplayName(), grouperGroupsToFetch.size(), combinedLdapFilter});
 
       try {
         searchResult = getLdapSystem().performLdapSearchRequest(
@@ -472,7 +474,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         throw e;
       }
 
-      LOG.debug("{}: Group search returned {} groups", getName(), searchResult.size());
+      LOG.debug("{}: Group search returned {} groups", getDisplayName(), searchResult.size());
 
       // Now we have a bag of LdapObjects, but we don't know which goes with which grouperGroup.
       // We're going to go through the Grouper Groups and their filters and compare
@@ -501,8 +503,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         LOG.warn("{}: Bulk fetch failed (returned unmatchable group data). "
                         + "This can be caused by searching for a DN with escaping or by singleGroupSearchFilter ({}) that are not included "
                         + "in groupSearchAttributes ({})?): {}",
-                new Object[]{getName(), config.getSingleGroupSearchFilter(), config.getGroupSearchAttributes(), unmatchedFetchResult.getDn()});
-        LOG.warn("{}: Slower fetching will be attempted", getName());
+                new Object[]{getDisplayName(), config.getSingleGroupSearchFilter(), config.getGroupSearchAttributes(), unmatchedFetchResult.getDn()});
+        LOG.warn("{}: Slower fetching will be attempted", getDisplayName());
       }
 
       // We're done if everything matched up
@@ -522,7 +524,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       SearchFilter groupLdapFilter = getGroupLdapFilter(grouperGroup);
       try {
         LOG.debug("{}: Searching for group {} with:: {}",
-                new Object[]{getName(), grouperGroup, groupLdapFilter});
+                new Object[]{getDisplayName(), grouperGroup, groupLdapFilter});
 
         // Actually do the search
         List<LdapObject> searchResult = getLdapSystem().performLdapSearchRequest(
@@ -532,21 +534,21 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
         if (searchResult.size() == 1) {
           LdapObject ldapObject = searchResult.iterator().next();
-          LOG.debug("{}: Group search returned {}", getName(), ldapObject.getDn());
+          LOG.debug("{}: Group search returned {}", getDisplayName(), ldapObject.getDn());
           result.put(grouperGroup, new LdapGroup(ldapObject));
         }
         else if ( searchResult.size() > 1 ){
           LOG.error("{}: Search for group {} with '{}' returned multiple matches: {}",
-                  new Object[]{getName(), grouperGroup, groupLdapFilter, searchResult});
+                  new Object[]{getDisplayName(), grouperGroup, groupLdapFilter, searchResult});
           throw new PspException("Search for ldap group returned multiple matches");
         }
         else if ( searchResult.size() == 0 ) {
           // No match found ==> result will not include an entry for this grouperGroup
-          LOG.debug("{}: Group search did not return any results", getName());
+          LOG.debug("{}: Group search did not return any results", getDisplayName());
         }
       } catch (PspException e) {
         LOG.error("{}: Problem fetching group with filter '{}' on base '{}'",
-                new Object[]{getName(), groupLdapFilter, config.getGroupSearchBaseDn(), e});
+                new Object[]{getDisplayName(), groupLdapFilter, config.getGroupSearchBaseDn(), e});
         throw e;
       }
     }
@@ -557,8 +559,12 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   private String[] getLdapAttributesToFetch() {
     String returnAttributes[] = config.getGroupSearchAttributes();
     if ( fullSyncMode ) {
+      LOG.debug("Fetching membership attribute, too");
+      // Add the membership attribute to the list of attributes to fetch
       returnAttributes = Arrays.copyOf(returnAttributes, returnAttributes.length + 1);
       returnAttributes[returnAttributes.length-1] = config.getMemberAttributeName();
+    } else {
+      LOG.debug("Fetching without membership attribute");
     }
     return returnAttributes;
   }
@@ -576,7 +582,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       filter.setParameter(i-1, filterPieces[i].trim());
  
     LOG.trace("{}: Filter for group {}: {}", 
-        new Object[] {getName(), grouperGroup, filter});
+        new Object[] {getDisplayName(), grouperGroup, filter});
 
     return filter;
   }

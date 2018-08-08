@@ -3,9 +3,10 @@ package edu.internet2.middleware.grouper.pspng;
 import java.util.*;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a simple class to hold name and attribute information of a group.
@@ -17,6 +18,8 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
  *
  */
 public class GrouperGroupInfo {
+  private static final Logger LOG = LoggerFactory.getLogger(GrouperGroupInfo.class);
+
   private final Group group;
   private final PITGroup pitGroup;
 
@@ -140,6 +143,24 @@ public class GrouperGroupInfo {
 
   public Group getGrouperGroup() {
     return group;
+  }
+
+  /**
+   * This method rereads the Grouper objects from the database in order to
+   * avoid L2 caching when database objects change.
+   */
+  public void hibernateRefresh() {
+    final Object objectToHibernateRefresh;
+
+    if ( group != null ) {
+      objectToHibernateRefresh = group;
+    } else {
+      objectToHibernateRefresh = pitGroup;
+    }
+
+    if ( objectToHibernateRefresh != null ) {
+      PspUtils.hibernateRefresh(objectToHibernateRefresh);
+    }
   }
 
 }

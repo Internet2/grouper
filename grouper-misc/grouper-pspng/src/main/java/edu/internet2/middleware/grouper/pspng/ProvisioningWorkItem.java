@@ -438,7 +438,7 @@ public class ProvisioningWorkItem {
     }
 
     if ( provisioner.getConfig().attributesUsedInGroupSelectionExpression.contains(attributeName) ) {
-      LOG.info("{}: Performing full-sync of all groups for work item {}", provisioner.getName(), this);
+      LOG.info("{}: Performing full-sync of all groups for work item {}", provisioner.getDisplayName(), this);
       return true;
     }
 

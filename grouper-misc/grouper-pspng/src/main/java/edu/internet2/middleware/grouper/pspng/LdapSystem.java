@@ -411,7 +411,7 @@ public class LdapSystem {
 
       // This wasn't a single-attribute change, or multiple values were being changed.
       // Therefore: Read what is in the LDAP server and implement the differences
-      
+
       LOG.warn("{}: Problem while modifying ldap system based on grouper expectations. Starting to perform adaptive modifications based on data already on server: {}: {}",
               new Object[]{ldapSystemName, mod, e.getResultCode()});
 

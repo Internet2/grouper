@@ -12,8 +12,8 @@ import java.util.Set;
  * are called as events occur.
  */
 public class VoidProvisioner extends Provisioner<ProvisionerConfiguration, TargetSystemUser, TargetSystemGroup> {
-    VoidProvisioner(String provisionerName, ProvisionerConfiguration config) {
-        super(provisionerName, config);
+    VoidProvisioner(String provisionerName, ProvisionerConfiguration config, boolean fullSyncMode) {
+        super(provisionerName, config, fullSyncMode);
     }
 
     @Override
