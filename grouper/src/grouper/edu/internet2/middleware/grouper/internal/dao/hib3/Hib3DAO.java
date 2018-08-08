@@ -148,6 +148,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3ChangeLogConsumerDAO.class);
       addClass(CFG, Hib3ChangeLogTypeDAO.class);
       addClass(CFG, Hib3CompositeDAO.class);
+      addClass(CFG, Hib3ConfigDAO.class);
       addClass(CFG, Hib3ExternalSubjectDAO.class);
       addClass(CFG, Hib3ExternalSubjectAttributeDAO.class);
       addClass(CFG, Hib3FieldDAO.class);

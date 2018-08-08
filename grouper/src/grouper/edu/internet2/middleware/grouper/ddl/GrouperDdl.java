@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
@@ -1842,6 +1843,10 @@ public enum GrouperDdl implements DdlVersionable {
      
       addQuartzTables(ddlVersionBean, database);
       addQuartzIndexes(ddlVersionBean, database);
+
+      addConfigurationTables(ddlVersionBean, database);
+      addConfigurationIndexes(ddlVersionBean, database);
+    
     }
   }, 
   
@@ -2328,6 +2333,10 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
           "change_log_temp_created_on_idx", false, "created_on");
+      
+      addConfigurationTables(ddlVersionBean, database);
+      addConfigurationIndexes(ddlVersionBean, database);
+
     }
     
     /**
@@ -10954,51 +10963,49 @@ public enum GrouperDdl implements DdlVersionable {
   }
   
   /**
-   * Add messaging tables
+   * Add configuration tables
    * @param ddlVersionBean 
    * @param database
    */
-  private static void addMessagingTables(DdlVersionBean ddlVersionBean, Database database) {
+  private static void addConfigurationTables(DdlVersionBean ddlVersionBean, Database database) {
     
     {
-      Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ID, 
+      Table configTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperConfigHibernate.TABLE_GROUPER_CONFIG);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_ID,
           Types.VARCHAR, "40", true, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS,
-          Types.BIGINT, "20", false, true);
-  
-      //sent to receiver but not yet confirmed
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS,
-          Types.BIGINT, "20", false, true);
-  
-      //count of get attempts
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT,
-          Types.BIGINT, "20", false, true);
-      
-      //IN_QUEUE, GET_ATTEMPTED, PROCESSED
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_STATE,
-          Types.VARCHAR, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME,
           Types.VARCHAR, "100", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_QUEUE_NAME,
-          Types.VARCHAR, "100", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_MESSAGE_BODY,
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_KEY,
+          Types.VARCHAR, "400", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VALUE,
           Types.VARCHAR, "4000", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_COMMENT,
+          Types.VARCHAR, "4000", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY,
+          Types.VARCHAR, "50", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_ENCRYPTED,
+          Types.VARCHAR, "1", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE, 
           Types.BIGINT, null, false, true);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VERSION_INDEX, 
           Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_LAST_UPDATED, 
+          Types.BIGINT, null, false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, true);
     }
   }
   /**
@@ -14320,5 +14327,94 @@ public enum GrouperDdl implements DdlVersionable {
     
     // assume true
     return true;
+  }
+
+  /**
+   * Add config indexes
+   * @param ddlVersionBean 
+   * @param database
+   */
+  private static void addConfigurationIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table configTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperConfigHibernate.TABLE_GROUPER_CONFIG);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
+          "grpconfig_config_file_idx", false, 
+          GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
+      
+      {
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grpconfig_config_key_idx ON grouper_config"
+            + " (config_key(100), config_file_name(50));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, configTable.getName(), 
+            "grpconfig_config_key_idx", scriptOverride, false, GrouperConfigHibernate.COLUMN_CONFIG_KEY, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME);
+      }
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, configTable.getName(), 
+          "grpconfig_last_updated_idx", false, GrouperConfigHibernate.COLUMN_LAST_UPDATED);
+
+      {
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE UNIQUE INDEX grpconfig_unique_idx ON grouper_config"
+            + " (config_file_name(20), config_file_hierarchy(20),  config_key(100), config_sequence);\n" : null;
+
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, configTable.getName(), 
+            "grpconfig_unique_idx", scriptOverride, true, GrouperConfigHibernate.COLUMN_CONFIG_FILE_NAME,
+            GrouperConfigHibernate.COLUMN_CONFIG_FILE_HIERARCHY, GrouperConfigHibernate.COLUMN_CONFIG_KEY,
+            GrouperConfigHibernate.COLUMN_CONFIG_SEQUENCE);
+      }
+    }
+  }
+
+  /**
+   * Add messaging tables
+   * @param ddlVersionBean 
+   * @param database
+   */
+  private static void addMessagingTables(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS,
+          Types.BIGINT, "20", false, true);
+  
+      //sent to receiver but not yet confirmed
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS,
+          Types.BIGINT, "20", false, true);
+  
+      //count of get attempts
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT,
+          Types.BIGINT, "20", false, true);
+      
+      //IN_QUEUE, GET_ATTEMPTED, PROCESSED
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_STATE,
+          Types.VARCHAR, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID,
+          Types.VARCHAR, "100", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_QUEUE_NAME,
+          Types.VARCHAR, "100", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_MESSAGE_BODY,
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, 
+          Types.BIGINT, null, false, false);
+    }
   }
 }
