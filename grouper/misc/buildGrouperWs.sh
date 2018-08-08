@@ -46,6 +46,9 @@ cp -R /home/mchyzer/tmp/grouperDownload/build_$USER/grouper-$1/grouper-ws $build
 
 cd $buildDir/grouper-ws/grouper-ws
 
+cp -v build.i2mi.properties build.properties
+
+$ANT_HOME/bin/ant dist
 $ANT_HOME/bin/ant distPackage
 
 echo

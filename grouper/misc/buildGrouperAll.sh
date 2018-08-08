@@ -26,6 +26,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 /home/mchyzer/bin/buildGrouperUi.sh $1
 #/home/mchyzer/bin/buildGrouperQs.sh $1
 /home/mchyzer/bin/buildGrouperInstaller.sh $1
+/home/mchyzer/bin/buildGrouperBox.sh $1
 /home/mchyzer/bin/buildGrouperDuo.sh $1
 /home/mchyzer/bin/buildGrouperBox.sh $1
 /home/mchyzer/bin/buildGrouperVoot.sh $1
@@ -67,6 +68,8 @@ mv -v /home/mchyzer/tmp/grouperWs/build_$USER/grouper*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouper-installer/build_$USER/grouper*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouper-installer/build_$USER/grouper-installer/dist/grouperInstaller.jar $buildDir
 mv -v /home/mchyzer/tmp/grouper-box/build_mchyzer/grouper-box/dist/grouper.box*.tar.gz $buildDir
+mv -v /home/mchyzer/tmp/grouper-duo/build_mchyzer/grouper-duo/dist/grouper.duo*.tar.gz $buildDir
+mv -v /home/mchyzer/tmp/grouper-voot/build_mchyzer/grouper-voot/dist/grouper.vootBinary*.tar.gz $buildDir
 # mv -v /home/mchyzer/tmp/maven/build_$USER/ldappcng/target/ldappc*.tar.gz $buildDir
 
 #rename

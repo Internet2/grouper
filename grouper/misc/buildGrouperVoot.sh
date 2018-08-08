@@ -5,20 +5,20 @@ then
   echo
   echo "Give the tag to build as the command line argument!"
   echo "e.g. GROUPER_2_0_3, etc"
-  echo "e.g. buildGrouperBox.sh GROUPER_2_0_3"
+  echo "e.g. buildGrouperVoot.sh GROUPER_2_0_3"
   echo
   exit 1
 fi  
 
 cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouper-box ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouper-box
-  /bin/chmod g+w /home/mchyzer/tmp/grouper-box
+if [ ! -d /home/mchyzer/tmp/grouper-voot ]; then
+  /bin/mkdir /home/mchyzer/tmp/grouper-voot
+  /bin/chmod g+w /home/mchyzer/tmp/grouper-voot
 fi
 
-cd /home/mchyzer/tmp/grouper-box
+cd /home/mchyzer/tmp/grouper-voot
 
-export buildDir=/home/mchyzer/tmp/grouper-box/build_$USER
+export buildDir=/home/mchyzer/tmp/grouper-voot/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -32,13 +32,14 @@ cd $buildDir
 
 #export CVSROOT=/home/cvs/i2mi
 
-#/usr/bin/cvs export -r $1 grouper-misc/grouper-box
+#/usr/bin/cvs export -r $1 grouper-misc/grouper-voot
 
-#/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/grouper-box/
+#/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/grouper-voot/
 
-cp -R /home/mchyzer/tmp/grouperDownload/build_$USER/grouper-$1/grouper-misc/grouper-box $buildDir
+cp -R /home/mchyzer/tmp/grouperDownload/build_$USER/grouper-$1/grouper-misc/grouper-voot $buildDir
 
-cd $buildDir/grouper-box
+
+cd $buildDir/grouper-voot
 
 cp -v build.i2mi.properties build.properties
 
