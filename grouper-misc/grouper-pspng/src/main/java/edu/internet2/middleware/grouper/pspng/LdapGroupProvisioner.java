@@ -181,7 +181,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       ldapGroup  = createGroup(grouperGroupInfo, correctSubjects);
       stats.insertCount.set(correctSubjects.size());
 
-      cacheGroup(grouperGroupInfo, ldapGroup);
+      // Make note of the group if it was created
+      if ( ldapGroup != null ) {
+        cacheGroup(grouperGroupInfo, ldapGroup);
+      }
       return;
     } else {
         // The LDAP group exists, let's make sure the non-membership attributes are still accurate
