@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
@@ -115,7 +116,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testReceiveMessage"));
+    TestRunner.run(new GrouperClientWsTest("testExternalSubjectSave"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
 
@@ -130,6 +131,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // dont do this, it deletes types
     // super.setUp();
+    GrouperCacheUtils.clearAllCaches();
 
     String wsUserLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(
         "grouperClient.webService.user.label");
@@ -828,7 +830,7 @@ public class GrouperClientWsTest extends GrouperTest {
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
-                    "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=a@b.c --addExternalSubjectIfNotFound=true",
+                    "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=a@idp.example.edu --addExternalSubjectIfNotFound=true",
                     " "));
         System.out.flush();
         output = new String(baos.toByteArray());
@@ -38695,13 +38697,13 @@ public class GrouperClientWsTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
     //make sure you have jabber enabled in grouper.properties
-    ExternalSubjectSave assignName = new ExternalSubjectSave(grouperSession).assignEmail("a@b.c")
-        .assignIdentifier("a_ident@b.c").assignName("Some Name");
+    ExternalSubjectSave assignName = new ExternalSubjectSave(grouperSession).assignEmail("a@idp.example.edu")
+        .assignIdentifier("a_ident@idp.example.edu").assignName("Some Name");
     
     boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
 
     if (hasJabber) {
-      assignName.addAttribute("jabber", "a_jabber@b.c");
+      assignName.addAttribute("jabber", "a_jabber@idp.example.edu");
     }
     ExternalSubject externalSubject = assignName.save();
     
@@ -38716,7 +38718,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=findExternalSubjectsWs --identifier=a_ident@b.c",
+                  "--operation=findExternalSubjectsWs --identifier=a_ident@idp.example.edu",
                   " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
@@ -38733,7 +38735,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
   
       assertEquals(output, "0", matcher.group(1));
-      assertEquals(output, "a_ident@b.c", matcher.group(2));
+      assertEquals(output, "a_ident@idp.example.edu", matcher.group(2));
       assertEquals(output, "Some Name", matcher.group(3));
   
       // #####################################################
@@ -38746,7 +38748,7 @@ public class GrouperClientWsTest extends GrouperTest {
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
-                    "--operation=findExternalSubjectsWs --identifier=a_ident@b.c --ousdfsdfate=${index}",
+                    "--operation=findExternalSubjectsWs --identifier=a_ident@idp.example.edu --ousdfsdfate=${index}",
                     " "));
       } catch (Exception e) {
         assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
@@ -38764,7 +38766,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=findExternalSubjectsWs --identifier=a_ident@b.c --outputTemplate=${index}",
+                  "--operation=findExternalSubjectsWs --identifier=a_ident@idp.example.edu --outputTemplate=${index}",
                   " "));
   
       System.out.flush();
@@ -38783,7 +38785,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=findExternalSubjectsWs --identifier=a_ident@b.c --paramName0=whatever --paramValue0=someValue",
+                  "--operation=findExternalSubjectsWs --identifier=a_ident@idp.example.edu --paramName0=whatever --paramValue0=someValue",
                   " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -38798,7 +38800,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
   
       assertEquals(output, "0", matcher.group(1));
-      assertEquals(output, "a_ident@b.c", matcher.group(2));
+      assertEquals(output, "a_ident@idp.example.edu", matcher.group(2));
       assertEquals(output, "Some Name", matcher.group(3));
   
       assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
@@ -38820,13 +38822,13 @@ public class GrouperClientWsTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
     //make sure you have jabber enabled in grouper.properties
-    ExternalSubjectSave assignName = new ExternalSubjectSave(grouperSession).assignEmail("a@b.c")
-        .assignIdentifier("a_ident@b.c").assignName("Some Name");
+    ExternalSubjectSave assignName = new ExternalSubjectSave(grouperSession).assignEmail("a@idp.example.edu")
+        .assignIdentifier("a_ident@idp.example.edu").assignName("Some Name");
     
     boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
 
     if (hasJabber) {
-      assignName.addAttribute("jabber", "a_jabber@b.c");
+      assignName.addAttribute("jabber", "a_jabber@idp.example.edu");
     }
     ExternalSubject externalSubject = assignName.save();
 
@@ -38839,7 +38841,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
   
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c", " "));
+          "--operation=externalSubjectDeleteWs --identifiers=a_ident@idp.example.edu", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
   
@@ -38855,7 +38857,7 @@ public class GrouperClientWsTest extends GrouperTest {
   
       assertEquals("0", matcher.group(1));
       assertEquals("SUCCESS", matcher.group(2));
-      assertEquals("a_ident@b.c", matcher.group(3));
+      assertEquals("a_ident@idp.example.edu", matcher.group(3));
       assertEquals("Some Name", matcher.group(4));
   
       // #####################################################
@@ -38864,7 +38866,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
   
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c", " "));
+          "--operation=externalSubjectDeleteWs --identifiers=a_ident@idp.example.edu", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
   
@@ -38878,7 +38880,7 @@ public class GrouperClientWsTest extends GrouperTest {
   
       assertEquals("0", matcher.group(1));
       assertEquals("SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND", matcher.group(2));
-      assertEquals("a_ident@b.c", matcher.group(3));
+      assertEquals("a_ident@idp.example.edu", matcher.group(3));
       assertTrue(matcher.group(4), StringUtils.isBlank(matcher.group(4)));
   
       // #####################################################
@@ -38891,7 +38893,7 @@ public class GrouperClientWsTest extends GrouperTest {
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
-                    "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --ousdfsdfate=${index}",
+                    "--operation=externalSubjectDeleteWs --identifiers=a_ident@idp.example.edu --ousdfsdfate=${index}",
                     " "));
       } catch (Exception e) {
         assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
@@ -38909,7 +38911,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --outputTemplate=${index}",
+                  "--operation=externalSubjectDeleteWs --identifiers=a_ident@idp.example.edu --outputTemplate=${index}",
                   " "));
   
       System.out.flush();
@@ -38926,7 +38928,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
   
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --txType=NONE",
+          "--operation=externalSubjectDeleteWs --identifiers=a_ident@idp.example.edu --txType=NONE",
           " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -38941,7 +38943,7 @@ public class GrouperClientWsTest extends GrouperTest {
   
       assertEquals("0", matcher.group(1));
       assertEquals("SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND", matcher.group(2));
-      assertEquals("a_ident@b.c", matcher.group(3));
+      assertEquals("a_ident@idp.example.edu", matcher.group(3));
       assertTrue(matcher.group(4), StringUtils.isBlank(matcher.group(4)));
   
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -38956,7 +38958,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --paramName0=whatever --paramValue0=someValue",
+                  "--operation=externalSubjectDeleteWs --identifiers=a_ident@idp.example.edu --paramName0=whatever --paramValue0=someValue",
                   " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -38971,7 +38973,7 @@ public class GrouperClientWsTest extends GrouperTest {
   
       assertEquals("0", matcher.group(1));
       assertEquals("SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND", matcher.group(2));
-      assertEquals("a_ident@b.c", matcher.group(3));
+      assertEquals("a_ident@idp.example.edu", matcher.group(3));
       assertTrue(matcher.group(4), StringUtils.isBlank(matcher.group(4)));
   
       assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
@@ -39006,7 +39008,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
   
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d", " "));
+            "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
   
@@ -39020,7 +39022,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
   
         assertEquals("SUCCESS_INSERTED", matcher.group(1));
-        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("b_ident@idp2.example2.edu", matcher.group(2));
         assertEquals("AnotherName", matcher.group(3));
   
         // #####################################################
@@ -39029,7 +39031,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
   
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d", " "));
+            "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
   
@@ -39042,7 +39044,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
   
         assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
-        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("b_ident@idp2.example2.edu", matcher.group(2));
         assertEquals("AnotherName", matcher.group(3));
   
         // #####################################################
@@ -39055,7 +39057,7 @@ public class GrouperClientWsTest extends GrouperTest {
           GrouperClient
               .main(GrouperClientUtils
                   .splitTrim(
-                      "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --ousdfsdfate=${index}", 
+                      "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu --ousdfsdfate=${index}", 
                       " "));
         } catch (Exception e) {
           assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
@@ -39073,7 +39075,7 @@ public class GrouperClientWsTest extends GrouperTest {
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
-                    "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --outputTemplate=${index}", 
+                    "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu --outputTemplate=${index}", 
                     " "));
   
         System.out.flush();
@@ -39090,7 +39092,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
   
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --txType=NONE", 
+            "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu --txType=NONE", 
             " "));
             
         System.out.flush();
@@ -39105,7 +39107,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
   
         assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
-        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("b_ident@idp2.example2.edu", matcher.group(2));
         assertEquals("AnotherName", matcher.group(3));
   
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -39120,7 +39122,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
   
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --saveMode=UPDATE", 
+            "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu --saveMode=UPDATE", 
             " "));
         System.out.flush();
         output = new String(baos.toByteArray());
@@ -39134,7 +39136,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
   
         assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
-        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("b_ident@idp2.example2.edu", matcher.group(2));
         assertEquals("AnotherName", matcher.group(3));
   
         assertTrue(GrouperClientWs.mostRecentRequest.contains("saveMode")
@@ -39148,7 +39150,7 @@ public class GrouperClientWsTest extends GrouperTest {
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
-                    "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --paramName0=whatever --paramValue0=someValue", 
+                    "--operation=externalSubjectSaveWs --identifier=b_ident@idp2.example2.edu --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@idp2.example2.edu --paramName0=whatever --paramValue0=someValue", 
                     " "));
         System.out.flush();
         output = new String(baos.toByteArray());
@@ -39162,7 +39164,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
 
         assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
-        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("b_ident@idp2.example2.edu", matcher.group(2));
         assertEquals("AnotherName", matcher.group(3));
 
         assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
