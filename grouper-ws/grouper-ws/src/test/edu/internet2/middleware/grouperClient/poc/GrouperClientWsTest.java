@@ -11832,15 +11832,15 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertEquals(outputLine, "assign", matcher.group(3));
-      
+      assertTrue(outputLine, matcher.group(3).equals("read") || matcher.group(3).equals("assign"));
+
       outputLine = outputLines[1];
       matcher = pattern.matcher(outputLines[1]);
 
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "1", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertEquals(outputLine, "read", matcher.group(3));
+      assertTrue(outputLine, matcher.group(3).equals("read") || matcher.group(3).equals("assign"));
 
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -21343,7 +21343,7 @@ public class GrouperClientWsTest extends GrouperTest {
         String[] outputLines2 = new String[4];
         int i=0;
         for (String outputLine : outputLines) {
-          if (!outputLine.contains("attestationLastEmailedDate")) {
+          if (!outputLine.contains("attestationLastEmailedDate") && !outputLine.contains("deprovisioningLastEmailedDate")) {
             outputLines2[i++] = outputLine;
           }
         }
@@ -21388,7 +21388,7 @@ public class GrouperClientWsTest extends GrouperTest {
         String[] outputLines2 = new String[4];
         int i=0;
         for (String outputLine : outputLines) {
-          if (!outputLine.contains("attestationLastEmailedDate")) {
+          if (!outputLine.contains("attestationLastEmailedDate") && !outputLine.contains("deprovisioningLastEmailedDate")) {
             outputLines2[i++] = outputLine;
           }
         }
