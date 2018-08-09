@@ -81,6 +81,7 @@ public class TestPrivCREATE extends GrouperTest {
 
   protected void setUp () {
     LOG.debug("setUp");
+    super.setUp();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -96,6 +97,7 @@ public class TestPrivCREATE extends GrouperTest {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
   /**
