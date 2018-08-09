@@ -32,8 +32,8 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 public interface JdbcConnectionProvider {
 
   /**
-   * if the provider requires jdbc data in the sources.xml
-   * @return true if provider requires data in sources.xml
+   * if the provider requires jdbc data in the subject.properties
+   * @return true if provider requires data in subject.properties
    */
   public boolean requiresJdbcConfigInSourcesXml();
   

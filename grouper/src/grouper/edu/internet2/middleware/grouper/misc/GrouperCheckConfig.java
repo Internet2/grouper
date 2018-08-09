@@ -386,7 +386,7 @@ public class GrouperCheckConfig {
     checkResource("grouper.hibernate.properties");
     checkResource("log4j.properties");
     checkResource("morphString.properties");
-    checkResource("sources.xml", !SourceManager.usingSubjectProperties());
+    checkResource("subject.properties");
     
   }
   
@@ -2734,7 +2734,7 @@ public class GrouperCheckConfig {
                 "dn is not an attribute of the object, then the fully qualified object name will be used", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SOURCE_ID, 
                 "Grouper loader LDAP source ID", 
-                "Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient", wasInCheckConfig);
+                "Source ID from the subject.properties that narrows the search for subjects.  This is optional though makes the loader job more efficient", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ID_TYPE, 
                 "Grouper loader LDAP subject ID type", 
                 "The type of subject ID.  This can be either: subjectId (most efficient), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier", wasInCheckConfig);

@@ -84,7 +84,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * groups within a Group Groups Registry to be referenced as I2MI
  * Subjects.  
  * <p>
- * To use, add the following to your <i>sources.xml</i> file:
+ * To use, add the following to your <i>subject.properties</i> file:
  * </p>
  * <pre class="eg">
  * &lt;source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter"&gt;
@@ -444,7 +444,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
     } catch (Exception ex) {
       throw new SourceUnavailableException(
-          "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
+          "Unable to init subject.properties JDBC source, source: " + this.getId(), ex);
     }
     // Nothing
   } // public void init()
@@ -656,7 +656,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " groupersource id: " + this.getId();
+    String message = "subject.properties groupersource id: " + this.getId();
     return message;
   }
 

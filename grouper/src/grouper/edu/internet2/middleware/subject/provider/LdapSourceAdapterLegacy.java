@@ -209,7 +209,7 @@ public class LdapSourceAdapterLegacy extends BaseSourceAdapter {
       String certfile = (String)props.get("pemCertFile");
       String keyfile = (String)props.get("pemKeyFile");
         
-      // ldap properties can be in a separate properties file or specified in sources.xml
+      // ldap properties can be in a separate properties file or specified in subject.properties
 
       propertiesFile = props.getProperty("ldapProperties_file");
       if (propertiesFile!=null) {
@@ -315,7 +315,7 @@ public class LdapSourceAdapterLegacy extends BaseSourceAdapter {
 
       } else {
 
-            // load ldap properties from sources.xml
+            // load ldap properties from subject.properties
 
             String url = getNeededProperty(props, "PROVIDER_URL");
             ldapConfig = new LdapConfig(url);
@@ -933,7 +933,7 @@ public class LdapSourceAdapterLegacy extends BaseSourceAdapter {
      * @see edu.internet2.middleware.subject.Source#printConfig()
      */
     public String printConfig() {
-     StringBuilder message = new StringBuilder((SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " ldap source id:   ").append(this.getId()).append(": ");
+     StringBuilder message = new StringBuilder("subject.properties ldap source id:   ").append(this.getId()).append(": ");
       if (propertiesFile != null) {
         message.append(propertiesFile);
       } else {

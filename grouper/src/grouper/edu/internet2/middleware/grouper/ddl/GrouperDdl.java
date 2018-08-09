@@ -4966,7 +4966,7 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_SOURCE, 
-            "id of the source from sources.xml");
+            "id of the source from subject.properties");
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_TYPE, 
@@ -5056,7 +5056,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITMember.TABLE_GROUPER_PIT_MEMBERS,  
           PITMember.COLUMN_SUBJECT_SOURCE, 
-            "id of the source from sources.xml");
+            "id of the source from subject.properties");
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITMember.TABLE_GROUPER_PIT_MEMBERS,  

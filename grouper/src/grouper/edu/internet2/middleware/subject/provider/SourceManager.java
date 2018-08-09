@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
 
 /**
  * Factory to load and get Sources.  Sources are defined
- * in a configuration file named, sources.xml, and must
+ * in a configuration file named, subject.properties, and must
  * be placed in the classpath.<p>
  *
  */
@@ -134,7 +134,7 @@ public class SourceManager {
     }
     
     /**
-     * loop through config beans from sources.xml 
+     * loop through config beans from subject.properties 
      */
     public void processConfigBeans() {
       
@@ -206,18 +206,11 @@ public class SourceManager {
     try {
       StringBuilder result = new StringBuilder();
 
-      String sourcesXmlLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
-
       File subjectPropertiesFile = SubjectUtils.fileFromResourceName("subject.properties");
       String subjectPropertiesFileLocation = subjectPropertiesFile == null ? " [cant find subject.properties]"
           : SubjectUtils.fileCanonicalPath(subjectPropertiesFile);
       result.append("subject.properties read from: " + subjectPropertiesFileLocation + "\n");
 
-      if (!StringUtils.isBlank(sourcesXmlLocation)) {
-        String message = "ERROR: sources.xml is no longer supported, please convert to subject.properties and remove sources.xml";
-        log.error(message);
-        System.out.println(message);
-      }
       result.append("sources configured in:        subject.properties\n");
       File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
       if (sourcesXmlFile != null && sourcesXmlFile.exists() && sourcesXmlFile.isFile()) {
@@ -227,7 +220,7 @@ public class SourceManager {
         log.error(sourcesError);
       }
       
-      //at this point, we have a sources.xml...  now check it out
+      //at this point, we have a subject.properties...  now check it out
       Collection<Source> sources = SourceManager.getInstance().getSources();
       for (Source source : sources) {
         result.append(source.printConfig()).append("\n");
@@ -243,9 +236,6 @@ public class SourceManager {
     return "Cant print subject API configs";
 
   }
-
-  /** */
-  private static final String CONFIG_FILE = "/sources.xml";
 
   /** */
   private static Log log = LogFactory.getLog(SourceManager.class);
@@ -366,79 +356,27 @@ public class SourceManager {
   }
 
   /**
-   * Parses sources.xml config file using org.apache.commons.digester.Digester.
+   * Parses subject.properties config file using org.apache.commons.digester.Digester.
    * @throws IOException 
    * @throws SAXException 
    */
   private void parseConfig() throws IOException, SAXException {
-    log.debug("Instantiating new Digester.");
-    Digester digester = new Digester();
-    digester.push(this);
-    digester.addObjectCreate("sources/source",
-        "edu.internet2.middleware.subject.BaseSourceAdapter", "adapterClass");
-    digester.addCallMethod("sources/source/id", "setId", 0);
-    digester.addCallMethod("sources/source/name", "setName", 0);
-    digester.addCallMethod("sources/source/type", "addSubjectType", 0);
-    digester.addCallMethod("sources/source/init-param", "addInitParam", 2);
-    digester.addCallParam("sources/source/init-param/param-name", 0);
-    digester.addCallParam("sources/source/init-param/param-value", 1);
-    digester.addCallMethod("sources/source/attribute", "addAttribute", 0);
-    digester.addCallMethod("sources/source/internal-attribute", "addInternalAttribute", 0);
-
-    digester.addObjectCreate("sources/source/search",
-        "edu.internet2.middleware.subject.provider.Search");
-    digester.addCallMethod("sources/source/search/searchType", "setSearchType", 0);
-    digester.addCallMethod("sources/source/search/param", "addParam", 2);
-    digester.addCallParam("sources/source/search/param/param-name", 0);
-    digester.addCallParam("sources/source/search/param/param-value", 1);
-    digester.addSetNext("sources/source/search", "loadSearch");
-
-    digester.addSetNext("sources/source", "loadSource");
-    
-    InputStream is = sourcesXmlConfig();
-    if (is != null) {
-      //doing subjects from sources.xml
-      log.debug("Parsing config input stream: " + is);
-      try {
-        digester.parse(is);
-      } catch (Exception e) {
-        String sourcesLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
-        throw new RuntimeException("Problem reading sources xml file: " + sourcesLocation, e );
-      }
-      is.close();
-    } else {
-      
-      for (Source source : SubjectConfig.retrieveConfig().retrieveSourceConfigs().values()) {
-        loadSource(source);
-      }
-      
+    for (Source source : SubjectConfig.retrieveConfig().retrieveSourceConfigs().values()) {
+      loadSource(source);
     }
   }
 
   /**
    * 
-   * @return true if using subject.properties, false if sources.xml
+   * @return true if using subject.properties, false if subject.properties
    */
   public static boolean usingSubjectProperties() {
-    return StringUtils.isBlank(SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location"));
+    return true;
   }
   
-  /**
-   * input stream
-   * @return the input stream of the config file
-   */
-  public static InputStream sourcesXmlConfig() {
-    String sourcesXmlLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
-    
-    if (StringUtils.isBlank(sourcesXmlLocation)) {
-      return null;
-    }
-    
-    return GrouperClientUtils.fileOrClasspathInputstream(sourcesXmlLocation, "In the subject.properties, the entry for subject.sources.xml.location");
-  }
   
   /**
-   * Validates sources.xml config file.
+   * Validates subject.properties config file.
    * @param args 
    */
   public static void main(String[] args) {

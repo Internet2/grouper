@@ -34,7 +34,7 @@ package edu.internet2.middleware.subject.provider;
  *
  */
 
-// Holds the a search type and its parameters that were read from the sources.xml file.
+// Holds the a search type and its parameters that were read from the subject.properties file.
 
 import java.util.Properties;
 

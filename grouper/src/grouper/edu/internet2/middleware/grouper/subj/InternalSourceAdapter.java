@@ -350,7 +350,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " internalsource id:" + this.getId();
+    String message = "subject.properties internalsource id:" + this.getId();
     return message;
   }
 } // public class InternalSourceAdapter

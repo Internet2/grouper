@@ -71,7 +71,7 @@ public class SubjectStatusConfig {
       }
       
       if (StringUtils.isBlank(statusTranslateDatastore)) {
-        throw new RuntimeException("Why is statusTranslateDatastore" + i + " blank in sources.xml for source: " + sourceId);
+        throw new RuntimeException("Why is statusTranslateDatastore" + i + " blank in subject.properties for source: " + sourceId);
       }
       
       this.statusTranslateUserToDatastore.put(statusTranslateUser, statusTranslateDatastore);

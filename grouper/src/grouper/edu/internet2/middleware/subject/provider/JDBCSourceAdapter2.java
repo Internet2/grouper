@@ -137,7 +137,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   public void checkConfig() {
 
     Properties props = this.initParams();
-    String error = "problem with sources.xml source id: " + this.getId() + ", ";
+    String error = "problem with subject.properties source id: " + this.getId() + ", ";
 
     //TODO encapsulate this stuff from the superclass into one method
     //see if has jdbc in provider
@@ -220,7 +220,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           String version = dbConnection.getMetaData().getDatabaseProductVersion();
         } catch (SQLException sqlException) {
           String theError = error
-              + "Error connecting to the database with credentials from sources.xml"
+              + "Error connecting to the database with credentials from subject.properties"
               + spyInsert + ", url: " + dbUrl + ", driver: " + driver + ", user: "
               + dbUser;
           System.out.println("Subject API error: " + theError + ", "
@@ -232,7 +232,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
 
       } catch (Exception e) {
-        String theError = error + "Error verifying sources.xml database configuration: ";
+        String theError = error + "Error verifying subject.properties database configuration: ";
         System.err.println("Subject API error: " + theError
             + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
@@ -1012,7 +1012,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
       jdbcConnectionBean.doneWithConnection();
     } catch (SQLException ex) {
-      String error = "problem in sources.xml source: " + this.getId() + ", sql: " + query;
+      String error = "problem in subject.properties source: " + this.getId() + ", sql: " + query;
       try {
         jdbcConnectionBean.doneWithConnectionError(ex);
       } catch (RuntimeException e) {

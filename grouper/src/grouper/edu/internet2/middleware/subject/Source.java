@@ -183,14 +183,14 @@ public interface Source {
   public String printConfig();
 
   /**
-   * get the init param e.g. from the sources.xml
+   * get the init param e.g. from the subject.properties
    * @param name1
    * @return param
    */
   public String getInitParam(String name1);
 
   /**
-   * get the init params e.g. from the sources.xml
+   * get the init params e.g. from the subject.properties
    * @return params
    */
   public Properties initParams();
@@ -227,7 +227,7 @@ public interface Source {
    * utilizes its own search algorithm tailored to
    * the Subject repository and schema.  Note if config param:
    * throwErrorOnFindAllFailure is false, then swallow and log exceptions
-   * if maxPageSize is set in sources.xml, then only return max that many, and
+   * if maxPageSize is set in subject.properties, then only return max that many, and
    * if there are more, set the tooManyResults flag
    * @param searchValue 
    * @return results and if there are too many, never return null!!!
@@ -239,7 +239,7 @@ public interface Source {
    * utilizes its own search algorithm tailored to
    * the Subject repository and schema.  Note if config param:
    * throwErrorOnFindAllFailure is false, then swallow and log exceptions
-   * if maxPageSize is set in sources.xml, then only return max that many, and
+   * if maxPageSize is set in subject.properties, then only return max that many, and
    * if there are more, set the tooManyResults flag
    * @param realm string value that sets the realm for the search.  The source can
    * implement various realms to account for permissions of the calling user

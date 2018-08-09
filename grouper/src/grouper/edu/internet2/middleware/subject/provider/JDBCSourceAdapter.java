@@ -77,7 +77,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** subject type string */
   protected String subjectTypeString;
 
-  /** the database type will try to be detected by URL, though if you want to specify in sources.xml, you can */
+  /** the database type will try to be detected by URL, though if you want to specify in subject.properties, you can */
   private String databaseType;
   
   /** if there is a limit to the number of results */
@@ -269,7 +269,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       subject = createUniqueSubject(rs, search, id1, search.getParam("sql"));
       jdbcConnectionBean.doneWithConnection();
     } catch (SQLException ex) {
-      String error = "problem in sources.xml source: " + this.getId() + ", sql: "
+      String error = "problem in subject.properties source: " + this.getId() + ", sql: "
           + search.getParam("sql") + ", " + id1 + ", " + searchType;
       try {
         jdbcConnectionBean.doneWithConnectionError(ex);
@@ -531,7 +531,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
             //if we made it this far there is a problem
             throw new InvalidQueryException("Why is this subject not able to be " +
                 "referenced by id or identifier (do you need to add " +
-                "identifierAttributes to your sources.xml???) " + SubjectUtils.subjectToString(subject) );
+                "identifierAttributes to your subject.properties???) " + SubjectUtils.subjectToString(subject) );
 
           }
           
@@ -626,7 +626,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                     + ", maybe not enough question marks "
                     + "(bind variables) are in query, or the number of question marks in the query is "
                     + "not the same as the number of parameters (might need to set the optional param numParameters), "
-                    + "or the param 'numParameters' in sources.xml for that query is incorrect");
+                    + "or the param 'numParameters' in subject.properties for that query is incorrect");
         throw e;
       }
     }
@@ -669,7 +669,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                       + ", maybe not enough question marks "
                       + "(bind variables) are in query, or the number of question marks in the query is "
                       + "not the same as the number of parameters (might need to set the optional param numParameters), "
-                      + "or the param 'numParameters' in sources.xml for that query is incorrect, " + this.getId());
+                      + "or the param 'numParameters' in subject.properties for that query is incorrect, " + this.getId());
           throw e;
         }
       }
@@ -812,7 +812,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
     } catch (Exception ex) {
       throw new SourceUnavailableException(
-          "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
+          "Unable to init subject.properties JDBC source, source: " + this.getId(), ex);
     }
   }
 
@@ -828,7 +828,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       Class.forName(driver).newInstance();
       log.debug("Loading JDBC driver: " + driver);
     } catch (Exception ex) {
-      throw new SourceUnavailableException("Error loading sources.xml JDBC driver: "
+      throw new SourceUnavailableException("Error loading subject.properties JDBC driver: "
           + driver + ", source: " + sourceId, ex);
     }
     log.info("JDBC driver loaded.");
@@ -976,7 +976,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
     //see if has jdbc in provider
     if (this.jdbcConnectionProvider.requiresJdbcConfigInSourcesXml()) {
-      String error = "problem with sources.xml source id: " + this.getId() + ", ";
+      String error = "problem with subject.properties source id: " + this.getId() + ", ";
       Properties props = this.initParams();
       String driver = props.getProperty("dbDriver");
       if (StringUtils.isBlank(driver)) {
@@ -1110,7 +1110,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           String version = dbConnection.getMetaData().getDatabaseProductVersion();
         } catch (SQLException sqlException) {
           String theError = error
-              + "Error connecting to the database with credentials from sources.xml"
+              + "Error connecting to the database with credentials from subject.properties"
               + spyInsert + ", url: " + dbUrl + ", driver: " + driver + ", user: "
               + dbUser;
           System.out.println("Subject API error: " + theError + ", "
@@ -1122,7 +1122,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         }
 
       } catch (Exception e) {
-        String theError = error + "Error verifying sources.xml database configuration: ";
+        String theError = error + "Error verifying subject.properties database configuration: ";
         System.err.println("Subject API error: " + theError
             + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
@@ -1143,7 +1143,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       String dbUser = props.getProperty("dbUser");
       dbResult = dbUser + "@" + dbUrl;
     }
-    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " jdbc" + 
+    String message = "subject.properties jdbc" + 
         ((this instanceof JDBCSourceAdapter2) ? "2" : "")+ " source id:   " + this.getId() + ": " + dbResult;
     return message;
   }
@@ -1259,7 +1259,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
           jdbcConnectionBean.doneWithConnection();
         } catch (SQLException ex) {
-          String error = "problem in sources.xml source: " + this.getId() + ", sql: "
+          String error = "problem in subject.properties source: " + this.getId() + ", sql: "
               + aggregateSql + ", id size: " + SubjectUtils.length(idsOrIdentifiers) + ", " + searchType;
           try {
             jdbcConnectionBean.doneWithConnectionError(ex);

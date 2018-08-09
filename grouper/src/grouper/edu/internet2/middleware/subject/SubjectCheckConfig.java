@@ -52,7 +52,7 @@ public class SubjectCheckConfig {
    */
   public static boolean checkConfig(String resourceName) {
     boolean foundResource = false;
-    //first, there must be a sources.xml
+    //first, there must be a subject.properties
     try {
       //get the url of the navigation file
       ClassLoader cl = SubjectCheckConfig.class.getClassLoader();
@@ -78,17 +78,13 @@ public class SubjectCheckConfig {
    */
   public static void checkConfig() {
     
-//    if (!checkConfig("sources.xml")) {
-//      return;
-//    }
-    
-    //at this point, we have a sources.xml...  now check it out
+    //at this point, we have a subject.properties...  now check it out
     Collection<Source> sources = null;
     
     try {
       sources = SourceManager.getInstance().getSources();
     } catch (Exception e) {
-      String error = "problem initting sources from sources.xml";
+      String error = "problem initting sources from subject.properties";
       System.err.println("Subject API error: " + error + ", " + ExceptionUtils.getFullStackTrace(e));
       log.error(error, e);
       return;
@@ -112,7 +108,7 @@ public class SubjectCheckConfig {
         }
 
       } catch (Exception e) {
-        String theError = error + "problem with getSubject by id, in sources.xml: search searchSubject: ";
+        String theError = error + "problem with getSubject by id, in subject.properties: search searchSubject: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
         continue;
@@ -132,7 +128,7 @@ public class SubjectCheckConfig {
       } catch (SubjectNotFoundException snfe) {
         //good!
       } catch (Exception e) {
-        String theError = error + "problem with getSubject by identifier, in sources.xml: serachType searchSubjectByIdentifier: ";
+        String theError = error + "problem with getSubject by identifier, in subject.properties: serachType searchSubjectByIdentifier: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
         continue;
@@ -150,15 +146,15 @@ public class SubjectCheckConfig {
         }
         
       } catch (Exception e) {
-        String theError = error + "problem with search, in sources.xml: serachType search: ";
+        String theError = error + "problem with search, in subject.properties: serachType search: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
         continue;
       }
     }
     if (sourceCount == 0) {
-      System.err.println("Subject API warning: there are no sources available from sources.xml");
-      log.warn("there are no sources available from sources.xml");
+      System.err.println("Subject API warning: there are no sources available from subject.properties");
+      log.warn("there are no sources available from subject.properties");
     }
 
   }

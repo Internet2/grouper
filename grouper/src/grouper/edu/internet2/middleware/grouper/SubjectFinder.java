@@ -995,7 +995,7 @@ public class SubjectFinder {
         }
       }
       if (esa == null && failIfError) {
-        throw new RuntimeException("No entity source configured in sources.xml, see sources.example.xml for an example");
+        throw new RuntimeException("No entity source configured in subject.properties, see sources.example.xml for an example");
       }
     }
     return esa;

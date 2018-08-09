@@ -382,7 +382,7 @@ public class help {
             + "usdu()\n\n"
             + "- you can pass in that you want to delete memberships in the usdu call:\n\n"
             + "usdu(usdu.DELETE)\n"
-            + "- you can work only in a specific subject source, pass in the sourceId from sources.xml:\n"
+            + "- you can work only in a specific subject source, pass in the sourceId from subject.properties:\n"
             + "usduBySource(\"schoolperson\")\n"
             + "- you can work in a specific source and delete membeships:\n"
             + "usduBySource(\"schoolperson\", usdu.DELETE)\n"

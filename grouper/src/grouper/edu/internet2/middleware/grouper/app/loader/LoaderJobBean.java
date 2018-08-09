@@ -657,11 +657,11 @@ public class LoaderJobBean {
     this.ldapQuartzCron = ldapQuartzCron1;
   }
 
-  /** Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient */
+  /** Source ID from the subject.properties that narrows the search for subjects.  This is optional though makes the loader job more efficient */
   private String ldapSourceId;
   
   /**
-   * Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
+   * Source ID from the subject.properties that narrows the search for subjects.  This is optional though makes the loader job more efficient
    * @return source id
    */
   public String getLdapSourceId() {
@@ -669,7 +669,7 @@ public class LoaderJobBean {
   }
 
   /**
-   * Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
+   * Source ID from the subject.properties that narrows the search for subjects.  This is optional though makes the loader job more efficient
    * @param ldapSourceId1
    */
   public void setLdapSourceId(String ldapSourceId1) {

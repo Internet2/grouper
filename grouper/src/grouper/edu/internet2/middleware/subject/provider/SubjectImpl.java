@@ -413,7 +413,7 @@ public class SubjectImpl implements Subject {
         if (matcher.matches()) {
           String name = matcher.group(1);
           if (!name.matches("[a-zA-Z0-9_]+")) {
-            String message = "Virtual attribute variable name (from sources.xml?) must be alphanumeric, or underscore: '" 
+            String message = "Virtual attribute variable name (from subject.properties?) must be alphanumeric, or underscore: '" 
               + name + "' for source: " + source.getId();
             log.error(message);
             throw new RuntimeException(message);
@@ -483,7 +483,7 @@ public class SubjectImpl implements Subject {
           if (matcher.matches()) {
             String name = matcher.group(1);
             if (!name.matches("[a-zA-Z0-9_]+")) {
-              String message = "Virtual attribute name (from sources.xml?) must be alphanumeric, or underscore: '" 
+              String message = "Virtual attribute name (from subject.properties?) must be alphanumeric, or underscore: '" 
                 + name + "' for source: " + source.getId();
               log.error(message);
               throw new RuntimeException(message);
