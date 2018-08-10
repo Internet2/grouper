@@ -66,6 +66,16 @@
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-jta_1.1_spec</artifactId>
                 </exclusion>
+                <!-- already including jandex 2.0.4 directly, don't need this 2.0.0 version too -->
+                <exclusion>
+                    <groupId>org.jboss</groupId>
+                    <artifactId>jandex</artifactId>
+                </exclusion>
+                <!-- hibernate-c3p0 pulls in 3.3.1, don't need two different versions -->
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -224,13 +234,18 @@
                 </exclusion>
                 <!-- pooling to create ddl? not sure why they called this a dep -->
                 <exclusion>
-                    <artifactId>commons-pool</artifactId>
                     <groupId>commons-pool</groupId>
+                    <artifactId>commons-pool</artifactId>
                 </exclusion>
-                <!-- we haven't needed this dep to functions, maybe ok to leave out -->
+                <!-- we haven't needed this dep to function, maybe ok to leave out -->
                 <exclusion>
-                    <artifactId>stax</artifactId>
-                    <groupId>stax-api</groupId>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+                <!-- we haven't needed this dep to function, maybe ok to leave out -->
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -243,6 +258,10 @@
                     <groupId>dom4j</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jandex</artifactId>
         </dependency>
         <!-- custom Penn -->
         <dependency>
@@ -279,10 +298,6 @@
         <dependency>
             <groupId>org.ldaptive</groupId>
             <artifactId>ldaptive</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ldaptive</groupId>
-            <artifactId>ldaptive-unboundid</artifactId>
         </dependency>
         <!-- for migrated subject module -->
         <dependency>
