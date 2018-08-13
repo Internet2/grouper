@@ -39,7 +39,7 @@
         <include name="**/*.jar" />
       </fileset>
       <fileset dir="${grouperClient.dir}">
-        <include name="**/*.jar" />
+        <include name="grouperClient.jar" />
       </fileset>
 
     </path>
@@ -57,7 +57,7 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.bin}" />
 
-    <javac  target="1.6"  source="1.6" 
+    <javac  target="1.8"  source="1.8" 
       srcdir="${main.source}" destdir="${main.bin}" debug="true" >
       <classpath refid="main.classpath" />    
     </javac>
