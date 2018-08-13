@@ -4,5 +4,6 @@ build.properties
 dist
 logs
 .project
+.classpath
 .settings
 target

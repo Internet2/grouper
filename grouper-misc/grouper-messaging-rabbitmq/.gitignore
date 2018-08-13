@@ -2,3 +2,5 @@
 build.properties
 dist
 dist2
+.classpath
+.project
