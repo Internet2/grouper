@@ -110,6 +110,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.internet2.middleware.grouperInstaller.GiGrouperVersion;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpMethodBase;
@@ -7571,9 +7572,9 @@ public class GrouperInstallerUtils  {
     List<File> result = new ArrayList<File>();
     
     //find the passed in base file name
-    String baseFileName = jarFileBaseName(fileName);
+    Set<String> baseFileNames = jarFileBaseNames(fileName);
     
-    if (baseFileName == null) {
+    if (GrouperInstallerUtils.length(baseFileNames) == 0) {
       throw new RuntimeException("Why is base file name null? " + fileName);
     }
     
@@ -7584,9 +7585,12 @@ public class GrouperInstallerUtils  {
         continue;
       }
       
-      String fileBaseFileName = jarFileBaseName(file.getName());
-      if (equals(fileBaseFileName, baseFileName)) {
-        result.add(file);
+      Set<String> fileBaseFileNames = jarFileBaseNames(file.getName());
+
+      for (String fileBaseFileName : GrouperInstallerUtils.nonNull(fileBaseFileNames)) {
+        if (baseFileNames.contains(fileBaseFileName)) {
+          result.add(file);
+        }
       }
     }
     
@@ -7605,6 +7609,65 @@ public class GrouperInstallerUtils  {
       return jarFindJar(dir.getParentFile(), fileName);
     }
     return jarFindJar(GrouperInstallerUtils.fileListRecursive(dir), fileName);
+  }
+
+  /**
+   * if jarfile is someThing-1.2.3.jar, return something
+   * @param fileName
+   * @return the base file name for jar or null
+   */
+  public static Set<String> jarFileBaseNames(String fileName) {
+    
+    Set<String> result = new HashSet<String>();
+    
+    Pattern pattern = Pattern.compile("^(.*?)-[0-9].*.jar$");
+    Matcher matcher = pattern.matcher(fileName);
+    String baseName = null;
+    if (matcher.matches()) {
+      baseName = matcher.group(1);
+    } else if (fileName.endsWith(".jar")) {
+      baseName = fileName.substring(0, fileName.length() - ".jar".length());
+    } else {
+      return result;
+    }
+    
+    result.add(baseName.toLowerCase());
+    
+    if (baseName.endsWith("-core")) {
+      baseName = baseName.substring(0, baseName.length() - "-core".length());
+      result.add(baseName.toLowerCase());
+    }
+    
+    if (baseName.toLowerCase().equals("mysql-connector-java") || baseName.toLowerCase().equals("mysql-connector-java-bin")) {
+      result.add("mysql-connector-java");
+      result.add("mysql-connector-java-bin");
+    }
+
+    if (baseName.toLowerCase().equals("mail") || baseName.toLowerCase().equals("mailapi")) {
+      result.add("mail");
+      result.add("mailapi");
+    }
+
+    return result;
+  }
+
+  /**
+   * if a collection contains any element in another collection
+   * @param <T>
+   * @param a
+   * @param b
+   * @return true if contains
+   */
+  public static <T> boolean containsAny(Collection<T> a, Collection<T> b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    for (T t : a) {
+      if (b.contains(t)) {
+        return true;
+      }
+    }
+    return false;
   }
   
   /**
@@ -10744,6 +10807,52 @@ public class GrouperInstallerUtils  {
   public static String jarVersion(File jarFile) {
     return jarVersion(jarFile, false);
   }
+  
+  /**
+   * see which jar is newer or null if dont know
+   * @param jar1
+   * @param jar2
+   * @return the jar which is newer or null if cant find
+   */
+  public static File jarNewerVersion(File jar1, File jar2) {
+    
+    String version1 = jarVersion(jar1, false);
+    String version2 = jarVersion(jar2, false);
+    
+    if (version1 == null && version2 == null) {
+      return null;
+    }
+    
+    if (version1 == null) {
+      return jar2;
+    }
+    
+    if (version2 == null) {
+      return jar1;
+    }
+    
+    GiGrouperVersion giGrouperVersion1 = GiGrouperVersion.valueOfIgnoreCase(version1, false);
+    GiGrouperVersion giGrouperVersion2 = GiGrouperVersion.valueOfIgnoreCase(version2, false);
+
+    if (giGrouperVersion1 == null && giGrouperVersion2 == null) {
+      return null;
+    }
+    
+    if (giGrouperVersion1 == null) {
+      return jar2;
+    }
+    
+    if (giGrouperVersion2 == null) {
+      return jar1;
+    }
+
+    if (giGrouperVersion1.lessThanArg(giGrouperVersion2)) {
+      return jar2;
+    }
+    
+    return jar1;
+  }
+  
   /**
    * 
    * @param jarFile
@@ -10752,7 +10861,12 @@ public class GrouperInstallerUtils  {
    */
   public static String jarVersion(File jarFile, boolean exceptionIfProblem) {
     try {
-      String version = jarVersion1(jarFile);
+      String version = jarVersion0(jarFile);
+      
+      if (isBlank(version)) {
+        version = jarVersion1(jarFile);
+      }
+      
       if (isBlank(version)) {
   
         //hopefully this is set
@@ -10784,30 +10898,20 @@ public class GrouperInstallerUtils  {
     return null;
   }
   
+  private static Pattern versionPattern = Pattern.compile("^.*(\\d+)\\.(\\d+)\\.(\\d+)\\.jar*$");
+  
   /**
    * get the property value from version in the manifest of a jar
    * @param jarFile
-   * @return the version
+   * @return the version or null if cant find
    */
-  public static String jarVersion1(File jarFile) {
-    FileInputStream fileInputStream = null;
-    try {
-      fileInputStream = new FileInputStream(jarFile);
-      JarInputStream jarInputStream = new JarInputStream(fileInputStream);
-      
-      Manifest manifest = jarInputStream.getManifest();
-
-      return manifest == null ? null : manifestVersion(jarFile, manifest);
-      
-    } catch (Exception e) {
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException)e;
-      }
-      throw new RuntimeException(e.getMessage(), e);
-    } finally {
-      closeQuietly(fileInputStream);
+  public static String jarVersion0(File jarFile) {
+    String fileName = jarFile.getName();
+    Matcher matcher = versionPattern.matcher(fileName);
+    if (matcher.matches()) {
+      return matcher.group(1) + "." + matcher.group(2) + "." + matcher.group(3);
     }
-
+    return null;
   }
 
   /** set this to copy jars if the jarinputstream doesnt work, must end in File.separator, set this at the beginning of the
@@ -10964,6 +11068,7 @@ public class GrouperInstallerUtils  {
   /**
    * list files recursively from parent, dont include 
    * @param parent
+   * @param fileName 
    * @return set of files wont return null
    */
   public static List<File> fileListRecursive(File parent, String fileName) {
@@ -11212,6 +11317,32 @@ public class GrouperInstallerUtils  {
     prefixPath = replace(prefixPath, "\\", "/");
   
     return bigPath.startsWith(prefixPath);
+  
+  }
+
+  /**
+   * get the property value from version in the manifest of a jar
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion1(File jarFile) {
+    FileInputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream(jarFile);
+      JarInputStream jarInputStream = new JarInputStream(fileInputStream);
+      
+      Manifest manifest = jarInputStream.getManifest();
+  
+      return manifest == null ? null : manifestVersion(jarFile, manifest);
+      
+    } catch (Exception e) {
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
+      closeQuietly(fileInputStream);
+    }
   
   }
 

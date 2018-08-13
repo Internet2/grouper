@@ -559,6 +559,14 @@ public class GrouperInstaller {
 
     grouperInstaller.mainLogic();
 
+//    grouperInstaller.version = "2.4.0";
+//    
+//    grouperInstaller.grouperTarballDirectoryString = "D:\\temp\\temp\\grouperInstaller\\";
+//    
+//    grouperInstaller.grouperInstallDirectoryString = "D:\\temp\\temp\\grouperInstaller\\install\\";
+//    
+//    grouperInstaller.installMessagingAwsSqs();
+    
     //new GrouperInstaller().convertEhcacheBaseToProperties(new File("/Users/mchyzer/git/grouper_v2_3/grouper/conf/ehcache.example.xml"));
 
 //    GrouperInstaller.downloadFile("https://github.com/Internet2/grouper/archive/GROUPER_2_2_BRANCH.zip",
@@ -1729,20 +1737,48 @@ public class GrouperInstaller {
     
     Set<String> alreadyProcessed = new HashSet<String>();
     
-    for (File jarFile : allLibraryJars) {
+    for (File jarFile : new ArrayList<File>(allLibraryJars)) {
       
-      String baseName = GrouperInstallerUtils.jarFileBaseName(jarFile.getName());
-      
-      //dont print multiple times
-      if (alreadyProcessed.contains(baseName)) {
+      if (!jarFile.exists()) {
+        allLibraryJars.remove(jarFile);
         continue;
       }
       
-      alreadyProcessed.add(baseName);
+      Set<String> baseNames = GrouperInstallerUtils.jarFileBaseNames(jarFile.getName());
+      
+      //dont print multiple times
+      if (alreadyProcessed.containsAll(baseNames)) {
+        continue;
+      }
+      
+      alreadyProcessed.addAll(baseNames);
       
       List<File> relatedFiles = GrouperInstallerUtils.jarFindJar(allLibraryJars, jarFile.getName());
       
       if (GrouperInstallerUtils.length(relatedFiles) > 1) {
+        
+        if (relatedFiles.size() == 1) {
+          File relatedFile = relatedFiles.iterator().next();
+          File newerVersion = GrouperInstallerUtils.jarNewerVersion(relatedFile, jarFile);
+          if (newerVersion != null) {
+            
+            if (newerVersion.equals(jarFile)) {
+              System.out.println("There is a conflicting jar: " + jarFile.getAbsolutePath());
+              System.out.println("Deleting older jar: " + relatedFile.getAbsolutePath());
+              GrouperInstallerUtils.fileDelete(relatedFile);
+              allLibraryJars.remove(relatedFile);
+            } else {
+              System.out.println("There is a conflicting jar: " + relatedFile.getAbsolutePath());
+              System.out.println("Deleting older jar: " + jarFile.getAbsolutePath());
+              GrouperInstallerUtils.fileDelete(jarFile);
+              allLibraryJars.remove(jarFile);
+            }
+            System.out.print("Press <enter> to continue... ");
+            readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
+            continue;
+          }
+        }
+        
         System.out.println("There is a conflicting jar: " + GrouperInstallerUtils.toStringForLog(relatedFiles));
         System.out.println("You should probably delete one of these files (oldest one?) or consult the Grouper team.");
         System.out.print("Press <enter> to continue... ");
@@ -9351,30 +9387,27 @@ public class GrouperInstaller {
         //ok, we know where the jars go
         File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
         
-        for (String fileName : new String[] {"amqp-client-4.0.2.jar", "slf4j-api-1.6.1.jar", "grouperRabbitMq.jar", "slf4j-log4j12.jar"}) {
+        List<File> jarFiles = GrouperInstallerUtils.fileListRecursive(new File(unzippedRabbitMqDir.getAbsolutePath() + File.separatorChar 
+            + "lib" + File.separatorChar));
+      
+        for (File jarFile : jarFiles) {
+          
+          String fileName = jarFile.getName();
+          
+          if (!fileName.endsWith(".jar")) {
+            continue;
+          }
           
           String sourceFileName = unzippedRabbitMqDir.getAbsolutePath() + File.separatorChar 
               + "lib" + File.separatorChar + fileName;
           
           File sourceFile = new File(sourceFileName);
           
-          if (!sourceFile.isFile() || !sourceFile.exists()) {
-            throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
-          }
-          
           String destFileName = dirWhereFilesGo.getAbsolutePath() + File.separatorChar + fileName;
           
           File destFile = new File(destFileName);
           
-          if (destFile.isFile() && destFile.exists() && 
-              GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
-            System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
-            continue;
-          }
-          
-          System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
-          
-          GrouperInstallerUtils.copyFile(sourceFile, destFile, false, false);
+          copyJarFileIfNotExists(sourceFile, destFile, false, false);
 
         }
 
@@ -9457,30 +9490,27 @@ public class GrouperInstaller {
         //ok, we know where the jars go
         File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
         
-        for (String fileName : new String[] {"aws-java-sdk-bundle-1.11.155.jar", "slf4j-api-1.6.1.jar", "grouperSQSMessaging.jar", "slf4j-log4j12.jar"}) {
+        List<File> jarFiles = GrouperInstallerUtils.fileListRecursive(new File(unzippedAwsDir.getAbsolutePath() + File.separatorChar 
+              + "lib" + File.separatorChar));
+        
+        for (File jarFile : jarFiles) {
+          
+          String fileName = jarFile.getName();
+          
+          if (!fileName.endsWith(".jar")) {
+            continue;
+          }
           
           String sourceFileName = unzippedAwsDir.getAbsolutePath() + File.separatorChar 
               + "lib" + File.separatorChar + fileName;
           
           File sourceFile = new File(sourceFileName);
           
-          if (!sourceFile.isFile() || !sourceFile.exists()) {
-            throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
-          }
-          
           String destFileName = dirWhereFilesGo.getAbsolutePath() + File.separatorChar + fileName;
           
           File destFile = new File(destFileName);
           
-          if (destFile.isFile() && destFile.exists() && 
-              GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
-            System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
-            continue;
-          }
-          
-          System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
-          
-          GrouperInstallerUtils.copyFile(sourceFile, destFile, false, false);
+          copyJarFileIfNotExists(sourceFile, destFile, false, false);
 
         }
 
@@ -9564,31 +9594,27 @@ public class GrouperInstaller {
         //ok, we know where the jars go
         File dirWhereFilesGo = grouperClientFiles.get(0).getParentFile();
         
-        for (String fileName : new String[] {"grouperActiveMQMessaging.jar", "activemq-all-5.15.0.jar", "slf4j-api-1.6.1.jar", 
-            "qpid-jms-client-0.11.1.jar", "slf4j-log4j12.jar", "geronimo-jms_1.1_spec-1.1.1.jar", "netty-all-4.0.41.Final.jar", "proton-j-0.14.0.jar"}) {
+        List<File> jarFiles = GrouperInstallerUtils.fileListRecursive(new File(unzippedActiveMqDir.getAbsolutePath() + File.separatorChar 
+            + "lib" + File.separatorChar));
+      
+        for (File jarFile : jarFiles) {
+          
+          String fileName = jarFile.getName();
+          
+          if (!fileName.endsWith(".jar")) {
+            continue;
+          }
           
           String sourceFileName = unzippedActiveMqDir.getAbsolutePath() + File.separatorChar 
               + "lib" + File.separatorChar + fileName;
           
           File sourceFile = new File(sourceFileName);
           
-          if (!sourceFile.isFile() || !sourceFile.exists()) {
-            throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
-          }
-          
           String destFileName = dirWhereFilesGo.getAbsolutePath() + File.separatorChar + fileName;
           
           File destFile = new File(destFileName);
           
-          if (destFile.isFile() && destFile.exists() && 
-              GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
-            System.out.println("Skipping file that exists in destination: " + destFile.getAbsolutePath());
-            continue;
-          }
-          
-          System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
-          
-          GrouperInstallerUtils.copyFile(sourceFile, destFile, false, false);
+          copyJarFileIfNotExists(sourceFile, destFile, false, false);
 
         }
 
@@ -11110,6 +11136,83 @@ public class GrouperInstaller {
 
   }
   
+  /**
+   * Copy a jar file to another file.  this perserves the file date
+   * 
+   * @param sourceFile
+   * @param destinationFile
+   * @param onlyIfDifferentContents true if only saving due to different contents.  Note, this is only for non-binary files!
+   * @param ignoreWhitespace true to ignore whitespace in comparisons
+   * @return true if contents were saved (thus different if param set)
+   */
+  public static boolean copyJarFileIfNotExists(File sourceFile, File destinationFile, boolean onlyIfDifferentContents, boolean ignoreWhitespace) {
+    
+    if (!sourceFile.isFile() || !sourceFile.exists()) {
+      throw new RuntimeException("Why does this not exist???? " + sourceFile.getAbsolutePath());
+    }
+    
+    if (destinationFile.isFile() && destinationFile.exists() && 
+        GrouperInstallerUtils.equals(GrouperInstallerUtils.fileSha1(destinationFile), GrouperInstallerUtils.fileSha1(sourceFile))) {
+      System.out.println("Skipping file that exists in destination: " + destinationFile.getAbsolutePath());
+      return false;
+    }
+
+    if (onlyIfDifferentContents) {
+      String sourceContents = GrouperInstallerUtils.readFileIntoString(sourceFile);
+      return GrouperInstallerUtils.saveStringIntoFile(destinationFile, sourceContents, 
+          onlyIfDifferentContents, ignoreWhitespace);
+    }
+    
+    File destinationFolder = destinationFile.getParentFile();
+    
+    Set<String> relatedBaseNames = GrouperInstallerUtils.jarFileBaseNames(destinationFile.getName());
+
+    boolean hasConflict = false;
+    for (File destinationCandidateFile : destinationFolder.listFiles()) {
+      if (!destinationCandidateFile.getName().endsWith(".jar")) {
+        continue;
+      }
+      Set<String> relatedCandidateBaseNames = GrouperInstallerUtils.jarFileBaseNames(destinationCandidateFile.getName());
+      if (GrouperInstallerUtils.containsAny(relatedBaseNames, relatedCandidateBaseNames)) {
+        
+        hasConflict = true;
+      }
+    }
+    
+    if (hasConflict) {
+      List<File> relatedFiles = GrouperInstallerUtils.jarFindJar(destinationFolder, sourceFile.getName());
+      
+      if (GrouperInstallerUtils.length(relatedFiles) == 1) {
+        File relatedFile = relatedFiles.iterator().next();
+        File newerVersion = GrouperInstallerUtils.jarNewerVersion(relatedFile, sourceFile);
+        if (newerVersion != null) {
+          
+          if (newerVersion.equals(sourceFile)) {
+            System.out.println("There is a conflicting jar: " + sourceFile.getAbsolutePath());
+            System.out.println("Deleting older jar: " + relatedFile.getAbsolutePath());
+            GrouperInstallerUtils.fileDelete(relatedFile);
+            System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destinationFile.getAbsolutePath());
+            GrouperInstallerUtils.copyFile(sourceFile, destinationFile);
+            return true;
+          }
+          System.out.println("There is a conflicting jar for source: " + sourceFile.getAbsolutePath());
+          System.out.println("Not copying to dest due to this jar is newer: " + relatedFile.getAbsolutePath());
+          return false;
+        }
+        System.out.println("There is a conflicting jar, source jar: " + sourceFile.getAbsolutePath());
+        System.out.println("Destination jar: " + destinationFile.getAbsolutePath());
+        System.out.print("Unable to resolve conflict, resolve manually, press <enter> to continue... ");
+        readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
+        return false;
+      }
+
+    }
+    
+    System.out.println("Copying " + sourceFile.getAbsolutePath() + " to " + destinationFile.getAbsolutePath());
+    GrouperInstallerUtils.copyFile(sourceFile, destinationFile);
+    return true;
+  }
+
   /**
    * 
    * @return the file of the directory of tomcat
