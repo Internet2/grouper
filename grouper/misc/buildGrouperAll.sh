@@ -30,6 +30,9 @@ export PATH=$JAVA_HOME/bin:$PATH
 /home/mchyzer/bin/buildGrouperDuo.sh $1
 /home/mchyzer/bin/buildGrouperBox.sh $1
 /home/mchyzer/bin/buildGrouperVoot.sh $1
+/home/mchyzer/bin/buildGrouperMessagingActivemq.sh $1
+/home/mchyzer/bin/buildGrouperMessagingAws.sh $1
+/home/mchyzer/bin/buildGrouperMessagingRabbitmq.sh $1
 # /home/mchyzer/bin/buildGrouperShibMvn.sh $1
 # /home/mchyzer/bin/buildLdappcng.sh $1
 
@@ -70,6 +73,9 @@ mv -v /home/mchyzer/tmp/grouper-installer/build_$USER/grouper-installer/dist/gro
 mv -v /home/mchyzer/tmp/grouper-box/build_mchyzer/grouper-box/dist/grouper.box*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouper-duo/build_mchyzer/grouper-duo/dist/grouper.duo*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouper-voot/build_mchyzer/grouper-voot/dist/grouper.vootBinary*.tar.gz $buildDir
+mv -v /home/mchyzer/tmp/grouper-messaging-activemq/build_mchyzer/grouper-messaging-activemq/dist/grouper.activeMq*.tar.gz $buildDir
+mv -v /home/mchyzer/tmp/grouper-messaging-aws/build_mchyzer/grouper-messaging-aws/dist/grouper.aws*.tar.gz $buildDir
+mv -v /home/mchyzer/tmp/grouper-messaging-rabbitmq/build_mchyzer/grouper-messaging-rabbitmq/dist/grouper.rabbitMq*.tar.gz $buildDir
 # mv -v /home/mchyzer/tmp/maven/build_$USER/ldappcng/target/ldappc*.tar.gz $buildDir
 
 #rename
