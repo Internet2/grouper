@@ -1,4 +1,4 @@
-File summary (Thu Mar 22 15:55:14 2018)
+File summary (Tue Aug 14 20:59:59 2018)
 ---------------------------------------
 
 Filename	Class	TestId (can be used as param to AllTests)	Number of Tests	Number of Suites	Number of manual Suites	Parent Class	has JUnit-BEGIN
@@ -8,24 +8,30 @@ Filename	Class	TestId (can be used as param to AllTests)	Number of Tests	Number 
 ../src/test/edu/internet2/middleware/grouper/TestCompositeI.java	TestCompositeI	TestCompositeI	41	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestCompositeModel.java	TestCompositeModel	TestCompositeModel	15	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestCompositeU.java	TestCompositeU	TestCompositeU	37	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/TestField.java	TestField	TestField	4	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/TestField.java	TestField	TestField	4	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestGrouperSession.java	TestGrouperSession	TestGrouperSession	8	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/TestGrouperVersion.java	TestGrouperVersion	TestGrouperVersion	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/TestGrouperVersion.java	TestGrouperVersion	TestGrouperVersion	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestGroupType.java	TestGroupType	TestGroupType	36	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestGroupTypeIncludeExclude.java	TestGroupTypeIncludeExclude	TestGroupTypeIncludeExclude	6	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestSession.java	TestSession	TestSession	7	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestStem.java	TestStem	TestStem	59	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestStemApi.java	TestStemApi	TestStemApi	110	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/TestStemFinder.java	TestStemFinder	TestStemFinder	11	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/TestStemFinder.java	TestStemFinder	TestStemFinder	12	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/TestStemIntegration.java	TestStemIntegration	TestStemIntegration	14	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/app/AllAppTests.java	AllAppTests	app.AllAppTests	0	1	4	?	1
+../src/test/edu/internet2/middleware/grouper/app/AllAppTests.java	AllAppTests	app.AllAppTests	0	1	5	?	1
 ../src/test/edu/internet2/middleware/grouper/app/attestation/AllAttestationTests.java	AllAttestationTests	app.attestation.AllAttestationTests	0	1	0	?	1
 ../src/test/edu/internet2/middleware/grouper/app/attestation/GrouperAttestationJobTest.java	GrouperAttestationJobTest	app.attestation.GrouperAttestationJobTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/deprovisioning/AllDeprovisioningTests.java	AllDeprovisioningTests	app.deprovisioning.AllDeprovisioningTests	0	4	0	?	1
+../src/test/edu/internet2/middleware/grouper/app/deprovisioning/GrouperDeprovisioningEmailServiceTest.java	GrouperDeprovisioningEmailServiceTest	app.deprovisioning.GrouperDeprovisioningEmailServiceTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/deprovisioning/GrouperDeprovisioningJobTest.java	GrouperDeprovisioningJobTest	app.deprovisioning.GrouperDeprovisioningJobTest	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/deprovisioning/GrouperDeprovisioningLogicTest.java	GrouperDeprovisioningLogicTest	app.deprovisioning.GrouperDeprovisioningLogicTest	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/deprovisioning/GrouperDeprovisioningOverallConfigurationTest.java	GrouperDeprovisioningOverallConfigurationTest	app.deprovisioning.GrouperDeprovisioningOverallConfigurationTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/gsh/AllGshTests.java	AllGshTests	app.gsh.AllGshTests	0	2	0	?	1
 ../src/test/edu/internet2/middleware/grouper/app/gsh/TestGsh.java	TestGsh	app.gsh.TestGsh	7	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/gsh/Test_Unit.java	Test_Unit	app.gsh.Test_Unit	2	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/app/loader/AllLoaderTests.java	AllLoaderTests	app.loader.AllLoaderTests	0	6	2	?	1
+../src/test/edu/internet2/middleware/grouper/app/loader/AllLoaderTests.java	AllLoaderTests	app.loader.AllLoaderTests	0	7	2	?	1
 ../src/test/edu/internet2/middleware/grouper/app/loader/GrouperDaemonDeleteOldRecordsTest.java	GrouperDaemonDeleteOldRecordsTest	app.loader.GrouperDaemonDeleteOldRecordsTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/GrouperDaemonSchedulerCheckTest.java	GrouperDaemonSchedulerCheckTest	app.loader.GrouperDaemonSchedulerCheckTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderCleanLogsTest.java	GrouperLoaderCleanLogsTest	app.loader.GrouperLoaderCleanLogsTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderOtherJobsTest.java	GrouperLoaderOtherJobsTest	app.loader.GrouperLoaderOtherJobsTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/loader/GrouperLoaderQuartzTest.java	GrouperLoaderQuartzTest	app.loader.GrouperLoaderQuartzTest	7	0	0	GrouperTest	0
@@ -36,19 +42,19 @@ Filename	Class	TestId (can be used as param to AllTests)	Number of Tests	Number 
 ../src/test/edu/internet2/middleware/grouper/app/loader/TestgrouperLoaderGroups.java	TestgrouperLoaderGroups	app.loader.TestgrouperLoaderGroups	0	0	0	GrouperAPI	0
 ../src/test/edu/internet2/middleware/grouper/app/loader/db/AllLoaderDbTests.java	AllLoaderDbTests	app.loader.db.AllLoaderDbTests	0	3	0	?	1
 ../src/test/edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDbTest.java	GrouperLoaderDbTest	app.loader.db.GrouperLoaderDbTest	2	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdlTest.java	Hib3GrouperDdlTest	app.loader.db.Hib3GrouperDdlTest	1	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/app/loader/db/Hib3GrouploaderLogTest.java	Hib3GrouploaderLogTest	app.loader.db.Hib3GrouploaderLogTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdlTest.java	Hib3GrouperDdlTest	app.loader.db.Hib3GrouperDdlTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/loader/db/Hib3GrouploaderLogTest.java	Hib3GrouploaderLogTest	app.loader.db.Hib3GrouploaderLogTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/loader/ldap/AllLoaderLdapTests.java	AllLoaderLdapTests	app.loader.ldap.AllLoaderLdapTests	0	1	0	?	1
 WARNING: public static void isn't a valid signature for a unit test (../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java#testConvertDnToSpecificValue)
 WARNING: public static void isn't a valid signature for a unit test (../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java#testConvertGroupNameAttributes)
 WARNING: public static void isn't a valid signature for a unit test (../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java#testConvertDnToSubpath)
-../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java	LoaderLdapElUtilsTest	app.loader.ldap.LoaderLdapElUtilsTest	0	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/app/messaging/MessageConsumerDaemonTest.java	MessageConsumerDaemonTest	app.messaging.MessageConsumerDaemonTest	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/app/loader/ldap/LoaderLdapElUtilsTest.java	LoaderLdapElUtilsTest	app.loader.ldap.LoaderLdapElUtilsTest	0	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/app/messaging/MessageConsumerDaemonTest.java	MessageConsumerDaemonTest	app.messaging.MessageConsumerDaemonTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/app/usdu/AllUsduTests.java	AllUsduTests	app.usdu.AllUsduTests	0	1	0	?	1
 ../src/test/edu/internet2/middleware/grouper/app/usdu/TestUSDU.java	TestUSDU	app.usdu.TestUSDU	5	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/AllAttributeTests.java	AllAttributeTests	attr.AllAttributeTests	0	15	3	?	1
 ../src/test/edu/internet2/middleware/grouper/attr/AttrAssignAttributeSecurityTest.java	AttrAssignAttributeSecurityTest	attr.AttrAssignAttributeSecurityTest	11	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/attr/AttributeAssignTest.java	AttributeAssignTest	attr.AttributeAssignTest	27	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/AttributeAssignTest.java	AttributeAssignTest	attr.AttributeAssignTest	28	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/AttributeDefAttributeSecurityTest.java	AttributeDefAttributeSecurityTest	attr.AttributeDefAttributeSecurityTest	10	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/AttributeDefNameFinderTest.java	AttributeDefNameFinderTest	attr.AttributeDefNameFinderTest	3	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/AttributeDefNameSaveTest.java	AttributeDefNameSaveTest	attr.AttributeDefNameSaveTest	1	0	0	GrouperTest	0
@@ -65,7 +71,7 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/attr/assign/AllAttrAssignTests.java	AllAttrAssignTests	attr.assign.AllAttrAssignTests	0	3	0	?	1
 ../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSetTest.java	AttributeAssignActionSetTest	attr.assign.AttributeAssignActionSetTest	20	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionTest.java	AttributeAssignActionTest	attr.assign.AttributeAssignActionTest	3	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignSaveTest.java	AttributeAssignSaveTest	attr.assign.AttributeAssignSaveTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/attr/assign/AttributeAssignSaveTest.java	AttributeAssignSaveTest	attr.assign.AttributeAssignSaveTest	6	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/finder/AllAttrFinderTests.java	AllAttrFinderTests	attr.finder.AllAttrFinderTests	0	1	0	?	1
 ../src/test/edu/internet2/middleware/grouper/attr/finder/AttributeDefFinderTest.java	AttributeDefFinderTest	attr.finder.AttributeDefFinderTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/attr/value/AllAttributeValueTests.java	AllAttributeValueTests	attr.value.AllAttributeValueTests	0	1	0	?	1
@@ -74,13 +80,15 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/audit/AuditEntryTest.java	AuditEntryTest	audit.AuditEntryTest	5	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/audit/AuditTest.java	AuditTest	audit.AuditTest	20	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/audit/AuditTypeTest.java	AuditTypeTest	audit.AuditTypeTest	3	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/audit/UserAuditQueryTest.java	UserAuditQueryTest	audit.UserAuditQueryTest	4	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/cfg/AllConfigTests.java	AllConfigTests	cfg.AllConfigTests	0	2	0	?	1
+../src/test/edu/internet2/middleware/grouper/audit/UserAuditQueryTest.java	UserAuditQueryTest	audit.UserAuditQueryTest	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/cfg/AllConfigTests.java	AllConfigTests	cfg.AllConfigTests	0	2	1	?	1
 ../src/test/edu/internet2/middleware/grouper/cfg/Test_api_GrouperConfig.java	Test_api_GrouperConfig	cfg.Test_api_GrouperConfig	4	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/cfg/Test_cfg_ApiConfig.java	Test_cfg_ApiConfig	cfg.Test_cfg_ApiConfig	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/cfg/dbConfig/AllDbConfigTests.java	AllDbConfigTests	cfg.dbConfig.AllDbConfigTests	0	1	0	TestCase	1
+../src/test/edu/internet2/middleware/grouper/cfg/dbConfig/GrouperConfigHibernateTest.java	GrouperConfigHibernateTest	cfg.dbConfig.GrouperConfigHibernateTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/changeLog/AllChangeLogTests.java	AllChangeLogTests	changeLog.AllChangeLogTests	0	5	1	?	1
 ../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImplTest.java	ChangeLogConsumerBaseImplTest	changeLog.ChangeLogConsumerBaseImplTest	18	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogEntryTest.java	ChangeLogEntryTest	changeLog.ChangeLogEntryTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogEntryTest.java	ChangeLogEntryTest	changeLog.ChangeLogEntryTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogIdTest.java	ChangeLogIdTest	changeLog.ChangeLogIdTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogTest.java	ChangeLogTest	changeLog.ChangeLogTest	42	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/changeLog/ChangeLogTypeTest.java	ChangeLogTypeTest	changeLog.ChangeLogTypeTest	1	0	0	GrouperTest	0
@@ -96,41 +104,42 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttrFrameworkTest.java	ExternalSubjectAttrFrameworkTest	externalSubjects.ExternalSubjectAttrFrameworkTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttributeTest.java	ExternalSubjectAttributeTest	externalSubjects.ExternalSubjectAttributeTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectSaveTest.java	ExternalSubjectSaveTest	externalSubjects.ExternalSubjectSaveTest	1	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectTest.java	ExternalSubjectTest	externalSubjects.ExternalSubjectTest	11	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectTest.java	ExternalSubjectTest	externalSubjects.ExternalSubjectTest	12	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/AllFilterTests.java	AllFilterTests	filter.AllFilterTests	0	24	0	?	1
-../src/test/edu/internet2/middleware/grouper/filter/TestGQComplementFilter.java	TestGQComplementFilter	filter.TestGQComplementFilter	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAlternateNameExactFilter.java	TestGQGroupAlternateNameExactFilter	filter.TestGQGroupAlternateNameExactFilter	4	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAlternateNameFilter.java	TestGQGroupAlternateNameFilter	filter.TestGQGroupAlternateNameFilter	8	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAnyAttribute.java	TestGQGroupAnyAttribute	filter.TestGQGroupAnyAttribute	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAttribute.java	TestGQGroupAttribute	filter.TestGQGroupAttribute	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAttributeExact.java	TestGQGroupAttributeExact	filter.TestGQGroupAttributeExact	5	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCreatedAfter.java	TestGQGroupCreatedAfter	filter.TestGQGroupCreatedAfter	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCreatedBefore.java	TestGQGroupCreatedBefore	filter.TestGQGroupCreatedBefore	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCurrentNameExactFilter.java	TestGQGroupCurrentNameExactFilter	filter.TestGQGroupCurrentNameExactFilter	4	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCurrentNameFilter.java	TestGQGroupCurrentNameFilter	filter.TestGQGroupCurrentNameFilter	8	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupExactName.java	TestGQGroupExactName	filter.TestGQGroupExactName	4	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupName.java	TestGQGroupName	filter.TestGQGroupName	13	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQIntersectionFilter.java	TestGQIntersectionFilter	filter.TestGQIntersectionFilter	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQNull.java	TestGQNull	filter.TestGQNull	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQStemCreatedAfter.java	TestGQStemCreatedAfter	filter.TestGQStemCreatedAfter	3	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQStemCreatedBefore.java	TestGQStemCreatedBefore	filter.TestGQStemCreatedBefore	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQComplementFilter.java	TestGQComplementFilter	filter.TestGQComplementFilter	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAlternateNameExactFilter.java	TestGQGroupAlternateNameExactFilter	filter.TestGQGroupAlternateNameExactFilter	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAlternateNameFilter.java	TestGQGroupAlternateNameFilter	filter.TestGQGroupAlternateNameFilter	8	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAnyAttribute.java	TestGQGroupAnyAttribute	filter.TestGQGroupAnyAttribute	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAttribute.java	TestGQGroupAttribute	filter.TestGQGroupAttribute	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupAttributeExact.java	TestGQGroupAttributeExact	filter.TestGQGroupAttributeExact	5	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCreatedAfter.java	TestGQGroupCreatedAfter	filter.TestGQGroupCreatedAfter	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCreatedBefore.java	TestGQGroupCreatedBefore	filter.TestGQGroupCreatedBefore	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCurrentNameExactFilter.java	TestGQGroupCurrentNameExactFilter	filter.TestGQGroupCurrentNameExactFilter	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupCurrentNameFilter.java	TestGQGroupCurrentNameFilter	filter.TestGQGroupCurrentNameFilter	8	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupExactName.java	TestGQGroupExactName	filter.TestGQGroupExactName	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQGroupName.java	TestGQGroupName	filter.TestGQGroupName	13	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQIntersectionFilter.java	TestGQIntersectionFilter	filter.TestGQIntersectionFilter	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQNull.java	TestGQNull	filter.TestGQNull	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQStemCreatedAfter.java	TestGQStemCreatedAfter	filter.TestGQStemCreatedAfter	3	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQStemCreatedBefore.java	TestGQStemCreatedBefore	filter.TestGQStemCreatedBefore	3	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/TestGQStemName.java	TestGQStemName	filter.TestGQStemName	13	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/filter/TestGQUnionFilter.java	TestGQUnionFilter	filter.TestGQUnionFilter	3	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/filter/TestGQUnionFilter.java	TestGQUnionFilter	filter.TestGQUnionFilter	3	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/TestGroupTypeFilter.java	TestGroupTypeFilter	filter.TestGroupTypeFilter	5	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/TestQuery.java	TestQuery	filter.TestQuery	20	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/TestQueryMembershipModifiedAfter.java	TestQueryMembershipModifiedAfter	filter.TestQueryMembershipModifiedAfter	3	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/TestQueryMembershipModifiedBefore.java	TestQueryMembershipModifiedBefore	filter.TestQueryMembershipModifiedBefore	3	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/Test_api_ChildGroupFilter.java	Test_api_ChildGroupFilter	filter.Test_api_ChildGroupFilter	5	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/filter/Test_api_ChildStemFilter.java	Test_api_ChildStemFilter	filter.Test_api_ChildStemFilter	5	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/group/AllGroupTests.java	AllGroupTests	group.AllGroupTests	0	15	0	?	1
+../src/test/edu/internet2/middleware/grouper/group/AllGroupTests.java	AllGroupTests	group.AllGroupTests	0	16	0	?	1
 ../src/test/edu/internet2/middleware/grouper/group/GroupDataTest.java	GroupDataTest	group.GroupDataTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/TestGAttr.java	TestGAttr	group.TestGAttr	18	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/group/TestGroup.java	TestGroup	group.TestGroup	29	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroup.java	TestGroup	group.TestGroup	30	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/TestGroup1.java	TestGroup1	group.TestGroup1	50	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/TestGroupAddDeleteMember.java	TestGroupAddDeleteMember	group.TestGroupAddDeleteMember	5	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/TestGroupFinder.java	TestGroupFinder	group.TestGroupFinder	22	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/TestGroupModifyAttributes.java	TestGroupModifyAttributes	group.TestGroupModifyAttributes	20	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/group/TestWrongFieldType.java	TestWrongFieldType	group.TestWrongFieldType	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/group/TestGroupReadonlyViewonly.java	TestGroupReadonlyViewonly	group.TestGroupReadonlyViewonly	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/group/TestWrongFieldType.java	TestWrongFieldType	group.TestWrongFieldType	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/Test_api_Group.java	Test_api_Group	group.Test_api_Group	55	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/Test_api_GrouperAPI.java	Test_api_GrouperAPI	group.Test_api_GrouperAPI	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/group/Test_Integration_HibernateGroupDAO_delete.java	Test_Integration_HibernateGroupDAO_delete	group.Test_Integration_HibernateGroupDAO_delete	2	0	0	GrouperTest	0
@@ -185,7 +194,7 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/member/TestMemberAttributes.java	TestMemberAttributes	member.TestMemberAttributes	21	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/member/TestMemberChangeSubject.java	TestMemberChangeSubject	member.TestMemberChangeSubject	4	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/member/TestMemberFinder.java	TestMemberFinder	member.TestMemberFinder	5	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/member/TestMemberToGroup.java	TestMemberToGroup	member.TestMemberToGroup	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/member/TestMemberToGroup.java	TestMemberToGroup	member.TestMemberToGroup	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/AddMissingGroupSetsTest.java	AddMissingGroupSetsTest	membership.AddMissingGroupSetsTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/AllMembershipTests.java	AllMembershipTests	membership.AllMembershipTests	0	30	0	?	1
 ../src/test/edu/internet2/middleware/grouper/membership/MembershipPathGroupTest.java	MembershipPathGroupTest	membership.MembershipPathGroupTest	2	0	0	GrouperTest	0
@@ -193,10 +202,10 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/membership/TestFindBadMemberships.java	TestFindBadMemberships	membership.TestFindBadMemberships	23	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestInvalidGrouperAllMemberships.java	TestInvalidGrouperAllMemberships	membership.TestInvalidGrouperAllMemberships	6	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestMemberChangeInMembership.java	TestMemberChangeInMembership	membership.TestMemberChangeInMembership	1	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf.java	TestMemberOf	membership.TestMemberOf	11	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf.java	TestMemberOf	membership.TestMemberOf	11	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf0.java	TestMemberOf0	membership.TestMemberOf0	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestMemberOf1.java	TestMemberOf1	membership.TestMemberOf1	1	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/membership/TestMembership.java	TestMembership	membership.TestMembership	9	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/membership/TestMembership.java	TestMembership	membership.TestMembership	9	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestMembership0.java	TestMembership0	membership.TestMembership0	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestMembership1.java	TestMembership1	membership.TestMembership1	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/membership/TestMembership10.java	TestMembership10	membership.TestMembership10	1	0	0	GrouperTest	0
@@ -228,7 +237,7 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/permissions/AllPermissionsTests.java	AllPermissionsTests	permissions.AllPermissionsTests	0	4	1	?	1
 ../src/test/edu/internet2/middleware/grouper/permissions/PermissionDisallowTest.java	PermissionDisallowTest	permissions.PermissionDisallowTest	10	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/permissions/PermissionEntryTest.java	PermissionEntryTest	permissions.PermissionEntryTest	6	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/permissions/PermissionHeuristicTest.java	PermissionHeuristicTest	permissions.PermissionHeuristicTest	2	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/permissions/PermissionHeuristicTest.java	PermissionHeuristicTest	permissions.PermissionHeuristicTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/permissions/RoleSetTest.java	RoleSetTest	permissions.RoleSetTest	21	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/permissions/limits/AllPermissionsLimitsTests.java	AllPermissionsLimitsTests	permissions.limits.AllPermissionsLimitsTests	0	1	1	?	1
 ../src/test/edu/internet2/middleware/grouper/permissions/limits/PermissionLimitTest.java	PermissionLimitTest	permissions.limits.PermissionLimitTest	6	0	0	GrouperTest	0
@@ -251,23 +260,23 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/pit/PITMemberTests.java	PITMemberTests	pit.PITMemberTests	10	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/pit/PITPermissionTests.java	PITPermissionTests	pit.PITPermissionTests	19	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/pit/PITSyncTests.java	PITSyncTests	pit.PITSyncTests	13	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/pit/PITUtilsTests.java	PITUtilsTests	pit.PITUtilsTests	4	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/pit/PITUtilsTests.java	PITUtilsTests	pit.PITUtilsTests	6	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/poc/TestCronFormat.java	TestCronFormat	poc.TestCronFormat	0	0	0	?	0
 ../src/test/edu/internet2/middleware/grouper/privs/AllPrivsTests.java	AllPrivsTests	privs.AllPrivsTests	0	25	0	?	1
-../src/test/edu/internet2/middleware/grouper/privs/TestAccessPrivilege.java	TestAccessPrivilege	privs.TestAccessPrivilege	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestAccessPrivilege.java	TestAccessPrivilege	privs.TestAccessPrivilege	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestAttributeDefPriv.java	TestAttributeDefPriv	privs.TestAttributeDefPriv	6	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestNamingPrivilege.java	TestNamingPrivilege	privs.TestNamingPrivilege	1	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/privs/TestPrivADMIN.java	TestPrivADMIN	privs.TestPrivADMIN	36	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivADMIN.java	TestPrivADMIN	privs.TestPrivADMIN	36	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestPrivAdmin0.java	TestPrivAdmin0	privs.TestPrivAdmin0	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestPrivCREATE.java	TestPrivCREATE	privs.TestPrivCREATE	4	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestPrivileges.java	TestPrivileges	privs.TestPrivileges	5	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/privs/TestPrivOPTIN.java	TestPrivOPTIN	privs.TestPrivOPTIN	6	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/privs/TestPrivOPTOUT.java	TestPrivOPTOUT	privs.TestPrivOPTOUT	6	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/privs/TestPrivREAD.java	TestPrivREAD	privs.TestPrivREAD	11	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivOPTIN.java	TestPrivOPTIN	privs.TestPrivOPTIN	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivOPTOUT.java	TestPrivOPTOUT	privs.TestPrivOPTOUT	6	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivREAD.java	TestPrivREAD	privs.TestPrivREAD	11	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestPrivSTEM.java	TestPrivSTEM	privs.TestPrivSTEM	10	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/TestPrivSTEM_ADMIN.java	TestPrivSTEM_ADMIN	privs.TestPrivSTEM_ADMIN	10	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/privs/TestPrivUPDATE.java	TestPrivUPDATE	privs.TestPrivUPDATE	24	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/privs/TestPrivVIEW.java	TestPrivVIEW	privs.TestPrivVIEW	26	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivUPDATE.java	TestPrivUPDATE	privs.TestPrivUPDATE	24	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/privs/TestPrivVIEW.java	TestPrivVIEW	privs.TestPrivVIEW	26	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/Test_privs_AccessResolver.java	Test_privs_AccessResolver	privs.Test_privs_AccessResolver	17	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/Test_privs_AccessResolverFactory.java	Test_privs_AccessResolverFactory	privs.Test_privs_AccessResolverFactory	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/privs/Test_privs_AccessWrapper.java	Test_privs_AccessWrapper	privs.Test_privs_AccessWrapper	2	0	0	GrouperTest	0
@@ -292,12 +301,12 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/stress/AllStressTests.java	AllStressTests	stress.AllStressTests	0	2	0	?	1
 ../src/test/edu/internet2/middleware/grouper/stress/GroupDeleteTest.java	GroupDeleteTest	stress.GroupDeleteTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/stress/PermissionPerformanceTest.java	PermissionPerformanceTest	stress.PermissionPerformanceTest	1	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/subj/AllSubjectTests.java	AllSubjectTests	subj.AllSubjectTests	0	11	0	?	1
+../src/test/edu/internet2/middleware/grouper/subj/AllSubjectTests.java	AllSubjectTests	subj.AllSubjectTests	0	12	0	?	1
 ../src/test/edu/internet2/middleware/grouper/subj/LdapSubjectTest.java	LdapSubjectTest	subj.LdapSubjectTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/subj/TestGrouperSourceAdapter.java	TestGrouperSourceAdapter	subj.TestGrouperSourceAdapter	7	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/subj/TestgrouperSubjAttr.java	TestgrouperSubjAttr	subj.TestgrouperSubjAttr	0	0	0	GrouperAPI	0
-../src/test/edu/internet2/middleware/grouper/subj/TestGrouperSubject.java	TestGrouperSubject	subj.TestGrouperSubject	2	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/subj/TestInternalSourceAdapter.java	TestInternalSourceAdapter	subj.TestInternalSourceAdapter	12	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/subj/TestGrouperSubject.java	TestGrouperSubject	subj.TestGrouperSubject	2	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/subj/TestInternalSourceAdapter.java	TestInternalSourceAdapter	subj.TestInternalSourceAdapter	12	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/subj/TestSubject.java	TestSubject	subj.TestSubject	18	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/subj/TestSubjectCustomizer.java	TestSubjectCustomizer	subj.TestSubjectCustomizer	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/subj/TestSubjectDecorator.java	TestSubjectDecorator	subj.TestSubjectDecorator	3	0	0	GrouperTest	0
@@ -308,18 +317,18 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 ../src/test/edu/internet2/middleware/grouper/subj/Test_subj_SubjectResolverFactory.java	Test_subj_SubjectResolverFactory	subj.Test_subj_SubjectResolverFactory	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/tableIndex/AllTableIndexTests.java	AllTableIndexTests	tableIndex.AllTableIndexTests	0	1	0	?	1
 ../src/test/edu/internet2/middleware/grouper/tableIndex/TableIndexTest.java	TableIndexTest	tableIndex.TableIndexTest	9	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/userData/AllUserDataTests.java	AllUserDataTests	userData.AllUserDataTests	0	3	0	TestCase	1
+../src/test/edu/internet2/middleware/grouper/userData/AllUserDataTests.java	AllUserDataTests	userData.AllUserDataTests	0	3	0	?	1
 ../src/test/edu/internet2/middleware/grouper/userData/GrouperFavoriteFinderTest.java	GrouperFavoriteFinderTest	userData.GrouperFavoriteFinderTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/userData/GrouperUserDataApiTest.java	GrouperUserDataApiTest	userData.GrouperUserDataApiTest	12	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/userData/UserDataListTest.java	UserDataListTest	userData.UserDataListTest	2	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/util/AllUtilTests.java	AllUtilTests	util.AllUtilTests	0	7	1	?	1
-../src/test/edu/internet2/middleware/grouper/util/GrouperCacheTest.java	GrouperCacheTest	util.GrouperCacheTest	1	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/util/GrouperCacheTest.java	GrouperCacheTest	util.GrouperCacheTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/util/GrouperHtmlFilterTest.java	GrouperHtmlFilterTest	util.GrouperHtmlFilterTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/util/GrouperThreadLocalStateTest.java	GrouperThreadLocalStateTest	util.GrouperThreadLocalStateTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/util/GrouperUtilElSafeTest.java	GrouperUtilElSafeTest	util.GrouperUtilElSafeTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/util/GrouperUtilTest.java	GrouperUtilTest	util.GrouperUtilTest	28	0	0	GrouperTest	0
-../src/test/edu/internet2/middleware/grouper/util/JsonIndenterTest.java	JsonIndenterTest	util.JsonIndenterTest	1	0	0	TestCase	0
-../src/test/edu/internet2/middleware/grouper/util/XmlIndenterTest.java	XmlIndenterTest	util.XmlIndenterTest	6	0	0	TestCase	0
+../src/test/edu/internet2/middleware/grouper/util/JsonIndenterTest.java	JsonIndenterTest	util.JsonIndenterTest	1	0	0	GrouperTest	0
+../src/test/edu/internet2/middleware/grouper/util/XmlIndenterTest.java	XmlIndenterTest	util.XmlIndenterTest	6	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/util/rijndael/AllRijndaelTests.java	AllRijndaelTests	util.rijndael.AllRijndaelTests	0	1	0	?	1
 ../src/test/edu/internet2/middleware/grouper/util/rijndael/MorphTest.java	MorphTest	util.rijndael.MorphTest	1	0	0	GrouperTest	0
 ../src/test/edu/internet2/middleware/grouper/validator/AllValidatorTests.java	AllValidatorTests	validator.AllValidatorTests	0	2	5	?	1
@@ -374,11 +383,12 @@ WARNING: public static void isn't a valid signature for a unit test (../src/test
 Call hierarchy
 --------------
 
-AllTests	2392
+AllTests	2411
     MembershipFinderTest	2
         * testMembershipSize
         * testFindMembership
-    TestStemFinder	11
+    TestStemFinder	12
+        * testFindByUuids
         * testFindByIdIndex
         * testFindByName
         * testFindByCurrentName
@@ -790,7 +800,7 @@ AllTests	2392
         * test_getNamingClass_defaultAccessAdapter
         * test_getNamingResolver_notNull
         * test_getNamingResolver_equals
-    app.AllAppTests	68
+    app.AllAppTests	76
         app.messaging.MessageConsumerDaemonTest	2
             * testProcessMessagesHappyPath
             * testProcessMessagesInvalidInputMessages
@@ -806,7 +816,7 @@ AllTests	2392
             app.gsh.Test_Unit	2
                 * testUnit_SimpleCommandReader_Instantiate
                 * testUnit_SimpleCommandReader_AddAndRemove
-        app.loader.AllLoaderTests	48
+        app.loader.AllLoaderTests	49
             app.loader.GrouperDaemonDeleteOldRecordsTest	4
                 * testDeleteOldAuditEntryNoLoggedInUser
                 * testDeleteOldAuditEntry
@@ -857,6 +867,8 @@ AllTests	2392
                 * testIncrementalLoaderListSubjectIdAndSourceId
                 * testIncrementalLoaderListSubjectIdentifierWithAndGroups
                 * testIncrementalLoaderSimpleFullSyncThreshold
+            app.loader.GrouperDaemonSchedulerCheckTest	1
+                * testJob
             app.loader.db.AllLoaderDbTests	4
                 app.loader.db.GrouperLoaderDbTest	2
                     * testFindGrouperConnection
@@ -873,6 +885,18 @@ AllTests	2392
                 * testGrouperAttestationPrivileges
                 * testDaemonUpdatingCalculatedDates
                 * testBuildAttestationGroupEmails
+        app.deprovisioning.AllDeprovisioningTests	7
+            app.deprovisioning.GrouperDeprovisioningJobTest	3
+                * testRetrieveAffiliations
+                * testDaemonUpdatingMetadataOnGroups
+                * testDaemonUpdatingCalculatedDates
+            app.deprovisioning.GrouperDeprovisioningLogicTest	2
+                * testUpdateDeprovisioningMetadata
+                * testUpdateDeprovisioningMetadataSmall
+            app.deprovisioning.GrouperDeprovisioningOverallConfigurationTest	1
+                * testRetrieveConfiguration
+            app.deprovisioning.GrouperDeprovisioningEmailServiceTest	1
+                * testBuildEmailObjects
         app.usdu.AllUsduTests	5
             app.usdu.TestUSDU	5
                 * testMemberships
@@ -880,7 +904,7 @@ AllTests	2392
                 * testAccessPrivilege
                 * testNamingPrivilege
                 * testFailsafe
-    attr.AllAttributeTests	197
+    attr.AllAttributeTests	200
         attr.AttributeDefScopeTest	6
             * testHibernate
             * testTypeScope
@@ -963,7 +987,8 @@ AllTests	2392
             * testSecuritySubj7
             * testSecuritySubj8
             * testSecuritySubj9
-        attr.AttributeAssignTest	27
+        attr.AttributeAssignTest	28
+            * testFindAttributeAssigns
             * testHibernateFail
             * testHibernate
             * testDelegation
@@ -1034,7 +1059,7 @@ AllTests	2392
             * testSecuritySubj6
             * testSecuritySubj7
             * testSecuritySubj8
-        attr.assign.AllAttrAssignTests	27
+        attr.assign.AllAttrAssignTests	29
             attr.assign.AttributeAssignActionSetTest	20
                 * testHibernate
                 * testComplexRemoveBfromA
@@ -1060,7 +1085,9 @@ AllTests	2392
                 * testHibernate
                 * testXmlInsert
                 * testXmlDifferentUpdateProperties
-            attr.assign.AttributeAssignSaveTest	4
+            attr.assign.AttributeAssignSaveTest	6
+                * testMultiAssignAttributeProblem
+                * testMultiAssignAttributeValueProblem
                 * testMarkerGroupWithMarkersOnAssignment
                 * testGroupWithSingleAssignValuesOnAssignment
                 * testGroupWithMultipleAssignValuesOnAssignmentOfAssignment
@@ -1217,7 +1244,7 @@ AllTests	2392
             * testSyncGroupPush
             * testSyncGroupPull
             * testSyncGroupPushIncremental
-    cfg.AllConfigTests	7
+    cfg.AllConfigTests	8
         cfg.Test_cfg_ApiConfig	3
             * test_getProperty_nonExistentProperty
             * test_getProperty_validProperty
@@ -1227,6 +1254,9 @@ AllTests	2392
             * test_getHibernateProperty_validProperty
             * test_getProperty_nonExistentProperty
             * test_getProperty_validProperty
+        cfg.dbConfig.AllDbConfigTests	1
+            cfg.dbConfig.GrouperConfigHibernateTest	1
+                * testSaveOrUpdate
     entity.AllEntityTests	5
         entity.EntityFinderTest	5
             * testEntityAudits
@@ -1242,8 +1272,8 @@ AllTests	2392
             * testGroupAttributeUpgrade
             * testFieldIdUpgrade
             * testGrouperSessionDrop
-    externalSubjects.AllExternalSubjectTests	16
-        externalSubjects.ExternalSubjectTest	11
+    externalSubjects.AllExternalSubjectTests	17
+        externalSubjects.ExternalSubjectTest	12
             * testPersistence
             * testEnabledDisabled
             * testSecurity
@@ -1255,6 +1285,7 @@ AllTests	2392
             * testDynamicSearchString
             * testNonDynamicDescription
             * testDynamicFieldsDaemon
+            * testValidateIndentiferLikeEmail
         externalSubjects.ExternalSubjectAttributeTest	2
             * testPersistence
             * testInvalidAttribute
@@ -1418,7 +1449,7 @@ AllTests	2392
             * testAlternateNameScoped
             * testSecurity
             * testSecurityScoped
-    group.AllGroupTests	216
+    group.AllGroupTests	218
         group.TestGroupFinder	22
             * testChainingGroupsManageMemberships
             * testChainingGroupsManage
@@ -1540,14 +1571,14 @@ AllTests	2392
             * testGroupModifyAttributesAfterDisablingMembership2
             * testGroupModifyAttributesAfterEnablingMembership
             * testGroupModifyAttributesAfterEnablingMembership2
-        group.TestGroup	29
+        group.TestGroup	30
             * testDeleteGroupWithUpdateOnAttribute
+            * testDeleteGroupWhenGroupIsUsedOnObjectsWithNoAccess
             * testFindGroupsReadonly
             * testDeleteWhenAdminButNotUpdateOnOtherOwnerGroup
             * testFindGroupsInStemWithoutPrivilege
             * testDeleteMemberAudit
             * testDeleteComposite
-            * testReadonlyViewonlyAdmin
             * testAddOrEditMember
             * testGroupSave
             * testCreateAssignTypesAttributes
@@ -1570,6 +1601,7 @@ AllTests	2392
             * testGetAllGroupsSecure
             * testXmlInsert
             * testXmlDifferentUpdateProperties
+            * testAlternateName
         group.Test_I_API_Group_addCompositeMember	1
             * test_addCompositeMember_propogateEffectiveChangesOnCompositeTypeChange
         group.TestGroupAddDeleteMember	5
@@ -1650,6 +1682,8 @@ AllTests	2392
         group.Test_api_GrouperAPI	2
             * test_getSession_nullSession
             * test_getSession_equalsSetSession
+        group.TestGroupReadonlyViewonly	1
+            * testReadonlyViewonlyAdmin
     hibernate.AllHibernateTests	15
         hibernate.HibernateSessionTest	13
             * testSelectFromSqlQuery
@@ -2194,7 +2228,7 @@ AllTests	2392
                 permissions.limits.impl.PermissionLimitIpNetworkLogicTest	2
                     * testIpNetworks
                     * testIpNetworkRealm
-    pit.AllPITTests	113
+    pit.AllPITTests	115
         pit.PITMembershipTests	15
             * testGroupSetAddDeleteAdd
             * testImmediateMemberships
@@ -2266,8 +2300,10 @@ AllTests	2392
             * testFindPermissionsWithDisallowAndRoleInheritance
             * testRolePermissionObject
             * testSubjectRolePermissionObject
-        pit.PITUtilsTests	4
+        pit.PITUtilsTests	6
+            * testDeleteInactiveRecordsWithBadData
             * testDeleteInactiveRecords
+            * testDeleteInactiveRecordsWithBadData2
             * testDeleteInactiveGroup
             * testDeleteInactiveStem
             * testDeleteInactiveObjectsInStem
@@ -2712,7 +2748,7 @@ AllTests	2392
             * testDeleteGroupWithManyMembers
         stress.PermissionPerformanceTest	1
             * testPerformance
-    subj.AllSubjectTests	121
+    subj.AllSubjectTests	122
         subj.LdapSubjectTest	1
             * testSearch
         subj.TestGrouperSubject	2
@@ -2764,6 +2800,8 @@ AllTests	2392
             * test_delete_failOnNullSession
             * test_delete_failToDeleteWhenNotRoot
             * test_delete_ok
+        subj.TestSubjectCustomizer	1
+            * testCustomizer
         subj.TestSubjectDecorator	3
             * testHideStudentData
             * testFilterAnotherCollabGroup
@@ -3134,5 +3172,3 @@ app.loader.TestgrouperLoaderGroups	0
 helper.GrouperTest	0
 poc.TestCronFormat	0
 subj.TestgrouperSubjAttr	0
-subj.TestSubjectCustomizer	0
-    * testCustomizer
