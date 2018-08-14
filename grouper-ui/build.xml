@@ -111,7 +111,7 @@
         <isset property="grouper.lib.dir.exists" />
       </not>      
       <then>
-        <fail message="Cant find grouper lib dir jars (e.g. commons-lang.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
+        <fail message="Cant find grouper lib dir jars (e.g. grouperClient.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
       </then>
     </if>
   
@@ -135,7 +135,10 @@
     <mkdir dir="${basedir}/webapp/WEB-INF/lib" />
     <delete dir="${basedir}/webapp/WEB-INF/lib" includes="*.jar" />
     <copy todir="${basedir}/webapp/WEB-INF/lib">
-      <fileset dir="${basedir}/java/lib" includes="*.jar" />
+      <fileset dir="${basedir}/java/lib">
+        <include name="*.jar"/>
+        <exclude name="javax.servlet.jsp-api.jar"/>
+      </fileset>
       <fileset dir="${grouper.lib.dir}/../jdbcSamples">
         <include name="*.jar"/>
       </fileset>
@@ -397,6 +400,7 @@
 			<!-- Make available jar files the UI needs -->
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
+        <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 			<!-- Make available jar files already placed in the build folder - 
 		  		     may happen when additional-build called -->
@@ -404,6 +408,7 @@
 				<include name="**/*.jar"/>
 				<exclude name="**/grouper.jar"/>
 				<exclude name="**/grouper-ui.jar"/>
+        <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 			<!-- make available any classes / resources already placed in the build folder -->
 			<pathelement location="${webapp.class.folder}"/>
@@ -481,6 +486,7 @@
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
 				<exclude name="servlet.jar"/>
+        <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 		</copy>
     <if>
