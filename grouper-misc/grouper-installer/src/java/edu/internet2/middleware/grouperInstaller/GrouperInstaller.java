@@ -1094,7 +1094,9 @@ public class GrouperInstaller {
         System.out.print(".");
       }
       if (!success) {
-        throw new RuntimeException("Trying to " + arg + " tomee but couldnt properly detect " + arg + " on port " + this.tomeeHttpPort);
+        System.out.println("Trying to " + arg + " tomee but couldnt properly detect " + arg + " on port " + this.tomeeHttpPort);
+        System.out.print("Press <enter> to continue... ");
+        readFromStdIn("grouperInstaller.autorun.tomeePortProblem");
       }
     } else {
       System.out.println("Waiting 10 seconds for tomee to " + arg + "...");
@@ -1253,7 +1255,9 @@ public class GrouperInstaller {
         System.out.print(".");
       }
       if (!success) {
-        throw new RuntimeException("Trying to " + arg + " tomcat but couldnt properly detect " + arg + " on port " + this.tomcatHttpPort);
+        System.out.println("Trying to " + arg + " tomcat but couldnt properly detect " + arg + " on port " + this.tomcatHttpPort);
+        System.out.print("Press <enter> to continue... ");
+        readFromStdIn("grouperInstaller.autorun.tomcatPortProblem");
       }
     } else {
       System.out.println("Waiting 10 seconds for tomcat to " + arg + "...");
@@ -1753,9 +1757,16 @@ public class GrouperInstaller {
       
       alreadyProcessed.addAll(baseNames);
       
-      List<File> relatedFiles = GrouperInstallerUtils.jarFindJar(allLibraryJars, jarFile.getName());
+      List<File> relatedFiles = GrouperInstallerUtils.nonNull(GrouperInstallerUtils.jarFindJar(allLibraryJars, jarFile.getName()));
+      Iterator<File> relatedFilesIterator = relatedFiles.iterator();
       
-      if (GrouperInstallerUtils.length(relatedFiles) > 1) {
+      while (relatedFilesIterator.hasNext()) {
+        if (jarFile.equals(relatedFilesIterator.next())) {
+          relatedFilesIterator.remove();
+        }
+      }
+      
+      if (GrouperInstallerUtils.length(relatedFiles) >= 1) {
         
         if (relatedFiles.size() == 1) {
           File relatedFile = relatedFiles.iterator().next();
@@ -1785,9 +1796,9 @@ public class GrouperInstaller {
         readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
       }
       
-      if (GrouperInstallerUtils.length(relatedFiles) == 0) {
-        System.out.println("Why is jar file not found??? " + jarFile.getAbsolutePath());
-      }
+//      if (GrouperInstallerUtils.length(relatedFiles) == 0) {
+//        System.out.println("Why is jar file not found??? " + jarFile.getAbsolutePath());
+//      }
       
     }
   }
@@ -11111,7 +11122,7 @@ public class GrouperInstaller {
   /**
    * tomcat version
    */
-  private String tomcatVersion = null;
+  private String tomcatVersion = "8.5.12";
   
   /**
    * 
@@ -11119,6 +11130,7 @@ public class GrouperInstaller {
    */
   private String tomcatVersion() {
     
+    // this is now hardcoded
     if (this.tomcatVersion == null) {
       
       String defaultTomcatVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomcat.version", false);
@@ -12135,23 +12147,30 @@ public class GrouperInstaller {
     System.out.println(this.untarredClientDir.getAbsolutePath() + "> " + GrouperInstallerUtils.javaCommand() 
         + " -jar grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers");
     
-    final List<String> command = new ArrayList<String>();
-
-    command.add(GrouperInstallerUtils.javaCommand());
-    command.add("-jar");
-    command.addAll(GrouperInstallerUtils.splitTrimToList(
-        "grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
-            
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class), 
-        true, true, null, this.untarredClientDir, null, true);
-
-    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-      System.out.println("stderr: " + commandResult.getErrorText());
+    try {
+      final List<String> command = new ArrayList<String>();
+  
+      command.add(GrouperInstallerUtils.javaCommand());
+      command.add("-jar");
+      command.addAll(GrouperInstallerUtils.splitTrimToList(
+          "grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
+              
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class), 
+          true, true, null, this.untarredClientDir, null, true);
+  
+      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+        System.out.println("stderr: " + commandResult.getErrorText());
+      }
+      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+        System.out.println("stdout: " + commandResult.getOutputText());
+      }
+      System.out.println("Success running client command:");
+    } catch (Exception e) {
+      System.out.println("Exception running Grouper client");
+      e.printStackTrace();
+      System.out.print("Press <enter> to continue: ");
+      readFromStdIn("grouperInstaller.autorun.grouperClientErrorContinue");
     }
-    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-      System.out.println("stdout: " + commandResult.getOutputText());
-    }
-    System.out.println("Success running client command:");
     System.out.println("##################################");
 
   }
