@@ -400,7 +400,6 @@
 			<!-- Make available jar files the UI needs -->
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
-        <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 			<!-- Make available jar files already placed in the build folder - 
 		  		     may happen when additional-build called -->
@@ -408,7 +407,6 @@
 				<include name="**/*.jar"/>
 				<exclude name="**/grouper.jar"/>
 				<exclude name="**/grouper-ui.jar"/>
-        <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 			<!-- make available any classes / resources already placed in the build folder -->
 			<pathelement location="${webapp.class.folder}"/>
