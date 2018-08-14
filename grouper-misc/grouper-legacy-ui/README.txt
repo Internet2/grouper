@@ -32,6 +32,7 @@ There are a few steps to restoring the previous Admin UI and Lite UI functionali
 1) Back up your existing grouper webapp folder! While this process works at the point in time of the 2.4.0
 release, future changes to the UI module may adversely affect this legacy code
 
+
 2) In the base of your grouper web application (there should be a WEB-INF subfolder here), unpack the
 grouper-legacy-ui.tar.gz archive. This will add in the legacy files, and replace other files with the
 older legacy versions of the file.
@@ -40,6 +41,9 @@ older legacy versions of the file.
 cd $TOMCAT/webapps/grouper
 tar xzf $DL/grouper-legacy-ui.tar.gz
 ```
+
+If done correctly, you should see a newly create file WEB-INF/classes/LEGACY-UI-INSTALLED.txt.
+
 
 3) Manually update WEB-INF/web.xml to restore the legacy servlet and Struts filters. Near the end of the file (before </web-app>),
 add in the following xml fragments. This template uses grouperRole=* for security. If you have a custom setting to allow

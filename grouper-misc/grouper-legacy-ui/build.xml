@@ -69,6 +69,7 @@
   <target name="dist" depends="compile">
     <!-- Create the distribution directory -->
     <mkdir dir="${dist.webapp}"/>
+    <mkdir dir="${dist.webapp}/WEB-INF/lib"/>
 
     <!-- Put everything in ${build} into the grouper-legacy-ui.jar file -->
     <jar jarfile="${dist.webapp}/WEB-INF/lib/${legacy.name}.jar" basedir="${build}"/>
