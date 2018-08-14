@@ -1958,8 +1958,8 @@ public class GrouperCheckConfig {
    * @param stem
    * @param attributeDef 
    * @param extension
-   * @param description
    * @param displayExtension
+   * @param description
    * @param logAutocreate 
    * @return the attribute def name
    */
