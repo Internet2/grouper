@@ -54,16 +54,6 @@
   <!-- extension tasks -->
   <import file="${ext.dir}/ext-build.xml"/>
 
-  <!-- setup example files -->
-  <if><not><available file="${conf.dir}/ehcache.xml" /></not>
-    <then>
-      <if><available file="${conf.dir}/ehcache.example.xml" />
-        <then><copy file="${conf.dir}/ehcache.example.xml" 
-          tofile="${conf.dir}/ehcache.xml" />
-        </then>
-      </if> 
-      </then>
-  </if> 
   <if><not><available file="${conf.dir}/grouper.properties" /></not>
     <then><copy file="misc/grouper.example.properties" 
       tofile="${conf.dir}/grouper.properties" /></then>
@@ -96,10 +86,6 @@
 	    <then><copy file="misc/grouper.cache.example.properties" 
 	      tofile="${conf.dir}/grouper.cache.properties" /></then>
 	  </if> 
-  <if><not><available file="${conf.dir}/sources.xml" /></not>
-    <then><copy file="${conf.dir}/sources.example.xml" 
-      tofile="${conf.dir}/sources.xml" /></then>
-  </if> 
   <if><not><available file="${conf.dir}/subject.properties" /></not>
     <then><copy file="misc/subject.example.properties" 
       tofile="${conf.dir}/subject.properties" /></then>
@@ -439,11 +425,6 @@
       </fileset>
     </copy>
     
-    <if><available file="${dist.binary.zip}/misc/ehcache.example.xml" />
-      <then>
-        <copy file="${dist.binary.zip}/misc/ehcache.example.xml" tofile="${dist.binary.zip}/conf/ehcache.xml" />
-      </then>
-    </if> 
     <if><available file="${dist.binary.zip}/misc/grouper.cache.example.properties" />
       <then>
         <copy file="${dist.binary.zip}/misc/grouper.cache.example.properties" tofile="${dist.binary.zip}/conf/grouper.cache.properties" />
@@ -456,7 +437,6 @@
     <copy file="${dist.binary.zip}/conf/log4j.example.properties" tofile="${dist.binary.zip}/conf/log4j.properties" />
     <copy file="${dist.binary.zip}/conf/morphString.example.properties" tofile="${dist.binary.zip}/conf/morphString.properties" />
     <copy file="${dist.binary.zip}/conf/server.example.properties" tofile="${dist.binary.zip}/conf/server.properties" />
-    <copy file="${dist.binary.zip}/conf/sources.example.xml" tofile="${dist.binary.zip}/conf/sources.xml" />
     <copy file="${dist.binary.zip}/misc/subject.example.properties" tofile="${dist.binary.zip}/conf/subject.properties" />
     <copy file="${dist.binary.zip}/conf/spy.example.properties" tofile="${dist.binary.zip}/conf/spy.properties" />
     
