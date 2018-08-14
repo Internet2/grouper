@@ -1,4 +1,4 @@
-<project name="local" default="package" basedir=".">
+<project name="local" default="distPackage" basedir=".">
 
   <property name="grouper.folder" location="../../grouper"/>
   <property name="grouper.lib.dir" location="${grouper.folder}/lib/grouper"/>
@@ -90,7 +90,7 @@
     </copy>
   </target>
 
-  <target name="package" depends="dist">
+  <target name="distPackage" depends="dist">
     <tar compression="gzip" destfile="${dist.webapp}.tar.gz" basedir="${dist.webapp}"/>
   </target>
 

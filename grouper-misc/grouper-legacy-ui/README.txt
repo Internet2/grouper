@@ -149,7 +149,7 @@ ant
 OR
 
 ```
-ant package
+ant distPackage
 ```
 
 The process will clean out any existing compiled files and staging files, and then rebuild the output
