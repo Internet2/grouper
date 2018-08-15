@@ -529,6 +529,12 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         searchScope = LdapSearchScope.valueOf(searchScopeString);
       }
 
+      if (StringUtils.isEmpty(ldapServerId)) {
+        throw new SourceUnavailableException("Missing property subjectApi.source." + this.id + ".param.ldapServerId.value in subject.properties.  "
+            + "The value of this property should point to your LDAP configuration in the grouper-loader.properties file. "
+            + "e.g. if your grouper-loader.properties has ldap.personLdap.url, then the value of this property would be personLdap.");
+      }
+      
       results = LdapSessionUtils.ldapSession().list(ldapServerId, base, searchScope, filter, attributeNames, sizeLimit).iterator();
     } catch (Exception ex) {  // don't know if there are others
       log.error("Ldap Exception: " + ex.getMessage(), ex);
