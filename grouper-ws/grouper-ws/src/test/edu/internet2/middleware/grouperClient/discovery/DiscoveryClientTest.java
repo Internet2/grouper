@@ -143,6 +143,8 @@ public class DiscoveryClientTest extends TestCase {
       newFile = new File(cacheDirectoryName + File.separator + "file_" + dateFormat.format(new Date()) 
           + "_" + GrouperClientCommonUtils.uniqueId() + ".ext");
       
+      File thirdFile = newFile;
+      
       GrouperUtil.saveStringIntoFile(newFile, "hey");
       
       testingFiles.add(newFile);
@@ -201,7 +203,7 @@ public class DiscoveryClientTest extends TestCase {
       //see what the newest one is...
       File mostRecentFile = DiscoveryClient.mostRecentFileFromFileSystem("file.ext");
       
-      assertEquals(mostRecentFile.getAbsolutePath(), mostRecentFile.getAbsolutePath(), firstFile.getAbsolutePath());
+      assertEquals(mostRecentFile.getAbsolutePath(), mostRecentFile.getAbsolutePath(), thirdFile.getAbsolutePath());
       
       DiscoveryClient.cleanoutOldFiles();
       

@@ -54,6 +54,11 @@ public class FailoverClientTest extends TestCase {
   
   /**
    * 
+   */
+  private static Long startupTime = null;
+  
+  /**
+   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -86,6 +91,10 @@ public class FailoverClientTest extends TestCase {
    */
   @Override
   protected void setUp() throws Exception {
+    
+    if (startupTime == null) {
+      startupTime = System.currentTimeMillis();
+    }
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
 
@@ -185,6 +194,7 @@ public class FailoverClientTest extends TestCase {
 
     Set<String> connectionNames = new HashSet<String>();
     
+    this.failoverConfig.setAffinitySeconds(1);
     FailoverClient.initFailoverClient(this.failoverConfig);
 
     //try 20 times, should find each primary at least once, but should keep affinity
@@ -218,6 +228,7 @@ public class FailoverClientTest extends TestCase {
         previousConnectionName = currentConnectionName;
       }  
       
+      GrouperUtil.sleep(1100);
     }
 
 
@@ -527,7 +538,8 @@ public class FailoverClientTest extends TestCase {
   public void testFailoverLogicAffinityWithTimeoutStartup() {
   
     //add 15 seconds more of startup
-    this.failoverConfig.setSecondsForClassesToLoad(15);
+    int timeSinceStartup = (int) ((System.currentTimeMillis() - startupTime) / 1000);
+    this.failoverConfig.setSecondsForClassesToLoad(15 + timeSinceStartup);
     
     FailoverClient.initFailoverClient(this.failoverConfig);
   
