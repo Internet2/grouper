@@ -32,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -559,6 +560,11 @@ public class GrouperInstaller {
 
     grouperInstaller.mainLogic();
 
+//    grouperInstaller.upgradeExistingApplicationDirectoryString = "D:\\temp\\temp\\grouperJarCopyDest\\";
+//    grouperInstaller.grouperBaseBakDir = "D:\\temp\\temp\\grouperJarBak\\";
+    
+//    grouperInstaller.upgradeJars(new File("D:\\temp\\temp\\grouperJarCopySource"), new File("D:\\temp\\temp\\grouperJarCopyDest"));
+    
 //    grouperInstaller.version = "2.4.0";
 //    
 //    grouperInstaller.grouperTarballDirectoryString = "D:\\temp\\temp\\grouperInstaller\\";
@@ -5881,8 +5887,12 @@ public class GrouperInstaller {
     }
     
     int changes = 0;
-
-    for (File jarFile : fromDir.listFiles()) {
+    
+    // sort the files to get them a little more reproducible
+    File[] fromFiles = GrouperInstallerUtils.nonNull(fromDir.listFiles(), File.class);
+    List<File> fromFilesList = GrouperInstallerUtils.toList(fromFiles);
+    Collections.sort(fromFilesList);
+    for (File jarFile : fromFilesList) {
       
       //only do jar files
       if (!jarFile.getName().endsWith(".jar")) {
@@ -5899,6 +5909,9 @@ public class GrouperInstaller {
       if (GrouperInstallerUtils.length(relatedJars) > 0) {
         
         for (File relatedJar : relatedJars) {
+          if (!relatedJar.exists()) {
+            continue;
+          }
           if (GrouperInstallerUtils.fileSha1(relatedJar).equals(GrouperInstallerUtils.fileSha1(jarFile))) {
             if (relatedJar.getName().equals(jarFile.getName())) {
               foundFile = true;

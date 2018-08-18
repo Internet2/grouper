@@ -7569,7 +7569,7 @@ public class GrouperInstallerUtils  {
    * @return the list that matches
    */
   public static List<File> jarFindJar(List<File> allJars, String fileName) {
-    List<File> result = new ArrayList<File>();
+    Set<File> result = new HashSet<File>();
     
     //find the passed in base file name
     Set<String> baseFileNames = jarFileBaseNames(fileName);
@@ -7594,7 +7594,7 @@ public class GrouperInstallerUtils  {
       }
     }
     
-    return result;
+    return new ArrayList<File>(result);
     
   }
 
@@ -7632,7 +7632,7 @@ public class GrouperInstallerUtils  {
     }
     
     result.add(baseName.toLowerCase());
-    
+
     if (baseName.endsWith("-core")) {
       baseName = baseName.substring(0, baseName.length() - "-core".length());
       result.add(baseName.toLowerCase());
