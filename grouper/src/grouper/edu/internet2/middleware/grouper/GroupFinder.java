@@ -519,7 +519,6 @@ public class GroupFinder {
     return findByName(s, name, exceptionIfNotFound, null);
   }
 
-  
   /**
    * Find a group within the registry by name.
    * <pre class="eg">
@@ -539,7 +538,6 @@ public class GroupFinder {
    */
   public static Group findByName(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws GroupNotFoundException {
-    
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     
@@ -552,12 +550,40 @@ public class GroupFinder {
     if (g != null) {
       return g;
     }      
-
-    g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound, queryOptions) ;
+    
+    g = findByNameNoCache(s, name, exceptionIfNotFound, queryOptions);
     
     if (g != null) {
       groupCacheAsRootAddIfSupposedTo(g);
       groupFlashCacheAddIfSupposedTo(g);
+    }    
+    return g;
+
+  }
+  
+  /**
+   * Find a group within the registry by name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @param queryOptions paging, sorting, caching options
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  private static Group findByNameNoCache(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws GroupNotFoundException {
+    
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound, queryOptions) ;
+    
+    if (g != null) {
       
       //2007-10-16: Gary Brown
       //https://bugs.internet2.edu/jira/browse/GRP-36
@@ -795,6 +821,7 @@ public class GroupFinder {
       throws GroupNotFoundException {
     return findByUuid(s, uuid, exceptionIfNotFound, null);
   }
+
   /**
    * Find a group within the registry by UUID.
    * <pre class="eg">
@@ -808,6 +835,42 @@ public class GroupFinder {
    * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
    */
   public static Group findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
+      throws GroupNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+
+    Group g = groupCacheAsRootRetrieve(uuid, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+
+    g = groupFlashCacheRetrieve(uuid, queryOptions);
+    if (g != null) {
+      return g;
+    }      
+    
+    g = findByUuidNoCache(s, uuid, exceptionIfNotFound, queryOptions);
+      
+    groupCacheAsRootAddIfSupposedTo(g);
+    groupFlashCacheAddIfSupposedTo(g);
+      
+    return g;
+
+  }
+
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByUuid(s, uuid);
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param queryOptions 
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
+  private static Group findByUuidNoCache(GrouperSession s, String uuid, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
       throws GroupNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
