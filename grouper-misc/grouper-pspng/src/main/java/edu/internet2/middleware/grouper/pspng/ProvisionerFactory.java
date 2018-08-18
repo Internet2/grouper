@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ public class ProvisionerFactory {
   
 
   private static Map<String, Provisioner> provisioners=new ConcurrentHashMap<String, Provisioner>();
+  private static ConcurrentMap<String, ProvisionerCoordinator> provisionerCoordinators=new ConcurrentHashMap<>();
+
 
   public static Provisioner getProvisioner(String consumerName) throws PspException {
     synchronized (provisioners) {
@@ -67,7 +70,15 @@ public class ProvisionerFactory {
     return provisioners.get(consumerName);
   }
 
-  
+
+  public static ProvisionerCoordinator getProvisionerCoordinator(String provisionerName) {
+    if ( !provisionerCoordinators.containsKey(provisionerName) ) {
+      provisionerCoordinators.putIfAbsent(provisionerName, new ProvisionerCoordinator(provisionerName));
+    }
+
+    return provisionerCoordinators.get(provisionerName);
+  }
+
   /**
    * This constructs a provisioner based on the properties found for provisioner 'name'
    * @param name
@@ -75,6 +86,17 @@ public class ProvisionerFactory {
    * @throws PspException
    */
   public static Provisioner createProvisionerWithName(String name) throws PspException {
+    return createProvisionerWithName(name, false);
+  }
+
+  /**
+   * This constructs a provisioner based on the properties found for provisioner 'name'
+   * @param name
+   * @param fullSyncMode
+   * @return
+   * @throws PspException
+   */
+  public static Provisioner createProvisionerWithName(String name, boolean fullSyncMode) throws PspException {
     final String qualifiedParameterNamespace = ProvisionerConfiguration.PARAMETER_NAMESPACE + name + ".";
   
     LOG.info("Constructing provisioner: {}", name);
@@ -95,8 +117,8 @@ public class ProvisionerFactory {
       
       properties.readConfiguration();
       
-      Constructor<? extends Provisioner> provisionerConstructor = provisionerClass.getConstructor(String.class, propertyClass);
-      Provisioner provisioner = provisionerConstructor.newInstance(name, properties);
+      Constructor<? extends Provisioner> provisionerConstructor = provisionerClass.getConstructor(String.class, propertyClass, Boolean.TYPE);
+      Provisioner provisioner = provisionerConstructor.newInstance(name, properties, fullSyncMode);
       return provisioner;
     } catch (ClassNotFoundException e) {
       Provisioner.STATIC_LOG.error("Unable to find provisioner class: {}", className);

@@ -16,10 +16,7 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -91,8 +88,8 @@ public class ProvisioningWorkItem {
    * a changelog item.
    * 
    * This is used when Provisioner code is used in FullSync processes.
+   * @param action
    * @param group
-   * @param subject
    */
   public ProvisioningWorkItem(String action, GrouperGroupInfo group) {
     this(null);
@@ -197,17 +194,29 @@ public class ProvisioningWorkItem {
       groupNameKey = ChangeLogLabels.GROUP_ADD.name;
     else if  ( getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE) )
       groupNameKey = ChangeLogLabels.GROUP_DELETE.name;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE) )
+      groupNameKey = ChangeLogLabels.GROUP_UPDATE.name;
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
       groupNameKey = ChangeLogLabels.MEMBERSHIP_ADD.groupName;
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
       groupNameKey = ChangeLogLabels.MEMBERSHIP_DELETE.groupName;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN) )
+      groupNameKey = ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN) )
+      groupNameKey = ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName;
     else {
       if ( logIfWrongEventType ) {
-        LOG.debug("Not a supported change for finding group ({} is not {}, {}, {}, nor {}): {}",  
+        LOG.debug("Not a supported change for finding group ({} is not any of these: {}): {}",
           new Object[] {
           getChangelogEntry().getChangeLogType(),
-          ChangeLogTypeBuiltin.GROUP_ADD, ChangeLogTypeBuiltin.GROUP_DELETE, 
-          ChangeLogTypeBuiltin.MEMBERSHIP_ADD, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+          Arrays.asList(
+            ChangeLogTypeBuiltin.GROUP_ADD,
+            ChangeLogTypeBuiltin.GROUP_DELETE,
+            ChangeLogTypeBuiltin.GROUP_UPDATE,
+            ChangeLogTypeBuiltin.MEMBERSHIP_ADD,
+            ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,
+            ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN,
+            ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN),
           work != null ? work.getSequenceNumber() : "action="+action});
       }
       return null;
@@ -399,6 +408,40 @@ public class ProvisioningWorkItem {
         return true;
     }
     
+    return false;
+  }
+
+  /**
+   * Some changes (eg, labeling a folder for syncing) can have a large effect and are best handled with
+   * a complete sync of all groups.
+   * @return true if this work item should initiate a full sync of all groups
+   */
+  public boolean shouldBeHandledBySyncingAllGroups(Provisioner provisioner) {
+    if ( getChangelogEntry() == null ) {
+      return false;
+    }
+
+    String attributeName;
+
+    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD) ) {
+      attributeName = getChangelogEntry().retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName);
+    }
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE) ) {
+      attributeName = getChangelogEntry().retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName);
+    }
+    else {
+      return false;
+    }
+
+    if ( attributeName == null ) {
+      return false;
+    }
+
+    if ( provisioner.getConfig().attributesUsedInGroupSelectionExpression.contains(attributeName) ) {
+      LOG.info("{}: Performing full-sync of all groups for work item {}", provisioner.getDisplayName(), this);
+      return true;
+    }
+
     return false;
   }
 }

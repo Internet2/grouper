@@ -5,6 +5,8 @@ import java.util.*;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a simple class to hold name and attribute information of a group.
@@ -16,6 +18,8 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
  *
  */
 public class GrouperGroupInfo {
+  private static final Logger LOG = LoggerFactory.getLogger(GrouperGroupInfo.class);
+
   private final Group group;
   private final PITGroup pitGroup;
 
@@ -97,7 +101,13 @@ public class GrouperGroupInfo {
     if ( group != null ) {
       result.put("group", group);
       result.put("name", group.getName());
-      
+      result.put("displayName", group.getDisplayName());
+
+      result.put("extension", group.getExtension());
+      result.put("displayExtension", group.getDisplayExtension());
+
+      result.put("description", group.getDescription());
+
       if ( group.getIdIndex() != null )
         result.put("idIndex", group.getIdIndex());
       
@@ -110,7 +120,7 @@ public class GrouperGroupInfo {
     else if ( pitGroup != null ) {
       result.put("pitGroup", pitGroup);
       result.put("name", pitGroup.getName());
-      
+
       // TODO: populate idIndex, but pitGroup does not have getIdIndex()
       //result.put("idIndex", pitGroup.getIdIndex());
       
@@ -133,6 +143,24 @@ public class GrouperGroupInfo {
 
   public Group getGrouperGroup() {
     return group;
+  }
+
+  /**
+   * This method rereads the Grouper objects from the database in order to
+   * avoid L2 caching when database objects change.
+   */
+  public void hibernateRefresh() {
+    final Object objectToHibernateRefresh;
+
+    if ( group != null ) {
+      objectToHibernateRefresh = group;
+    } else {
+      objectToHibernateRefresh = pitGroup;
+    }
+
+    if ( objectToHibernateRefresh != null ) {
+      PspUtils.hibernateRefresh(objectToHibernateRefresh);
+    }
   }
 
 }

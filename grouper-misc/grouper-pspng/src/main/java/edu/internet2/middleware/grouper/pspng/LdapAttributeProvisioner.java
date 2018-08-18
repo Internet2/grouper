@@ -46,8 +46,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvisionerConfiguration> {
   
-  public LdapAttributeProvisioner(String provisionerName, LdapAttributeProvisionerConfiguration config) {
-    super(provisionerName, config);
+  public LdapAttributeProvisioner(String provisionerName, LdapAttributeProvisionerConfiguration config, boolean fullSyncMode) {
+    super(provisionerName, config, fullSyncMode);
   }
 
   
@@ -64,7 +64,6 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
    * @param valuesToChange
    */
   protected void scheduleUserModification(LdapUser ldapUser, AttributeModificationType modType, Collection<String> valuesToChange) {
-    uncacheUser(null, ldapUser); 
     String attributeName = config.getProvisionedAttributeName();
     
     for ( String value : valuesToChange )
@@ -86,7 +85,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       Subject subject, LdapUser ldapUser) throws PspException {
 
     if ( ldapUser == null ) {
-      LOG.warn("{}: Skipping addMembership: LdapUser does not exist for subject {}", getName(), subject.getId());
+      LOG.warn("{}: Skipping addMembership: LdapUser does not exist for subject {}", getDisplayName(), subject.getId());
       return;
     }
     
@@ -100,7 +99,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       Subject subject, LdapUser ldapUser) throws PspException {
 
     if ( ldapUser == null ) {
-      LOG.warn("{}: Skipping deleteMembership: LdapUser does not exist for subject {}", getName(), subject.getId());
+      LOG.warn("{}: Skipping deleteMembership: LdapUser does not exist for subject {}", getDisplayName(), subject.getId());
       return;
     }
     
@@ -127,7 +126,14 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     List<LdapUser> currentMatches = new ArrayList<LdapUser>(currentMatches_ldapObjects.size());
     for ( LdapObject ldapObject : currentMatches_ldapObjects )
       currentMatches.add(new LdapUser(ldapObject));
-    
+
+    LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
+      new Object[] {getDisplayName(), grouperGroupInfo, correctTSUsers.size(), currentMatches.size()});
+
+    LOG.debug("{}: Full-sync comparison: Correct: {}", getDisplayName(), correctTSUsers);
+    LOG.debug("{}: Full-sync comparison: Actual: {}", getDisplayName(), currentMatches);
+
+
     // EXTRA MATCHES = CURRENT_MATCHES - CORRECT_MATCHES
     Set<LdapUser> extraMatches = new HashSet<LdapUser>(currentMatches);
     extraMatches.removeAll(correctTSUsers);
@@ -147,7 +153,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       scheduleUserModification(missingMatch, AttributeModificationType.ADD, Arrays.asList(attributeValue));
 
     LOG.info("{}: Brief full-sync summary: Correct={}, Current={}, Extra={}, Missing={}", 
-        new Object[] {getName(), correctSubjects.size(), currentMatches_ldapObjects.size(),
+        new Object[] {getDisplayName(), correctSubjects.size(), currentMatches_ldapObjects.size(),
         extraMatches.size(), missingMatches.size()});
     
   }
@@ -164,13 +170,13 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
             JobStatistics stats) throws PspException {
       String allValuesPrefix = config.getAllProvisionedValuesPrefix();
       if ( StringUtils.isEmpty(allValuesPrefix) ) {
-        LOG.error("{}: Unable to cleanup extra groups without allProvisionedValuesPrefix being defined", getName());
+        LOG.error("{}: Unable to cleanup extra groups without allProvisionedValuesPrefix being defined", getDisplayName());
         return;
       }
       
       String attribute = config.getProvisionedAttributeName();
 
-      LOG.debug("{}: Looking for all grouper-sourced values of {}.", getName(), attribute);
+      LOG.debug("{}: Looking for all grouper-sourced values of {}.", getDisplayName(), attribute);
       
       List<LdapObject> usersWithGrouperValues 
         = getLdapSystem().performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
@@ -203,10 +209,10 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       extraValues.addAll(grouperSourcedValuesUsedInTargetSystem);
       extraValues.removeAll(valuesDefinedByGrouperGroups);
       
-      LOG.info("{}: There are {} values that should be purged from the target system", getName(), extraValues.size());
+      LOG.info("{}: There are {} values that should be purged from the target system", getDisplayName(), extraValues.size());
       
       for (String extraValue : extraValues ) {
-        LOG.info("{}: Purging attribute value {}", getName(), extraValue);
+        LOG.info("{}: Purging attribute value {}", getDisplayName(), extraValue);
         purgeAttributeValue(attribute, extraValue, stats);
       }
 	}
@@ -240,7 +246,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
         new SearchRequest(config.getUserSearchBaseDn(), filter));
     
     LOG.info("{}: There are {} ldap objects with attribute value={}", 
-        new Object[] {getName(), objectsWithAttribute.size(), valueToPurge});
+        new Object[] {getDisplayName(), objectsWithAttribute.size(), valueToPurge});
 
     stats.deleteCount.addAndGet(objectsWithAttribute.size());
 

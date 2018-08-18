@@ -1,13 +1,7 @@
 package edu.internet2.middleware.grouper.pspng;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,26 +9,15 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.RDN;
+import com.unboundid.ldap.sdk.persist.LDAPObject;
 import edu.internet2.middleware.morphString.Morph;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.ldaptive.AddRequest;
-import org.ldaptive.BindConnectionInitializer;
-import org.ldaptive.Connection;
-import org.ldaptive.ConnectionConfig;
-import org.ldaptive.DefaultConnectionFactory;
-import org.ldaptive.DeleteRequest;
-import org.ldaptive.LdapEntry;
-import org.ldaptive.LdapException;
-import org.ldaptive.Response;
-import org.ldaptive.ResultCode;
-import org.ldaptive.SearchExecutor;
-import org.ldaptive.SearchFilter;
-import org.ldaptive.SearchOperation;
-import org.ldaptive.SearchRequest;
-import org.ldaptive.SearchResult;
-import org.ldaptive.SearchScope;
+import org.ldaptive.*;
 import org.ldaptive.ad.handler.RangeEntryHandler;
 import org.ldaptive.control.util.PagedResultsClient;
+import org.ldaptive.io.LdifReader;
 import org.ldaptive.pool.BlockingConnectionPool;
 import org.ldaptive.pool.PoolConfig;
 import org.ldaptive.pool.PoolException;
@@ -75,7 +58,17 @@ public class LdapSystem {
   protected int searchResultPagingSize_default_value = 100;
 
   
-  
+  public static boolean attributeHasNoValues(final LdapAttribute attribute) {
+    if ( attribute == null ) {
+      return true;
+    }
+
+    Collection<String> values = attribute.getStringValues();
+
+    return values.size() == 0  || values.iterator().next().length() == 0;
+  }
+
+
   public LdapSystem(String ldapSystemName, boolean isActiveDirectory) {
     this.ldapSystemName = ldapSystemName;
     this.isActiveDirectory = isActiveDirectory;
@@ -363,13 +356,228 @@ public class LdapSystem {
   
   }
 
+  public void performLdapModify(ModifyRequest mod) throws PspException {
+    performLdapModify(mod, true);
+  }
+
+  /**
+   * This performs a modification and optionally retries it by comparing attributeValues
+   * being added/removed to those already on the ldap server
+   * @param mod
+   * @param retryIfFails Should the Modify be retried if something goes wrong. This retry
+   *                     will do attributeValue-by-attributeValue comparison to
+   *                     make the retry as safe as possible
+   * @throws PspException
+   */
+  public void performLdapModify(ModifyRequest mod, boolean retryIfFails) throws PspException {
+    LOG.info("{}: Performing Ldap modification: {}", ldapSystemName, mod);
+
+    Connection conn = getLdapConnection();
+    try {
+      conn.open();
+      conn.getProviderConnection().modify(mod);
+    } catch (LdapException e) {
+
+      // Abort with Exception if retries are disabled
+      if ( !retryIfFails ) {
+        throw new PspException("%s: (probably repeated) LDAP problem modifying ldap object: %s %s",
+                ldapSystemName, mod, e.getMessage());
+      }
+
+      // First case: a single attribute being modified with a single value
+      //   Perform a quick ldap comparison and heck to see if the object
+      //   already matches the modification
+      //
+      //   If the object doesn't already match, then it was a real ldap failure
+      if ( mod.getAttributeModifications().length == 1 &&
+           mod.getAttributeModifications()[0].getAttribute().getStringValues().size() == 1 ) {
+        AttributeModification modification = mod.getAttributeModifications()[0];
+
+        boolean attributeMatches = performLdapComparison(mod.getDn(), modification.getAttribute());
+
+        if ( attributeMatches && modification.getAttributeModificationType() == AttributeModificationType.ADD ) {
+          LOG.info("{}: Change not necessary: System already had attribute value", ldapSystemName);
+          return;
+        }
+        else if ( !attributeMatches && modification.getAttributeModificationType() == AttributeModificationType.REMOVE ) {
+          LOG.info("{}: Change not necessary: System already had attribute value removed", ldapSystemName);
+          return;
+        }
+        else {
+          LOG.error("{}: Ldap modification failed", ldapSystemName, e);
+          throw new PspException("LDAP Modification Failed");
+        }
+      }
+
+      // This wasn't a single-attribute change, or multiple values were being changed.
+      // Therefore: Read what is in the LDAP server and implement the differences
+
+      LOG.warn("{}: Problem while modifying ldap system based on grouper expectations. Starting to perform adaptive modifications based on data already on server: {}: {}",
+              new Object[]{ldapSystemName, mod, e.getResultCode()});
+
+
+      // Gather up the attributes that were modified so we can read them from server
+      Set<String> attributeNames = new HashSet<>();
+      for ( AttributeModification attributeMod : mod.getAttributeModifications()) {
+        attributeNames.add(attributeMod.getAttribute().getName());
+      }
+
+      // Read the current values of those attributes
+      LOG.info("{}: Modification retrying... reading object to know what needs to change: {}",
+        ldapSystemName, mod.getDn());
+
+      LdapObject currentLdapObject = performLdapRead(mod.getDn(), attributeNames);
+
+      // Go back through the requested mods and see if they are redundant
+      for ( AttributeModification attributeMod : mod.getAttributeModifications()) {
+        LOG.info("{}: Comparing modification to what is already in LDAP: {}", ldapSystemName, attributeMod);
+
+        String attributeName = attributeMod.getAttribute().getName();
+
+        Collection<String> currentValues = currentLdapObject.getStringValues(attributeName);
+        Collection<String> modifyValues  = attributeMod.getAttribute().getStringValues();
+
+        switch (attributeMod.getAttributeModificationType()) {
+          case ADD:
+            // See if any modifyValues are missing from currentValues
+            //
+            // Subtract currentValues from modifyValues (case-insensitively)
+            Set<String> valuesNotAlreadyOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            valuesNotAlreadyOnServer.addAll(modifyValues);
+            valuesNotAlreadyOnServer.removeAll(currentValues);
+
+            LOG.info("{}: {} {} values still need to be ADDed",
+                    new Object[] {ldapSystemName, valuesNotAlreadyOnServer.size(), attributeName});
+
+            for ( String valueToChange : valuesNotAlreadyOnServer ) {
+              performLdapModify( new ModifyRequest( mod.getDn(),
+                      new AttributeModification(AttributeModificationType.ADD,
+                              new LdapAttribute(attributeName, valueToChange))),
+                      false);
+            }
+            break;
+
+          case REMOVE:
+            // For Mod.REMOVE, not specifying any values means to remove them all
+            if ( modifyValues.size() == 0 ) {
+              modifyValues.addAll(currentValues);
+            }
+
+            // See if any modifyValues are still in currentValues
+            //
+            // Intersect modifyValues and currentValues
+            Set<String> valuesStillOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            valuesStillOnServer.addAll(modifyValues);
+            valuesStillOnServer.retainAll(currentValues);
+            LOG.info("{}: {} {} values still need to be REMOVEd",
+                    new Object[] {ldapSystemName, valuesStillOnServer.size(), attributeName});
+
+            for (String valueToChange : valuesStillOnServer) {
+              performLdapModify(new ModifyRequest(mod.getDn(),
+                              new AttributeModification(AttributeModificationType.REMOVE,
+                                      new LdapAttribute(attributeName, valueToChange))),
+                      false);
+            }
+            break;
+
+          case REPLACE:
+            // See if any differences between modifyValues and currentValues
+            // (Subtract in both directions)
+            Set<String> extraValuesOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            extraValuesOnServer.addAll(currentValues);
+            extraValuesOnServer.retainAll(modifyValues);
+            LOG.info("{}: REPLACE: {} {} values still need to be REMOVEd",
+                    new Object[] {ldapSystemName, extraValuesOnServer.size(), attributeName});
+
+            for (String valueToChange : extraValuesOnServer) {
+              performLdapModify(new ModifyRequest(mod.getDn(),
+                              new AttributeModification(AttributeModificationType.REMOVE,
+                                      new LdapAttribute(attributeName, valueToChange))),
+                      false);
+            }
+
+            Set<String> missingValuesOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            missingValuesOnServer.addAll(modifyValues);
+            missingValuesOnServer.retainAll(currentValues);
+            LOG.info("{}: REPLACE: {} {} values still need to be ADDed",
+                    new Object[] {ldapSystemName, missingValuesOnServer.size(), attributeName});
+
+            for ( String valueToChange : missingValuesOnServer ) {
+              performLdapModify( new ModifyRequest( mod.getDn(),
+                              new AttributeModification(AttributeModificationType.ADD,
+                                      new LdapAttribute(attributeName, valueToChange))),
+                      false);
+            }
+        }
+      }
+    }
+    finally {
+      conn.close();
+    }
+  }
+
+  private boolean performLdapComparison(String dn, LdapAttribute attribute) throws PspException {
+    LOG.info("{}: Performaing Ldap comparison operation: {}", ldapSystemName, attribute);
+
+    Connection conn = getLdapConnection();
+    try {
+      try {
+        conn.open();
+        CompareOperation compare = new CompareOperation(conn);
+
+        boolean result = compare.execute(new CompareRequest(dn, attribute)).getResult();
+        return result;
+
+      } catch (LdapException ldapException) {
+        ResultCode resultCode = ldapException.getResultCode();
+
+        // A couple errors mean that object does not match attribute values
+        if (resultCode == ResultCode.NO_SUCH_OBJECT || resultCode == ResultCode.NO_SUCH_ATTRIBUTE) {
+          return false;
+        } else {
+          LOG.error("{}: Error performing compare operation: {}",
+                  new Object[]{ldapSystemName, attribute, ldapException});
+
+          throw new PspException("LDAP problem performing ldap comparison: %s", ldapException.getMessage());
+        }
+      }
+    }
+    finally {
+      conn.close();
+    }
+
+  }
+
+
+  void performLdapModifyDn(ModifyDnRequest mod) throws PspException {
+    LOG.info("{}: Performing Ldap mod-dn operation: {}", ldapSystemName, mod);
+
+    Connection conn = getLdapConnection();
+    try {
+      conn.open();
+      conn.getProviderConnection().modifyDn(mod);
+    } catch (LdapException e) {
+      LOG.error("Problem while modifying dn of ldap object: {}", mod, e);
+      throw new PspException("LDAP problem modifying dn of ldap object: %s", e.getMessage());
+    }
+    finally {
+      conn.close();
+    }
+  }
+
+
+
+
   protected LdapObject performLdapRead(DN dn, String... attributes) throws PspException {
     return performLdapRead(dn.toMinimallyEncodedString(), attributes);
   }
   
-  
+  protected LdapObject performLdapRead(String dn, Collection<String> attributes) throws PspException {
+    return performLdapRead(dn, attributes.toArray(new String[0]));
+  }
+
   protected LdapObject performLdapRead(String dn, String... attributes) throws PspException {
-    LOG.debug("Doing ldap read: {}", dn);
+    LOG.debug("Doing ldap read: {} attributes {}", dn, Arrays.toString(attributes));
     
     Connection conn = getLdapConnection();
     try {
@@ -453,7 +661,16 @@ public class LdapSystem {
       for (LdapEntry entry : searchResult.getEntries()) {
         result.add(new LdapObject(entry, request.getReturnAttributes()));
       }
-      
+
+      LOG.info("LDAP search returned {} entries", result.size());
+
+      if ( LOG.isDebugEnabled() ) {
+        int i=0;
+        for (LdapObject ldapObject : result ) {
+          i++;
+          LOG.debug("...ldap-search result {} of {}: {}", new Object[]{i, result.size(), ldapObject.getMap()});
+        }
+      }
       return result;
     }
     catch (LdapException e) {
@@ -492,8 +709,93 @@ public class LdapSystem {
     return performLdapSearchRequest(request);
   }
 
-  
-  
+
+
+  public boolean makeLdapObjectCorrect(LdapEntry correctEntry,
+                                         LdapEntry existingEntry)
+          throws PspException
+  {
+    boolean changed = false;
+
+    changed = makeLdapDnCorrect(correctEntry, existingEntry);
+    changed = makeLdapDataCorrect(correctEntry, existingEntry) || changed;
+
+    return changed;
+
+/*
+    if ( changed ) {
+      return fetchTargetSystemGroup(grouperGroupInfo);
+    }
+    else {
+      return existingGroup;
+    }
+*/
+  }
+
+  protected boolean makeLdapDataCorrect(LdapEntry correctEntry,
+                                        LdapEntry existingEntry)
+        throws PspException
+  {
+    boolean changed = false ;
+    for ( String attributeName : correctEntry.getAttributeNames() ) {
+      LdapAttribute correctAttribute = correctEntry.getAttribute(attributeName);
+      if ( attributeHasNoValues(correctAttribute) ) {
+        correctAttribute = null;
+      }
+
+      LdapAttribute existingAttribute= existingEntry.getAttribute(attributeName);
+
+      // If there should not be any values for this attribute, delete any existing values
+      if ( correctAttribute == null ) {
+        if ( existingAttribute != null ) {
+          changed = true;
+          AttributeModification mod = new AttributeModification(AttributeModificationType.REMOVE, existingAttribute);
+          ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
+          performLdapModify(modRequest);
+        }
+      }
+      else if ( !correctAttribute.equals(existingAttribute) ) {
+        // Attribute is different. Update existing one
+        changed = true;
+
+        AttributeModification mod = new AttributeModification(AttributeModificationType.REPLACE, correctAttribute);
+        ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
+        performLdapModify(modRequest);
+      }
+    }
+    return changed;
+  }
+
+  /**
+   * Moves the ldap object if necessary. It does require the OU to already exist because
+   * OU templates and OU caching would make OU-creation here too intertwined with
+   * the provisioning objects
+   *
+   * @param correctEntry
+   * @param existingEntry
+   * @return
+   * @throws PspException
+   */
+  protected boolean makeLdapDnCorrect(LdapEntry correctEntry, LdapEntry existingEntry) throws PspException {
+    // Compare DNs
+    String correctDn = correctEntry.getDn();
+    String existingDn= existingEntry.getDn();
+
+    // TODO: This should do case-sensitive comparisons of the first RDN and case-insensitive comparisons of the rest
+    if ( !correctDn.equalsIgnoreCase(existingDn) ) {
+      // The DNs do not match. Existing object needs to be moved
+
+      // Now modify the DN
+      ModifyDnRequest moddn = new ModifyDnRequest(existingDn, correctDn);
+      moddn.setDeleteOldRDn(true);
+
+      performLdapModifyDn(moddn);
+      return true;
+    }
+    return false;
+  }
+
+
   public boolean test() {
     String ldapUrlString = (String) getLdaptiveProperties().get("org.ldaptive.ldapUrl");
     if ( ldapUrlString == null ) {
