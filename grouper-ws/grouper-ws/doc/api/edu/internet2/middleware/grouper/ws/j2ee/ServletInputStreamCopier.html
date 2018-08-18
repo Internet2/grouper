@@ -89,17 +89,17 @@ edu.internet2.middleware.grouper.ws.j2ee</FONT>
 <BR>
 Class ServletInputStreamCopier</H2>
 <PRE>
-<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">java.io.InputStream</A>
-      <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/ServletInputStream.html?view=co" title="class or interface in javax.servlet">javax.servlet.ServletInputStream</A>
+java.lang.Object
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">java.io.InputStream
+      <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">javax.servlet.ServletInputStream
           <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.j2ee.ServletInputStreamCopier</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Closeable.html?view=co" title="class or interface in java.io">Closeable</A></DD>
+<DT><B>All Implemented Interfaces:</B> <DD>java.io.Closeable</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>ServletInputStreamCopier</B><DT>extends <A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/ServletInputStream.html?view=co" title="class or interface in javax.servlet">ServletInputStream</A></DL>
+<DT><PRE>public class <B>ServletInputStreamCopier</B><DT>extends javax.servlet.ServletInputStream</DL>
 </PRE>
 
 <P>
@@ -120,7 +120,7 @@ copy bytes to a buffer
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/j2ee/ServletInputStreamCopier.html?view=co#ServletInputStreamCopier(java.io.InputStream)">ServletInputStreamCopier</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">InputStream</A>&nbsp;inputStream1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/j2ee/ServletInputStreamCopier.html?view=co#ServletInputStreamCopier(java.io.InputStream)">ServletInputStreamCopier</A></B>(java.io.InputStream&nbsp;inputStream1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor</TD>
@@ -145,8 +145,32 @@ copy bytes to a buffer
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/j2ee/ServletInputStreamCopier.html?view=co#isFinished()">isFinished</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/j2ee/ServletInputStreamCopier.html?view=co#isReady()">isReady</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;int</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/j2ee/ServletInputStreamCopier.html?view=co#read()">read</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/j2ee/ServletInputStreamCopier.html?view=co#setReadListener(ReadListener)">setReadListener</A></B>(ReadListener&nbsp;readListener)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -155,28 +179,28 @@ copy bytes to a buffer
 &nbsp;<A NAME="methods_inherited_from_class_javax.servlet.ServletInputStream"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class javax.servlet.<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/ServletInputStream.html?view=co" title="class or interface in javax.servlet">ServletInputStream</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class javax.servlet.ServletInputStream</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/ServletInputStream.html?is-external=true#readLine(byte[], int, int)" title="class or interface in javax.servlet">readLine</A></CODE></TD>
+<TD><CODE>readLine</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.io.InputStream"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.io.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">InputStream</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.io.InputStream</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">available</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">close</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">mark</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">markSupported</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">read</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?is-external=true#read(byte[], int, int)" title="class or interface in java.io">read</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">reset</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">skip</A></CODE></TD>
+<TD><CODE>available, close, mark, markSupported, read, read, reset, skip</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -195,7 +219,7 @@ copy bytes to a buffer
 <A NAME="ServletInputStreamCopier(java.io.InputStream)"><!-- --></A><H3>
 ServletInputStreamCopier</H3>
 <PRE>
-public <B>ServletInputStreamCopier</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">InputStream</A>&nbsp;inputStream1)</PRE>
+public <B>ServletInputStreamCopier</B>(java.io.InputStream&nbsp;inputStream1)</PRE>
 <DL>
 <DD>constructor
 <P>
@@ -217,15 +241,15 @@ public <B>ServletInputStreamCopier</B>(<A HREF="http://docs.oracle.com/javase/1.
 read</H3>
 <PRE>
 public int <B>read</B>()
-         throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></PRE>
+         throws java.io.IOException</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">read</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io">InputStream</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>read</CODE> in class <CODE>java.io.InputStream</CODE></DL>
 </DD>
 <DD><DL>
 
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?view=co" title="class or interface in java.io">IOException</A></CODE><DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/InputStream.html?view=co" title="class or interface in java.io"><CODE>InputStream.read()</CODE></A></DL>
+<DD><CODE>java.io.IOException</CODE><DT><B>See Also:</B><DD><CODE>InputStream.read()</CODE></DL>
 </DD>
 </DL>
 <HR>
@@ -240,6 +264,39 @@ public byte[] <B>getCopy</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>bytes</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isFinished()"><!-- --></A><H3>
+isFinished</H3>
+<PRE>
+public boolean <B>isFinished</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>ServletInputStream#isFinished()</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isReady()"><!-- --></A><H3>
+isReady</H3>
+<PRE>
+public boolean <B>isReady</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>ServletInputStream#isReady()</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setReadListener(ReadListener)"><!-- --></A><H3>
+setReadListener</H3>
+<PRE>
+public void <B>setReadListener</B>(ReadListener&nbsp;readListener)</PRE>
+<DL>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>ServletInputStream#setReadListener(ReadListener)</CODE></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

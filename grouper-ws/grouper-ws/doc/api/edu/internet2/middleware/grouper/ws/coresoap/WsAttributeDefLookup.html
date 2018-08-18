@@ -89,12 +89,15 @@ edu.internet2.middleware.grouper.ws.coresoap</FONT>
 <BR>
 Class WsAttributeDefLookup</H2>
 <PRE>
-<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+java.lang.Object
   <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperWsToStringCompact.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.util">GrouperWsToStringCompact</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsAttributeDefLookup</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsAttributeDefLookup</B><DT>extends java.lang.Object<DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperWsToStringCompact.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.util">GrouperWsToStringCompact</A></DL>
 </PRE>
 
 <P>
@@ -146,16 +149,16 @@ Class WsAttributeDefLookup</H2>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#WsAttributeDefLookup(java.lang.String, java.lang.String)">WsAttributeDefLookup</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name1,
-                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#WsAttributeDefLookup(java.lang.String, java.lang.String)">WsAttributeDefLookup</A></B>(java.lang.String&nbsp;name1,
+                     java.lang.String&nbsp;uuid1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#WsAttributeDefLookup(java.lang.String, java.lang.String, java.lang.String)">WsAttributeDefLookup</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name1,
-                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1,
-                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idIndex1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#WsAttributeDefLookup(java.lang.String, java.lang.String, java.lang.String)">WsAttributeDefLookup</A></B>(java.lang.String&nbsp;name1,
+                     java.lang.String&nbsp;uuid1,
+                     java.lang.String&nbsp;idIndex1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -180,28 +183,28 @@ Class WsAttributeDefLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;java.util.Set&lt;java.lang.String&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#convertToAttributeDefIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp)">convertToAttributeDefIds</A></B>(GrouperSession&nbsp;grouperSession,
                          <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
-                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                         java.lang.StringBuilder&nbsp;errorMessage,
                          AttributeDefType&nbsp;attributeDefType,
                          boolean&nbsp;usePIT,
-                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
-                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo)</CODE>
+                         java.sql.Timestamp&nbsp;pointInTimeFrom,
+                         java.sql.Timestamp&nbsp;pointInTimeTo)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeDef lookups to attributeDef ids</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;java.util.Set&lt;java.lang.String&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#convertToAttributeDefIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp, int[])">convertToAttributeDefIds</A></B>(GrouperSession&nbsp;grouperSession,
                          <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
-                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                         java.lang.StringBuilder&nbsp;errorMessage,
                          AttributeDefType&nbsp;attributeDefType,
                          boolean&nbsp;usePIT,
-                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
-                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo,
+                         java.sql.Timestamp&nbsp;pointInTimeFrom,
+                         java.sql.Timestamp&nbsp;pointInTimeTo,
                          int[]&nbsp;lookupCount)</CODE>
 
 <BR>
@@ -209,7 +212,7 @@ Class WsAttributeDefLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#getIdIndex()">getIdIndex</A></B>()</CODE>
 
 <BR>
@@ -217,7 +220,7 @@ Class WsAttributeDefLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#getName()">getName</A></B>()</CODE>
 
 <BR>
@@ -225,7 +228,7 @@ Class WsAttributeDefLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#getUuid()">getUuid</A></B>()</CODE>
 
 <BR>
@@ -271,14 +274,14 @@ Class WsAttributeDefLookup</H2>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;AttributeDef</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#retrieveAttributeDefIfNeeded(GrouperSession, java.lang.String)">retrieveAttributeDefIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
-                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)</CODE>
+                             java.lang.String&nbsp;invalidQueryReason)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the attributeDef for this lookup if not looked up yet.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;PITAttributeDef&gt;</CODE></FONT></TD>
+<CODE>&nbsp;java.util.Set&lt;PITAttributeDef&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#retrievePITAttributeDefs()">retrievePITAttributeDefs</A></B>()</CODE>
 
 <BR>
@@ -288,10 +291,10 @@ Class WsAttributeDefLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;PITAttributeDef&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#retrievePITAttributeDefsIfNeeded(java.lang.String, java.sql.Timestamp, java.sql.Timestamp)">retrievePITAttributeDefsIfNeeded</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason,
-                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
-                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo)</CODE>
+<CODE>&nbsp;java.util.Set&lt;PITAttributeDef&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#retrievePITAttributeDefsIfNeeded(java.lang.String, java.sql.Timestamp, java.sql.Timestamp)">retrievePITAttributeDefsIfNeeded</A></B>(java.lang.String&nbsp;invalidQueryReason,
+                                 java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                 java.sql.Timestamp&nbsp;pointInTimeTo)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the pit attribute defs for this lookup if not looked up yet.</TD>
@@ -299,7 +302,7 @@ Class WsAttributeDefLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setIdIndex(java.lang.String)">setIdIndex</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idIndex1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setIdIndex(java.lang.String)">setIdIndex</A></B>(java.lang.String&nbsp;idIndex1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;integer ID for object</TD>
@@ -307,7 +310,7 @@ Class WsAttributeDefLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setName(java.lang.String)">setName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setName(java.lang.String)">setName</A></B>(java.lang.String&nbsp;theName)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the attributeDef to find (includes stems, e.g.</TD>
@@ -315,14 +318,14 @@ Class WsAttributeDefLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(java.lang.String&nbsp;uuid1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the attributeDef to find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#toString()">toString</A></B>()</CODE>
 
 <BR>
@@ -330,7 +333,7 @@ Class WsAttributeDefLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
 
 <BR>
@@ -340,10 +343,10 @@ Class WsAttributeDefLookup</H2>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, wait, wait, wait</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -370,8 +373,8 @@ public <B>WsAttributeDefLookup</B>()</PRE>
 <A NAME="WsAttributeDefLookup(java.lang.String, java.lang.String)"><!-- --></A><H3>
 WsAttributeDefLookup</H3>
 <PRE>
-public <B>WsAttributeDefLookup</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name1,
-                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
+public <B>WsAttributeDefLookup</B>(java.lang.String&nbsp;name1,
+                            java.lang.String&nbsp;uuid1)</PRE>
 <DL>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>name1</CODE> - <DD><CODE>uuid1</CODE> - </DL>
@@ -381,9 +384,9 @@ public <B>WsAttributeDefLookup</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/
 <A NAME="WsAttributeDefLookup(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 WsAttributeDefLookup</H3>
 <PRE>
-public <B>WsAttributeDefLookup</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name1,
-                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1,
-                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idIndex1)</PRE>
+public <B>WsAttributeDefLookup</B>(java.lang.String&nbsp;name1,
+                            java.lang.String&nbsp;uuid1,
+                            java.lang.String&nbsp;idIndex1)</PRE>
 <DL>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>name1</CODE> - <DD><CODE>uuid1</CODE> - <DD><CODE>idIndex1</CODE> - </DL>
@@ -402,10 +405,13 @@ public <B>WsAttributeDefLookup</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/
 <A NAME="getIdIndex()"><!-- --></A><H3>
 getIdIndex</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getIdIndex</B>()</PRE>
+public java.lang.String <B>getIdIndex</B>()</PRE>
 <DL>
 <DD>integer ID for object
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the id</DL>
@@ -416,10 +422,13 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.ht
 <A NAME="setIdIndex(java.lang.String)"><!-- --></A><H3>
 setIdIndex</H3>
 <PRE>
-public void <B>setIdIndex</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;idIndex1)</PRE>
+public void <B>setIdIndex</B>(java.lang.String&nbsp;idIndex1)</PRE>
 <DL>
 <DD>integer ID for object
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>idIndex1</CODE> - </DL>
 </DD>
@@ -434,6 +443,9 @@ public boolean <B>blank</B>()</PRE>
 <DD>see if blank
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>true if blank</DL>
 </DD>
@@ -447,6 +459,9 @@ public boolean <B>hasData</B>()</PRE>
 <DL>
 <DD>see if this attributeDef lookup has data
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>true if it has data</DL>
@@ -465,6 +480,9 @@ public AttributeDef <B>retrieveAttributeDef</B>()</PRE>
  </pre>
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the attributeDef</DL>
 </DD>
@@ -474,13 +492,16 @@ public AttributeDef <B>retrieveAttributeDef</B>()</PRE>
 <A NAME="retrievePITAttributeDefs()"><!-- --></A><H3>
 retrievePITAttributeDefs</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;PITAttributeDef&gt; <B>retrievePITAttributeDefs</B>()</PRE>
+public java.util.Set&lt;PITAttributeDef&gt; <B>retrievePITAttributeDefs</B>()</PRE>
 <DL>
 <DD><pre>
  
  Note: this is not a javabean property because we dont want it in the web service
  </pre>
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the pit attributeDefs</DL>
@@ -499,6 +520,9 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/W
  </pre>
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the attributeDefFindResult, this is never null</DL>
 </DD>
@@ -508,12 +532,12 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/W
 <A NAME="toString()"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+public java.lang.String <B>toString</B>()</PRE>
 <DL>
 <DD>make sure this is an explicit toString
 <P>
 <DD><DL>
-<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+<DT><B>Overrides:</B><DD><CODE>toString</CODE> in class <CODE>java.lang.Object</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -529,6 +553,9 @@ public void <B>retrieveAttributeDefIfNeeded</B>(GrouperSession&nbsp;grouperSessi
 <DD>retrieve the attributeDef for this lookup if not looked up yet.  pass in a grouper session
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - </DL>
 </DD>
 </DL>
@@ -538,11 +565,14 @@ public void <B>retrieveAttributeDefIfNeeded</B>(GrouperSession&nbsp;grouperSessi
 retrieveAttributeDefIfNeeded</H3>
 <PRE>
 public AttributeDef <B>retrieveAttributeDefIfNeeded</B>(GrouperSession&nbsp;grouperSession,
-                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)
+                                                 java.lang.String&nbsp;invalidQueryReason)
                                           throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
 <DL>
 <DD>retrieve the attributeDef for this lookup if not looked up yet.  pass in a grouper session
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException
 <DT><B>Returns:</B><DD>the attributeDef
@@ -555,13 +585,16 @@ public AttributeDef <B>retrieveAttributeDefIfNeeded</B>(GrouperSession&nbsp;grou
 <A NAME="retrievePITAttributeDefsIfNeeded(java.lang.String, java.sql.Timestamp, java.sql.Timestamp)"><!-- --></A><H3>
 retrievePITAttributeDefsIfNeeded</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;PITAttributeDef&gt; <B>retrievePITAttributeDefsIfNeeded</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason,
-                                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
-                                                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo)
-                                                      throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+public java.util.Set&lt;PITAttributeDef&gt; <B>retrievePITAttributeDefsIfNeeded</B>(java.lang.String&nbsp;invalidQueryReason,
+                                                                       java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                                                       java.sql.Timestamp&nbsp;pointInTimeTo)
+                                                                throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
 <DL>
 <DD>retrieve the pit attribute defs for this lookup if not looked up yet.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException<DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - 
 <DT><B>Returns:</B><DD>the pit attribute def
@@ -574,10 +607,13 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?
 <A NAME="getUuid()"><!-- --></A><H3>
 getUuid</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getUuid</B>()</PRE>
+public java.lang.String <B>getUuid</B>()</PRE>
 <DL>
 <DD>uuid of the attributeDef to find
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the uuid</DL>
@@ -588,10 +624,13 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.ht
 <A NAME="setUuid(java.lang.String)"><!-- --></A><H3>
 setUuid</H3>
 <PRE>
-public void <B>setUuid</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
+public void <B>setUuid</B>(java.lang.String&nbsp;uuid1)</PRE>
 <DL>
 <DD>uuid of the attributeDef to find
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - the uuid to set</DL>
 </DD>
@@ -601,10 +640,13 @@ public void <B>setUuid</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api
 <A NAME="getName()"><!-- --></A><H3>
 getName</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getName</B>()</PRE>
+public java.lang.String <B>getName</B>()</PRE>
 <DL>
 <DD>name of the attributeDef to find (includes stems, e.g. stem1:stem2:attributeDef
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the theName</DL>
@@ -615,10 +657,13 @@ public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.ht
 <A NAME="setName(java.lang.String)"><!-- --></A><H3>
 setName</H3>
 <PRE>
-public void <B>setName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</PRE>
+public void <B>setName</B>(java.lang.String&nbsp;theName)</PRE>
 <DL>
 <DD>name of the attributeDef to find (includes stems, e.g. stem1:stem2:attributeDef
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>theName</CODE> - the theName to set</DL>
 </DD>
@@ -628,16 +673,19 @@ public void <B>setName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api
 <A NAME="convertToAttributeDefIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp)"><!-- --></A><H3>
 convertToAttributeDefIds</H3>
 <PRE>
-public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToAttributeDefIds</B>(GrouperSession&nbsp;grouperSession,
-                                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
-                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
-                                                   AttributeDefType&nbsp;attributeDefType,
-                                                   boolean&nbsp;usePIT,
-                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
-                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo)</PRE>
+public static java.util.Set&lt;java.lang.String&gt; <B>convertToAttributeDefIds</B>(GrouperSession&nbsp;grouperSession,
+                                                                       <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
+                                                                       java.lang.StringBuilder&nbsp;errorMessage,
+                                                                       AttributeDefType&nbsp;attributeDefType,
+                                                                       boolean&nbsp;usePIT,
+                                                                       java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                                                       java.sql.Timestamp&nbsp;pointInTimeTo)</PRE>
 <DL>
 <DD>convert attributeDef lookups to attributeDef ids
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeDefLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>usePIT</CODE> - <DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
 <DT><B>Returns:</B><DD>the attributeDef ids</DL>
@@ -648,17 +696,20 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Se
 <A NAME="convertToAttributeDefIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp, int[])"><!-- --></A><H3>
 convertToAttributeDefIds</H3>
 <PRE>
-public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToAttributeDefIds</B>(GrouperSession&nbsp;grouperSession,
-                                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
-                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
-                                                   AttributeDefType&nbsp;attributeDefType,
-                                                   boolean&nbsp;usePIT,
-                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
-                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo,
-                                                   int[]&nbsp;lookupCount)</PRE>
+public static java.util.Set&lt;java.lang.String&gt; <B>convertToAttributeDefIds</B>(GrouperSession&nbsp;grouperSession,
+                                                                       <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
+                                                                       java.lang.StringBuilder&nbsp;errorMessage,
+                                                                       AttributeDefType&nbsp;attributeDefType,
+                                                                       boolean&nbsp;usePIT,
+                                                                       java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                                                       java.sql.Timestamp&nbsp;pointInTimeTo,
+                                                                       int[]&nbsp;lookupCount)</PRE>
 <DL>
 <DD>convert attributeDef lookups to attributeDef ids
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeDefLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>usePIT</CODE> - <DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
 <DT><B>Returns:</B><DD>the attributeDef ids</DL>
@@ -669,10 +720,13 @@ public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Se
 <A NAME="toStringCompact()"><!-- --></A><H3>
 toStringCompact</H3>
 <PRE>
-public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toStringCompact</B>()</PRE>
+public java.lang.String <B>toStringCompact</B>()</PRE>
 <DL>
 <DD>make sure this is an explicit toString
 <P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperWsToStringCompact.html?view=co#toStringCompact()">toStringCompact</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperWsToStringCompact.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.util">GrouperWsToStringCompact</A></CODE></DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>return a compact to string</DL>
