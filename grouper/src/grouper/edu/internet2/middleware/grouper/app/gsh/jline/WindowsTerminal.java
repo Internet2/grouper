@@ -1,17 +1,3 @@
-package edu.internet2.middleware.grouper.app.gsh.jline;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.fusesource.jansi.internal.WindowsSupport;
-import org.fusesource.jansi.internal.Kernel32.INPUT_RECORD;
-import org.fusesource.jansi.internal.Kernel32.KEY_EVENT_RECORD;
-
-import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
-
-import jline.AnsiWindowsTerminal;
-
 /**
  * Copyright 2017 Internet2
  *
@@ -27,6 +13,21 @@ import jline.AnsiWindowsTerminal;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package edu.internet2.middleware.grouper.app.gsh.jline;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.fusesource.jansi.internal.WindowsSupport;
+import org.fusesource.jansi.internal.Kernel32.INPUT_RECORD;
+import org.fusesource.jansi.internal.Kernel32.KEY_EVENT_RECORD;
+
+import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
+
+import jline.AnsiWindowsTerminal;
+
 public class WindowsTerminal extends AnsiWindowsTerminal {
   
   /**
