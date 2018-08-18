@@ -37,7 +37,7 @@
                         <td style="white-space: nowrap">${guiAuditEntry.guiSubjectPerformedAction.shortLinkWithIcon}</td>
                         <td>${guiAuditEntry.grouperEngineLabel}</td>
                         <td>${guiAuditEntry.auditLine }</td>
-                        <c:if test="${grouperRequestContainer.groupContainer.auditExtendedResults }" >
+                        <c:if test="${grouperRequestContainer.subjectContainer.auditExtendedResults }" >
                           <td>${guiAuditEntry.durationLabel }</td>
                           <td>${auditEntry.queryCount}</td>
                           <td>${auditEntry.serverUserName }</td>
