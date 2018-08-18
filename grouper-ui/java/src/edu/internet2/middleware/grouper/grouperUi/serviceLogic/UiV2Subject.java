@@ -2201,6 +2201,11 @@ public class UiV2Subject {
         return;
       }
       
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      if (!grouperRequestContainer.getSubjectContainer().isCanSeeAudits()) {
+        throw new RuntimeException("Not allowed to see audits for subject!");
+      }
+      
       Member member = MemberFinder.findBySubject(grouperSession, subject, false);
   
       viewAuditsHelper(request, response, member);
@@ -2232,6 +2237,10 @@ public class UiV2Subject {
       }
       
       GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      if (!grouperRequestContainer.getSubjectContainer().isCanSeeAudits()) {
+        throw new RuntimeException("Not allowed to see audits for subject!");
+      }
+      
       grouperRequestContainer.getSubjectContainer().setAuditType(request.getParameter("auditType"));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

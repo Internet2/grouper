@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -28,14 +30,19 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubject
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
-
+/**
+ * 
+ */
 public class SubjectContainer {
 
   /**
@@ -279,6 +286,27 @@ public class SubjectContainer {
    */
   private boolean auditExtendedResults = false;
 
+  /**
+   * 
+   * @return true if can see audits
+   */
+  public boolean isCanSeeAudits() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    String error = GrouperUiFilter.requireUiGroup("uiV2.subject.seeAudits.must.be.in.group", loggedInSubject, false);
+
+    if (StringUtils.isBlank(error)) {
+      return true;
+    }
+    
+    return false;
+
+  }
+  
   /**
    * if extended results on audit display
    * @return if extended results

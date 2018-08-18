@@ -54,15 +54,19 @@
          ${textContainer.text['subjectAttributeAssignmentsButton'] }
        </a>
      </li>
-     <li class="divider"></li>
-     <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
-         >${textContainer.text['subjectViewMembershipAuditButton'] }</a></li>
+     <c:if test="${grouperRequestContainer.subjectContainer.canSeeAudits}">
      
-     <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=actions'); return false;"
-         >${textContainer.text['subjectViewActionAuditButton'] }</a></li>
-     
-     <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=privileges'); return false;"
-         >${textContainer.text['subjectViewPrivilegeAuditButton'] }</a></li>
+       <li class="divider"></li>
+       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+           >${textContainer.text['subjectViewMembershipAuditButton'] }</a></li>
+       
+       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=actions'); return false;"
+           >${textContainer.text['subjectViewActionAuditButton'] }</a></li>
+       
+       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=privileges'); return false;"
+           >${textContainer.text['subjectViewPrivilegeAuditButton'] }</a></li>
+           
+     </c:if>
          
      
    </ul>
