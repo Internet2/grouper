@@ -214,10 +214,6 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
       throw new IllegalArgumentException("grouperMessageSystemParam cannot be null.");
     }
     
-    if (queueParam.getQueueType() != queue) {
-      throw new IllegalArgumentException("Only queue type is allowed for amazon sqs messaging system.");
-    }
-    
     String queueName = queueParam.getQueueOrTopicName();
     
     if (StringUtils.isBlank(queueName)) {
@@ -226,6 +222,10 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     
     if (StringUtils.isBlank(systemParam.getMessageSystemName())) {
       throw new IllegalArgumentException("messageSystemName is a required field.");
+    }
+    
+    if (queueParam.getQueueType() != queue) {
+    	LOG.warn("For AWS SQS, only queue type is allowed.");
     }
     
     if (systemParam.isAutocreateObjects()) {
