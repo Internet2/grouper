@@ -709,7 +709,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LdapAttribute topRdnAttribute = new LdapAttribute(topRDN.getAttributeNames()[0]);
     topRdnAttribute.addStringValue( topRDN.getAttributeValues());
 
-    String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(),
+    String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate(),
             null, null,
             null, null,
             "dn", ouDn.toMinimallyEncodedString(),
