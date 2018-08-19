@@ -96,7 +96,14 @@
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz-jobs</artifactId>
       <version>${quartz.version}</version>
-    </dependency>   
+    </dependency>
+
+      <dependency>
+          <!-- Not including detailed exclusions that grouper/grouper/pom.xml included -->
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+          <version>${hibernate.core.version}</version>
+      </dependency>
 
   </dependencies>
     
