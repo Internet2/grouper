@@ -477,6 +477,7 @@
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/grouper">
 				<include name="**/*.jar"/>
+				<exclude name="javax.servlet-api-*.jar"/>
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/custom">
 				<include name="**/*.jar"/>
