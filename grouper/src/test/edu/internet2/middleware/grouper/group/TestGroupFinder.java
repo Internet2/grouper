@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.Assert;
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -66,6 +69,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -81,8 +85,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import junit.framework.Assert;
-import junit.textui.TestRunner;
 
 /**
  * @author  blair christensen.
@@ -802,9 +804,148 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testFindByAttributeAssignOnAssignValuesAndPrivilege"));
+    TestRunner.run(new TestGroupFinder("testFlashCachePrivs"));
   }
 
+  /**
+   * 
+   */
+  public void testFlashCachePrivs() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // this group has attestation
+    Group groupA = new GroupSave(grouperSession).assignName("testA:groupA").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDef attributeDefA = new AttributeDefSave(grouperSession).assignName("testA:attributeDefA")
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.attr)
+        .assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
+
+    AttributeDefName attributeDefNameA = new AttributeDefNameSave(grouperSession, attributeDefA)
+      .assignName("testA:attributeDefA").save();
+
+    Group group = null;
+    AttributeDef attributeDef = null;
+    AttributeDefName attributeDefName = null;
+
+    group = GroupFinder.findByName(grouperSession, groupA.getName(), false);
+    attributeDef = AttributeDefFinder.findByName(attributeDefA.getName(), false);
+    attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameA.getName(), false);
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    int mistakes = 0;
+    
+    group = GroupFinder.findByName(grouperSession, groupA.getName(), false);
+    if (group != null) {
+      mistakes++;
+    }
+    //assertNull(group);
+    group = GroupFinder.findByName(grouperSession, groupA.getName(), false);
+    if (group != null) {
+      mistakes++;
+    }
+    //assertNull(group);
+
+    group = GroupFinder.findByUuid(grouperSession, groupA.getId(), false);
+    if (group != null) {
+      mistakes++;
+    }
+    //assertNull(group);
+    group = GroupFinder.findByUuid(grouperSession, groupA.getId(), false);
+    if (group != null) {
+      mistakes++;
+    }
+    //assertNull(group);
+
+    group = GroupFinder.findByIdIndexSecure(groupA.getIdIndex(), false, null);
+    if (group != null) {
+      mistakes++;
+    }
+    //assertNull(group);
+    group = GroupFinder.findByIdIndexSecure(groupA.getIdIndex(), false, null);
+    if (group != null) {
+      mistakes++;
+    }
+    //assertNull(group);
+
+    attributeDef = AttributeDefFinder.findByName(attributeDefA.getName(), false);
+    if (attributeDef != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByName(attributeDefA.getName(), false);
+    if (attributeDef != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDef);
+
+    attributeDef = AttributeDefFinder.findById(attributeDefA.getId(), false);
+    if (attributeDef != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDef);
+    attributeDef = AttributeDefFinder.findById(attributeDefA.getId(), false);
+    if (attributeDef != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDef);
+
+    attributeDef = AttributeDefFinder.findByIdIndexSecure(attributeDefA.getIdIndex(), false, null);
+    if (attributeDef != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByIdIndexSecure(attributeDefA.getIdIndex(), false, null);
+    if (attributeDef != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDef);
+
+    attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameA.getName(), false);
+    if (attributeDefName != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameA.getName(), false);
+    if (attributeDefName != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDefName);
+    
+    attributeDefName = AttributeDefNameFinder.findById(attributeDefNameA.getId(), false);
+    if (attributeDefName != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findById(attributeDefNameA.getId(), false);
+    if (attributeDefName != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDefName);
+
+    attributeDefName = AttributeDefNameFinder.findByIdIndexSecure(attributeDefNameA.getIdIndex(), false, null);
+    if (attributeDefName != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByIdIndexSecure(attributeDefNameA.getIdIndex(), false, null);
+    if (attributeDefName != null) {
+      mistakes++;
+    }
+    //assertNull(attributeDefName);
+
+    assertEquals(0, mistakes);
+
+    
+  }
+  
   /**
    * 
    */
