@@ -519,6 +519,7 @@ public class GroupFinder {
     return findByName(s, name, exceptionIfNotFound, null);
   }
 
+  
   /**
    * Find a group within the registry by name.
    * <pre class="eg">
@@ -538,6 +539,7 @@ public class GroupFinder {
    */
   public static Group findByName(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws GroupNotFoundException {
+    
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     
@@ -550,7 +552,7 @@ public class GroupFinder {
     if (g != null) {
       return g;
     }      
-    
+
     g = findByNameNoCache(s, name, exceptionIfNotFound, queryOptions);
     
     if (g != null) {
@@ -560,7 +562,7 @@ public class GroupFinder {
     return g;
 
   }
-  
+      
   /**
    * Find a group within the registry by name.
    * <pre class="eg">
@@ -821,7 +823,6 @@ public class GroupFinder {
       throws GroupNotFoundException {
     return findByUuid(s, uuid, exceptionIfNotFound, null);
   }
-
   /**
    * Find a group within the registry by UUID.
    * <pre class="eg">
@@ -872,24 +873,9 @@ public class GroupFinder {
    */
   private static Group findByUuidNoCache(GrouperSession s, String uuid, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
       throws GroupNotFoundException {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-
-    Group g = groupCacheAsRootRetrieve(uuid, queryOptions);
-    if (g != null) {
-      return g;
-    }      
-
-    g = groupFlashCacheRetrieve(uuid, queryOptions);
-    if (g != null) {
-      return g;
-    }      
     
     try {
-      g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true, queryOptions);
-      
-      groupCacheAsRootAddIfSupposedTo(g);
-      groupFlashCacheAddIfSupposedTo(g);
+      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true, queryOptions);
       
       if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
         return g;
