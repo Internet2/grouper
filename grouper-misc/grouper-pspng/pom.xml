@@ -76,25 +76,22 @@
     </dependency>
     <dependency>
     	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-    	<groupId>org.slf4j</groupId>
     	<artifactId>slf4j-log4j12</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz</artifactId>
-      <version>${quartz.version}</version>
+        <groupId>org.quartz-scheduler</groupId>
+        <artifactId>quartz</artifactId>
+        <exclusions>
+          <!-- ? quartz pool is using c3p0, not using hikariCP -->
+          <exclusion>
+              <groupId>com.zaxxer</groupId>
+              <artifactId>HikariCP-java6</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz-jobs</artifactId>
-      <version>${quartz.version}</version>
-    </dependency>   
 
   </dependencies>
-    
+        
   <build>
 	<plugins>
 	    <plugin>
