@@ -32,10 +32,10 @@ rm -rf /home/mchyzer/tmp/mchyzer_build
 mkdir /home/mchyzer/tmp/mchyzer_build
 cd /home/mchyzer/tmp/mchyzer_build/
 wget https://github.com/Internet2/grouper-psp/archive/"$gitPspTag".zip
-mv "$gitPspTag" "$gitPspTag".zip
+#mv "$gitPspTag" "$gitPspTag".zip
 unzip "$gitPspTag".zip
 wget https://github.com/Internet2/grouper/archive/"$gitGrouperTag".zip
-mv "$gitGrouperTag" "$gitGrouperTag".zip
+#mv "$gitGrouperTag" "$gitGrouperTag".zip
 unzip "$gitGrouperTag".zip
 rm *.zip
 
@@ -59,10 +59,14 @@ FULLPOM=effective-pom.xml
 echo "Getting our effective pom"
 mvn -q help:effective-pom "-Doutput=$FULLPOM"
 
-ARTIFACT=$(xpath "$FULLPOM" 'project/artifactId/text()')
-VERSION=$(xpath "$FULLPOM" 'project/version/text()')
-TYPE=$(xpath "$FULLPOM" 'project/packaging/text()')
-NAME=$(xpath "$FULLPOM" 'project/name/text()')
+#ARTIFACT=$(xpath "$FULLPOM" 'project/artifactId/text()')
+ARTIFACT=$(xpath effective-pom.xml "/*[name()='project']/*[name()='artifactId']/text()")
+#VERSION=$(xpath "$FULLPOM" 'project/version/text()')
+VERSION=$(xpath effective-pom.xml "/*[name()='project']/*[name()='version']/text()")
+#TYPE=$(xpath "$FULLPOM" 'project/packaging/text()')
+TYPE=$(xpath effective-pom.xml "/*[name()='project']/*[name()='packaging']/text()")
+#NAME=$(xpath "$FULLPOM" 'project/name/text()')
+NAME=$(xpath effective-pom.xml "/*[name()='project']/*[name()='name']/text()")
 [ -z "$TYPE" ] && TYPE=jar
 
 
