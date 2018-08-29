@@ -973,6 +973,26 @@ public class GrouperLoaderResultset {
 
                     envVars.put("groupAttribute", attributeValue);
 
+                    Map<String, Object> groupAttributes = new HashMap<String, Object>();
+                    groupAttributes.put(attribute, attributeValue);
+
+                    if (!StringUtils.isBlank(extraAttributes)) {
+                      for (String currGroupAttributeName : extraAttributeArray) {
+                        LdapAttribute tmpAttribValue = searchResult.getAttribute(currGroupAttributeName);
+
+                        if (tmpAttribValue != null) {
+
+                          if (tmpAttribValue.getStringValues().size() > 1) {
+                            throw new RuntimeException(
+                                    "Grouper LDAP loader only supports single valued group attributes at this point: "
+                                            + currGroupAttributeName);
+                          }
+                          groupAttributes.put(currGroupAttributeName, tmpAttribValue.getStringValues().iterator().next());
+                        }
+                      }
+                    }
+                    envVars.put("groupAttributes", groupAttributes);
+
                     if (!StringUtils.isBlank(groupNameExpression)) {
                       groupName = LoaderLdapUtils.substituteEl(groupNameExpression,
                           envVars);

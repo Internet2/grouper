@@ -484,18 +484,6 @@
                               <br /><span class="description">${textContainer.text['grouperLoaderLdapSubjectExpressionDescription']}</span>
                             </td>
                           </tr>
-	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'}">
-
-	                          <tr>
-	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapExtraAttributesId">${textContainer.text['grouperLoaderLdapExtraAttributes']}</label></strong></td>
-	                            <td>
-	                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapExtraAttributes)}"
-	                                 name="editLoaderLdapExtraAttributesName" id="editLoaderLdapExtraAttributesId" />
-	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapExtraAttributesDescription']}</span>
-	                            </td>
-	                          </tr>
-
-	                        </c:if>
 	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
 	                            
 	                          <tr>
@@ -529,6 +517,14 @@
 
 	                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'
 	                            || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+	                          <tr>
+	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapExtraAttributesId">${textContainer.text['grouperLoaderLdapExtraAttributes']}</label></strong></td>
+	                            <td>
+	                              <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapExtraAttributes)}"
+	                                 name="editLoaderLdapExtraAttributesName" id="editLoaderLdapExtraAttributesId" />
+	                              <br /><span class="description">${textContainer.text['grouperLoaderLdapExtraAttributesDescription']}</span>
+	                            </td>
+	                          </tr>
 	                          <tr>
 	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderLdapGroupsLike']}</label></strong></td>
 	                            <td>

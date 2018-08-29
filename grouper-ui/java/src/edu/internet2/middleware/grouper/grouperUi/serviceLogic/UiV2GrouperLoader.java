@@ -1196,11 +1196,9 @@ public class UiV2GrouperLoader {
             grouperLoaderContainer.setEditLoaderLdapGroupAttributeName(grouperLoaderContainer.getLdapGroupAttributeName());
           }
           grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
-          if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType())) {
-            grouperLoaderContainer.setEditLoaderLdapExtraAttributes(grouperLoaderContainer.getLdapExtraAttributes());
-          }
-          if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType()) 
+          if (StringUtils.equals("LDAP_GROUP_LIST", grouperLoaderContainer.getEditLoaderLdapType())
               || StringUtils.equals("LDAP_GROUPS_FROM_ATTRIBUTES", grouperLoaderContainer.getEditLoaderLdapType())) {
+            grouperLoaderContainer.setEditLoaderLdapExtraAttributes(grouperLoaderContainer.getLdapExtraAttributes());
             grouperLoaderContainer.setEditLoaderLdapGroupDescriptionExpression(grouperLoaderContainer.getLdapGroupDescriptionExpression());
             grouperLoaderContainer.setEditLoaderLdapGroupDisplayNameExpression(grouperLoaderContainer.getLdapGroupDisplayNameExpression());
             grouperLoaderContainer.setEditLoaderLdapGroupNameExpression(grouperLoaderContainer.getLdapGroupNameExpression());
@@ -1965,7 +1963,8 @@ public class UiV2GrouperLoader {
           if (StringUtils.isBlank(grouperLoaderContainer.getLdapExtraAttributes())) {
             loaderReport.append("<font color='green'>SUCCESS:</font> Extra attributes are not set\n");
           } else {
-            if (grouperLoaderType != GrouperLoaderType.LDAP_GROUP_LIST) {
+            if (grouperLoaderType != GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES
+                    && grouperLoaderType != GrouperLoaderType.LDAP_GROUP_LIST) {
               loaderReport.append("<font color='red'>ERROR:</font> Extra attributes are set but shouldnt be for " + grouperLoaderType + "\n");
             } else {
               loaderReport.append("<font color='green'>SUCCESS:</font> Extra attributes are set for " + grouperLoaderType + "\n");
@@ -2132,9 +2131,12 @@ public class UiV2GrouperLoader {
 
               if (!fatal && GrouperUtil.length(results) > 0) {
                 String firstResult = results.get(0);
-                
-                grouperLoaderFindSubject(loaderReport, firstResult, grouperLoaderContainer.getLdapSubjectExpression(), 
-                    grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType());
+
+                Map<String, Object> envVars = new HashMap<String, Object>();
+                envVars.put("subjectId", firstResult);
+
+                grouperLoaderFindSubject(loaderReport, firstResult, grouperLoaderContainer.getLdapSubjectExpression(),
+                    grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType(), envVars);
 
               }
               
@@ -2462,7 +2464,7 @@ public class UiV2GrouperLoader {
             sourceId = (String)grouperLoaderResultset.getCell(0, "SUBJECT_SOURCE_ID", true);
           }
           grouperLoaderFindSubject(loaderReport, subjectId, null, 
-              sourceId, subjectCol);
+              sourceId, subjectCol, null);
         }
         
         
@@ -3090,9 +3092,11 @@ public class UiV2GrouperLoader {
     }
   
     if (subObjectOverallCount[0] > 0) {
-      
+      Map<String, Object> envVars = new HashMap<String, Object>();
+      envVars.put("subjectId", firstValueObject[0]);
+
       grouperLoaderFindSubject(loaderReport, firstValueObject[0], grouperLoaderContainer.getLdapSubjectExpression(), 
-          grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType());
+          grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType(), envVars);
       
     } else {
       loaderReport.append("<font color='red'>ERROR:</font> Did not find any subjects.  Is the attribute configured correctly?\n");
@@ -3247,12 +3251,13 @@ public class UiV2GrouperLoader {
             }
           }
           envVars.put("subjectAttributes", subjectAttributes);
+
           try {
             subjectId = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapSubjectExpression(),
                 envVars);
             if (firstObject) {
-              loaderReport.append("<font color='blue'>SUCCESS:</font> subjectId is: '" + subjectId 
-                  + "' after subjectExpression '" + grouperLoaderContainer.getLdapSubjectExpression() + "'\n");
+              grouperLoaderFindSubject(loaderReport, subjectId, grouperLoaderContainer.getLdapSubjectExpression(),
+                      grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType(), envVars);
             }
           } catch (Exception e) {
             loaderReport.append("<font color='red'>ERROR:</font> Could not run expression language: '" + grouperLoaderContainer.getLdapSubjectExpression() + "'\n");
@@ -3351,6 +3356,26 @@ public class UiV2GrouperLoader {
 
                     envVars.put("groupAttribute", attributeValue);
 
+                    Map<String, Object> groupAttributes = new HashMap<String, Object>();
+                    groupAttributes.put(attribute, attributeValue);
+
+                    if (!StringUtils.isBlank(grouperLoaderContainer.getLdapExtraAttributes())) {
+                      for (String currGroupAttributeName : extraAttributeArray) {
+                        LdapAttribute tmpAttribValue = entry.getAttribute(currGroupAttributeName);
+
+                        if (tmpAttribValue != null) {
+
+                          if (tmpAttribValue.getStringValues().size() > 1) {
+                            throw new RuntimeException(
+                                    "Grouper LDAP loader only supports single valued group attributes at this point: "
+                                            + currGroupAttributeName);
+                          }
+                          groupAttributes.put(currGroupAttributeName, tmpAttribValue.getStringValues().iterator().next());
+                        }
+                      }
+                    }
+                    envVars.put("groupAttributes", groupAttributes);
+
                     if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())) {
                       try {
 
@@ -3420,13 +3445,6 @@ public class UiV2GrouperLoader {
                 List<String> valueResults = result.get(groupName);
                 //add the subject
                 valueResults.add(subjectId);
-
-                if (firstObject) {
-                  grouperLoaderFindSubject(loaderReport, subjectId, grouperLoaderContainer.getLdapSubjectExpression(), 
-                      grouperLoaderContainer.getLdapSourceId(), grouperLoaderContainer.getLdapSubjectLookupType());
-
-                }
-
               }
             }
           }
@@ -3469,8 +3487,8 @@ public class UiV2GrouperLoader {
    * @param sourceId
    * @param subjectIdType
    */
-  private static void grouperLoaderFindSubject(StringBuilder loaderReport, String subjectIdOrIdentifier, String ldapSubjectExpression, 
-          String sourceId, String subjectIdType) {
+  private static void grouperLoaderFindSubject(StringBuilder loaderReport, String subjectIdOrIdentifier, String ldapSubjectExpression,
+          String sourceId, String subjectIdType, Map<String, Object> envVars) {
     
     String defaultSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString(
         GrouperLoaderConfig.DEFAULT_SUBJECT_SOURCE_ID);
@@ -3479,11 +3497,6 @@ public class UiV2GrouperLoader {
     subjectIdType = GrouperUtil.defaultIfBlank(subjectIdType, "subjectId");
     
     if (!StringUtils.isBlank(ldapSubjectExpression)) {
-
-      Map<String, Object> envVars = new HashMap<String, Object>();
-      envVars.clear();
-      envVars.put("subjectId", subjectIdOrIdentifier);
-
       try {
         String newSubjectId = LoaderLdapUtils.substituteEl(ldapSubjectExpression, envVars);
         loaderReport.append("<font color='green'>SUCCESS:</font> Massaged subjectId with ldap subject expression: '" + 
