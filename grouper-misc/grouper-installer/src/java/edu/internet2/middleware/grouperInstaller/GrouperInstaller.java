@@ -2478,6 +2478,9 @@ public class GrouperInstaller {
 
       String wikiMarkup = "    <tr>\n"
         + "      <td>\n"
+        + "        <p>" + new SimpleDateFormat("yyyy/MM/dd").format(new Date()) + "</p>\n"
+        + "      </td>\n"
+        + "      <td>\n"
         + "        <p>\n"
         + "          <a href=\"https://software.internet2.edu/grouper/release/" + grouperVersion + "/patches/" + patchName + ".tar.gz\">" + patchName + "</a>\n"
         + "        </p>\n"
