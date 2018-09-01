@@ -1,0 +1,15 @@
+#!/bin/bash
+
+PATH=/scripts:$PATH
+
+wait-for-it.sh -h ${MYSQL_HOST:-db} -p ${MYSQL_PORT:-3306} -t 60
+
+echo -n Waiting for mysql server to respond...
+
+while ! mysql-as-root --execute "show databases" >/dev/null 2>&1;
+do
+  echo -n .
+  sleep 1
+done
+
+echo ready

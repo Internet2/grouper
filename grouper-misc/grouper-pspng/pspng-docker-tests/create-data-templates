@@ -1,0 +1,135 @@
+#!/bin/bash
+
+ME="${BASH_SOURCE[0]}"
+D=$(dirname "$ME")
+cd "$D"
+
+. scripts/functions.bash
+
+. scripts/shflags
+
+DEFINE_boolean keep_ldap $FLAGS_FALSE "Avoid rebuilding ldap data" L
+DEFINE_boolean keep_db $FLAGS_FALSE "Avoid rebuilding database data" D
+
+FLAGS_HELP="$(basename "$ME")"
+
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+DOCKER_COMPOSE="docker-compose -f $D/docker-compose/docker-compose.yml -p template_building_$$"
+
+export VOLUME_SUFFIX=template
+
+# minimal volumes needed to run docker-compose
+for volume in db-data-template ldap-data-template ldap-config-template; do
+    if ! docker volume inspect $volume >/dev/null 2>&1; then
+      docker volume create $volume
+    fi
+done
+
+# initialize the ldap data
+if [ $FLAGS_keep_ldap -eq $FLAGS_FALSE ]; then
+  $DOCKER_COMPOSE ps
+
+  # Remove the old ldap data 
+  for volume in ldap-data-template ldap-config-template; do
+    echo Removing volume $volume if it exists
+    if docker volume inspect $volume >/dev/null 2>&1; then
+      # Stop and remove any containers using the volume about to be deleted
+      CONTAINERS=$(docker ps -q --filter=volume=$volume)
+      if [ -n "$CONTAINERS" ]; then
+        echo Stopping containers using $volume: $CONTAINERS
+        docker rm -f $CONTAINERS
+      fi
+      docker volume rm $volume
+    fi
+  done
+  
+  docker volume create ldap-data-template
+  docker volume create ldap-config-template
+  C_LDAP=$($DOCKER_COMPOSE up -d ldap)
+
+  $DOCKER_COMPOSE exec -T ldap await-ldap-server
+
+  #### DONE WITH LDAP SETUP
+  # $DOCKER_COMPOSE logs ldap
+
+  # some of our example data is missing eduPerson objectclass
+  $DOCKER_COMPOSE exec -T ldap /scripts/fix-ldap-objectclasses
+
+  echo "LDAP template is done"
+fi
+
+
+# MYSQL SETUP
+if [ $FLAGS_keep_db -eq $FLAGS_FALSE ]; then
+  $DOCKER_COMPOSE ps
+
+  # Remove old database data
+  for volume in db-data-template; do
+    if docker volume inspect $volume >/dev/null 2>&1; then
+      # Stop and remove any containers using the volume about to be deleted
+      CONTAINERS=$(docker ps -q --filter=volume=$volume)
+      if [ -n "$CONTAINERS" ]; then
+        echo Stopping containers using $volume: $CONTAINERS
+        docker rm -f $CONTAINERS
+      fi
+      docker volume rm $volume
+    fi
+  done
+  
+  docker volume create db-data-template
+
+  log_always "Staring database container"
+  C_DB=$($DOCKER_COMPOSE up -d db)
+
+  $DOCKER_COMPOSE exec -T db wait-for-it.sh -t 60 db:3306
+  $DOCKER_COMPOSE exec -T db mysql-as-root --execute "CREATE DATABASE grouper CHARACTER SET utf8 COLLATE utf8_bin"
+
+  log_always "Starting LDAP to support grouper daemon"
+  C_LDAP=$($DOCKER_COMPOSE up -d ldap)
+
+  #get a grouper-daemon image running for gsh (it won't actually run grouper daemon)
+  log_always "Starting grouper gsh server"
+  $DOCKER_COMPOSE build grouper-daemon
+  C_GSH=$($DOCKER_COMPOSE run -d grouper-daemon bash -c "/install-grouper-configs && sleep 1800")  
+  sleep 5
+  docker exec $C_GSH gsh -registry -reset -noprompt || true
+  docker exec $C_GSH bash -c "grouper-sql < /opt/grouper/grouper.apiBinary/ddlScripts/*"
+
+  # Stop this gsh container
+  docker rm -f $C_GSH
+
+  echo "Mysql template is done"
+fi #Done with mysql/db setup
+
+# Let grouper daemon run a while to get through changelog, etc
+C_DAEMON=$($DOCKER_COMPOSE run -d grouper-daemon)
+
+# Enough for daemon to get going
+INIT_DURATION_SECS=20
+START_T=$(date +%s)
+STOP_T=$((START_T+INIT_DURATION_SECS))
+echo "Running daemon for $INIT_DURATION_SECS seconds: $C_DAEMON"
+
+docker logs -f $C_DAEMON &
+
+while [ $(date +%s) -lt $STOP_T ]; do
+  if ! docker inspect $C_DAEMON > /dev/null; then
+    echo daemon has unexpectedly died
+    break
+  fi
+
+  echo -n .
+  sleep 1
+done
+
+docker exec $C_DAEMON await-changelog-completion
+
+echo ""
+echo "stopping containers"
+$DOCKER_COMPOSE rm --stop -f 

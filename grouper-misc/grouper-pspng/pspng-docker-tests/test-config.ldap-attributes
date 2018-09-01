@@ -1,0 +1,70 @@
+_D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
+. "$_D/test-config.defaults"
+TEST_CONF=$_D/test-config-files
+
+#
+# This function is to output (to stdout) what grouper-loader.properties should be
+# installed in the api/conf directory
+function output_grouper_loader_properties() 
+{
+  log_always "Building grouper-loader.properties with ldap and eduPersonEntitlement (epe) paragraphs"
+  (cd $TEST_CONF;cat pspng-config-ldap.properties pspng-config-epe.properties)
+}
+
+function validate_provisioning()
+{
+  local usage="USAGE: validate_provisioning <group> <correct members (comma-separated, alphabetical)>"
+
+  local group="${1:?$usage}"
+  local correct_members="${2:?$usage}"
+
+  test_step "Checking provisioning: $group"
+  x=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu eduPersonEntitlement=g:$group uid | noAttributeLabels | sort | removeNewLines")
+  assert_equals "$correct_members" "$x" "provisioning for group $group" 
+}
+  
+function directly_remove_member()
+{
+  local usage="USAGE: directly_remove_member <group> <member>"
+
+  local group="${1:?$usage}"
+  local member="${2:?$usage}"
+
+  test_step "Direct LDAP change: Removing $group entitlement from $member"
+  local entitlement="g:$group"
+
+  local user_dn=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu uid=$member dn | noAttributeLabels --show-dn")
+
+  assert_not_empty "$user_dn" "User expected to exist: $member"
+
+  local LDIF="dn: $user_dn
+delete: eduPersonEntitlement
+eduPersonEntitlement: $entitlement"
+
+  run_in_grouper_daemon myldapmodify <<< "$LDIF"
+}
+
+
+function directly_add_member()
+{
+  local usage="USAGE: directly_add_member <group> <member>"
+
+  local group="${1:?$usage}"
+  local member="${2:?$usage}"
+
+  test_step "Direct LDAP change: Adding $group entitlement from $member"
+  local entitlement="g:$group"
+
+  local user_dn=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu uid=$member dn | noAttributeLabels --show-dn")
+
+  assert_not_empty "$user_dn" "User expected to exist: $member"
+
+  local LDIF="dn: $user_dn
+add: eduPersonEntitlement
+eduPersonEntitlement: $entitlement"
+
+  run_in_grouper_daemon myldapmodify <<< "$LDIF"
+}
+
+
+

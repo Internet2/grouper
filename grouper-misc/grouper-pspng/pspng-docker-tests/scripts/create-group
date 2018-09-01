@@ -1,0 +1,23 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string group_name "" "Full path to group"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_group_name" ] && fail "--group_name must be specified"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+$GSH << EOF
+gs = GrouperSession.startRootSession();
+group = new GroupSave(gs).assignName("$FLAGS_group_name").assignGroupNameToEdit("$FLAGS_group_name").assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignCreateParentStemsIfNotExist(true).save();
+
+EOF

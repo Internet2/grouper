@@ -1,0 +1,15 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+PATH="$D:$PATH"
+. "$D/functions.bash"
+
+tempfile_into_T
+
+cat > $T
+
+# add a newline because unldif.sed doesn't work well when the ldif paragraph does not
+# have a blank line
+echo "" >>$T
+
+unldif.sed < $T | egrep -v --line-buffered "^$"

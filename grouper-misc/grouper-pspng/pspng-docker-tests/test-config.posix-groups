@@ -1,0 +1,114 @@
+_D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
+. "$_D/test-config.defaults"
+TEST_CONF=$_D/test-config-files
+
+#
+# This function is to output (to stdout) what grouper-loader.properties should be
+# installed in the api/conf directory
+function output_grouper_loader_properties() 
+{
+  log_always "Building grouper-loader.properties with ldap and posix-group paragraphs"
+  (cd $TEST_CONF; cat pspng-config-ldap.properties pspng-config-posix.properties)
+}
+
+# This function helps share the validate_provisioning function
+# across flat and bushy provisioning patterns (where CNs are different)
+function get_cn_from_group_name()
+{
+  local usage="USAGE: get_cn_from_group_name <group>"
+
+  local group="${1:?$usage}"
+
+  echo posix-$group
+}
+  
+function get_ldap_group_attribute()
+{
+  local usage="USAGE: get_ldap_group_attribute <group> <attribute name>"
+
+  [ $# -ne 2 ] && fail "$USAGE"
+
+  local group="${1:?$usage}"
+  local attribute_name="${2}"
+  local group_cn=$(get_cn_from_group_name "$group")
+
+  g_ldif=$(run_in_grouper_daemon myldapsearch -b dc=example,dc=edu "(&(objectclass=posixgroup)(cn=$group_cn))" $attribute_name)
+  assert_not_empty "$g_ldif" "Group expected group to exist: $group_cn"
+
+  #log_always "LDIF: $(tr \\n \| <<<"$g_ldif")"
+
+  if [ "$attribute_name" = dn ]; then
+    # we use run_in_grouper_daemon to avoid nuances of parent platform
+    echo "$g_ldif" | run_in_grouper_daemon noAttributeLabels --show-dn
+  else
+    echo "$g_ldif" | run_in_grouper_daemon noAttributeLabels
+  fi
+}
+  
+
+function validate_group_attribute()
+{
+  local usage="USAGE: validate_group_attribute <group> <attribute_name> <correct_value>"
+
+  local group="${1:?$usage}"
+  local attribute_name="${2:?$usage}"
+  local correct_value="${3:?$usage}"
+
+  test_step "Checking attribute: $group, expecting $attribute_name='$correct_value'"
+  
+  x=$(get_ldap_group_attribute "$group" $attribute_name | sort | run_in_grouper_daemon removeNewLines )
+  assert_equals "$correct_value" "$x" "$attribute_name of group $group" 
+}
+
+
+function validate_provisioning()
+{
+  local usage="USAGE: validate_provisioning <group> <correct members (comma-separated, alphabetical)>"
+
+  local group="${1:?$usage}"
+  local correct_members="${2:?$usage}"
+
+  test_step "Checking provisioning: $group, expecting '$correct_members'"
+  
+  validate_group_attribute "$group" memberUid "$correct_members"
+}
+  
+
+function directly_remove_member()
+{
+  local usage="USAGE: directly_remove_member <group> <member>"
+
+  local group="${1:?$usage}"
+  local member="${2:?$usage}"
+
+  test_step "Direct LDAP change: Removing $member from $group"
+  g_dn=$(get_ldap_group_attribute "$group" dn)
+
+  assert_not_empty "$g_dn" "Group expected to exist: posix-$group"
+
+  local LDIF="dn: $g_dn
+delete: memberUid
+memberUid: $member"
+
+  run_in_grouper_daemon myldapmodify <<< "$LDIF"
+}
+
+
+function directly_add_member()
+{
+  local usage="USAGE: directly_add_member <group> <member>"
+
+  local group="${1:?$usage}"
+  local member="${2:?$usage}"
+
+  test_step "Direct LDAP change: Removing $member from $group"
+  g_dn=$(get_ldap_group_attribute "$group" dn)
+
+  assert_not_empty "$g_dn" "Group expected to exist: posix-$group"
+
+  local LDIF="dn: $g_dn
+add: memberUid
+memberUid: $member"
+
+  run_in_grouper_daemon myldapmodify <<< "$LDIF"
+}

@@ -1,0 +1,173 @@
+#!/bin/bash
+
+# RUN_TESTS is a harness that runs runs test scripts multiple times,
+# one time for each of their compatible configs (as defined in a configs:
+# comment in the scripts).
+#
+# RUN_TESTS runs the tests, collecting results and logs, and then cleans
+# up the docker components.
+#
+# RUN_TESTS theoretically has the ability to run multiple tests (as defined by N_JOBS) at the
+# same time, each one running within a different docker-compose cluster,
+# but I haven't been able to run more than one set of containers (daemon, ldap, db)
+# on my workstation to make sure the paralell details are tested
+#
+# WARNING: RUN_TESTS probably needs to run on OSX or Linux (untested) at the moment. 
+# I suppose it is possible that RUN_TESTS would run under cygwin, etc, but that seems
+# unlikely
+#
+# FUTURE: RUN_TESTS itself and all the subprocesses should probably run in docker
+# containers themselves to remove dependencies on developer workstations.
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+export TMPDIR=/tmp
+
+ME=$(basename "$0")
+D=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd -P)
+cd "$D"
+
+PATH="$D:$D/scripts:$PATH"
+
+export TOP_PID=$$
+
+# If N_JOBS is defined, then use gnu parallel's sem command
+# to run things
+if [ -n "${N_JOBS:-}" ]; then
+  SEM="sem --verbose"
+  SEM_TEST="$SEM -j${N_JOBS:-1}  --id ${TOP_PID}-TESTS"
+else
+  SEM=
+  SEM_TEST=
+fi
+
+. ./functions.bash
+
+tempdir_into_T
+export TT="$T"
+
+# A file for the progress
+touch $TT/progress
+function log_progress {
+  echo $(date) "$@" >> $TT/progress
+}
+
+log_progress "RUN_TESTS has started"
+add_cleanup_command log_progress "RUN_TESTS has stopped"
+
+if [ "$(uname)" = Darwin ]; then
+  #Build a script to run in a separate window
+  echo "#!/bin/bash
+  tail -n +0 -f $TT/progress" > $T/progress-watcher
+  chmod 755 $T/progress-watcher
+
+  open $T/progress-watcher
+else
+  echo "Progress can be monitored with this command:"
+  echo "   tail -n +0 -f $TT/progress"
+  echo ""
+
+  sleep 5
+fi
+
+# A file to contain result summary and log-file information
+touch $T/result_details
+add_cleanup_command cat $T/result_details
+
+# Keep temp files, but clean-up containers
+export KEEP_TEMP=yes 
+export KEEP_VM=no
+
+export COUNTER_FILE=$TT/counter
+echo 0 > $COUNTER_FILE
+
+# This reads the counter file, adds one to it and prints it
+# This is not thread-safe, so it has to be run under a single-job semaphore
+# (see get_next_counter)
+increment_counter() {
+  local x=$(cat $COUNTER_FILE)
+  y=$((x+1))
+  echo $y > $COUNTER_FILE
+  printf "%03d" $y
+}
+
+# Run increment_counter in a parallel-safe manner (under a single-job semaphore)
+get_next_counter() {
+  if [ -n "${N_JOBS:-}" ]; then
+    # Run under a locking semaphore
+    $SEM --id ${TOP_PID}-COUNTER -j1 --fg increment_counter
+  else
+    # No need for semaphore
+    increment_counter
+  fi
+}
+
+# functions need to be exported for sem to be able to run them
+export -f increment_counter get_next_counter
+
+
+runtest() {
+  local CMD="$@"
+  local TEST_NUMBER=$(get_next_counter)
+
+  export TEST_DIR=$TT/test.${TEST_NUMBER}.d
+  mkdir $TEST_DIR
+
+  export TEST_LOG_FILE="$TEST_DIR/test_log"
+
+  (
+    echo "Starting test #$TEST_NUMBER: $(date)"
+    log_progress "STARTING:     test #$TEST_NUMBER - $CMD" 
+
+    start=$(date +%s)
+
+    #run the test
+    if "$@"
+    then
+      RESULT=SUCCESS
+    else
+      RESULT=FAILURE
+    fi
+    local end=$(date +%s)
+    local dur=$((end - start))
+  
+    log_progress "DONE-$RESULT test #$TEST_NUMBER - $CMD [$dur secs]" 
+    echo "test #$TEST_NUMBER - $RESULT - $CMD - $dur seconds" | tee -a $TT/result_details
+    ls $TEST_DIR/* | sed 's/^/    --> /' | tee -a $TT/result_details
+
+  ) 2>&1 | sed_  "s/^/$TEST_NUMBER $CMD: /" | tee $TEST_LOG_FILE
+  
+  # Output progress summary thus far
+  cat $TT/progress
+}
+
+# functions need to be exported for sem to be able to run them
+export -f runtest
+
+if [ $# -eq 0 ]; then
+  TESTS=test*.sh
+else
+  TESTS=$*
+fi
+
+for test_script in $TESTS
+do
+  configs=$(grep_ --max-count=1 configs: $test_script | sed -e 's/.*configs: *//' -e 's/,/ /g' )
+
+  if [ -z "$configs$" ]; then
+    # no configs defined, so just run the script
+    $SEM_TEST runtest $test_script $config
+  else
+    # loop through the configs that the scripts says it supports
+    for config in $configs
+    do
+      $SEM_TEST runtest $test_script $config
+    done
+  fi
+done
+
+[ -n "${SEM_TEST}" ] && $SEM_TEST --wait
+
+cat $T/result_details

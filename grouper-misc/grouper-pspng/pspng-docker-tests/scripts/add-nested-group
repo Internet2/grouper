@@ -1,0 +1,36 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string group "" "Full path to group"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_group" ] && fail "--group must be specified"
+[ $# -eq 0 ] && fail "No members listed to be added"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+tempfile_into_T
+cat >$T <<EOF
+gs = GrouperSession.startRootSession();
+group = getGroups("$FLAGS_group").iterator().next();
+$(for nested_group in "$@"; do 
+  echo "n = getGroups(\"$nested_group\").iterator().next().getName();"
+  echo 'x=SubjectFinder.findByIdentifier(n,"g:gsa",true);'
+  echo "group.addMember(x);"
+done)
+
+EOF
+
+echo Running GSH with:
+cat $T
+echo ===
+
+$GSH < $T

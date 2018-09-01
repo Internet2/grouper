@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# This copies any grouper config files from 
+# /grouper-config*.d (in alphabetical order) to
+# gropuer's config areas 
+#
+# NOTE: configs are only installed into api/conf right now
+
+for d in /grouper-config*.d
+do
+  if [ ! -d "$d" ]; then echo "Skipping non-directory config folder: $d"; continue; fi
+  if [ ! -r "$d" ]; then echo "Skipping unreadable config folder: $d"; continue; fi
+
+  cp -p "$d"/* /opt/grouper/grouper.apiBinary/conf
+done
+

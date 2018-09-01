@@ -1,0 +1,8 @@
+HenPlus is a SQL/JDBC commandline tool. See https://sourceforge.net/projects/henplus/.
+
+You can run ./henplus to see the current henplus version. 
+
+The contents of this directory are a runnable version of henplus:
+  - the henplus.jar file that results from running 'ant build' in the henplus source
+  - the dependent  jars included in lib/ in the henplus source download
+  - a modified henplus shell script that pulls the necessary classpath together

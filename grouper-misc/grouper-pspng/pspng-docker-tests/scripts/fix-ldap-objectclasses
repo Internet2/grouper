@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Some user objects in our example data are missing eduPerson objectclass
+# which, of course, makes eduPersonEntitlement provisioning impossible
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+PATH="$D:$PATH"
+PROG=$(basename "$0")
+
+service slapd start
+await-ldap-server
+
+myldapsearch  -b dc=example,dc=edu '(&(objectclass=inetorgperson)(!(objectclass=eduperson)))' dn \
+	| while read dn; do 
+		[ -z "$dn" ] && continue;  
+                echo "Fixing $dn"
+		echo "$dn
+add: objectclass
+objectclass: eduPerson" | myldapmodify
+done
