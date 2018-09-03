@@ -498,6 +498,12 @@ public class GrouperRequestContainer {
   private AttestationContainer attestationContainer;
   
   /**
+   * container for template screen
+   */
+  private StemTemplateContainer stemTemplateContainer;
+  
+  
+  /**
    * container for deprovisioning screen
    * @return the container
    */
@@ -517,6 +523,17 @@ public class GrouperRequestContainer {
       this.attestationContainer = new AttestationContainer();
     }
     return this.attestationContainer;
+  }
+  
+  /**
+   * lazy load the template container
+   * @return the template container
+   */
+  public StemTemplateContainer getStemTemplateContainer() {
+    if (this.stemTemplateContainer == null) {
+      this.stemTemplateContainer = new StemTemplateContainer();
+    }
+    return this.stemTemplateContainer;
   }
   
   /**
