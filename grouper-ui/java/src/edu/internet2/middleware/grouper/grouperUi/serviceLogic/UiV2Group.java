@@ -607,7 +607,17 @@ public class UiV2Group {
             subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
           } else {
             try { 
-              subject = SubjectFinder.findByIdOrIdentifier(query, false);
+              
+              final String requireSources = GrouperUiConfig.retrieveConfig().propertyValueString(
+                  "uiV2.subjectLookupRequireSources");
+              
+              if (!StringUtils.isBlank(requireSources)) {
+                Set<Source> sources = GrouperUtil.convertSources(requireSources);
+                subject = SubjectFinder.findByIdOrIdentifierAndSource(query, sources, false);
+              } else {
+                
+                subject = SubjectFinder.findByIdOrIdentifier(query, false);
+              }
             } catch (SubjectNotUniqueException snue) {
               //ignore this...
               if (LOG.isDebugEnabled()) {
@@ -638,9 +648,22 @@ public class UiV2Group {
         }
         try {
           GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
-          Collection<Subject> results = StringUtils.isBlank(stemName) ? 
-              SubjectFinder.findPage(query).getResults()
-              : SubjectFinder.findPageInStem(stemName, query).getResults();
+          
+          final String requireSources = GrouperUiConfig.retrieveConfig().propertyValueString(
+              "uiV2.subjectSearchRequireSources");
+          
+          Collection<Subject> results = null;
+          if (!StringUtils.isBlank(requireSources)) {
+            Set<Source> sources = GrouperUtil.convertSources(requireSources);
+            results = StringUtils.isBlank(stemName) ? 
+                SubjectFinder.findPage(query, sources).getResults()
+                : SubjectFinder.findPageInStem(stemName, query, sources).getResults();
+           
+          } else {
+            results = StringUtils.isBlank(stemName) ? 
+                SubjectFinder.findPage(query).getResults()
+                : SubjectFinder.findPageInStem(stemName, query).getResults();
+          }
           return results;
         } finally {
           GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
