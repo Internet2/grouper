@@ -48,14 +48,16 @@ import edu.internet2.middleware.subject.Subject;
 public class ProvisioningWorkItem {
   final private static Logger LOG = LoggerFactory.getLogger(Provisioner.class);
 
+  public enum WORK_ITEM_COMMAND {FULL_SYNC_GROUP, REMOVE_EXTRA_GROUPS, HANDLE_CHANGELOG_ENTRY};
+
+  protected final WORK_ITEM_COMMAND command;
   protected final ChangeLogEntry work;
-  
+  protected String groupName;
+
   protected Boolean success=null;
   protected String status=null;
   protected String statusMessage=null;
-  
-  protected String action;
-  protected String groupName;
+
 
   /**
    * A place where information can be cached between the start/provision/finish 
@@ -63,37 +65,19 @@ public class ProvisioningWorkItem {
    */
   protected Map<String, Object> provisioningData = new HashMap<String,Object>();
   
-  protected final static List<ChangeLogTypeBuiltin> groupOrStemChangingActions = new ArrayList<ChangeLogTypeBuiltin>();
-  
-  static {
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_FIELD_ADD);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_UPDATE);
-    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.STEM_UPDATE);
-  }
 
-  
   /**
    * Create a work item that just holds the groupName without the overhead of  
    * a changelog item.
    * 
    * This is used when Provisioner code is used in FullSync processes.
-   * @param action
+   * @param command - What command does this Item represent
    * @param group
    */
-  public ProvisioningWorkItem(String action, GrouperGroupInfo group) {
-    this(null);
-    this.action = action;
+  protected ProvisioningWorkItem(WORK_ITEM_COMMAND command, GrouperGroupInfo group) {
+    this.command = command;
+    this.work = null;
+
     if ( group != null )
       this.groupName=group.getName();
     else
@@ -102,13 +86,20 @@ public class ProvisioningWorkItem {
   
   
   public ProvisioningWorkItem(ChangeLogEntry work) {
+    this.command = WORK_ITEM_COMMAND.HANDLE_CHANGELOG_ENTRY;
     this.work=work;
-    
-    if ( work != null ) 
-      this.action = work.getChangeLogType().toString();
   }
 
-  
+  public static ProvisioningWorkItem createForFullSync(GrouperGroupInfo grouperGroupInfo) {
+    return new ProvisioningWorkItem(WORK_ITEM_COMMAND.FULL_SYNC_GROUP, grouperGroupInfo);
+  }
+
+  public static ProvisioningWorkItem createForGroupCleanup() {
+    return new ProvisioningWorkItem(WORK_ITEM_COMMAND.REMOVE_EXTRA_GROUPS, null);
+  }
+
+
+
   public ChangeLogEntry getChangelogEntry() {
     return work;
   }
@@ -149,7 +140,7 @@ public class ProvisioningWorkItem {
       LOG.debug(msg, this);
     }
   }
-  
+
   public void markAsSkippedAndWarn(String statusMessageFormat, Object... statusMessageArgs)
   {
     success = true;
@@ -178,128 +169,61 @@ public class ProvisioningWorkItem {
   }
   
   
-  public String getGroupName() {
-    return getGroupName(true);
-  }
-
-
-  private String getGroupName(boolean logIfWrongEventType) {
+  private String getGroupName() {
     if ( groupName != null )
       return groupName;
     else if ( getChangelogEntry() == null )
       return null;
     
-    ChangeLogLabel groupNameKey;
-    if ( getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD ))
-      groupNameKey = ChangeLogLabels.GROUP_ADD.name;
-    else if  ( getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE) )
-      groupNameKey = ChangeLogLabels.GROUP_DELETE.name;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE) )
-      groupNameKey = ChangeLogLabels.GROUP_UPDATE.name;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
-      groupNameKey = ChangeLogLabels.MEMBERSHIP_ADD.groupName;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
-      groupNameKey = ChangeLogLabels.MEMBERSHIP_DELETE.groupName;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN) )
-      groupNameKey = ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN) )
-      groupNameKey = ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName;
-    else {
-      if ( logIfWrongEventType ) {
-        LOG.debug("Not a supported change for finding group ({} is not any of these: {}): {}",
-          new Object[] {
-          getChangelogEntry().getChangeLogType(),
-          Arrays.asList(
-            ChangeLogTypeBuiltin.GROUP_ADD,
-            ChangeLogTypeBuiltin.GROUP_DELETE,
-            ChangeLogTypeBuiltin.GROUP_UPDATE,
-            ChangeLogTypeBuiltin.MEMBERSHIP_ADD,
-            ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,
-            ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN,
-            ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN),
-          work != null ? work.getSequenceNumber() : "action="+action});
-      }
+    ChangeLogLabel groupNameKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2groupLookupFields);
+
+    if ( groupNameKey == null ) {
       return null;
     }
-
     groupName = getChangelogEntry().retrieveValueForLabel(groupNameKey);
     return groupName;
   }
   
   public GrouperGroupInfo getGroupInfo(Provisioner provisioner) {
-	  String groupName = getGroupName(true);
+	  String groupName = getGroupName();
 	  if ( groupName == null )
 		  return null;
 	  
 	  return provisioner.getGroupInfo(groupName);
   }
-  
-  
-  
-  public String getSubjectId() {
-    return getSubjectId(true);
-  }
 
+  public String getAttributeName() {
+    ChangeLogLabel attributeNameKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2attributeNameLabel);
 
-  private String getSubjectId(boolean logIfWrongEventType) {
-    if ( getChangelogEntry() == null )
-      return null;
-    
-    final ChangeLogLabel subjectIdKey;
-    
-    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
-      subjectIdKey = ChangeLogLabels.MEMBERSHIP_ADD.subjectId;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
-      subjectIdKey = ChangeLogLabels.MEMBERSHIP_DELETE.subjectId;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD) )
-      subjectIdKey = ChangeLogLabels.MEMBER_ADD.subjectId;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
-      subjectIdKey = ChangeLogLabels.MEMBER_DELETE.subjectId;
-    else {
-      if ( logIfWrongEventType ) {
-        LOG.debug("Not a supported change for finding subject id ({} is not {}, {}, {}, nor {}): {}",  
-          new Object[] {
-          getChangelogEntry().getChangeLogType(),
-          ChangeLogTypeBuiltin.MEMBER_ADD, ChangeLogTypeBuiltin.MEMBER_DELETE, 
-          ChangeLogTypeBuiltin.MEMBERSHIP_ADD, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
-          work != null ? work.getSequenceNumber() : "action="+action});
-      }
+    if ( attributeNameKey == null ) {
       return null;
     }
-    
-    final String subjectId = getChangelogEntry().retrieveValueForLabel(subjectIdKey);
 
-    return subjectId;
+    return getChangelogEntry().retrieveValueForLabel(attributeNameKey);
   }
+
   
-  public String getSubjectSourceId() {
-    return getSubjectSourceId(true);
-  }
-
-
-  private String getSubjectSourceId(boolean logIfWrongEventType) {
+  private String getSubjectId() {
     if ( getChangelogEntry() == null )
       return null;
     
-    final ChangeLogLabel subjectSourceIdKey;
+    final ChangeLogLabel subjectIdKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2subjectIdLookupFields);
+
+    if ( subjectIdKey == null ) {
+      return null;
+    }
+
+    final String subjectId = getChangelogEntry().retrieveValueForLabel(subjectIdKey);
+    return subjectId;
+  }
+
+  private String getSubjectSourceId() {
+    if ( getChangelogEntry() == null )
+      return null;
     
-    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
-      subjectSourceIdKey = ChangeLogLabels.MEMBERSHIP_ADD.sourceId;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
-      subjectSourceIdKey = ChangeLogLabels.MEMBERSHIP_DELETE.sourceId;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD) )
-      subjectSourceIdKey = ChangeLogLabels.MEMBER_ADD.subjectSourceId;
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
-      subjectSourceIdKey = ChangeLogLabels.MEMBER_DELETE.subjectSourceId;
-    else {
-      if ( logIfWrongEventType ) {
-        LOG.debug("Not a supported change for finding subject source id ({} is not {}, {}, {}, nor {}): {}",  
-          new Object[] {
-          getChangelogEntry().getChangeLogType(),
-          ChangeLogTypeBuiltin.MEMBER_ADD, ChangeLogTypeBuiltin.MEMBER_DELETE, 
-          ChangeLogTypeBuiltin.MEMBERSHIP_ADD, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
-          work != null ? work.getSequenceNumber() : "action="+action});
-      }
+    final ChangeLogLabel subjectSourceIdKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2subjectSourceLookupFields);
+
+    if ( subjectSourceIdKey == null ) {
       return null;
     }
     
@@ -312,8 +236,8 @@ public class ProvisioningWorkItem {
     if ( getChangelogEntry() == null )
       return null;
     
-    final String subjectId = getSubjectId(true);
-    final String sourceId = getSubjectSourceId(true);
+    final String subjectId = getSubjectId();
+    final String sourceId = getSubjectSourceId();
 
     if ( subjectId == null || sourceId == null )
       return null;
@@ -371,15 +295,16 @@ public class ProvisioningWorkItem {
   @Override
   public String toString() {
     ToStringBuilder tsb = new ToStringBuilder(this)
+    .append("done", hasBeenProcessed() )
     .append("successful", success)
     .append("msg", statusMessage);
     
     if ( work == null )
-      tsb.append("action", action);
+      tsb.append("cmd", command);
     else {
-      String groupName = getGroupName(false);
-      String subjectId = getSubjectId(false);
-      String subjectSourceId = getSubjectSourceId(false);
+      String groupName = getGroupName();
+      String subjectId = getSubjectId();
+      String subjectSourceId = getSubjectSourceId();
       
       tsb.append("clog", String.format("clog #%d / %s", work.getSequenceNumber(), work.getChangeLogType()));
       if ( groupName != null )
@@ -395,53 +320,34 @@ public class ProvisioningWorkItem {
     if ( work != null )
       return String.format("%d/", work.getSequenceNumber());
     else
-      return String.format("%s/", action);
+      return String.format("%s/", command);
   }
 
-
-  public boolean isChangingGroupOrStemInformation() {
-    if ( work == null )
-      return false;
-    
-    for ( ChangeLogTypeBuiltin changelogType: groupOrStemChangingActions ) {
-      if ( work.equalsCategoryAndAction(changelogType) )
-        return true;
-    }
-    
-    return false;
-  }
 
   /**
-   * Some changes (eg, labeling a folder for syncing) can have a large effect and are best handled with
-   * a complete sync of all groups.
-   * @return true if this work item should initiate a full sync of all groups
+   * Does the embedded changelog entry match the given type?
+   * @param type
+   * @return
    */
-  public boolean shouldBeHandledBySyncingAllGroups(Provisioner provisioner) {
+  public boolean matchesChangelogType(ChangeLogTypeBuiltin type) {
     if ( getChangelogEntry() == null ) {
       return false;
     }
 
-    String attributeName;
+    return getChangelogEntry().getChangeLogType().equalsCategoryAndAction(type);
+  }
 
-    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD) ) {
-      attributeName = getChangelogEntry().retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName);
-    }
-    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE) ) {
-      attributeName = getChangelogEntry().retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName);
-    }
-    else {
-      return false;
-    }
 
-    if ( attributeName == null ) {
-      return false;
-    }
+  /**
+   * Does the embedded changelog entry have a type contained in the given collection of types?
+   * @param types
+   * @return
+   */
+  public boolean matchesChangelogType(Collection<ChangeLogTypeBuiltin> types) {
+    return ChangelogHandlingConfig.containsChangelogEntryType(types, getChangelogEntry());
+  }
 
-    if ( provisioner.getConfig().attributesUsedInGroupSelectionExpression.contains(attributeName) ) {
-      LOG.info("{}: Performing full-sync of all groups for work item {}", provisioner.getDisplayName(), this);
-      return true;
-    }
-
-    return false;
+  public ChangeLogLabel getChangelogLabel(Map<ChangeLogTypeBuiltin, ChangeLogLabel> changeLogLabelMap) {
+    return ChangelogHandlingConfig.getFromChangelogTypesMap(changeLogLabelMap, getChangelogEntry());
   }
 }

@@ -183,7 +183,7 @@ function cleanup_docker()
     echo "echo CLEAN; $DOCKER_COMPOSE_CMD rm --stop --force" 1>&2
     echo "echo SHELL; $DOCKER_COMPOSE_CMD exec grouper-daemon bash" 1>&2
     echo "echo GSH; $DOCKER_COMPOSE_CMD exec grouper-daemon /opt/grouper/grouper.apiBinary/bin/gsh" 1>&2
-    echo "echo LOG; $DOCKER_COMPOSE_CMD exec -T grouper-daemon cat $API/logs/grouper_error.log" 1>&2
+    echo "echo LOG; $DOCKER_COMPOSE_CMD exec -T grouper-daemon cat $API/logs/grouper_error.log </dev/null | less -In" 1>&2
   fi
 }
 

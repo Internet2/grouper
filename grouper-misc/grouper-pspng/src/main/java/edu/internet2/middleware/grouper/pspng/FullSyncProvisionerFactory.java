@@ -25,27 +25,33 @@ public class FullSyncProvisionerFactory {
   
   /**
    * Factory for FullSync objects
-   * @param name
+   * @param configName
    * @return
    * @throws PspException
    */
-  public static synchronized FullSyncProvisioner getFullSyncer(String name) throws PspException {
-    if ( !fullSyncers.containsKey(name) )
+  static synchronized FullSyncProvisioner getFullSyncer(String configName) throws PspException {
+    if ( !fullSyncers.containsKey(configName) )
     {
       // Create a second provisioner, dedicated to FullSync operations
-      Provisioner provisioner = ProvisionerFactory.createProvisionerWithName(name, true);
+      Provisioner provisioner = ProvisionerFactory.createProvisioner(configName, true);
 
       FullSyncProvisioner fullSyncer = new FullSyncProvisioner(provisioner);
       
-      fullSyncers.put(name, fullSyncer);
+      fullSyncers.put(configName, fullSyncer);
       
       fullSyncer.start();
     }
     
-    return fullSyncers.get(name);
+    return fullSyncers.get(configName);
   }
 
-  public static synchronized FullSyncProvisioner getFullSyncer(Provisioner provisioner) throws PspException {
+  /**
+   * Shortcut to getFullSyncer(provisioner.getConfigName())
+   * @param provisioner
+   * @return
+   * @throws PspException
+   */
+  public static FullSyncProvisioner getFullSyncer(Provisioner provisioner) throws PspException {
     return getFullSyncer(provisioner.getConfigName());
   }
 }

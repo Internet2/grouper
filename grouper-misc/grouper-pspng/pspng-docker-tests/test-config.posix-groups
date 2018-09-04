@@ -61,6 +61,20 @@ function validate_group_attribute()
 }
 
 
+function validate_deprovisioning()
+{
+  local USAGE="USAGE: validate_deprovisioning <group>"
+
+  local group="${1:?$USAGE}"
+
+  test_step "Checking that group doesn't exist: $group"
+
+  local group_cn=$(get_cn_from_group_name "$group")
+
+  g_ldif=$(run_in_grouper_daemon myldapsearch -b dc=example,dc=edu "(&(objectclass=posixgroup)(cn=$group_cn))" cn memberUid)
+  assert_empty "$g_ldif" "Group not expected to exist"
+}
+
 function validate_provisioning()
 {
   local usage="USAGE: validate_provisioning <group> <correct members (comma-separated, alphabetical)>"

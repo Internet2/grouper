@@ -11,12 +11,26 @@ function output_grouper_loader_properties()
   (cd $TEST_CONF;cat pspng-config-ldap.properties pspng-config-epe.properties)
 }
 
+function validate_deprovisioning()
+{
+  local USAGE="USAGE: validate_deprovisioning <group>"
+
+  local group="${1:?$USAGE}"
+
+  test_step "Checking that group entitlements are not on any subjects: $group"
+
+  validate_provisioning "$group" ""
+}
+
+
 function validate_provisioning()
 {
-  local usage="USAGE: validate_provisioning <group> <correct members (comma-separated, alphabetical)>"
+  local usage="USAGE: validate_provisioning <group> <correct members (comma-separated uids, alphabetical)>"
 
-  local group="${1:?$usage}"
-  local correct_members="${2:?$usage}"
+  [ $# -ne 2 ] && fail "$usage"
+
+  local group="${1}"
+  local correct_members="${2}"
 
   test_step "Checking provisioning: $group"
   x=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu eduPersonEntitlement=g:$group uid | noAttributeLabels | sort | removeNewLines")

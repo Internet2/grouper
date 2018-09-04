@@ -48,6 +48,20 @@ function get_ldap_group_attribute()
 }
 
 
+function validate_deprovisioning()
+{
+  local USAGE="USAGE: validate_deprovisioning <group>"
+
+  local group="${1:?$USAGE}"
+
+  test_step "Checking that group doesn't exist: $group"
+
+  local group_cn=$(get_cn_from_group_name "$group")
+  local g_ldif=$(run_in_grouper_daemon myldapsearch -b dc=example,dc=edu "(&(objectclass=groupOfUniqueNames)(cn=$group_cn))" cn uniquemember)
+  assert_empty "$g_ldif" "Expected group $group to not exist, but it does: $g_ldif"
+}
+
+
 function validate_provisioning()
 {
   local USAGE="USAGE: validate_provisioning <group> <correct members (comma-separated, alphabetical)>"
@@ -57,8 +71,7 @@ function validate_provisioning()
 
   test_step "Checking provisioning: $group"
 
-  log_always "Reading DNs from group: (&(objectclass=groupOfUniqueNames)(cn=$group))"
-  #local dn_list=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu '(&(objectclass=groupOfUniqueNames)(cn=$group))' uniqueMember | noAttributeLabels")
+  log_always "Reading uniqueMember DNs from group: $group"
   local dn_list=$(get_ldap_group_attribute "$group" uniqueMember)
 
    log_always "DN memberships of groups:"

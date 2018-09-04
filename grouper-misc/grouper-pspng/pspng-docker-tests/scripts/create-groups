@@ -1,0 +1,35 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string member "" "Member to add to each group created"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_member" ] && fail "--member must be specified"
+
+[ $# -eq 0 ] && fail "Must include at least 1 group to create"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+tempfile_into_T
+
+echo "gs = GrouperSession.startRootSession();" >> $T
+
+for group in "$@"
+do
+  cat >>$T <<EOF 
+group = new GroupSave(gs).assignName("$group").assignGroupNameToEdit("$group").assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignCreateParentStemsIfNotExist(true).save();
+addMember(group.getName(), "$FLAGS_member");
+
+EOF
+
+done
+
+$GSH <$T

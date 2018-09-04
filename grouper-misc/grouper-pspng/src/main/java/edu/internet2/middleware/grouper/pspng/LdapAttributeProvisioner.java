@@ -89,7 +89,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       return;
     }
     
-    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, null);
+    String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
     scheduleUserModification(ldapUser, AttributeModificationType.ADD, Arrays.asList(attributeValue));
   }
@@ -103,7 +103,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       return;
     }
     
-    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, null);
+    String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
 
     scheduleUserModification(ldapUser, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
   }
@@ -160,7 +160,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
 
 
   protected String getAttributeValueForGroup(GrouperGroupInfo grouperGroupInfo) throws PspException {
-    return evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), null, null, grouperGroupInfo, null);
+    return evaluateJexlExpression("ProvisionedAttributeValue", config.getProvisionedAttributeValueFormat(), null, null, grouperGroupInfo, null);
   }
   
   @Override

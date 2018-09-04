@@ -16,6 +16,7 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import bsh.StringUtil;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +108,8 @@ public abstract class Provisioner
   final public String provisionerDisplayName;
 
   // What config elements underpin this provisioner, both in grouper_loader.properties
-  // and in Grouper Attributes
+  // and in Grouper Attributes. This will be the same for both the Incremental and the
+  // full-sync provisioners
   final public String provisionerConfigName;
   
   // Cache groups by groupInfo key
@@ -431,39 +434,67 @@ public abstract class Provisioner
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
     
     for ( ProvisioningWorkItem workItem : workItems ) {
-      GrouperGroupInfo g = workItem.getGroupInfo(this);
-      if ( g == null ) {
+      if ( shouldWorkItemBeProcessed(workItem) ) {
         result.add(workItem);
-      }
-      else if ( shouldGroupBeProvisioned(g) ) {
-        result.add(workItem);
-      }
-      else {
+      } else {
         // Not going to process this item, so mark it as a success and don't add it to result
-        workItem.markAsSuccess("Ignoring work item because group is not provisioned");
+        workItem.markAsSuccess("Ignoring work item because its ChangeLog type is not provisioning relevant: %s", workItem.getChangelogEntry());
       }
     }
     
     return result;
   }
 
+  /**
+   * Used to filter workItems. This can be overridden by a subclass that was unhappy
+   * with the default filter behaviors. If overriding this, eg, to accept additional
+   * changes into a provisioner, then it would probably be useful to look for those
+   * additional types of changes and then call the super version of this.
+   *
+   * @param workItem
+   * @return
+   */
+  protected boolean shouldWorkItemBeProcessed(ProvisioningWorkItem workItem) {
+    // Check if we're configured to ignore changes to internal (g:gsa) subjects
+    // (default is that we do ignore such changes)
+    if ( getConfig().areChangesToInternalGrouperSubjectsIgnored() ) {
+      Subject subject = workItem.getSubject(this);
+      if ( subject != null && subject.getSourceId().equalsIgnoreCase("g:gsa") )
+        return false;
+    }
+
+    return workItem.matchesChangelogType(ChangelogHandlingConfig.allRelevantChangelogTypes );
+  }
+
+
+  /**
+   * Lock the groups that we are about to process. This will prevent simultaneous
+   * activity on them, which reduces the opportunities for duplicate provisioning operations
+   * that result in spurious error messages.
+   *
+   * @param workItems
+   */
   public void startCoordination(List<ProvisioningWorkItem> workItems) {
     for (ProvisioningWorkItem workItem : workItems) {
-      String groupName = workItem.getGroupName();
-      if (groupName == null)
+      GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+      if (grouperGroupInfo == null)
         // Nothing to do before batch is processed
         continue;
-      GrouperGroupInfo grouperGroupInfo = getGroupInfo(groupName);
-      if (grouperGroupInfo != null) {
-        if (isFullSyncMode()) {
-          getProvisionerCoordinator().lockForFullSyncIfNoIncrementalIsUnderway(grouperGroupInfo);
-        } else {
-          getProvisionerCoordinator().lockForIncrementalProvisioningIfNoFullSyncIsUnderway(grouperGroupInfo);
-        }
+
+      if (isFullSyncMode()) {
+        getProvisionerCoordinator().lockForFullSyncIfNoIncrementalIsUnderway(grouperGroupInfo);
+      } else {
+        getProvisionerCoordinator().lockForIncrementalProvisioningIfNoFullSyncIsUnderway(grouperGroupInfo);
       }
     }
   }
 
+  /**
+   * Provisioning is over. Time to unlock in order to allow other full- or incremental-sync to
+   * occur on them
+   * @param workItems
+   * @param wasSuccessful
+   */
   public void finishCoordination(List<ProvisioningWorkItem> workItems, boolean wasSuccessful) {
 
     for ( ProvisioningWorkItem workItem : workItems ) {
@@ -489,7 +520,10 @@ public abstract class Provisioner
    */
   public void startProvisioningBatch(List<ProvisioningWorkItem> workItems) throws PspException {
     Provisioner.activeProvisioner.set(this);
-    LOG.debug("Starting provisioning batch of {} items", workItems.size());
+    LOG.info("Starting provisioning batch of {} items", workItems.size());
+    for ( ProvisioningWorkItem workItem : workItems) {
+      LOG.debug("-->Work item: {}", workItem);
+    }
 
     Set<Subject> subjects = new HashSet<Subject>();
 
@@ -497,13 +531,12 @@ public abstract class Provisioner
     Set<GrouperGroupInfo> grouperGroupInfos = new HashSet<GrouperGroupInfo>();
 
     for ( ProvisioningWorkItem workItem : workItems) {
-      String groupName = workItem.getGroupName();
-      if ( groupName == null ) {
+      GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+      if ( grouperGroupInfo == null ) {
         // Nothing to do before batch is processed
         continue;
       }
 
-      GrouperGroupInfo grouperGroupInfo = getGroupInfo(groupName);
       grouperGroupInfos.add(grouperGroupInfo);
 
       Subject s = workItem.getSubject(this);
@@ -516,7 +549,7 @@ public abstract class Provisioner
   }
 
   private ProvisionerCoordinator getProvisionerCoordinator() {
-    return ProvisionerFactory.getProvisionerCoordinator(getDisplayName());
+    return ProvisionerFactory.getProvisionerCoordinator(this);
   }
 
   // Finish and/or clean up after a provisioning batch. If this is overridden, make sure you 
@@ -527,11 +560,12 @@ public abstract class Provisioner
 
     LOG.debug("Done with provisining batch");
   }
-  
+
   /**
    * Make a JexlMap that contains subject and group information and evaluate the given
    * expression.
-   * 
+   *
+   * @param expressionName
    * @param expression
    * @param subject
    * @param tsUser
@@ -540,11 +574,12 @@ public abstract class Provisioner
    * @param keysAndValues Key/Value pairs that will also be available within the Jexl's variable map
    * @return
    */
-  protected final String evaluateJexlExpression(String expression, Subject subject, TSUserClass tsUser, 
+  protected final String evaluateJexlExpression(String expressionName, String expression,
+      Subject subject, TSUserClass tsUser,
       GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup,
       Object... keysAndValues) throws PspException {
     
-    LOG.trace("Evaluating Jexl expression: {}", expression);
+    LOG.trace("Evaluating {} Jexl expression: {}", expressionName, expression);
     
     Map<String, Object> variableMap = new HashMap<>();
 
@@ -577,8 +612,32 @@ public abstract class Provisioner
 
       while ( atomicExpressionMatcher.find()) {
         String atomicExpression = atomicExpressionMatcher.group();
-        String atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(atomicExpression, variableMap, true, false, false);
-        LOG.debug("Evaluated Jexl expression: '{}' FROM {} WITH variables {}", new Object[]{atomicExpressionResult, atomicExpression, variableMap});
+        String atomicExpressionResult;
+
+        // Check to see if expression has a backup expression
+        //   xyz:-pdq ==> evaluate pdq if xyz cannot be evaluated
+        if ( ! atomicExpression.contains(":-") ) {
+          atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(atomicExpression, variableMap, true, false, false);
+        }
+        else {
+          // Split atomicExpression on :- and add } & { to the first and second pieces
+
+          String expressionOne = StringUtils.substringBefore(atomicExpression, ":-") + "}";
+          String expressionTwo = "${" + StringUtils.substringAfter(atomicExpression, ":-");
+
+          try {
+            atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(expressionOne, variableMap, true, false, false);
+          } catch (RuntimeException e) {
+            LOG.warn("{}: Problem evaluating '{}'. Will try :- expression '{}': {}",
+                    new Object[]{expressionName, expressionOne, expressionTwo, e.getMessage()});
+
+
+            atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(expressionTwo, variableMap, true, false, false);
+          }
+        }
+        LOG.debug("Evaluated {} Jexl expression: '{}'", expressionName, atomicExpressionResult);
+        LOG.trace("Evaluated {} Jexl expression: '{}' FROM {} WITH variables {}",
+                new Object[]{expressionName, atomicExpressionResult, atomicExpression, variableMap});
 
         // replaceFirst unescapes the string it is given (because it isn't a string literal, but can also
         // refer to regex groupings: $1 refers to the first matching group in the Pattern. In order to get a $ in the
@@ -596,8 +655,8 @@ public abstract class Provisioner
       return result;
     }
     catch (RuntimeException e) {
-      LOG.error("Jexl Expression {} could not be evaluated for subject '{}/{}' and group '{}/{}' which used variableMap '{}'",
-          new Object[] {expression, 
+      LOG.error("Jexl Expression {} '{}' could not be evaluated for subject '{}/{}' and group '{}/{}' which used variableMap '{}'",
+          new Object[] {expressionName, expression,
               subject, tsUser,
               grouperGroupInfo, tsGroup,
               variableMap, e});
@@ -724,6 +783,8 @@ public abstract class Provisioner
    * This makes sure all the Groups referenced by groupInfoSet are in groupMap_shortTerm. 
    * If our config says needsTargetSystemGroups is False, then the groupMap will
    * be empty.
+   *
+   * Note: This will create missing groups
    * 
    * @param grouperGroupInfos
    * @throws PspException
@@ -754,22 +815,52 @@ public abstract class Provisioner
       }
     }
 
-    if ( groupsToFetch.size() == 0 )
-      return;
-    
+    Map<GrouperGroupInfo, TSGroupClass> fetchedData = fetchTargetSystemGroupsInBatches(groupsToFetch);
+    // Save the data that was fetched in our cache
+    for ( Entry<GrouperGroupInfo, TSGroupClass> grouperGroupInfo : fetchedData.entrySet() )
+      cacheGroup(grouperGroupInfo.getKey(), grouperGroupInfo.getValue());
+
+    // If empty groups are supported, then look for groups that were not found in target
+    // system and create them
+    //
+    // Note: If empty groups are not supported, they will be created later... when their
+    // first membership is provisioned
+    if ( config.areEmptyGroupsSupported() ) {
+      for (GrouperGroupInfo grouperGroupInfo : groupsToFetch) {
+        if (!tsGroupCache_shortTerm.containsKey(grouperGroupInfo) &&
+            shouldGroupBeProvisioned(grouperGroupInfo))
+        {
+          // Group does not already exist so create it
+          TSGroupClass tsGroup = createGroup(grouperGroupInfo, new ArrayList<Subject>());
+          cacheGroup(grouperGroupInfo, tsGroup);
+        }
+      }
+    }
+
+  }
+
+  /**
+   * This method fetches an arbitrary number of groups from the target system. The configuration
+   * of the system defines a maximum-batch-fetch size (config.getGroupSearch_batchSize()), and
+   * this method breaks the given groups into appropriately-sized batches.
+   *
+   * @param groupsToFetch
+   * @throws PspException
+   */
+  public Map<GrouperGroupInfo, TSGroupClass> fetchTargetSystemGroupsInBatches(Collection<GrouperGroupInfo> groupsToFetch) throws PspException {
+    Map<GrouperGroupInfo, TSGroupClass> result = new HashMap<>(groupsToFetch.size());
+
     List<List<GrouperGroupInfo>> batchesOfGroupsToFetch = PspUtils.chopped(groupsToFetch, config.getGroupSearch_batchSize());
-    
+
     for ( List<GrouperGroupInfo> batchOfGroupsToFetch : batchesOfGroupsToFetch ) {
       Map<GrouperGroupInfo, TSGroupClass> fetchedData;
-      
+
       try {
         fetchedData = fetchTargetSystemGroups(batchOfGroupsToFetch);
-        // Save the data that was fetched in our cache
-        for ( Entry<GrouperGroupInfo, TSGroupClass> grouperGroupInfo : fetchedData.entrySet() )
-          cacheGroup(grouperGroupInfo.getKey(), grouperGroupInfo.getValue());
+        result.putAll(fetchedData);
       }
       catch (PspException e1) {
-        LOG.warn("Batch-fetching group information failed. Trying fetching information for each group individually", e1);
+        LOG.warn("Batch-fetching group information failed. Trying to fetch information for each group individually", e1);
         // Batch-fetching failed. Let's see if we can narrow it down to a single
         // Group
           for ( GrouperGroupInfo grouperGroupInfo : batchOfGroupsToFetch ) {
@@ -784,26 +875,11 @@ public abstract class Provisioner
           }
       }
     }
-    
-    for ( GrouperGroupInfo grouperGroupInfo : groupsToFetch ) {
-      if ( ! tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
-        
-        // Group does not already exist. Create it if we need to.
-        if ( shouldGroupBeProvisioned(grouperGroupInfo) ) {
-          if ( config.areEmptyGroupsSupported() ) {
-            TSGroupClass tsGroup = createGroup(grouperGroupInfo, new ArrayList<Subject>());
-            cacheGroup(grouperGroupInfo, tsGroup);
-          }
-          else {
-            LOG.warn("{}: Group was not found in target system (which does not support empty groups). It will be created when the first member is added: {}", 
-                getDisplayName(), grouperGroupInfo);
-          }
-        }
-      }
-    }
+
+    return result;
   }
 
-  
+
   public TSUserClass getTargetSystemUser(Subject subject) throws PspException {
     GrouperUtil.assertion(config.needsTargetSystemUsers(),
             String.format("%s: system doesn't need target-system users, but one was requested", getDisplayName()));
@@ -867,9 +943,20 @@ public abstract class Provisioner
    * @param newTSGroup
    */
   protected void cacheGroup(GrouperGroupInfo grouperGroupInfo, TSGroupClass newTSGroup) {
-    LOG.debug("Adding target-system group to cache: {}", grouperGroupInfo);
-    targetSystemGroupCache.put(grouperGroupInfo, newTSGroup);
-    tsGroupCache_shortTerm.put(grouperGroupInfo, newTSGroup);
+    if ( newTSGroup != null ) {
+      LOG.debug("Adding target-system group to cache: {}", grouperGroupInfo);
+      targetSystemGroupCache.put(grouperGroupInfo, newTSGroup);
+      tsGroupCache_shortTerm.put(grouperGroupInfo, newTSGroup);
+    } else {
+      if ( targetSystemGroupCache.containsKey(grouperGroupInfo) ||
+           tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
+        LOG.debug("Removing target-system group from cache: {}", grouperGroupInfo);
+        targetSystemGroupCache.remove(grouperGroupInfo);
+        tsGroupCache_shortTerm.remove(grouperGroupInfo);
+      } else {
+        LOG.debug("No target-system group to cache: {}", grouperGroupInfo);
+      }
+    }
   }
   
   
@@ -905,7 +992,18 @@ public abstract class Provisioner
 
     grouperGroupInfo.hibernateRefresh();
   }
-  
+
+
+  /**
+   * This removes all Group information from our caches
+   */
+  protected void uncacheAllGroups() {
+
+    for (GrouperGroupInfo g : grouperGroupInfoCache.values()) {
+      uncacheGroup(g, null);
+    }
+  }
+
 
   /**
    * Lookup a single TSUserClass for a single Subject. If you have several such mappings to look up,
@@ -972,88 +1070,8 @@ public abstract class Provisioner
     ChangeLogEntry entry = workItem.getChangelogEntry();
     
     try {
-      if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD ))
-      {
-        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-        
-        if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-          workItem.markAsSkippedAndWarn("Ignored: group does not exist any more");
-          return;
-        }
-        
-        if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
-          workItem.markAsSuccess("Group %s already exists", grouperGroupInfo);
-          return;
-        }
-        else
-          createGroup(grouperGroupInfo, Collections.EMPTY_LIST);
-      }
-      else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE ))
-      {
-        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-        
-        if ( grouperGroupInfo == null ) {
-          workItem.markAsSkippedAndWarn("Ignoring group-deletion event because group information was not found in grouper");
-          return;
-        }
-        
-        TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
-        
-        deleteGroup(grouperGroupInfo, tsGroup);
-      }
-      else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD))
-      {
-        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-        
-        if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-          workItem.markAsSkippedAndWarn("Ignoring membership-add event for group that was deleted");
-          return;
-        }
-        TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
-        Subject subject = workItem.getSubject(this);
-        
-        if ( subject == null ) {
-          workItem.markAsSkippedAndWarn("Ignoring membership-add event because subject is no longer in grouper"); 
-          return;
-        }
-        
-        if ( subject.getTypeName().equalsIgnoreCase("group") ) {
-          workItem.markAsSuccess("Nested-group membership skipped");
-          return;
-        }
-
-        TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
-        
-        if ( config.needsTargetSystemUsers() && tsUser==null ) {
-          workItem.markAsSkippedAndWarn("Skipped: subject doesn't exist in target system");
-          return;
-        }
-        
-        addMembership(grouperGroupInfo, tsGroup, subject, tsUser);
-      }
-      else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE))
-      {
-        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-        if ( grouperGroupInfo==null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-          workItem.markAsSkippedAndWarn("Ignoring membership-delete event for group that was deleted");
-          return;
-        }
-        TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
-        Subject subject = workItem.getSubject(this);
-        
-        if ( subject == null ) {
-          workItem.markAsSkippedAndWarn("Ignoring membership-delete event because subject is no longer in grouper");
-          LOG.warn("Work item ignored: {}", workItem);
-          return;
-        }
-        
-        TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
-  
-        if ( config.needsTargetSystemUsers() && tsUser==null ) {
-          workItem.markAsSkippedAndWarn("Skipped: subject doesn't exist in target system");
-          return;
-        }
-        deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
+      if ( workItem.matchesChangelogType(ChangelogHandlingConfig.changelogTypesThatAreHandledIncrementally) ) {
+        processIncrementalSyncEvent(workItem);
       }
       else if ( workItem.getGroupInfo(this) != null ) {
         // This is a changelog entry that modifies the group. Do a FullSync to see if any
@@ -1062,43 +1080,15 @@ public abstract class Provisioner
         // changes are expected to be infrequent, so we aren't creating an optimized code path
         // that doesn't sync memberships.
 
-        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-
-        // We need to remove our lock so full-sync can occur
-        getProvisionerCoordinator().unlockAfterIncrementalProvisioning(grouperGroupInfo);
-
-        FullSyncProvisioner.FullSyncQueueItem fullSyncStatus = getFullSyncer()
-                .scheduleGroupForSync(workItem.getGroupInfo(this), String.format("Changelog: %s", workItem), true);
-
-        // Wait up to 5 minutes for full sync to occur
-        int fullSyncTimeout_secs = 300;
-        while ( !fullSyncStatus.hasBeenProcessed() && fullSyncStatus.getAge_ms() < 1000L*fullSyncTimeout_secs ) {
-          if ( fullSyncStatus.stats.processingStartTime != null ) {
-            LOG.info("{}: Triggered change: Awaiting completion of active full sync: {}",
-                    new Object[]{getDisplayName(), fullSyncStatus});
-          }
-          else {
-            LOG.info("{}: Triggered change: Awaiting start full sync of {}", getDisplayName(), grouperGroupInfo);
-          }
-
-          GrouperUtil.sleep(1000);
-        }
-
-        if ( fullSyncStatus.hasBeenProcessed() ) {
-          if ( fullSyncStatus.wasSuccessful ) {
-            workItem.markAsSuccess("Handled with FullSync");
-          }
-          else {
-            workItem.markAsFailure("FullSync attempted, but failed");
-          }
-        }
-        else {
-          workItem.markAsFailure("FullSync timed out after %d seconds", fullSyncTimeout_secs);
-        }
+        scheduleAndAwaitFullSyncOfGroup(workItem);
       }
-      else if ( workItem.shouldBeHandledBySyncingAllGroups(this) ) {
+      else if (  workItemShouldBeHandledByFullSyncOfEverything(workItem) ) {
         LOG.info("{}: Performing sync of all groups to process work item: {}", getDisplayName(), workItem);
         getFullSyncer().queueAllGroupsForFullSync(String.format("Work item invokes full sync: %s", workItem));
+        if ( getConfig().isGrouperAuthoritative() ) {
+          getFullSyncer().scheduleGroupCleanup();
+        }
+        workItem.markAsSuccess("Scheduled a full-sync of all groups");
       }
       else
       {
@@ -1111,7 +1101,153 @@ public abstract class Provisioner
       currentWorkItem.set(null);
     }
   }
-  
+
+
+  private void processIncrementalSyncEvent(ProvisioningWorkItem workItem) throws PspException {
+    ChangeLogEntry entry = workItem.getChangelogEntry();
+
+    if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD ))
+    {
+      GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+
+      if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
+        workItem.markAsSkippedAndWarn("Ignored: group does not exist any more");
+        return;
+      }
+
+      if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
+        workItem.markAsSuccess("Group %s is not selected to be provisioned", grouperGroupInfo);
+        return;
+      }
+
+      if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
+        workItem.markAsSuccess("Group %s already exists", grouperGroupInfo);
+        return;
+      }
+      else
+        createGroup(grouperGroupInfo, Collections.EMPTY_LIST);
+    }
+    else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE ))
+    {
+      GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+
+      if ( grouperGroupInfo == null ) {
+        workItem.markAsSkippedAndWarn("Ignoring group-deletion event because group information was not found in grouper");
+        return;
+      }
+
+      TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
+
+      deleteGroup(grouperGroupInfo, tsGroup);
+    }
+    else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD))
+    {
+      GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+
+      if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
+        workItem.markAsSkippedAndWarn("Ignoring membership-add event for group that was deleted");
+        return;
+      }
+
+      if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
+        workItem.markAsSuccess("Group %s is not selected to be provisioned", grouperGroupInfo);
+        return;
+      }
+
+      TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
+      Subject subject = workItem.getSubject(this);
+
+      if ( subject == null ) {
+        workItem.markAsSkippedAndWarn("Ignoring membership-add event because subject is no longer in grouper");
+        return;
+      }
+
+      if ( subject.getTypeName().equalsIgnoreCase("group") ) {
+        workItem.markAsSuccess("Nested-group membership skipped");
+        return;
+      }
+
+      TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
+
+      if ( config.needsTargetSystemUsers() && tsUser==null ) {
+        workItem.markAsSkippedAndWarn("Skipped: subject doesn't exist in target system");
+        return;
+      }
+
+      addMembership(grouperGroupInfo, tsGroup, subject, tsUser);
+    }
+    else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE))
+    {
+      GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+
+      if ( grouperGroupInfo==null || grouperGroupInfo.hasGroupBeenDeleted() ) {
+        workItem.markAsSkippedAndWarn("Ignoring membership-delete event for group that was deleted");
+        return;
+      }
+
+      if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
+        workItem.markAsSuccess("Group %s is not selected to be provisioned", grouperGroupInfo);
+        return;
+      }
+
+      TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
+      Subject subject = workItem.getSubject(this);
+
+      if ( subject == null ) {
+        workItem.markAsSkippedAndWarn("Ignoring membership-delete event because subject is no longer in grouper");
+        LOG.warn("Work item ignored: {}", workItem);
+        return;
+      }
+
+      TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
+
+      if ( config.needsTargetSystemUsers() && tsUser==null ) {
+        workItem.markAsSkippedAndWarn("Skipped: subject doesn't exist in target system");
+        return;
+      }
+      deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
+    }
+  }
+
+
+  private void scheduleAndAwaitFullSyncOfGroup(ProvisioningWorkItem workItem) throws PspException {
+    GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+
+    // We need to remove our lock so full-sync can occur
+    getProvisionerCoordinator().unlockAfterIncrementalProvisioning(grouperGroupInfo);
+
+    FullSyncProvisioner.FullSyncQueueItem fullSyncStatus = getFullSyncer()
+            .scheduleGroupForSync(workItem.getGroupInfo(this),
+                    String.format("Changelog: %s", workItem), true);
+
+    // Wait up to 5 minutes for full sync to occur
+    int fullSyncTimeout_secs = 300;
+    while ( !fullSyncStatus.hasBeenProcessed() && fullSyncStatus.getAge_ms() < 1000L*fullSyncTimeout_secs ) {
+      if ( fullSyncStatus.stats.processingStartTime != null ) {
+        LOG.info("{}: Triggered change: Awaiting completion of active full sync: {}",
+                new Object[]{getDisplayName(), fullSyncStatus});
+      }
+      else {
+        LOG.info("{}: Triggered change: Awaiting start full sync of {}", getDisplayName(), grouperGroupInfo);
+      }
+
+      GrouperUtil.sleep(1000);
+    }
+
+    if ( fullSyncStatus.hasBeenProcessed() ) {
+      if ( fullSyncStatus.wasSuccessful ) {
+        workItem.markAsSuccess("Handled with FullSync");
+      }
+      else {
+        workItem.markAsFailure("FullSync attempted, but failed");
+      }
+    }
+    else {
+      workItem.markAsFailure("FullSync timed out after %d seconds", fullSyncTimeout_secs);
+    }
+  }
+
+
   final void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
       activeProvisioner.set(this);
       // Make sure this is only used within Provisioners set up for full-sync mode
@@ -1139,7 +1275,7 @@ public abstract class Provisioner
 	    if ( groupsForThisProvisioner.size() == 0 ) 
 	      tsGroups = Collections.EMPTY_MAP;
 	    else
-	      tsGroups = fetchTargetSystemGroups(groupsForThisProvisioner);
+	      tsGroups = fetchTargetSystemGroupsInBatches(groupsForThisProvisioner);
 	    
 	    MDC.put("step", "clean/");
 	    doFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups, stats);
@@ -1364,7 +1500,7 @@ public abstract class Provisioner
       Set<Stem> foldersReferencingAttribute;
       Set<Group> groupsReferencingAttribute;
 
-      if ( getConfig().isAttributesUsedInGroupSelectionExpressionAreComparedToProvisionerName() ) {
+      if ( getConfig().areAttributesUsedInGroupSelectionExpressionComparedToProvisionerName() ) {
         LOG.debug("Looking for folders that match attribute {}={}", attribute, getConfigName());
         foldersReferencingAttribute = new StemFinder().assignNameOfAttributeDefName(attribute).assignAttributeValue(getConfigName()).findStems();
         LOG.debug("Looking for groups that match attribute {}={}", attribute, getConfigName());
@@ -1439,7 +1575,7 @@ public abstract class Provisioner
       return false;
     }
     
-    String resultString = evaluateJexlExpression(config.getGroupSelectionExpression(), null, null, grouperGroupInfo, null);
+    String resultString = evaluateJexlExpression("GroupSelection", config.getGroupSelectionExpression(), null, null, grouperGroupInfo, null);
     
     boolean result = BooleanUtils.toBoolean(resultString);
     
@@ -1558,34 +1694,29 @@ public abstract class Provisioner
    * @param allWorkItems
    * @throws PspException
    */
-  protected boolean flushCachesIfNecessary(List<ProvisioningWorkItem> allWorkItems)  throws PspException{
+  protected void flushCachesIfNecessary(List<ProvisioningWorkItem> allWorkItems)  throws PspException{
     for (ProvisioningWorkItem workItem : allWorkItems ) {
-      if ( workItemMightAffectCachedData(workItem) ) {
-        LOG.info("{}: Flushing group cache because of possible side effects of {}", getDisplayName(), workItem);
-        grouperGroupInfoCache.clear();
-        return true;
+
+      // Skip irrelevant changelog entries
+      if (!workItem.matchesChangelogType(ChangelogHandlingConfig.allRelevantChangelogTypes)) {
+        continue;
       }
-    }
-    LOG.info("{}: Keeping caches in tact for provisioning batch", getDisplayName());
-    return false;
-  }
 
+      // Skip changelog entries that don't need cache flushing
+      if (!workItem.matchesChangelogType(ChangelogHandlingConfig.relevantChangesThatNeedGroupCacheFlushing)) {
+        continue;
+      }
 
-  /**
-   * Evaluate whether a workItem might change cached information and, therefore, be
-   * a reason to flush our group cache before processing this batch of events.
-   * 
-   * @param workItem
-   * @return
-   */
-  protected boolean workItemMightAffectCachedData(ProvisioningWorkItem workItem) {
-    if ( workItem.isChangingGroupOrStemInformation() )
-      return true;
-    else if ( workItem.action.equalsIgnoreCase("fullsync") ) {
-      return true;
-    }
-    else {
-      return false;
+      // We know we need to flush something from the cache. If the entry is group-specific,
+      // we'll only flush that group
+      GrouperGroupInfo groupInfo = workItem.getGroupInfo(this);
+      if (groupInfo != null) {
+        uncacheGroup(groupInfo, null);
+      } else {
+        // Flush everything and return
+        uncacheAllGroups();
+        return;
+      }
     }
   }
 
@@ -1598,6 +1729,36 @@ public abstract class Provisioner
   @Override
   public String toString() {
     return String.format("%s[%s]", getClass().getSimpleName(), getDisplayName());
+  }
+
+
+  /**
+   * Some changes (eg, labeling a folder for syncing) can have a large effect and are best handled with
+   * a complete sync of all groups.
+   * @return true if this work item should initiate a full sync of all groups
+   */
+  public boolean workItemShouldBeHandledByFullSyncOfEverything(ProvisioningWorkItem workItem) {
+    // Skip if this ChangelogHandlingConfig says this doesn't affect group selection
+    if ( !workItem.matchesChangelogType(ChangelogHandlingConfig.changelogTypesThatAreHandledViaFullSync) ) {
+      return false;
+    }
+
+    String attributeName = workItem.getAttributeName();
+
+    // If we can't figure out what the attributeName being modified is, we need to assume
+    // GroupSelection might be changed
+    if (StringUtils.isEmpty(attributeName)) {
+      LOG.info("{}: Change might change group selection: {}", getDisplayName(), workItem);
+      return true;
+    }
+
+    if ( getConfig().attributesUsedInGroupSelectionExpression.contains(attributeName) ) {
+      LOG.info("{}: Change changes {} which might change group selection: {}",
+              new Object[]{getDisplayName(), attributeName, workItem});
+      return true;
+    }
+
+    return false;
   }
 
 }

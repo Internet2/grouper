@@ -65,6 +65,22 @@ public class ProvisionerConfiguration {
 
     protected String groupSelectionExpression;
 
+    // Coordinating between Full and Incremental Syncing of the same group. This is
+    // to avoid noisy logs where two provisioning processes are trying to do the same thing
+    //   coordinationTimeout_secs: How long to wait before proceeding without coordination
+    //   coordinationUpdate_secs: How frequently to log that we're waiting for locks
+    protected int coordinationTimeout_secs;
+    protected int coordinationTimeout_secs_defaultValue= 300;
+    protected int coordinationUpdateInterval_secs;
+    protected int coordinationUpdateInterval_secs_defaultValue = 10;
+
+    // Should changes that refer to g:gsa subjects be ignored
+    // Most importantly, this means that group-nestings will be ignored because the
+    // membership change would point to a g:gsa Subject
+    protected boolean areChangesToInternalGrouperSubjectsIgnored;
+    protected boolean areChangesToInternalGrouperSubjectsIgnored_defaultValue = true;
+
+
     /**
      * This expression says that the provisionerName has to be in a group or stem provision_to attribute
      * and NOT in neither a group or stem do_not_provision_to attribute
@@ -84,10 +100,11 @@ public class ProvisionerConfiguration {
     protected Collection<String> attributesUsedInGroupSelectionExpression;
     protected String attributesUsedInGroupSelectionExpression_defaultValue = "provision_to,do_not_provision_to";
 
-    // attributesUsedInGroupSelectionExpression are referenced within groupSelectionExpression
+    // attributesUsedInGroupSelectionExpression are referenced within the groupSelectionExpression
     // However, what are they compared to? By default, they are compared to the name of the provisioner
     // and we can use database filtering to find matching groups faster. However, if a different
-    // selection expression is used, then we can't use database filtering.
+    // selection expression is used, then we can't use database filtering, and we have to run the jexl
+    // expression on each group/folder that refers to a selection-relevant attribute.
     //
     // This configuration item enables database filtering when looking for possible matching groups.
     // The groups are still run through the groupSelectionExpression, but this allows fewer
@@ -206,6 +223,18 @@ public class ProvisionerConfiguration {
         groupSearch_batchSize =
             GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "groupSearch_batchSize", groupSearch_batchSize_defaultValue);
         LOG.debug("Provisioner {} - Setting groupSearch_batchSize to {}", provisionerName, groupSearch_batchSize);
+
+        coordinationTimeout_secs =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "coordinationTimeout_secs", coordinationTimeout_secs_defaultValue);
+        LOG.debug("Provisioner {} - Setting coordinationTimeout_secs to {}", provisionerName, coordinationTimeout_secs);
+        coordinationUpdateInterval_secs =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "coordinationUpdateInterval_secs", coordinationUpdateInterval_secs_defaultValue);
+        LOG.debug("Provisioner {} - Setting coordinationUpdateInterval_secs to {}", provisionerName, coordinationUpdateInterval_secs);
+
+        areChangesToInternalGrouperSubjectsIgnored =
+                GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "areChangesToInternalGrouperSubjectsIgnored", areChangesToInternalGrouperSubjectsIgnored_defaultValue);
+        LOG.debug("Provisioner {} - Setting areChangesToInternalGrouperSubjectsIgnored to {}", provisionerName, areChangesToInternalGrouperSubjectsIgnored);
+
     }
 
 
@@ -233,7 +262,7 @@ public class ProvisionerConfiguration {
      * 
      * @return True if the Group-Selection expression compares the attributes to the provisioner name
      */
-    public boolean isAttributesUsedInGroupSelectionExpressionAreComparedToProvisionerName() {
+    public boolean areAttributesUsedInGroupSelectionExpressionComparedToProvisionerName() {
       return attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName;
     }
     
@@ -279,5 +308,16 @@ public class ProvisionerConfiguration {
     
     public boolean isGrouperAuthoritative() {
     	return grouperIsAuthoritative;
+    }
+
+    public int getCoordinationTimout_secs() {
+        return coordinationTimeout_secs;
+    }
+    public int getCoordinationUpdateInterval_secs() {
+        return coordinationUpdateInterval_secs;
+    }
+
+    public boolean areChangesToInternalGrouperSubjectsIgnored() {
+        return areChangesToInternalGrouperSubjectsIgnored;
     }
 }

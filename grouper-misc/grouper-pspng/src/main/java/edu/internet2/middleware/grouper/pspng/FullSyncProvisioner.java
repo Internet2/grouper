@@ -329,7 +329,7 @@ public class FullSyncProvisioner  {
   }
 
     private ProvisionerCoordinator getProvisionerCoordinator() {
-        return ProvisionerFactory.getProvisionerCoordinator(getName());
+        return ProvisionerFactory.getProvisionerCoordinator(provisioner);
     }
 
 
@@ -644,7 +644,7 @@ public class FullSyncProvisioner  {
 
       GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfo(_grouperGroupInfo.getName());
 
-      ProvisioningWorkItem workItem = new ProvisioningWorkItem("FullSync", grouperGroupInfo);
+      ProvisioningWorkItem workItem = ProvisioningWorkItem.createForFullSync(grouperGroupInfo);
       final List<ProvisioningWorkItem> workItems = Arrays.asList(workItem);
 
       provisioner.startCoordination(workItems);
@@ -688,7 +688,7 @@ public class FullSyncProvisioner  {
   protected boolean processGroupCleanup(FullSyncQueueItem queueItem) {
     try {
       LOG.info("{}: Starting Group Cleanup ({})", getName(), queueItem.reason);
-      ProvisioningWorkItem workItem = new ProvisioningWorkItem("RemoveExtraGroups", null);
+      ProvisioningWorkItem workItem = ProvisioningWorkItem.createForGroupCleanup();
       MDC.put("step", "start/");
       provisioner.startProvisioningBatch(Arrays.asList(workItem));
 
