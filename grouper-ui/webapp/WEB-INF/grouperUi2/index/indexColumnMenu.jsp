@@ -18,9 +18,8 @@
                             <li><a href="#" onclick="ajax('UiV2Main.indexColMyFavorites?col=${col}'); return false;">${textContainer.text['myFavoritesBreadcrumb']}</a></li>
                             <!-- HJ : 20150319 -->
                             <li><a href="#" onclick="ajax('UiV2Main.indexColGroupsImanage?col=${col}'); return false;">${textContainer.text['myGroupsTabMyGroups']}</a></li>
-                            <!-- HJ : 20150319 
+                            <!-- HJ : 20150319 -->
                             <li><a href="#" onclick="ajax('UiV2Main.indexColMyServices?col=${col}'); return false;">${textContainer.text['myServicesBreadcrumb']}</a></li>
-                            -->
                             <!-- HJ : 20150319 -->
                             <li><a href="#" onclick="ajax('UiV2Main.indexColStemsImanage?col=${col}'); return false;">${textContainer.text['myStemsBreadcrumb']}</a></li>
                             <!-- HJ : 20150319 -->
