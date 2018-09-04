@@ -16,7 +16,6 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
-import bsh.StringUtil;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
