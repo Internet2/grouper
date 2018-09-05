@@ -1066,10 +1066,11 @@ public class UiV2AttributeDef {
         switch(attributeDefType) {
           case attr:
 
+            //$(obj).attr('disabled', true);
+            
             //lets show all
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
@@ -1081,8 +1082,6 @@ public class UiV2AttributeDef {
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToTypeHideCheckbox').hide('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
@@ -1093,8 +1092,6 @@ public class UiV2AttributeDef {
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToLimitHideCheckbox').hide('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
@@ -1105,8 +1102,6 @@ public class UiV2AttributeDef {
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToPermHideCheckbox').hide('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').hide('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').show('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').hide('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').hide('slow')"));
 
             break;
@@ -1117,8 +1112,6 @@ public class UiV2AttributeDef {
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToServiceHideCheckbox').hide('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributedef-value-no-value').hide('slow')"));
-            guiResponseJs.addAction(GuiScreenAction.newScript("$('.attribute-def-value-all-values').show('slow')"));
             guiResponseJs.addAction(GuiScreenAction.newScript("$('.attributeDefMultiAssignablePermTypeHide').show('slow')"));
 
             break;
@@ -1222,7 +1215,7 @@ public class UiV2AttributeDef {
       final boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrDefAttrReaders[]"), false);
       final boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrDefAttrUpdaters[]"), false);
       final String attributeDefTypeString = request.getParameter("attributeDefType");
-      final String attributeDefValueTypeString = request.getParameter("attributeDefValueType");
+      String attributeDefValueTypeString = request.getParameter("attributeDefValueType");
       String attributeDefToEditMultiAssignable = request.getParameter("attributeDefMultiAssignable");
       String attributeDefToEditMultiValued = request.getParameter("attributeDefMultiValued");
       
@@ -1406,7 +1399,9 @@ public class UiV2AttributeDef {
           
       }
       
-
+      if (StringUtils.isBlank(attributeDefValueTypeString) && attributeDefType == AttributeDefType.perm) {
+        attributeDefValueTypeString = "marker";
+      }
       
       if (StringUtils.isBlank(attributeDefValueTypeString)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 

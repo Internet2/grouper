@@ -215,16 +215,6 @@
                     </div>
                   </div>
                   
-                  <div class="control-group attributedef-value-no-value" style="display: none;">
-                    <label for="attributeDefValueType" class="control-label">${textContainer.text['attributeDefCreateValueTypeLabel'] }</label>
-                    <div class="controls">
-                      <select name="attributeDefValueType" id="attributeDefValueTypeId"
-                          onchange="ajax('../app/UiV2AttributeDef.attributeDefValueTypeChanged', {formIds: 'addAttributeDefForm'}); return false;">
-                       <option value="marker" >${textContainer.text['attributeDefValueType_marker'] }</option>
-                      </select> 
-                    </div>
-                  </div>
-
                   <div class="control-group multiAssignFieldClass">
                     <label for="attributeDefMultiValued" class="control-label">${textContainer.text['attributeDefMultiValued'] }</label>
                     <div class="controls">
