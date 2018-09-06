@@ -5367,6 +5367,13 @@ public class GrouperInstaller {
       }
     }
     
+    {
+      File oroJar = new File(this.upgradeExistingLibDirectoryString + "jakarta-oro.jar");
+      if (oroJar.exists()) {
+        this.backupAndDeleteFile(oroJar, true);
+      }
+    }
+    
     System.out.println("\n##################################");
     System.out.println("Patch API\n");
 
