@@ -1974,9 +1974,6 @@ public class GrouperInstaller {
       this.buildClient(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouperClient"));
       this.buildClient(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouperClient"));
       
-      //build subject api
-      this.buildSubjectApi(new File(sourceDir + File.separator + "subject"));
-      this.buildSubjectApi(new File(sourceTagDir + File.separator + "subject"));
     }
     
     //lets build grouper (always)
@@ -2567,28 +2564,6 @@ public class GrouperInstaller {
         throw new RuntimeException("No patching client, patch API instead");
       case API:
 
-        //index the subject API
-// dont think we need lib from subject, only api
-//        this.patchCreateProcessFiles(indexOfFiles, 
-//            new File(sourceDir.getAbsolutePath() + File.separator + "subject"),
-//            new File(sourceDir.getAbsolutePath() + File.separator + "subject" + File.separator + "lib"),
-//            PatchFileType.lib);
-
-        this.patchCreateProcessFiles(theIndexOfFiles, 
-            new File(theSourceDir.getAbsolutePath() + File.separator + "subject"),
-            new File(theSourceDir.getAbsolutePath() + File.separator + "subject" + File.separator + "dist" + File.separator + "build"),
-            PatchFileType.clazz);
-
-        this.patchCreateProcessFiles(theIndexOfFiles, 
-            new File(theSourceDir.getAbsolutePath() + File.separator + "subject"),
-            new File(theSourceDir.getAbsolutePath() + File.separator + "subject" + File.separator + "src"),
-            PatchFileType.clazz);
-
-        this.patchCreateProcessFiles(theIndexOfFiles, 
-            new File(theSourceDir.getAbsolutePath() + File.separator + "subject"),
-            new File(theSourceDir.getAbsolutePath() + File.separator + "subject" + File.separator + "conf"),
-            PatchFileType.clazz);
-
         //index the grouper client
 // dont think we need lib from client, only api
 //        this.patchCreateProcessFiles(indexOfFiles, 
@@ -3123,57 +3098,6 @@ public class GrouperInstaller {
   }
   
 
-
-  /**
-   * build subject API
-   * @param subjectApiDir
-   */
-  private void buildSubjectApi(File subjectApiDir) {
-    if (!subjectApiDir.exists() || subjectApiDir.isFile()) {
-      throw new RuntimeException("Cant find subject api: " + subjectApiDir.getAbsolutePath());
-    }
-    
-    File subjectBuildToDir = new File(subjectApiDir.getAbsolutePath() + File.separator + "dist" + File.separator + "build");
-    
-    boolean rebuildSubject = true;
-    
-    if (subjectBuildToDir.exists()) {
-      System.out.print("The Grouper subject API has been built in the past, do you want it rebuilt? (t|f) [t]: ");
-      rebuildSubject = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildSubjectApiAfterHavingBeenBuilt");
-    }
-    
-    if (!rebuildSubject) {
-      return;
-    }
-    
-    List<String> commands = new ArrayList<String>();
-    
-    addAntCommands(commands);
-
-    //put 'compile' in there so it wont run tests which we dont want to do
-    commands.add("compile");
-    
-    System.out.println("\n##################################");
-    System.out.println("Building subject API with command:\n" + subjectApiDir.getAbsolutePath() + "> " 
-        + convertCommandsIntoCommand(commands) + "\n");
-    
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, subjectApiDir, null, true);
-    
-    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-      System.out.println("stderr: " + commandResult.getErrorText());
-    }
-    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-      System.out.println("stdout: " + commandResult.getOutputText());
-    }
-
-    System.out.println("\nEnd building subject API");
-    System.out.println("##################################\n");
-    
-    
-    
-  }
-  
 
   /**
    * build client API
