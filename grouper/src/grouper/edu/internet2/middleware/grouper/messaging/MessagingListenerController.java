@@ -77,7 +77,7 @@ public class MessagingListenerController {
 
       String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".messagingSystemName");
       String queueName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queueName");
-      String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".routingKey");
+      String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".routingKey");
       
       int numberOfTriesPerIteration = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".numberOfTriesPerIteration", 3);
       int pollingTimeoutSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".pollingTimeoutSeconds", 18);
