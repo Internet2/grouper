@@ -938,7 +938,7 @@ public class GrouperLoaderTest extends GrouperTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_or_identifier", 
               Types.VARCHAR, "255", false, false);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "source_id", 
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_source_id", 
               Types.VARCHAR, "255", false, false);
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "loader_group_name", 
@@ -3180,7 +3180,7 @@ public class GrouperLoaderTest extends GrouperTest {
     Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:group1", null, null, null, true);
     loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
-        "select col2 as SUBJECT_ID, col3 as SOURCE_ID from testgrouper_loader");
+        "select col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
     
@@ -3356,7 +3356,7 @@ public class GrouperLoaderTest extends GrouperTest {
     Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:owner", null, null, null, true);
     loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
-        "select col1 as GROUP_NAME, col2 as SUBJECT_ID, col3 as SOURCE_ID from testgrouper_loader");
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%x");
     Group groupOther = Group.saveGroup(this.grouperSession, null, null, "loader:groupOther", null, null, null, true);
 

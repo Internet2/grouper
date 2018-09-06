@@ -73,7 +73,7 @@ public class GrouperLoaderIncrementalMessagingListener extends MessagingListener
       connection = grouperLoaderDb.connection();
       connection.setAutoCommit(false);
       
-      String sql = "insert into " + tableName + " (subject_id, subject_identifier, subject_id_or_identifier, source_id, loader_group_name, timestamp) values (?, ?, ?, ?, ?, ?)";
+      String sql = "insert into " + tableName + " (subject_id, subject_identifier, subject_id_or_identifier, subject_source_id, loader_group_name, timestamp) values (?, ?, ?, ?, ?, ?)";
       statement = connection.prepareStatement(sql);
       
       for (GrouperMessage grouperMessage : grouperMessageList) {
@@ -86,6 +86,7 @@ public class GrouperLoaderIncrementalMessagingListener extends MessagingListener
           String subjectIdentifier = data.get("subjectIdentifier");
           String subjectIdOrIdentifier = data.get("subjectIdOrIdentifier");
           String sourceId = data.get("sourceId");
+          String subjectSourceId = data.get("subjectSourceId");
           String loaderGroupName = data.get("loaderGroupName");
           
           int subjectValues = 0;
@@ -107,7 +108,10 @@ public class GrouperLoaderIncrementalMessagingListener extends MessagingListener
             throw new RuntimeException("loaderGroupName is required");
           }
           
-          // ok looks good, add to table
+          if (!StringUtils.isEmpty(subjectSourceId)) {
+            sourceId = new String(subjectSourceId);
+          }
+          
           statement.setString(1, StringUtils.isEmpty(subjectId) ? null : subjectId);
           statement.setString(2, StringUtils.isEmpty(subjectIdentifier) ? null : subjectIdentifier);
           statement.setString(3, StringUtils.isEmpty(subjectIdOrIdentifier) ? null : subjectIdOrIdentifier);

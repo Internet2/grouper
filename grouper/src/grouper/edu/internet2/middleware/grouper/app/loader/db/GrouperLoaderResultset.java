@@ -774,10 +774,6 @@ public class GrouperLoaderResultset {
       final Map<String, String> groupNameToDisplayName,
       final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression) {
 
-    //run the query
-    final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
-        ldapSearchScope, false);
-
     boolean hasSourceId = !StringUtils.isBlank(sourceId);
 
     String subjectIdCol = subjectIdCol(subjectIdType);
@@ -794,12 +790,90 @@ public class GrouperLoaderResultset {
       this.columnTypes.add(Types.VARCHAR);
 
     }
-
+    
     final String overallGroupName = hib3GrouperLoaderLog.getGroupNameFromJobName();
 
     if (StringUtils.isBlank(overallGroupName)) {
       throw new RuntimeException("Why is group name blank??? "
           + hib3GrouperLoaderLog.getJobName());
+    }
+
+    Map<String, List<String>> resultMap = getLdapMembershipsForLdapGroupsFromAttributes(
+        ldapServerId, filter, searchDn, subjectAttributeName, groupAttributeName, sourceId, 
+        subjectIdType, ldapSearchScope, hib3GrouperLoaderLog, overallGroupName, subjectExpression, 
+        extraAttributes, groupNameExpression, groupDisplayNameExpression, groupDescriptionExpression, 
+        groupNameToDisplayName, groupNameToDescription, ldapAttributeFilterExpression, null);
+
+    for (String currentGroupName : resultMap.keySet()) {
+      List<String> results = resultMap.get(currentGroupName);
+      for (String result : results) {
+        Row row = new Row();
+        Object[] rowData = new Object[hasSourceId ? 3 : 2];
+        row.setRowData(rowData);
+        this.data.add(row);
+        rowData[0] = currentGroupName;
+        rowData[1] = result;
+        if (hasSourceId) {
+          rowData[2] = sourceId;
+        }
+      }
+    }
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null);
+  }
+  
+  /**
+   * @param ldapServerId
+   * @param filter
+   * @param searchDn
+   * @param subjectAttributeName
+   * @param groupAttributeName
+   * @param sourceId
+   * @param subjectIdType
+   * @param ldapSearchScope
+   * @param jobName
+   * @param hib3GrouperLoaderLog
+   * @param overallGroupName 
+   * @param subjectExpression
+   * @param extraAttributes
+   * @param groupNameExpression
+   * @param groupDisplayNameExpression
+   * @param groupDescriptionExpression
+   * @param groupNameToDisplayName
+   * @param groupNameToDescription
+   * @param ldapAttributeFilterExpression
+   * @param subjectIdIfIncremental
+   * @return map of memberships
+   */
+  public static Map<String, List<String>> getLdapMembershipsForLdapGroupsFromAttributes(final String ldapServerId, final String filter,
+      final String searchDn, final String subjectAttributeName,
+      final String groupAttributeName, final String sourceId,
+      final String subjectIdType, final String ldapSearchScope,
+      final Hib3GrouperLoaderLog hib3GrouperLoaderLog, final String overallGroupName,
+      final String subjectExpression,
+      final String extraAttributes,
+      final String groupNameExpression, 
+      final String groupDisplayNameExpression, 
+      final String groupDescriptionExpression,  
+      final Map<String, String> groupNameToDisplayName,
+      final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression, String subjectIdIfIncremental) {
+    
+    //run the query
+    final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
+        ldapSearchScope, false);
+    
+    String modifiedFilter = new String(filter);
+
+    if (!StringUtils.isBlank(subjectIdIfIncremental)) {
+      // this is incremental - validate
+      if (StringUtils.isBlank(subjectAttributeName)) {
+        throw new RuntimeException("subjectAttributeName is required for incremental job " + hib3GrouperLoaderLog.getJobName());
+      }
+      
+      if (!StringUtils.isBlank(subjectExpression)) {
+        throw new RuntimeException("subjectExpression is not allowed for incremental job " + hib3GrouperLoaderLog.getJobName());
+      }
+      
+      modifiedFilter = "(&" + filter + "(" + subjectAttributeName + "=" + LoaderLdapUtils.escapeSearchFilter(subjectIdIfIncremental) + "))";
     }
 
     boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
@@ -840,9 +914,15 @@ public class GrouperLoaderResultset {
       }
 
       String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
-
-      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray, null);
-
+      
+      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, modifiedFilter, attributeArray, null);
+      
+      if (!StringUtils.isBlank(subjectIdIfIncremental)) {
+        if (searchResults.size() > 1) {
+          throw new RuntimeException("Incremental job " + hib3GrouperLoaderLog.getJobName() + " but received multiple results for subject id " + subjectIdIfIncremental);
+        }
+      }
+      
       Map<String, String> attributeNameToGroupNameMap = new HashMap<String, String>();
 
       int subObjectCount = 0;
@@ -972,7 +1052,7 @@ public class GrouperLoaderResultset {
                     Map<String, Object> envVars = new HashMap<String, Object>();
 
                     envVars.put("groupAttribute", attributeValue);
-
+                    
                     Map<String, Object> groupAttributes = new HashMap<String, Object>();
                     groupAttributes.put(attribute, attributeValue);
 
@@ -1054,22 +1134,8 @@ public class GrouperLoaderResultset {
           + subjectAttributeName);
       throw new RuntimeException(re);
     }
-
-    for (String currentGroupName : resultMap.keySet()) {
-      List<String> results = resultMap.get(currentGroupName);
-      for (String result : results) {
-        Row row = new Row();
-        Object[] rowData = new Object[hasSourceId ? 3 : 2];
-        row.setRowData(rowData);
-        this.data.add(row);
-        rowData[0] = currentGroupName;
-        rowData[1] = result;
-        if (hasSourceId) {
-          rowData[2] = sourceId;
-        }
-      }
-    }
-    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null);
+    
+    return resultMap;
   }
 
   /**
@@ -1529,5 +1595,4 @@ public class GrouperLoaderResultset {
     }
     return defaultFolder;
   }
-
 }

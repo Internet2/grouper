@@ -52,8 +52,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -165,6 +165,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       try {
         connection = grouperLoaderDb.connection();
         connection.setAutoCommit(false);
+        handleSetsOfGroups(connection, tableName);
         statement = connection.createStatement();
         resultSet = statement.executeQuery(query);
 
@@ -181,6 +182,10 @@ public class GrouperLoaderIncrementalJob implements Job {
           long id = resultSet.getLong("id");
           long timestamp = resultSet.getLong("timestamp");
           String loaderGroupName = resultSet.getString("loader_group_name");
+          
+          if (loaderGroupName.equals("ALL_LDAP_GROUPS")) {
+            continue;
+          }
 
           String subjectId = null;
           String subjectIdentifier = null;
@@ -212,6 +217,10 @@ public class GrouperLoaderIncrementalJob implements Job {
                 subjectValue = subjectIdOrIdentifier;
               }
             } else if (columnNames.get(i).equalsIgnoreCase("source_id")) {
+              if (StringUtils.isEmpty(sourceId)) {
+                sourceId = resultSet.getString(i + 1);
+              }
+            } else if (columnNames.get(i).equalsIgnoreCase("subject_source_id")) {
               sourceId = resultSet.getString(i + 1);
             }
           }
@@ -256,10 +265,12 @@ public class GrouperLoaderIncrementalJob implements Job {
           boolean isSQLLoader = loaderGroup.hasType(GroupTypeFinder.find("grouperLoader", false));
           boolean isLDAPLoader = !isSQLLoader && (grouperLoaderLdapTypeAttributeDefName == null ? false : loaderGroup.getAttributeDelegate().hasAttribute(grouperLoaderLdapTypeAttributeDefName));
           String grouperLoaderType = null;
+          AttributeAssign attributeAssign = null;
           if (isSQLLoader) {
             grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_TYPE);            
           } else if (isLDAPLoader) {
-            grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup.getAttributeDelegate().retrieveAssignment(null, grouperLoaderLdapTypeAttributeDefName, false, true), LoaderLdapUtils.grouperLoaderLdapTypeName());
+            attributeAssign = loaderGroup.getAttributeDelegate().retrieveAssignment(null, grouperLoaderLdapTypeAttributeDefName, false, true);
+            grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapTypeName());
           } else {
             throw new RuntimeException("Not an SQL or LDAP loader group: " + loaderGroup);
           }
@@ -275,9 +286,10 @@ public class GrouperLoaderIncrementalJob implements Job {
           final String GROUPER_LOADER_TYPE = grouperLoaderType;
           
           if (isSQLLoader) {
-            
+
             final String grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_QUERY);
             final String grouperLoaderAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_AND_GROUPS);
+            final String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
 
             for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
   
@@ -286,8 +298,8 @@ public class GrouperLoaderIncrementalJob implements Job {
                 @Override
                 public Void callLogic() {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
-                  processOneRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, grouperLoaderQuery, 
-                      GROUPER_LOADER_TYPE, grouperLoaderAndGroups, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates);
+                  processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, 
+                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderQuery);
                   return null;
                 }
               };
@@ -302,8 +314,57 @@ public class GrouperLoaderIncrementalJob implements Job {
               }            
             }
           } else if (isLDAPLoader) {
-            scheduleJobNow(loaderGroup, grouperLoaderType);
-            setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
+            if (grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES.name())) {
+              
+              final String ldapServerId = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapServerIdName());
+              final String filter = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapFilterName());
+              final String subjectAttributeName = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+              final String searchDn = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+              final String subjectIdType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+              final String ldapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+              final String grouperLoaderAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+              final String groupAttributeName = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+              final String ldapAttributeFilterExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
+              final String extraAttributes = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
+              final String groupNameExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
+              final String subjectExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
+              final String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupsLikeName());
+              
+              for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
+                
+                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
+                  
+                  @Override
+                  public Void callLogic() {
+                    GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
+                    processOneLDAPRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, 
+                        GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates,
+                        grouperLoaderAndGroups, grouperLoaderGroupsLike, ldapServerId, filter,
+                        searchDn, subjectAttributeName,
+                        groupAttributeName,
+                        subjectIdType, ldapSearchScope,
+                        subjectExpression,
+                        extraAttributes,
+                        groupNameExpression, 
+                        ldapAttributeFilterExpression);
+                    
+                    return null;
+                  }
+                };
+               
+        
+                if (!useThreads || threadPoolSize <= 1){
+                  grouperCallable.callLogic();
+                } else {
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+                  futures.add(future);          
+                  GrouperFuture.waitForJob(futures, threadPoolSize, callablesWithProblems);
+                }            
+              }
+            } else {
+              scheduleJobNow(loaderGroup, grouperLoaderType);
+              setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
+            }
           }
         }
         
@@ -350,6 +411,79 @@ public class GrouperLoaderIncrementalJob implements Job {
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }
+    }
+  }
+  
+  private static void handleSetsOfGroups(Connection connection, String tableName) {
+    Statement statement = null;
+    PreparedStatement statement2 = null;
+    PreparedStatement statement3 = null;
+    ResultSet resultSet = null;
+    String query = "select * from " + tableName + " where loader_group_name = 'ALL_LDAP_GROUPS' and completed_timestamp is null";
+    String insertSql = "insert into " + tableName + " (subject_id, subject_identifier, subject_id_or_identifier, subject_source_id, loader_group_name, timestamp) values (?, ?, ?, ?, ?, ?)";
+    String updateSql = "update " + tableName + " set completed_timestamp = ? where id = ?";
+    
+    Set<Long> completedIds = new LinkedHashSet<Long>();
+    Set<String> allLDAPGroups = null;
+    
+    try {
+      statement = connection.createStatement();
+      statement3 = connection.prepareStatement(insertSql);
+      resultSet = statement.executeQuery(query);
+                  
+      while (resultSet.next()) {
+        if (allLDAPGroups == null) {
+          allLDAPGroups = new LinkedHashSet<String>();
+          
+          Set<Group> groups = new GroupFinder().assignNameOfAttributeDefName(LoaderLdapUtils.grouperLoaderLdapAttributeDefName().getName()).findGroups();
+          AttributeDefName grouperLoaderLdapTypeAttributeDefName = LoaderLdapUtils.grouperLoaderLdapAttributeDefName(true);
+
+          for (Group group : groups) {
+            AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, grouperLoaderLdapTypeAttributeDefName, false, true);
+            String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapTypeName());
+            if (grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES.name())) {
+              allLDAPGroups.add(group.getName());
+            }
+          }
+        }
+        
+        long id = resultSet.getLong("id");
+        long timestamp = resultSet.getLong("timestamp");
+        String subjectId = resultSet.getString("subject_id");
+        String subjectIdentifier = resultSet.getString("subject_identifier");
+        String subjectIdOrIdentifier = resultSet.getString("subject_id_or_identifier");
+        String sourceId = resultSet.getString("subject_source_id");
+        
+        for (String ldapGroup : allLDAPGroups) {
+          statement3.setString(1, subjectId);
+          statement3.setString(2, subjectIdentifier);
+          statement3.setString(3, subjectIdOrIdentifier);
+          statement3.setString(4, sourceId);
+          statement3.setString(5, ldapGroup);
+          statement3.setLong(6, timestamp);
+          
+          statement3.executeUpdate();
+        }
+        
+        completedIds.add(id);
+      }
+      
+      statement2 = connection.prepareStatement(updateSql);
+
+      for (Long id : completedIds) {
+        statement2.setLong(1, System.currentTimeMillis());
+        statement2.setLong(2, id);
+        statement2.executeUpdate();
+      }
+      
+      connection.commit();
+    } catch (SQLException se) {
+      throw new RuntimeException("Problem with query", se);
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(statement);
+      GrouperUtil.closeQuietly(statement2);
+      GrouperUtil.closeQuietly(statement3);
     }
   }
   
@@ -448,11 +582,49 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
   }
   
+  private static Subject resolveSubject(Row row) {
+    String subjectId = row.getSubjectId();
+    String subjectIdentifier = row.getSubjectIdentifier();
+    String subjectIdOrIdentifier = row.getSubjectIdOrIdentifier();
+    String sourceId = row.getSourceId();
+    
+    Subject subject = null;
+    
+    if (subjectId != null) {
+      if (sourceId == null) {
+        subject = SubjectFinder.findById(subjectId, false);
+      } else {
+        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+      }
+    } else if (subjectIdentifier != null) {
+      if (sourceId == null) {
+        subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
+      } else {
+        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, false);
+      }
+    } else {
+      if (sourceId == null) {
+        subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
+      } else {
+        subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, sourceId, false);
+      }
+    }
+    
+    return subject;
+  }
   
-  private static void processOneRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
-      Group loaderGroup, String grouperLoaderQuery, String grouperLoaderType, String grouperLoaderAndGroups, 
-      Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates) {
-
+  private static void processOneLDAPRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
+      Group loaderGroup, String grouperLoaderType, 
+      Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
+      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String ldapServerId, String filter,
+      String searchDn, String subjectAttributeName,
+      String groupAttributeName,
+      String subjectIdType, String ldapSearchScope,
+      String subjectExpression,
+      String extraAttributes,
+      String groupNameExpression, 
+      String ldapAttributeFilterExpression) {
+    
     Connection connection = null;
 
     try {
@@ -460,34 +632,72 @@ public class GrouperLoaderIncrementalJob implements Job {
       connection.setAutoCommit(false);
       
       long id = row.getId();
-      String subjectId = row.getSubjectId();
-      String subjectIdentifier = row.getSubjectIdentifier();
-      String subjectIdOrIdentifier = row.getSubjectIdOrIdentifier();
       String sourceId = row.getSourceId();
+
       String subjectColumn = row.getSubjectColumn();
       String subjectValue = row.getSubjectValue();
-        
-      Subject subject = null;
-  
-      if (subjectId != null) {
-        if (sourceId == null) {
-          subject = SubjectFinder.findById(subjectId, false);
-        } else {
-          subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+      
+      Subject subject = resolveSubject(row);
+      
+      if (subject == null) {
+        LOG.warn("Found unresolvable subject: subjectColumn=" + subjectColumn + ", subjectValue=" + subjectValue);
+        synchronized (hib3GrouperloaderLog) {
+          hib3GrouperloaderLog.addUnresolvableSubjectCount(1);
         }
-      } else if (subjectIdentifier != null) {
-        if (sourceId == null) {
-          subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
-        } else {
-          subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, false);
-        }
-      } else {
-        if (sourceId == null) {
-          subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
-        } else {
-          subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, sourceId, false);
-        }
+        setRowCompleted(connection, tableName, id);
+        return;
       }
+      
+     if (GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES.name().equals(grouperLoaderType)) {
+        
+        if (StringUtils.isEmpty(grouperLoaderGroupsLike)) {
+          throw new RuntimeException("grouperLoaderGroupsLike is required for LDAP_GROUPS_FROM_ATTRIBUTES");
+        }
+  
+        Set<String> membershipsInSource = new LinkedHashSet<String>();
+        
+        Map<String, List<String>> queryResults = GrouperLoaderResultset.getLdapMembershipsForLdapGroupsFromAttributes(ldapServerId, filter, searchDn, subjectAttributeName, groupAttributeName, sourceId, subjectIdType, 
+            ldapSearchScope, hib3GrouperloaderLog, loaderGroup.getName(), subjectExpression, extraAttributes, groupNameExpression, null, null, 
+            null, null, ldapAttributeFilterExpression, subjectValue);
+        
+        for (String groupName : queryResults.keySet()) {
+          if (queryResults.get(groupName).contains(subjectValue)) {
+            membershipsInSource.add(groupName);
+          }
+        }
+        
+        handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderType,
+            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource);
+      } else {
+        throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
+      }
+      
+      setRowCompleted(connection, tableName, id);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
+  
+  private static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
+      Group loaderGroup, String grouperLoaderType, 
+      Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
+      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderQuery) {
+    
+    Connection connection = null;
+
+    try {
+      connection = grouperLoaderDb.connection();
+      connection.setAutoCommit(false);
+      
+      long id = row.getId();
+      String sourceId = row.getSourceId();
+
+      String subjectColumn = row.getSubjectColumn();
+      String subjectValue = row.getSubjectValue();
+      
+      Subject subject = resolveSubject(row);
       
       if (subject == null) {
         LOG.warn("Found unresolvable subject: subjectColumn=" + subjectColumn + ", subjectValue=" + subjectValue);
@@ -501,7 +711,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       if (GrouperLoaderType.SQL_SIMPLE.name().equals(grouperLoaderType)) {
         String loaderQueryForUser = "select 1 from (" + grouperLoaderQuery + ") innerQuery where " + subjectColumn + " = ?";
         if (sourceId != null) {
-          loaderQueryForUser += " and source_id = ?";
+          loaderQueryForUser += " and subject_source_id = ?";
         }
         
         PreparedStatement statement2 = null;
@@ -581,14 +791,13 @@ public class GrouperLoaderIncrementalJob implements Job {
         }
         
       } else if (GrouperLoaderType.SQL_GROUP_LIST.name().equals(grouperLoaderType)) {
-        String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
         if (StringUtils.isEmpty(grouperLoaderGroupsLike)) {
           throw new RuntimeException("grouperLoaderGroupsLike is required for SQL_GROUP_LIST");
         }
   
         String loaderQueryForUser = "select group_name from (" + grouperLoaderQuery + ") innerQuery where " + subjectColumn + " = ?";
         if (sourceId != null) {
-          loaderQueryForUser += " and source_id = ?";
+          loaderQueryForUser += " and subject_source_id = ?";
         }
         
         PreparedStatement statement = null;
@@ -613,110 +822,8 @@ public class GrouperLoaderIncrementalJob implements Job {
           GrouperUtil.closeQuietly(statement);
         }
         
-        String sql = "select g.nameDb "
-            + " from Member m, MembershipEntry ms, Group g "
-            + " where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid "
-            + " and g.nameDb like :sqlLike "
-            + " and m.subjectIdDb like :subjectId "
-            + " and m.subjectSourceIdDb like :subjectSourceId "
-            + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
-            + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'";
-        
-        Set<String> membershipsInGrouper = HibernateSession.byHqlStatic()
-          .createQuery(sql)
-          .setString("sqlLike", grouperLoaderGroupsLike)
-          .setString("subjectId", subject.getId())
-          .setString("subjectSourceId", subject.getSourceId())
-          .listSet(String.class);
-        
-        Set<String> membershipsInSourceAfterAndGroupsConsideration = new LinkedHashSet<String>(membershipsInSource);
-        if (!StringUtils.isBlank(grouperLoaderAndGroups)) {
-          String[] andGroupNames = GrouperUtil.splitTrim(grouperLoaderAndGroups, ",");
-          for (String groupName : membershipsInSource) {
-            for (String andGroupName : andGroupNames) {
-              Group andGroup = GroupFinder.findByName(grouperSession, andGroupName, true);
-              if (!andGroup.hasMember(subject)) {
-                membershipsInSourceAfterAndGroupsConsideration.remove(groupName);
-                break;
-              }
-            }
-          }
-        }
-        
-        Set<String> membershipsToAdd = new LinkedHashSet<String>(membershipsInSourceAfterAndGroupsConsideration);
-        Set<String> membershipsToRemove = new LinkedHashSet<String>(membershipsInGrouper);
-        membershipsToAdd.removeAll(membershipsInGrouper);
-        membershipsToRemove.removeAll(membershipsInSourceAfterAndGroupsConsideration);
-        
-        for (String groupName : membershipsToAdd) {
-          Group theGroup = GroupFinder.findByName(grouperSession, groupName, false);
-          
-          if (theGroup == null) {
-            // if group doesn't exist, full sync and set completion time
-            scheduleJobNow(loaderGroup, grouperLoaderType);
-            
-            // just setting this one row completed instead of all from this group list just in case the full sync takes a long time
-            setRowCompleted(connection, tableName, id);
-            continue;
-          }
-          
-          if (shouldAddSubject(grouperSession, loaderGroup, subject)) {
-            theGroup.addMember(subject);
-            
-            GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
-
-            GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
-            GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
-            GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
-            GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
-
-            GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
-
-            GrouperLoaderLogger.doTheLogging("membershipManagement");
-
-            synchronized (hib3GrouperloaderLog) {
-              hib3GrouperloaderLog.addInsertCount(1);
-            }
-          }
-          
-          if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
-            groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
-          } else {
-            Set<Group> managedGroups = new HashSet<Group>();
-            managedGroups.add(theGroup);
-            groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
-          }
-          
-        }
-        
-        for (String groupName : membershipsToRemove) {
-          Group theGroup = GroupFinder.findByName(grouperSession, groupName, true);
-          theGroup.deleteMember(subject);
-
-          GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
-
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
-
-          GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
-
-          GrouperLoaderLogger.doTheLogging("membershipManagement");
-
-          synchronized (hib3GrouperloaderLog) {
-            hib3GrouperloaderLog.addDeleteCount(1);
-          }
-          
-          if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
-            groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
-          } else {
-            Set<Group> managedGroups = new HashSet<Group>();
-            managedGroups.add(theGroup);
-            groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
-          }
-          
-        }
+        handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderType,
+            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
@@ -726,6 +833,116 @@ public class GrouperLoaderIncrementalJob implements Job {
       throw new RuntimeException(e);
     } finally {
       GrouperUtil.closeQuietly(connection);
+    }
+  }
+  
+  private static void handleGroupList(GrouperSession grouperSession, Connection connection, String tableName, Row row, Group loaderGroup, String grouperLoaderAndGroups, 
+      String grouperLoaderGroupsLike, String grouperLoaderType, Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates, 
+      Subject subject, Set<String> membershipsInSource) throws SchedulerException, SQLException {
+
+    String sql = "select g.nameDb "
+        + " from Member m, MembershipEntry ms, Group g "
+        + " where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid "
+        + " and g.nameDb like :sqlLike "
+        + " and m.subjectIdDb like :subjectId "
+        + " and m.subjectSourceIdDb like :subjectSourceId "
+        + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
+        + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'";
+    
+    Set<String> membershipsInGrouper = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setString("sqlLike", grouperLoaderGroupsLike)
+      .setString("subjectId", subject.getId())
+      .setString("subjectSourceId", subject.getSourceId())
+      .listSet(String.class);
+    
+    Set<String> membershipsInSourceAfterAndGroupsConsideration = new LinkedHashSet<String>(membershipsInSource);
+    if (!StringUtils.isBlank(grouperLoaderAndGroups)) {
+      String[] andGroupNames = GrouperUtil.splitTrim(grouperLoaderAndGroups, ",");
+      for (String groupName : membershipsInSource) {
+        for (String andGroupName : andGroupNames) {
+          Group andGroup = GroupFinder.findByName(grouperSession, andGroupName, true);
+          if (!andGroup.hasMember(subject)) {
+            membershipsInSourceAfterAndGroupsConsideration.remove(groupName);
+            break;
+          }
+        }
+      }
+    }
+    
+    Set<String> membershipsToAdd = new LinkedHashSet<String>(membershipsInSourceAfterAndGroupsConsideration);
+    Set<String> membershipsToRemove = new LinkedHashSet<String>(membershipsInGrouper);
+    membershipsToAdd.removeAll(membershipsInGrouper);
+    membershipsToRemove.removeAll(membershipsInSourceAfterAndGroupsConsideration);
+    
+    for (String groupName : membershipsToAdd) {
+      Group theGroup = GroupFinder.findByName(grouperSession, groupName, false);
+      
+      if (theGroup == null) {
+        // if group doesn't exist, full sync and set completion time
+        scheduleJobNow(loaderGroup, grouperLoaderType);
+        
+        // just setting this one row completed instead of all from this group list just in case the full sync takes a long time
+        setRowCompleted(connection, tableName, row.getId());
+        continue;
+      }
+      
+      if (shouldAddSubject(grouperSession, loaderGroup, subject)) {
+        theGroup.addMember(subject);
+      
+        GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+  
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+  
+        GrouperLoaderLogger.doTheLogging("membershipManagement");
+  
+        synchronized (hib3GrouperloaderLog) {
+          hib3GrouperloaderLog.addInsertCount(1);
+        }
+      }
+      
+      if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+        groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
+      } else {
+        Set<Group> managedGroups = new HashSet<Group>();
+        managedGroups.add(theGroup);
+        groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+      }
+      
+    }
+    
+    for (String groupName : membershipsToRemove) {
+      Group theGroup = GroupFinder.findByName(grouperSession, groupName, true);
+      theGroup.deleteMember(subject);
+
+      GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+
+      GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+      GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+      GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
+      GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+
+      GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+
+      GrouperLoaderLogger.doTheLogging("membershipManagement");
+
+      synchronized (hib3GrouperloaderLog) {
+        hib3GrouperloaderLog.addDeleteCount(1);
+      }
+      
+      if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+        groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
+      } else {
+        Set<Group> managedGroups = new HashSet<Group>();
+        managedGroups.add(theGroup);
+        groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+      }
+      
     }
   }
   

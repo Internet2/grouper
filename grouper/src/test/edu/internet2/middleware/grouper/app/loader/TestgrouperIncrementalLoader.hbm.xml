@@ -35,7 +35,7 @@
     <property name="subjectId" column="subject_id" />
     <property name="subjectIdentifier" column="subject_identifier" />
     <property name="subjectIdOrIdentifier" column="subject_id_or_identifier" />
-    <property name="sourceId" column="source_id" />
+    <property name="sourceId" column="subject_source_id" />
     <property name="loaderGroupName" column="loader_group_name" />
     <property name="timestamp" column="timestamp" />
     <property name="completedTimestamp" column="completed_timestamp" />

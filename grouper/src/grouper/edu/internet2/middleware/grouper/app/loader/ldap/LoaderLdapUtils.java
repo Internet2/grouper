@@ -963,4 +963,23 @@ public class LoaderLdapUtils {
   public static AttributeDefName grouperLoaderLdapGroupAttrUpdatersAttributeDefName() {
     return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupAttrUpdatersName(), true);
   }
+  
+  /**
+   * Escape a search filter to prevent LDAP injection.
+   * From http://www.owasp.org/index.php/Preventing_LDAP_Injection_in_Java
+   *
+   * @param filter
+   * @return escaped filter
+   */
+  public static String escapeSearchFilter(String filter) {
+    //From RFC 2254
+    String escapedStr = new String(filter);
+    // note, these are regexes, so thats why there is an extra slash
+    escapedStr = escapedStr.replaceAll("\\\\","\\\\5c");
+    escapedStr = escapedStr.replaceAll("\\*","\\\\2a");
+    escapedStr = escapedStr.replaceAll("\\(","\\\\28");
+    escapedStr = escapedStr.replaceAll("\\)","\\\\29");
+    escapedStr = escapedStr.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
+    return escapedStr;
+  }
 }
