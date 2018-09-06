@@ -5345,6 +5345,7 @@ public class GrouperInstaller {
 
     this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
       + File.separator + "grouper" + File.separator));
+    
     if (this.appToUpgrade.isApiOrganized()) {
 
       //if we need to put the jars in the jdbcSamples dir...
@@ -5359,6 +5360,13 @@ public class GrouperInstaller {
     
     }
 
+    {
+      File subjectJar = new File(this.upgradeExistingLibDirectoryString + "subject.jar");
+      if (subjectJar.exists()) {
+        this.backupAndDeleteFile(subjectJar, true);
+      }
+    }
+    
     System.out.println("\n##################################");
     System.out.println("Patch API\n");
 
