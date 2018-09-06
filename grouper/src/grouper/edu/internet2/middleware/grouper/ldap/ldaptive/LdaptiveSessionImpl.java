@@ -233,7 +233,7 @@ public class LdaptiveSessionImpl implements LdapSession {
           
           Validator<Connection> validator = null;
 
-          String ldapValidator = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".validator");
+          String ldapValidator = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".validator", "SearchValidator");
 
           if (StringUtils.equalsIgnoreCase(ldapValidator, CompareValidator.class.getSimpleName())
               || StringUtils.equalsIgnoreCase(ldapValidator, "CompareLdapValidator")) {
