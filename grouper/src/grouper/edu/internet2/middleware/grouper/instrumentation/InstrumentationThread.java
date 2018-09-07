@@ -194,57 +194,78 @@ public class InstrumentationThread {
     if (grouperEngineIdentifier == null) {
       throw new RuntimeException("No grouper engine identifier.");
     }
-    
-    if (grouperEngineIdentifier.getGrouperEngine() == null) {
+
+    String grouperEngineName = grouperEngineIdentifier.getGrouperEngine();
+    if (grouperEngineName == null) {
       throw new RuntimeException("Grouper engine is null");
     }
-    
-    String instrumentationFileName = grouperEngineIdentifier.getGrouperEngine() + "_instrumentation.dat";
-    
-    Logger rootLogger = Logger.getRootLogger();
 
+    String instrumentationFileName = grouperEngineName + "_instrumentation.dat";
     Set<File> parentFiles = new LinkedHashSet<File>();
-    
-    if (rootLogger != null) {
-      Enumeration appenders = rootLogger.getAllAppenders();
-      while (appenders.hasMoreElements()) {
-        Appender appender = (Appender) appenders.nextElement();
-        
-        if (appender instanceof FileAppender) {
-          String filename = ((FileAppender) appender).getFile();
-          if (!GrouperUtil.isEmpty(filename)) {
-            File file = new File(filename);
-            if (file.getParentFile().exists()) {
-              parentFiles.add(file.getParentFile());
+
+    String instrumentationDirectoryName = GrouperConfig.retrieveConfig().propertyValueString("instrumentation.instanceFile.directory");
+    if (instrumentationDirectoryName != null) {
+      /* If a specific writable directory is configured, read or create the uuid from there */
+      parentFiles.add(new File(instrumentationDirectoryName));
+    } else {
+      /* No writable directory configured, try the Logger appender locations until a writable directory is found */
+      Logger rootLogger = Logger.getRootLogger();
+
+      if (rootLogger != null) {
+        Enumeration appenders = rootLogger.getAllAppenders();
+        while (appenders.hasMoreElements()) {
+          Appender appender = (Appender) appenders.nextElement();
+
+          if (appender instanceof FileAppender) {
+            String filename = ((FileAppender) appender).getFile();
+            if (!GrouperUtil.isEmpty(filename)) {
+              File file = new File(filename);
+              if (file.getParentFile().exists()) {
+                parentFiles.add(file.getParentFile());
+              }
             }
           }
         }
       }
     }
-    
+
     if (parentFiles.size() == 0) {
+      LOG.warn("Could not determine directory to read or write instrumentation file; either define config property "
+              + "instrumentation.instanceFile.directory, or set at least one file appender for the root logger");
       return null;
     }
-        
-    try {
-      for (File parentFile : parentFiles) {
-        File childFile = new File(parentFile, instrumentationFileName);
-        if (childFile.exists()) {
+
+    for (File parentFile : parentFiles) {
+      File childFile = new File(parentFile, instrumentationFileName);
+      if (childFile.exists()) {
+        try {
+          LOG.debug("Reading uuid from instrumentation file: " + childFile.getCanonicalPath());
           String uuid = FileUtils.readFileToString(childFile, null);
           if (!GrouperUtil.isBlank(uuid)) {
+            LOG.debug("Uuid for " + grouperEngineName + " is " + uuid);
             return childFile;
+          } else {
+            LOG.warn("Uuid is blank in instrumentation file " + childFile.getCanonicalPath() + ", will keep looking or generate new one");
           }
+        } catch (IOException e) {
+          LOG.error("Failed to read uuid from instrumentation file " + instrumentationFileName, e);
         }
       }
-  
+    }
+
+    /* Couldn't find existing file, so create a new one */
+    try {
       File childFile = new File(parentFiles.iterator().next(), instrumentationFileName);
       String uuid = GrouperUuid.getUuid();
+      LOG.debug("Writing new uuid " + uuid + " to instrumentation file: " + childFile.getCanonicalPath());
       FileUtils.writeStringToFile(childFile, uuid);
-      
+      LOG.debug("Uuid for " + grouperEngineName + " is " + uuid);
       return childFile;
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      LOG.error("Failed to write uuid to instrumentation file " + instrumentationFileName, e);
+      return null;
     }
+
   }
   
   /**
