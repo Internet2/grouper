@@ -171,6 +171,11 @@ done
 [ -n "${SEM_TEST}" ] && $SEM_TEST --wait
 
 cat $T/result_details
-grep -A3 FAILURE $T/result_details
 
-grep FAILURE >>$TT/progress
+# Highlight failures
+
+echo ===
+grep_ -A3 FAILURE $T/result_details
+
+echo === >> $TT/progress
+grep_ FAILURE >>$TT/progress
