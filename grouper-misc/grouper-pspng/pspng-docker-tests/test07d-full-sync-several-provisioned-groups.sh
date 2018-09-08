@@ -54,7 +54,7 @@ create_test_folder
 
 mark_test_folder_for_provisioning
 
-run_in_grouper_daemon create-groups --member banderson $(for ((i=1;i<=75;i++)); do echo $TEST_FOLDER:group-$i; done)
+run_in_grouper_daemon create-groups --member banderson $(for ((i=1;i<=250;i++)); do echo $TEST_FOLDER:group-$i; done)
 
 #make sure everything is right
 await_changelog_catchup
@@ -66,9 +66,18 @@ validate_provisioning "$TEST_FOLDER:group-70" banderson
 test_step "Waiting for at least one full-sync process to start and stop"
 await_full_sync
 
+CLEANUP_LINES=$(run_in_grouper_daemon egrep_ 'groups that we should delete|values that should be purged' /opt/grouper/grouper.apiBinary/logs/grouper_error.log)
+assert_not_empty "$CLEANUP_LINES" "Expected to see some group-cleanup lines"
+
+CLEANUP_LINES_NOT_ZERO_GROUPS=$(egrep_ -v "There are 0 " <<<"$CLEANUP_LINES")
+assert_empty "$CLEANUP_LINES_NOT_ZERO_GROUPS" "Did not expect to see any groups get cleaned up"
+
 # TODO: Should try to create an extra group and make sure cleanup happens
 
 
+
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

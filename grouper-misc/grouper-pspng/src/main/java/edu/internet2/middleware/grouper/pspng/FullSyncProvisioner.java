@@ -156,7 +156,7 @@ public class FullSyncProvisioner  {
 
   final private Logger LOG;
   
-  final protected Provisioner provisioner;
+  final protected Provisioner<?,?,?> provisioner;
   
   Lock groupListLock = new ReentrantLock();
   // This is used to signal the full-syncing thread that one of the 
@@ -551,10 +551,9 @@ public class FullSyncProvisioner  {
     LOG.info("{}: Queuing all groups for full sync. ({})", getName(), reason);
     List<FullSyncQueueItem> result = new ArrayList<>();
 
-    Collection<Group> allGroups = provisioner.getAllGroupsForProvisioner();
-    for ( Group group : allGroups ) {
-      GrouperGroupInfo grouperGroupInfo = new GrouperGroupInfo(group);
-      result.add(scheduleGroupForSync(grouperGroupInfo, reason, false));
+    Collection<GrouperGroupInfo> allGroups = provisioner.getAllGroupsForProvisioner();
+    for ( GrouperGroupInfo group : allGroups ) {
+      result.add(scheduleGroupForSync(group, reason, false));
     }
     
     if ( provisioner.config.isGrouperAuthoritative()) {
@@ -694,7 +693,7 @@ public class FullSyncProvisioner  {
 
       MDC.put("step", "doit/");
       provisioner.setCurrentWorkItem(workItem);
-      provisioner.doFullSync_cleanupExtraGroups(queueItem.stats);
+      provisioner.prepareAndRunGroupCleanup(queueItem.stats);
       
       MDC.put("step",  "finish/");
       provisioner.finishProvisioningBatch(Arrays.asList(workItem));

@@ -168,7 +168,7 @@ public class LdapSystem {
 
 
   protected void performTestLdapRead(Connection conn) throws PspException {
-    LOG.info("Performing test read of directory root");
+    LOG.info("{}: Performing test read of directory root", ldapSystemName);
     SearchExecutor searchExecutor = new SearchExecutor();
     SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchExecutor, getLdaptiveProperties());
     srSource.initialize();
@@ -319,7 +319,8 @@ public class LdapSystem {
   
   
   protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
-    LOG.info("{}: Creating LDAP object: {}", ldapSystemName, entryToAdd.getDn());
+    LOG.info("{}: Creating LDAP object DN: {}", ldapSystemName, entryToAdd.getDn());
+    LOG.info("{}: Creating LDAP Object details: {}", ldapSystemName, entryToAdd);
   
     Connection conn = getLdapConnection();
     try {

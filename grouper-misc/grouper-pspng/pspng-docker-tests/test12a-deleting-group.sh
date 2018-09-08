@@ -64,6 +64,8 @@ await_changelog_catchup
 
 validate_deprovisioning "$GROUP2_NAME"
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

@@ -73,10 +73,12 @@ await_changelog_catchup
 validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
 
 test_step "Checking that OU was created with a description"
-description=$(run_in_grouper_daemon bash -c "myldapsearch -b dc=example,dc=edu ou=testfolder | grep_ -i description | noAttributeLabels")
+description=$(run_in_grouper_daemon bash -c "myldapsearch -b dc=example,dc=edu ou=parentFolder | grep_ -i description | noAttributeLabels")
 
 assert_equals "test description" "${description}" "Description of testFolder OU"
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

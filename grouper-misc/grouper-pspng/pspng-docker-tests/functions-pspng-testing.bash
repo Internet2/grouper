@@ -6,15 +6,17 @@
 
 init_test_scenario_variables() 
 {
-  export TEST_FOLDER_TOP=${TEST_FOLDER_TOP:-testFolder}
-  export TEST_FOLDER=${TEST_FOLDER:-${TEST_FOLDER_TOP}:parentFolder}
+  export TEST_FOLDER_TOP=${TEST_FOLDER_TOP:-parentFolder}
+  export TEST_FOLDER=${TEST_FOLDER:-${TEST_FOLDER_TOP}:provisionedFolder}
 
   export GROUP1_NAME=${GROUP1_NAME:-${TEST_FOLDER}:group1}
   export GROUP2_NAME=${GROUP2_NAME:-${TEST_FOLDER}:group2}
+  export UNPROVISIONED_GROUP_NAME=${UNPROVISIONED_GROUP_NAME:-${TEST_FOLDER_TOP}:unprovisioned-group}
 
   #Remove everything up to the last colon
   export GROUP1_EXTENSION=$(sed 's/.*://' <<<"$GROUP1_NAME")
   export GROUP2_EXTENSION=$(sed 's/.*://' <<<"$GROUP2_NAME")
+  export UNPROVISIONED_GROUP_EXTENSION=$(sed 's/.*://' <<<"$UNPROVISIONED_GROUP_NAME")
 
   export PROVISIONER1_NAME=${PROVISIONER1_NAME:-pspng1}
 }
@@ -40,8 +42,9 @@ create_test_folder()
 {
   init_test_scenario_variables
 
-  test_step "Creating test folder"
-  run_in_grouper_daemon bash -c "$GSH < /scripts/create-test-folder.gsh"
+  test_step "Creating test folder(s)"
+  run_in_grouper_daemon create-folder --folder_name "$TEST_FOLDER_TOP"
+  run_in_grouper_daemon create-folder --folder_name "$TEST_FOLDER"
 }
 
 
@@ -50,7 +53,7 @@ mark_test_folder_for_provisioning()
   await_changelog_catchup "so pspng can create provision_to attributes"
 
   test_step "Marking test folders for provisioning"
-  run_in_grouper_daemon add-attribute --folder $TEST_FOLDER_TOP --attribute_name etc:pspng:provision_to --attribute_value $PROVISIONER1_NAME
+  run_in_grouper_daemon add-attribute --folder $TEST_FOLDER --attribute_name etc:pspng:provision_to --attribute_value $PROVISIONER1_NAME
 }
 
 
@@ -62,6 +65,12 @@ create_group1_and_group2()
   run_in_grouper_daemon create-group --group_name ${GROUP1_NAME}
   test_step "Creating group  2: $GROUP2_NAME"
   run_in_grouper_daemon create-group --group_name ${GROUP2_NAME}
+
+  test_step "Creating unprovisioned group: $UNPROVISIONED_GROUP_NAME"
+  run_in_grouper_daemon create-group --group_name ${UNPROVISIONED_GROUP_NAME}
+
+  test_step "Adding member to unprovisioned group $UNPROVISIONED_GROUP_NAME: agasper"
+  run_in_grouper_daemon add-member --group $UNPROVISIONED_GROUP_NAME agasper
 }
 
 add_members_to_group1()

@@ -85,6 +85,8 @@ do
   assert_empty "$x" "Posix group should not be found after members were all removed when empty groups are not supported"
 done
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

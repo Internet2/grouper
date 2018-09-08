@@ -281,17 +281,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
 
   @Override
-	protected void doFullSync_cleanupExtraGroups(
-			Set<GrouperGroupInfo> groupsForThisProvisioner,
-			Map<GrouperGroupInfo, LdapGroup> ldapGroups,
-            JobStatistics stats) throws PspException {
+	protected void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
 
-    // Grab all the DNs that match the groupsForThisProvisioner
-    Set<String> desiredGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    for ( LdapGroup ldapGroup  : ldapGroups.values() )
-      desiredGroupDns.add( ldapGroup.getLdapObject().getDn());
-
-
+    // (1) Get all the groups that are in LDAP
     String filterString = config.getAllGroupSearchFilter();
     if ( StringUtils.isEmpty(filterString) ) {
       LOG.error("{}: Cannot cleanup extra groups without a configured all-group search filter", getDisplayName());
@@ -306,29 +298,39 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
 
     // Get all the LDAP Groups that match the filter
-    List<LdapObject> searchResult
+    List<LdapObject> allProvisionedGroups
             = getLdapSystem().performLdapSearchRequest(new SearchRequest(baseDn, filterString,
             getLdapAttributesToFetch()));
 
-    List<LdapObject> groupsToDelete = new ArrayList<LdapObject>();
 
-    for ( LdapObject existingGroup : searchResult ) {
-      String existingGroupDn = existingGroup.getDn();
-      if ( !desiredGroupDns.contains(existingGroupDn) ) {
-        groupsToDelete.add(existingGroup);
+    // See what LDAP Groups match the correct list of groups
+
+    Collection<GrouperGroupInfo> groupsThatShouldBeProvisioned = getAllGroupsForProvisioner();
+    Map<GrouperGroupInfo, LdapGroup> ldapGroupsThatShouldBeProvisioned = fetchTargetSystemGroupsInBatches(groupsThatShouldBeProvisioned);
+
+    Set<String> correctGroupDNs = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    for(LdapGroup correctLdapGroup : ldapGroupsThatShouldBeProvisioned.values()) {
+      String correctLdapGroupDn = correctLdapGroup.getLdapObject().getDn();
+      correctGroupDNs.add(correctLdapGroupDn);
+    }
+
+
+    List<LdapObject> groupsToDelete = new ArrayList<LdapObject>();
+    for (LdapObject aProvisionedGroup : allProvisionedGroups) {
+      if ( ! correctGroupDNs.contains(aProvisionedGroup.getDn()) ) {
+        groupsToDelete.add(aProvisionedGroup);
       }
     }
 
     LOG.info("{}: There are {} groups that we should delete", getDisplayName(), groupsToDelete.size());
 
-    int numMembershipsBeingDeleted = 0;
-
     for ( LdapObject groupToRemove : groupsToDelete ) {
-      numMembershipsBeingDeleted += groupToRemove.getStringValues(config.getMemberAttributeName()).size();
+      int numMembershipsBeingDeleted = groupToRemove.getStringValues(config.getMemberAttributeName()).size();
+      stats.deleteCount.addAndGet(numMembershipsBeingDeleted);
+
       getLdapSystem().performLdapDelete(groupToRemove.getDn());
     }
 
-    stats.deleteCount.addAndGet(numMembershipsBeingDeleted);
   }
 
 
@@ -431,7 +433,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup) throws PspException {
     String ldif = config.getGroupCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
-    ldif = evaluateJexlExpression("GroupLdif", ldif, null, null, grouperGroup, null);
+    ldif = evaluateJexlExpression("GroupTemplate", ldif, null, null, grouperGroup, null);
     return ldif;
   }
 

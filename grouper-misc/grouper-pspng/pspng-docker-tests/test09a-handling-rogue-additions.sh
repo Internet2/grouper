@@ -83,6 +83,8 @@ await_changelog_catchup
 validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705"
 validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

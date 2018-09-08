@@ -164,10 +164,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   }
   
   @Override
-	protected void doFullSync_cleanupExtraGroups(
-			Set<GrouperGroupInfo> groupsForThisProvisioner,
-			Map<GrouperGroupInfo, LdapGroup> ldapGroups,
-            JobStatistics stats) throws PspException {
+	protected void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
 
       String attribute = config.getProvisionedAttributeName();
 
@@ -215,7 +212,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       // Now we go through all the grouper groups and see what their attribute values
       // would be. 
       Set<String> valuesDefinedByGrouperGroups = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-      for ( GrouperGroupInfo groupInfo : groupsForThisProvisioner ) {
+      for ( GrouperGroupInfo groupInfo : getAllGroupsForProvisioner() ) {
         String value = getAttributeValueForGroup(groupInfo);
         valuesDefinedByGrouperGroups.add(value);
       }

@@ -84,6 +84,8 @@ x=$(run_in_grouper_daemon bash -c "myldapsearch -b "$user_dn" eduPersonEntitleme
 
 assert_not_empty "$x" "Expected xyz:pdq to remain an eduPersonEntitlement value"
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

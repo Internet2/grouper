@@ -146,7 +146,13 @@ public class ProvisioningWorkItem {
     success = true;
     setStatus(Level.WARNING, "done", statusMessageFormat, statusMessageArgs);
   }
-  
+
+  public void markAsSkipped(String statusMessageFormat, Object... statusMessageArgs)
+  {
+    success = true;
+    setStatus(Level.FINE, "done", statusMessageFormat, statusMessageArgs);
+  }
+
   public void markAsSuccess(String statusMessageFormat, Object... statusMessageArgs)
   {
     success = true;

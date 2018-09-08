@@ -209,7 +209,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LOG.info("Creating LDAP account for Subject: {} ", personSubject);
     String ldif = config.getUserCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
-    ldif = evaluateJexlExpression("UserLdif", ldif, personSubject, null, null, null);
+    ldif = evaluateJexlExpression("UserTemplate", ldif, personSubject, null, null, null);
     
     Connection conn = getLdapSystem().getLdapConnection();
     try {
@@ -695,7 +695,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LdapAttribute topRdnAttribute = new LdapAttribute(topRDN.getAttributeNames()[0]);
     topRdnAttribute.addStringValue( topRDN.getAttributeValues());
 
-    String ldif = evaluateJexlExpression("OuLdif", config.getOuCreationLdifTemplate(),
+    String ldif = evaluateJexlExpression("OuTemplate", config.getOuCreationLdifTemplate(),
             null, null,
             null, null,
             "dn", ouDn.toMinimallyEncodedString(),

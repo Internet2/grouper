@@ -51,8 +51,11 @@ create_test_folder
 create_group1_and_group2
 
 add_members_to_group1 banderson agasper bbrown705
-
 add_group1_to_group2
+await_changelog_catchup
+
+validate_deprovisioning "$GROUP1_NAME"
+validate_deprovisioning "$GROUP2_NAME"
 
 mark_test_folder_for_provisioning
 
@@ -61,6 +64,8 @@ await_changelog_catchup
 validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705"
 validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

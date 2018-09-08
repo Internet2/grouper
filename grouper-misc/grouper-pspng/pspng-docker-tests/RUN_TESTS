@@ -126,9 +126,9 @@ runtest() {
     #run the test
     if "$@"
     then
-      RESULT=SUCCESS
+      RESULT=" SUCCESS "
     else
-      RESULT=FAILURE
+      RESULT="*FAILURE*"
     fi
     local end=$(date +%s)
     local dur=$((end - start))
@@ -171,3 +171,6 @@ done
 [ -n "${SEM_TEST}" ] && $SEM_TEST --wait
 
 cat $T/result_details
+grep -A3 FAILURE $T/result_details
+
+grep FAILURE >>$TT/progress

@@ -67,6 +67,8 @@ validate_provisioning "$GROUP2_NAME" "agasper,banderson"
 validate_provisioning "$GROUP1_NAME" "agasper,banderson"
 
 
+#make sure extra groups were not provisioned
+validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success

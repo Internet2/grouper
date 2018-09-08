@@ -366,16 +366,15 @@ public abstract class Provisioner
    * 
    * Note: This is only called when grouperIsAuthoritative=true in the provisioner's properties.
    * 
-   * The groups that should exist are passed in as a parameter.
+   * To avoid deleting newly created groups, implementations should follow the following:
+   *   1) Read all the provisioned information
+   *   2) Read all the groups that should be provisioned (getAllGroupsForProvisioner())
+   *   3) Fetch group information from system (fetchTargetSystemGroupsInBatches(allGroupsForProvisioner)
+   *      (if TSGroup objects are relevant)
+   *   4) Compare (1) & (3) and delete anything extra in (1)
    * 
-   * @param groupsForThisProvisioner The correct list of groups for this provisioner
-   * @param tsGroups The correct list of Target System groups for this provisioner.
-   * for provisioners that do not use TargetSystemUsers.
    */
-  protected abstract void doFullSync_cleanupExtraGroups(
-          Set<GrouperGroupInfo> groupsForThisProvisioner, 
-          Map<GrouperGroupInfo, TSGroupClass> tsGroups,
-          JobStatistics stats) throws PspException;
+  protected abstract void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException;
   
 
   /**
@@ -431,13 +430,21 @@ public abstract class Provisioner
     List<ProvisioningWorkItem> result = new ArrayList<ProvisioningWorkItem>();
     
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
-    
+
     for ( ProvisioningWorkItem workItem : workItems ) {
+      GrouperGroupInfo group = workItem.getGroupInfo(this);
+
+      // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
+      if ( group != null && !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
+          workItem.markAsSkipped("Ignoring work item because group should not be provisioned");
+          continue;
+      }
+
       if ( shouldWorkItemBeProcessed(workItem) ) {
         result.add(workItem);
       } else {
         // Not going to process this item, so mark it as a success and don't add it to result
-        workItem.markAsSuccess("Ignoring work item because its ChangeLog type is not provisioning relevant: %s", workItem.getChangelogEntry());
+        workItem.markAsSkipped("Ignoring work item because its ChangeLog type is not provisioning relevant: %s", workItem.getChangelogEntry());
       }
     }
     
@@ -651,6 +658,7 @@ public abstract class Provisioner
         atomicExpressionMatcher = atomicExpressionPattern.matcher(result);
       }
 
+      LOG.debug("Evaluated entire {} Jexl expression: '{}'", expressionName, result);
       return result;
     }
     catch (RuntimeException e) {
@@ -1091,7 +1099,7 @@ public abstract class Provisioner
       }
       else
       {
-        workItem.markAsSuccess("Nothing to do (not a supported change)");
+        workItem.markAsSkipped("Nothing to do (not a supported change)");
       }
     } catch (PspException e) {
       LOG.error("Problem provisioning item {}", workItem, e);
@@ -1110,12 +1118,12 @@ public abstract class Provisioner
       GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
 
       if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-        workItem.markAsSkippedAndWarn("Ignored: group does not exist any more");
+        workItem.markAsSkippedAndWarn("Ignored group-add: group does not exist any more");
         return;
       }
 
       if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
-        workItem.markAsSuccess("Group %s is not selected to be provisioned", grouperGroupInfo);
+        workItem.markAsSkipped("Group %s is not selected to be provisioned", grouperGroupInfo);
         return;
       }
 
@@ -1128,6 +1136,8 @@ public abstract class Provisioner
     }
     else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE ))
     {
+      // Can't tell right reliably if group was supposed to be provisioned when it existed, so
+      // we just delete it if it currently exists in target
       GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
 
       if ( grouperGroupInfo == null ) {
@@ -1137,19 +1147,35 @@ public abstract class Provisioner
 
       TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
 
-      deleteGroup(grouperGroupInfo, tsGroup);
+      // If system uses targetSystemGroup and one doesn't exist ==> Nothing to do
+      if ( config.needsTargetSystemGroups() ) {
+          if ( tsGroup == null ) {
+              workItem.markAsSuccess("Nothing to do: Group does not exist in target system");
+              return;
+          } else {
+              LOG.info("Deleting provisioned group: {}", grouperGroupInfo);
+              deleteGroup(grouperGroupInfo, tsGroup);
+          }
+      }
+      else {
+        // System doesn't use targetSystemGroup, so we can't tell if this group
+        // was provisioned or not. Therefore call deleteGroup just in case
+
+        LOG.info("{}: Group has been deleted from grouper. Checking to see if it was provisioned to target system", getDisplayName());
+        deleteGroup(grouperGroupInfo, tsGroup);
+      }
     }
     else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD))
     {
       GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
 
       if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-        workItem.markAsSkippedAndWarn("Ignoring membership-add event for group that was deleted");
+        workItem.markAsSkipped("Ignoring membership-add event for group that was deleted");
         return;
       }
 
       if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
-        workItem.markAsSuccess("Group %s is not selected to be provisioned", grouperGroupInfo);
+        workItem.markAsSkipped("Group %s is not selected to be provisioned", grouperGroupInfo);
         return;
       }
 
@@ -1162,7 +1188,7 @@ public abstract class Provisioner
       }
 
       if ( subject.getTypeName().equalsIgnoreCase("group") ) {
-        workItem.markAsSuccess("Nested-group membership skipped");
+        workItem.markAsSkipped("Nested-group membership skipped");
         return;
       }
 
@@ -1180,12 +1206,12 @@ public abstract class Provisioner
       GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
 
       if ( grouperGroupInfo==null || grouperGroupInfo.hasGroupBeenDeleted() ) {
-        workItem.markAsSkippedAndWarn("Ignoring membership-delete event for group that was deleted");
+        workItem.markAsSkipped("Ignoring membership-delete event for group that was deleted");
         return;
       }
 
       if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
-        workItem.markAsSuccess("Group %s is not selected to be provisioned", grouperGroupInfo);
+        workItem.markAsSkipped("Group %s is not selected to be provisioned", grouperGroupInfo);
         return;
       }
 
@@ -1247,7 +1273,14 @@ public abstract class Provisioner
   }
 
 
-  final void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
+  /**
+   * Method that drives the cleanup operation. This sets things up and then
+   * calls the (Abstract) doFullSync_cleanupExtraGroups
+   *
+   * @param stats
+   * @throws PspException
+   */
+  final void prepareAndRunGroupCleanup(JobStatistics stats) throws PspException {
       activeProvisioner.set(this);
       // Make sure this is only used within Provisioners set up for full-sync mode
       GrouperUtil.assertion(isFullSyncMode(), "FullSync operations should only be used with provisioners initialized for full-sync");
@@ -1260,24 +1293,8 @@ public abstract class Provisioner
 	  tsUserCache_shortTerm.clear();
 	  tsGroupCache_shortTerm.clear();
 	  try {
-		MDC.put("step", "setup/");
-		Set<GrouperGroupInfo> groupsForThisProvisioner = new HashSet<GrouperGroupInfo>();
-		
-	    Collection<Group> allGroups = getAllGroupsForProvisioner();
-	    
-	    for ( Group group : allGroups ) {
-	      GrouperGroupInfo grouperGroupInfo = getGroupInfo(group);
-	      groupsForThisProvisioner.add(grouperGroupInfo);
-	    }
-	    
-        Map<GrouperGroupInfo, TSGroupClass> tsGroups;
-	    if ( groupsForThisProvisioner.size() == 0 ) 
-	      tsGroups = Collections.EMPTY_MAP;
-	    else
-	      tsGroups = fetchTargetSystemGroupsInBatches(groupsForThisProvisioner);
-	    
 	    MDC.put("step", "clean/");
-	    doFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups, stats);
+	    doFullSync_cleanupExtraGroups(stats);
 	  }
 	  catch (PspException e) {
 		  LOG.error("Problem while looking for and removing extra groups: {}", e);
@@ -1491,8 +1508,8 @@ public abstract class Provisioner
    * 
    * @return A collection of groups that are to be provisioned by this provisioner
    */
-  public Set<Group> getAllGroupsForProvisioner() throws PspException {
-    Set<Group> result = new HashSet<Group>();
+  public Set<GrouperGroupInfo> getAllGroupsForProvisioner() throws PspException {
+    Set<GrouperGroupInfo> result = new HashSet<>();
 
     Set<Group> interestingGroups = new HashSet<Group>();
     for ( String attribute : getConfig().getAttributesUsedInGroupSelectionExpression() ) {
@@ -1529,7 +1546,7 @@ public abstract class Provisioner
     for ( Group group : interestingGroups ) {
       GrouperGroupInfo grouperGroupInfo = new GrouperGroupInfo(group);
       if ( shouldGroupBeProvisioned(grouperGroupInfo) )
-        result.add(group);
+        result.add(grouperGroupInfo);
     }
 
     return result;

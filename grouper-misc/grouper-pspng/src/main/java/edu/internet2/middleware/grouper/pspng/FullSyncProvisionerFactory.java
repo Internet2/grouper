@@ -29,7 +29,7 @@ public class FullSyncProvisionerFactory {
    * @return
    * @throws PspException
    */
-  static synchronized FullSyncProvisioner getFullSyncer(String configName) throws PspException {
+  public static synchronized FullSyncProvisioner getFullSyncer(String configName) throws PspException {
     if ( !fullSyncers.containsKey(configName) )
     {
       // Create a second provisioner, dedicated to FullSync operations

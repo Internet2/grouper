@@ -47,7 +47,7 @@ public class VoidProvisioner extends Provisioner<ProvisionerConfiguration, Targe
     }
 
     @Override
-    protected void doFullSync_cleanupExtraGroups(Set groupsForThisProvisioner, Map tsGroups, JobStatistics stats) throws PspException {
+    protected void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
 
     }
 
