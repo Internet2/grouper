@@ -87,13 +87,14 @@ public class ProvisionerFactory {
   /**
    * This constructs a provisioner based on the properties found for provisioner 'configName'
    *
-   * This should only be called internally and from FullSyncProvisionerFactory
+   * This should only be called internally and from FullSyncProvisionerFactory. This is public to enable
+   * gsh to construct a provisioner for diagnostic purposes.
    * @param configName
    * @param fullSyncMode
    * @return
    * @throws PspException
    */
-  static Provisioner createProvisioner(String configName, boolean fullSyncMode) throws PspException {
+  public static Provisioner createProvisioner(String configName, boolean fullSyncMode) throws PspException {
     final String qualifiedParameterNamespace = ProvisionerConfiguration.PARAMETER_NAMESPACE + configName + ".";
   
     LOG.info("Constructing provisioner: {}", configName);
