@@ -48,58 +48,56 @@ public class ProvisionerFactory {
   final static String PROVISIONER_TYPE_PROPERTY_NAME = "type";
   
 
-  private static Map<String, Provisioner> provisioners=new ConcurrentHashMap<String, Provisioner>();
+  // Indexed by configName (ie, the configuration paragraph found in grouper_loader.properties
+  private static Map<String, Provisioner> incrementalProvisioners=new ConcurrentHashMap<String, Provisioner>();
+
   private static ConcurrentMap<String, ProvisionerCoordinator> provisionerCoordinators=new ConcurrentHashMap<>();
 
 
-  public static Provisioner getProvisioner(String consumerName) throws PspException {
-    synchronized (provisioners) {
-      if ( !provisioners.containsKey(consumerName) )
+  public static Provisioner getIncrementalProvisioner(String configName) throws PspException {
+    synchronized (incrementalProvisioners) {
+      if ( !incrementalProvisioners.containsKey(configName) )
       {
         Provisioner provisioner;
         try {
-          provisioner = ProvisionerFactory.createProvisionerWithName(consumerName);
-          provisioners.put(consumerName, provisioner);
+          provisioner = ProvisionerFactory.createProvisioner(configName, false);
+          incrementalProvisioners.put(configName, provisioner);
         } catch (PspException e) {
-          LOG.error("Unable to create provisioner {}", consumerName, e);
+          LOG.error("Unable to create incremental provisioner {}", configName, e);
           throw e;
         }
       }
     }
     
-    return provisioners.get(consumerName);
+    return incrementalProvisioners.get(configName);
   }
 
 
-  public static ProvisionerCoordinator getProvisionerCoordinator(String provisionerName) {
-    if ( !provisionerCoordinators.containsKey(provisionerName) ) {
-      provisionerCoordinators.putIfAbsent(provisionerName, new ProvisionerCoordinator(provisionerName));
+
+  public static ProvisionerCoordinator getProvisionerCoordinator(Provisioner<?,?,?> provisioner) {
+    String provisionerConfigName = provisioner.getConfigName();
+
+    if ( !provisionerCoordinators.containsKey(provisionerConfigName) ) {
+      provisionerCoordinators.putIfAbsent(provisionerConfigName, new ProvisionerCoordinator(provisioner));
     }
 
-    return provisionerCoordinators.get(provisionerName);
+    return provisionerCoordinators.get(provisionerConfigName);
   }
 
   /**
-   * This constructs a provisioner based on the properties found for provisioner 'name'
-   * @param name
-   * @return
-   * @throws PspException
-   */
-  public static Provisioner createProvisionerWithName(String name) throws PspException {
-    return createProvisionerWithName(name, false);
-  }
-
-  /**
-   * This constructs a provisioner based on the properties found for provisioner 'name'
-   * @param name
+   * This constructs a provisioner based on the properties found for provisioner 'configName'
+   *
+   * This should only be called internally and from FullSyncProvisionerFactory. This is public to enable
+   * gsh to construct a provisioner for diagnostic purposes.
+   * @param configName
    * @param fullSyncMode
    * @return
    * @throws PspException
    */
-  public static Provisioner createProvisionerWithName(String name, boolean fullSyncMode) throws PspException {
-    final String qualifiedParameterNamespace = ProvisionerConfiguration.PARAMETER_NAMESPACE + name + ".";
+  public static Provisioner createProvisioner(String configName, boolean fullSyncMode) throws PspException {
+    final String qualifiedParameterNamespace = ProvisionerConfiguration.PARAMETER_NAMESPACE + configName + ".";
   
-    LOG.info("Constructing provisioner: {}", name);
+    LOG.info("Constructing provisioner: {}", configName);
     String typeName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + PROVISIONER_TYPE_PROPERTY_NAME);
     
     // TODO: Someday allow types that are not java classes, either via code-based shortcuts
@@ -113,12 +111,12 @@ public class ProvisionerFactory {
       
       Constructor<? extends ProvisionerConfiguration> propertyConstructor = propertyClass.getConstructor(String.class);
       
-      ProvisionerConfiguration properties = propertyConstructor.newInstance(name);
+      ProvisionerConfiguration properties = propertyConstructor.newInstance(configName);
       
       properties.readConfiguration();
       
       Constructor<? extends Provisioner> provisionerConstructor = provisionerClass.getConstructor(String.class, propertyClass, Boolean.TYPE);
-      Provisioner provisioner = provisionerConstructor.newInstance(name, properties, fullSyncMode);
+      Provisioner provisioner = provisionerConstructor.newInstance(configName, properties, fullSyncMode);
       return provisioner;
     } catch (ClassNotFoundException e) {
       Provisioner.STATIC_LOG.error("Unable to find provisioner class: {}", className);

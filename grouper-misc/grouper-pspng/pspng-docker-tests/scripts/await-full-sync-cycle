@@ -1,0 +1,116 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+PATH="$D:$PATH"
+
+DEFINE_string provisioner pspng1 "Monitor the full-sync activity of this provisioner (default: pspng1)"
+DEFINE_integer time_limit_secs 120 "How long to wait for the full-sync to happen (default: 120 seconds)"
+DEFINE_integer log_line_number -1 "If the consumer does not catch up, the log is displayed starting with this line. If this is not specified, then the display starts at whatever the last line of the file was when we were started."
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+if [ $FLAGS_log_line_number -ge 0 ]; then
+  GROUPER_ERROR_LINE_NUMBER=$FLAGS_log_line_number
+else
+  GROUPER_ERROR_LINE_NUMBER=$(wc -l < $API/logs/grouper_error.log)
+fi
+
+await-mysql-server
+await-grouper-loader
+
+
+# This returns the start time of a full-sync that is active right now.
+# If no sync is active, then this will return an empty string.
+start_time_of_active_full_sync()
+{
+  local provisioner=${1:-$FLAGS_provisioner}
+
+  local x=$(mysql-as-root \
+        --execute "SELECT ifnull(max(started_time),'') FROM grouper_loader_log
+                        WHERE job_type='OTHER_JOB'
+                        AND job_name='OTHER_JOB_${provisioner}_full'
+                        AND ended_time IS NULL" grouper)
+
+  if [ -n "$x" ]; then
+    log_info "Active full sync started $x"
+  else
+    log_info "No full sync is underway"
+  fi
+  echo "$x"
+}
+
+# This returns the start time of the most recent full-sync to start
+# (The job returned might be active or might be completed)
+start_time_of_most_recently_started_full_sync()
+{
+  local provisioner=${1:-$FLAGS_provisioner}
+
+  local x=$(mysql-as-root \
+        --execute "SELECT ifnull(max(started_time),'') FROM grouper_loader_log
+                        WHERE job_type='OTHER_JOB'
+                        AND job_name='OTHER_JOB_${provisioner}_full'" grouper)
+
+  if [ -n "$x" ]; then
+    log_info "Most recent full sync started $x"
+  else
+    log_info "No full syncs have ever started"
+  fi
+  echo "$x"
+}
+
+# This returns the end time of the full-sync that started at a given time 
+end_time_of_specific_full_sync()
+{
+  local USAGE="USAGE: end_time_of_specific_full_sync <start-date of job> [<provisioner> (default $FLAGS_provisioner)]"
+
+  local started_time="${1:?$USAGE}"
+  local provisioner="${2:-$FLAGS_provisioner}"
+
+  local x=$(mysql-as-root \
+        --execute "SELECT ifnull(ended_time,'') FROM grouper_loader_log
+                        WHERE job_type='OTHER_JOB'
+                        AND job_name='OTHER_JOB_${provisioner}_full'
+                        AND started_time='${started_time}'" grouper)
+  if [ -n "$x" ]; then
+    log_info "Full sync that started at ${started_time} finished at $x"
+  else
+    log_info "Full sync that started at ${started_time} is currently running"
+  fi
+
+  echo "$x"
+}
+
+
+# Steps:
+#  -Wait until a new full-sync has started 
+#  -Wait until that new full-sync has finished
+
+previous_full_sync=$(start_time_of_most_recently_started_full_sync)
+
+log_always "Previous full-sync started at '$previous_full_sync.' Waiting for a different one to start."
+
+current_full_sync=$(start_time_of_most_recently_started_full_sync)
+while [ "$previous_full_sync" = "$current_full_sync" ]
+do
+  check_progress_timer --time_limit_secs $FLAGS_time_limit_secs "$current_full_sync" "Waiting for a new full-sync to start: most-recently-started full sync to change"
+  sleep 5
+  current_full_sync=$(start_time_of_most_recently_started_full_sync)
+done
+
+log_always "A new full-sync started at $current_full_sync"
+
+# A new full sync started, now we have to wait for it to finish
+while [ -z "$(end_time_of_specific_full_sync "$current_full_sync")" ] 
+do
+  check_progress_timer --time_limit_secs $FLAGS_time_limit_secs "$current_full_sync is running" "Waiting for full-sync to finish"
+  sleep 5
+done
+log_always "Full sync that started at $current_full_sync has finished"

@@ -1,0 +1,64 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+PATH="$D:$PATH"
+
+DEFINE_integer time_limit_secs 60 "How long to wait for the changelog consumer to catch up"
+DEFINE_integer log_line_number -1 "If the consumer does not catch up, the log is displayed starting with this line. If this is not specified, then the display starts at whatever the last line of the file was when we were started."
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+if [ $FLAGS_log_line_number -ge 0 ]; then
+  GROUPER_ERROR_LINE_NUMBER=$FLAGS_log_line_number
+else
+  GROUPER_ERROR_LINE_NUMBER=$(wc -l < $API/logs/grouper_error.log)
+fi
+
+await-mysql-server
+await-grouper-loader
+
+MYSQL="mysql-as-root --raw --skip-column-names --batch --database grouper"
+
+N=$($MYSQL --execute "SELECT count(*) FROM grouper_change_log_entry_temp")
+while [ $N -gt 0 ]; do
+  check_progress_timer --time_limit_secs $FLAGS_time_limit_secs $N "Waiting for grouper_change_log_entry_temp to drain to 0"
+
+  sleep 1
+  N=$($MYSQL --execute "SELECT count(*) FROM grouper_change_log_entry_temp")
+done
+echo $N
+echo group_change_log_entry_temp drained
+
+# Find the changelog consumers
+# look for: changeLog.consumer.pspng_epe.class
+
+CONSUMERS=$(egrep_ -i '^changelog.consumer.[^=]*.class' $API/conf/grouper-loader.properties | sed 's/^changeLog.consumer.\([^=]*\).class *=.*/\1/' )
+
+echo Changelog consumers: $CONSUMERS
+
+for CONSUMER in $CONSUMERS
+do
+ log_always "Watching consumer: $CONSUMER"
+ (
+  STOP_TIME=$(( $(date +%s) + $FLAGS_time_limit_secs ))
+  MAX_ENTRY=$($MYSQL --execute "SELECT max(sequence_number ) FROM grouper_change_log_entry")
+
+  LAST_PROCESSED=$($MYSQL --execute "SELECT ifnull(last_sequence_processed,0) FROM grouper_change_log_consumer WHERE name='$CONSUMER'")
+  while [ "$MAX_ENTRY" -gt "${LAST_PROCESSED:-0}" ]; do
+    check_progress_timer --time_limit_secs $FLAGS_time_limit_secs "$LAST_PROCESSED" "Waiting for $CONSUMER to catch up to $MAX_ENTRY"
+    sleep 1
+    LAST_PROCESSED=$($MYSQL --execute "SELECT last_sequence_processed FROM grouper_change_log_consumer WHERE name='$CONSUMER'")
+  done
+  echo $MAX_ENTRY changelog done.
+ ) 2>&1 | sed "s/^/$CONSUMER: /"
+done
+
+echo Changelog processing all caught up

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# This script stops and removes all containers
+# and untagged images
+
+containers=$(docker ps -aq)
+
+if [ -n "$containers" ]; then
+  echo "Stopping and removing containers"
+  docker rm --force $containers
+else
+  echo No containers to clean up
+fi
+
+X=$(docker images | grep "^<none>")
+if [ -n "$X" ]; then
+  echo Removing stale images:
+  docker rmi $(awk '{print $3}' <<<"$X")
+else
+  echo No stale images to delete
+fi
+
+X=$(docker volume ls -q | egrep -v -e '-template$')
+if [ -n "$X" ]; then
+  echo Removing old volumes
+  docker volume rm $X
+fi
+
+IMAGES=$(docker images | grep 'days ago' | grep [0-9]_grouper-daemon | awk '{print $1}')
+[ -n "$IMAGES" ] && docker rmi $IMAGES
+
+docker system prune -f

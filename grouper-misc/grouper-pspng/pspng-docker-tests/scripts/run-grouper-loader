@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# This script runs gsh -loader, but perhaps with debugging java args
+
+D=$(dirname "${BASH_SOURCE[0]}")
+. "$D/functions.bash"
+
+# Note, DEBUG_PORT is the external port (the internal port is always 8000)
+if [ "${DEBUG_PORT:-0}" -ne 0 ]
+then
+    log_always "Setting up grouper loader to be debugged"
+    export GSH_JVMARGS="-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=y"
+fi
+
+gsh -loader

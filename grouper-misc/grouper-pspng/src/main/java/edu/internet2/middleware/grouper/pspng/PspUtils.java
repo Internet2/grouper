@@ -290,15 +290,20 @@ public class PspUtils {
   static void hibernateRefresh(final Object objectToHibernateRefresh) {
       LOG.debug("Rereading group information from database: {}/{}", objectToHibernateRefresh.getClass(), objectToHibernateRefresh);
 
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
-              AuditControl.WILL_NOT_AUDIT,
-              new HibernateHandler() {
-                @Override
-                public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
-                  hibernateHandlerBean.getHibernateSession().getSession().refresh(objectToHibernateRefresh);
-                  return objectToHibernateRefresh;
+      try {
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+                AuditControl.WILL_NOT_AUDIT,
+                new HibernateHandler() {
+                  @Override
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+                    hibernateHandlerBean.getHibernateSession().getSession().refresh(objectToHibernateRefresh);
+                    return objectToHibernateRefresh;
+                  }
                 }
-              }
-      );
+        );
+      } catch (GrouperDAOException e) {
+        LOG.warn("Unable to refresh object from database, probably because it has been deleted: {}", objectToHibernateRefresh);
+        // Ignoring error as deleted objects do not need to be refreshed
+      }
     }
 }

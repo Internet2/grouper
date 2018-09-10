@@ -35,6 +35,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
+import org.ldaptive.ModifyRequest;
 import org.ldaptive.SearchFilter;
 import org.ldaptive.provider.unboundid.UnboundIDUtils;
 import org.slf4j.Logger;
@@ -96,8 +97,21 @@ public class LdapObject {
     
     this.attributesRequested.addAll(Arrays.asList(attributesRequested));
   }
-  
-  
+
+
+  /**
+   * Get just part of a DN, along with an elipses to indicate that it is a summary
+   * @param dn
+   * @param maxNumberRdnComponents
+   * @return
+   */
+  public static String getDnSummary(String dn, int maxNumberRdnComponents) {
+    // TODO: This should do DN-aware splitting
+    return String.format("dn=%s...",
+            StringUtils.join(StringUtils.split(dn, ",",maxNumberRdnComponents),','));
+  }
+
+
   public Entry getUnboundIdEntry() {
     if ( unboundidEntry == null )
     {

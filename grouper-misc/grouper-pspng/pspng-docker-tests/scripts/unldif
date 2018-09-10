@@ -1,0 +1,16 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+PATH="$D:$PATH"
+. "$D/functions.bash"
+
+tempfile_into_T
+
+cat > $T
+
+# add a newline because unldif.sed doesn't work well when the last ldif paragraph does not
+# have a blank line
+echo "" >>$T
+
+# Remove the last line we added above
+unldif.sed < $T | sed '$ d'

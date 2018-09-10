@@ -1,0 +1,70 @@
+version: '3'
+
+
+volumes:
+  db-data:
+    external: 
+      name: db-data-${VOLUME_SUFFIX:-unknown}
+
+  ldap-data:
+    external:
+      name: ldap-data-${VOLUME_SUFFIX:-unknown}
+
+  ldap-config:
+    external:
+      name: ldap-config-${VOLUME_SUFFIX:-unknown}
+
+services:
+  grouper-daemon:
+    #image: ${DAEMON_IMAGE:-grouper-pspng-devel}
+    build: ${DAEMON_BUILD_DIR:-grouper-pspng-devel}
+    depends_on: 
+      - ldap
+      - db
+    volumes:
+      - ../scripts:/scripts:ro
+      - ${GROUPER_CONFIG_DIR:-/dev/null}:/grouper-config-99-test.d:ro
+    ports:
+      - ${GROUPER_LOADER_DEBUG_PORT:-0}:8000
+    environment:
+      - DEBUG_PORT=${GROUPER_LOADER_DEBUG_PORT:-0}
+      - LDAP_ADMIN_USER=cn=admin,dc=example,dc=edu
+      - LDAP_ADMIN_PASS=secret
+      - LDAP_HOST=ldap
+      - LDAP_PORT=389
+      - PATH=/scripts:/opt/grouper/grouper.apiBinary/bin:$PATH
+  db:
+    image: mariadb:latest
+    volumes:
+      - ../scripts:/scripts:ro
+      - db-data:/var/lib/mysql
+    ports: 
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - PATH=/scripts:$PATH
+
+    healthcheck:
+     test: mysql-as-root --command "show databases"
+     interval: 5s
+     timeout: 10s
+     retries: 10
+
+  ldap:
+    image: openldap-dinkel
+    build: openldap-dinkel
+
+    volumes:
+       - ldap-data:/var/lib/ldap
+       - ldap-config:/etc/ldap
+       - ../scripts:/scripts:ro
+       - ./ldap-seed-data:/etc/ldap.dist/prepopulate:ro
+    environment:
+      - SLAPD_PASSWORD=secret
+      - SLAPD_CONFIG_PASSWORD=secret
+      - SLAPD_DOMAIN=example.edu
+      - PATH=/scripts:$PATH
+      - LDAP_HOST=ldap
+      - LDAP_PORT=389
+
+

@@ -1,0 +1,15 @@
+_D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
+. "$_D/test-config.defaults"
+TEST_CONF=$_D/test-config-files
+
+# We'll just use posix-group functions, except for different grouper-loader.properties
+. "$_D/test-config.posix-groups-bushy"
+
+#
+# This function is to output (to stdout) what grouper-loader.properties should be
+# installed in the api/conf directory
+function output_grouper_loader_properties() 
+{
+  log_always "Building grouper-loader.properties with ldap, posix-group and bulk-group-searching-disabling paragraphs"
+  (cd $TEST_CONF; cat pspng-config-ldap.properties pspng-config-posix-bushy-dnsearch.properties; echo "changeLog.consumer.pspng1.enableBulkGroupSearching = false")
+}

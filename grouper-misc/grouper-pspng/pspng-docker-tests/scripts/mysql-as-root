@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+mysql -u root --password="${MYSQL_ROOT_PASSWORD:-password}" -h db -N --silent "$@"

@@ -1,0 +1,50 @@
+_D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
+TEST_CONF=$_D/test-config-files
+
+#
+# This function is to output (to stdout) what log4j.properties should be
+# installed in the api/conf directory
+function output_log4j_properties()
+{
+  cat $TEST_CONF/log4j.properties
+  if [ -n "${SQL_DEBUGGING:-}" ]; then 
+    cat $TEST_CONF/log4j-sql-debugging.properties
+  fi
+}
+
+
+#
+# This function runs at the beginning of the test
+function test_is_starting() 
+{
+  test_step "Dumping ldap data: BEFORE"
+  $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.before
+}
+
+
+function validate_provisioning()
+{
+  echo "NO VALIDATION DONE BY DEFAULT"
+  echo "NO VALIDATION DONE BY DEFAULT"
+  echo "NO VALIDATION DONE BY DEFAULT"
+  echo "NO VALIDATION DONE BY DEFAULT"
+}
+
+
+function test_is_ending()
+{
+  test_step "Dumping ldap data: AFTER"
+  $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.after
+
+  test_step "Comparing ldap data"
+  ls -l $T/ldap.before $T/ldap.after
+
+  (diff $T/ldap.before $T/ldap.after | sed 's/^/LDAP CHANGES: /') || true
+  test_step_done
+}
+
+function add_full_sync_starter() {
+  local provisioner="${1:-pspng1}"
+  echo "otherJob.${provisioner}_full.class = edu.internet2.middleware.grouper.pspng.FullSyncStarter" >> "$GROUPER_CONFIG_DIR/grouper-loader.properties"
+  echo "otherJob.${provisioner}_full.quartzCron = */5 * * * * ?" >> "$GROUPER_CONFIG_DIR/grouper-loader.properties"
+}

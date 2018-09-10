@@ -185,7 +185,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
 
   protected SearchFilter getUserLdapFilter(Subject subject) throws PspException  {
-    String result = evaluateJexlExpression(config.getUserSearchFilter(), subject, null, null, null);
+    String result = evaluateJexlExpression("UserSearchFilter", config.getUserSearchFilter(), subject, null, null, null);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("User searching requires userSearchFilter to be configured correctly");
     
@@ -209,7 +209,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LOG.info("Creating LDAP account for Subject: {} ", personSubject);
     String ldif = config.getUserCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
-    ldif = evaluateJexlExpression(ldif, personSubject, null, null, null);
+    ldif = evaluateJexlExpression("UserTemplate", ldif, personSubject, null, null, null);
     
     Connection conn = getLdapSystem().getLdapConnection();
     try {
@@ -276,9 +276,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
    */
   @Override
   public void finishProvisioningBatch(List<ProvisioningWorkItem> workItems) throws PspException {
-    
-    // TODO: Remove the unnecessary changes (LDAP Differencing)
-    
     try {
       MDC.put("step", "coalesced");
       makeCoalescedLdapChanges(workItems);
@@ -501,20 +498,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
-  @Override
-  protected void cacheGroup(GrouperGroupInfo grouperGroupInfo, LdapGroup newTSGroup) {
-    // Make sure that newTSGroup came from our fetching method
-    // We have this IF statement in addition to the assertion to make it easier to
-    // put a breakpoint on the problem.
-    if ( this != newTSGroup.getLdapObject().provisioner ) {
-      throw new RuntimeException("TS Group being cached is from a different provisioner");
-    }
-
-    GrouperUtil.assertion(this == newTSGroup.getLdapObject().provisioner,
-            "TS Group is from a different provisioner");
-
-    super.cacheGroup(grouperGroupInfo, newTSGroup);
-  }
 
   protected boolean isWorkItemMakingChange(
       ProvisioningWorkItem workItem,
@@ -596,6 +579,9 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       return "no changes";
     
     StringBuilder sb = new StringBuilder();
+    // Put the first two DN components into buffer
+    sb.append(LdapObject.getDnSummary(modForDn.getDn(), 2));
+
     for ( AttributeModification attribute : modForDn.getAttributeModifications()) {
       switch (attribute.getAttributeModificationType()) {
         case ADD: sb.append(String.format("[%s: +%d value(s)]",
@@ -709,7 +695,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LdapAttribute topRdnAttribute = new LdapAttribute(topRDN.getAttributeNames()[0]);
     topRdnAttribute.addStringValue( topRDN.getAttributeValues());
 
-    String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(),
+    String ldif = evaluateJexlExpression("OuTemplate", config.getOuCreationLdifTemplate(),
             null, null,
             null, null,
             "dn", ouDn.toMinimallyEncodedString(),
@@ -734,6 +720,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
+  /**
+   * Perform an LDAP ADD after making sure the new object's OU exists.
+   * @param entryToAdd
+   * @throws PspException
+   */
   protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
     LOG.info("{}: Creating LDAP object: {}", getDisplayName(), entryToAdd.getDn());
 

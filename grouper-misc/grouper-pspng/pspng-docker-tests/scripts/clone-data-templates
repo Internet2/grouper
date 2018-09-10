@@ -1,0 +1,38 @@
+#!/bin/bash
+
+ME="${BASH_SOURCE[0]}"
+D=$(dirname "$ME")
+cd "$D"
+
+PATH="../scripts:$PATH"
+
+. ../scripts/functions.bash
+
+. ../scripts/shflags
+
+DEFINE_string volume_suffix "$$" "What suffix should data volumes have?"
+
+FLAGS_HELP="$(basename "$ME") [--volume_suffix <suffix>]"
+
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+for volume in db-data ldap-data ldap-config; do
+  NEW_VOLUME=${volume}-$FLAGS_volume_suffix
+  if docker volume inspect $NEW_VOLUME > /dev/null 2>&1; then
+    log_always "Removing existing volume: $NEW_VOLUME"
+    docker volume rm $NEW_VOLUME
+  fi
+
+  log_always "Cloning ${volume}-template"
+  docker_clone_volume.sh ${volume}-template $NEW_VOLUME 1>&2
+done
+
+log_always Done
+
+# echo the suffix so the caller can find the new volumes
+echo $FLAGS_volume_suffix

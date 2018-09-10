@@ -1,0 +1,61 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string group "" "Full path to group to add an attribute to"
+DEFINE_string folder "" "Full path to folder to add an attribute to"
+DEFINE_string attribute_name "" "What attribute should be added"
+DEFINE_string attribute_value "" "What value of the attribute should be added"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_group" -a -z "$FLAGS_folder" ] && fail "--group or --folder must be specified"
+[ -z "$FLAGS_attribute_name" -o -z "$FLAGS_attribute_value" ] && fail "Both --attribute_name and --attribute_value must be specified"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+tempfile_into_T
+
+if [ -n "$FLAGS_folder" ]; then
+  #Build gsh file for attribute on folder
+  cat >$T <<EOF
+  msg="Adding $FLAGS_attribute_name=$FLAGS_attribute_value to $FLAGS_folder"
+  print("STARTING: " + msg);
+  gs = GrouperSession.startRootSession();
+
+  folder_name = "$FLAGS_folder";
+  folder = StemFinder.findByName(gs, folder_name);
+
+  attributeName="$FLAGS_attribute_name"
+  attributeDefName = AttributeDefNameFinder.findByName(attributeName, true);
+
+  attrAssignment = folder.getAttributeValueDelegate().assignValue(attributeName, "$FLAGS_attribute_value");
+
+  print("DONE: " + msg);
+EOF
+
+elif [ -n "$FLAGS_group" ]; then
+  #Build gsh file for attribute on folder
+  cat >$T <<EOF
+  msg="Adding $FLAGS_attribute_name=$FLAGS_attribute_value to $FLAGS_group"
+  print("STARTING: " + msg);
+  gs = GrouperSession.startRootSession();
+
+  setGroupAttr("$FLAGS_group", "$FLAGS_attribute_name", "$FLAGS_attribute_value");
+
+  print("DONE: " + msg);
+EOF
+
+fi
+
+echo Running GSH with:
+cat $T
+echo ===
+
+$GSH < $T

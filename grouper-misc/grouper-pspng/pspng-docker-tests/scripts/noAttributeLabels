@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "${1:-}" = --show-dn ]; then
+  #remove blank lines and everything up to the first set of colons on each nonblank line
+  unldif | egrep_ -v '^$' | sed -e 's/^[^:]*::* //' 
+else
+  # same as above AND filter out dn
+  unldif | egrep_ -v '^$|^dn:' | sed -e 's/^[^:]*::* //' 
+fi

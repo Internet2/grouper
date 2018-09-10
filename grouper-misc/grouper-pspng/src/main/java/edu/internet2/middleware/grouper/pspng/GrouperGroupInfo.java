@@ -5,6 +5,8 @@ import java.util.*;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +122,13 @@ public class GrouperGroupInfo {
     else if ( pitGroup != null ) {
       result.put("pitGroup", pitGroup);
       result.put("name", pitGroup.getName());
+
+      result.put("extension", GrouperUtil.extensionFromName(pitGroup.getName()));
+
+      // Make display properties the same... since the group has been deleted
+      result.put("displayName", result.get("name"));
+      result.put("displayExtension", result.get("extension"));
+
 
       // TODO: populate idIndex, but pitGroup does not have getIdIndex()
       //result.put("idIndex", pitGroup.getIdIndex());
