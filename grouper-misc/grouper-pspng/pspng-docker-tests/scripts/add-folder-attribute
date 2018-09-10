@@ -1,0 +1,37 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string folder "" "Full path to folder"
+DEFINE_string attribute "" "Attribute to define"
+DEFINE_string value "" "Value of attribute"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_folder" ] && fail "--folder must be specified"
+[ -z "$FLAGS_attribute" ] && fail "--attribute must be specified"
+[ -z "$FLAGS_value" ] && fail "--value must be specified"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+$GSH <<EOF
+
+gs = GrouperSession.startRootSession();
+msg="Marking testFolder for all provisioners";
+print("STARTING: " + msg);
+gs = GrouperSession.startRootSession();
+testFolderName = "$FLAGS_folder";
+testFolder = StemFinder.findByName(gs, testFolderName);
+
+attributeName="$FLAGS_attribute";
+attributeDefName = AttributeDefNameFinder.findByName(attributeName, true);
+
+attrAssignment = testFolder.getAttributeValueDelegate().assignValue(attributeName, "$FLAGS_value");
+
+EOF

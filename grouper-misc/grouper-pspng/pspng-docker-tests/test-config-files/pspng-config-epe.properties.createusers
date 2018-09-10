@@ -1,0 +1,5 @@
+changeLog.consumer.pspng1.createMissingUsers = true
+changeLog.consumer.pspng1.userCreationBaseDn = ou=users,dc=example,dc=edu
+changeLog.consumer.pspng1.userCreationLdifTemplate = dn: uid=${subject.id}||uid: ${subject.id}||objectClass: person||objectClass: top||objectClass: uidobject||objectClass: eduperson||cn: ${subject.name}||sn: ${subject.name}
+
+

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ME=$(readlink -f "${BASH_SOURCE[0]}")
+D=$(dirname "$ME")
+
+PATH="$D:$PATH"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+wait-for-it.sh -h $LDAP_HOST -p $LDAP_PORT -t 5 -- myldapsearch -b "" -s base 

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This script turns lines of output into a comma-separated list
+
+# Replace newlines with commas, but this includes empty lines at beginning or end or middle
+# also, a mac caused a carriage return, so the last sed removes all control characters
+
+# I'm using a series sed's instead of a bunch of -e's because I've seen sed
+# seemingly not process all it's -e arguments on each line
+tr \\n , | sed -e 's/,*$//' | sed -e 's/^,*//' | sed -e 's/,,*/,/g' | sed -e 's/^ *//' | sed -e 's/ *$//' | sed 's/[[:cntrl:]]//g'

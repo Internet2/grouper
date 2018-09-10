@@ -1,0 +1,11 @@
+#!/bin/bash
+
+UNAME=$(uname)
+
+if [ $UNAME = Darwin ]; then
+  # osx uses -l for line-buffered
+  sed -l "$@"
+else
+  # everyone else uses -u for unbuffered
+  sed -u "$@"
+fi

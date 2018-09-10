@@ -1,0 +1,27 @@
+#!/bin/bash
+
+ME=$(readlink -f "${BASH_SOURCE[0]}")
+D=$(dirname "$ME")
+
+. "$D"/functions.bash
+
+HIBERNATE_PROPERTIES=$API/conf/grouper.hibernate.properties
+
+[ ! -r "$HIBERNATE_PROPERTIES" ] && fail "Could not see/read hibernate properties: $HIBERNATE_PROPERTIES"
+
+hibernate_property() {
+   sed -e 's/#.*//' "$HIBERNATE_PROPERTIES" | egrep "${1:?must pass filter to hibernate_property}" | cut -d= -f2- | sed -e 's/^ *//' -e 's/ *$//'
+}
+
+URL=$(hibernate_property hibernate.connection.url)
+U=$(hibernate_property hibernate.connection.username)
+P=$(hibernate_property hibernate.connection.password)
+
+[ -z "$U" ] && fail "Could not find hibernate.connection.username"
+[ -z "$P" ] && fail "Could not find hibernate.connection.password"
+
+for f in $API/lib/jdbcSamples/mysql*.jar; do
+  export CLASSPATH="$(readlink -f "$f"):${CLASSPATH:-}"
+done
+
+/henplus//henplus -U"$U" -P"$P" "$URL"

@@ -1,0 +1,30 @@
+This is PSPNG's integration-test harness which runs a 3-container 
+docker-compose environment (GrouperDaemon, Ldap Server, Mysql DB), executes a 
+series of gsh commands and tests PSPNG's corresponding provisioning of that Ldap Server.
+
+At a high level, there are three steps to running these tests:
+  1) docker-compose/build-images  - Compiles PSPNG & creates docker images
+  2) ./create-data-templates      - Creates LDAP & MySql data containers 
+  3) RUN_TESTS                    - Runs actual tests
+
+
+This directory has the following components:
+  - docker-compose/ - The Dockerfiles, etc for building the test environment. 
+    docker-compose/build-images compiles Grouper from local source and installs 
+    those .class files atop the TIER Grouper Docker Image
+
+  - test-config* - Configuration-builders and other utilities for each type of pspng
+    configuration being tested. For instance, test-config-posix-groups sets up
+    grouper-loader.properties for posix-group provisioning as well as has utilities
+    to validate that provisioning. 
+
+  - test*.sh - Individual tests that exercise a type of pspng activity. These
+    can be run individually with some that work against specific test-config setups 
+    and others that can run against several of them. 
+
+  - RUN_TESTS - A harness that runs multiple tests against their compatible test-config
+    setups. This collects results & logs.
+
+  - scripts/ - A bunch of shell scripts that are used within the docker containers as
+    well as within scripts run on the developer's workstation
+

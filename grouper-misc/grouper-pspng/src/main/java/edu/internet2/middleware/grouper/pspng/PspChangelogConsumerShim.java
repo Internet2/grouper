@@ -53,10 +53,10 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       Provisioner provisioner;
       try {
-        provisioner = ProvisionerFactory.getProvisioner(consumerName);
+        provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
         
         // Make sure the full syncer is also created and running
-        FullSyncProvisionerFactory.getFullSyncer(consumerName);
+        FullSyncProvisionerFactory.getFullSyncer(provisioner);
       } catch (PspException e1) {
         LOG.error("Provisioner {} could not be created", consumerName, e1);
         throw new RuntimeException("provisioner could not be created: " + e1.getMessage());

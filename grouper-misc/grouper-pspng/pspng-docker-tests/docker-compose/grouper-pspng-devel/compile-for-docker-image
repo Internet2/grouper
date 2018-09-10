@@ -1,0 +1,109 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+ME="${BASH_SOURCE[0]}"
+while [ -h "$ME" ]; do ME=$(readlink "$ME"); done
+
+D="$( cd "$( dirname "$ME}" )" && pwd -P )"
+. "$D/../../functions.bash"
+PSPNG_DIR="$(cd "$D/../../.." && pwd)"
+
+cd "$D"
+
+[ $(uname) = Darwin ] && export JAVA_HOME=$(/usr/libexec/java_home)
+
+if type -t ant >/dev/null
+then
+  ANT=ant
+else 
+  ANT_VERSION=1.10.5
+  ANT_DIR=/tmp/apache-ant-$ANT_VERSION
+
+  #download ant if we don't have it
+  if [ ! -d "$ANT_DIR" ]
+  then
+     log_always "Downloading ant $ANT_VERSION into /tmp"
+     curl --location http://apache.mirrors.pair.com//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz | (cd /tmp; tar -xzf -)
+     [ ! -d "$ANT_DIR" ] && fail "Downloading and untarring ant did not create $ANT_DIR: http://apache.mirrors.pair.com//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz"
+  fi
+
+  ANT="$ANT_DIR/bin/ant"
+fi
+export ANT
+
+
+#make new dependent-jars and pspng-classes directories
+for dir in dependent-jars pspng-classes; do
+  rm -rf "$dir" 2>/dev/null
+  mkdir "$dir"
+
+  # Make sure dependent-jars doesn't get checked into git
+  if [ ! -r .gitignore ] || ! grep -q "$dir" .gitignore; then
+    echo "$dir" >> .gitignore
+  fi
+done
+  
+log_always "Compiling grouperClient"
+(
+   cd "$PSPNG_DIR"/../grouperClient 
+   $ANT build 
+   mvn install:install-file -Dfile=dist/grouperClient.jar -DgroupId=edu.internet2.middleware.grouper -DartifactId=grouperClient -Dversion=2.3.0-SNAPSHOT -Dpackaging=jar
+)
+
+log_always "Compiling subject"
+(
+   cd "$PSPNG_DIR"/../../subject 
+   $ANT jar 
+   mvn install:install-file -Dfile=dist/subject.jar -DgroupId=edu.internet2.middleware.grouper -DartifactId=subject -Dversion=2.3.0-SNAPSHOT -Dpackaging=jar
+)
+
+log_always "Compiling API"
+(
+   cd "$PSPNG_DIR"/../../grouper 
+   $ANT jar 
+   mvn install:install-file -Dfile=dist/lib/grouper.jar -DgroupId=edu.internet2.middleware.grouper -DartifactId=grouper -Dversion=2.3.0-SNAPSHOT -Dpackaging=jar
+   cp dist/lib/grouper.jar $D/dependent-jars
+)
+
+# Compile pspng
+log_always "Compiling pspng"
+(
+   cd "$PSPNG_DIR"; 
+   mvn -Dlicense.skip=true clean compile; echo "$(date) - Built by maven and $ME" > target/classes/BUILD_INFO
+)
+cp -rp $PSPNG_DIR/target/classes/* pspng-classes
+
+# Get the jars that pspng depends on
+log_always "Collecting dependency info from pspng"
+mvn --quiet -f "$PSPNG_DIR/pom.xml" dependency:copy-dependencies -Dsilent=true -DoutputDirectory="$D/dependent-jars"
+
+
+GROUPER_BUILD_VERSION=$(cd dependent-jars; echo grouper-*.jar | sed 's:grouper-\(.*\).jar:\1:')
+
+#Clean up dependent-jars, removing grouper.jar and jars already in grouper-demo
+rm dependent-jars/grouper-$GROUPER_BUILD_VERSION.jar
+
+# Remove dependencies that are in base image
+BASE_IMAGE=tier/grouper-multi-purpose:2.3.0-a97-u41-w11-p16
+
+JARS_IN_BASE_IMAGE=$(docker run --rm $BASE_IMAGE ls /opt/grouper/grouper.apiBinary/lib/custom)
+( cd dependent-jars; 
+  # This has a different name in the docker container. Just delete it.
+  rm -f hsqldb*.jar
+  # These have duplicate versions. Obviously, a maven problem to deal with someday
+  rm asm-4.2.jar c3p0-0.9.1.1.jar stax-api-1.0-2.jar xercesImpl-2.0.2.jar grouper.jar
+
+  # remove jars from dependent-jars that are already in grouper-demo image
+  for f in *.jar; do
+    if [[ "$JARS_IN_BASE_IMAGE" =~ "$f" ]]; then
+      echo "Already in $BASE_IMAGE: $f"
+      rm -f "$f"
+    fi
+  done
+)
+
+log_always "Done compiling and staging jars for image"
+

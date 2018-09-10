@@ -1,0 +1,36 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string folder_name "" "Full path to folder"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_folder_name" ] && fail "--folder_name must be specified"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+log_always "Creating folder $FLAGS_folder_name"
+
+if [[ "$FLAGS_folder_name" =~ : ]]; then
+  parent=$(sed 's/\(.*\):\([^:]*\)/\1/' <<<"$FLAGS_folder_name")
+  child=$(sed  's/\(.*\):\([^:]*\)/\2/' <<<"$FLAGS_folder_name")
+
+  COMMAND="addStem('$parent','$child', '$child');"
+else
+  COMMAND="addRootStem('$FLAGS_folder_name', '$FLAGS_folder_name');"
+fi
+
+log_always "Running gsh: $COMMAND"
+$GSH << EOF
+gs = GrouperSession.startRootSession();
+
+$COMMAND
+
+EOF

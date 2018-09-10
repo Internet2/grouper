@@ -89,7 +89,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       return;
     }
     
-    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, null);
+    String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
     scheduleUserModification(ldapUser, AttributeModificationType.ADD, Arrays.asList(attributeValue));
   }
@@ -103,7 +103,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       return;
     }
     
-    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, null);
+    String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
 
     scheduleUserModification(ldapUser, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
   }
@@ -160,36 +160,51 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
 
 
   protected String getAttributeValueForGroup(GrouperGroupInfo grouperGroupInfo) throws PspException {
-    return evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), null, null, grouperGroupInfo, null);
+    return evaluateJexlExpression("ProvisionedAttributeValue", config.getProvisionedAttributeValueFormat(), null, null, grouperGroupInfo, null);
   }
   
   @Override
-	protected void doFullSync_cleanupExtraGroups(
-			Set<GrouperGroupInfo> groupsForThisProvisioner,
-			Map<GrouperGroupInfo, LdapGroup> ldapGroups,
-            JobStatistics stats) throws PspException {
+	protected void doFullSync_cleanupExtraGroups(JobStatistics stats) throws PspException {
+
+      String attribute = config.getProvisionedAttributeName();
+
+      // This will either be
+      //   null or empty: No cleanup will occur
+      //   *: Attribute is entirely determined by grouper and will be completely scrubbed
+      //   a true prefix: Only values that start with that prefix will be inspected/scrubbed
+
       String allValuesPrefix = config.getAllProvisionedValuesPrefix();
       if ( StringUtils.isEmpty(allValuesPrefix) ) {
         LOG.error("{}: Unable to cleanup extra groups without allProvisionedValuesPrefix being defined", getDisplayName());
         return;
       }
-      
-      String attribute = config.getProvisionedAttributeName();
+
+      String allValuesLdapFilter;
+      Pattern allValuesPattern;
+
+      if ( allValuesPrefix.equals("*") ) {
+          allValuesLdapFilter = String.format("%s=*", attribute);
+          allValuesPattern = Pattern.compile(".*");
+      }
+      else {
+          allValuesLdapFilter = String.format("%s=%s*", attribute, allValuesPrefix);
+          allValuesPattern = Pattern.compile(allValuesPrefix + ".*");
+      }
 
       LOG.debug("{}: Looking for all grouper-sourced values of {}.", getDisplayName(), attribute);
-      
+
+
       List<LdapObject> usersWithGrouperValues 
         = getLdapSystem().performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
-            Arrays.asList(attribute), attribute+"="+allValuesPrefix+"*");
+            Arrays.asList(attribute), allValuesLdapFilter);
       
       // We're going to go through all the values of all the ldap objects. 
       // We're going to save all those values that come from grouper (because they match 'pattern')
-      Pattern pattern = Pattern.compile(allValuesPrefix + ".*");
       Set<String> grouperSourcedValuesUsedInTargetSystem = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       for ( LdapObject user : usersWithGrouperValues ) {
         Collection<String> values = user.getStringValues(attribute);
         for ( String value : values ) {
-          if ( pattern.matcher(value).matches() )
+          if ( allValuesPattern.matcher(value).matches() )
             grouperSourcedValuesUsedInTargetSystem.add(value);
         }
       }
@@ -197,7 +212,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       // Now we go through all the grouper groups and see what their attribute values
       // would be. 
       Set<String> valuesDefinedByGrouperGroups = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-      for ( GrouperGroupInfo groupInfo : groupsForThisProvisioner ) {
+      for ( GrouperGroupInfo groupInfo : getAllGroupsForProvisioner() ) {
         String value = getAttributeValueForGroup(groupInfo);
         valuesDefinedByGrouperGroups.add(value);
       }

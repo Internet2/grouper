@@ -168,7 +168,7 @@ public class LdapSystem {
 
 
   protected void performTestLdapRead(Connection conn) throws PspException {
-    LOG.info("Performing test read of directory root");
+    LOG.info("{}: Performing test read of directory root", ldapSystemName);
     SearchExecutor searchExecutor = new SearchExecutor();
     SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchExecutor, getLdaptiveProperties());
     srSource.initialize();
@@ -319,16 +319,23 @@ public class LdapSystem {
   
   
   protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
-    LOG.info("{}: Creating LDAP object: {}", ldapSystemName, entryToAdd.getDn());
+    LOG.info("{}: Creating LDAP object DN: {}", ldapSystemName, entryToAdd.getDn());
+    LOG.info("{}: Creating LDAP Object details: {}", ldapSystemName, entryToAdd);
   
     Connection conn = getLdapConnection();
     try {
-      // Actually ADD the account
+      // Actually ADD the object
       conn.open();
       conn.getProviderConnection().add(new AddRequest(entryToAdd.getDn(), entryToAdd.getAttributes()));
     } catch (LdapException e) {
-      LOG.error("Problem while creating new ldap object: {}", entryToAdd, e);
-      throw new PspException("LDAP problem creating object: %s", e.getMessage());
+      if ( e.getResultCode() == ResultCode.ENTRY_ALREADY_EXISTS ) {
+        LOG.warn("{}: Skipping LDAP ADD because object already existed: {}", ldapSystemName, entryToAdd.getDn());
+      } else {
+        LOG.error("{}: Problem while creating new ldap object: {}",
+                new Object[] {ldapSystemName, entryToAdd, e});
+
+        throw new PspException("LDAP problem creating object: %s", e.getMessage());
+      }
     }
     finally {
       conn.close();
@@ -384,11 +391,16 @@ public class LdapSystem {
                 ldapSystemName, mod, e.getMessage());
       }
 
+
+      LOG.warn("{}: Problem while modifying ldap system based on grouper expectations. Starting to perform adaptive modifications based on data already on server: {}: {}",
+              new Object[]{ldapSystemName, mod, e.getResultCode()});
+
       // First case: a single attribute being modified with a single value
-      //   Perform a quick ldap comparison and heck to see if the object
+      //   Perform a quick ldap comparison and check to see if the object
       //   already matches the modification
       //
-      //   If the object doesn't already match, then it was a real ldap failure
+      //   If the object doesn't already match, then it was a real ldap failure... there
+      //   is no way to simplify it or otherwise retry it
       if ( mod.getAttributeModifications().length == 1 &&
            mod.getAttributeModifications()[0].getAttribute().getStringValues().size() == 1 ) {
         AttributeModification modification = mod.getAttributeModifications()[0];
@@ -411,9 +423,6 @@ public class LdapSystem {
 
       // This wasn't a single-attribute change, or multiple values were being changed.
       // Therefore: Read what is in the LDAP server and implement the differences
-
-      LOG.warn("{}: Problem while modifying ldap system based on grouper expectations. Starting to perform adaptive modifications based on data already on server: {}: {}",
-              new Object[]{ldapSystemName, mod, e.getResultCode()});
 
 
       // Gather up the attributes that were modified so we can read them from server
@@ -517,7 +526,8 @@ public class LdapSystem {
   }
 
   private boolean performLdapComparison(String dn, LdapAttribute attribute) throws PspException {
-    LOG.info("{}: Performaing Ldap comparison operation: {}", ldapSystemName, attribute);
+    LOG.info("{}: Performaing Ldap comparison operation: {} on {}",
+            new Object[]{ldapSystemName, attribute, LdapObject.getDnSummary(dn,2)});
 
     Connection conn = getLdapConnection();
     try {

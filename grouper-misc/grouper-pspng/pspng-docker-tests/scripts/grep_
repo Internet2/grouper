@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# grep has two big problems that come up when you start caring about
+# exit codes, eg, when you use errexit and non-zero exits abort your script
+# 1) grep exits with an error if a match is not in a file. This is pretty
+#    useful when you want to do "if grep -q xyz pdq.txt", but it is destructive
+#    if you're just wanting to match or filter lines. 
+# 2) grep will exit with an error if it can't create a file, but it DOES NOT 
+#    report if the filesystem fills while it is writing output
+#
+# This script takes care of both of these.
+#
+
+set -o errexit
+set -o nounset
+
+. $(dirname "${BASH_SOURCE[0]}")/functions.bash
+
+GREP_COMMAND=
+
+# This will determine if we convert grep's exit(1) (no match found) to exit(0)
+NO_MATCH_IS_ERROR=${NO_MATCH_IS_ERROR:-no}
+
+case $(basename "$0") in
+  egrep_) GREP_COMMAND=egrep;;
+  fgrep_) GREP_COMMAND=fgrep;;
+  grep_) GREP_COMMAND=grep;;
+  *) fail "Unknown grep variant: $0"
+esac
+
+# Turn off error handling so grep can do its stupid thing
+set +e
+
+# We're running the grep through a cat because cat reports
+# output errors reliably (grep does not)
+"$GREP_COMMAND" "$@" | cat
+STATUS=(${PIPESTATUS[@]})
+
+set -o errexit
+set -o pipefail
+
+#echo Results: ${STATUS[@]} 1>&2
+
+S_CAT=${STATUS[1]}
+S_GREP=${STATUS[0]}
+
+if [ $S_CAT -ne 0 ]; then
+  echo "Output failed" 1>&2
+  exit 2
+else
+  echo -n
+  #echo "Output was successful" 1>&2
+fi
+
+case $S_GREP in
+  0) exit 0;;
+
+  1) #grep returns 1 when nothing matches. We usually don't consider this an error
+     if [ $NO_MATCH_IS_ERROR = no ]; then
+       log_debug  "Converting grep's exit(1) to exit(0)" 
+       exit 0
+     else
+       exit 1
+     fi
+     ;;
+  *) exit $S_GREP
+esac

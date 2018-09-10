@@ -1,0 +1,31 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+
+DEFINE_string group "" "Full path to group"
+DEFINE_string provisioner "" "Name of provisioner"
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+[ -z "$FLAGS_group" ] && fail "--group must be specified"
+[ -z "$FLAGS_provisioner" ] && fail "--provisioner must be specified"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+tempfile_into_T
+cat >$T <<EOF
+gs = GrouperSession.startRootSession();
+edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine.send(new edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME).assignQueueType(edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType.queue).assignQueueOrTopicName("pspng_full_sync_$FLAGS_provisioner").addMessageBody("$FLAGS_group"));
+EOF
+
+echo Running GSH with:
+cat $T
+echo ===
+
+$GSH < $T

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+PROG=$(basename "$0")
+
+LDAP_HOST=${LDAP_HOST:-ldap}
+LDAP_ADMIN_USER=${LDAP_ADMIN_USER:-cn=admin,dc=example,dc=edu}
+LDAP_ADMIN_PASS=${LDAP_ADMIN_PASS:-${SLAPD_PASSWORD:-secret}}
+
+COMMAND=$(sed 's/^my//' <<<"$PROG")
+
+if [ $COMMAND = ldapsearch ]; then
+  # ldapsearch returns an error when there is no matching data
+  # This is critically annoying when using errexit (similar to grep's beavior (see $D/grep_))
+  #
+  # This pattern of false errors is a error status code, but no error output, so this
+  # captures error output into $T and returns success when there is no error output
+
+  tempfile_into_T
+
+  # always unldif ldapsearch output
+  if ! ldapsearch -LLL -x -H ldap://${LDAP_HOST}:${LDAP_PORT} -D "${LDAP_ADMIN_USER}" -w "${LDAP_ADMIN_PASS}" "$@" 2>$T | unldif
+  then
+    # if there was stderr output, then return an error, otherwise this was likely a
+    # false alarm caused by ldapsearch returning an error when there is no data
+
+    if [ -s "$T" ]; then 
+      cat "$T" 1>&2  # Output stderr that we captured
+      exit 1
+    fi
+  fi
+
+else #not ldapsearch
+
+  $COMMAND -x -H ldap://${LDAP_HOST}:${LDAP_PORT} -D "${LDAP_ADMIN_USER}" -w "${LDAP_ADMIN_PASS}" "$@"
+fi
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This script runs gsh but prunes all the output before
+# the ----, which includes tons of gsh-debugging info
+#
+# Note: This merges stdout/stderr
+
+D=$(dirname "${BASH_SOURCE[0]}")
+. "$D/functions.bash"
+
+# Skip the gsh output up to the first ------
+
+$API/bin/gsh "$@" 2>&1 | grep --line-buffered -A5000 -e ------------

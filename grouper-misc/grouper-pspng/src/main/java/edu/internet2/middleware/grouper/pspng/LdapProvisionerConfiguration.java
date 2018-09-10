@@ -225,7 +225,7 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     }
 
     
-    public String getOuCreationLdifTemplate_defaultValue() {
-      return ouCreationLdifTemplate_defaultValue;
+    public String getOuCreationLdifTemplate() {
+      return ouCreationLdifTemplate;
     }
 }

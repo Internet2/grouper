@@ -35,13 +35,15 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ProvisionerCoordinator {
     private final static Logger LOG = LoggerFactory.getLogger(ProvisionerCoordinator.class);
-    private final static int COORDINATION_TIMEOUT_SECS = 300;
-    private final static int COORDINATION_UPDATE_SECS = 10;
 
-    final String provisionerName;
+    final String provisionerConfigName;
+    final protected ProvisionerConfiguration provisionerConfig;
+    final protected int coordinationTimeout_secs;
+    final protected int coordinationUpdateInterval_secs;
 
     ConcurrentMap<GrouperGroupInfo, ProvisioningStatus> group2ProvisioningStatus
             = new ConcurrentHashMap<>();
+
 
     private class ProvisioningStatus {
         final GrouperGroupInfo group;
@@ -51,30 +53,37 @@ public class ProvisionerCoordinator {
 
         Date lastIncrementalProvisioningStart;
         boolean isBeingIncrementallyProvisioned = false;
+        Thread lockHolder=null;
 
         ProvisioningStatus(GrouperGroupInfo group) {
             this.group = group;
         }
 
         void lockForFullSyncWhenNoIncrementalIsUnderway() {
+            if ( isBeingFullSynced && lockHolder==Thread.currentThread() ) {
+                return;
+            }
+
             // We'll give up after COORDINATION_TIME_SECS
-            long giveUpTimeMillis = System.currentTimeMillis() + 1000L * COORDINATION_TIMEOUT_SECS;
+            long giveUpTimeMillis = System.currentTimeMillis() + 1000L * coordinationTimeout_secs;
 
             while ( System.currentTimeMillis() < giveUpTimeMillis ) {
                 synchronized (this) {
                     if (isBeingIncrementallyProvisioned) {
                         LOG.warn("{}: Cannot start FullSync of {}. Incremental provisioning underway since {}. We'll give up and move ahead anyway in {} seconds.",
-                                new Object[] {provisionerName, group, lastIncrementalProvisioningStart, (giveUpTimeMillis-System.currentTimeMillis())/1000});
+                                new Object[] {provisionerConfigName, group, lastIncrementalProvisioningStart, (giveUpTimeMillis-System.currentTimeMillis())/1000});
                         try {
-                            this.wait(COORDINATION_UPDATE_SECS*1000);
+                            this.wait(coordinationUpdateInterval_secs*1000);
                         }
                         catch (InterruptedException e) {
                             // nada
                         }
                     }
                     else {
+                        LOG.info("{}: Locking group before full sync: {}", provisionerConfigName, group);
                         lastFullSyncStart = new Date();
                         isBeingFullSynced = true;
+                        lockHolder = Thread.currentThread();
                         return;
                     }
                 }
@@ -95,6 +104,9 @@ public class ProvisionerCoordinator {
             if (fullSyncWasSuccessful) {
                 lastSuccessfulFullSyncStart = lastFullSyncStart;
             }
+
+            LOG.info("{}: Unlocking group after full sync: {}", provisionerConfigName, group);
+
             isBeingFullSynced = false;
             this.notify();
         }
@@ -104,24 +116,31 @@ public class ProvisionerCoordinator {
         }
 
         void lockForIncrementalProvisioningWhenNoFullSyncIsUnderway() {
+            if ( isBeingIncrementallyProvisioned && lockHolder==Thread.currentThread() ) {
+                return;
+            }
+
             // We'll give up after COORDINATION_TIME_SECS
-            long giveUpTimeMillis = System.currentTimeMillis() + 1000L * COORDINATION_TIMEOUT_SECS;
+            long giveUpTimeMillis = System.currentTimeMillis() + 1000L * coordinationTimeout_secs;
 
             while ( System.currentTimeMillis() < giveUpTimeMillis ) {
                 synchronized (this) {
                     if (isBeingFullSynced) {
                         LOG.warn("{}: Cannot start Incremental Provisioning of {}. FullSync underway since {}. We'll give up and move ahead anyway in {} seconds",
-                                new Object[] {provisionerName, group, lastFullSyncStart, (giveUpTimeMillis-System.currentTimeMillis())/1000});
+                                new Object[] {provisionerConfigName, group, lastFullSyncStart, (giveUpTimeMillis-System.currentTimeMillis())/1000});
                         try {
-                            this.wait(1000L*COORDINATION_UPDATE_SECS);
+                            this.wait(1000L*coordinationUpdateInterval_secs);
                         }
                         catch (InterruptedException e) {
                             // nada
                         }
                     }
                     else {
+                        LOG.info("{}: Locking group before incremental sync: {}", provisionerConfigName, group);
+
                         lastIncrementalProvisioningStart = new Date();
                         isBeingIncrementallyProvisioned = true;
+                        lockHolder = Thread.currentThread();
                         return;
                     }
                 }
@@ -138,6 +157,7 @@ public class ProvisionerCoordinator {
             if ( ! isBeingIncrementallyProvisioned ) {
                 return;
             }
+            LOG.info("{}: Unlocking group after incremental sync: {}", provisionerConfigName, group);
 
             isBeingIncrementallyProvisioned = false;
             this.notify();
@@ -147,10 +167,15 @@ public class ProvisionerCoordinator {
 
     /**
      * Create a ProvisionerCoordinator
-     * @param provisionerName
+     * @param provisioner
      */
-    public ProvisionerCoordinator(String provisionerName) {
-        this.provisionerName = provisionerName;
+    public ProvisionerCoordinator(Provisioner<?,?,?> provisioner) {
+        this.provisionerConfigName = provisioner.getConfigName();
+        this.provisionerConfig = provisioner.getConfig();
+
+        coordinationTimeout_secs = provisionerConfig.getCoordinationTimout_secs();
+        coordinationUpdateInterval_secs = provisionerConfig.getCoordinationUpdateInterval_secs();
+
     }
 
 

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+PATH=/container-files/bin:$PATH
+
+PGREP_PATTERN=java.*-loader
+
+if pgrep -f "$PGREP_PATTERN" >/dev/null; then
+  echo "Grouper loader is running: [$(pgrep -f "$PGREP_PATTERN")]"
+  exit 0
+fi
+
+echo -n waiting for grouper loader to start running...
+while ! pgrep -f "$PGREP_PATTERN" >/dev/null; do
+  echo -n .
+  sleep 2
+done
+
+echo ready
+
