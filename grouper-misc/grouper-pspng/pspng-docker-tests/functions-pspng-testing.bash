@@ -21,6 +21,13 @@ init_test_scenario_variables()
   export PROVISIONER1_NAME=${PROVISIONER1_NAME:-pspng1}
 }
 
+test_subject_source()
+{
+  test_step "Checking subject sources"
+  if ! run_in_grouper_daemon verify-subject-source; then
+    test_failure "Subject source failed"
+  fi
+}
 
 wait_for_grouper_daemon_to_be_running()
 {

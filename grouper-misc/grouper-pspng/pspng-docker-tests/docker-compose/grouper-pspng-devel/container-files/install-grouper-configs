@@ -2,7 +2,7 @@
 
 # This copies any grouper config files from 
 # /grouper-config*.d (in alphabetical order) to
-# gropuer's config areas 
+# grouper's config areas 
 #
 # NOTE: configs are only installed into api/conf right now
 

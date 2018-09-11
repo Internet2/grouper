@@ -178,4 +178,4 @@ echo ===
 grep_ -A3 FAILURE $T/result_details
 
 echo === >> $TT/progress
-grep_ FAILURE >>$TT/progress
+grep_ FAILURE $T/result_details >>$TT/progress

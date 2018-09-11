@@ -44,6 +44,7 @@ create_grouper_daemon_config
 
 start_docker "${ME}_$flavor"
 
+test_subject_source
 
 wait_for_grouper_daemon_to_be_running
 

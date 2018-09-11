@@ -7,7 +7,7 @@ set -o nounset
 ME="${BASH_SOURCE[0]}"
 while [ -h "$ME" ]; do ME=$(readlink "$ME"); done
 
-D="$( cd "$( dirname "$ME}" )" && pwd -P )"
+D="$( cd "$( dirname "${ME}" )" && pwd -P )"
 . "$D/../functions.bash"
 
 cd "$D"
@@ -15,3 +15,18 @@ cd "$D"
 grouper-pspng-devel/compile-for-docker-image
 
 docker-compose build
+
+
+VOLUMES_NEEDED=
+for volume in db-data-template ldap-data-template ldap-config-template; do
+    if ! docker volume inspect $volume >/dev/null 2>&1; then
+      VOLUMES_NEEDED="$VOLUMES_NEEDED,$volume"
+    fi
+done
+
+if [ -n "$VOLUMES_NEEDED" ]; then
+  log_always "Building volume templates: $VOLUMES_NEEDED"
+  ./create-data-templates
+else
+  log_always "Volume templates already exist"
+fi

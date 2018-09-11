@@ -1,4 +1,4 @@
-From tier/grouper-multi-purpose:2.3.0-a97-u41-w11-p16
+From tier/grouper:2.4-test
 
 RUN yum makecache
 
@@ -32,10 +32,8 @@ COPY container-files/install-grouper-configs /
 CMD /install-grouper-configs && /scripts/run-grouper-loader
 
 # Remove unknown version of slf4j, classloading conflict with 1.6.1 version??
-RUN rm /opt/grouper/grouper.apiBinary/lib/grouper/slf4j-log4j12.jar
-RUN rm /opt/grouper/grouper.apiBinary/lib/grouper/activemq-all-5.15.0.jar
-RUN rm /opt/grouper/grouper.apiBinary/lib/grouper/mchange-commons-java-0.2.11.jar
+# RUN rm /opt/grouper/grouper.apiBinary/lib/grouper/slf4j-log4j12.jar
 
 # Patch mysql jdbc version for latest version of mysqld
-RUN rm /opt/grouper/grouper.apiBinary/lib/custom/mysql-connector*
-COPY mysql-connector-java-5.1.25-bin.jar /opt/grouper/grouper.apiBinary/lib/custom
+#RUN rm /opt/grouper/grouper.apiBinary/lib/custom/mysql-connector*
+#COPY mysql-connector-java-5.1.25-bin.jar /opt/grouper/grouper.apiBinary/lib/custom
