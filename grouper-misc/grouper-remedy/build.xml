@@ -1,0 +1,214 @@
+
+<project name="grouper-remedy" default="build" basedir="." >
+  
+  <!-- declare the ant-contrib tasks -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/libAnt/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
+
+  <!-- copy build.properties if not there already -->
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.example.properties" tofile="build.properties" /></then>
+  </if> 
+
+  <!-- Grouper Global Build Properties -->
+  <property file="${basedir}/build.properties"/>
+
+  <property file="${basedir}/misc/version.properties"/>
+
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar,distPackage">
+  </target>
+
+  <target name="init" depends="checkGrouper"> 
+    <tstamp />
+
+    <property name="main.source" value="src" />
+
+    <property name="main.lib" value="lib" />
+
+    <property name="main.outputDir" value="dist" />
+    <property name="main.bin" value="${main.outputDir}/bin" />
+
+    <property name="main.appName" value="grouper-remedy" />
+    <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+
+    <path id="main.classpath.client">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+    
+      <fileset dir="${grouperClient.folder}/${main.outputDir}">
+        <!-- Last, but not least, make Grouper API available -->
+        <include name="grouperClient.jar"/>
+      </fileset>
+    </path>
+
+    <path id="main.classpath.grouper">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+      <!-- Make available jar files that Grouper needs -->
+      <fileset dir="${grouper.folder}/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+    
+      <fileset dir="${grouper.folder}/${main.outputDir}/lib">
+        <!-- Last, but not least, make Grouper API available -->
+        <include name="grouper.jar"/>
+      </fileset>
+    </path>
+
+  </target>
+
+  <target name="checkGrouper">
+
+    <available file="${grouper.jar.name}" property="grouper.file.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouper.file.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
+      </then>
+    </if>
+  
+    <available file="${grouperClient.jar.name}" property="grouperClient.file.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouperClient.file.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouperClient.jar from build.properties entry grouperClient.jar.name: ${grouperClient.jar.name}!" /> 
+      </then>
+    </if>
+  
+    <available file="${grouper.lib.dir}/commons-lang.jar" property="grouper.lib.dir.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouper.lib.dir.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouper lib dir jars (e.g. commons-lang.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
+      </then>
+    </if>
+  
+    <available file="${grouper.folder}/conf/grouper.properties" property="grouper.properties.file.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouper.properties.file.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouper conf dir (e.g. grouper.properties) from build.properties entry grouper.conf.dir: ${grouper.conf.dir}!" /> 
+      </then>
+    </if>
+  </target>
+
+  <target name="clean" depends="init">
+    <mkdir dir="${main.bin}" />
+    <delete dir="${main.bin}" />
+    <mkdir dir="${main.bin}" />
+
+  </target> 
+  
+  <target name="compile">
+    <mkdir dir="${main.outputDir}" />
+    <mkdir dir="${main.bin}" />
+
+    <javac target="1.7" source="1.7" 
+      srcdir="${main.source}" destdir="${main.bin}" debug="true" >
+      <classpath refid="main.classpath.client" />    
+    </javac>
+  
+    <javac  target="1.7"  source="1.7" 
+      srcdir="changeLogConsumerSource" destdir="${main.bin}" debug="true" >
+      <classpath refid="main.classpath.grouper" />    
+    </javac>
+  
+  </target>
+
+  <target name="jarPrepare">
+    <mkdir dir="${main.bin}" />
+
+    <copy todir="${main.bin}">
+      <fileset dir="${main.source}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+      <fileset dir="changeLogConsumerSource">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+    </copy>
+    
+  </target>
+
+  <target name="jar">
+    <tstamp>
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+    </tstamp>
+    <jar jarfile="${main.jarFile}" duplicate="fail">
+      <fileset dir="${main.bin}" />
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
+        <attribute name="Implementation-Title"    value="${main.appName}"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+        <attribute name="Implementation"          value="${version}"/>
+      </manifest>
+     </jar>
+     <echo message="Output is: ${main.jarFile}" />
+   </target>
+  
+  <target name="distPackage" description="build tar gz on internet2 box">
+    
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.remedy-${version}" />
+    <delete dir="${basedir}/${main.outputDir}/grouper.remedy-${version}" />
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.remedy-${version}" />
+
+    <copy todir="${basedir}/${main.outputDir}/grouper.remedy-${version}">
+      <fileset dir="${basedir}">
+        <include name="lib/*.jar"/>
+      </fileset>
+      <fileset dir="${basedir}/conf">
+        <include name="grouper-loader.remedy.2.2.andEarlier.example.properties"/>
+        <include name="grouper-loader.remedy.example.properties"/>
+        <include name="${grouperClient.folder}/conf/grouper.client.base.properties"/>
+        <include name="grouper.client.remedy.example.properties"/>
+        <include name="log4j.grouperRemedy.example.properties"/>
+        <include name="morphString.example.properties"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${basedir}/${main.outputDir}/grouper.remedy-${version}/lib">
+      <fileset dir="${basedir}/${main.outputDir}">
+        <include name="${main.appName}.jar"/>
+      </fileset>
+      <fileset file="${grouperClient.jar.name}">
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.remedy-${version}/${main.source}" />
+    <copy todir="${basedir}/${main.outputDir}/grouper.remedy-${version}">
+      <fileset dir="${basedir}">
+        <include name="src/**"/>
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.remedy-${version}/changeLogConsumerSource" />
+    <copy todir="${basedir}/${main.outputDir}/grouper.remedy-${version}">
+      <fileset dir="${basedir}">
+        <include name="changeLogConsumerSource/**"/>
+      </fileset>
+    </copy>
+    
+    <tar destfile="${basedir}/${main.outputDir}/grouper.remedy-${version}.tar.gz" compression="gzip" longfile="gnu" >
+      <tarfileset dir="${basedir}/${main.outputDir}" >
+        <include name="grouper.remedy-${version}/**"/>
+      </tarfileset>
+    </tar>            
+  </target>
+</project>

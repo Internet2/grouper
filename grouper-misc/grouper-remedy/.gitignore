@@ -1,0 +1,15 @@
+/bin/
+/logs/
+/spy.log
+/dist/
+/build.properties
+conf/grouper.client.properties
+conf/log4j.properties
+conf/morphString.properties
+.project~
+**/.DS_Store
+.settings/org.eclipse.jdt.core.prefs
+.settings
+/grouperClientFailoverState.bin
+/.classpath
+/.project
