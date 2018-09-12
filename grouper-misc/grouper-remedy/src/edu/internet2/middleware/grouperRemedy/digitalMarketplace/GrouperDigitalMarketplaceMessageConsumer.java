@@ -2,7 +2,7 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouperRemedy;
+package edu.internet2.middleware.grouperRemedy.digitalMarketplace;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,10 +32,10 @@ import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
  */
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-public class GrouperRemedyMessageConsumer implements Job {
+public class GrouperDigitalMarketplaceMessageConsumer implements Job {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperRemedyMessageConsumer.class);
+  private static final Log LOG = LogFactory.getLog(GrouperDigitalMarketplaceMessageConsumer.class);
 
   /**
    * 
@@ -87,12 +87,12 @@ public class GrouperRemedyMessageConsumer implements Job {
     Set<String> waitMessageIds = new HashSet<String>();
 
     try {
-      GrouperRemedyFullRefresh.waitForFullRefreshToEnd();
+      GrouperDigitalMarketplaceFullRefresh.waitForFullRefreshToEnd();
 
-      WsMessage[] wsMessages = GrouperWsCommandsForRemedy.grouperReceiveMessages();
+      WsMessage[] wsMessages = GrouperWsCommandsForDigitalMarketplace.grouperReceiveMessages();
 
       if (GrouperClientUtils.length(wsMessages) == 0) {
-        boolean logIfNoMessages = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperRemedy.logIfNoMessages", false);
+        boolean logIfNoMessages = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperDigitalMarketplace.logIfNoMessages", false);
         if (!logIfNoMessages) {
           logDebugMap = false;
         }
@@ -100,17 +100,17 @@ public class GrouperRemedyMessageConsumer implements Job {
       }
       
       boolean fullSyncOnMessage = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
-          "grouperRemedy.fullSyncOnMessage", false);
+          "grouperDigitalMarketplace.fullSyncOnMessage", false);
 
       if (fullSyncOnMessage) {
         debugMap.put("fullSyncOnMessage", true);
       }
       
       int fullSyncOnMessageWaitSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
-          "grouperRemedy.fullSyncOnMessageWaitSeconds", 30);
+          "grouperDigitalMarketplace.fullSyncOnMessageWaitSeconds", 30);
 
       //short circuit to let full go
-      if (GrouperRemedyFullRefresh.isFullRefreshInProgress()) {
+      if (GrouperDigitalMarketplaceFullRefresh.isFullRefreshInProgress()) {
         return;
       }
 
@@ -149,7 +149,7 @@ public class GrouperRemedyMessageConsumer implements Job {
         //not sure why there would be no events in there
         for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
 
-          if (GrouperRemedyFullRefresh.getLastFullRefreshStart() > (esbEvent.getCreatedOnMicros() / 1000L)) {
+          if (GrouperDigitalMarketplaceFullRefresh.getLastFullRefreshStart() > (esbEvent.getCreatedOnMicros() / 1000L)) {
             
             continue;
             
@@ -163,7 +163,7 @@ public class GrouperRemedyMessageConsumer implements Job {
             
             try {
               incrementalRefreshInProgress = false;
-              GrouperRemedyFullRefresh.fullRefreshLogic();
+              GrouperDigitalMarketplaceFullRefresh.fullRefreshLogic();
             } finally {
               incrementalRefreshInProgress = true;
             }
@@ -186,7 +186,7 @@ public class GrouperRemedyMessageConsumer implements Job {
       try {
         //mark messages as processed
         if (GrouperClientUtils.length(successMessageIds) > 0) {
-          GrouperWsCommandsForRemedy.grouperAcknowledgeMessages(successMessageIds, "mark_as_processed");
+          GrouperWsCommandsForDigitalMarketplace.grouperAcknowledgeMessages(successMessageIds, "mark_as_processed");
         }
       } catch (Exception e) {
         debugMap.put("successAcknowledgeException", GrouperClientUtils.getFullStackTrace(e));
@@ -195,7 +195,7 @@ public class GrouperRemedyMessageConsumer implements Job {
       try {
         //mark messages as return to queue
         if (GrouperClientUtils.length(waitMessageIds) > 0) {
-          GrouperWsCommandsForRemedy.grouperAcknowledgeMessages(waitMessageIds, "return_to_queue");
+          GrouperWsCommandsForDigitalMarketplace.grouperAcknowledgeMessages(waitMessageIds, "return_to_queue");
         }
       } catch (Exception e) {
         debugMap.put("waitAcknowledgeException", GrouperClientUtils.getFullStackTrace(e));
@@ -204,7 +204,7 @@ public class GrouperRemedyMessageConsumer implements Job {
       incrementalRefreshInProgress = false;
 
       if (logDebugMap) {
-        GrouperRemedyLog.remedyLog(debugMap, startTimeNanos);
+        GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTimeNanos);
       }
     }
 
@@ -225,11 +225,11 @@ public class GrouperRemedyMessageConsumer implements Job {
    * @param esbEvent
    */
   public static void processMessage(EsbEvent esbEvent) {
-    String subjectAttributeForRemedyUsername = GrouperRemedyUtils.configSubjectAttributeForRemedyUsername();
+    String subjectAttributeForDigitalMarketplaceUsername = GrouperDigitalMarketplaceUtils.configSubjectAttributeForDigitalMarketplaceUsername();
     String subjectAttributeValue = null;
-    if (!GrouperClientUtils.equals("id", subjectAttributeForRemedyUsername)) {
+    if (!GrouperClientUtils.equals("id", subjectAttributeForDigitalMarketplaceUsername)) {
       // note make sure the loader is configured to send this attribute
-      subjectAttributeValue = esbEvent.subjectAttribute(subjectAttributeForRemedyUsername);
+      subjectAttributeValue = esbEvent.subjectAttribute(subjectAttributeForDigitalMarketplaceUsername);
     }
     processMessage(esbEvent.getEventType(), GrouperClientUtils.defaultIfBlank(esbEvent.getName(),esbEvent.getGroupName()), esbEvent.getSourceId(), esbEvent.getSubjectId(), subjectAttributeValue);
   }
@@ -275,9 +275,9 @@ public class GrouperRemedyMessageConsumer implements Job {
       debugMap.put("eventType", eventType);
       debugMap.put("groupName", groupName);
       
-      boolean remedyGroupWhichHasAllowedUsers = GrouperClientUtils.equals(groupName, GrouperClientConfig.retrieveConfig().propertyValueString("grouperRemedy.requireGroup"));
+      boolean remedyGroupWhichHasAllowedUsers = GrouperClientUtils.equals(groupName, GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.requireGroup"));
       
-      if (!remedyGroupWhichHasAllowedUsers && !GrouperRemedyUtils.validRemedyGroupName(groupName)) {
+      if (!remedyGroupWhichHasAllowedUsers && !GrouperDigitalMarketplaceUtils.validDigitalMarketplaceGroupName(groupName)) {
         debugMap.put("invalidGroupName", true);
         return;
       }
@@ -288,39 +288,38 @@ public class GrouperRemedyMessageConsumer implements Job {
       boolean isMembershipDelete = GrouperClientUtils.equals(eventType, "MEMBERSHIP_DELETE");
 
       //get groups from remedy
-      Map<Long, GrouperRemedyGroup> remedyGroupNameToGroupMap = GrouperRemedyCommands.retrieveRemedyGroups();
+      Map<String, GrouperDigitalMarketplaceGroup> remedyGroupNameToGroupMap = GrouperDigitalMarketplaceCommands.retrieveDigitalMarketplaceGroups();
 
-      GrouperRemedyGroup groupInRemedy = null;
+      GrouperDigitalMarketplaceGroup groupInDigitalMarketplace = null;
       try {
-        Long theLong = GrouperClientUtils.longObjectValue(groupExtension, false);
-        groupInRemedy = remedyGroupNameToGroupMap.get(theLong);
+        groupInDigitalMarketplace = remedyGroupNameToGroupMap.get(groupExtension);
       } catch (Exception e) {
         LOG.debug("Cant convert extension: '" + groupExtension + "'", e);
         //ignore
       }
 
-      debugMap.put("groupInRemedy", groupInRemedy != null);
+      debugMap.put("groupInDigitalMarketplace", groupInDigitalMarketplace != null);
 
-      if (groupInRemedy != null) {
+      if (groupInDigitalMarketplace != null) {
         
         if (GrouperClientUtils.equals(eventType, "GROUP_ADD")) {
           if (!remedyGroupWhichHasAllowedUsers) {
             //create remedy group
-  //          GrouperRemedyCommands.createRemedyGroup(groupExtension, true);
+  //          GrouperDigitalMarketplaceCommands.createDigitalMarketplaceGroup(groupExtension, true);
           }
   
         } else if (GrouperClientUtils.equals(eventType, "GROUP_DELETE")) {
           
           if (!remedyGroupWhichHasAllowedUsers) {
             //create remedy group
-  //          GrouperRemedyCommands.deleteRemedyGroup(groupInRemedy, true);
+  //          GrouperDigitalMarketplaceCommands.deleteDigitalMarketplaceGroup(groupInDigitalMarketplace, true);
           }
         } else if (GrouperClientUtils.equals(eventType, "GROUP_UPDATE")) {
           
           if (!remedyGroupWhichHasAllowedUsers) {
-            if (groupInRemedy == null) {
+            if (groupInDigitalMarketplace == null) {
               //hmmm, rename, do a full refresh?  need to delete old, create new, and add/remove memberships
-  //            GrouperRemedyFullRefresh.fullRefreshLogic();
+  //            GrouperDigitalMarketplaceFullRefresh.fullRefreshLogic();
             }
           }        
           
@@ -328,17 +327,17 @@ public class GrouperRemedyMessageConsumer implements Job {
   
           debugMap.put("sourceId", sourceId);
   
-          boolean inCorrectSubjectSource = GrouperRemedyUtils.configSourcesForSubjects().contains(sourceId);
+          boolean inCorrectSubjectSource = GrouperDigitalMarketplaceUtils.configSourcesForSubjects().contains(sourceId);
   
           String username = null;
   
           if (inCorrectSubjectSource) {
   
-            String subjectAttributeForRemedyUsername = GrouperRemedyUtils.configSubjectAttributeForRemedyUsername();
-            debugMap.put("subjectAttributeRemedyUsername", subjectAttributeForRemedyUsername);
+            String subjectAttributeForDigitalMarketplaceUsername = GrouperDigitalMarketplaceUtils.configSubjectAttributeForDigitalMarketplaceUsername();
+            debugMap.put("subjectAttributeDigitalMarketplaceUsername", subjectAttributeForDigitalMarketplaceUsername);
            
             
-            if (GrouperClientUtils.equals("id", subjectAttributeForRemedyUsername)) {
+            if (GrouperClientUtils.equals("id", subjectAttributeForDigitalMarketplaceUsername)) {
               username = subjectId;
             } else {
               // note make sure the loader is configured to send this attribute
@@ -357,16 +356,16 @@ public class GrouperRemedyMessageConsumer implements Job {
   
           String usernamePrefix = username;
           
-          username += GrouperClientUtils.defaultIfBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperRemedy.subjectIdSuffix"), "");
+          username += GrouperClientUtils.defaultIfBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.subjectIdSuffix"), "");
           
           debugMap.put("remedyUsername", username);
           
           //lets get the user from remedy
-          GrouperRemedyUser grouperRemedyUser = GrouperRemedyUser.retrieveUsers().get(username);
+          GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = GrouperDigitalMarketplaceUser.retrieveUsers().get(username);
   
-          debugMap.put("remedyUserExists", grouperRemedyUser != null);
+          debugMap.put("remedyUserExists", grouperDigitalMarketplaceUser != null);
   
-          if (grouperRemedyUser == null) {
+          if (grouperDigitalMarketplaceUser == null) {
             //doesnt currently create users
             return;
           }
@@ -387,25 +386,25 @@ public class GrouperRemedyMessageConsumer implements Job {
   
           if (isMembershipAdd) {
             if (remedyGroupWhichHasAllowedUsers) {
-              GrouperWsCommandsForRemedy.retrieveGrouperUsers().put(username, new String[]{subjectId, sourceId, usernamePrefix});
-  //            GrouperRemedyCommands.deprovisionOrUndeprovision(grouperRemedyUser, debugMap);
+              GrouperWsCommandsForDigitalMarketplace.retrieveGrouperUsers().put(username, new String[]{subjectId, sourceId, usernamePrefix});
+  //            GrouperDigitalMarketplaceCommands.deprovisionOrUndeprovision(grouperDigitalMarketplaceUser, debugMap);
             } else {
-              GrouperRemedyCommands.assignUserToRemedyGroup(grouperRemedyUser, groupInRemedy, true);
+              GrouperDigitalMarketplaceCommands.assignUserToDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, groupInDigitalMarketplace, true);
             }
           }
           
           if (isMembershipDelete) {
             if (remedyGroupWhichHasAllowedUsers) {
               //remove memberships in remedy
-  //            for (Info info : grouperRemedyUser.getRemedyUser().getMemberships()) {
+  //            for (Info info : grouperDigitalMarketplaceUser.getDigitalMarketplaceUser().getMemberships()) {
   //              //check role?
-  //              GrouperRemedyGroup grouperRemedyGroup = remedyGroupNameToGroupMap.get(info.getGroup().getName());
-  //              GrouperRemedyCommands.removeUserFromRemedyGroup(grouperRemedyUser, grouperRemedyGroup, true);
+  //              GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = remedyGroupNameToGroupMap.get(info.getGroup().getName());
+  //              GrouperDigitalMarketplaceCommands.removeUserFromDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
   //            }
-  //            GrouperWsCommandsForRemedy.retrieveGrouperUsers().remove(username);
-  //            GrouperRemedyCommands.deprovisionOrUndeprovision(grouperRemedyUser, debugMap);
+  //            GrouperWsCommandsForDigitalMarketplace.retrieveGrouperUsers().remove(username);
+  //            GrouperDigitalMarketplaceCommands.deprovisionOrUndeprovision(grouperDigitalMarketplaceUser, debugMap);
             } else {
-              GrouperRemedyCommands.removeUserFromRemedyGroup(grouperRemedyUser, groupInRemedy, false);
+              GrouperDigitalMarketplaceCommands.removeUserFromDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, groupInDigitalMarketplace, false);
             }
           }
           
@@ -420,7 +419,7 @@ public class GrouperRemedyMessageConsumer implements Job {
             
       incrementalRefreshInProgress = false;
 
-      GrouperRemedyLog.remedyLog(debugMap, startTimeNanos);
+      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTimeNanos);
     }
 
   }
@@ -436,7 +435,7 @@ public class GrouperRemedyMessageConsumer implements Job {
   /**
    * 
    */
-  public GrouperRemedyMessageConsumer() {
+  public GrouperDigitalMarketplaceMessageConsumer() {
   }
 
 

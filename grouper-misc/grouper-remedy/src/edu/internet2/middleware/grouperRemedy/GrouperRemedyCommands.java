@@ -12,6 +12,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
@@ -289,69 +290,87 @@ public class GrouperRemedyCommands {
   }
   
   /**
+   * cache tokens
+   */
+  private static ExpirableCache<Boolean, String> retrieveJwtTokenCache = new ExpirableCache<Boolean, String>(5);
+
+  /**
    * get the login token
    * @param debugMap
    * @param httpClient
    * @return the login token
    */
   private static String retrieveJwtToken(Map<String, Object> debugMap, HttpClient httpClient) {
-    String username = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("remedyGrouperClient.webService.username");
-
-    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
-        "encrypt.disableExternalFileLookup");
     
-    //lets lookup if file
-    String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("remedyGrouperClient.webService.password");
-    String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
+    String jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
 
-    if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
-
-      String encryptKey = GrouperClientUtils.encryptKey();
-      wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
+    if (GrouperClientUtils.isBlank(jwtToken)) {
       
-    }
-
-    //login and get a token
-    String url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("remedyGrouperClient.webService.url");
-
-    url = GrouperClientUtils.stripEnd(url, "/");
-    
-    String loginUrl = url + "/api/jwt/login";
-    
-    //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-    //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-    PostMethod postMethod = new PostMethod(loginUrl);
-
-    //no keep alive so response is easier to indent for tests
-    postMethod.setRequestHeader("Connection", "close");
-    
-    postMethod.addParameter("username", username);
-    postMethod.addParameter("password", wsPass);
-    
-    int responseCodeInt = -1;
-    String jwtToken = null;
-    long startTime = System.nanoTime();
-    try {
-      responseCodeInt = httpClient.executeMethod(postMethod);
+      synchronized (retrieveJwtTokenCache) {
+        jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
+        if (GrouperClientUtils.isBlank(jwtToken)) {
+          String username = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("remedyGrouperClient.webService.username");
+          
+          boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+              "encrypt.disableExternalFileLookup");
+          
+          //lets lookup if file
+          String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("remedyGrouperClient.webService.password");
+          String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
       
-      try {
-        jwtToken = postMethod.getResponseBodyAsString();
-      } catch (Exception e) {
-        debugMap.put("authnGetResponseAsStringException", ExceptionUtils.getStackTrace(e));
+          if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
+      
+            String encryptKey = GrouperClientUtils.encryptKey();
+            wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
+            
+          }
+      
+          //login and get a token
+          String url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("remedyGrouperClient.webService.url");
+      
+          url = GrouperClientUtils.stripEnd(url, "/");
+          
+          String loginUrl = url + "/api/jwt/login";
+          
+          //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+          //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+          PostMethod postMethod = new PostMethod(loginUrl);
+      
+          //no keep alive so response is easier to indent for tests
+          postMethod.setRequestHeader("Connection", "close");
+          
+          postMethod.addParameter("username", username);
+          postMethod.addParameter("password", wsPass);
+          
+          int responseCodeInt = -1;
+      
+          long startTime = System.nanoTime();
+          try {
+            responseCodeInt = httpClient.executeMethod(postMethod);
+            
+            try {
+              jwtToken = postMethod.getResponseBodyAsString();
+            } catch (Exception e) {
+              debugMap.put("authnGetResponseAsStringException", ExceptionUtils.getStackTrace(e));
+            }
+            
+          } catch (Exception e) {
+            throw new RuntimeException("error in authn", e);
+          } finally {
+            debugMap.put("authnMillis", ((System.nanoTime() - startTime) / 1000000) + "ms");
+          }
+
+          if (responseCodeInt != 200) {
+            debugMap.put("authnResponseCodeInt", responseCodeInt);
+            // note jwt token in this case is not valid and is an error message
+            throw new RuntimeException("authn didnt return 200, it returned: " + responseCodeInt + ", " + jwtToken);
+          }
+
+          retrieveJwtTokenCache.put(Boolean.TRUE, jwtToken);
+
+        }
       }
-      
-    } catch (Exception e) {
-      throw new RuntimeException("error in authn", e);
-    } finally {
-      debugMap.put("authnMillis", ((System.nanoTime() - startTime) / 1000000) + "ms");
     }
-    
-    if (responseCodeInt != 200) {
-      debugMap.put("authnResponseCodeInt", responseCodeInt);
-      // note jwt token in this case is not valid and is an error message
-      throw new RuntimeException("authn didnt return 200, it returned: " + responseCodeInt + ", " + jwtToken);
-    }
-    
     return jwtToken;
   }
   
