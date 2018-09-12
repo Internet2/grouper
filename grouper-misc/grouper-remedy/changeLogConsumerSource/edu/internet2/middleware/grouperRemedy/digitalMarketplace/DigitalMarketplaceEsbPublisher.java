@@ -2,7 +2,7 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouperRemedy;
+package edu.internet2.middleware.grouperRemedy.digitalMarketplace;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,20 +12,17 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvent;
 import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
 import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
-import edu.internet2.middleware.grouperRemedy.GrouperRemedyFullRefresh;
-import edu.internet2.middleware.grouperRemedy.GrouperRemedyLog;
-import edu.internet2.middleware.grouperRemedy.GrouperRemedyMessageConsumer;
 
 
 /**
  * you can run this in the loader instead of through messaging
  */
-public class RemedyEsbPublisher extends EsbListenerBase {
+public class DigitalMarketplaceEsbPublisher extends EsbListenerBase {
 
   /**
    * 
    */
-  public RemedyEsbPublisher() {
+  public DigitalMarketplaceEsbPublisher() {
   }
 
   /**
@@ -34,16 +31,16 @@ public class RemedyEsbPublisher extends EsbListenerBase {
   @Override
   public boolean dispatchEvent(String jsonString, String consumerName) {
     
-    GrouperRemedyMessageConsumer.incrementalRefreshInProgress = true;
+    GrouperDigitalMarketplaceMessageConsumer.incrementalRefreshInProgress = true;
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     long startTimeNanos = System.nanoTime();
 
-    debugMap.put("method", "RemedyEsbPublisher.dispatchEvent");
+    debugMap.put("method", "DigitalMarketplaceEsbPublisher.dispatchEvent");
 
     try {
-      GrouperRemedyFullRefresh.waitForFullRefreshToEnd();
+      GrouperDigitalMarketplaceFullRefresh.waitForFullRefreshToEnd();
 
       EsbEvents esbEvents = GcDecodeEsbEvents.decodeEsbEvents(jsonString);
       esbEvents = GcDecodeEsbEvents.unencryptEsbEvents(esbEvents);
@@ -70,16 +67,16 @@ public class RemedyEsbPublisher extends EsbListenerBase {
       //not sure why there would be no events in there
       for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
 
-        GrouperRemedyMessageConsumer.processMessage(esbEvent);
+        GrouperDigitalMarketplaceMessageConsumer.processMessage(esbEvent);
 
       }
       
       return true;
     } finally {
 
-      GrouperRemedyMessageConsumer.incrementalRefreshInProgress = false;
+      GrouperDigitalMarketplaceMessageConsumer.incrementalRefreshInProgress = false;
 
-      GrouperRemedyLog.remedyLog(debugMap, startTimeNanos);
+      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTimeNanos);
     }
 
     
