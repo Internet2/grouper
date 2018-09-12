@@ -131,7 +131,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderUnresolvable"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderNoAuditsChangeLogForAttributes"));
   }
 
   /**
@@ -3636,5 +3636,48 @@ public class GrouperLoaderTest extends GrouperTest {
 
       GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }
+  }
+
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderNoAuditsChangeLogForAttributes() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    TestgrouperLoader subj0 = new TestgrouperLoader("id.test.subject.0", null, null);
+    testDataList.add(subj0);
+    TestgrouperLoader subj1 = new TestgrouperLoader("id.test.subject.1", null, null);
+    testDataList.add(subj1);
+    TestgrouperLoader subj2 = new TestgrouperLoader("id.test.subject.2", null, null);
+    testDataList.add(subj2);
+  
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_IDENTIFIER from testgrouper_loader");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup); 
+
+    //should be set.  make sure to pause so attributes will update to a different time
+    GrouperUtil.sleep(20000);
+    
+    int changeLogTempSize = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+    int auditSize = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_audit_entry");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup); 
+    
+    assertEquals(changeLogTempSize, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp"));
+    assertEquals(auditSize, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_audit_entry"));
+    
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+  
   }
 }
