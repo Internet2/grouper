@@ -2,7 +2,7 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouperRemedy;
+package edu.internet2.middleware.grouperRemedy.digitalMarketplace;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,44 +24,44 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 /**
  * This is for quartz outside of grouper, e.g. in a service
  */
-public class GrouperRemedySync {
+public class GrouperDigitalMarketplaceSync {
 
   /**
    * 
    */
-  public GrouperRemedySync() {
+  public GrouperDigitalMarketplaceSync() {
   }
 
   /**
    * @param args
    */
   public static void main(String[] args) {
-    grouperRemedySync();
+    grouperDigitalMarketplaceSync();
   }
 
   /**
    * 
    */
-  public static void grouperRemedySync() {
+  public static void grouperDigitalMarketplaceSync() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     long startTimeNanos = System.nanoTime();
 
     try {
-      debugMap.put("method", "grouperRemedySync");
+      debugMap.put("method", "grouperDigitalMarketplaceSync");
   
-      String cronStringFull = GrouperClientConfig.retrieveConfig().propertyValueString("grouperRemedy.fullSync.quartzCron");
+      String cronStringFull = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.fullSync.quartzCron");
   
       debugMap.put("cronStringFull", cronStringFull);
   
       if (!GrouperClientUtils.isBlank(cronStringFull)) {
         
-        JobDetail jobDetail = JobBuilder.newJob(GrouperRemedyFullRefresh.class)
-            .withIdentity("grouperRemedyFullSync")
+        JobDetail jobDetail = JobBuilder.newJob(GrouperDigitalMarketplaceFullRefresh.class)
+            .withIdentity("grouperDigitalMarketplaceFullSync")
             .build();
         
         Trigger trigger = TriggerBuilder.newTrigger()
-            .withIdentity("trigger_grouperRemedyFullSync")
+            .withIdentity("trigger_grouperDigitalMarketplaceFullSync")
             .withPriority(1)
             .withSchedule(CronScheduleBuilder.cronSchedule(cronStringFull))
             .build();
@@ -69,7 +69,7 @@ public class GrouperRemedySync {
         try {
           schedulerFactory().getScheduler().scheduleJob(jobDetail, GrouperClientUtils.toSet(trigger), true);
         } catch (Exception e) {
-          throw new RuntimeException("Problem scheduling job: grouperRemedyFullSync, '" + cronStringFull + "'", e);
+          throw new RuntimeException("Problem scheduling job: grouperDigitalMarketplaceFullSync, '" + cronStringFull + "'", e);
         }
         
         debugMap.put("scheduledFull", true);
@@ -77,18 +77,18 @@ public class GrouperRemedySync {
       }
       
       
-      String cronStringIncremental = GrouperClientConfig.retrieveConfig().propertyValueString("grouperRemedy.incrementalSync.quartzCron");
+      String cronStringIncremental = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.incrementalSync.quartzCron");
   
       debugMap.put("cronStringIncremental", cronStringIncremental);
   
       if (!GrouperClientUtils.isBlank(cronStringIncremental)) {
   
-        JobDetail jobDetail = JobBuilder.newJob(GrouperRemedyMessageConsumer.class)
-            .withIdentity("grouperRemedyMessageConsumer")
+        JobDetail jobDetail = JobBuilder.newJob(GrouperDigitalMarketplaceMessageConsumer.class)
+            .withIdentity("grouperDigitalMarketplaceMessageConsumer")
             .build();
         
         Trigger trigger = TriggerBuilder.newTrigger()
-            .withIdentity("trigger_grouperRemedyMessageConsumer")
+            .withIdentity("trigger_grouperDigitalMarketplaceMessageConsumer")
             .withPriority(1)
             .withSchedule(CronScheduleBuilder.cronSchedule(cronStringIncremental))
             .build();
@@ -96,7 +96,7 @@ public class GrouperRemedySync {
         try {
           schedulerFactory().getScheduler().scheduleJob(jobDetail, GrouperClientUtils.toSet(trigger), true);
         } catch (Exception e) {
-          throw new RuntimeException("Problem scheduling job: grouperRemedyMessageConsumer, '" + cronStringIncremental + "'", e);
+          throw new RuntimeException("Problem scheduling job: grouperDigitalMarketplaceMessageConsumer, '" + cronStringIncremental + "'", e);
         }
         debugMap.put("scheduledIncremental", true);
   
@@ -104,7 +104,7 @@ public class GrouperRemedySync {
       
       //you must configure one of these
       if (GrouperClientUtils.isBlank(cronStringFull) && GrouperClientUtils.isBlank(cronStringIncremental)) {
-        throw new RuntimeException("Did not configure grouper.client.properties grouperRemedy.fullSync.quartzCron or grouperRemedy.incrementalSync.quartzCron!");
+        throw new RuntimeException("Did not configure grouper.client.properties grouperDigitalMarketplace.fullSync.quartzCron or grouperDigitalMarketplace.incrementalSync.quartzCron!");
       }
       
       // delay starting the scheduler until the end to make sure things that need to be unscheduled are taken care of first?
@@ -118,7 +118,7 @@ public class GrouperRemedySync {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperRemedyLog.remedyLog(debugMap, startTimeNanos);
+      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTimeNanos);
     }
   }
   
