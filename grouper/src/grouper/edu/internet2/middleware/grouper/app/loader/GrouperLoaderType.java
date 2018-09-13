@@ -1060,6 +1060,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
@@ -1075,10 +1076,6 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName(), attributeName)
             ;
-        
-        //not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
-
-        
       }
       
       /**
