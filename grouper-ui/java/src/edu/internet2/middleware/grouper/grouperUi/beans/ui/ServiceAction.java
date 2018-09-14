@@ -3,30 +3,44 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author vsachdeva
  *
  */
 public class ServiceAction {
   
+  private String id;
+  
   private GrouperTemplateLogicBase service;
   
   private int indentLevel;
   
-  private String type;
+  private ServiceActionType serviceActionType;
   
-  private String arg0;
-
-  private String arg1;
+  private List<ServiceActionArgument> args = new ArrayList<ServiceActionArgument>();
   
-  private String arg2;
+  private String externalizedKey;
   
-  private String externalizedkey;
-  
-  private boolean defaulChecked;
+  private boolean defaultChecked;
   
   private boolean checkSubmitted;
   
+  private ServiceAction parentServiceAction;
+  
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
 
   public GrouperTemplateLogicBase getService() {
     return service;
@@ -34,6 +48,15 @@ public class ServiceAction {
 
   public void setService(GrouperTemplateLogicBase service) {
     this.service = service;
+  }
+  
+
+  public List<ServiceActionArgument> getArgs() {
+    return args;
+  }
+
+  public void setArgs(List<ServiceActionArgument> args) {
+    this.args = args;
   }
 
   public int getIndentLevel() {
@@ -44,52 +67,29 @@ public class ServiceAction {
     this.indentLevel = indentLevel;
   }
 
-  public String getType() {
-    return type;
+  public ServiceActionType getServiceActionType() {
+    return serviceActionType;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setServiceActionType(ServiceActionType serviceActionType) {
+    this.serviceActionType = serviceActionType;
   }
 
-  public String getArg0() {
-    return arg0;
+
+  public String getExternalizedKey() {
+    return externalizedKey;
   }
 
-  public void setArg0(String arg0) {
-    this.arg0 = arg0;
+  public void setExternalizedKey(String externalizedKey) {
+    this.externalizedKey = externalizedKey;
   }
 
-  public String getArg1() {
-    return arg1;
+  public boolean isDefaultChecked() {
+    return defaultChecked;
   }
 
-  public void setArg1(String arg1) {
-    this.arg1 = arg1;
-  }
-
-  public String getArg2() {
-    return arg2;
-  }
-
-  public void setArg2(String arg2) {
-    this.arg2 = arg2;
-  }
-
-  public String getExternalizedkey() {
-    return externalizedkey;
-  }
-
-  public void setExternalizedkey(String externalizedkey) {
-    this.externalizedkey = externalizedkey;
-  }
-
-  public boolean isDefaulChecked() {
-    return defaulChecked;
-  }
-
-  public void setDefaulChecked(boolean defaulChecked) {
-    this.defaulChecked = defaulChecked;
+  public void setDefaultChecked(boolean defaulChecked) {
+    this.defaultChecked = defaulChecked;
   }
 
   public boolean isCheckSubmitted() {
@@ -98,6 +98,44 @@ public class ServiceAction {
 
   public void setCheckSubmitted(boolean checkSubmitted) {
     this.checkSubmitted = checkSubmitted;
+  }
+  
+  
+  public ServiceAction getParentServiceAction() {
+    return parentServiceAction;
+  }
+
+  public void setParentServiceAction(ServiceAction parentServiceAction) {
+    this.parentServiceAction = parentServiceAction;
+  }
+
+  public Map<String, String> getArgMap() {
+    Map<String, String> argsMap = new HashMap<String, String>();
+    
+    for (ServiceActionArgument arg: args) {
+      argsMap.put(arg.getName(), arg.getValue());
+    }
+    
+    return argsMap;
+  }
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof ServiceAction)) {
+      return false;
+    }
+    return StringUtils.equals(this.id, ((ServiceAction)obj).id);
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return StringUtils.defaultString(this.id).hashCode();
   }
   
   

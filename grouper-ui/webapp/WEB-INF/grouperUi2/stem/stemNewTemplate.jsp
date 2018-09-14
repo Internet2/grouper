@@ -14,15 +14,17 @@
             <option value="">
             </option>
             
-            <option value="service" ${grouperRequestContainer.stemTemplateContainer.templateType == 'service' ? 'selected="selected"' : '' }>
-              ${textContainer.textEscapeXml['stemTemplateTypeServiceLabel']}
-            </option>
-                                  
+            <c:forEach items="${grouperRequestContainer.stemTemplateContainer.templateOptions}"
+                 var="templateOption">
+              <option value="${templateOption.key}"
+              ${grouperRequestContainer.stemTemplateContainer.templateType == templateOption.key ? 'selected="selected"' : '' }>${templateOption.value}</option>
+            </c:forEach>
+                                              
         </select> <br /> <span class="description">${textContainer.text['stemTemplateTypeDescription']}</span>
         </td>
       </tr>
       
-      <c:if test="${grouperRequestContainer.stemTemplateContainer.templateType == 'service'}">
+      <c:if test="${grouperRequestContainer.stemTemplateContainer.templateLogic.promptForKeyAndLabelAndDescription}">
       
 	      <tr>
 	        <td style="vertical-align: top; white-space: nowrap;"><strong><label
@@ -78,6 +80,24 @@
       
       </c:if>
       
+
+      <c:if test="${! empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
+      <tr>
+      <td colspan="2">
+	      <c:forEach items="${grouperRequestContainer.stemTemplateContainer.serviceActions}" var="serviceAction">
+	       
+          <div style="margin: 10px;">
+		        <c:set target="${grouperRequestContainer.stemTemplateContainer}" property="currentServiceAction" value="${serviceAction}" />
+		        <span style="padding-left: ${serviceAction.indentLevel * 20}px;">
+			        <input type="checkbox" name="serviceActionId" value="${serviceAction.id}" ${serviceAction.defaultChecked == true ? 'checked="checked"' : '' } />
+		          ${textContainer.text[serviceAction.externalizedKey]}
+	          </span> 
+	        </div>
+	      </c:forEach>
+	       </td>
+      </tr> 
+      </c:if>
+     
 
       <tr>
         <td></td>

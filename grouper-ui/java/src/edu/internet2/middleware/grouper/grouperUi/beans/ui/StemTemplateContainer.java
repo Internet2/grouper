@@ -3,7 +3,11 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author vsachdeva
@@ -19,7 +23,13 @@ public class StemTemplateContainer {
   
   private String templateDescription;
   
-  private List<ServiceAction> serviceActions;
+  private List<ServiceAction> serviceActions = new ArrayList<ServiceAction>();
+  
+  private GrouperTemplateLogicBase templateLogic;
+  
+  private ServiceAction currentServiceAction;
+  
+  private Map<String, String> templateOptions = new HashMap<String, String>();
   
 
   public String getTemplateType() {
@@ -52,6 +62,31 @@ public class StemTemplateContainer {
 
   public void setTemplateDescription(String templateDescription) {
     this.templateDescription = templateDescription;
+  }
+
+
+  public GrouperTemplateLogicBase getTemplateLogic() {
+    return templateLogic;
+  }
+
+  public void setTemplateLogic(GrouperTemplateLogicBase templateLogic) {
+    this.templateLogic = templateLogic;
+  }
+
+  public ServiceAction getCurrentServiceAction() {
+    return currentServiceAction;
+  }
+
+  public void setCurrentServiceAction(ServiceAction currentServiceAction) {
+    this.currentServiceAction = currentServiceAction;
+  }
+
+  public Map<String, String> getTemplateOptions() {
+    return templateOptions;
+  }
+
+  public void setTemplateOptions(Map<String, String> templateOptions) {
+    this.templateOptions = templateOptions;
   }
 
   public List<ServiceAction> getServiceActions() {

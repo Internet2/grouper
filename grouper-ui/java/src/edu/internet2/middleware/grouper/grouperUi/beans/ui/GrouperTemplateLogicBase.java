@@ -9,7 +9,7 @@ public abstract class GrouperTemplateLogicBase {
   private String systemNameExtension;
   
   private String friendlyNameExtension;
-
+  
   public String getStemId() {
     return stemId;
   }
@@ -34,8 +34,43 @@ public abstract class GrouperTemplateLogicBase {
     this.friendlyNameExtension = friendlyNameExtension;
   }
   
+  public boolean isPromptForKeyAndLabelAndDescription() {
+    return true;
+  }
   
-  public abstract List<ServiceAction> displayOnScreen();
+  
+  /**
+   *
+   * @param selectedServiceActions - list of service actions selected by user on the UI
+   */
+  public boolean validate(List<ServiceAction> selectedServiceActions) {
+
+    for (ServiceAction serviceAction: selectedServiceActions) {
+      
+      ServiceAction temp = new ServiceAction();
+      temp.setId(serviceAction.getId());
+      temp.setParentServiceAction(serviceAction.getParentServiceAction());
+      
+      // for each selected service action, go through the hierarchy upwards and make sure everything is selected.
+      while (temp.getParentServiceAction() != null) {
+         if (!selectedServiceActions.contains(temp.getParentServiceAction())) {
+           return false;
+         }
+         ServiceAction tempTemp = temp.getParentServiceAction();
+         temp = new ServiceAction();
+         temp.setId(tempTemp.getId());
+         temp.setParentServiceAction(tempTemp.getParentServiceAction());
+      }
+      
+    }
+    
+    return true;
+  }
+  
+  
+  public abstract List<ServiceAction> getServiceActions();
+  
+  public abstract String getSelectLabelKey();
   
   
 }
