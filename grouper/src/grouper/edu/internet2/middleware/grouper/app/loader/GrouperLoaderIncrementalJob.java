@@ -287,6 +287,7 @@ public class GrouperLoaderIncrementalJob implements Job {
           
           if (isSQLLoader) {
 
+            final String grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
             final String grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_QUERY);
             final String grouperLoaderAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_AND_GROUPS);
             final String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
@@ -299,7 +300,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                 public Void callLogic() {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                   processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, 
-                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderQuery);
+                      GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderQuery, grouperLoaderDbName);
                   return null;
                 }
               };
@@ -683,8 +684,10 @@ public class GrouperLoaderIncrementalJob implements Job {
   private static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
       Group loaderGroup, String grouperLoaderType, 
       Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
-      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderQuery) {
+      String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderQuery, String grouperLoaderDbName) {
     
+    GrouperLoaderDb grouperLoaderDbForLoaderSource = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
+
     Connection connection = null;
 
     try {
@@ -714,12 +717,14 @@ public class GrouperLoaderIncrementalJob implements Job {
           loaderQueryForUser += " and subject_source_id = ?";
         }
         
+        Connection connectionForLoaderSource = null;
         PreparedStatement statement2 = null;
         ResultSet resultSet2 = null;
         boolean isMemberInSource = false;
   
         try {
-          statement2 = connection.prepareStatement(loaderQueryForUser);
+          connectionForLoaderSource = grouperLoaderDbForLoaderSource.connection();
+          statement2 = connectionForLoaderSource.prepareStatement(loaderQueryForUser);
           statement2.setString(1, subjectValue);
           if (sourceId != null) {
             statement2.setString(2, sourceId);
@@ -729,6 +734,7 @@ public class GrouperLoaderIncrementalJob implements Job {
             isMemberInSource = true;
           }
         } finally {
+          GrouperUtil.closeQuietly(connectionForLoaderSource);
           GrouperUtil.closeQuietly(resultSet2);
           GrouperUtil.closeQuietly(statement2);
         }
@@ -800,12 +806,14 @@ public class GrouperLoaderIncrementalJob implements Job {
           loaderQueryForUser += " and subject_source_id = ?";
         }
         
+        Connection connectionForLoaderSource = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         Set<String> membershipsInSource = new LinkedHashSet<String>();
   
         try {
-          statement = connection.prepareStatement(loaderQueryForUser);
+          connectionForLoaderSource = grouperLoaderDbForLoaderSource.connection();
+          statement = connectionForLoaderSource.prepareStatement(loaderQueryForUser);
           statement.setString(1, subjectValue);
           if (sourceId != null) {
             statement.setString(2, sourceId);
@@ -818,6 +826,7 @@ public class GrouperLoaderIncrementalJob implements Job {
             }
           }
         } finally {
+          GrouperUtil.closeQuietly(connectionForLoaderSource);
           GrouperUtil.closeQuietly(resultSet);
           GrouperUtil.closeQuietly(statement);
         }
