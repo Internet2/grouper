@@ -14,6 +14,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+await-mysql-server
+await-ldap-server
+
 tempfile_into_T
 cat >$T <<EOF
 gs = GrouperSession.startRootSession();
@@ -24,7 +27,9 @@ echo Running GSH with:
 cat $T
 echo ===
 
-ERRORS=$($GSH < $T 2>&1 | grep_ ERROR)
+$GSH < $T 2>&1 | tee $T.out
+
+ERRORS=$(grep_ ERROR $T.out)
 
 if [ -z "$ERRORS" ]; then
   echo Subject source is working

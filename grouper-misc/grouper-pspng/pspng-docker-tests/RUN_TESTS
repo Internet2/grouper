@@ -48,6 +48,10 @@ fi
 tempdir_into_T
 export TT="$T"
 
+# Enable tests to depend on each other
+export KEEP_VOLUMES=yes 
+export TEST_HISTORY_DIR="$TT/history"
+
 # A file for the progress
 touch $TT/progress
 function log_progress {

@@ -39,49 +39,37 @@ test_start "$ME" "Pspng ($flavor): incremental provisioning after rogue member a
 
 create_grouper_daemon_config
 
+run_after_parent_test test02a-basic-provisioning.sh
+
 ################
 ## START DOCKER
 
-start_docker "${ME}_$flavor"
+start_docker "${ME}_$flavor" 
 
-
+init_test_scenario_variables
 wait_for_grouper_daemon_to_be_running
-
-create_test_folder
-
-mark_test_folder_for_provisioning
-
-# Create the groups and add a member to make sure groups get created even when members are required
-create_group1_and_group2
-add_group1_to_group2
-add_members_to_group1 banderson 
-await_changelog_catchup
-
-
-validate_provisioning "$GROUP1_NAME" "banderson"
-validate_provisioning "$GROUP2_NAME" "banderson"
 
 #pre-add some users to group1 and group2 outside of grouper (rogue ldap additions)
 log_always "Adding members the wrong way (directly in ldap)
-directly_add_member "$GROUP1_NAME" bbrown705
-directly_add_member "$GROUP1_NAME" agasper
-directly_add_member "$GROUP2_NAME" agasper
+directly_add_member "$GROUP1_NAME" kwhite
+directly_add_member "$GROUP1_NAME" ddavis
+directly_add_member "$GROUP2_NAME" ddavis
 
 # This is what we expect in our kludged group memberships
-validate_provisioning "$GROUP1_NAME" "banderson,agasper,bbrown705"
-validate_provisioning "$GROUP2_NAME" "agasper,banderson"
+validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705,ddavis,kwhite"
+validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705,ddavis"
 
 
-# Now, add agasper and bbrown705 to the groups in grouper (the proper way)
+# Now, add kwhite and ddavis to the groups in grouper (the proper way)
 log_always "Adding members the right way (in grouper)"
-add_members_to_group1 agasper bbrown705
+add_members_to_group1 kwhite ddavis
 
 #make sure everything is right
 await_changelog_catchup
 
 #make sure everything has converged to the proper state
-validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705"
-validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
+validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705,ddavis,kwhite"
+validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705,ddavis,kwhite"
 
 #make sure extra groups were not provisioned
 validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"

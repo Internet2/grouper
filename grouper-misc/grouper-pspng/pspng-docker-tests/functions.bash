@@ -179,3 +179,8 @@ function tempdir_into_T
   cleanup_files_on_exit "$T"
 }
 
+function hash_directory_contents
+{
+  local dir="${1:?USAGE: hash_directory_contents <directory>}"
+  (cd $dir; find . -type f -print0 | sort -z | xargs -0 shasum | shasum | awk '{print $1}')
+}

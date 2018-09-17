@@ -29,18 +29,21 @@ test_subject_source()
   fi
 }
 
-wait_for_grouper_daemon_to_be_running()
+await_servers ()
 {
-  GROUPER_LOG_LINE_NUMBER=0
-
   test_step "Waiting for daemons to start"
   run_in_grouper_daemon await-ldap-server || test_failure "LDAP server never started"
   run_in_grouper_daemon await-mysql-server || test_failure "MySql server never started"
   run_in_grouper_daemon await-grouper-loader || test_failure "Grouper loader never started"
+}
 
-  test_is_starting
+wait_for_grouper_daemon_to_be_running()
+{
+  GROUPER_LOG_LINE_NUMBER=0
 
-  test_step "Waiting for changelog processing to complete (so changelog consumer will be initialized (so it will definitely see test-folder event))"
+  await_servers
+
+  test_step "Waiting for changelog processing to complete (so changelog consumer will be initialized)"
   run_in_grouper_daemon await-changelog-completion --log_line_number $GROUPER_LOG_LINE_NUMBER --time_limit_secs 90
   GROUPER_LOG_LINE_NUMBER=$(run_in_grouper_daemon cat $API/logs/grouper_error.log | wc -l)
 }
@@ -120,7 +123,7 @@ await_changelog_catchup()
   local message="${1:-after ${TEST_STEP:-}}"
 
   test_step "Waiting for changelog processing to complete ($message)"
-  run_in_grouper_daemon await-changelog-completion --log_line_number $GROUPER_LOG_LINE_NUMBER --time_limit_secs 90
+  run_in_grouper_daemon await-changelog-completion --log_line_number ${GROUPER_LOG_LINE_NUMBER:-0} --time_limit_secs 90
   GROUPER_LOG_LINE_NUMBER=$(run_in_grouper_daemon cat $API/logs/grouper_error.log | wc -l)
 }
 
@@ -129,7 +132,7 @@ await_full_sync()
   local message="${1:-after ${TEST_STEP:-}}"
 
   test_step "Waiting for full-sync cycle to complete ($message)"
-  run_in_grouper_daemon await-full-sync-cycle --log_line_number $GROUPER_LOG_LINE_NUMBER --time_limit_secs 90
+  run_in_grouper_daemon await-full-sync-cycle --log_line_number ${GROUPER_LOG_LINE_NUMBER:-0} --time_limit_secs 90
   GROUPER_LOG_LINE_NUMBER=$(run_in_grouper_daemon cat $API/logs/grouper_error.log | wc -l)
 }
 

@@ -16,8 +16,7 @@ volumes:
 
 services:
   grouper-daemon:
-    #image: ${DAEMON_IMAGE:-grouper-pspng-devel}
-    build: ${DAEMON_BUILD_DIR:-grouper-pspng-devel}
+    build: grouper-pspng-${GROUPER_VERSION:-devel}
     depends_on: 
       - ldap
       - db

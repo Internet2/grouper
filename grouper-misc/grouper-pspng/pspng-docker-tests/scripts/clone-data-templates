@@ -10,9 +10,10 @@ PATH="../scripts:$PATH"
 
 . ../scripts/shflags
 
+DEFINE_string source_suffix "template" "What source suffix should data come from?"
 DEFINE_string volume_suffix "$$" "What suffix should data volumes have?"
 
-FLAGS_HELP="$(basename "$ME") [--volume_suffix <suffix>]"
+FLAGS_HELP="$(basename "$ME") [--source_suffix <suffix>] [--volume_suffix <suffix>]"
 
 FLAGS "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
@@ -28,8 +29,8 @@ for volume in db-data ldap-data ldap-config; do
     docker volume rm $NEW_VOLUME
   fi
 
-  log_always "Cloning ${volume}-template"
-  docker_clone_volume.sh ${volume}-template $NEW_VOLUME 1>&2
+  log_always "Cloning ${volume}-${FLAGS_source_suffix}"
+  docker_clone_volume.sh ${volume}-${FLAGS_source_suffix} $NEW_VOLUME 1>&2
 done
 
 log_always Done

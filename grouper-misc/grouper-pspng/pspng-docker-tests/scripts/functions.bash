@@ -1,5 +1,5 @@
-API=/opt/grouper/grouper.apiBinary
-GSH=gsh_
+export API=/opt/grouper/grouper.apiBinary
+export GSH=gsh_
 
 # Print "Date Message" to stderr.
 # Note, that this assumes printf-style arguments
