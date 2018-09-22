@@ -21,6 +21,7 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.groovy.tools.shell.Groovysh;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -121,6 +123,9 @@ public class GrouperShell {
 
   /** if running from GSH */
   public static boolean runFromGsh = false;
+  
+  /** if running from GSH interactively */
+  private static boolean runFromGshInteractive = false;
   
   private static ThreadLocal<String> groovyPreloadString = new ThreadLocal<String>();
   
@@ -290,11 +295,50 @@ private static boolean handleSpecialCase(String[] args) {
         body.append("\n:exit");
       } else if (inputStreamParam != null) {
         throw new RuntimeException("Unexpected (for now at least)");
+      } else {
+        runFromGshInteractive = true;
       }
       
       groovyPreloadString.set(body.toString());
-      org.codehaus.groovy.tools.shell.Main.main(new String[] { "-e", body.toString() });
+      //org.codehaus.groovy.tools.shell.Main.main(new String[] { "-e", body.toString() });
+      
+      boolean exitOnNonInteractiveError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
+      
+      final Groovysh shell = new GrouperGroovysh(exitOnNonInteractiveError);
+      
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        public void run() {
+          try {
+            if (shell.getHistory() != null) {
+              shell.getHistory().flush();
+            }
+          } catch (IOException e) {
+            System.err.println("Error flushing GSH history: " + ExceptionUtils.getFullStackTrace(e));
+          }
+        }
+      });
+      
+      int code = shell.run(body.toString());
+
+      System.exit(code);
     }
+  }
+  
+  /**
+   * @param command
+   * @param t
+   */
+  public static void handleFileLoadError(String command, Throwable t) {
+    // This gets called when loading a file.
+    // Note that this gets invoked (mostly) during a caught exception.  If an exception is thrown here, the gsh error handle (displayError) will end up being called.
+    // If we just print the error, then the processing will continue (e.g. next line of gsh file).
+    boolean exitOnNonInteractiveError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
+    String error = "Error while running command (" + command +  ")";
+    if (exitOnNonInteractiveError) {
+      throw new RuntimeException(error, t);
+    }
+      
+    System.err.println(error + ": " + ExceptionUtils.getFullStackTrace(t));
   }
   
   /**

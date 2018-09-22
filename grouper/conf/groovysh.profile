@@ -19,7 +19,7 @@ class GSHFileLoad extends CommandSupport {
     assert args != null
 
     if (args.size() == 0) {
-      fail("Command 'gshFileLoad' requires at least one argument")
+      throw new RuntimeException("Command 'gshFileLoad' requires at least one argument")
     }
 
     for (source in args) {
@@ -28,7 +28,7 @@ class GSHFileLoad extends CommandSupport {
       def file = new File("$source")
 
       if (!file.exists()) {
-        fail("File not found: \"$file\"")
+        throw new RuntimeException("File not found: \"$file\"")
       }
 
       URL url = file.toURI().toURL()
@@ -57,7 +57,7 @@ class GSHFileLoad extends CommandSupport {
         try {
           shell << it as String
         } catch (Throwable t) {
-          t.printStackTrace();
+          GrouperShell.handleFileLoadError(it, t);
         }
       }
     }
