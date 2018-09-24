@@ -55,7 +55,7 @@ public class GrouperWsCommandsForDigitalMarketplace {
    */
   private static ExpirableCache<Boolean, Map<String, String[]>> retrieveGrouperUsersCache() {
     if (retrieveGrouperUsersCache == null) {
-      int expireMinutes = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperDigitalWorkplace.cacheGrouperUsersForMinutes", 60);
+      int expireMinutes = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperDigitalMarketplace.cacheGrouperUsersForMinutes", 60);
       retrieveGrouperUsersCache = new ExpirableCache(expireMinutes);
     }
     return retrieveGrouperUsersCache;
@@ -73,7 +73,7 @@ public class GrouperWsCommandsForDigitalMarketplace {
       return result;
     }
 
-    String digitalMarketplaceGrouperRequireGroupName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalWorkplace.requireGroup");
+    String digitalMarketplaceGrouperRequireGroupName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.requireGroup");
     if (GrouperClientUtils.isBlank(digitalMarketplaceGrouperRequireGroupName)) {
       return null;
     }

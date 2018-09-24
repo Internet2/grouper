@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperRemedy.digitalMarketplace;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +21,7 @@ import org.quartz.PersistJobDataAfterExecution;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessage;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
@@ -304,8 +306,20 @@ public class GrouperDigitalMarketplaceMessageConsumer implements Job {
         
         if (GrouperClientUtils.equals(eventType, "GROUP_ADD")) {
           if (!remedyGroupWhichHasAllowedUsers) {
-            //create remedy group
-  //          GrouperDigitalMarketplaceCommands.createDigitalMarketplaceGroup(groupExtension, true);
+            // get the group in grouper
+            List<WsGroup> wsGroups = GrouperWsCommandsForDigitalMarketplace.retrieveGrouperGroups();
+            
+            WsGroup wsGroupInGrouper = null;
+            for (WsGroup wsGroup : wsGroups) {
+              if (GrouperClientUtils.equals(groupExtension, wsGroup.getExtension())) {
+                wsGroupInGrouper = wsGroup;
+              }
+            }
+            if (wsGroupInGrouper != null) {
+              //create remedy group
+              GrouperDigitalMarketplaceCommands.createDigitalMarketplaceGroup(groupExtension, 
+                  wsGroupInGrouper.getDisplayExtension(), wsGroupInGrouper.getDescription(), true);
+            }
           }
   
         } else if (GrouperClientUtils.equals(eventType, "GROUP_DELETE")) {

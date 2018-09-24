@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperRemedy;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,6 +31,73 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class GrouperRemedyFullRefresh implements Job {
+
+  /**
+   * 
+   */
+  private int deleteCount;
+  
+  /**
+   * 
+   */
+  private int insertCount;
+
+  /**
+   * 
+   */
+  private int totalCount;
+
+  /**
+   * 
+   */
+  private int millisGetData;
+  
+  /**
+   * 
+   */
+  private int millisLoadData;
+
+  
+  
+  
+  /**
+   * @return the deleteCount
+   */
+  public int getDeleteCount() {
+    return this.deleteCount;
+  }
+
+  
+  /**
+   * @return the insertCount
+   */
+  public int getInsertCount() {
+    return this.insertCount;
+  }
+
+  
+  /**
+   * @return the totalCount
+   */
+  public int getTotalCount() {
+    return this.totalCount;
+  }
+
+  
+  /**
+   * @return the millisGetData
+   */
+  public int getMillisGetData() {
+    return this.millisGetData;
+  }
+
+  
+  /**
+   * @return the millisLoadData
+   */
+  public int getMillisLoadData() {
+    return this.millisLoadData;
+  }
 
   /** when was last full refresh started */
   private static long lastFullRefreshStart = -1L;
@@ -71,7 +139,6 @@ public class GrouperRemedyFullRefresh implements Job {
 
     fullRefreshLogic();
 
-    
   }
 
   /**
@@ -101,6 +168,13 @@ public class GrouperRemedyFullRefresh implements Job {
    * full refresh logic
    */
   public static void fullRefreshLogic() {
+    new GrouperRemedyFullRefresh().fullRefreshLogicHelper();
+  }
+    
+  /**
+   * full refresh logic
+   */
+  public void fullRefreshLogicHelper() {
     
     fullRefreshInProgress = true;
     
@@ -151,79 +225,74 @@ public class GrouperRemedyFullRefresh implements Job {
       }
       
       //get groups from remedy
-      Map<Long, GrouperRemedyGroup> remedyGroupNameToGroupMap = GrouperRemedyCommands.retrieveRemedyGroups();
+      Map<Long, GrouperRemedyGroup> remedyGroupNumericNameToGroupMap = GrouperRemedyCommands.retrieveRemedyGroups();
 
-      debugMap.put("remedyGroupCount", remedyGroupNameToGroupMap.size());
+      debugMap.put("remedyGroupCount", remedyGroupNumericNameToGroupMap.size());
 
-      debugMap.put("millisGetData", System.currentTimeMillis() - startedMillis);
+      Map<String, GrouperRemedyGroup> remedyGroupStringNameToGroupMap = new HashMap<String, GrouperRemedyGroup>();
+      for (GrouperRemedyGroup grouperRemedyGroup : remedyGroupNumericNameToGroupMap.values()) {
+        remedyGroupStringNameToGroupMap.put(grouperRemedyGroup.getPermissionGroup(), grouperRemedyGroup);
+      }
+
+      
+      this.millisGetData = (int)(System.currentTimeMillis() - startedMillis);
+
+      debugMap.put("millisGetData", this.millisGetData);
       long startedUpdateData = System.currentTimeMillis();
 
       boolean needsGroupRefresh = false;
       
-      int insertCount = 0;
-      int deleteCount = 0;
-      int unresolvableCount = 0;
-      int totalCount = 0;
+      this.insertCount = 0;
+      this.deleteCount = 0;
+      this.totalCount = 0;
       
       //which groups are in remedy and not in grouper?
-      Set<Long> groupExtensionsInRemedyNotInGrouper = new TreeSet<Long>();
+      Set<String> groupStringExtensionsInRemedyNotInGrouper = new TreeSet<String>();
       
-      for (GrouperRemedyGroup grouperRemedyGroup : remedyGroupNameToGroupMap.values()) {
+      for (GrouperRemedyGroup grouperRemedyGroup : remedyGroupNumericNameToGroupMap.values()) {
         if (grouperRemedyGroup.isEnabled()) {
-          groupExtensionsInRemedyNotInGrouper.add(grouperRemedyGroup.getPermissionGroupId());
+          groupStringExtensionsInRemedyNotInGrouper.add(grouperRemedyGroup.getPermissionGroup());
         }
       }
       
       for (String grouperExtension : grouperGroupExtensionToGroupMap.keySet()) {
-        try {
-          Long theLong = GrouperClientUtils.longObjectValue(grouperExtension, false);
-          groupExtensionsInRemedyNotInGrouper.remove(theLong);
-        } catch (Exception e) {
-          LOG.debug("Cant convert extension: '" + grouperExtension + "'", e);
-          //ignore
-        }
+        groupStringExtensionsInRemedyNotInGrouper.remove(grouperExtension);
       }
             
-      for (Long groupExtensionToRemove : groupExtensionsInRemedyNotInGrouper) {
-        GrouperRemedyGroup grouperRemedyGroup = remedyGroupNameToGroupMap.get(groupExtensionToRemove.toString());
-        //ignore this, we are not deleting groups
-        
-        //create in grouper
-        String displayExtension = grouperRemedyGroup.getPermissionGroup();
-        try {
-          GrouperWsCommandsForRemedy.createGrouperGroup(groupExtensionToRemove.toString(), groupExtensionToRemove.toString() + "_" + displayExtension);
-        } catch (Exception e) {
-          LOG.error("Cant create group: '" + groupExtensionToRemove + "', '" + displayExtension + "'", e);
-        }
-        
-      }
+//      for (Long groupExtensionToRemove : groupExtensionsInRemedyNotInGrouper) {
+//        GrouperRemedyGroup grouperRemedyGroup = remedyGroupNameToGroupMap.get(groupExtensionToRemove.toString());
+//        //ignore this, we are not deleting groups
+//        
+//        //create in grouper
+//        String displayExtension = grouperRemedyGroup.getPermissionGroup();
+//        try {
+//          GrouperWsCommandsForRemedy.createGrouperGroup(groupExtensionToRemove.toString(), groupExtensionToRemove.toString() + "_" + displayExtension);
+//        } catch (Exception e) {
+//          LOG.error("Cant create group: '" + groupExtensionToRemove + "', '" + displayExtension + "'", e);
+//        }
+//        
+//      }
 
 
       if (needsGroupRefresh) {
         //lets get them again if some were created
-        remedyGroupNameToGroupMap = GrouperRemedyCommands.retrieveRemedyGroups();
+        remedyGroupNumericNameToGroupMap = GrouperRemedyCommands.retrieveRemedyGroups();
+        
+        remedyGroupStringNameToGroupMap = new HashMap<String, GrouperRemedyGroup>();
+        for (GrouperRemedyGroup grouperRemedyGroup : remedyGroupNumericNameToGroupMap.values()) {
+          remedyGroupStringNameToGroupMap.put(grouperRemedyGroup.getPermissionGroup(), grouperRemedyGroup);
+        }
       }
       
       //loop through groups in grouper
       for (String groupExtensionInGrouper : grouperGroupExtensionToGroupMap.keySet()) {
         
         WsGroup grouperGroup = grouperGroupExtensionToGroupMap.get(groupExtensionInGrouper);
-        
-        Long groupExtensionInGrouperLong = null;
-        try {
-          groupExtensionInGrouperLong = GrouperClientUtils.longObjectValue(groupExtensionInGrouper, false);
-        } catch (Exception e) {
-          LOG.debug("Cant convert extension: '" + groupExtensionInGrouperLong + "'", e);
-          //ignore
-        }
 
-        if (groupExtensionInGrouperLong == null) {
-          continue;
-        }
-        
-        GrouperRemedyGroup grouperRemedyGroup = remedyGroupNameToGroupMap.get(groupExtensionInGrouperLong);
+        GrouperRemedyGroup grouperRemedyGroup = remedyGroupStringNameToGroupMap.get(grouperGroup.getExtension());
         
         if (grouperRemedyGroup == null || !grouperRemedyGroup.isEnabled()) {
+          debugMap.put("groupDoesntExistInRemedy_" + grouperGroup.getExtension(), "true");
           LOG.error("Group doesnt exist in remedy: " + groupExtensionInGrouper);
           continue;
         }
@@ -232,7 +301,7 @@ public class GrouperRemedyFullRefresh implements Job {
         Set<String> grouperUsernamesInGroup = GrouperWsCommandsForRemedy.retrieveGrouperMembershipsForGroup(grouperGroup.getName());
 
         debugMap.put("grouperSubjectCount_" + grouperGroup.getExtension(), grouperUsernamesInGroup.size());
-        totalCount += grouperUsernamesInGroup.size();
+        this.totalCount += grouperUsernamesInGroup.size();
         
         //see which users are not in Remedy
         Set<String> grouperUsernamesNotInRemedy = new TreeSet<String>(grouperUsernamesInGroup);
@@ -250,7 +319,7 @@ public class GrouperRemedyFullRefresh implements Job {
           if (grouperRemedyUser == null) {
             userCountNotInRemedy++;
           } else {
-            insertCount++;
+            this.insertCount++;
             try {
               grouperRemedyGroup.assignUserToGroup(grouperRemedyUser, false);
             } catch (Exception e) {
@@ -277,7 +346,7 @@ public class GrouperRemedyFullRefresh implements Job {
             LOG.error("Cant remove membership: '" + grouperRemedyGroup.getPermissionGroupId() + ", " 
                 + grouperRemedyGroup.getPermissionGroup() + "', '" + grouperRemedyUser.getRemedyLoginId() + "'", e);
           }
-          deleteCount++;
+          this.deleteCount++;
         }
         
       }
@@ -294,13 +363,14 @@ public class GrouperRemedyFullRefresh implements Job {
 //        
 //      }
       
-      debugMap.put("millisLoadData", System.currentTimeMillis() - startedUpdateData);
+      this.millisLoadData = (int)(System.currentTimeMillis() - startedUpdateData);
+
+      debugMap.put("millisLoadData", this.millisLoadData);
       debugMap.put("millis", System.currentTimeMillis() - startedMillis);
       
-      debugMap.put("insertCount", insertCount);
-      debugMap.put("deleteCount", deleteCount);
-      debugMap.put("unresolvableCount", unresolvableCount);
-      debugMap.put("totalCount", totalCount);
+      debugMap.put("insertCount", this.insertCount);
+      debugMap.put("deleteCount", this.deleteCount);
+      debugMap.put("totalCount", this.totalCount);
       
     } catch (Exception e) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));

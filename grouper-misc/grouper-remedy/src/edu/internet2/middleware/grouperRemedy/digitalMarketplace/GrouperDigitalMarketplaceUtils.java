@@ -28,12 +28,12 @@ public class GrouperDigitalMarketplaceUtils {
    * folder for duo groups with colon appended
    * @return the config folder for duo groups
    */
-  public static String configFolderForRemedyGroups() {
+  public static String configFolderForDigitalMarketplaceGroups() {
   
     //get the configs and register the quartz job
     //# put groups in here which go to duo, the name in duo will be the extension here
     //grouperDuo.folder.name.withDuoGroups = a:b:c
-    String duoFolderName = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.folder.name.withRemedyGroups");
+    String duoFolderName = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.folder.name.withDigitalMarketplaceGroups");
     if (!duoFolderName.endsWith(":")) {
       duoFolderName += ":";
     }
@@ -45,7 +45,7 @@ public class GrouperDigitalMarketplaceUtils {
    * @return the subject attribute name
    */
   public static String configSubjectAttributeForDigitalMarketplaceUsername() {
-    return GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperRemegrouperDigitalMarketplace.ibuteForRemedyUsername");
+    return GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.subjectAttributeForDigitalMarketplaceUsername");
   }
   
   /**
@@ -69,13 +69,17 @@ public class GrouperDigitalMarketplaceUtils {
    */
   public static boolean validDigitalMarketplaceGroupName(String groupName) {
     
-    String boxFolderName = configFolderForRemedyGroups();
+    String boxFolderName = configFolderForDigitalMarketplaceGroups();
   
     if (groupName == null || !groupName.startsWith(boxFolderName)) {
       return false;
     }
     
     groupName = groupName.substring(boxFolderName.length());
+    
+    if (groupName.length() > 30) {
+      return false;
+    }
     
     //must be directly in folder
     if (groupName.contains(":")) {
