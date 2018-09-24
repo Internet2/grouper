@@ -147,7 +147,7 @@ public class GrouperDigitalMarketplaceGroup {
       for (GrouperDigitalMarketplaceMembership grouperDigitalMarketplaceMembership : GrouperClientUtils.nonNull(
           GrouperDigitalMarketplaceUser.retrieveDigitalMarketplaceMemberships()).values()) {
         if (GrouperClientUtils.equals(this.groupName, grouperDigitalMarketplaceMembership.getGroupName())) {
-          this.memberships.add(grouperDigitalMarketplaceMembership);
+          theMemberships.add(grouperDigitalMarketplaceMembership);
         }
       }
       

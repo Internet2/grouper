@@ -77,6 +77,10 @@ public class GrouperRemedyUtils {
     
     groupName = groupName.substring(boxFolderName.length());
     
+    if (groupName.length() > 30) {
+      return false;
+    }
+
     //must be directly in folder
     if (groupName.contains(":")) {
       return false;

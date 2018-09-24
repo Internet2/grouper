@@ -31,6 +31,73 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 @DisallowConcurrentExecution
 public class GrouperDigitalMarketplaceFullRefresh implements Job {
 
+  /**
+   * 
+   */
+  private int deleteCount;
+  
+  /**
+   * 
+   */
+  private int insertCount;
+
+  /**
+   * 
+   */
+  private int totalCount;
+
+  /**
+   * 
+   */
+  private int millisGetData;
+  
+  /**
+   * 
+   */
+  private int millisLoadData;
+
+  
+  
+  
+  /**
+   * @return the deleteCount
+   */
+  public int getDeleteCount() {
+    return this.deleteCount;
+  }
+
+  
+  /**
+   * @return the insertCount
+   */
+  public int getInsertCount() {
+    return this.insertCount;
+  }
+
+  
+  /**
+   * @return the totalCount
+   */
+  public int getTotalCount() {
+    return this.totalCount;
+  }
+
+  
+  /**
+   * @return the millisGetData
+   */
+  public int getMillisGetData() {
+    return this.millisGetData;
+  }
+
+  
+  /**
+   * @return the millisLoadData
+   */
+  public int getMillisLoadData() {
+    return this.millisLoadData;
+  }
+
   /** when was last full refresh started */
   private static long lastFullRefreshStart = -1L;
   
@@ -101,6 +168,13 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
    * full refresh logic
    */
   public static void fullRefreshLogic() {
+    new GrouperDigitalMarketplaceFullRefresh().fullRefreshLogicHelper();
+  }
+    
+  /**
+   * full refresh logic
+   */
+  public void fullRefreshLogicHelper() {
     
     fullRefreshInProgress = true;
     
@@ -151,55 +225,60 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
       }
       
       //get groups from remedy
-      Map<String, GrouperDigitalMarketplaceGroup> remedyGroupNameToGroupMap = GrouperDigitalMarketplaceCommands.retrieveDigitalMarketplaceGroups();
+      Map<String, GrouperDigitalMarketplaceGroup> digitalMarketplaceGroupNameToGroupMap = GrouperDigitalMarketplaceCommands.retrieveDigitalMarketplaceGroups();
 
-      debugMap.put("remedyGroupCount", remedyGroupNameToGroupMap.size());
+      debugMap.put("remedyGroupCount", digitalMarketplaceGroupNameToGroupMap.size());
 
-      debugMap.put("millisGetData", System.currentTimeMillis() - startedMillis);
+      this.millisGetData = (int)(System.currentTimeMillis() - startedMillis);
+
+      debugMap.put("millisGetData", this.millisGetData);
+
       long startedUpdateData = System.currentTimeMillis();
 
       boolean needsGroupRefresh = false;
       
-      int insertCount = 0;
-      int deleteCount = 0;
-      int unresolvableCount = 0;
-      int totalCount = 0;
+      this.insertCount = 0;
+      this.deleteCount = 0;
+      this.totalCount = 0;
       
       //which groups are in remedy and not in grouper?
       Set<String> groupExtensionsInDigitalMarketplaceNotInGrouper = new TreeSet<String>();
+      Set<String> groupExtensionsInGrouperNotInDigitalMarketplace = new TreeSet<String>(grouperGroupExtensionToGroupMap.keySet());
       
-      for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : remedyGroupNameToGroupMap.values()) {
+      for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : digitalMarketplaceGroupNameToGroupMap.values()) {
         groupExtensionsInDigitalMarketplaceNotInGrouper.add(grouperDigitalMarketplaceGroup.getGroupName());
+        groupExtensionsInGrouperNotInDigitalMarketplace.remove(grouperDigitalMarketplaceGroup.getGroupName());
       }
       
       for (String grouperExtension : grouperGroupExtensionToGroupMap.keySet()) {
-        try {
-          Long theLong = GrouperClientUtils.longObjectValue(grouperExtension, false);
-          groupExtensionsInDigitalMarketplaceNotInGrouper.remove(theLong);
-        } catch (Exception e) {
-          LOG.debug("Cant convert extension: '" + grouperExtension + "'", e);
-          //ignore
-        }
+        groupExtensionsInDigitalMarketplaceNotInGrouper.remove(grouperExtension);
       }
-            
-      for (String groupExtensionToRemove : groupExtensionsInDigitalMarketplaceNotInGrouper) {
-        GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = remedyGroupNameToGroupMap.get(groupExtensionToRemove.toString());
-        //ignore this, we are not deleting groups
-        
-        //create in grouper
-        String displayExtension = grouperDigitalMarketplaceGroup.getGroupName();
-        try {
-          GrouperWsCommandsForDigitalMarketplace.createGrouperGroup(groupExtensionToRemove.toString(), groupExtensionToRemove.toString() + "_" + displayExtension);
-        } catch (Exception e) {
-          LOG.error("Cant create group: '" + groupExtensionToRemove + "', '" + displayExtension + "'", e);
-        }
-        
+      
+      for (String groupExtensionToCreateInDigitalMarketplace : groupExtensionsInGrouperNotInDigitalMarketplace) {
+        WsGroup wsGroup = grouperGroupExtensionToGroupMap.get(groupExtensionToCreateInDigitalMarketplace);
+        GrouperDigitalMarketplaceCommands.createDigitalMarketplaceGroup(groupExtensionToCreateInDigitalMarketplace, 
+            wsGroup.getDisplayExtension(), wsGroup.getDescription(), true);
+        needsGroupRefresh = true;
       }
-
+      
+//      for (String groupExtensionToRemove : groupExtensionsInDigitalMarketplaceNotInGrouper) {
+//        GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = remedyGroupNameToGroupMap.get(groupExtensionToRemove.toString());
+//        //ignore this, we are not deleting groups
+//        
+//        //create in grouper
+//        String displayExtension = grouperDigitalMarketplaceGroup.getGroupName();
+//        try {
+//          GrouperWsCommandsForDigitalMarketplace.createGrouperGroup(groupExtensionToRemove.toString(), groupExtensionToRemove.toString() + "_" + displayExtension);
+//        } catch (Exception e) {
+//          LOG.error("Cant create group: '" + groupExtensionToRemove + "', '" + displayExtension + "'", e);
+//        }
+//        
+//      }
+//
 
       if (needsGroupRefresh) {
         //lets get them again if some were created
-        remedyGroupNameToGroupMap = GrouperDigitalMarketplaceCommands.retrieveDigitalMarketplaceGroups();
+        digitalMarketplaceGroupNameToGroupMap = GrouperDigitalMarketplaceCommands.retrieveDigitalMarketplaceGroups();
       }
       
       //loop through groups in grouper
@@ -207,19 +286,7 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
         
         WsGroup grouperGroup = grouperGroupExtensionToGroupMap.get(groupExtensionInGrouper);
         
-        Long groupExtensionInGrouperLong = null;
-        try {
-          groupExtensionInGrouperLong = GrouperClientUtils.longObjectValue(groupExtensionInGrouper, false);
-        } catch (Exception e) {
-          LOG.debug("Cant convert extension: '" + groupExtensionInGrouperLong + "'", e);
-          //ignore
-        }
-
-        if (groupExtensionInGrouperLong == null) {
-          continue;
-        }
-        
-        GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = remedyGroupNameToGroupMap.get(groupExtensionInGrouperLong);
+        GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = digitalMarketplaceGroupNameToGroupMap.get(groupExtensionInGrouper);
         
         if (grouperDigitalMarketplaceGroup == null) {
           LOG.error("Group doesnt exist in remedy: " + groupExtensionInGrouper);
@@ -230,7 +297,7 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
         Set<String> grouperUsernamesInGroup = GrouperWsCommandsForDigitalMarketplace.retrieveGrouperMembershipsForGroup(grouperGroup.getName());
 
         debugMap.put("grouperSubjectCount_" + grouperGroup.getExtension(), grouperUsernamesInGroup.size());
-        totalCount += grouperUsernamesInGroup.size();
+        this.totalCount += grouperUsernamesInGroup.size();
         
         //see which users are not in DigitalMarketplace
         Set<String> grouperUsernamesNotInDigitalMarketplace = new TreeSet<String>(grouperUsernamesInGroup);
@@ -248,7 +315,7 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
           if (grouperDigitalMarketplaceUser == null) {
             userCountNotInDigitalMarketplace++;
           } else {
-            insertCount++;
+            this.insertCount++;
             try {
               grouperDigitalMarketplaceGroup.assignUserToGroup(grouperDigitalMarketplaceUser, false);
             } catch (Exception e) {
@@ -275,7 +342,7 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
             LOG.error("Cant remove membership: '" + grouperDigitalMarketplaceGroup.getGroupName() 
                 + ", '" + grouperDigitalMarketplaceUser.getLoginName() + "'", e);
           }
-          deleteCount++;
+          this.deleteCount++;
         }
         
       }
@@ -292,13 +359,15 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
 //        
 //      }
       
-      debugMap.put("millisLoadData", System.currentTimeMillis() - startedUpdateData);
+      this.millisLoadData = (int)(System.currentTimeMillis() - startedUpdateData);
+
+      debugMap.put("millisLoadData", this.millisLoadData);
+
       debugMap.put("millis", System.currentTimeMillis() - startedMillis);
       
-      debugMap.put("insertCount", insertCount);
-      debugMap.put("deleteCount", deleteCount);
-      debugMap.put("unresolvableCount", unresolvableCount);
-      debugMap.put("totalCount", totalCount);
+      debugMap.put("insertCount", this.insertCount);
+      debugMap.put("deleteCount", this.deleteCount);
+      debugMap.put("totalCount", this.totalCount);
       
     } catch (Exception e) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));
