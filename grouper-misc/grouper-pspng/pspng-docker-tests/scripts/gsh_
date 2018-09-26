@@ -8,6 +8,9 @@
 D=$(dirname "${BASH_SOURCE[0]}")
 . "$D/functions.bash"
 
-# Skip the gsh output up to the first ------
-
-$API/bin/gsh "$@" 2>&1 | grep --line-buffered -A5000 -e ------------
+if [ -r /gsh-raw-output ]; then
+  $API/bin/gsh "$@" 
+else
+  # Skip the gsh output up to the first ------
+  $API/bin/gsh "$@" 2>&1 | grep --line-buffered -A5000 -e ------------
+fi

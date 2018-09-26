@@ -39,35 +39,24 @@ test_start "$ME" "Pspng ($flavor): incremental provisioning after rogue member r
 
 create_grouper_daemon_config
 
+run_after_parent_test test02a-basic-provisioning.sh
+
 ################
 ## START DOCKER
 
-start_docker "${ME}_$flavor"
+start_docker "${ME}_$flavor" 
 
-
+init_test_scenario_variables
 wait_for_grouper_daemon_to_be_running
 
-create_test_folder
-
-mark_test_folder_for_provisioning
-
-# Create the groups and add a member to make sure groups get created even when members are required
-create_group1_and_group2
-add_group1_to_group2
-add_members_to_group1 banderson agasper
-await_changelog_catchup
-
-
-validate_provisioning "$GROUP1_NAME" "agasper,banderson"
-validate_provisioning "$GROUP2_NAME" "agasper,banderson"
 
 #pre-remove a user from group1 outside of grouper (rogue ldap additions)
 log_always "Removing member the wrong way (directly in ldap)"
 directly_remove_member "$GROUP1_NAME" agasper
 
 # This is what we expect in our kludged group memberships
-validate_provisioning "$GROUP1_NAME" "banderson"
-validate_provisioning "$GROUP2_NAME" "agasper,banderson"
+validate_provisioning "$GROUP1_NAME" "banderson,bbrown705"
+validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
 
 
 # Now, remove agasper from group1 within grouper (the proper way)
@@ -78,8 +67,8 @@ remove_members_from_group1 agasper
 await_changelog_catchup
 
 #make sure everything has converged to the proper state
-validate_provisioning "$GROUP1_NAME" "banderson"
-validate_provisioning "$GROUP2_NAME" "banderson"
+validate_provisioning "$GROUP1_NAME" "banderson,bbrown705"
+validate_provisioning "$GROUP2_NAME" "banderson,bbrown705"
 
 #make sure extra groups were not provisioned
 validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"

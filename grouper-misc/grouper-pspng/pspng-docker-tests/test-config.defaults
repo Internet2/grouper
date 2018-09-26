@@ -19,6 +19,10 @@ function test_is_starting()
 {
   test_step "Dumping ldap data: BEFORE"
   $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.before
+
+  if [ -n "${GSH_RAW_OUTPUT:-}" ]; then
+    run_in_grouper_daemon touch /gsh-raw-output
+  fi
 }
 
 
@@ -33,14 +37,18 @@ function validate_provisioning()
 
 function test_is_ending()
 {
-  test_step "Dumping ldap data: AFTER"
-  $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.after
+  if [ -r $T/ldap.before ]; then
+    test_step "Dumping ldap data: AFTER"
+    $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.after
 
-  test_step "Comparing ldap data"
-  ls -l $T/ldap.before $T/ldap.after
+    test_step "Comparing ldap data"
+    ls -l $T/ldap.before $T/ldap.after
 
-  (diff $T/ldap.before $T/ldap.after | sed 's/^/LDAP CHANGES: /') || true
-  test_step_done
+    (diff $T/ldap.before $T/ldap.after | sed 's/^/LDAP CHANGES: /') || true
+    test_step_done
+  else
+    echo "Ldap data not saved at beginning of test"
+  fi
 }
 
 function add_full_sync_starter() {

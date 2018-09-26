@@ -163,7 +163,7 @@
      <echo message="Output is: ${main.jarFile}" />
    </target>
   
-  <target name="distPackage" description="build tar gz on internet2 box">
+  <target name="distPackage">
     
     <mkdir dir="${basedir}/${main.outputDir}/grouper.remedy-${version}" />
     <delete dir="${basedir}/${main.outputDir}/grouper.remedy-${version}" />

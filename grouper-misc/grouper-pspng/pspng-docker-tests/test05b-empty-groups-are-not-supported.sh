@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# description: test05a - empty-groups-are-supported
+# description: test05b - empty-groups-are-not-supported
 # configs: posix-groups
 #
 # This test takes verifies that empty posix groups are not created before members are added
@@ -36,7 +36,7 @@ tweak_grouper_config() {
 
 
 # Note that the test is starting, saves start-time, etc
-test_start "$ME" "Pspng ($flavor): testing that empty groups are created"
+test_start "$ME" "Pspng ($flavor): testing that empty groups are not created"
 
 ################
 ## CONFIGURE GROUPER

@@ -42,28 +42,15 @@ test_start "$ME" "Pspng ($flavor): Ldap-Provisioning with shared attributes"
 
 create_grouper_daemon_config
 
+run_after_parent_test test07a-full-sync-enabled.sh
+
 ################
 ## START DOCKER
 
 start_docker "${ME}_$flavor"
 
-
-wait_for_grouper_daemon_to_be_running
-
-create_test_folder
-
-mark_test_folder_for_provisioning
-
-create_group1_and_group2
-add_members_to_group1 banderson agasper bbrown705
-add_group1_to_group2
-
-#make sure everything is right
-await_changelog_catchup
-
-validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705"
-validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
-
+init_test_scenario_variables
+await_servers
 
 test_step "Direct LDAP change: adding an attribute value (xyz:pdq) that does not start with g:"
 

@@ -28,3 +28,44 @@ This directory has the following components:
   - scripts/ - A bunch of shell scripts that are used within the docker containers as
     well as within scripts run on the developer's workstation
 
+
+
+
+Environment variables used by the harness:
+  DAEMON_BUILD_DIR: What Dockerfile should be used to build the grouper-daemon image to test
+    There are three sources of grouper-daemon containers to test:
+      -(default) The local version of pspng: DAEMON_BUILD_DIR=grouper-pspng-devel
+      -A fully patched (including test patches) tier grouper image: DAEMON_BUILD_DIR=grouper-pspng-patched
+      -The latest tier grouper image: DAEMON_BUILD_DIR=grouper-pspng-testing-config (untested)
+
+  KEEP_VM={yes,no,on-failure}. Default: on-failure
+    Should the docker containers continue to run after the test is finished
+    (RUN_TESTS sets KEEP_VM=no)
+
+  STOP_JAVA={yes,no}. Default: no
+    Should the grouper-daemon jvm be killed after the test?
+
+  GROUPER_LOADER_DEBUG_PORT, Default: none
+    Configure the grouper-daemon jvm to listen on a jdb port, and wait for that port to be connected
+    before continuing with the rest of the test
+
+  KEEP_VOLUMES={yes,no}. Default:no, RUN_TESTS sets this to yes
+    Should the volumes used by the ldap and mysql servers be kept after the containers are stopped
+
+  TEST_HISTORY_DIR, Default:none
+    Keep a file about every test, describing the hash of the config, its volume suffix and its result
+    This is used when tests depend on other tests
+
+  KEEP_TEMP={yes,no}. Default: no
+    Should temporary files be kept
+
+  Configuration of test groups and subjects:
+    TEST_FOLDER_TOP (default: parentFolder): Root directory where groups are manipulated
+    TEST_FOLDER (default: ${TEST_FOLDER_TOP}:provisionedFolder): Folder that is labeled for provisioning
+    GROUP1_NAME (default: ${TEST_FOLDER}:group1)
+    GROUP2_NAME (default: ${TEST_FOLDER}:group2) 
+    UNPROVISIONED_GROUP_NAME (default: ${TEST_FOLDER_TOP}:unprovisioned-group) - A group that is not labeled for provisioning
+    PROVISIONER1_NAME (default: pspng1)
+
+  SQL_DEBUGGING={yes,no}. Default: no
+     Add extra sql logging to log4j config  

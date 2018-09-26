@@ -12,7 +12,11 @@ D="$( cd "$( dirname "${ME}" )" && pwd -P )"
 
 cd "$D"
 
-grouper-pspng-devel/compile-for-docker-image
+# This is the base of all other versions
+grouper-pspng-testing-config/buildit
+
+# If we're trying to use the devel version (the default), then compile pspng
+[ "${GROUPER_VERSION}:-devel}" = devel ] &&  grouper-pspng-devel/compile-for-docker-image
 
 docker-compose build
 

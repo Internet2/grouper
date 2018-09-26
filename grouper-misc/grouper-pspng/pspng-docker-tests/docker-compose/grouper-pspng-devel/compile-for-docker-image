@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script compiles PSPNG and prepares the .class output and changes to 
+# jar-dependencies 
+
 set -o errexit
 set -o pipefail
 set -o nounset

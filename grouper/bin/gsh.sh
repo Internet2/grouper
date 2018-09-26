@@ -118,6 +118,8 @@ GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/src/resources
 # Preserve the user's $CLASSPATH
 GROUPER_CP=${GROUPER_CP}:${CLASSPATH}
 
+retVal=0
+
 if [ "$arg1" != "-initEnv" ]; then
 	# ----- Execute The Requested Command ---------------------------------------
 
@@ -130,6 +132,7 @@ if [ "$arg1" != "-initEnv" ]; then
 	GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
 	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
+	retVal=$?
 	
 fi
 #:end
@@ -141,3 +144,5 @@ fi
 GROUPER_CUR_DIR=
 GROUPER_HOME_SAFE=
 GROUPER_CP=
+
+exit $retVal

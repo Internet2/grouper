@@ -69,6 +69,9 @@ create_grouper_daemon_config()
   then
     tweak_grouper_config "$GROUPER_CONFIG_DIR"
   fi
+
+  export GROUPER_DAEMON_CONFIG_HASH=$(hash_directory_contents "$GROUPER_CONFIG_DIR")
+  echo "Grouper config has hash: $GROUPER_DAEMON_CONFIG_HASH"
 }
 
 
@@ -85,37 +88,66 @@ run_in_grouper_daemon()
 }
 
 
+function run_after_parent_test()
+{
+  local parent_test="${1:?USAGE: run_after_parent_test <parent test>}"
+
+  # Check to see if our parent test has already run by looking for its history file
+  # If the history file doesn't exist, then parent test hasn't run
+  local parent_test_file="$TEST_HISTORY_DIR/${parent_test}.${GROUPER_DAEMON_CONFIG_HASH}"
+  if [ ! -r "$parent_test_file" ]; then
+    log_always "Parent test hasn't run yet: Running $parent_test $flavor"
+    KEEP_VOLUMES=yes $_D/$parent_test $flavor 2>&1 | sed "s/^/($parent_test)/"
+    log_always "$parent_test has completed. $TEST_NAME will start if it was successful"
+  fi
+  
+  # Fail if we can't find the parent's test file
+  [ -r "$parent_test_file" ] || fail "Unable to find $parent_test_file even after running $parent_test"
+  
+  # Fail if our parent test failed
+  local parent_result=$(grep_ RESULT= "$parent_test_file" | sed 's/.*=//' | sed 's/ //g')
+  [ "$parent_result" != SUCCESS ] && fail "$TEST_NAME relies on $parent_test which failed"
+  
+  PARENT_VOLUME_SUFFIX=$(grep_ VOLUME_SUFFIX= "$parent_test_file" | sed 's/.*=//' | sed 's/ //g' )
+  [ -n "$PARENT_VOLUME_SUFFIX" ] || fail "$parent_test file did not specify VOLUME_SUFFIX: $parent_test_file"
+
+  log_always "Parent test succeeded. Starting $TEST_NAME now"
+}
+
+
 ## RUN THE CONTAINER in the background and schedule its destruction for when we exit
 ## This defines DOCKER_COMPOSE_CMD to run docker-compose within the test's environment
+## This also invokes test_is_starting once everything is running
 ##
 ## This also takes care of java debugging setup if DEBUG=yes (using GROUPER_LOADER_DEBUG_PORT)
 function start_docker()
 {
-  local test_name="${1:?USAGE: start_docker <test name>}"
+  local test_name_and_flavor="${1:?USAGE: start_docker <test name and flavor>}"
 
   [ -z "${GROUPER_CONFIG_DIR:-}" ] && fail "create_grouper_daemon_config must be run before start_docker"
-
-  export DOCKER_COMPOSE_PROJECT=${test_name}.$$
-
-  test_step "Clone docker data images for suffix $DOCKER_COMPOSE_PROJECT"
-  clone-data-templates --volume_suffix $DOCKER_COMPOSE_PROJECT
-
+  export DOCKER_COMPOSE_PROJECT=${test_name_and_flavor}.$$
   export VOLUME_SUFFIX=$DOCKER_COMPOSE_PROJECT
+
+  test_start "$TEST_NAME" "$TEST_DESCRIPTION" 
+  
+  PARENT_VOLUME_SUFFIX=${PARENT_VOLUME_SUFFIX:-template}
+
+  test_step "Clone docker data images from $PARENT_VOLUME_SUFFIX for suffix $DOCKER_COMPOSE_PROJECT"
+  clone-data-templates --source_suffix ${PARENT_VOLUME_SUFFIX} --volume_suffix $DOCKER_COMPOSE_PROJECT
+
+  # Write out some information about our Test
+  export MY_TEST_HISTORY_FILE=$TEST_HISTORY_DIR/${TEST_NAME}.${GROUPER_DAEMON_CONFIG_HASH}
+  cat <<EOF > $MY_TEST_HISTORY_FILE
+NAME=$TEST_NAME
+FLAVOR=$flavor
+CONFIG_HASH=$GROUPER_DAEMON_CONFIG_HASH
+VOLUME_SUFFIX=$DOCKER_COMPOSE_PROJECT
+EOF
 
   local _D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
 
   # Defines 
   export DOCKER_COMPOSE_CMD="docker-compose --project-name $DOCKER_COMPOSE_PROJECT --file $_D/docker-compose/docker-compose.yml"
-
-  # This should no longer be necessary because the config volume DOCKER_DAEMON_CONFIG is 
-  # mounted via docker-compose.yml file
-
-  ##Need to run some containers with specialized (config) volumes mounted
-  #
-  #test_step "Running docker container with config mounted"
-  #$DOCKER_COMPOSE_CMD run -T --detach -v $GROUPER_CONFIG_DIR:/grouper-config-99-test.d grouper-daemon
-
-  #test_step "Running any other containers not started as grouper-daemon dependencies"
 
   test_step "Running containers"
   $DOCKER_COMPOSE_CMD up --detach
@@ -134,6 +166,8 @@ function start_docker()
       sleep 2
     done
   fi
+
+  test_is_starting
 }
 
 
@@ -172,7 +206,9 @@ function cleanup_docker()
     log_always "Cleaning up containers"
     $DOCKER_COMPOSE_CMD rm --stop --force 
     $DOCKER_COMPOSE_CMD down 
-    docker volume ls | grep_ -e "${VOLUME_SUFFIX}" | awk '{print $NF}' | xargs docker volume rm
+    if [ "${KEEP_VOLUMES:-}" != yes ]; then
+      docker volume ls | grep_ -e "${VOLUME_SUFFIX}" | awk '{print $NF}' | xargs docker volume rm
+    fi
   else
     if [ "${STOP_JAVA:-}" = yes ]; then
       log_always "Stopping java in grouper-daemon container: pkill -f java"
@@ -196,9 +232,13 @@ function test_start()
   local USAGE="test_start <name> <brief description>"
   [ $# -eq 2 ] || fail "$USAGE"
 
-  TEST_NAME=${1}
-  TEST_DESCRIPTION=${2}
-  TEST_START_EPOCH=$(date +%s)
+  export TEST_NAME=${1}
+  export TEST_DESCRIPTION=${2}
+  export TEST_START_EPOCH=$(date +%s)
+
+  # Where information (volume names, result goes)
+  export TEST_HISTORY_DIR=${TEST_HISTORY_DIR:-$T/test_history.d}
+  [ ! -d "$TEST_HISTORY_DIR" ] && mkdir -p "$TEST_HISTORY_DIR"
 
   echo ====================================================================
   echo ====================================================================
@@ -252,7 +292,8 @@ function test_success()
   local TEST_DURATION=$(($(date +%s) - TEST_START_EPOCH))
   log_always "TEST SUCCEEDED [$TEST_DURATION secs]: $TEST_NAME/$TEST_DESCRIPTION"
   test_step "DONE: SUCCESS"
-  exit 0
+
+  echo "RESULT=SUCCESS" >> $MY_TEST_HISTORY_FILE
 }
 
 # test_failure <REASON>
@@ -260,6 +301,9 @@ function test_success()
 function test_failure()
 {
   local REASON="$*"
+
+  echo "RESULT=FAILURE" >> $MY_TEST_HISTORY_FILE
+  echo "FAILURE_REASON=$REASON" >> $MY_TEST_HISTORY_FILE
 
   [ ${KEEP_VM:-on-failure} = on-failure ] && export KEEP_VM=yes
 

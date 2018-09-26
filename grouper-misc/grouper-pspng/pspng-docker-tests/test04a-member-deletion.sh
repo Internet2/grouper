@@ -28,7 +28,6 @@ ME=$(basename "$0")
 # Defines: $flavor
 read_test_config_files "${1:-posix-groups}"
 
-
 # Note that the test is starting, saves start-time, etc
 test_start "$ME" "Pspng ($flavor): provisioning after members are deleted"
 
@@ -38,27 +37,16 @@ test_start "$ME" "Pspng ($flavor): provisioning after members are deleted"
 
 create_grouper_daemon_config
 
+run_after_parent_test test02a-basic-provisioning.sh
+
 ################
 ## START DOCKER
 
-start_docker "${ME}_$flavor"
-
+start_docker "${ME}_$flavor" 
 
 wait_for_grouper_daemon_to_be_running
 
-create_test_folder
-
-mark_test_folder_for_provisioning
-
-create_group1_and_group2
-
-add_members_to_group1 banderson agasper bbrown705
-add_group1_to_group2
-
-test_step "Done populating group1 and adding group1 to group2"
-await_changelog_catchup
-validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
-validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705"
+init_test_scenario_variables
 
 test_step "Removing a member (bbrown705) from $GROUP1_NAME"
 run_in_grouper_daemon del-member --group "$GROUP1_NAME" bbrown705

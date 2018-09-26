@@ -26,6 +26,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -81,12 +83,17 @@ public class SubjectCheckConfig {
     //at this point, we have a subject.properties...  now check it out
     Collection<Source> sources = null;
     
+    boolean exceptionIfProblem = GrouperShell.runFromGsh && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnSubjectCheckConfigProblem", true);
+    
     try {
       sources = SourceManager.getInstance().getSources();
     } catch (Exception e) {
       String error = "problem initting sources from subject.properties";
       System.err.println("Subject API error: " + error + ", " + ExceptionUtils.getFullStackTrace(e));
       log.error(error, e);
+      if (exceptionIfProblem) {
+        throw new RuntimeException(error, e);
+      }
       return;
     }
     int sourceCount = 0;
@@ -111,6 +118,9 @@ public class SubjectCheckConfig {
         String theError = error + "problem with getSubject by id, in subject.properties: search searchSubject: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
+        if (exceptionIfProblem) {
+          throw new RuntimeException(theError, e);
+        }
         continue;
       }
       
@@ -131,6 +141,9 @@ public class SubjectCheckConfig {
         String theError = error + "problem with getSubject by identifier, in subject.properties: serachType searchSubjectByIdentifier: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
+        if (exceptionIfProblem) {
+          throw new RuntimeException(theError, e);
+        }
         continue;
       }
     
@@ -149,6 +162,9 @@ public class SubjectCheckConfig {
         String theError = error + "problem with search, in subject.properties: serachType search: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
+        if (exceptionIfProblem) {
+          throw new RuntimeException(theError, e);
+        }
         continue;
       }
     }
