@@ -30,9 +30,9 @@ public class ServiceAction {
   
   private boolean defaultChecked;
   
-  private boolean checkSubmitted;
-  
   private ServiceAction parentServiceAction;
+  
+  private List<ServiceAction> chidrenServiceActions = new ArrayList<ServiceAction>();
   
   public String getId() {
     return id;
@@ -91,15 +91,6 @@ public class ServiceAction {
   public void setDefaultChecked(boolean defaulChecked) {
     this.defaultChecked = defaulChecked;
   }
-
-  public boolean isCheckSubmitted() {
-    return checkSubmitted;
-  }
-
-  public void setCheckSubmitted(boolean checkSubmitted) {
-    this.checkSubmitted = checkSubmitted;
-  }
-  
   
   public ServiceAction getParentServiceAction() {
     return parentServiceAction;
@@ -107,6 +98,15 @@ public class ServiceAction {
 
   public void setParentServiceAction(ServiceAction parentServiceAction) {
     this.parentServiceAction = parentServiceAction;
+  }
+  
+  public void addChildServiceAction(ServiceAction childServiceAction) {
+    chidrenServiceActions.add(childServiceAction);
+  }
+  
+  
+  public List<ServiceAction> getChidrenServiceActions() {
+    return chidrenServiceActions;
   }
 
   public Map<String, String> getArgMap() {

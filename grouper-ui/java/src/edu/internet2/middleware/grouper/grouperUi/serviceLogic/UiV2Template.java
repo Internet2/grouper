@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -26,7 +28,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2Template {
@@ -119,18 +120,7 @@ public class UiV2Template {
       String templateType = request.getParameter("templateType");
       templateContainer.setTemplateType(templateType);
       
-      if(templateLogic.isPromptForKeyAndLabelAndDescription()) {
-        String templateKey = request.getParameter("templateKey");
-        if (StringUtils.isBlank(templateKey)) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-              "#serviceKeyId",
-              TextContainer.retrieveFromRequest().getText().get("stemServiceKeyRequiredError")));
-          return;
-        }
-        templateContainer.setTemplateKey(templateKey);
-        templateContainer.setTemplateDescription(request.getParameter("serviceDescription"));
-        templateContainer.setTemplateFriendlyName(request.getParameter("serviceFriendlyName"));
-      } 
+      populateServiceInfo(request, templateLogic);
 
       List<ServiceAction> serviceActions = templateLogic.getServiceActions();
       templateContainer.setServiceActions(serviceActions);
@@ -170,6 +160,8 @@ public class UiV2Template {
       
       templateLogic.setStemId(stem.getUuid());
       
+      populateServiceInfo(request, templateLogic);
+      
       setTemplateOptions();
 
       String[] selectedServiceActionIds = request.getParameterValues("serviceActionId[]");
@@ -186,6 +178,7 @@ public class UiV2Template {
           }
         }
       }
+      
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -210,6 +203,109 @@ public class UiV2Template {
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
+    }
+    
+  }
+  
+  public void reloadServiceActions(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      GrouperTemplateLogicBase templateLogic = getTemplateLogic(request);
+      
+      if (templateLogic == null) {
+        return;
+      }
+      
+      setTemplateOptions();
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+      
+      templateLogic.setStemId(stem.getUuid());
+      
+      templateContainer.setTemplateLogic(templateLogic);
+      
+      String templateType = request.getParameter("templateType");
+      templateContainer.setTemplateType(templateType);
+      
+      populateServiceInfo(request, templateLogic);
+
+      
+      String selectedServiceActionIdChecked = request.getParameter("checked");
+      Boolean isChecked = GrouperUtil.booleanObjectValue(selectedServiceActionIdChecked);
+      
+      String selectedServiceActionId = request.getParameter("serviceActionId");
+      
+      List<ServiceAction> allServiceActions = templateLogic.getServiceActions();
+      
+      ServiceAction selectedServiceAction = null;
+      
+      for (ServiceAction serviceAction: allServiceActions) {
+        if (serviceAction.getId().equals(selectedServiceActionId)) {
+          selectedServiceAction = serviceAction;
+          break;
+        }
+      }
+      
+      List<ServiceAction> childrenServiceActions = getChildrenUpToLeaf(selectedServiceAction);
+      
+      if (isChecked) {
+        for(ServiceAction serviceAction: childrenServiceActions) {
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('."+serviceAction.getId()+"').show('slow')"));
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('input[type=checkbox][value="+serviceAction.getId()+"]').prop('checked', true)"));
+        }
+      } else {
+        for(ServiceAction serviceAction: childrenServiceActions) {
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('."+serviceAction.getId()+"').hide('slow')"));
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('input[type=checkbox][value="+serviceAction.getId()+"]').prop('checked', false)"));
+        }
+      }
+      
+    } finally {
+        GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  private void populateServiceInfo(HttpServletRequest request, GrouperTemplateLogicBase templateLogic) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+    
+    if(templateLogic.isPromptForKeyAndLabelAndDescription()) {
+      String templateKey = request.getParameter("templateKey");
+      if (StringUtils.isBlank(templateKey)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#serviceKeyId",
+            TextContainer.retrieveFromRequest().getText().get("stemServiceKeyRequiredError")));
+        return;
+      }
+      
+      String regex = "^[a-zA-Z0-9_]*$";
+      if (!templateKey.matches(regex)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#serviceKeyId",
+            TextContainer.retrieveFromRequest().getText().get("stemServiceKeyInvaldError")));
+        return;
+      }
+      templateContainer.setTemplateKey(templateKey);
+      templateContainer.setTemplateDescription(request.getParameter("serviceDescription"));
+      templateContainer.setTemplateFriendlyName(request.getParameter("serviceFriendlyName"));
     }
     
   }
@@ -272,5 +368,25 @@ public class UiV2Template {
       }
     }
   }
+  
+  
+  private List<ServiceAction> getChildrenUpToLeaf(ServiceAction serviceAction) {
+    
+   List<ServiceAction> allChildren = new ArrayList<ServiceAction>();
+   
+   List<ServiceAction> queue = new LinkedList<ServiceAction>();
+   queue.add(serviceAction);
+   
+   while (queue.size() > 0) {
+     List<ServiceAction> children = queue.remove(0).getChidrenServiceActions();
+     queue.addAll(children);
+     allChildren.addAll(children);
+   }
+   
+   return allChildren;
+    
+  }
+  
+  
     
 }

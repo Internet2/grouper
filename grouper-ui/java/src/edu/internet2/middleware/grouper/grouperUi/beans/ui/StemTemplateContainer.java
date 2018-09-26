@@ -5,7 +5,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,13 +72,6 @@ public class StemTemplateContainer {
     this.templateLogic = templateLogic;
   }
 
-  public ServiceAction getCurrentServiceAction() {
-    return currentServiceAction;
-  }
-
-  public void setCurrentServiceAction(ServiceAction currentServiceAction) {
-    this.currentServiceAction = currentServiceAction;
-  }
 
   public Map<String, String> getTemplateOptions() {
     return templateOptions;
@@ -95,6 +87,14 @@ public class StemTemplateContainer {
 
   public void setServiceActions(List<ServiceAction> serviceActions) {
     this.serviceActions = serviceActions;
+  }
+
+  public ServiceAction getCurrentServiceAction() {
+    return currentServiceAction;
+  }
+
+  public void setCurrentServiceAction(ServiceAction currentServiceAction) {
+    this.currentServiceAction = currentServiceAction;
   }
   
 

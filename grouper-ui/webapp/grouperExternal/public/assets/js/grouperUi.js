@@ -2457,3 +2457,10 @@ function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
     });
   }
 }
+
+function showHideChildrenServiceActions(checkbox, serviceActionId) {
+	var isChecked = checkbox.checked;
+	var path = '../app/UiV2Template.reloadServiceActions?serviceActionId='+serviceActionId+'&checked='+isChecked;
+	ajax(path, {formIds: 'newStemTemplateFormId'});
+	return false;
+} 

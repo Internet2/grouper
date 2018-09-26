@@ -84,12 +84,17 @@
       <c:if test="${! empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
       <tr>
       <td colspan="2">
+
 	      <c:forEach items="${grouperRequestContainer.stemTemplateContainer.serviceActions}" var="serviceAction">
 	       
           <div style="margin: 10px;">
 		        <c:set target="${grouperRequestContainer.stemTemplateContainer}" property="currentServiceAction" value="${serviceAction}" />
-		        <span style="padding-left: ${serviceAction.indentLevel * 20}px;">
-			        <input type="checkbox" name="serviceActionId" value="${serviceAction.id}" ${serviceAction.defaultChecked == true ? 'checked="checked"' : '' } />
+		        <span style="padding-left: ${serviceAction.indentLevel * 20}px;" class="${serviceAction.id}">
+		          
+			        <input type="checkbox" name="serviceActionId"
+			         class="indent-${serviceAction.indentLevel}"
+			         onchange="showHideChildrenServiceActions(this, '${serviceAction.id}')"
+			         value="${serviceAction.id}" ${serviceAction.defaultChecked == true ? 'checked="checked"' : '' } />
 		          ${textContainer.text[serviceAction.externalizedKey]}
 	          </span> 
 	        </div>
@@ -121,6 +126,5 @@
         </td>
       </tr>
     </tbody>
-  </table>
-
+  </table>  
 </form>

@@ -6,9 +6,6 @@ public abstract class GrouperTemplateLogicBase {
 
   private String stemId;
   
-  private String systemNameExtension;
-  
-  private String friendlyNameExtension;
   
   public String getStemId() {
     return stemId;
@@ -18,22 +15,6 @@ public abstract class GrouperTemplateLogicBase {
     this.stemId = stemId;
   }
 
-  public String getSystemNameExtension() {
-    return systemNameExtension;
-  }
-
-  public void setSystemNameExtension(String systemNameExtension) {
-    this.systemNameExtension = systemNameExtension;
-  }
-
-  public String getFriendlyNameExtension() {
-    return friendlyNameExtension;
-  }
-
-  public void setFriendlyNameExtension(String friendlyNameExtension) {
-    this.friendlyNameExtension = friendlyNameExtension;
-  }
-  
   public boolean isPromptForKeyAndLabelAndDescription() {
     return true;
   }

@@ -27,6 +27,7 @@ public enum ServiceActionType {
       .assignName(serviceAction.getArgMap().get("stemName"))
       .assignDisplayName(serviceAction.getArgMap().get("stemDisplayName"))
       .assignDescription(serviceAction.getArgMap().get("stemDescription"))
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .save();
       
     }
