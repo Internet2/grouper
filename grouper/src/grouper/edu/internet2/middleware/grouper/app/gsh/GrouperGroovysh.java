@@ -16,7 +16,9 @@
 package edu.internet2.middleware.grouper.app.gsh;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.tools.shell.Groovysh;
+import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
 
 import groovy.lang.MissingPropertyException;
@@ -29,10 +31,12 @@ public class GrouperGroovysh extends Groovysh {
   private boolean exitOnError;
   
   /**
+   * @param io
+   * @param compilerConfiguration
    * @param exitOnError
    */
-  public GrouperGroovysh(boolean exitOnError) {
-    super();
+  public GrouperGroovysh(IO io, CompilerConfiguration compilerConfiguration, boolean exitOnError) {
+    super(io, compilerConfiguration);
 
     this.exitOnError = exitOnError;
   }
