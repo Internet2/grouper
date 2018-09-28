@@ -83,6 +83,11 @@
 
       <c:if test="${! empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
       <tr>
+        <td colspan="2">
+          ${textContainer.text['stemServiceActionsHelpText']}
+        </td>
+      </tr>
+      <tr>
       <td colspan="2">
 
 	      <c:forEach items="${grouperRequestContainer.stemTemplateContainer.serviceActions}" var="serviceAction">
@@ -93,7 +98,7 @@
 		          
 			        <input type="checkbox" name="serviceActionId"
 			         class="indent-${serviceAction.indentLevel}"
-			         onchange="showHideChildrenServiceActions(this, '${serviceAction.id}')"
+			         onchange="ajax('../app/UiV2Template.reloadServiceActions?serviceActionId=${serviceAction.id}&checked='+this.checked, {formIds: 'newStemTemplateFormId'}); return false;"
 			         value="${serviceAction.id}" ${serviceAction.defaultChecked == true ? 'checked="checked"' : '' } />
 		          ${textContainer.text[serviceAction.externalizedKey]}
 	          </span> 

@@ -21,6 +21,9 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
  */
 public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
   
+  /**
+   * cache for service actions per stem
+   */
   private static final Map<String, List<ServiceAction>> serviceActions = new LinkedHashMap<String, List<ServiceAction>>();
   
   /**
@@ -228,6 +231,16 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
     
   }
   
+  /**
+   * create new service action
+   * @param defaulChecked
+   * @param indentLevel
+   * @param externalizedKey
+   * @param type
+   * @param args
+   * @param parentServiceAction
+   * @return
+   */
   private ServiceAction createNewServiceAction(boolean defaulChecked, int indentLevel, 
       String externalizedKey, ServiceActionType type, List<ServiceActionArgument> args,
       ServiceAction parentServiceAction) {
@@ -246,6 +259,9 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
   }
   
   
+  /**
+   * external text property
+   */
   public String getSelectLabelKey() {
     return "stemTemplateTypeServiceLabel";
   }

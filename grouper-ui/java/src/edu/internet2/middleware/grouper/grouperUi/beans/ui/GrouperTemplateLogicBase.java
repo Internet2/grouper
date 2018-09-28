@@ -4,17 +4,31 @@ import java.util.List;
 
 public abstract class GrouperTemplateLogicBase {
 
+  /**
+   * stem id user is working on
+   */
   private String stemId;
   
-  
+  /**
+   * stem id user is working on
+   * @return
+   */
   public String getStemId() {
     return stemId;
   }
 
+  /**
+   * stem id user is working on
+   * @param stemId
+   */
   public void setStemId(String stemId) {
     this.stemId = stemId;
   }
 
+  /**
+   * Should user be asked for key, friendly name and description?
+   * @return
+   */
   public boolean isPromptForKeyAndLabelAndDescription() {
     return true;
   }
@@ -48,9 +62,16 @@ public abstract class GrouperTemplateLogicBase {
     return true;
   }
   
-  
+  /**
+   * list of service actions to show on the UI
+   * @return
+   */
   public abstract List<ServiceAction> getServiceActions();
   
+  /**
+   * label to show
+   * @return
+   */
   public abstract String getSelectLabelKey();
   
   

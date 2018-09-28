@@ -40,6 +40,11 @@ public class UiV2Template {
       "^grouper\\.template\\.(\\w+)\\.logicClass$");
   
   
+  /**
+   * Show fields for new template
+   * @param request
+   * @param response
+   */
   public void newTemplate(final HttpServletRequest request, final HttpServletResponse response) {
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -86,6 +91,11 @@ public class UiV2Template {
 	  
   }
   
+  /**
+   * Show checkboxes/service actions for new template
+   * @param request
+   * @param response
+   */
   public void loadBeansForServiceTemplateType(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -136,6 +146,11 @@ public class UiV2Template {
     }
   }
   
+  /**
+   * Perform actions (Create stem, Create group, etc)
+   * @param request
+   * @param response
+   */
   public void newTemplateSubmit(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -207,6 +222,11 @@ public class UiV2Template {
     
   }
   
+  /**
+   * Show/Hide children service actions when user checks/unchecks checkboxes
+   * @param request
+   * @param response
+   */
   public void reloadServiceActions(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -281,6 +301,11 @@ public class UiV2Template {
     
   }
   
+  /**
+   * Populate template type, key and friendly name
+   * @param request
+   * @param templateLogic
+   */
   private void populateServiceInfo(HttpServletRequest request, GrouperTemplateLogicBase templateLogic) {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -310,6 +335,11 @@ public class UiV2Template {
     
   }
   
+  /**
+   * Get implementation class from the template key
+   * @param request
+   * @return
+   */
   private GrouperTemplateLogicBase getTemplateLogic(HttpServletRequest request) {
     
     String templateType = request.getParameter("templateType");
@@ -341,6 +371,9 @@ public class UiV2Template {
     
   }
   
+  /**
+   * Find all template types and set them in container
+   */
   private void setTemplateOptions() {
     
     StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
@@ -370,6 +403,11 @@ public class UiV2Template {
   }
   
   
+  /**
+   * Given a service action, find all the children up to leaf
+   * @param serviceAction
+   * @return
+   */
   private List<ServiceAction> getChildrenUpToLeaf(ServiceAction serviceAction) {
     
    List<ServiceAction> allChildren = new ArrayList<ServiceAction>();
