@@ -35,7 +35,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.tools.shell.Groovysh;
+import org.codehaus.groovy.tools.shell.IO;
+import org.codehaus.groovy.tools.shell.util.Logger;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -302,9 +305,15 @@ private static boolean handleSpecialCase(String[] args) {
       groovyPreloadString.set(body.toString());
       //org.codehaus.groovy.tools.shell.Main.main(new String[] { "-e", body.toString() });
       
-      boolean exitOnNonInteractiveError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
+      boolean exitOnError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
       
-      final Groovysh shell = new GrouperGroovysh(exitOnNonInteractiveError);
+      org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.AUTO, false);
+      IO io = new IO();
+      CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
+      Logger.io = io;
+      compilerConfiguration.setParameters(false);
+
+      final Groovysh shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
       
       Runtime.getRuntime().addShutdownHook(new Thread() {
         public void run() {
