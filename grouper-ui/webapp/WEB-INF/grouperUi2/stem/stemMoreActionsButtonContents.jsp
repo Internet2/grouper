@@ -102,7 +102,7 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewAudits&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewAuditButton'] }</a></li>
                         </c:if>
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                        <c:if test="${grouperRequestContainer.stemContainer.canCreateGroups && grouperRequestContainer.stemContainer.canCreateStems }">
 
                           <li class="divider"></li>
 
