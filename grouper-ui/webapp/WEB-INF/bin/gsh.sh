@@ -39,7 +39,7 @@ fi
 if ! checkGrouperHome "$GROUPER_HOME"; then
 	echo "The GROUPER_HOME environment variable ('$GROUPER_HOME') is"
 	echo "    not defined correctly or could not be determined. The jar"
-	echo "    file <GROUPER_HOME>/dist/lib/grouper.jar must exist"
+	echo "    file <GROUPER_HOME>/lib/grouper.jar must exist"
 	return 1 2>/dev/null || exit 1
 fi
 
