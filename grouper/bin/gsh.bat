@@ -27,7 +27,7 @@ set GROUPER_HOME=%GROUPER_CUR_DIR%
 :checkGrouperHome
 if exist "%GROUPER_HOME%\bin\gsh.bat" goto okHome
 
-rem In case we are in 'bin' try teh parent directory 
+rem In case we are in 'bin' try the parent directory
 set GROUPER_HOME=%GROUPER_CUR_DIR%..
 
 :gotHome
@@ -40,7 +40,7 @@ set GROUPER_HOME=%GROUPER_HOME_SAFE%
 :badGrouperHome
 echo The GROUPER_HOME environment variable is not defined correctly
 echo or could not be determined
-echo This script must be located in "<GROUPER_HOME>" or "<GROUPER_HOME/bin"
+echo This script must be located in "<GROUPER_HOME>" or "<GROUPER_HOME\bin"
 goto end
 :okHome
 
@@ -67,34 +67,43 @@ if  "%MEM_START%" == "" set MEM_START=64m
 
 if  "%MEM_MAX%" == "" set MEM_MAX=750m
 
-if "%GROUPER_CONF%" == "" set GROUPER_CONF=%GROUPER_HOME%/conf
+if "%GROUPER_CONF%" == "" set GROUPER_CONF=%GROUPER_HOME%\conf
+
+rem grouper_conf should be a directory
+if not exist "%GROUPER_CONF%\" (
+  echo The GROUPER_CONF environment variable '%GROUPER_CONF%'
+  echo is not defined correctly or could not be determined. This should be
+  echo a directory containing property files"
+  goto end
+)
 
 set JAVA=java
 
-if not "%JAVA_HOME%" == "" set JAVA="%JAVA_HOME%/bin/java"
+if not "%JAVA_HOME%" == "" set JAVA="%JAVA_HOME%\bin\java"
 
-rem Append Grouper's configuration
-set GROUPER_CP=%GROUPER_HOME%/conf
+rem start with Grouper's configuration
+set GROUPER_CP=%GROUPER_CONF%
 
-rem Append Grouper .jar
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/dist/lib/grouper.jar
+rem Append Grouper jar
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\dist\lib\grouper.jar
 
 rem Append third party .jars
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/grouper/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/custom/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/jdbcSamples/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/ant/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/test/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/dist/lib/test/*
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\grouper\*
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\custom\*
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\jdbcSamples\*
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\ant\*
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\test\*
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\dist\lib\test\*
 
 rem Preserve the user's $CLASSPATH
-set GROUPER_CP=%GROUPER_CP%;%CLASSPATH%
+if not "%CLASSPATH%" == "" set GROUPER_CP=%CLASSPATH%;%GROUPER_CP%
 
 rem ----- Execute The Requested Command ---------------------------------------
 
 echo Using GROUPER_HOME:           %GROUPER_HOME%
 echo Using GROUPER_CONF:           %GROUPER_CONF%
 echo Using JAVA:                   %JAVA%
+echo Using CLASSPATH:              %GROUPER_CP%
 echo using MEMORY:                 %MEM_START%-%MEM_MAX%
 
 set GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper

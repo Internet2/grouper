@@ -1,25 +1,23 @@
-Note, if you are on unix, you need to convert the script to unix and make it executable.  e.g.
+gsh provides a command line interface to Grouper. Many operations which were previously invoked using Ant or specialized scripts are now invoked from gsh. 
 
-[appadmin@flash2 bin]$ dos2unix gsh
-dos2unix: converting file gsh to UNIX format ...
-[appadmin@flash2 bin]$ chmod +x gsh
-[appadmin@flash2 bin]$ ./gsh 
-Using GROUPER_HOME: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/bin/..
-Using GROUPER_CONF: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/bin/../classes
-Using JAVA: /opt/appserv/java6/bin/java
-using MEMORY: 64m-512m
-Grouper starting up: version: 1.5.1, build date: 2010/01/22 09:58:41, env: DEV
-grouper.properties read from: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/classes/grouper.properties
-Grouper current directory is: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/bin
-log4j.properties read from:   /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/classes/log4j.properties
-Grouper warning, it is detected that you are logging edu.internet2.middleware.grouper as ERROR and not WARN level.  It is recommended to log at at least WARN level in log4j.properties
-Grouper is logging to file:   appender type: SMTPAppender, /opt/appserv/tomcat_2v/logs/grouper/grouper_error.log, at min level ERROR for package: edu.internet2.middleware.grouper, based on log4j.properties
-grouper.hibernate.properties: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/classes/grouper.hibernate.properties
-grouper.hibernate.properties: user@jdbc:oracle:thin:@server:1521:sid
-sources.xml read from:        /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/classes/sources.xml
-sources.xml jdbc source id:   servPrinc: GrouperJdbcConnectionProvider
-sources.xml groupersource id: g:gsa
-sources.xml jdbc source id:   pennperson: GrouperJdbcConnectionProvider
-sources.xml jdbc source id:   jdbc: GrouperJdbcConnectionProvider
-Type help() for instructions
-gsh 0% 
+Information on command line arguments to gsh can be found by by running gsh with the -h option:
+
+Windows type: gsh -h
+*nix type: ./gsh.sh -h
+
+Properties that influence the gsh startup:
+
+    GROUPER_HOME: if set to a valid Grouper directory, it will use this directory. Otherwise, it will determine it based on the path to gsh.
+    GROUPER_CONF: if set to a valid conf directory, it will use this directory. Otherwise it will determine it based on GROUPER_HOME.
+    MEM_START: Override the default -Xms Java parameter (initial Java heap size)
+    MEM_MAX: Override the default -Xmx Java parameter (maximum Java heap size)
+    CLASSPATH: Will prepend to the constructed classpath
+    GSH_JVMARGS: Additional arguments to pass to Java
+    GSH_CYGWIN: if set and not blank, the script will convert paths and the classpath to Windows-style, for use with Windows Java under Cygwin.
+
+
+If the file GROUPER_HOME/bin/setenv.sh exists (setenv.bat in Windows), the script will source this file before running.
+
+Note that Windows has a -initEnv option for adding gsh to the path so you can run it from anywhere. For *nix 'source gsh.sh' for the same result.
+
+gsh provides an interactive shell. See https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859 for details.

@@ -1,136 +1,114 @@
 #!/usr/bin/env bash
 
-if [ "$0" = "" ]; then
-    arg1=-initEnv
-elif [ "$0" = "gsh.sh" ]; then
-    arg1=-initEnv
-else
-    arg1=$1
-    if [ "$arg1" = "-initenv" ]; then
-        arg1=-initEnv
-        fi
-    if [ "$arg1" = "-initEnv" ]; then
-        echo Cannot run gsh.sh -initEnv. Instead use:
-        echo " source gsh.sh, or"
-        echo " . gsh.sh"
-        exit
-        fi
-fi
-# In case something goes wrong
-GROUPER_HOME_SAFE=$GROUPER_HOME
 
-# Work out where we are
-GROUPER_CUR_DIR=$PWD
+checkGrouperHome() {
+	# undefined is failure
+	if [ -z "$1" ]; then return 1; fi
+
+	# lib/grouper.jar is success
+	if [ -f "$1/lib/grouper.jar" ]; then return 0; fi
+
+	# (bash command) lib/grouper-a.b.c.jar and lib/grouper-a.b.c-SNAPSHOT.jar are success
+	compgen -G "$1/lib/grouper-[0-9].[0-9].[0-9]*.jar" > /dev/null 2>&1
+}
+
 
 # Guess GROUPER_HOME if not defined
 if [ "$GROUPER_HOME" = "" ]; then
-    if [ "$arg1" = "-initEnv" ]; then
-        echo Attempting to reset GROUPER_HOME
-        fi
-    #:noGrouperHome
-    GROUPER_HOME=$GROUPER_CUR_DIR
-fi
+	# Get dirname from parent of gsh path
+	dirname="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-#:checkGrouperHome
-if [ -f "$GROUPER_HOME/bin/gsh.sh" ]; then
-    GROUPER_DUMMY=
-else
-    # In case we are in 'bin' try teh parent directory
-    GROUPER_HOME=$GROUPER_CUR_DIR/..
-fi
-
-#:gotHome
-if [ -f "$GROUPER_HOME/bin/gsh.sh" ]; then
-    GROUPER_DUMMY=
-else
-    # Bad GROUPER_HOME
-    if [ "$arg1" = "-initEnv" ]; then
-        # Something isn't right so revert to whatever we started with
-        GROUPER_HOME=$GROUPER_HOME_SAFE
-        fi
-    #:badGrouperHome
-    echo The GROUPER_HOME environment variable is not defined correctly
-    echo or could not be determined
-    echo This script must be located in "<GROUPER_HOME>" or "<GROUPER_HOME>/bin"
-    exit
-fi
-
-#:okHome
-
-PATH="$GROUPER_HOME/bin:$PATH"
-if [ "$arg1" = "-initEnv" ]; then
-    echo Added $GROUPER_HOME/bin to PATH
-    echo Setting GROUPER_HOME=$GROUPER_HOME
-    export GROUPER_HOME
-fi
-
-if [ "$2" != "" ]; then
-    if [ -f "$2/grouper.hibernate.properties" ]; then
-        GROUPER_CONF=$2
-        echo Using GROUPER_CONF=$GROUPER_CONF
-        fi
+	# sanity-check
+	if checkGrouperHome "$dirname"; then
+		GROUPER_HOME="$dirname"
+	else
+		# Above is unlikely to fail, but if so, get dirname from current parent directory
+		dirname2="$PWD/.."
+		if checkGrouperHome "$dirname2"; then
+			echo "WARNING-could not determine GROUPER_HOME based on location of this"
+			echo "  script, so using parent of the current directory instead"
+			GROUPER_HOME="$dirname2"
+		else
+			# revert back to the first attempt so any error messages can report it
+			GROUPER_HOME="$dirname"
+		fi
+	fi
 fi
 
 
-#:run
-# We aren't initing so handle args
+if ! checkGrouperHome "$GROUPER_HOME"; then
+	echo "The GROUPER_HOME environment variable ('$GROUPER_HOME') is"
+	echo "    not defined correctly or could not be determined. The jar"
+	echo "    file <GROUPER_HOME>/dist/lib/grouper.jar must exist"
+	return 1 2>/dev/null || exit 1
+fi
+
+
+# Check conf directory
+if [ "$GROUPER_CONF" = "" ]; then
+	GROUPER_CONF="$GROUPER_HOME/classes"
+fi
+if [ ! -d "$GROUPER_CONF" ]; then
+	echo "The GROUPER_CONF environment variable ('$GROUPER_CONF')"
+	echo "  is not defined correctly or could not be determined. This should be"
+	echo "  a directory containing property files"
+	return 1 2>/dev/null || exit 1
+fi
+
 
 # Get standard environment variables
 if [ -f "$GROUPER_HOME/bin/setenv.sh" ]; then
-    . "$GROUPER_HOME/bin/setenv.sh"
+	. "$GROUPER_HOME/bin/setenv.sh"
 fi
 
 if [ "$MEM_START" = "" ];then
- MEM_START=64m
+	MEM_START=64m
 fi
 
 if [ "$MEM_MAX" = "" ]; then
- MEM_MAX=750m
+	MEM_MAX=750m
 fi
-
-if [ "$GROUPER_CONF" = "" ]; then
- GROUPER_CONF=$GROUPER_HOME/classes
-fi
-
-JAVA=java
 
 if [ -n "$JAVA_HOME" ]; then
- JAVA="$JAVA_HOME/bin/java"
+	JAVA="$JAVA_HOME/bin/java"
+else
+	JAVA=java
 fi
+
 
 # Append Grouper's configuration
-GROUPER_CP=${GROUPER_HOME}/classes
-
-# Append third party .jars
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/*
+GROUPER_CP="${GROUPER_CONF}:${GROUPER_HOME}/lib/*"
 
 # Preserve the user's $CLASSPATH
-GROUPER_CP=${GROUPER_CP}:${CLASSPATH}
+if [ -n "$CLASSPATH" ]; then
+	GROUPER_CP=${CLASSPATH}:${GROUPER_CP}
+fi
+
+# If using Cygwin under Windows, may want to convert the Grouper paths, and convert classpath (:) to (;)
+if [ -n "$GSH_CYGWIN" ]; then
+	GROUPER_HOME=$(cygpath --windows "$GROUPER_HOME")
+	GROUPER_CONF=$(cygpath --windows "$GROUPER_CONF")
+	GROUPER_CP=$(cygpath --path --windows "$GROUPER_CP")
+fi
+
 
 retVal=0
-if [ "$arg1" != "-initEnv" ]; then
-    # ----- Execute The Requested Command ---------------------------------------
-
-    echo Using GROUPER_HOME: $GROUPER_HOME
-    echo Using GROUPER_CONF: $GROUPER_CONF
-    echo Using JAVA: $JAVA
-    echo using MEMORY: $MEM_START-$MEM_MAX
 
 
-    GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
+# ----- Execute The Requested Command ---------------------------------------
 
-	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
-    retVal=$?
-	
-fi
-#:end
-if [ "$arg1" != "-initEnv" ]; then
-    GROUPER_HOME=$GROUPER_HOME_SAFE
-fi
+echo "Using GROUPER_HOME:           $GROUPER_HOME"
+echo "Using GROUPER_CONF:           $GROUPER_CONF"
+echo "Using JAVA:                   $JAVA"
+echo "Using CLASSPATH:              $GROUPER_CP"
+echo "using MEMORY:                 $MEM_START-$MEM_MAX"
 
-#:endInitEnv
-GROUPER_CUR_DIR=
-GROUPER_HOME_SAFE=
-GROUPER_CP=
 
-exit $retVal
+GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
+
+"${JAVA}" -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
+retVal=$?
+
+# handle return from either execution or bash source
+return $retVal 2>/dev/null || exit $retVal
+
