@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+
 public abstract class GrouperTemplateLogicBase {
 
   /**
@@ -60,6 +62,33 @@ public abstract class GrouperTemplateLogicBase {
     }
     
     return true;
+  }
+  
+  /**
+   * create new service action
+   * @param defaulChecked
+   * @param indentLevel
+   * @param externalizedKey
+   * @param type
+   * @param args
+   * @param parentServiceAction
+   * @return
+   */
+  protected final ServiceAction createNewServiceAction(boolean defaulChecked, int indentLevel, 
+      String externalizedKey, ServiceActionType type, List<ServiceActionArgument> args,
+      ServiceAction parentServiceAction) {
+  
+    ServiceAction serviceAction = new ServiceAction();
+    serviceAction.setService(this);
+    serviceAction.setDefaultChecked(defaulChecked);
+    serviceAction.setIndentLevel(indentLevel);
+    serviceAction.setExternalizedKey(externalizedKey);
+    serviceAction.setServiceActionType(type);
+    serviceAction.getArgs().addAll(args);
+    serviceAction.setParentServiceAction(parentServiceAction);
+    serviceAction.setId(GrouperUuid.getUuid());
+    
+    return serviceAction;
   }
   
   /**

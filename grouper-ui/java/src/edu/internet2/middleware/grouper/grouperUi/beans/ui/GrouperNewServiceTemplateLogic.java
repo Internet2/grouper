@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
  * @author vsachdeva
@@ -27,28 +26,24 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
   private static final Map<String, List<ServiceAction>> serviceActions = new LinkedHashMap<String, List<ServiceAction>>();
   
   /**
-  Do you want a "apps:wiki" folder created?
+  Do you want a "app:Wiki" folder created? (ID is "wiki", name is "Wiki")
+  
+    Do you want a "app:Wiki:service" folder created?
+      Do you want a "app:Wiki:service:policy" folder created?
+      Do you want a "app:Wiki:service:reference" folder created? (ID is "ref", name is "reference")
+      Do you want a "app:Wiki:service:attribute" folder created?
+  
+    Do you want a "app:Wiki:security" folder created?
+      Do you want a "app:Wiki:security:Wiki Admins" group created? (ID is "wikiAdmins", name is "Wiki Admins")
+        Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Groups on the "app:Wiki" folder?
+        Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Folders on the "app:Wiki" folder?
+        Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Attributes on the "app:Wiki" folder?
     
-    Do you want a "apps:wiki:service" folder created?
-    
-      Do you want a "apps:wiki:service:policy" folder created?
-      Do you want a "apps:wiki:service:reference" folder created? (extension is "ref", displayExtension is "reference")
-      Do you want a "apps:wiki:service:attribute" folder created?
-    
-    
-    Do you want a "apps:wiki:security" folder created?
-      
-      Do you want a "apps:wiki:security:wiki_admins" group created?
-        Do you want "apps:wiki:security:wiki_admins" to have inherited ADMIN privileges on Groups on the "apps:wiki" folder?
-        Do you want "apps:wiki:security:wiki_admins" to have inherited ADMIN privileges on Folders on the "apps:wiki" folder?
-        Do you want "apps:wiki:security:wiki_admins" to have inherited ADMIN privileges on Attributes on the "apps:wiki" folder?
-      
-      Do you want a "apps:wiki:security:wiki_readers" group created?
-        Do you want "apps:wiki:security:wiki_readers" to have inherited READ privileges on Groups on the "apps:wiki" folder?
-      
-      Do you want a "apps:wiki:security:wiki_updaters" group created?
-        Do you want "apps:wiki:security:wiki_updaters" to have inherited UPDATE privileges on Groups on the "apps:wiki:service" folder?
-        Do you want "apps:wiki:security:wiki_updaters" to be a member of "apps:wiki:security:wiki_readers"?
+      Do you want a "app:Wiki:security:Wiki Readers" group created? (ID is "wikiReaders", name is "Wiki Readers")
+        Do you want "app:Wiki:security:Wiki Readers" to have inherited READ privileges on Groups on the "app:Wiki" folder?
+      Do you want a "app:Wiki:security:Wiki Updaters" group created? (ID is "wikiUpdaters", name is "Wiki Updaters")
+        Do you want "app:Wiki:security:Wiki Updaters" to have inherited UPDATE privileges on Groups on the "app:Wiki:service" folder?
+        Do you want "app:Wiki:security:Wiki Updaters" to be a member of "app:wiki:security:Wiki Readers"?
    */
   @Override
   public List<ServiceAction> getServiceActions() {
@@ -59,84 +54,98 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
     StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
     String baseStem = templateContainer.getTemplateKey();
     String baseStemFriendlyName = templateContainer.getTemplateFriendlyName();
-    String baseStemdescription = StringUtils.isBlank(templateContainer.getTemplateDescription()) ? 
+    
+    if (StringUtils.isBlank(baseStemFriendlyName)) {
+      baseStemFriendlyName = baseStem;
+    }
+    
+    String baseStemDescription = StringUtils.isBlank(templateContainer.getTemplateDescription()) ?
         TextContainer.retrieveFromRequest().getText().get("stemServiceBaseFolderDescription"): templateContainer.getTemplateDescription();
     
-    if (!serviceActions.containsKey(stem.getName()+":"+baseStem)) {
+    String stemPrefix = "";
+    String stemPrefixDisplayName = "";
+    if (!stem.isRootStem()) {
+      stemPrefix = stem.getName()+":";
+      stemPrefixDisplayName = stem.getDisplayName()+":";
+    }
+    
+    if (!serviceActions.containsKey(stemPrefix+baseStem)) {
       
       List<ServiceAction> serviceActionsForStem = new ArrayList<ServiceAction>();
       
       List<ServiceActionArgument> args = new ArrayList<ServiceActionArgument>();
     
-      // Do you want a "apps:wiki" folder created
-      args.add(new ServiceActionArgument("stemName", stem.getName()+":"+baseStem));
-      args.add(new ServiceActionArgument("stemDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName));
-      args.add(new ServiceActionArgument("stemDescription", baseStemdescription));
+      //Do you want a "app:Wiki" folder created? (ID is "wiki", name is "Wiki")
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName));
+      args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
       ServiceAction rootServiceAction = createNewServiceAction(true, 0, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, null);
       serviceActionsForStem.add(rootServiceAction);
       
-      //Do you want a "apps:wiki:service" folder created
+      //Do you want a "app:Wiki:service" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stem.getName()+":"+baseStem+":service"));
-      args.add(new ServiceActionArgument("stemDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName+":service"));
-      args.add(new ServiceActionArgument("stemDescription", baseStemdescription));
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+":service"));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":service"));
+      args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
       ServiceAction levelOneServiceAction_One = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, rootServiceAction);
       serviceActionsForStem.add(levelOneServiceAction_One);
       rootServiceAction.addChildServiceAction(levelOneServiceAction_One);
       
-      //Do you want a "apps:wiki:service:policy" folder created?
+      //Do you want a "app:Wiki:service:policy" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stem.getName()+":"+baseStem+":service:policy"));
-      args.add(new ServiceActionArgument("stemDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName+":service:policy"));
-      args.add(new ServiceActionArgument("stemDescription", baseStemdescription));
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+":service:policy"));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":service:policy"));
+      args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
       ServiceAction levelTwoServiceAction_One = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_One);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_One);
       
-      //Do you want a "apps:wiki:service:reference" folder created? (extension is "ref", displayExtension is "reference")
+      //Do you want a "apps:wiki:service:reference" folder created? (id is "ref", name is "reference")
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stem.getName()+":"+baseStem+":service:reference"));
-      args.add(new ServiceActionArgument("stemDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName+":service:reference"));
-      args.add(new ServiceActionArgument("stemDescription", baseStemdescription));
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+":service:ref"));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":service:reference"));
+      args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
       ServiceAction levelTwoServiceAction_Two = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_Two);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_Two);
       
-      //Do you want a "apps:wiki:service:attribute" folder created?
+      //Do you want a "app:Wiki:service:attribute" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stem.getName()+":"+baseStem+":service:attribute"));
-      args.add(new ServiceActionArgument("stemDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName+":service:attribute"));
-      args.add(new ServiceActionArgument("stemDescription", baseStemdescription));
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+":service:attribute"));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":service:attribute"));
+      args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
       ServiceAction levelTwoServiceAction_Three = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_Three);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_Three);
       
-      //Do you want a "apps:wiki:security" folder created
+      //Do you want a "app:Wiki:security" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stem.getName()+":"+baseStem+":security"));
-      args.add(new ServiceActionArgument("stemDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName+":security"));
-      args.add(new ServiceActionArgument("stemDescription", baseStemdescription));
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+":security"));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security"));
+      args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
       ServiceAction levelOneServiceAction_Two = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, rootServiceAction);
       serviceActionsForStem.add(levelOneServiceAction_Two);
       rootServiceAction.addChildServiceAction(levelOneServiceAction_Two);
       
-      //Do you want a "apps:wiki:security:wiki_admins" group created
+      //Do you want a "app:Wiki:security:Wiki Admins" group created? (ID is "wikiAdmins", name is "Wiki Admins")
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_admins"));
-      args.add(new ServiceActionArgument("groupDisplayName", stem.getDisplayName()+":"+baseStemFriendlyName+":security:"+baseStem+"_admins"));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Admins"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Admins"));
       args.add(new ServiceActionArgument("groupDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceBaseGroupDescription")));
       ServiceAction levelTwoServiceAction_Four = createNewServiceAction(true, 2, "stemServiceBaseGroupCreationConfirmation", 
           ServiceActionType.group, args, levelOneServiceAction_Two);
       serviceActionsForStem.add(levelTwoServiceAction_Four);
       levelOneServiceAction_Two.addChildServiceAction(levelTwoServiceAction_Four);
       
-      //Do you want "apps:wiki:security:wiki_admins" to have inherited ADMIN privileges on Groups on the "apps:wiki" folder?
+      //Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Groups on the "app:Wiki" folder?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_admins"));
-      args.add(new ServiceActionArgument("parentStemName", stem.getDisplayName()+":"+baseStem));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Admins"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Admins"));
+      args.add(new ServiceActionArgument("parentStemName", stemPrefix+baseStem));
+      args.add(new ServiceActionArgument("parentStemDisplayName", stemPrefixDisplayName+baseStemFriendlyName));
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "admin"));
       args.add(new ServiceActionArgument("templateItemType", "Groups"));
@@ -145,10 +154,12 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelThreeServiceAction_One);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_One);
       
-      //Do you want "apps:wiki:security:wiki_admins" to have inherited ADMIN privileges on Folders on the "apps:wiki" folder?
+      //Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Folders on the "app:Wiki" folder?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_admins"));
-      args.add(new ServiceActionArgument("parentStemName", stem.getDisplayName()+":"+baseStem));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Admins"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Admins"));
+      args.add(new ServiceActionArgument("parentStemName", stemPrefix+baseStem));
+      args.add(new ServiceActionArgument("parentStemDisplayName", stemPrefixDisplayName+baseStemFriendlyName));
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "stemAdmin"));
       args.add(new ServiceActionArgument("templateItemType", "Folders"));
@@ -157,10 +168,12 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelThreeServiceAction_Two);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_Two);
       
-      //Do you want "apps:wiki:security:wiki_admins" to have inherited ADMIN privileges on Attributes on the "apps:wiki" folder?
+      //Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Attributes on the "app:Wiki" folder?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_admins"));
-      args.add(new ServiceActionArgument("parentStemName", stem.getDisplayName()+":"+baseStem));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Admins"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Admins"));
+      args.add(new ServiceActionArgument("parentStemName", stemPrefix+baseStem));
+      args.add(new ServiceActionArgument("parentStemDisplayName", stemPrefixDisplayName+baseStemFriendlyName));
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "attrAdmin"));
       args.add(new ServiceActionArgument("templateItemType", "Attributes"));
@@ -169,21 +182,22 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelThreeServiceAction_Three);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_Three);
       
-      //Do you want a "apps:wiki:security:wiki_readers" group created
+      //Do you want a "app:Wiki:security:Wiki Readers" group created? (ID is "wikiReaders", name is "Wiki Readers")
       args = new ArrayList<ServiceActionArgument>();
-      rootServiceAction = new ServiceAction();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_readers"));
-      args.add(new ServiceActionArgument("groupDisplayName", stem.getDisplayName()+":"+baseStem+":security:"+baseStem+"_readers"));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Readers"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Readers"));
       args.add(new ServiceActionArgument("groupDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceBaseGroupDescription")));
       ServiceAction levelTwoServiceAction_Five = createNewServiceAction(true, 2, "stemServiceBaseGroupCreationConfirmation",
           ServiceActionType.group, args, levelOneServiceAction_Two);
       serviceActionsForStem.add(levelTwoServiceAction_Five);
       levelOneServiceAction_Two.addChildServiceAction(levelTwoServiceAction_Five);
       
-      //Do you want "apps:wiki:security:wiki_readers" to have inherited READ privileges on Groups on the "apps:wiki" folder?
+      //Do you want "app:Wiki:security:Wiki Readers" to have inherited READ privileges on Groups on the "app:Wiki" folder?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_readers"));
-      args.add(new ServiceActionArgument("parentStemName", stem.getDisplayName()+":"+baseStem));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Readers"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Readers"));
+      args.add(new ServiceActionArgument("parentStemName", stemPrefix+baseStem));
+      args.add(new ServiceActionArgument("parentStemDisplayName", stemPrefixDisplayName+baseStemFriendlyName));
       args.add(new ServiceActionArgument("privilegeType", "READ"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "read"));
       args.add(new ServiceActionArgument("templateItemType", "Groups"));
@@ -192,20 +206,22 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelThreeServiceAction_Four);
       levelTwoServiceAction_Five.addChildServiceAction(levelThreeServiceAction_Four);
       
-      //Do you want a "apps:wiki:security:wiki_updaters" group created?
+      //Do you want a "app:Wiki:security:Wiki Updaters" group created? (ID is "wikiUpdaters", name is "Wiki Updaters")
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_updaters"));
-      args.add(new ServiceActionArgument("groupDisplayName", stem.getDisplayName()+":"+baseStem+":security:"+baseStem+"_updaters"));      
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Updaters"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Updaters"));      
       args.add(new ServiceActionArgument("groupDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceBaseGroupDescription")));
       ServiceAction levelTwoServiceAction_Six = createNewServiceAction(true, 2, "stemServiceBaseGroupCreationConfirmation", 
           ServiceActionType.group, args, levelOneServiceAction_Two);
       serviceActionsForStem.add(levelTwoServiceAction_Six);
       levelOneServiceAction_Two.addChildServiceAction(levelTwoServiceAction_Six);
       
-      //Do you want "apps:wiki:security:wiki_updaters" to have inherited UPDATE privileges on Groups on the "apps:wiki:service" folder?
+      //Do you want "app:Wiki:security:Wiki Updaters" to have inherited UPDATE privileges on Groups on the "app:Wiki:service" folder?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stem.getName()+":"+baseStem+":security:"+baseStem+"_updaters"));
-      args.add(new ServiceActionArgument("parentStemName", stem.getDisplayName()+":"+baseStem+":service"));
+      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+":security:"+baseStem+"Updaters"));
+      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Updaters"));
+      args.add(new ServiceActionArgument("parentStemName", stemPrefix+baseStem+":service"));
+      args.add(new ServiceActionArgument("parentStemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":service"));
       args.add(new ServiceActionArgument("privilegeType", "UPDATE"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "update"));
       args.add(new ServiceActionArgument("templateItemType", "Groups"));
@@ -214,48 +230,23 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelThreeServiceAction_Five);
       levelTwoServiceAction_Six.addChildServiceAction(levelThreeServiceAction_Five);
       
-      //Do you want "apps:wiki:security:wiki_updaters" to be a member of "apps:wiki:security:wiki_readers"?
+      //Do you want "app:Wiki:security:Wiki Updaters" to be a member of "app:Wiki:security:Wiki Readers"?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupNameMembership", stem.getName()+":"+baseStem+":security:"+baseStem+"_updaters"));
-      args.add(new ServiceActionArgument("groupNameMembershipOf", stem.getDisplayName()+":"+baseStem+":security:"+baseStem+"_readers"));
+      args.add(new ServiceActionArgument("groupNameMembership", stemPrefix+baseStem+":security:"+baseStem+"Updaters"));
+      args.add(new ServiceActionArgument("groupNameMembershipDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Updaters"));
+      args.add(new ServiceActionArgument("groupNameMembershipOf", stemPrefix+baseStem+":security:"+baseStem+"Readers"));
+      args.add(new ServiceActionArgument("groupNameMembershipOfDisplayName", stemPrefixDisplayName+baseStemFriendlyName+":security:"+baseStemFriendlyName+" Readers"));
       ServiceAction levelThreeServiceAction_Six = createNewServiceAction(true, 3, "stemServiceBaseMemberAdditionConfirmation", 
           ServiceActionType.membership, args, levelTwoServiceAction_Five);
       serviceActionsForStem.add(levelThreeServiceAction_Six);
       levelTwoServiceAction_Six.addChildServiceAction(levelThreeServiceAction_Six);
       
-      serviceActions.put(stem.getName()+":"+baseStem, serviceActionsForStem);
+      serviceActions.put(stemPrefix+baseStem, serviceActionsForStem);
       
     }
     
-    return serviceActions.get(stem.getName()+":"+baseStem);
+    return serviceActions.get(stemPrefix+baseStem);
     
-  }
-  
-  /**
-   * create new service action
-   * @param defaulChecked
-   * @param indentLevel
-   * @param externalizedKey
-   * @param type
-   * @param args
-   * @param parentServiceAction
-   * @return
-   */
-  private ServiceAction createNewServiceAction(boolean defaulChecked, int indentLevel, 
-      String externalizedKey, ServiceActionType type, List<ServiceActionArgument> args,
-      ServiceAction parentServiceAction) {
-  
-    ServiceAction serviceAction = new ServiceAction();
-    serviceAction.setService(this);
-    serviceAction.setDefaultChecked(defaulChecked);
-    serviceAction.setIndentLevel(indentLevel);
-    serviceAction.setExternalizedKey(externalizedKey);
-    serviceAction.setServiceActionType(type);
-    serviceAction.getArgs().addAll(args);
-    serviceAction.setParentServiceAction(parentServiceAction);
-    serviceAction.setId(GrouperUuid.getUuid());
-    
-    return serviceAction;
   }
   
   

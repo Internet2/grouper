@@ -11,7 +11,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleApi;
@@ -62,7 +61,8 @@ public enum ServiceActionType {
       final Stem stem = StemFinder.findByName(session, parentStemName, true);
       
       Group group = GroupFinder.findByName(session, groupName, true);
-      final Subject sub = SubjectFinder.findById(group.getId(), true);
+      
+      Subject sub = group.toSubject();
       
       Privilege priv = Privilege.getInstance(privilegeName);
       
@@ -91,7 +91,7 @@ public enum ServiceActionType {
       Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
       
       Group groupMemberOf = GroupFinder.findByName(GrouperSession.staticGrouperSession(), memberOf, true);
-      Subject sub = SubjectFinder.findByIdOrIdentifier(group.getId(), true);
+      Subject sub = group.toSubject();
       groupMemberOf.addMember(sub, false);
       
     }

@@ -114,20 +114,20 @@
         <td
           style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
           
-          <c:if test="${!grouper:isBlank(grouperRequestContainer.stemTemplateContainer.templateKey)}">
+          <c:if test="${not empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
             <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
 	          onclick="ajax('../app/UiV2Template.newTemplateSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
-          <c:if test="${grouper:isBlank(grouperRequestContainer.stemTemplateContainer.templateKey)}">
+          <c:if test="${empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
             <input type="submit" class="btn btn-primary"
             aria-controls="groupFilterResultsId" id="filterSubmitId"
             value="${textContainer.text['stemTemplateNextButton'] }"
             onclick="ajax('../app/UiV2Template.loadBeansForServiceTemplateType?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
-          &nbsp; <a class="btn btn-cancel" role="button"
-          onclick="return guiV2link('operation=UiV2Attestation.stemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['grouperAttestationEditButtonCancel'] }</a>
+          &nbsp; 
+          <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemTemplateCancelButton'] }</a>
         </td>
       </tr>
     </tbody>
