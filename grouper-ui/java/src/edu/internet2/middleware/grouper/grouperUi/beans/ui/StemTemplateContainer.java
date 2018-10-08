@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author vsachdeva
  *
@@ -91,6 +93,14 @@ public class StemTemplateContainer {
     return templateFriendlyName;
   }
 
+  /**
+   * 
+   * @return the template key or friendly name
+   */
+  public String getFriendlyNameOrTemplateKey() {
+    return StringUtils.defaultIfBlank(this.templateFriendlyName, this.templateKey);
+  }
+  
   /**
    * @param templateFriendlyName: friendly name of the template. optional
    */
