@@ -796,7 +796,8 @@ public class GrouperDigitalMarketplaceCommands {
         //    "groupName": "chris-hyzer-test",
         //    "longGroupName": "chris-hyzer-test",
         //    "groupType": "Change",
-        //    "comments": "chris-hyzer-test comments"
+        //    "comments": "chris-hyzer-test comments",
+        //    "status": "Current", "tags" : ["virtualmarketplace"]
         //  }          
         
         JSONObject groupJsonObject = new JSONObject();
@@ -811,6 +812,10 @@ public class GrouperDigitalMarketplaceCommands {
         if (!GrouperClientUtils.isBlank(comments)) {
           groupJsonObject.put("comments", comments);
         }
+        groupJsonObject.put("status", "Current");
+        JSONArray tagsArray = new JSONArray();
+        tagsArray.add("Current");
+        groupJsonObject.put("tags", tagsArray );
         
         String groupJson = groupJsonObject.toString();
         
