@@ -55,8 +55,13 @@ public class GrouperInstallerIndexFile {
     /**
      * library
      */
-    lib("lib");
-    
+    lib("lib"),
+
+    /**
+     * bin directory
+     */
+    bin("bin");
+
     /**
      * dirname in patch
      */

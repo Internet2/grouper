@@ -7,13 +7,14 @@ Windows type: gsh -h
 
 Properties that influence the gsh startup:
 
-    GROUPER_HOME: if set to a valid Grouper directory, it will use this directory. Otherwise, it will determine it based on the path to gsh.
-    GROUPER_CONF: if set to a valid conf directory, it will use this directory. Otherwise it will determine it based on GROUPER_HOME.
+    GROUPER_HOME: if set to a valid Grouper directory, it will use this directory. Otherwise, it will determine it based on the path to gsh
+    GROUPER_CONF: if set to a valid conf directory, it will use this directory. Otherwise it will determine it based on GROUPER_HOME
     MEM_START: Override the default -Xms Java parameter (initial Java heap size)
     MEM_MAX: Override the default -Xmx Java parameter (maximum Java heap size)
     CLASSPATH: Will prepend to the constructed classpath
     GSH_JVMARGS: Additional arguments to pass to Java
-    GSH_CYGWIN: if set and not blank, the script will convert paths and the classpath to Windows-style, for use with Windows Java under Cygwin.
+    GSH_CYGWIN: if set and not blank, the script will convert paths and the classpath to Windows-style, for use with Windows Java under Cygwin
+    GSH_QUIET: if set and not blank, will not output preliminary diagnostic information before starting Java, other than errors
 
 
 If the file GROUPER_HOME/bin/setenv.sh exists (setenv.bat in Windows), the script will source this file before running.

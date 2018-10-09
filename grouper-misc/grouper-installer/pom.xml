@@ -71,6 +71,29 @@
                 </execution>
             </executions>
         </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <index>true</index>
+                    <manifestEntries>
+                        <Main-Class>edu.internet2.middleware.grouperInstaller.GrouperInstaller</Main-Class>
+                    </manifestEntries>
+                    <manifestSections>
+                        <manifestSection>
+                            <name>edu/internet2/middleware/grouperInstaller/GrouperInstaller</name>
+                            <manifestEntries>
+                                <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
+                                <Implementation-URL>https://spaces.internet2.edu/display/Grouper/Grouper+Installer</Implementation-URL>
+                            </manifestEntries>
+                        </manifestSection>
+                    </manifestSections>
+                </archive>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>

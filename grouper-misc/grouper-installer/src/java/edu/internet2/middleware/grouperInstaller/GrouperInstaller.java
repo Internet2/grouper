@@ -2607,16 +2607,22 @@ public class GrouperInstaller {
                 + File.separator + "build" + File.separator + "grouper"),
             PatchFileType.clazz);
 
-        this.patchCreateProcessFiles(theIndexOfFiles, 
+        this.patchCreateProcessFiles(theIndexOfFiles,
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper" + File.separator + "conf"),
             PatchFileType.clazz);
 
-        this.patchCreateProcessFiles(theIndexOfFiles, 
+        this.patchCreateProcessFiles(theIndexOfFiles,
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper" + File.separator + "src" 
                 + File.separator + "grouper"),
             PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles,
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper" + File.separator + "bin"),
+            PatchFileType.bin);
+
 
         break;
       case UI:
@@ -2650,7 +2656,7 @@ public class GrouperInstaller {
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ui" 
                 + File.separator + "webapp"),
             PatchFileType.file);
-        
+
         break;
       case WS:
         
@@ -2988,10 +2994,6 @@ public class GrouperInstaller {
   
   /**
    * build ws scim
-<<<<<<< master
-=======
-   * @param wsScimDir
->>>>>>> 0fbbf62 Let users install Grouper WS SCIM via Grouper Installer
    */
   private void buildWsScim() {
     
@@ -7247,6 +7249,7 @@ public class GrouperInstaller {
       patchDirToApplicationPath.put("files", this.upgradeExistingApplicationDirectoryString);
       patchDirToApplicationPath.put("classes", this.upgradeExistingClassesDirectoryString);
       patchDirToApplicationPath.put("lib", this.upgradeExistingLibDirectoryString);
+      patchDirToApplicationPath.put("bin", this.upgradeExistingBinDirectoryString);
 
       boolean patchHasProblem = false;
       
@@ -7700,6 +7703,7 @@ public class GrouperInstaller {
       patchDirToApplicationPath.put("files", this.upgradeExistingApplicationDirectoryString);
       patchDirToApplicationPath.put("classes", this.upgradeExistingClassesDirectoryString);
       patchDirToApplicationPath.put("lib", this.upgradeExistingLibDirectoryString);
+      patchDirToApplicationPath.put("bin", this.upgradeExistingBinDirectoryString);
 
       boolean patchHasProblem = false;
       
@@ -7962,6 +7966,7 @@ public class GrouperInstaller {
     patchDirToApplicationPath.put("files", this.upgradeExistingApplicationDirectoryString);
     patchDirToApplicationPath.put("classes", this.upgradeExistingClassesDirectoryString);
     patchDirToApplicationPath.put("lib", this.upgradeExistingLibDirectoryString);
+    patchDirToApplicationPath.put("bin", this.upgradeExistingBinDirectoryString);
 
     //map of full patch file name to the patch number that is installed
     Map<String, Integer> fileInMoreRecentPatchMap = new HashMap<String, Integer>();
@@ -9006,6 +9011,8 @@ public class GrouperInstaller {
         + "conf" + File.separator;
     this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
         + "lib" + File.separator + "grouper" + File.separator;
+    this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
+            + "bin" + File.separator;
     patchApi();
 
     //make sure log4j is debugging sql statements
@@ -9070,6 +9077,8 @@ public class GrouperInstaller {
           + "WEB-INF" + File.separator + "classes" + File.separator ;
       this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
           + "WEB-INF" + File.separator + "lib" + File.separator;
+      this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
+              + "WEB-INF" + File.separator + "bin" + File.separator ;
       this.patchUi();
     }
     
@@ -9124,7 +9133,9 @@ public class GrouperInstaller {
           + "WEB-INF" + File.separator + "classes" + File.separator ;
       this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
           + "WEB-INF" + File.separator + "lib" + File.separator;
-  
+      this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
+              + "WEB-INF" + File.separator + "bin" + File.separator ;
+
       this.patchWs();
   
       //####################################
@@ -12574,8 +12585,25 @@ public class GrouperInstaller {
             }
           }
           this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.upgradeExistingLibDirectoryString);
-        }        
-                
+        }
+
+        //find the bin dir
+        {
+          File binDirFile = new File(this.upgradeExistingApplicationDirectoryString + "bin" + File.separator);
+          if (binDirFile.exists()) {
+            this.upgradeExistingBinDirectoryString = binDirFile.getAbsolutePath();
+          } else {
+            binDirFile = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF" + File.separator + "bin" + File.separator);
+            if (binDirFile.exists()) {
+              this.upgradeExistingBinDirectoryString = binDirFile.getAbsolutePath();
+            } else {
+              this.upgradeExistingBinDirectoryString = this.upgradeExistingApplicationDirectoryString;
+            }
+          }
+          this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.upgradeExistingBinDirectoryString);
+        }
+
+
         return upgradeExistingDirectoryString;
       }
       
@@ -12596,7 +12624,11 @@ public class GrouperInstaller {
    * where jars are in the upgrade directory, ends in file separator
    */
   private String upgradeExistingLibDirectoryString;
-  
+
+  /**
+   * where bin files (gsh) are in the upgrade directory, ends in file separator
+   */
+  private String upgradeExistingBinDirectoryString;
   /**
    * 
    * @param action upgrade or patch
