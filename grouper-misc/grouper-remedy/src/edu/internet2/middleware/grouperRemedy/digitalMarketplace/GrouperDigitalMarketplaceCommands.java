@@ -3,7 +3,9 @@ package edu.internet2.middleware.grouperRemedy.digitalMarketplace;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import net.sf.json.JSONArray;
@@ -15,6 +17,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.DeleteMethod;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.GetMethod;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PostMethod;
@@ -38,18 +41,45 @@ public class GrouperDigitalMarketplaceCommands {
    * @param args
    */
   public static void main(String[] args) {
+    
+//    deleteDigitalMarketplaceGroup("pg_ISC_staff", false);
+//    deleteDigitalMarketplaceGroup("pg_IT_staff", false);
+//    deleteDigitalMarketplaceGroup("pg_data_center_hosting_clients", false);
+//    deleteDigitalMarketplaceGroup("pg_hire_IT_clients", false);
+//    deleteDigitalMarketplaceGroup("pg_penn_community_admins", false);
+//    deleteDigitalMarketplaceGroup("pg_telephone_support_providers", false);
+//    deleteDigitalMarketplaceGroup("pg_test2", false);
+//    deleteDigitalMarketplaceGroup("pg_test", false);
+    
+    
+    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
+    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
+      if (grouperDigitalMarketplaceGroup.getGroupName().startsWith("pg_")) {
+        System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceGroup.getLongGroupName());
+        for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : grouperDigitalMarketplaceGroup.getMemberUsers().values()) {
+          System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceUser.getLoginName());
+        }
+      }
+    }
+
 //    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
 //    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
 //      System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceGroup.getLongGroupName());
 //    }
+
+    
+//    createDigitalMarketplaceGroup("pg_test2", "pg_test2", "comments", false);
     
 //    Map<String, GrouperDigitalMarketplaceUser> mapNameToUser = retrieveDigitalMarketplaceUsers();
 //    for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : mapNameToUser.values()) {
 //      System.out.println(grouperDigitalMarketplaceUser.getLoginName() + " #### " + grouperDigitalMarketplaceUser.getUserId());
 //    }
     
-//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("mchyzer");
+//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("dcamacho");
 //    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
+//    for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
+//      System.out.println(groupName);
+//    }
 
 //    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
 //    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
@@ -57,11 +87,11 @@ public class GrouperDigitalMarketplaceCommands {
 //      System.out.println(groupName);
 //    }
 
-    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
-    GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = mapNameToGroup.get("sbe-asset-managers");
-    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
-    assignUserToDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
-    removeUserFromDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
+//    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
+//    GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = mapNameToGroup.get("sbe-asset-managers");
+//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
+//    assignUserToDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
+//    removeUserFromDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
     
   }
 
@@ -594,7 +624,8 @@ public class GrouperDigitalMarketplaceCommands {
         
         JSONArray groups = jsonObject.getJSONArray("groups");
 
-        
+        removeNonExistentGroups(groups, debugMap);
+
         JSONObject userWithGroupsJson = new JSONObject();
         JSONArray groupsJson = new JSONArray();
 
@@ -692,6 +723,32 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * 
+   * @param groups
+   * @param debugMap 
+   */
+  private static void removeNonExistentGroups(JSONArray groups, Map<String, Object> debugMap) {
+
+    if (groups == null || groups.size() == 0) {
+      return;
+    }
+
+    //get all groupNames
+    Set<String> groupNames = new LinkedHashSet<String>();
+    for (int i=0;i<groups.size();i++) {
+      String groupName = groups.getString(i);
+      groupNames.add(groupName);
+    }
+    
+    for (String groupName : groupNames) {
+      if (!GrouperDigitalMarketplaceGroup.retrieveGroups().containsKey(groupName)) {
+        groups.remove(groupName);
+        debugMap.put("removeGroup_" + groupName, true);
+      }
+    }
+  }
+  
+  /**
    * @param grouperDigitalMarketplaceUser
    * @param grouperDigitalMarketplaceGroup
    * @param isIncremental
@@ -718,6 +775,8 @@ public class GrouperDigitalMarketplaceCommands {
       
       JSONObject jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
       JSONArray groups = jsonObject.getJSONArray("groups");
+      
+      removeNonExistentGroups(groups, debugMap);
       
       int groupIndex = -1;
       
@@ -814,14 +873,16 @@ public class GrouperDigitalMarketplaceCommands {
         }
         groupJsonObject.put("status", "Current");
         JSONArray tagsArray = new JSONArray();
-        tagsArray.add("Current");
+        tagsArray.add("virtualmarketplace");
         groupJsonObject.put("tags", tagsArray );
         
         String groupJson = groupJsonObject.toString();
         
         // /api/rx/application/user/Allen
         executePutPostMethod(debugMap, "/api/rx/application/group/", null, groupJson, false);
-        
+
+        GrouperDigitalMarketplaceGroup.clearGroupCache();
+
         return true;
       } 
         
@@ -835,6 +896,108 @@ public class GrouperDigitalMarketplaceCommands {
     } finally {
       GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTime);
     }
+  }
+
+  /**
+   * @param groupName 
+   * @param isIncremental
+   * @return true if added, false if already exists
+   */
+  public static Boolean deleteDigitalMarketplaceGroup(String groupName, boolean isIncremental) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("method", "deleteDigitalMarketplaceGroup");
+    debugMap.put("groupName", groupName);
+    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
+  
+    long startTime = System.nanoTime();
+    
+    try {
+  
+      // refresh the user object
+      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroupExisting = retrieveDigitalMarketplaceGroups().get(groupName);
+      
+      // restart timer
+      startTime = System.nanoTime();
+      
+      if (grouperDigitalMarketplaceGroupExisting != null) {
+        debugMap.put("foundExistingGroup", true);
+        
+        // /api/rx/application/user/Allen
+        executeDeleteMethod(debugMap, "/api/rx/application/group/" + groupName, null);
+
+        GrouperDigitalMarketplaceGroup.clearGroupCache();
+
+        return true;
+      } 
+        
+      debugMap.put("foundExistingGroup", true);
+    
+      return false;
+  
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTime);
+    }
+  }
+
+  /**
+   * execute a DELETE method
+   * @param debugMap
+   * @param path
+   * @param paramMap
+   * @return the json object
+   */
+  private static JSONObject executeDeleteMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
+  
+    HttpClient httpClient = httpClient(debugMap);
+  
+    String jwtToken = retrieveJwtToken(debugMap, httpClient);
+  
+    String fullUrl = calculateUrl(path, paramMap);
+    DeleteMethod deleteMethod = new DeleteMethod(fullUrl);
+    
+    debugMap.put("delete", true);
+
+    //debugMap.put("requestBody", requestBody);
+    deleteMethod.addRequestHeader("authorization", "AR-JWT " + jwtToken);
+    deleteMethod.addRequestHeader("Content-Type", "application/json");
+    deleteMethod.addRequestHeader("X-Requested-By", "hannah_admin@upenn-qa-mtvip.onbmc.com");
+    
+    int responseCodeInt = -1;
+    String responseBody = null;
+    long startTime = System.nanoTime();
+    try {
+      responseCodeInt = httpClient.executeMethod(deleteMethod);
+      
+      try {
+        responseBody = deleteMethod.getResponseBodyAsString();
+      } catch (Exception e) {
+        debugMap.put("getResponseAsStringException", ExceptionUtils.getStackTrace(e));
+      }
+      
+    } catch (Exception e) {
+      throw new RuntimeException("error in authn", e);
+    } finally {
+      debugMap.put("getMillis", ((System.nanoTime() - startTime) / 1000000) + "ms");
+    }
+    
+    debugMap.put("responseCodeInt", responseCodeInt);
+    if (responseCodeInt != 200 && responseCodeInt != 201 && responseCodeInt != 204) {
+      throw new RuntimeException("get didnt return 204, it returned: " + responseCodeInt + "," + responseBody);
+    }
+  
+    // hmmm, no body
+    if (GrouperClientUtils.isBlank(responseBody)) {
+      return null;
+    }
+    
+    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( responseBody );     
+  
+    return jsonObject;
   }
 
 }
