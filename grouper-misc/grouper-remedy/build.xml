@@ -86,14 +86,14 @@
       </then>
     </if>
   
-    <available file="${grouper.lib.dir}/commons-lang.jar" property="grouper.lib.dir.exists" value="true" />
+    <available file="${grouper.lib.dir}/grouperClient.jar" property="grouper.lib.dir.exists" value="true" />
   
     <if>
       <not>
         <isset property="grouper.lib.dir.exists" />
       </not>      
       <then>
-        <fail message="Cant find grouper lib dir jars (e.g. commons-lang.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
+        <fail message="Cant find grouper lib dir jars (e.g. grouperClient.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
       </then>
     </if>
   

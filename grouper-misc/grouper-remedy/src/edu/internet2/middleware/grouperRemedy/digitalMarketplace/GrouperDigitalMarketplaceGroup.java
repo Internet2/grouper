@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -14,6 +15,38 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  *
  */
 public class GrouperDigitalMarketplaceGroup {
+
+  /**
+   * cache group
+   */
+  private static ExpirableCache<Boolean, Map<String, GrouperDigitalMarketplaceGroup>> retrieveGroupsCache = new ExpirableCache<Boolean, Map<String, GrouperDigitalMarketplaceGroup>>(1);
+  
+  /**
+   * 
+   */
+  public synchronized static void clearGroupCache() {
+    retrieveGroupsCache.clear();
+  }
+  
+  /**
+   * 
+   * @return box api connection never null
+   */
+  public synchronized static Map<String, GrouperDigitalMarketplaceGroup> retrieveGroups() {
+    
+    Map<String, GrouperDigitalMarketplaceGroup> groupsMap = retrieveGroupsCache.get(Boolean.TRUE);
+    
+    if (groupsMap == null) {
+      
+      groupsMap = GrouperDigitalMarketplaceCommands.retrieveDigitalMarketplaceGroups();
+      
+      retrieveGroupsCache.put(Boolean.TRUE, groupsMap);
+    }
+    
+    return groupsMap;
+  }
+
+
 
   /**
    */

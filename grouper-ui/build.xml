@@ -293,7 +293,6 @@
 		  </then>
 		</if>
 
-
 		<echo message="Creating  ${webapp.folder}"/>
 		<mkdir dir="${webapp.folder}"/>
 		<mkdir dir="${webapp.class.folder}"/>
@@ -304,6 +303,17 @@
 				<exclude name="*.example.*"/>
 			</fileset>
 		</copy>
+
+		<echo message="Copying Grouper bin files to ${webapp.folder}/WEB-INF/bin"/>
+		<copy todir="${webapp.folder}/WEB-INF/bin" overwrite="false">
+			<fileset dir="${grouper.folder}/bin"/>
+		</copy>
+		<echo message="Adjusting executables in WEB-INF/bin"/>
+		<fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="*.sh" />
+		<fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="dos" includes="*.bat" />
+		<copy file="${webapp.folder}/WEB-INF/bin/gsh.sh" tofile="${webapp.folder}/WEB-INF/bin/gsh" />
+		<chmod dir="${webapp.folder}/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
 		<!-- Allow local log4j.properties -->
 		<condition property="local.log4j">
 			<equals trim="true" arg2="true" arg1="${use.local.log4j}"/>
@@ -584,15 +594,6 @@
 	
 	<target name="-war" if="build.war">
 		<delete file="${dist.home}/${webapp.name}.war"/>
-		
-    <fixcrlf srcdir="${dist.home}/${webapp.name}/WEB-INF/bin" eol="unix" includes="*.sh" />
-    <fixcrlf srcdir="${dist.home}/${webapp.name}/WEB-INF/bin" eol="dos" includes="*.bat" />
-    <chmod dir="${dist.home}/${webapp.name}/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
-
-    <copy file="${dist.home}/${webapp.name}/WEB-INF/bin/gsh.sh" tofile="${dist.home}/${webapp.name}/WEB-INF/bin/gsh" />
-    <fixcrlf srcdir="${dist.home}/${webapp.name}/WEB-INF/bin" eol="unix" includes="gsh" />
-    <chmod dir="${dist.home}/${webapp.name}/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
-
 		
 		<echo message="Creating ${dist.home}/${webapp.name}.war"/>
 		<jar destfile="${dist.home}/${webapp.name}.war" basedir="${dist.home}/${webapp.name}"/>

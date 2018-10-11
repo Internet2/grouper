@@ -1,64 +1,77 @@
 @echo off
-if  "%1" == "-initEnv" goto afterSetLocal
 
-rem Don't want side effects unless initing the environment
-setlocal
+setlocal enabledelayedexpansion
 
-:afterSetLocal
+set ERROR_BAD_HOME_SET=80
+set ERROR_BAD_HOME_CALC=81
+set ERROR_BAD_CONF=82
 
-rem In case something goes wrong
-set GROUPER_HOME_SAFE=%GROUPER_HOME%
 
-rem Work out where we are
-set GROUPER_CUR_DIR=%~dp0
+if "%1" == "-initEnv" (
+	set GROUPER_HOME=
+	set GROUPER_CONF=
+)
 
-rem Guess GROUPER_HOME if not defined
-if "%GROUPER_HOME%" == "" goto noGrouperHome
+if not "%GROUPER_HOME%" == "" (
+	rem if GROUPER_HOME already set, verify it's a good directory
+	call :checkGrouperHome "%GROUPER_HOME%"
+	IF !ERRORLEVEL! NEQ 0 (
+		call :errorBadHome "%GROUPER_HOME%"
+		exit /b %ERROR_BAD_HOME_SET%
+	)
+) else (
+	rem Otherwise, get dirname from parent of gsh path
+	set GROUPER_CUR_DIR=%~dp0..
+	call :checkGrouperHome "!GROUPER_CUR_DIR!"
+	if !ERRORLEVEL! EQU 0 (
+		set GROUPER_HOME=!GROUPER_CUR_DIR!
+	) else (
+		call :errorBadHome "!GROUPER_CUR_DIR!"
+		exit /b %ERROR_BAD_HOME_CALC%
+	)
+)
 
-rem If we are not initing figure out if we are in a valid directory
-if not "%1" == "-initEnv" goto checkGrouperHome
+if "%GSH_QUIET%" == "" echo Detected Grouper directory structure '%_grouperHomeType%' (valid is api or webapp)
 
-rem Initing so force GROUPER_HOME to be where we are now
-echo Attempting to reset GROUPER_HOME
+if "%1" == "-initEnv" (
+	if not "%~2" == "" (
+		set GROUPER_CONF=%~2
+	)	
+)
 
-:noGrouperHome
-set GROUPER_HOME=%GROUPER_CUR_DIR%
+if "%GROUPER_CONF%" == "" (
+	if %_grouperHomeType% == api (
+		set GROUPER_CONF=%GROUPER_HOME%\conf
+	) else if %_grouperHomeType% == webapp (
+		set GROUPER_CONF=%GROUPER_HOME%\classes
+	)
+)
 
-:checkGrouperHome
-if exist "%GROUPER_HOME%\bin\gsh.bat" goto okHome
 
-rem In case we are in 'bin' try the parent directory
-set GROUPER_HOME=%GROUPER_CUR_DIR%..
+if not exist "%GROUPER_CONF%\grouper.hibernate.properties" (
+	echo The GROUPER_CONF environment variable ^(%GROUPER_CONF%^) is not
+	echo   defined correctly or could not be determined. This should be a directory
+	echo   containing property files, but is missing grouper.hibernate.properties
+	exit /b %ERROR_BAD_CONF%
+)
 
-:gotHome
-if exist "%GROUPER_HOME%\bin\gsh.bat" goto okHome
-if not "%1" == "-initEnv" goto badGrouperHome
 
-rem Something isn't right so revert to whatever we started with
-set GROUPER_HOME=%GROUPER_HOME_SAFE%
+rem if using -initEnv, just exit here
+if "%1" == "-initEnv" (
+	endlocal
 
-:badGrouperHome
-echo The GROUPER_HOME environment variable is not defined correctly
-echo or could not be determined
-echo This script must be located in "<GROUPER_HOME>" or "<GROUPER_HOME\bin"
-goto end
-:okHome
+	rem path "%GROUPER_HOME%\bin;%PATH%"
+	rem echo Added %GROUPER_HOME%\bin to PATH
 
-path %GROUPER_HOME%\bin;%PATH%;
-if not "%1" == "-initEnv" goto run
+	echo Setting GROUPER_HOME=%GROUPER_HOME%
+	set GROUPER_HOME=%GROUPER_HOME%
 
-echo Added %GROUPER_HOME%\bin to PATH
-set GROUPER_HOME=%GROUPER_HOME%
-echo Setting GROUPER_HOME=%GROUPER_HOME%
-if "%2" == "" goto endInitEnv
+	echo Setting GROUPER_CONF=%GROUPER_CONF%
+	set GROUPER_CONF=%GROUPER_CONF%
 
-if exist "%2%\grouper.hibernate.properties" set GROUPER_CONF=%2
-if "%GROUPER_CONF%" == "" goto run
-echo Using GROUPER_CONF=%GROUPER_CONF%
-goto endInitEnv
+	exit /b 0
+)
 
-:run
-rem We aren't initing so handle args
 
 rem Get standard environment variables
 if exist "%GROUPER_HOME%\bin\setenv.bat" call "%GROUPER_HOME%\bin\setenv.bat"
@@ -67,53 +80,69 @@ if  "%MEM_START%" == "" set MEM_START=64m
 
 if  "%MEM_MAX%" == "" set MEM_MAX=750m
 
-if "%GROUPER_CONF%" == "" set GROUPER_CONF=%GROUPER_HOME%\conf
+if not "%JAVA_HOME%" == "" (set JAVA="%JAVA_HOME%\bin\java") else (set JAVA=java)
 
-rem grouper_conf should be a directory
-if not exist "%GROUPER_CONF%\" (
-  echo The GROUPER_CONF environment variable '%GROUPER_CONF%'
-  echo is not defined correctly or could not be determined. This should be
-  echo a directory containing property files"
-  goto end
-)
-
-set JAVA=java
-
-if not "%JAVA_HOME%" == "" set JAVA="%JAVA_HOME%\bin\java"
 
 rem start with Grouper's configuration
 set GROUPER_CP=%GROUPER_CONF%
 
-rem Append Grouper jar
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\dist\lib\grouper.jar
+if %_grouperHomeType% == api (
+	rem Append Grouper jar
+	set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\dist\lib\grouper.jar
 
-rem Append third party .jars
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\grouper\*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\custom\*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\jdbcSamples\*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\ant\*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\lib\test\*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%\dist\lib\test\*
+	rem Append third party .jars
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\grouper\*
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\custom\*
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\jdbcSamples\*
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\ant\*
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\lib\test\*
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\dist\lib\test\*
+
+	rem Append resources
+	set GROUPER_CP=!GROUPER_CP!;%GROUPER_HOME%\src\resources
+) else if %_grouperHomeType% == webapp (
+	set GROUPER_CP=%GROUPER_CONF%;%GROUPER_HOME%\lib\*
+)
 
 rem Preserve the user's $CLASSPATH
 if not "%CLASSPATH%" == "" set GROUPER_CP=%CLASSPATH%;%GROUPER_CP%
 
 rem ----- Execute The Requested Command ---------------------------------------
 
-echo Using GROUPER_HOME:           %GROUPER_HOME%
-echo Using GROUPER_CONF:           %GROUPER_CONF%
-echo Using JAVA:                   %JAVA%
-echo Using CLASSPATH:              %GROUPER_CP%
-echo using MEMORY:                 %MEM_START%-%MEM_MAX%
+if "%GSH_QUIET%" == "" (
+	echo Using GROUPER_HOME:           %GROUPER_HOME%
+	echo Using GROUPER_CONF:           %GROUPER_CONF%
+	echo Using JAVA:                   %JAVA%
+	echo Using CLASSPATH:              %GROUPER_CP%
+	echo using MEMORY:                 %MEM_START%-%MEM_MAX%
+)
 
 set GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
 %JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" -Dfile.encoding=utf-8 %GSH_JVMARGS% -classpath "%GROUPER_CP%" %GSH% %*
 
-:end
-set GROUPER_HOME=%GROUPER_HOME_SAFE%
+EXIT /B %ERRORLEVEL%
 
-:endInitEnv
-set GROUPER_CUR_DIR=
-set GROUPER_HOME_SAFE=
-set GROUPER_CP=
+
+:checkGrouperHome
+	set _grouperHomeType=
+	if %1 == "" EXIT /B 1
+
+	if exist %1%\dist\lib\grouper.jar (
+		set _grouperHomeType=api
+	) else if exist %1%\lib\grouper.jar (
+		set _grouperHomeType=webapp
+	) else (
+		for %%a in (%1%\lib\grouper-*.jar) do set _grouperHomeType=webapp
+	)
+
+	if "%_grouperHomeType%" == "" EXIT /B 1
+	exit /b 0
+
+
+:errorBadHome
+	echo The GROUPER_HOME environment variable (%1%) is
+	echo     not defined correctly or could not be determined. The
+	echo     grouper.jar file could not be found in either the dist/lib
+	echo     or lib directory
+	exit /b 0

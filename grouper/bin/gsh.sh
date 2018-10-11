@@ -1,53 +1,87 @@
 #!/usr/bin/env bash
 
+_ERROR_BAD_HOME_SET=80
+_ERROR_BAD_HOME_CALC=81
+_ERROR_BAD_CONF=82
 
-checkGrouperHome() {
+# Returns true if $1/dist/lib/grouper.jar exists
+isApiHome() {
 	# undefined is failure
 	if [ -z "$1" ]; then return 1; fi
 	[ -f "$1/dist/lib/grouper.jar" ]
 }
 
+# Returns true if exists in $1/lib: grouper.jar or grouper-a.b.c*.jar
+isWebappHome() {
+	# undefined is failure
+	if [ -z "$1" ]; then return 1; fi
 
-# Guess GROUPER_HOME if not defined
-if [ "$GROUPER_HOME" = "" ]; then
-	# Get dirname from parent of gsh path
+	# lib/grouper.jar is success
+	if [ -f "$1/lib/grouper.jar" ]; then return 0; fi
+
+	# (bash command) lib/grouper-a.b.c.jar and lib/grouper-a.b.c-SNAPSHOT.jar are success
+	compgen -G "$1/lib/grouper-[0-9].[0-9].[0-9]*.jar" > /dev/null 2>&1
+}
+
+# set _grouperHomeType to ["", api, webapp] depending on where grouper.jar is found
+checkGrouperHome() {
+	_grouperHomeType=
+	if isApiHome "$1"; then
+		_grouperHomeType=api
+	elif isWebappHome "$1"; then
+		_grouperHomeType=webapp
+	fi
+
+	[ -n "$_grouperHomeType" ]
+}
+
+
+errorBadHome() {
+	echo "The GROUPER_HOME environment variable ('$GROUPER_HOME') is"
+	echo "    not defined correctly or could not be determined. The"
+	echo "    grouper.jar file could not be found in either the dist/lib"
+	echo "    or lib directory"
+}
+
+
+# if GROUPER_HOME already set, verify it's a good directory
+if [ -n "$GROUPER_HOME" ]; then
+	if ! checkGrouperHome "$GROUPER_HOME"; then
+		errorBadHome
+		return $_ERROR_BAD_HOME_SET 2>/dev/null || exit $_ERROR_BAD_HOME_SET
+	fi
+else
+	# Otherwise, get dirname from parent of gsh path
 	dirname="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-	# sanity-check
 	if checkGrouperHome "$dirname"; then
 		GROUPER_HOME="$dirname"
+	#elif checkGrouperHome "$PWD/.."; then
+	#	echo "WARNING-could not determine GROUPER_HOME based on location of this"
+	#	echo "  script, so using parent of the current directory instead"
+	#	GROUPER_HOME="$PWD/.."
 	else
-		# Above is unlikely to fail, but if so, get dirname from current parent directory
-		dirname2="$PWD/.."
-		if checkGrouperHome "$dirname2"; then
-			echo "WARNING-could not determine GROUPER_HOME based on location of this"
-			echo "  script, so using parent of the current directory instead"
-			GROUPER_HOME="$dirname2"
-		else
-			# revert back to the first attempt so any error messages can report it
-			GROUPER_HOME="$dirname"
-		fi
+		errorBadHome
+		return $_ERROR_BAD_HOME_CALC 2>/dev/null || exit $_ERROR_BAD_HOME_CALC
 	fi
 fi
 
-
-if ! checkGrouperHome "$GROUPER_HOME"; then
-	echo "The GROUPER_HOME environment variable ('$GROUPER_HOME') is"
-	echo "    not defined correctly or could not be determined. The jar"
-	echo "    file <GROUPER_HOME>/dist/lib/grouper.jar must exist"
-	return 1 2>/dev/null || exit 1
+if [ -z "$GSH_QUIET" ]; then
+	echo "Detected Grouper directory structure '$_grouperHomeType' (valid is api or webapp)"
 fi
-
 
 # Check conf directory
 if [ "$GROUPER_CONF" = "" ]; then
-	GROUPER_CONF="$GROUPER_HOME/conf"
+	case $_grouperHomeType in
+		api) GROUPER_CONF="$GROUPER_HOME/conf";;
+		webapp) GROUPER_CONF="$GROUPER_HOME/classes";;
+	esac
 fi
-if [ ! -d "$GROUPER_CONF" ]; then
-	echo "The GROUPER_CONF environment variable ('$GROUPER_CONF')"
-	echo "  is not defined correctly or could not be determined. This should be"
-	echo "  a directory containing property files"
-	return 1 2>/dev/null || exit 1
+if [ ! -f "$GROUPER_CONF/grouper.hibernate.properties" ]; then
+	echo "The GROUPER_CONF environment variable ('$GROUPER_CONF') is not"
+	echo "  defined correctly or could not be determined. This should be a directory"
+	echo "  containing property files, but is missing grouper.hibernate.properties"
+	return $_ERROR_BAD_CONF 2>/dev/null || exit $_ERROR_BAD_CONF
 fi
 
 
@@ -74,19 +108,28 @@ fi
 # Append Grouper's configuration
 GROUPER_CP=${GROUPER_CONF}
 
-# Append Grouper .jar
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/grouper.jar
 
-# Append third party .jars
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/grouper/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/custom/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/jdbcSamples/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ant/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/test/*
+if [ $_grouperHomeType = api ]; then
+	# Append Grouper .jar
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/grouper.jar
 
-# Append resources
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/src/resources
+	# Append third party .jars
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/grouper/*
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/custom/*
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/jdbcSamples/*
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ant/*
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/*
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/test/*
+
+	# Append resources
+	GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/src/resources
+elif [ $_grouperHomeType = webapp ]; then
+	GROUPER_CP="${GROUPER_CONF}:${GROUPER_HOME}/lib/*"
+else
+	echo "Could not determine Grouper directory structure (should be api or webapp)"
+	return 1 2>/dev/null || exit 1
+fi
+
 
 # Preserve the user's $CLASSPATH
 if [ -n "$CLASSPATH" ]; then
@@ -100,18 +143,18 @@ if [ -n "$GSH_CYGWIN" ]; then
 	GROUPER_CP=$(cygpath --path --windows "$GROUPER_CP")
 fi
 
-
 retVal=0
 
 
 # ----- Execute The Requested Command ---------------------------------------
 
-echo "Using GROUPER_HOME:           $GROUPER_HOME"
-echo "Using GROUPER_CONF:           $GROUPER_CONF"
-echo "Using JAVA:                   $JAVA"
-echo "Using CLASSPATH:              $GROUPER_CP"
-echo "using MEMORY:                 $MEM_START-$MEM_MAX"
-
+if [ -z "$GSH_QUIET" ]; then
+	echo "Using GROUPER_HOME:           $GROUPER_HOME"
+	echo "Using GROUPER_CONF:           $GROUPER_CONF"
+	echo "Using JAVA:                   $JAVA"
+	echo "Using CLASSPATH:              $GROUPER_CP"
+	echo "using MEMORY:                 $MEM_START-$MEM_MAX"
+fi
 
 GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 

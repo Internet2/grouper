@@ -487,16 +487,7 @@
     <copy todir="${basedir}/../../grouper.ws-${version}">
       <fileset dir="${basedir}/../../grouper-ws" />
     </copy>
-    
-    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
-    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="dos" includes="*.bat" />
-    <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
-    <copy file="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh.sh" tofile="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh" />
-    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="gsh" />
-    <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
-
-  	
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
     <tar destfile="${basedir}/../../grouper.ws-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/../.." >
@@ -652,6 +643,15 @@
        </then>
     </if>
 
+    <echo message="Copying Grouper bin files to ${webapp.folder}/WEB-INF/bin"/>
+    <copy todir="${webapp.folder}/WEB-INF/bin" overwrite="false">
+        <fileset dir="${grouper.dir}/bin"/>
+    </copy>
+
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <copy file="${webapp.folder}/WEB-INF/bin/gsh.sh" tofile="${webapp.folder}/WEB-INF/bin/gsh" />
+    <chmod dir="${webapp.folder}/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
 		<!-- all the webapp axis stuff like services dir and conf dir -->
 		<copy todir="${webapp.folder}">
