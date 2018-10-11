@@ -56,6 +56,11 @@ public class StemTemplateContainer {
    */
   private Map<String, String> templateOptions = new HashMap<String, String>();
   
+  /**
+   * create template in current folder or a subfolder
+   */
+  private boolean createNoSubfolder;
+  
 
   /**
    * template type eg: service
@@ -178,6 +183,19 @@ public class StemTemplateContainer {
   public void setCurrentServiceAction(ServiceAction currentServiceAction) {
     this.currentServiceAction = currentServiceAction;
   }
-  
+
+  /**
+   * @return
+   */
+  public boolean isCreateNoSubfolder() {
+    return createNoSubfolder;
+  }
+
+  /**
+   * @param createNoSubfolder
+   */
+  public void setCreateNoSubfolder(boolean createNoSubfolder) {
+    this.createNoSubfolder = createNoSubfolder;
+  }
 
 }

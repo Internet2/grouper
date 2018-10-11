@@ -23,10 +23,19 @@
         </select> <br /> <span class="description">${textContainer.text['stemTemplateTypeDescription']}</span>
         </td>
       </tr>
+      <tr>
+        <td style="vertical-align: top; white-space: nowrap;">
+          <strong><label for="createSubfolder">${textContainer.text['stemCreateTemplateInThisFolder']}</label></strong>
+        </td>
+        <td>
+        <input type="checkbox" id="createSubfolder" name="createSubfolder"
+               onchange="$('.stem-template-key').toggle('slow'); $('.stem-template-friendlyName').toggle('slow'); $('.stem-template-description').toggle('slow'); return false;"
+               ${grouperRequestContainer.stemTemplateContainer.createNoSubfolder == true ? 'checked="checked"' : '' } />
+        </td>
+      </tr>
       
-      <c:if test="${grouperRequestContainer.stemTemplateContainer.templateLogic.promptForKeyAndLabelAndDescription}">
-      
-	      <tr>
+      <c:if test="${!grouperRequestContainer.stemTemplateContainer.createNoSubfolder}">
+	      <tr class="stem-template-key">
 	        <td style="vertical-align: top; white-space: nowrap;"><strong><label
 	            for="serviceKeyId">${textContainer.text['stemServiceKey']}</label></strong></td>
 	        <td>
@@ -45,7 +54,7 @@
 	        </td>
 	      </tr>
 	      
-	      <tr>
+	      <tr class="stem-template-friendlyName">
 	        <td style="vertical-align: top; white-space: nowrap;"><strong><label
 	            for="serviceFriendlyNameId">${textContainer.text['stemServiceFriendlyName']}</label></strong></td>
 	        <td>
@@ -65,7 +74,7 @@
 	        </td>
 	      </tr>
 	      
-	      <tr>
+	      <tr class="stem-template-description">
 	        <td style="vertical-align: top; white-space: nowrap;"><strong><label
 	            for="serviceDescriptionId">${textContainer.text['stemServiceDescription']}</label></strong></td>
 	        <td>
@@ -77,10 +86,8 @@
 	          
 	        </td>
 	      </tr>
-      
       </c:if>
       
-
       <c:if test="${! empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
       <tr>
         <td colspan="2">

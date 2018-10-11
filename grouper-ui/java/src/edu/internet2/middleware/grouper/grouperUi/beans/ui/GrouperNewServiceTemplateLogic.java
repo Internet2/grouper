@@ -69,7 +69,17 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       stemPrefixDisplayName = stem.getDisplayName()+":";
     }
     
-    if (!serviceActions.containsKey(stemPrefix+baseStem)) {
+    if (StringUtils.isBlank(baseStem)) {
+      if (!stem.isRootStem()) {
+        baseStem = stem.getExtension();
+        baseStemFriendlyName = stem.getDisplayExtension();
+      } else {
+        baseStem = "root";
+        baseStemFriendlyName = "root";
+      }
+    }
+    
+    if (!serviceActions.containsKey(stemPrefix+baseStem+baseStemFriendlyName)) {
       
       List<ServiceAction> serviceActionsForStem = new ArrayList<ServiceAction>();
       
@@ -247,11 +257,11 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelThreeServiceAction_Six);
       levelTwoServiceAction_Six.addChildServiceAction(levelThreeServiceAction_Six);
       
-      serviceActions.put(stemPrefix+baseStem, serviceActionsForStem);
+      serviceActions.put(stemPrefix+baseStem+baseStemFriendlyName, serviceActionsForStem);
       
     }
     
-    return serviceActions.get(stemPrefix+baseStem);
+    return serviceActions.get(stemPrefix+baseStem+baseStemFriendlyName);
     
   }
   

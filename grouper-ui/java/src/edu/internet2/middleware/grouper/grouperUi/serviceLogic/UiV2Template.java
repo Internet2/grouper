@@ -36,7 +36,7 @@ public class UiV2Template {
   private static final Log LOG = GrouperUtil.getLog(UiV2Template.class);
   
   
-  public static Pattern grouperTemplateServiceClassPattern = Pattern.compile(
+  private static Pattern grouperTemplateServiceClassPattern = Pattern.compile(
       "^grouper\\.template\\.(\\w+)\\.logicClass$");
   
   
@@ -130,7 +130,10 @@ public class UiV2Template {
       String templateType = request.getParameter("templateType");
       templateContainer.setTemplateType(templateType);
       
-      populateServiceInfo(request, templateLogic);
+      boolean isSuccess = populateServiceInfo(request, templateLogic);
+      if (!isSuccess) {
+        return;
+      }
 
       List<ServiceAction> serviceActions = templateLogic.getServiceActions();
       templateContainer.setServiceActions(serviceActions);
@@ -175,7 +178,10 @@ public class UiV2Template {
       
       templateLogic.setStemId(stem.getUuid());
       
-      populateServiceInfo(request, templateLogic);
+      boolean isSuccess = populateServiceInfo(request, templateLogic);
+      if (!isSuccess) {
+        return;
+      }
       
       setTemplateOptions();
 
@@ -262,8 +268,10 @@ public class UiV2Template {
       String templateType = request.getParameter("templateType");
       templateContainer.setTemplateType(templateType);
       
-      populateServiceInfo(request, templateLogic);
-
+      boolean isSuccess = populateServiceInfo(request, templateLogic);
+      if (!isSuccess) {
+        return;
+      }
       
       String selectedServiceActionIdChecked = request.getParameter("checked");
       Boolean isChecked = GrouperUtil.booleanObjectValue(selectedServiceActionIdChecked);
@@ -305,20 +313,27 @@ public class UiV2Template {
    * Populate template type, key and friendly name
    * @param request
    * @param templateLogic
+   * @return isSuccess
    */
-  private void populateServiceInfo(HttpServletRequest request, GrouperTemplateLogicBase templateLogic) {
+  private boolean populateServiceInfo(HttpServletRequest request, GrouperTemplateLogicBase templateLogic) {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
     
-    if(templateLogic.isPromptForKeyAndLabelAndDescription()) {
+    String createSubfolder = request.getParameter("createSubfolder");
+    
+    if (StringUtils.isNotBlank(createSubfolder)) {
+      templateContainer.setCreateNoSubfolder(true);
+    }
+    
+    if(StringUtils.isBlank(createSubfolder)) {
       String templateKey = request.getParameter("templateKey");
       if (StringUtils.isBlank(templateKey)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#serviceKeyId",
             TextContainer.retrieveFromRequest().getText().get("stemServiceKeyRequiredError")));
-        return;
+        return false;
       }
       
       String regex = "^[a-zA-Z0-9_]*$";
@@ -326,12 +341,14 @@ public class UiV2Template {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#serviceKeyId",
             TextContainer.retrieveFromRequest().getText().get("stemServiceKeyInvaldError")));
-        return;
+        return false;
       }
       templateContainer.setTemplateKey(templateKey);
       templateContainer.setTemplateDescription(request.getParameter("serviceDescription"));
       templateContainer.setTemplateFriendlyName(request.getParameter("serviceFriendlyName"));
     }
+    
+    return true;
     
   }
   
