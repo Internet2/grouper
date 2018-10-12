@@ -2115,20 +2115,13 @@ public class GrouperLoader {
     Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
     
     boolean scheduleJob = false;
+    boolean triggerTypeChanging = false;
     
     JobDetail oldJobDetail = scheduler.getJobDetail(jobDetail.getKey());
     Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
     Trigger.TriggerState oldTriggerState = scheduler.getTriggerState(trigger.getKey());
 
     if (oldJobDetail == null || oldTrigger == null) {
-      scheduleJob = true;
-    }
-    
-    if (!scheduleJob && oldJobDetail.getJobClass() != jobDetail.getJobClass()) {
-      scheduleJob = true;
-    }
-    
-    if (!scheduleJob && oldTrigger.getPriority() != trigger.getPriority()) {
       scheduleJob = true;
     }
     
@@ -2143,8 +2136,17 @@ public class GrouperLoader {
           scheduleJob = true;
         }
       } else {
+        triggerTypeChanging = true;
         scheduleJob = true;
       }
+    }
+    
+    if (!scheduleJob && oldJobDetail.getJobClass() != jobDetail.getJobClass()) {
+      scheduleJob = true;
+    }
+    
+    if (!scheduleJob && oldTrigger.getPriority() != trigger.getPriority()) {
+      scheduleJob = true;
     }
     
     if (!scheduleJob) {
@@ -2160,6 +2162,12 @@ public class GrouperLoader {
     if (scheduleJob) {
       // apparently running this for a job that already exists when bringing the daemon up on a different host may fire some
       // jobs concurrently with jobs on another host.  so only updating if there's something to update.
+      
+      if (triggerTypeChanging) {
+        // if this isn't done, then the schedule in quartz gets messed up..
+        scheduler.unscheduleJob(oldTrigger.getKey());
+      }
+      
       scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
       if (oldTriggerState == Trigger.TriggerState.PAUSED) {
         // old trigger was disabled so disable this one too.  need a better way..
