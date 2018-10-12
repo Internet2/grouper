@@ -185,7 +185,8 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
             } else {
               schedule.append("INTERVAL (COUNT ").append(repeatCount).append("): ");
             }
-            Long intervalSeconds = ((SimpleTrigger)trigger).getRepeatInterval();
+            Long intervalSecondsMillis = ((SimpleTrigger)trigger).getRepeatInterval();
+            Long intervalSeconds = intervalSecondsMillis / 1000;
             schedule.append(intervalSeconds).append(" ").append(TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlScheduleIntervalSeconds"));
             schedule.append("<br />" + GrouperUiUtils.convertSecondsToString(intervalSeconds.intValue()));
           }

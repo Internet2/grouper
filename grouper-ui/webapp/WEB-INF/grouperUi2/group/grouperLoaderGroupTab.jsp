@@ -75,7 +75,7 @@
                       <tbody>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSchedulerState']}</strong></td>
-                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.schedulerState)}</td>
+                          <td>${grouperRequestContainer.grouperLoaderContainer.schedulerState}</td>
                         </tr>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>
@@ -214,7 +214,7 @@
                       <tbody>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSchedulerState']}</strong></td>
-                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.schedulerState)}</td>
+                          <td>${grouperRequestContainer.grouperLoaderContainer.schedulerState}</td>
                         </tr>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>

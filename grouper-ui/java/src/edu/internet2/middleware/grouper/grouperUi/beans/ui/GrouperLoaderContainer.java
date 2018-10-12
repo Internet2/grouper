@@ -2357,6 +2357,10 @@ public class GrouperLoaderContainer {
    * @return the guiDaemonJob
    */
   public GuiDaemonJob getGuiDaemonJob() {
+    if (StringUtils.isEmpty(this.getJobName())) {
+      return null;
+    }
+    
     if (!hasRetrievedDaemonJob) {
       try {
         Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
