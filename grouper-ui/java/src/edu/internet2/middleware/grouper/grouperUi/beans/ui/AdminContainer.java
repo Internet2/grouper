@@ -9,7 +9,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -30,6 +32,11 @@ public class AdminContainer {
   private Set<String> guiInstrumentationDaysWithData;
   
   private String guiInstrumentationFilterDate;
+  
+  /**
+   * paging for daemon jobs
+   */
+  private GuiPaging daemonJobsGuiPaging = null;
 
   
   /**
@@ -72,6 +79,30 @@ public class AdminContainer {
     }
     
     String error = GrouperUiFilter.requireUiGroup("uiV2.admin.instrumentation.must.be.in.group", loggedInSubject, false);
+
+    if (StringUtils.isBlank(error)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * if show daemon jobs
+   * @return if show daemon jobs
+   */
+  public boolean isDaemonJobsShow() {
+    
+    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.admin.daemonJobs.show", true)) {
+      return false;
+    }
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    String error = GrouperUiFilter.requireUiGroup("uiV2.admin.daemonJobs.must.be.in.group", loggedInSubject, false);
 
     if (StringUtils.isBlank(error)) {
       return true;
@@ -144,5 +175,45 @@ public class AdminContainer {
    */
   public void setGuiInstrumentationFilterDate(String guiInstrumentationFilterDate) {
     this.guiInstrumentationFilterDate = guiInstrumentationFilterDate;
+  }
+  
+  /**
+   * set of jobs to show on screen
+   */
+  private List<GuiDaemonJob> guiDaemonJobs;
+  
+  /**
+   * set of jobs to show on screen
+   * @return set of jobs
+   */
+  public List<GuiDaemonJob> getGuiDaemonJobs() {
+    return this.guiDaemonJobs;
+  }
+
+  /**
+   * set of jobs to show on screen
+   * @param guiDaemonJobs1
+   */
+  public void setGuiDaemonJobs(List<GuiDaemonJob> guiDaemonJobs1) {
+    this.guiDaemonJobs = guiDaemonJobs1;
+  }
+
+  
+  /**
+   * @return the daemonJobsGuiPaging
+   */
+  public GuiPaging getDaemonJobsGuiPaging() {
+    if (daemonJobsGuiPaging == null) {
+      daemonJobsGuiPaging = new GuiPaging();
+    }
+    return daemonJobsGuiPaging;
+  }
+
+  
+  /**
+   * @param daemonJobsGuiPaging the daemonJobsGuiPaging to set
+   */
+  public void setDaemonJobsGuiPaging(GuiPaging daemonJobsGuiPaging) {
+    this.daemonJobsGuiPaging = daemonJobsGuiPaging;
   }
 }

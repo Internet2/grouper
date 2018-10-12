@@ -39,16 +39,24 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.impl.matchers.GroupMatcher;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -63,6 +71,7 @@ import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -171,6 +180,161 @@ public class UiV2Admin extends UiServiceLogicBase {
       }            
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * daemon jobs
+   * @param request
+   * @param response
+   */
+  public void daemonJobs(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminDaemonJobs.jsp"));          
+      
+      daemonJobsHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+
+  /**
+   * daemon jobs reset button
+   * @param request
+   * @param response
+   */
+  public void daemonJobsReset(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilter", ""));
+      
+      //get the unfiltered jobs
+      daemonJobsHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * daemon jobs
+   * @param request
+   * @param response
+   */
+  public void daemonJobsSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      daemonJobsHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * show daemon jobs screen
+   * @param request
+   * @param response
+   */
+  private void daemonJobsHelper(HttpServletRequest request, HttpServletResponse response) {
+        
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {      
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+      
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      
+      {
+        String action = request.getParameter("action");
+        String jobName = request.getParameter("jobName");
+        if (!StringUtils.isEmpty(action) && !StringUtils.isEmpty(jobName)) {
+          JobKey jobKey = new JobKey(jobName);
+          if ("runNow".equals(action)) {
+            scheduler.triggerJob(jobKey);
+          } else if ("disable".equals(action)) {
+            scheduler.pauseJob(jobKey);
+          } else if ("enable".equals(action)) {
+            scheduler.resumeJob(jobKey);
+          } else {
+            throw new RuntimeException("Unexpected action: " + action);
+          }
+        }
+      }
+
+
+      AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+      
+      List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
+                  
+      String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
+      
+      Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.anyJobGroup());
+      List<String> allJobNamesAfterFilter = new ArrayList<String>();
+      for (JobKey jobKey : jobKeys) {
+        String jobName = jobKey.getName();
+        if (daemonJobsFilter.isEmpty() || jobName.toLowerCase().contains(daemonJobsFilter.toLowerCase())) {
+          allJobNamesAfterFilter.add(jobName);
+        }
+      }
+      Collections.sort(allJobNamesAfterFilter);
+      
+      GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
+      GrouperPagingTag2.processRequest(request, guiPaging, null);
+      guiPaging.setTotalRecordCount(allJobNamesAfterFilter.size());
+      
+      List<String> currentJobNames = GrouperUtil.batchList(allJobNamesAfterFilter, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
+      
+      for (String jobName : currentJobNames) {
+        
+        GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
+        guiDaemonJobs.add(guiDaemonJob);
+      }
+      
+      if (GrouperUtil.length(guiDaemonJobs) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, TextContainer.retrieveFromRequest().getText().get("daemonJobsNoResultsFound")));
+      }
+      
+      adminContainer.setGuiDaemonJobs(guiDaemonJobs);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
     }
   }
   
@@ -437,6 +601,28 @@ public class UiV2Admin extends UiServiceLogicBase {
     if (!adminContainer.isInstrumentationShow()) {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
           TextContainer.retrieveFromRequest().getText().get("adminInstrumentationErrorNotAllowed")));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/indexMain.jsp"));
+      return false;
+    }
+    return true;
+
+  }
+  
+  /**
+   * 
+   * @return true if ok, false if not allowed
+   */
+  private boolean daemonJobsAllowed() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    
+    //if the user allowed
+    if (!adminContainer.isDaemonJobsShow()) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsErrorNotAllowed")));
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/indexMain.jsp"));
       return false;

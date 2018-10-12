@@ -74,6 +74,10 @@
                     <table class="table table-condensed table-striped">
                       <tbody>
                         <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSchedulerState']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.schedulerState)}</td>
+                        </tr>
+                        <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>
                           <td>${textContainer.text['grouperLoaderSql'] }<br />
                             <span class="description">${textContainer.text['grouperLoaderSourceType__SQL']}</span>
@@ -208,6 +212,10 @@
                   <c:when test="${grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoaderLdap}">
                     <table class="table table-condensed table-striped">
                       <tbody>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSchedulerState']}</strong></td>
+                          <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.schedulerState)}</td>
+                        </tr>
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSourceType']}</strong></td>
                           <td>

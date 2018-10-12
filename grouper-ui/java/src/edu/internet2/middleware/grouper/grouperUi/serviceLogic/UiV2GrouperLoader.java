@@ -28,6 +28,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
@@ -724,6 +726,70 @@ public class UiV2GrouperLoader {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * Button to disable job
+   * @param request
+   * @param response
+   */
+  public void disableJob(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup(); // not sure why but we get an NPE later on if we don't get the group here
+
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+
+      if (canEditLoader) {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
+        scheduler.pauseJob(jobKey);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    loader(request, response);
+  }
+  
+  /**
+   * Button to enable job
+   * @param request
+   * @param response
+   */
+  public void enableJob(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup(); // not sure why but we get an NPE later on if we don't get the group here
+
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+
+      if (canEditLoader) {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
+        scheduler.resumeJob(jobKey);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    loader(request, response);
   }
 
   /**

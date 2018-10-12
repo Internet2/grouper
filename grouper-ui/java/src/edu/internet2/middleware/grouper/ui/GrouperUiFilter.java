@@ -867,6 +867,11 @@ public class GrouperUiFilter implements Filter {
           //  # note, admins can always see the screen
           //  uiV2.admin.instrumentation.must.be.in.group =
           initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.instrumentation.must.be.in.group"));
+          
+          //  # restrict access based on this group, by default only admins can see
+          //  # note, admins can always see the screen
+          //  uiV2.admin.daemonJobs.must.be.in.group =
+          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.daemonJobs.must.be.in.group"));
 
           //  ###################################
           //  ## V2 UI admin settings

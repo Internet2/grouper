@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -35,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.PlatformFactory;
+import org.hibernate.type.StringType;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -73,12 +75,12 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
@@ -2116,6 +2118,7 @@ public class GrouperLoader {
     
     JobDetail oldJobDetail = scheduler.getJobDetail(jobDetail.getKey());
     Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
+    Trigger.TriggerState oldTriggerState = scheduler.getTriggerState(trigger.getKey());
 
     if (oldJobDetail == null || oldTrigger == null) {
       scheduleJob = true;
@@ -2158,6 +2161,11 @@ public class GrouperLoader {
       // apparently running this for a job that already exists when bringing the daemon up on a different host may fire some
       // jobs concurrently with jobs on another host.  so only updating if there's something to update.
       scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      if (oldTriggerState == Trigger.TriggerState.PAUSED) {
+        // old trigger was disabled so disable this one too.  need a better way..
+        scheduler.pauseTrigger(trigger.getKey());
+      }
+      
       LOG.info("Scheduled quartz job: " + jobDetail.getKey().getName());
       return true;
     }
@@ -2179,5 +2187,51 @@ public class GrouperLoader {
         .uniqueResult(Long.class);
     
     return count > 0;
+  }
+  
+  /**
+   * @param jobName 
+   * @return date or null if not running
+   */
+  public static Date internal_getJobStartTimeIfRunning(String jobName) {
+    
+    // all of our jobs should have the DisallowConcurrentExecution annotation so this should only return 1 at most
+    List<String> firedTimes = HibernateSession.bySqlStatic().listSelect(String.class, "select fired_time from grouper_QZ_FIRED_TRIGGERS where state='EXECUTING' and job_name = ? and fired_time is not null", 
+        GrouperUtil.toListObject(jobName), HibUtils.listType(StringType.INSTANCE));
+    if (firedTimes != null && firedTimes.size() > 0 && firedTimes.get(0) != null) {
+      return new Date(Long.parseLong(firedTimes.get(0)));
+    }
+    
+    return null;
+  }
+  
+  /**
+   * @param jobName
+   * @return true is job is enabled
+   */
+  public static boolean isJobEnabled(String jobName) {
+
+    try {
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      
+      List<? extends Trigger> triggers = scheduler.getTriggersOfJob(new JobKey(jobName));
+  
+      for (Trigger trigger : triggers) {
+        
+        Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());
+        if (triggerState == Trigger.TriggerState.COMPLETE) {
+          // looks like this trigger is done so skip it
+          continue;
+        }
+        
+        if (triggerState != Trigger.TriggerState.PAUSED) {
+          return true;
+        }
+      }
+     
+      return false;
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

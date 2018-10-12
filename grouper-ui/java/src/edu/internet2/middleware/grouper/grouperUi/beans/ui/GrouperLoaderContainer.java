@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -28,6 +32,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -101,6 +106,12 @@ public class GrouperLoaderContainer {
    * group name from subjob name
    */
   private static Pattern groupNameFromSubjobNamePattern = Pattern.compile("^subjobFor_(.*)$");
+  
+  private GuiDaemonJob guiDaemonJob = null;
+  
+  private boolean hasRetrievedDaemonJob = false;
+  
+  
   
   /**
    * retrieve group name from job name
@@ -900,6 +911,18 @@ public class GrouperLoaderContainer {
 
     return grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid();
 
+  }
+  
+  /**
+   * @return state of job
+   */
+  public String getSchedulerState() {
+    GuiDaemonJob guiDaemonJob = this.getGuiDaemonJob();
+    if (guiDaemonJob == null) {
+      return TextContainer.retrieveFromRequest().getText().get("grouperLoaderSchedulerStateNotScheduled");
+    }
+    
+    return guiDaemonJob.getState();
   }
   
   /**
@@ -2327,6 +2350,36 @@ public class GrouperLoaderContainer {
     }
     
     return false;
+  }
+
+  
+  /**
+   * @return the guiDaemonJob
+   */
+  public GuiDaemonJob getGuiDaemonJob() {
+    if (!hasRetrievedDaemonJob) {
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        
+        List<? extends Trigger> triggers = scheduler.getTriggersOfJob(new JobKey(this.getJobName()));
+        if (triggers.size() > 0) {
+          guiDaemonJob = new GuiDaemonJob(this.getJobName());
+        }
+      } catch (SchedulerException e) {
+        throw new RuntimeException(e);
+      }
+      hasRetrievedDaemonJob = true;
+    }
+    
+    return guiDaemonJob;
+  }
+
+  
+  /**
+   * @param guiDaemonJob the guiDaemonJob to set
+   */
+  public void setGuiDaemonJob(GuiDaemonJob guiDaemonJob) {
+    this.guiDaemonJob = guiDaemonJob;
   }
   
 }

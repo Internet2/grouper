@@ -27,6 +27,10 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.instrumentation');" style="white-space: nowrap;"
                       >${textContainer.text['adminInstrumentationLink'] }</a>
                     </c:if>
+                    <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShow}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs');" style="white-space: nowrap;"
+                      >${textContainer.text['adminDaemonJobsLink'] }</a>
+                    </c:if>
                     <c:if test="${grouperRequestContainer.grouperLoaderContainer.canSeeLoaderOverall}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderOverall');" style="white-space: nowrap;"
                       >${textContainer.text['adminLoaderLink'] }</a>
