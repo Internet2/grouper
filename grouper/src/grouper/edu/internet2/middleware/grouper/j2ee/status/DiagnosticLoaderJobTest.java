@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -83,6 +84,11 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
    */
   private static GrouperCache<String, Long> loaderResultsCache = new GrouperCache<String, Long>("loaderResultsDiagnostic", 10000, false, 60 * 60 * 50, 60 * 60 * 50, false);
   
+  /**
+   * daemon jobs enabled cache - 5 minutes
+   */
+  private static GrouperCache<String, Boolean> daemonJobsEnabledCache = new GrouperCache<String, Boolean>("daemonJobsEnabledCache", 20000, false, 60 * 5, 60 * 5, false);
+
   /**
    * @see edu.internet2.middleware.grouper.j2ee.status.ws.status.DiagnosticTask#doTask()
    */
@@ -166,7 +172,8 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
         
         this.appendSuccessTextLine("Found the most recent success: " + GrouperUtil.dateStringValue(lastSuccess) 
             + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
-        
+      } else if (!isJobEnabled(this.jobName)) {
+        this.appendSuccessTextLine("Job is not enabled");
       } else {
         loaderResultsCache.remove(this.jobName);
         if (lastSuccess == null) {
@@ -199,4 +206,11 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
     return "Loader job " + this.jobName;
   }
 
+  private boolean isJobEnabled(String jobName) {
+    if (daemonJobsEnabledCache.get(jobName) == null) {
+      daemonJobsEnabledCache.put(jobName, GrouperLoader.isJobEnabled(jobName));
+    }
+    
+    return daemonJobsEnabledCache.get(jobName);
+  }
 }
