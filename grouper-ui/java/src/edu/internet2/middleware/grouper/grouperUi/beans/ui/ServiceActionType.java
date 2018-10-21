@@ -21,14 +21,20 @@ public enum ServiceActionType {
   stem {
     
     public void createTemplateItem(ServiceAction serviceAction) {
-     
-      new StemSave(GrouperSession.staticGrouperSession())
-      .assignName(serviceAction.getArgMap().get("stemName"))
-      .assignDisplayName(serviceAction.getArgMap().get("stemDisplayName"))
-      .assignDescription(serviceAction.getArgMap().get("stemDescription"))
-      .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .save();
       
+      GrouperSession session = GrouperSession.staticGrouperSession();
+      
+      Stem stem = StemFinder.findByName(session, serviceAction.getArgMap().get("stemName"), false);
+      
+      if (stem == null) {
+        
+        new StemSave(session)
+        .assignName(serviceAction.getArgMap().get("stemName"))
+        .assignDisplayName(serviceAction.getArgMap().get("stemDisplayName"))
+        .assignDescription(serviceAction.getArgMap().get("stemDescription"))
+        .save();
+      }
+     
     }
     
   },
