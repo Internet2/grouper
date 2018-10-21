@@ -312,7 +312,7 @@
 		<fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="*.sh" />
 		<fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="dos" includes="*.bat" />
 		<copy file="${webapp.folder}/WEB-INF/bin/gsh.sh" tofile="${webapp.folder}/WEB-INF/bin/gsh" />
-		<chmod dir="${webapp.folder}/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+		<chmod dir="${webapp.folder}/WEB-INF/bin" includes="*.sh,*.bat,gsh" perm="ugo+rx"/>
 
 		<!-- Allow local log4j.properties -->
 		<condition property="local.log4j">
