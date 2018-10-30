@@ -2761,6 +2761,8 @@ public class GrouperCheckConfig {
                 "#if using a sql table, and specifying the name like string, then shoudl the group (in addition to memberships)" +
                 "# be removed if not used anywhere else?" +
                 "loader.sqlTable.likeString.removeGroupIfNotUsed = true", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_RESULTS_TRANSFORMATION_CLASS, 
+                "Grouper loader LDAP results transformation class (optional for loader ldap type: LDAP_GROUPS_FROM_ATTRIBUTE)", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE, 
                 "Grouper loader LDAP group attribute name", 
                 "Attribute name of the filter object result that holds the group name (required for " +

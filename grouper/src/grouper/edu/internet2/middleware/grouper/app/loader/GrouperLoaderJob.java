@@ -547,6 +547,7 @@ public class GrouperLoaderJob implements Job {
       String grouperLoaderLdapGroupAttrReaders = null;
       String grouperLoaderLdapGroupAttrUpdaters = null;
       String grouperLoaderLdapGroupsLike = null;
+      String grouperLoaderLdapResultsTransformationClass = null;
       
       AttributeDefName grouperLoaderLdapTypeAttributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
       AttributeAssign attributeAssign = grouperLoaderLdapTypeAttributeDefName == null ? null : 
@@ -587,6 +588,7 @@ public class GrouperLoaderJob implements Job {
       grouperLoaderLdapGroupReaders = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapReadersName());
       grouperLoaderLdapGroupAdmins = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAdminsName());
       grouperLoaderLdapGroupUpdaters = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapUpdatersName());
+      grouperLoaderLdapResultsTransformationClass = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapResultsTransformationClassName());
       
       String groupName = jobGroup.getName();
       hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
@@ -629,7 +631,7 @@ public class GrouperLoaderJob implements Job {
           grouperLoaderLdapGroupViewers, grouperLoaderLdapGroupAdmins, grouperLoaderLdapGroupUpdaters, 
           grouperLoaderLdapGroupOptins, grouperLoaderLdapGroupOptouts, grouperLoaderLdapGroupsLike, 
           grouperLoaderLdapAttributeFilterExpression, grouperLoaderLdapGroupAttrReaders, 
-          grouperLoaderLdapGroupAttrUpdaters);
+          grouperLoaderLdapGroupAttrUpdaters, grouperLoaderLdapResultsTransformationClass);
 
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 

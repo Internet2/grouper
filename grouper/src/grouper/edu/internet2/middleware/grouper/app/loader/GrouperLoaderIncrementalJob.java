@@ -330,6 +330,7 @@ public class GrouperLoaderIncrementalJob implements Job {
               final String groupNameExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
               final String subjectExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
               final String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupsLikeName());
+              final String resultsTransformationClass = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapResultsTransformationClassName());
               
               for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
                 
@@ -347,7 +348,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                         subjectExpression,
                         extraAttributes,
                         groupNameExpression, 
-                        ldapAttributeFilterExpression);
+                        ldapAttributeFilterExpression, resultsTransformationClass);
                     
                     return null;
                   }
@@ -624,7 +625,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       String subjectExpression,
       String extraAttributes,
       String groupNameExpression, 
-      String ldapAttributeFilterExpression) {
+      String ldapAttributeFilterExpression,
+      String resultsTransformationClass) {
     
     Connection connection = null;
 
@@ -659,7 +661,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         Map<String, List<String>> queryResults = GrouperLoaderResultset.getLdapMembershipsForLdapGroupsFromAttributes(ldapServerId, filter, searchDn, subjectAttributeName, groupAttributeName, sourceId, subjectIdType, 
             ldapSearchScope, hib3GrouperloaderLog, loaderGroup.getName(), subjectExpression, extraAttributes, groupNameExpression, null, null, 
-            null, null, ldapAttributeFilterExpression, subjectValue);
+            null, null, ldapAttributeFilterExpression, subjectValue, resultsTransformationClass);
         
         for (String groupName : queryResults.keySet()) {
           if (queryResults.get(groupName).contains(subjectValue)) {

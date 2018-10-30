@@ -1075,6 +1075,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapResultsTransformationClassName(), attributeName)
             ;
       }
       
@@ -1115,7 +1116,8 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapGroupNameExpression(), 
               loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(),
-              groupNameToDisplayName, groupNameToDescription, loaderJobBean.getLdapAttributeFilterExpression());
+              groupNameToDisplayName, groupNameToDescription, loaderJobBean.getLdapAttributeFilterExpression(),
+              loaderJobBean.getLdapResultsTransformationClass());
 
 
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();

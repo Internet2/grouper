@@ -521,6 +521,27 @@ public class GrouperLoaderContainer {
       String editLoaderLdapAttributeFilterExpression1) {
     this.editLoaderLdapAttributeFilterExpression = editLoaderLdapAttributeFilterExpression1;
   }
+  
+  /**
+   * class name used to transform results from ldap
+   */
+  private String editLoaderLdapResultsTransformationClass;
+
+  /**
+   * @return the editLoaderLdapResultsTransformationClass
+   */
+  public String getEditLoaderLdapResultsTransformationClass() {
+    return editLoaderLdapResultsTransformationClass;
+  }
+
+  
+  /**
+   * @param editLoaderLdapResultsTransformationClass the editLoaderLdapResultsTransformationClass to set
+   */
+  public void setEditLoaderLdapResultsTransformationClass(
+      String editLoaderLdapResultsTransformationClass) {
+    this.editLoaderLdapResultsTransformationClass = editLoaderLdapResultsTransformationClass;
+  }  
 
   /**
    * 
@@ -559,6 +580,16 @@ public class GrouperLoaderContainer {
   public String getLdapGroupNameExpression() {
 
     return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
+
+  }
+  
+  /**
+   * 
+   * @return ldap results transformation class
+   */
+  public String getLdapResultsTransformationClass() {
+
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapResultsTransformationClassName());
 
   }
   
@@ -2385,5 +2416,4 @@ public class GrouperLoaderContainer {
   public void setGuiDaemonJob(GuiDaemonJob guiDaemonJob) {
     this.guiDaemonJob = guiDaemonJob;
   }
-  
 }

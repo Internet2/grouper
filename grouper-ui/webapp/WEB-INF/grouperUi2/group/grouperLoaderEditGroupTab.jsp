@@ -474,6 +474,15 @@
                                 
                               </td>
                             </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLdapResultsTransformationClassId">${textContainer.text['grouperLoaderLdapResultsTransformationClass']}</label></strong></td>
+                              <td>
+                                <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapResultsTransformationClass)}"
+                                   name="editLoaderLdapResultsTransformationClassName" id="editLoaderLdapResultsTransformationClassId" />
+                                <br /><span class="description">${textContainer.text['grouperLoaderLdapResultsTransformationClassDescription']}</span>
+
+                              </td>
+                            </tr>
                           
                           </c:if>
                           <tr>

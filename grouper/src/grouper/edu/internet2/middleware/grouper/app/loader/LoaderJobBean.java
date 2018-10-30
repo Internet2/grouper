@@ -252,6 +252,12 @@ public class LoaderJobBean {
   private String ldapGroupAttrUpdaters;
   
   /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES
+   * Class to transform data from ldap for more advanced transformations (e.g. parsing ldap attribute values into multiple groups)
+   */
+  private String ldapResultsTransformationClass;
+  
+  /**
    * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
    * Comma separated list of subjectIds or subjectIdentifiers who can OPTOUT their group membership
    * @return optouts
@@ -1056,6 +1062,7 @@ public class LoaderJobBean {
    * @param ldapGroupAttrReaders1
    * @param ldapGroupAttrUpdaters1
    * @param groupsLike1 
+   * @param ldapResultsTransformationClass1
    */
   public LoaderJobBean(String ldapType1, String ldapServerId1, String ldapFilter1,
       String ldapSubjectAttribute1, String ldapSearchDn1, String ldapSourceId1,
@@ -1068,7 +1075,7 @@ public class LoaderJobBean {
       String ldapSubjectExpression1, List<GroupType> groupTypes1, String ldapGroupReaders1,
       String ldapGroupViewers1, String ldapGroupAdmins1, String ldapGroupUpdaters1, String ldapGroupOptins1,
       String ldapGroupOptouts1, String groupsLike1, String ldapAttributeFilterExpression1, 
-      String ldapGroupAttrReaders1, String ldapGroupAttrUpdaters1
+      String ldapGroupAttrReaders1, String ldapGroupAttrUpdaters1, String ldapResultsTransformationClass1
       ) {
     super();
     this.ldapType = ldapType1;
@@ -1102,6 +1109,7 @@ public class LoaderJobBean {
     this.ldapGroupAdmins = ldapGroupAdmins1;
     this.ldapGroupUpdaters = ldapGroupUpdaters1;
     this.groupLikeString = groupsLike1;
+    this.ldapResultsTransformationClass = ldapResultsTransformationClass1;
   }
 
   /**
@@ -1233,6 +1241,26 @@ public class LoaderJobBean {
    */
   public void setStartTime(long startTime1) {
     this.startTime = startTime1;
+  }
+
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES
+   * Class to transform data from ldap for more advanced transformations (e.g. parsing ldap attribute values into multiple groups)
+   * @return the ldapResultsTransformationClass
+   */
+  public String getLdapResultsTransformationClass() {
+    return ldapResultsTransformationClass;
+  }
+
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES
+   * Class to transform data from ldap for more advanced transformations (e.g. parsing ldap attribute values into multiple groups)
+   * @param ldapResultsTransformationClass1 the ldapResultsTransformationClass1 to set
+   */
+  public void setLdapResultsTransformationClass(String ldapResultsTransformationClass1) {
+    this.ldapResultsTransformationClass = ldapResultsTransformationClass1;
   }
 
 }
