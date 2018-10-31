@@ -661,7 +661,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         Map<String, List<String>> queryResults = GrouperLoaderResultset.getLdapMembershipsForLdapGroupsFromAttributes(ldapServerId, filter, searchDn, subjectAttributeName, groupAttributeName, sourceId, subjectIdType, 
             ldapSearchScope, hib3GrouperloaderLog, loaderGroup.getName(), subjectExpression, extraAttributes, groupNameExpression, null, null, 
-            null, null, ldapAttributeFilterExpression, subjectValue, resultsTransformationClass);
+            new LinkedHashMap<String, String>(), new LinkedHashMap<String, String>(), ldapAttributeFilterExpression, subjectValue, resultsTransformationClass);
         
         for (String groupName : queryResults.keySet()) {
           if (queryResults.get(groupName).contains(subjectValue)) {
