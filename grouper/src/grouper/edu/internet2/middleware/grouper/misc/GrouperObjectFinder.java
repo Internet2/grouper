@@ -402,6 +402,21 @@ public class GrouperObjectFinder {
   private Scope stemScope;
 
   /**
+   * if not null, these are source ids to use for searching
+   */
+  private Set<String> sourceIds;
+  
+  /**
+   * if not null, these are source ids to use for searching
+   * @param sourceIds1
+   * @return this for chaining
+   */
+  public GrouperObjectFinder assignSourceIds(Set<String> sourceIds1) {
+    this.sourceIds = sourceIds1;
+    return this;
+  }
+  
+  /**
    * if only looking for objects in a stem, this is if ONE or SUB
    * @param theStemScope
    * @return this for chaining
@@ -579,6 +594,11 @@ public class GrouperObjectFinder {
                 && StringUtils.equals(source.getId(), esaId))) {
           continue;
         }
+        
+        if (this.sourceIds != null && !this.sourceIds.contains(source.getId())) {
+          continue;
+        }
+        
         sources.add(source);
       }
 
