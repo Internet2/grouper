@@ -558,7 +558,9 @@ public class GrouperObjectFinder {
       }
       
       if (!StringUtils.isBlank(this.filterText)) {
+        
         String theFilterText = "%" + this.filterText;
+        debugMap.put("filterText","'" + this.filterText + "'");
         stemFinder.assignScope(theFilterText);
         groupFinder.assignScope(theFilterText);
         attributeDefFinder.assignScope(theFilterText);
