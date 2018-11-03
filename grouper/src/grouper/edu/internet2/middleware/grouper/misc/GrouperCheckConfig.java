@@ -1579,7 +1579,7 @@ public class GrouperCheckConfig {
     checkJar("commons-validator-1.6.jar", 186077, "org.apache.commons.validator.CreditCardValidator", "1.6");
     checkJar("cron-parser-core-3.4.jar", 33945, "net.redhogs.cronparser.DescriptionTypeEnum", "null");
     checkJar("ddlutils-1.0.jar", 353473, "org.apache.ddlutils.DatabaseOperationException", "1.0");
-    checkJar("dom4j-2.1.0.jar", 322938, "org.dom4j.Attribute", "null");
+    checkJar("dom4j-2.1.1.jar", 323600, "org.dom4j.Attribute", "null");
     checkJar("ehcache-core-2.4.8.jar", 1030367, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph-1.0.6.jar", 86487, "net.sf.ezmorph.MorphException", "null");
     checkJar("groovy-all-2.5.0-beta-2.jar", 7715312, "groovy.beans.Bindable", "2.5.0-beta-2");

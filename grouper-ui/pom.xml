@@ -63,6 +63,13 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <exclusions>
+              <!-- we already include dom4j 2.1.1, don't need a copy of an earlier version (?) -->
+              <exclusion>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent</groupId>
