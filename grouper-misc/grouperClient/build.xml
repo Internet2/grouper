@@ -130,7 +130,7 @@
 
   <target name="jar">
     <tstamp>
-        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
     </tstamp>
     <jar jarfile="${main.jarFile}" duplicate="fail">
       <fileset dir="misc">
@@ -140,6 +140,7 @@
       <manifest>
         <attribute name="Main-Class" value="edu.internet2.middleware.grouperClient.GrouperClient"/>
         <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Specification-Title"     value="Grouper Client"/>
         <attribute name="Implementation-Vendor"   value="Internet2"/>
         <attribute name="Implementation-Title"    value="grouperClient"/>
         <attribute name="Implementation-Version"  value="${version}"/>

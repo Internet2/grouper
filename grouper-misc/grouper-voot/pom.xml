@@ -24,6 +24,7 @@
   <name>Grouper Voot</name>
   <description>The Grouper Voot Module</description>
   <packaging>jar</packaging>
+  <url>https://spaces.internet2.edu/display/Grouper/Grouper+voot+connector</url>
   
   <parent>
         <groupId>edu.internet2.middleware.grouper</groupId>
@@ -84,6 +85,23 @@
 	        <groupId>org.apache.maven.plugins</groupId>
 	        <artifactId>maven-compiler-plugin</artifactId>
 	    </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <index>true</index>
+                    <manifestEntries>
+                        <Specification-Title>${project.name}</Specification-Title>
+                        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                        <Implementation-Title>${project.artifactId}</Implementation-Title>
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                        <Implementation-URL>${project.url}</Implementation-URL>
+                        <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+                    </manifestEntries>
+                </archive>
+            </configuration>
+        </plugin>
 	</plugins>
   </build>
 </project>

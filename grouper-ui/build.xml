@@ -461,12 +461,22 @@
 	
 		<if><equals arg1="${ui.make.jar}" arg2="true"/>
 		  	<then>
+				<tstamp>
+					<format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
+				</tstamp>
 			    <jar file="${webapp.folder}/WEB-INF/lib/grouper-ui.jar">
 			      <fileset dir="misc">
 			        <include name="META-INF/*" />
 			      </fileset>
 			      <fileset dir="${temp.dir}/jarBin" />
 			      <fileset dir="${ui.folder}/java/src" />
+					<manifest>
+						<attribute name="Built-By"                value="${user.name}"/>
+						<attribute name="Specification-Title"     value="Grouper UI"/>
+						<attribute name="Implementation-Vendor"   value="Internet2"/>
+						<attribute name="Implementation-Title"    value="grouper-ui"/>
+						<attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+					</manifest>
 			    </jar>
 			</then>
 		</if>

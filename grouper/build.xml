@@ -30,8 +30,9 @@
    <property name="grouper.home"  value="${basedir}${file.separator}"/>
   <!-- Grouper Distribution and Versioning Properties -->
   <property name="app.name"     value="grouper"/>
-  <property name="impl.url"     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
+  <property name="impl.url"     value="https://www.internet2.edu/products-services/trust-identity/grouper/"/>
   <property name="impl.vendor"  value="Internet2"/>
+  <property name="spec.title"   value="Grouper API"/>
 
   <!-- copy build.properties if not there already -->
   <if><not><available file="build.properties" /></not>
@@ -497,11 +498,12 @@
     <copy file="misc/grouper-loader.example.properties" 
       todir="${build.dir.grouper}" />
     <tstamp>
-       <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+       <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
     </tstamp>
     <jar destfile="${dist.dir}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.dir.grouper}">
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Specification-Title"     value="${spec.title}"/>
         <attribute name="Implementation-Vendor"   value="${impl.vendor}"/>
         <attribute name="Implementation-Title"    value="${app.name}"/>
         <attribute name="Implementation-Version"  value="${version}"/>

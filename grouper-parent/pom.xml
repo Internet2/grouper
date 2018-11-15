@@ -51,7 +51,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        
+        <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
+
         <!-- Plugin Versions -->
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
@@ -806,6 +807,7 @@
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
+                    <failIfMissing>false</failIfMissing>
                     <skipExistingHeaders>true</skipExistingHeaders>
                     <strictCheck>true</strictCheck>
                     <aggregate>true</aggregate>
@@ -1060,7 +1062,7 @@
     </reporting>
 
     <!-- Project Metadata -->
-    <url>http://grouper.internet2.edu</url>
+    <url>https://www.internet2.edu/products-services/trust-identity/grouper/</url>
 
     <licenses>
         <license>
