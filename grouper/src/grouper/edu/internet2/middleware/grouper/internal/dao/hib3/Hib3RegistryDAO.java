@@ -160,6 +160,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3ChangeLogConsumerDAO.reset(hibernateSession);
             Hib3ChangeLogEntryDAO.reset(hibernateSession);
             Hib3ChangeLogTypeDAO.reset(hibernateSession);
+            Hib3ConfigDAO.reset(hibernateSession);
             Hib3GroupSetDAO.reset(hibernateSession);
             Hib3MembershipDAO.reset(hibernateSession);
             Hib3AttributeDefDAO.reset(hibernateSession);            

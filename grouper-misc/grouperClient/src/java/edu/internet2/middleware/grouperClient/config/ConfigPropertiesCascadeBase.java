@@ -15,11 +15,18 @@
  */
 package edu.internet2.middleware.grouperClient.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,8 +38,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionBean;
+import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -105,6 +116,13 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return config key
    */
   protected abstract String getSecondsToCheckConfigKey();
+  
+  /**
+   * 
+   */
+  public static void clearCache() {
+    
+  }
   
   /**
    * if there are things that are calculated, clear them out (e.g. if an override is set)
@@ -498,7 +516,106 @@ public abstract class ConfigPropertiesCascadeBase {
    * config file type
    */
   protected static enum ConfigFileType {
+
+    /**
+     * get a config file from the filesystem
+     */
+    DATABASE {
+
+      @Override
+      public InputStream inputStream(String configFileTypeConfig,
+          ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
+        if (!GrouperClientUtils.equalsIgnoreCase(configFileTypeConfig, "grouper")) {
+          throw new RuntimeException("Database configuration must be database:grouper : '" + configFileTypeConfig + "', " + configPropertiesCascadeBase.getMainExampleConfigClasspath());
+        }
+
+        //see if there is even a grouper.hibernate.properties on the classpath
+        URL url = GrouperClientUtils.computeUrl("grouper.hibernate.base.properties", true);
+        boolean hasDatabaseConfig = false;
+        if (url != null) {
+          try {
+            String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+            if (!GrouperClientUtils.isBlank(dbUrl)) {
+              hasDatabaseConfig = true;
+            }
+          } catch (Exception e) {
+            //ignore this
+          }
+        }
+        
+        // select from the database
+        String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+        String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+        String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+        
+        dbPass = Morph.decryptIfFile(dbPass);
+
+        String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+        driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
+
+        String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
+        
+        Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
+        try {
+          gcJdbcConnectionProviderClass = GrouperClientUtils.forName(databaseConnectionProvider);
+        } catch (RuntimeException re) {
+          GrouperClientUtils
+              .injectInException(
+                  re,
+                  "Valid built-in options are: "
+                      + " edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider (if using Grouper).  ");
+          throw re;
+        }
+
+        GcJdbcConnectionProvider gcJdbcConnectionProvider = GrouperClientUtils.newInstance(gcJdbcConnectionProviderClass);
+        gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
+            null, 5, dbUrl, dbUser, dbPass, null, true);
+        GcJdbcConnectionBean gcJdbcConnectionBean = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+          
+          gcJdbcConnectionBean = gcJdbcConnectionProvider.connectionBean();
+          
+          connection = gcJdbcConnectionBean.connection();
+
+          preparedStatement = connection.prepareStatement("select config_key, config_value from grouper_config where config_file_name = ? and config_file_hierarchy = ?");
+          preparedStatement.setString(1, configPropertiesCascadeBase.getMainConfigFileName());
+          preparedStatement.setString(2, "INSTITUTION");
+
+          resultSet = preparedStatement.executeQuery();
+          
+          Properties properties = new Properties();
+          
+          while (resultSet.next()) {
+            String configKey = resultSet.getString("config_key");
+            String configValue = resultSet.getString("config_value");
+            properties.put(configKey, configValue);
+          }
+          
+          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          try {
+            properties.store(byteArrayOutputStream, "");
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+          return byteArrayInputStream;
+          
+        } catch (SQLException e) {
+          gcJdbcConnectionBean.doneWithConnectionError(e);
+          throw new RuntimeException(e);
+        } finally {
+          GrouperClientUtils.closeQuietly(resultSet);
+          GrouperClientUtils.closeQuietly(preparedStatement);
+          gcJdbcConnectionBean.doneWithConnectionFinally();
+        }
+      }
+    },
     
+
     /**
      * get a config file from the filesystem
      */
@@ -1006,7 +1123,15 @@ public abstract class ConfigPropertiesCascadeBase {
     return false;
   }
 
-  
+  /**
+   * 
+   * @return e.g. grouper.properties
+   */
+  public String getMainConfigFileName() {
+    String configFileClasspath = this.getMainConfigClasspath();
+    String configFileName = GrouperClientUtils.substringAfterLast(configFileClasspath, "/");
+    return configFileName;
+  }
   
   /**
    * get the main config classpath, e.g. grouper.properties

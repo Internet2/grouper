@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 
 /**
@@ -114,7 +115,7 @@ public class GrouperDdlUtils {
    * @return see if hsql
    */
   public static boolean isHsql(String connectionUrl) {
-    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
+    return GrouperClientUtils.isHsql(connectionUrl);
   }
   
   /**
@@ -131,7 +132,7 @@ public class GrouperDdlUtils {
    * @return see if postgres
    */
   public static boolean isPostgres(String connectionUrl) {
-    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":postgresql:");
+    return GrouperClientUtils.isPostgres(connectionUrl);
   }
   
   /**
@@ -148,7 +149,7 @@ public class GrouperDdlUtils {
    * @return see if oracle
    */
   public static boolean isOracle(String connectionUrl) {
-    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":oracle:");
+    return GrouperClientUtils.isOracle(connectionUrl);
   }
   
   /**
@@ -165,7 +166,7 @@ public class GrouperDdlUtils {
    * @return see if mysql
    */
   public static boolean isMysql(String connectionUrl) {
-    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":mysql:");
+    return GrouperClientUtils.isMysql(connectionUrl);
   }
   
   /**
@@ -182,7 +183,7 @@ public class GrouperDdlUtils {
    * @return see if sql server
    */
   public static boolean isSQLServer(String connectionUrl) {
-    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":sqlserver:");
+    return GrouperClientUtils.isSQLServer(connectionUrl);
   }
   
   /**
@@ -866,33 +867,7 @@ public class GrouperDdlUtils {
    * @return the driver class
    */
   public static String convertUrlToDriverClassIfNeeded(String connectionUrl, String driverClassName) {
-    //default some of the stuff
-    if (StringUtils.isBlank(driverClassName)) {
-      
-      if (GrouperDdlUtils.isHsql(connectionUrl)) {
-        driverClassName = "org.hsqldb.jdbcDriver";
-      } else if (GrouperDdlUtils.isMysql(connectionUrl)) {
-        driverClassName = "com.mysql.jdbc.Driver";
-      } else if (GrouperDdlUtils.isOracle(connectionUrl)) {
-        driverClassName = "oracle.jdbc.driver.OracleDriver";
-      } else if (GrouperDdlUtils.isPostgres(connectionUrl)) { 
-        driverClassName = "org.postgresql.Driver";
-      } else if (GrouperDdlUtils.isSQLServer(connectionUrl)) {
-        driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-      } else {
-        
-        //if this is blank we will figure it out later
-        if (!StringUtils.isBlank(connectionUrl)) {
-        
-          String error = "Cannot determine the driver class from database URL: " + connectionUrl;
-          System.err.println(error);
-          LOG.error(error);
-          return null;
-        }
-      }
-    }
-    return driverClassName;
-
+    return GrouperClientUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClassName);
   }
   
   /**

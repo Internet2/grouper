@@ -9591,4 +9591,85 @@ public class GrouperClientCommonUtils  {
       return sw.toString();
   }
 
+  /**
+   * if there is no driver class specified, then try to derive it from the URL
+   * @param connectionUrl
+   * @param driverClassName
+   * @return the driver class
+   */
+  public static String convertUrlToDriverClassIfNeeded(String connectionUrl, String driverClassName) {
+    //default some of the stuff
+    if (isBlank(driverClassName)) {
+      
+      if (isHsql(connectionUrl)) {
+        driverClassName = "org.hsqldb.jdbcDriver";
+      } else if (isMysql(connectionUrl)) {
+        driverClassName = "com.mysql.jdbc.Driver";
+      } else if (isOracle(connectionUrl)) {
+        driverClassName = "oracle.jdbc.driver.OracleDriver";
+      } else if (isPostgres(connectionUrl)) { 
+        driverClassName = "org.postgresql.Driver";
+      } else if (isSQLServer(connectionUrl)) {
+        driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+      } else {
+        
+        //if this is blank we will figure it out later
+        if (!isBlank(connectionUrl)) {
+        
+          String error = "Cannot determine the driver class from database URL: " + connectionUrl;
+          System.err.println(error);
+          LOG.error(error);
+          return null;
+        }
+      }
+    }
+    return driverClassName;
+  
+  }
+
+  /**
+   * see if the config file seems to be hsql
+   * @param connectionUrl url to check against
+   * @return see if hsql
+   */
+  public static boolean isHsql(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
+  }
+
+  /**
+   * see if the config file seems to be mysql
+   * @param connectionUrl
+   * @return see if mysql
+   */
+  public static boolean isMysql(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":mysql:");
+  }
+
+  /**
+   * see if the config file seems to be oracle
+   * @param connectionUrl
+   * @return see if oracle
+   */
+  public static boolean isOracle(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":oracle:");
+  }
+
+  /**
+   * see if the config file seems to be postgres
+   * @param connectionUrl
+   * @return see if postgres
+   */
+  public static boolean isPostgres(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":postgresql:");
+  }
+
+  /**
+   * see if the config file seems to be sql server
+   * @param connectionUrl
+   * @return see if sql server
+   */
+  public static boolean isSQLServer(String connectionUrl) {
+    return defaultString(connectionUrl).toLowerCase().contains(":sqlserver:");
+  }
+
 }
