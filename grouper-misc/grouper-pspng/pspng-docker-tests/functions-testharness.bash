@@ -349,4 +349,11 @@ function wrap_up()
   else
     ERRORS=$(head -1 <<<"$ERRORS")
   fi
+
+  # Look for passwords in logs
+  SECRETS=$(run_in_grouper_daemon cat $API/logs/grouper_error.log \
+        | grep_ secret )
+  if [ -n "$SECRETS" ]; then
+    ERRORS="Password logged in grouper_error.log. Search for 'secret'. $ERRORS"
+  fi
 }
