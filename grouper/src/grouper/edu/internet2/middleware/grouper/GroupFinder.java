@@ -1104,7 +1104,7 @@ public class GroupFinder {
    */
   public GroupFinder assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
     
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(theNameOfAttributeDefName, true);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(theNameOfAttributeDefName, true);
     
     this.attributeDefNameId = attributeDefName.getId();
     return this;
@@ -1411,7 +1411,8 @@ public class GroupFinder {
    */
   public GroupFinder assignNameOfAttributeDefName2(String theNameOfAttributeDefName) {
     
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(theNameOfAttributeDefName, true);
+    // should be "findByNameAsRoot"
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(theNameOfAttributeDefName, true);
     
     this.attributeDefNameId2 = attributeDefName.getId();
     return this;

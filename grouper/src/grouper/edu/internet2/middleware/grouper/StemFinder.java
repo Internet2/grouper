@@ -42,7 +42,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -656,6 +655,21 @@ public class StemFinder {
   private Set<Object> attributeValuesOnAssignment;
 
   /**
+   * find stems that have this attribute def name id, note could be an assignment on an assignment
+   */
+  private String attributeDefNameId2;
+
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
+   */
+  private Set<Object> attributeValuesOnAssignment2;
+
+  /**
+   * find groups with this value
+   */
+  private Object attributeValue2;
+
+  /**
    * config key for caching
    */
   private static final String GROUPER_FLASHCACHE_STEMS_IN_FINDER = "grouper.flashcache.stems.in.finder";
@@ -686,29 +700,6 @@ public class StemFinder {
       throw new RuntimeException("Cant look for a null value");
     }
     this.attributeValue = theValue;
-    return this;
-  }
-  
-  /**
-   * find stems that have this attribute assigned
-   * @param theAttributeDefNameId
-   * @return this for chaining
-   */
-  public StemFinder assignIdOfAttributeDefName(String theAttributeDefNameId) {
-    this.attributeDefNameId = theAttributeDefNameId;
-    return this;
-  }
-  
-  /**
-   * find stems that have this attribute assigned
-   * @param theNameOfAttributeDefName
-   * @return this for chaining
-   */
-  public StemFinder assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
-    
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(theNameOfAttributeDefName, true);
-    
-    this.attributeDefNameId = attributeDefName.getId();
     return this;
   }
   
@@ -816,7 +807,8 @@ public class StemFinder {
             this.findByUuidOrName, this.userHasInGroupFields,
             this.userHasInAttributeFields, this.stemIds, 
             this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
-            this.attributeValuesOnAssignment);
+            this.attributeValuesOnAssignment, 
+            this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2);
    
     for (Stem stem : GrouperUtil.nonNull(stems)) {
       stemFlashCacheAddIfSupposedTo(stem);
@@ -870,11 +862,93 @@ public class StemFinder {
 
   /**
    * if looking for an attribute value on an assignment, could be multiple values
+   * @param value
+   * @return this for chaining
+   */
+  public StemFinder addAttributeValuesOnAssignment(Object value) {
+    if (this.attributeValuesOnAssignment == null) {
+      this.attributeValuesOnAssignment = new HashSet<Object>();
+    }
+    this.attributeValuesOnAssignment.add(value);
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment2, could be multiple values
+   * @param value
+   * @return this for chaining
+   */
+  public StemFinder addAttributeValuesOnAssignment2(Object value) {
+    if (this.attributeValuesOnAssignment2 == null) {
+      this.attributeValuesOnAssignment2 = new HashSet<Object>();
+    }
+    this.attributeValuesOnAssignment2.add(value);
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment, could be multiple values
    * @param theValues
    * @return this for chaining
    */
   public StemFinder assignAttributeValuesOnAssignment(Set<Object> theValues) {
     this.attributeValuesOnAssignment = theValues;
+    return this;
+  }
+
+  /**
+   * if looking for an attribute value on an assignment2, could be multiple values
+   * @param theValues
+   * @return this for chaining
+   */
+  public StemFinder assignAttributeValuesOnAssignment2(Set<Object> theValues) {
+    this.attributeValuesOnAssignment2 = theValues;
+    return this;
+  }
+
+  /**
+   * find stems that have this attribute def name id, note could be an assignment on an assignment
+   * @param theAttributeDefNameId
+   * @return this for chaining
+   */
+  public StemFinder assignIdOfAttributeDefName(String theAttributeDefNameId) {
+    this.attributeDefNameId = theAttributeDefNameId;
+    return this;
+  }
+
+  /**
+   * find stems that have this attribute def name id, note could be an assignment on an assignment
+   * @param theAttributeDefNameId
+   * @return this for chaining
+   */
+  public StemFinder assignIdOfAttributeDefName2(String theAttributeDefNameId) {
+    this.attributeDefNameId2 = theAttributeDefNameId;
+    return this;
+  }
+
+  /**
+   * find stems that have this attribute assigned
+   * @param theNameOfAttributeDefName
+   * @return this for chaining
+   */
+  public StemFinder assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(theNameOfAttributeDefName, true);
+    
+    this.attributeDefNameId = attributeDefName.getId();
+    return this;
+  }
+
+  /**
+   * find stems that have this attribute assigned
+   * @param theNameOfAttributeDefName
+   * @return this for chaining
+   */
+  public StemFinder assignNameOfAttributeDefName2(String theNameOfAttributeDefName) {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(theNameOfAttributeDefName, true);
+    
+    this.attributeDefNameId2 = attributeDefName.getId();
     return this;
   }
 
@@ -902,7 +976,7 @@ public class StemFinder {
   }
 
   /**
-   * add group to cache if not null
+   * add stem to cache if not null
    * @param stem
    */
   private static void stemFlashCacheAddIfSupposedTo(Stem stem) {
@@ -934,7 +1008,7 @@ public class StemFinder {
   }
 
   /**
-   * get a group fom flash cache
+   * get a stem fom flash cache
    * @param id
    * @param queryOptions
    * @return the stem or null
