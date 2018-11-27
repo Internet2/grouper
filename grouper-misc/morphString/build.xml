@@ -17,6 +17,8 @@
 -->
 <project name="morphString" default="build" basedir=".">
 
+  <property file="${basedir}/misc/version.properties"/>
+
 
   <target name="build" description="full build" depends="init,clean,compile,jar">
   </target>
@@ -85,8 +87,20 @@
         <include name="README.txt"/>      <!-- sample config -->
       </fileset>
     </copy>
-    <jar jarfile="${main.jarFile}" duplicate="fail" manifest="misc/MANIFEST.MF">
+    <tstamp>
+      <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
+    </tstamp>
+    <jar jarfile="${main.jarFile}" duplicate="fail">
       <fileset dir="${main.binDir}" />
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Specification-Title"   value="morphString"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
+        <attribute name="Implementation-Title"   value="morphString"/>
+        <attribute name="Implementation-Version"   value="${version}"/>
+        <attribute name="Main-Class"   value="edu.internet2.middleware.morphString.Encrypt"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+      </manifest>
     </jar>
   </target>
 

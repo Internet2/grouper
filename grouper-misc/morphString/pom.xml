@@ -75,18 +75,15 @@
                     <archive>
                         <index>true</index>
                         <manifestEntries>
+                            <Specification-Title>${project.name}</Specification-Title>
+                            <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                            <Implementation-Title>${project.artifactId}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <!-- not really a url for morphString -->
+                            <!--<Implementation-URL>${project.parent.url}</Implementation-URL>-->
                             <Main-Class>edu.internet2.middleware.morphString.Encrypt</Main-Class>
+                            <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
                         </manifestEntries>
-                        <manifestSections>
-                            <manifestSection>
-                                <name>edu/internet2/middleware/grouper/</name>
-                                <manifestEntries>
-                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${project.version}</Implementation-Version>
-                                    <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
-                                </manifestEntries>
-                            </manifestSection>
-                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>

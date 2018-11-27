@@ -9,6 +9,7 @@ import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMet
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -44,6 +44,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationBase;
+import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationInput;
+import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -1108,6 +1111,7 @@ public class UiV2GrouperLoader {
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapTypeAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapType());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapAndGroupsAttributeDefName(), grouperLoaderContainer.getEditLoaderAndGroups());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapAttributeFilterExpression());
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapResultsTransformationClassAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapResultsTransformationClass());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupAttributeAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapGroupAttributeName());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapQuartzCronAttributeDefName(), grouperLoaderContainer.getEditLoaderCron());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapExtraAttributesAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapExtraAttributes());
@@ -1259,6 +1263,7 @@ public class UiV2GrouperLoader {
           grouperLoaderContainer.setEditLoaderAndGroups(grouperLoaderContainer.getLdapAndGroups());
           if (StringUtils.equals("LDAP_GROUPS_FROM_ATTRIBUTES", grouperLoaderContainer.getEditLoaderLdapType())) {
             grouperLoaderContainer.setEditLoaderLdapAttributeFilterExpression(grouperLoaderContainer.getLdapAttributeFilterExpression());
+            grouperLoaderContainer.setEditLoaderLdapResultsTransformationClass(grouperLoaderContainer.getLdapResultsTransformationClass());
             grouperLoaderContainer.setEditLoaderLdapGroupAttributeName(grouperLoaderContainer.getLdapGroupAttributeName());
           }
           grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
@@ -1585,6 +1590,15 @@ public class UiV2GrouperLoader {
         if (!error && !StringUtils.isBlank(editLoaderLdapAttributeFilterExpressionName)) {
           
           grouperLoaderContainer.setEditLoaderLdapAttributeFilterExpression(editLoaderLdapAttributeFilterExpressionName);
+          
+        }
+      }
+      
+      {
+        String editLoaderLdapResultsTransformationClassName = StringUtils.trimToNull(request.getParameter("editLoaderLdapResultsTransformationClassName"));
+        if (!error && !StringUtils.isBlank(editLoaderLdapResultsTransformationClassName)) {
+          
+          grouperLoaderContainer.setEditLoaderLdapResultsTransformationClass(editLoaderLdapResultsTransformationClassName);
           
         }
       }
@@ -2044,6 +2058,16 @@ public class UiV2GrouperLoader {
               loaderReport.append("<font color='red'>ERROR:</font> Extra attributes filter expression is set but shouldnt be for " + grouperLoaderType + "\n");
             } else {
               loaderReport.append("<font color='green'>SUCCESS:</font> Extra attributes filter expression is set for " + grouperLoaderType + "\n");
+            }
+          }
+          
+          if (StringUtils.isBlank(grouperLoaderContainer.getLdapResultsTransformationClass())) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> Results transformation class is not set\n");
+          } else {
+            if (grouperLoaderType != GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES) {
+              loaderReport.append("<font color='red'>ERROR:</font> Results transformation class is set but shouldnt be for " + grouperLoaderType + "\n");
+            } else {
+              loaderReport.append("<font color='green'>SUCCESS:</font> Results transformation class is set for " + grouperLoaderType + "\n");
             }
           }
 
@@ -3205,6 +3229,9 @@ public class UiV2GrouperLoader {
       List<LdapEntry> searchResults = null;
 
       List<String> attributesList = new ArrayList<String>();
+      
+      Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
+      Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
 
       //there can be subject attribute
       if (!StringUtils.isBlank(grouperLoaderContainer.getLdapSubjectAttributeName())) {
@@ -3498,6 +3525,14 @@ public class UiV2GrouperLoader {
                   }
 
                   groupName = groupParentFolderName + groupName;
+                  
+                  if (!StringUtils.isBlank(loaderGroupDisplayName)) {
+                    groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
+                  }
+
+                  if (!StringUtils.isBlank(loaderGroupDescription)) {
+                    groupNameToDescription.put(groupName, loaderGroupDescription);
+                  }
 
                   //cache this
                   attributeNameToGroupNameMap.put((String)attributeValue, groupName);
@@ -3518,8 +3553,48 @@ public class UiV2GrouperLoader {
         firstObject = false;
 
       } // end of looping over search results
+      
+      if (!StringUtils.isEmpty(grouperLoaderContainer.getLdapResultsTransformationClass())) {
+        @SuppressWarnings("unchecked")
+        Class<LdapResultsTransformationBase> theClass = GrouperUtil.forName(grouperLoaderContainer.getLdapResultsTransformationClass());
+        LdapResultsTransformationInput ldapResultsTransformationInput = new LdapResultsTransformationInput()
+            .setLdapSearchResults(Collections.unmodifiableList(searchResults))
+            .setMembershipResults(Collections.unmodifiableMap(result))
+            .setGroupNameToDisplayName(Collections.unmodifiableMap(groupNameToDisplayName))
+            .setGroupNameToDescription(Collections.unmodifiableMap(groupNameToDescription));
+        
+        LdapResultsTransformationBase resultsTransformation = GrouperUtil.newInstance(theClass);
+        LdapResultsTransformationOutput ldapResultsTransformationOutput = resultsTransformation.transformResults(ldapResultsTransformationInput);
+        
+        result.clear();
+        result.putAll(ldapResultsTransformationOutput.getMembershipResults());
+        
+        groupNameToDisplayName.clear();
+        groupNameToDisplayName.putAll(ldapResultsTransformationOutput.getGroupNameToDisplayName());
+        
+        groupNameToDescription.clear();
+        groupNameToDescription.putAll(ldapResultsTransformationOutput.getGroupNameToDescription());
+        
+        if (result.size() > 0) {
+          String groupName = result.keySet().iterator().next();
+          loaderReport.append("<font color='green'>SUCCESS:</font> Using result transformation class, one group name after transformation: '" + groupName + "'\n");
+          
+          if (!StringUtils.isEmpty(groupNameToDisplayName.get(groupName))) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> Group display name after transformation class: '" + groupNameToDisplayName.get(groupName) + "'\n");
+          }
+          
+          if (!StringUtils.isEmpty(groupNameToDescription.get(groupName))) {
+            loaderReport.append("<font color='green'>SUCCESS:</font> Group description after transformation class: '"  + groupNameToDescription.get(groupName) + "'\n");
+          }
+        }
+      }
 
-      loaderReport.append("<font color='green'>SUCCESS:</font> Found " + result.size() + " subjects, and " + subObjectCount
+      int membershipCount = 0;
+      for (String groupName : result.keySet()) {
+        membershipCount += result.get(groupName).size();
+      }
+      
+      loaderReport.append("<font color='green'>SUCCESS:</font> Found " + result.size() + " groups, and " + membershipCount
           + " memberships\n");
 
       return;

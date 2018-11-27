@@ -229,6 +229,7 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       //clear out form
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilter", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilterShowExtendedResults", ""));
       
       //get the unfiltered jobs
       daemonJobsHelper(request, response);
@@ -303,7 +304,9 @@ public class UiV2Admin extends UiServiceLogicBase {
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
                   
       String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
-      
+      String showExtendedResults = request.getParameter("daemonJobsFilterShowExtendedResults");
+      adminContainer.setDaemonJobsShowExtendedResults(StringUtils.equals(showExtendedResults, "on"));
+
       Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.anyJobGroup());
       List<String> allJobNamesAfterFilter = new ArrayList<String>();
       for (JobKey jobKey : jobKeys) {

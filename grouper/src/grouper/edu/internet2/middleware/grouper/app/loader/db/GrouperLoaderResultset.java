@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,6 +42,9 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationBase;
+import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationInput;
+import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
@@ -760,6 +764,7 @@ public class GrouperLoaderResultset {
    * @param groupNameToDescription map to translate group name to description
    * @param ldapAttributeFilterExpression if specified, this will filter the attributes that are turned into 
    * groups, should return true or false
+   * @param resultsTransformationClass
    */
   public void initForLdapGroupsFromAttributes(final String ldapServerId, final String filter,
       final String searchDn, final String subjectAttributeName,
@@ -772,7 +777,8 @@ public class GrouperLoaderResultset {
       final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
       final Map<String, String> groupNameToDisplayName,
-      final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression) {
+      final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression,
+      final String resultsTransformationClass) {
 
     boolean hasSourceId = !StringUtils.isBlank(sourceId);
 
@@ -802,7 +808,7 @@ public class GrouperLoaderResultset {
         ldapServerId, filter, searchDn, subjectAttributeName, groupAttributeName, sourceId, 
         subjectIdType, ldapSearchScope, hib3GrouperLoaderLog, overallGroupName, subjectExpression, 
         extraAttributes, groupNameExpression, groupDisplayNameExpression, groupDescriptionExpression, 
-        groupNameToDisplayName, groupNameToDescription, ldapAttributeFilterExpression, null);
+        groupNameToDisplayName, groupNameToDescription, ldapAttributeFilterExpression, null, resultsTransformationClass);
 
     for (String currentGroupName : resultMap.keySet()) {
       List<String> results = resultMap.get(currentGroupName);
@@ -842,6 +848,7 @@ public class GrouperLoaderResultset {
    * @param groupNameToDescription
    * @param ldapAttributeFilterExpression
    * @param subjectIdIfIncremental
+   * @param resultsTransformationClass
    * @return map of memberships
    */
   public static Map<String, List<String>> getLdapMembershipsForLdapGroupsFromAttributes(final String ldapServerId, final String filter,
@@ -855,7 +862,8 @@ public class GrouperLoaderResultset {
       final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
       final Map<String, String> groupNameToDisplayName,
-      final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression, String subjectIdIfIncremental) {
+      final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression, String subjectIdIfIncremental,
+      final String resultsTransformationClass) {
     
     //run the query
     final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
@@ -1118,6 +1126,26 @@ public class GrouperLoaderResultset {
         } // end of looping over attributes indicating group membership
       } // end of looping over search results
 
+      if (!StringUtils.isEmpty(resultsTransformationClass)) {
+        Class<LdapResultsTransformationBase> theClass = GrouperUtil.forName(resultsTransformationClass);
+        LdapResultsTransformationInput ldapResultsTransformationInput = new LdapResultsTransformationInput()
+            .setLdapSearchResults(Collections.unmodifiableList(searchResults))
+            .setMembershipResults(Collections.unmodifiableMap(resultMap))
+            .setGroupNameToDisplayName(Collections.unmodifiableMap(groupNameToDisplayName))
+            .setGroupNameToDescription(Collections.unmodifiableMap(groupNameToDescription));
+        
+        LdapResultsTransformationBase resultsTransformation = GrouperUtil.newInstance(theClass);
+        LdapResultsTransformationOutput ldapResultsTransformationOutput = resultsTransformation.transformResults(ldapResultsTransformationInput);
+        
+        resultMap.clear();
+        resultMap.putAll(ldapResultsTransformationOutput.getMembershipResults());
+        
+        groupNameToDisplayName.clear();
+        groupNameToDisplayName.putAll(ldapResultsTransformationOutput.getGroupNameToDisplayName());
+        
+        groupNameToDescription.clear();
+        groupNameToDescription.putAll(ldapResultsTransformationOutput.getGroupNameToDescription());
+      }
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("Found " + resultMap.size() + " results, (" + subObjectCount

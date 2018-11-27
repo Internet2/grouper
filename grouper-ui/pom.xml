@@ -63,6 +63,13 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <exclusions>
+              <!-- we already include dom4j 2.1.1, don't need a copy of an earlier version (?) -->
+              <exclusion>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent</groupId>
@@ -246,6 +253,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifestEntries>
+                            <Specification-Title>${project.name}</Specification-Title>
+                            <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                            <Implementation-Title>${project.artifactId}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

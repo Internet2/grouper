@@ -33,6 +33,8 @@ public class AdminContainer {
   
   private String guiInstrumentationFilterDate;
   
+  private boolean daemonJobsShowExtendedResults = false;
+  
   /**
    * paging for daemon jobs
    */
@@ -215,5 +217,28 @@ public class AdminContainer {
    */
   public void setDaemonJobsGuiPaging(GuiPaging daemonJobsGuiPaging) {
     this.daemonJobsGuiPaging = daemonJobsGuiPaging;
+  }
+  
+  /**
+   * @return refresh interval in seconds
+   */
+  public int getDaemonJobsRefreshInterval() {
+    return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.admin.daemonJobs.refreshInterval", 30);
+  }
+
+  
+  /**
+   * @return the daemonJobsShowExtendedResults
+   */
+  public boolean isDaemonJobsShowExtendedResults() {
+    return daemonJobsShowExtendedResults;
+  }
+
+  
+  /**
+   * @param daemonJobsShowExtendedResults the daemonJobsShowExtendedResults to set
+   */
+  public void setDaemonJobsShowExtendedResults(boolean daemonJobsShowExtendedResults) {
+    this.daemonJobsShowExtendedResults = daemonJobsShowExtendedResults;
   }
 }

@@ -24,6 +24,8 @@
   <name>Grouper SCIM</name>
   <description>Implementation of SCIM for Grouper</description>
   <packaging>jar</packaging>
+
+  <url>https://spaces.at.internet2.edu/display/Grouper/Grouper+SCIM+change+log+client</url>
   
   <parent>
         <groupId>edu.internet2.middleware.grouper</groupId>
@@ -108,19 +110,13 @@
                     <archive>
                         <index>true</index>
                         <manifestEntries>
-                            <Main-Class>edu.internet2.middleware.grouperClient.GrouperClient</Main-Class>
+                            <Specification-Title>${project.name}</Specification-Title>
+                            <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                            <Implementation-Title>${project.artifactId}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-URL>${project.url}</Implementation-URL>
+                            <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
                         </manifestEntries>
-                        <manifestSections>
-                            <manifestSection>
-                                <name>edu/internet2/middleware/grouper/grouperClient</name>
-                                <manifestEntries>
-                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${project.version}</Implementation-Version>
-                                    <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
-                                    <Implementation-URL>https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Client</Implementation-URL>
-                                </manifestEntries>
-                            </manifestSection>
-                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>

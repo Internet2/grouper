@@ -167,10 +167,13 @@ public class UiV2Main extends UiServiceLogicBase {
 
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
+    Set<String> sourceIds = GrouperUtil.splitTrimToSet(GrouperUiConfig.retrieveConfig().propertyValueString(
+        "uiV2.subjectSearchRequireSources"), ",");
     GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
       .assignObjectPrivilege(ObjectPrivilege.view)
       .assignQueryOptions(queryOptions)
       .assignSplitScope(true)
+      .assignSourceIds(sourceIds)
       .assignSubject(GrouperSession.staticGrouperSession().getSubject());
 
     if (!StringUtils.isBlank(searchQuery)) {

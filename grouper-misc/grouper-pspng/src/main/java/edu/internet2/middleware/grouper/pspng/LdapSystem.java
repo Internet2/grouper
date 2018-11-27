@@ -81,8 +81,20 @@ public class LdapSystem {
   
     LOG.info("{}: Creating LDAP Pool", ldapSystemName);
     Properties ldaptiveProperties = getLdaptiveProperties();
+
+    Properties loggableProperties = new Properties();
+    loggableProperties.putAll(ldaptiveProperties);
+
+    for ( String propertyToMask : ENCRYPTABLE_LDAPTIVE_PROPERTIES )
+    {
+      if ( loggableProperties.containsKey(propertyToMask) )
+      {
+        loggableProperties.put(propertyToMask, "**masked**");
+      }
+    }
     
-    LOG.info("Setting up LDAP Connection with properties: {}", ldaptiveProperties);
+    LOG.info("Setting up LDAP Connection with properties: {}", loggableProperties);
+
     // Setup ldaptive ConnectionConfig
     ConnectionConfig connConfig = new ConnectionConfig();
     ConnectionConfigPropertySource ccpSource = new ConnectionConfigPropertySource(connConfig, ldaptiveProperties);

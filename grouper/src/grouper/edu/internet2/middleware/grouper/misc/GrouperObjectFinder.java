@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.misc;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -402,6 +404,21 @@ public class GrouperObjectFinder {
   private Scope stemScope;
 
   /**
+   * if not null, these are source ids to use for searching
+   */
+  private Set<String> sourceIds;
+  
+  /**
+   * if not null, these are source ids to use for searching
+   * @param sourceIds1
+   * @return this for chaining
+   */
+  public GrouperObjectFinder assignSourceIds(Set<String> sourceIds1) {
+    this.sourceIds = sourceIds1;
+    return this;
+  }
+  
+  /**
    * if only looking for objects in a stem, this is if ONE or SUB
    * @param theStemScope
    * @return this for chaining
@@ -445,6 +462,9 @@ public class GrouperObjectFinder {
    * if sorting / paging
    */
   private QueryOptions queryOptions;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperObjectFinder.class);
   
   /**
    * if sorting / paging
@@ -461,349 +481,395 @@ public class GrouperObjectFinder {
    */
   public Set<GrouperObject> findGrouperObjects() {
     
-    boolean findGroups = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
-      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.groups);
-    
-    boolean findStems = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
-      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.stems);
-    
-    boolean findSubjects = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
-      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.subjects);
-    
-    boolean findAttributeDefs = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
-      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.attributeDefs);
-    
-    boolean findAttributeDefNames = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
-      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.attributeDefNames);
-    
-    //lets get the size of all objects
-    int size = 0;
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startOverallNanos = System.nanoTime();
     
     Set<GrouperObject> results = new LinkedHashSet<GrouperObject>();
     
-    QueryOptions countOptions = new QueryOptions();
-    countOptions.retrieveResults(false);
-    countOptions.retrieveCount(true);
-    
-    StemFinder stemFinder = new StemFinder()
-      .assignQueryOptions(countOptions);
-
-    GroupFinder groupFinder = new GroupFinder()
-      .assignQueryOptions(countOptions);
-
-    AttributeDefFinder attributeDefFinder = new AttributeDefFinder()
-      .assignQueryOptions(countOptions);
-
-    AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder()
-      .assignQueryOptions(countOptions);
-
-    if (this.objectPrivilege != null) {
-      if (GrouperUtil.length(this.objectPrivilege.stemPrivileges()) > 0) {
-        stemFinder.assignPrivileges(this.objectPrivilege.stemPrivileges());
-      }
-      if (GrouperUtil.length(this.objectPrivilege.groupPrivileges()) > 0) {
-        groupFinder.assignPrivileges(this.objectPrivilege.groupPrivileges());
-      }
-      if (GrouperUtil.length(this.objectPrivilege.attributeDefPrivileges()) > 0) {
-        attributeDefFinder.assignPrivileges(this.objectPrivilege.attributeDefPrivileges());
-      }
-      if (GrouperUtil.length(this.objectPrivilege.attributeDefPrivileges()) > 0) {
-        attributeDefNameFinder.assignPrivileges(this.objectPrivilege.attributeDefPrivileges());
-      }
-    }
-    
-    if (this.subject != null) {
-      stemFinder.assignSubject(this.subject);
-      groupFinder.assignSubject(this.subject);
-      attributeDefFinder.assignSubject(this.subject);
-      attributeDefNameFinder.assignSubject(this.subject);
-    }
-    
-    if (!StringUtils.isBlank(this.parentStemId)) {
-      stemFinder.assignParentStemId(this.parentStemId);
-      groupFinder.assignParentStemId(this.parentStemId);
-      attributeDefFinder.assignParentStemId(this.parentStemId);
-      attributeDefNameFinder.assignParentStemId(this.parentStemId);
-    }
-    
-    if (this.stemScope != null) {
-      stemFinder.assignStemScope(this.stemScope);
-      groupFinder.assignStemScope(this.stemScope);
-      attributeDefFinder.assignStemScope(this.stemScope);
-      attributeDefNameFinder.assignStemScope(this.stemScope);
-    }
-    
-    if (!StringUtils.isBlank(this.filterText)) {
-      String theFilterText = "%" + this.filterText;
-      stemFinder.assignScope(theFilterText);
-      groupFinder.assignScope(theFilterText);
-      attributeDefFinder.assignScope(theFilterText);
-      attributeDefNameFinder.assignScope(theFilterText);
-      //default to true
-      boolean theSplitScope = this.splitScope == null || this.splitScope;
-      stemFinder.assignSplitScope(theSplitScope);
-      groupFinder.assignSplitScope(theSplitScope);
-      attributeDefFinder.assignSplitScope(theSplitScope);
-      attributeDefNameFinder.assignSplitScope(theSplitScope);
-    }
-    
-    boolean paging = this.queryOptions != null && this.queryOptions.getQueryPaging() != null;
-
-    int firstIndexOnPage = -1;
-    int lastIndexOnPage = -1;
-    int stemSize = -1;
-    int groupSize = -1;
-    int attributeDefSize = -1;
-    int attributeDefNameSize = -1;
-    int subjectSize = -1;
-    boolean retrieveSubjects = true;
-    
-    //if we are looking in a stem, then dont look for subjects
-    if (!StringUtils.isBlank(this.parentStemId) || StringUtils.isBlank(this.filterText)) {
-      retrieveSubjects = false;
-    }
-    
-    //retrieve them all, we cant page
-    Set<Subject> subjects = null;
-    
-    if (retrieveSubjects && findSubjects) {
+    try {
+      boolean findGroups = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+        this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.groups);
       
-      //all sources except groups or entities
-      Set<Source> sources = new HashSet<Source>();
-      String gsaId = SubjectFinder.internal_getGSA().getId();
-      Source esa = SubjectFinder.internal_getEntitySourceAdapter(false);
-      String esaId = esa == null ? null : esa.getId();
-      for (Source source : SourceManager.getInstance().getSources()) {
-        if ( StringUtils.equals(source.getId(), gsaId  )
-            || (!StringUtils.isBlank(esaId)
-                && StringUtils.equals(source.getId(), esaId))) {
-          continue;
-        }
-        sources.add(source);
-      }
-
-      subjects = SubjectFinder.findAll(this.filterText, sources);
-    }
-
-    if ((this.queryOptions != null && this.queryOptions.isRetrieveCount()) || paging) {
-
-      if (findStems) {
-        stemFinder.findStems();
-        
-        stemSize = countOptions.getCount().intValue();
-        size += countOptions.getCount();
-      } else {
-        stemSize = 0;
-      }
-
-      if (findGroups) {
-        groupFinder.findGroups();
-        
-        groupSize = countOptions.getCount().intValue();
-        size += countOptions.getCount();
-      } else {
-        groupSize = 0;
-      }
+      boolean findStems = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+        this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.stems);
       
-      if (findAttributeDefs) {
-        attributeDefFinder.findAttributes();
+      boolean findSubjects = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+        this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.subjects);
+      
+      boolean findAttributeDefs = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+        this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.attributeDefs);
+      
+      boolean findAttributeDefNames = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+        this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.attributeDefNames);
+      
+      //lets get the size of all objects
+      int size = 0;
+      
+      QueryOptions countOptions = new QueryOptions();
+      countOptions.retrieveResults(false);
+      countOptions.retrieveCount(true);
+      
+      StemFinder stemFinder = new StemFinder()
+        .assignQueryOptions(countOptions);
   
-        attributeDefSize = countOptions.getCount().intValue();
-        size += countOptions.getCount();
-      } else {
-        attributeDefSize = 0;
-      }
-
-      if (findAttributeDefNames) {
-        attributeDefNameFinder.findAttributeNames();
-        
-        attributeDefNameSize = countOptions.getCount().intValue();
-        size += countOptions.getCount();
-      } else {
-        attributeDefNameSize = 0;
-      }
-      
-      //subjects
-      subjectSize = GrouperUtil.length(subjects);
-      size += subjectSize;
-      
-      //total number of records
-      if (this.queryOptions.getQueryPaging() != null) {
-        this.queryOptions.getQueryPaging().setTotalRecordCount(size);
-      }
-      this.queryOptions.setCount(new Long(size));
-      
-      //if we are only here to get the count, get the count
-      if (this.queryOptions.isRetrieveCount() && !this.queryOptions.isRetrieveResults()) {
-        return results;
-      }
-      
-      this.queryOptions.getQueryPaging().calculateIndexes();
-      
-      firstIndexOnPage = queryOptions.getQueryPaging().getFirstIndexOnPage();
-      lastIndexOnPage = queryOptions.getQueryPaging().getLastIndexOnPage();
-
-    }
-    
-
-    {
-      
-      int firstStemIndex = stemSize > 0 ? 0 : -1;
-      int lastStemIndex = stemSize > 0 ? stemSize-1 : -1;
-      
-      QueryOptions stemQueryOptions = null;
-      
-      if (this.queryOptions != null) {
-        stemQueryOptions = new QueryOptions();
-        if (this.queryOptions.getQuerySort() != null) {
-          stemQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+      GroupFinder groupFinder = new GroupFinder()
+        .assignQueryOptions(countOptions);
+  
+      AttributeDefFinder attributeDefFinder = new AttributeDefFinder()
+        .assignQueryOptions(countOptions);
+  
+      AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder()
+        .assignQueryOptions(countOptions);
+  
+      if (this.objectPrivilege != null) {
+        if (GrouperUtil.length(this.objectPrivilege.stemPrivileges()) > 0) {
+          stemFinder.assignPrivileges(this.objectPrivilege.stemPrivileges());
+        }
+        if (GrouperUtil.length(this.objectPrivilege.groupPrivileges()) > 0) {
+          groupFinder.assignPrivileges(this.objectPrivilege.groupPrivileges());
+        }
+        if (GrouperUtil.length(this.objectPrivilege.attributeDefPrivileges()) > 0) {
+          attributeDefFinder.assignPrivileges(this.objectPrivilege.attributeDefPrivileges());
+        }
+        if (GrouperUtil.length(this.objectPrivilege.attributeDefPrivileges()) > 0) {
+          attributeDefNameFinder.assignPrivileges(this.objectPrivilege.attributeDefPrivileges());
         }
       }
       
-      if (findStems && (!paging || decoratePaging(stemQueryOptions, firstIndexOnPage, lastIndexOnPage, firstStemIndex, lastStemIndex))) {
-
-        stemFinder.assignQueryOptions(stemQueryOptions);
-
-        Set<Stem> stems = stemFinder.findStems();
-        results.addAll(stems);
+      if (this.subject != null) {
+        stemFinder.assignSubject(this.subject);
+        groupFinder.assignSubject(this.subject);
+        attributeDefFinder.assignSubject(this.subject);
+        attributeDefNameFinder.assignSubject(this.subject);
+      }
+      
+      if (!StringUtils.isBlank(this.parentStemId)) {
+        stemFinder.assignParentStemId(this.parentStemId);
+        groupFinder.assignParentStemId(this.parentStemId);
+        attributeDefFinder.assignParentStemId(this.parentStemId);
+        attributeDefNameFinder.assignParentStemId(this.parentStemId);
+      }
+      
+      if (this.stemScope != null) {
+        stemFinder.assignStemScope(this.stemScope);
+        groupFinder.assignStemScope(this.stemScope);
+        attributeDefFinder.assignStemScope(this.stemScope);
+        attributeDefNameFinder.assignStemScope(this.stemScope);
+      }
+      
+      if (!StringUtils.isBlank(this.filterText)) {
         
+        String theFilterText = "%" + this.filterText;
+        debugMap.put("filterText","'" + this.filterText + "'");
+        stemFinder.assignScope(theFilterText);
+        groupFinder.assignScope(theFilterText);
+        attributeDefFinder.assignScope(theFilterText);
+        attributeDefNameFinder.assignScope(theFilterText);
+        //default to true
+        boolean theSplitScope = this.splitScope == null || this.splitScope;
+        stemFinder.assignSplitScope(theSplitScope);
+        groupFinder.assignSplitScope(theSplitScope);
+        attributeDefFinder.assignSplitScope(theSplitScope);
+        attributeDefNameFinder.assignSplitScope(theSplitScope);
       }
       
+      boolean paging = this.queryOptions != null && this.queryOptions.getQueryPaging() != null;
+  
+      int firstIndexOnPage = -1;
+      int lastIndexOnPage = -1;
+      int stemSize = -1;
+      int groupSize = -1;
+      int attributeDefSize = -1;
+      int attributeDefNameSize = -1;
+      int subjectSize = -1;
+      boolean retrieveSubjects = true;
       
-    }
-    
-    {
-      int firstGroupIndex = groupSize > 0 ? stemSize : -1;
-      int lastGroupIndex = groupSize > 0 ? stemSize+groupSize-1 : -1;
-
-      QueryOptions groupQueryOptions = null;
-      
-      if (this.queryOptions != null) {
-        groupQueryOptions = new QueryOptions();
-        if (this.queryOptions.getQuerySort() != null) {
-          groupQueryOptions.sort(this.queryOptions.getQuerySort().clone());
-        }
+      //if we are looking in a stem, then dont look for subjects
+      if (!StringUtils.isBlank(this.parentStemId) || StringUtils.isBlank(this.filterText)) {
+        retrieveSubjects = false;
       }
-
-      if (findGroups && (!paging || decoratePaging(groupQueryOptions, firstIndexOnPage, lastIndexOnPage, firstGroupIndex, lastGroupIndex))) {
-        groupFinder.assignQueryOptions(groupQueryOptions);
-
-        Set<Group> groups = groupFinder.findGroups();
-        results.addAll(groups);
-      }
-    }
-    
-    {
-      int firstAttributeDefIndex = attributeDefSize > 0 ? groupSize + stemSize : -1;
-      int lastAttributeDefIndex = attributeDefSize > 0 ? stemSize+groupSize+attributeDefSize-1 : -1;
-
-      QueryOptions attributeDefQueryOptions = null;
       
-      if (this.queryOptions != null) {
-        attributeDefQueryOptions = new QueryOptions();
-        if (this.queryOptions.getQuerySort() != null) {
-          attributeDefQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+      //retrieve them all, we cant page
+      Set<Subject> subjects = null;
+      
+      if (retrieveSubjects && findSubjects) {
+        
+        //all sources except groups or entities
+        Set<Source> sources = new HashSet<Source>();
+        String gsaId = SubjectFinder.internal_getGSA().getId();
+        Source esa = SubjectFinder.internal_getEntitySourceAdapter(false);
+        String esaId = esa == null ? null : esa.getId();
+        for (Source source : SourceManager.getInstance().getSources()) {
+          if ( StringUtils.equals(source.getId(), gsaId  )
+              || (!StringUtils.isBlank(esaId)
+                  && StringUtils.equals(source.getId(), esaId))) {
+            continue;
+          }
           
-          //take out the display parts...
-          List<QuerySortField> querySortFields = attributeDefQueryOptions.getQuerySort().getQuerySortFields();
-          for (int i=0;i<querySortFields.size();i++) {
-            querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
+          if (this.sourceIds != null && !this.sourceIds.contains(source.getId())) {
+            continue;
+          }
+          
+          sources.add(source);
+        }
+        long nanoStart = System.nanoTime();
+        subjects = SubjectFinder.findAll(this.filterText, sources);
+        debugMap.put("subjectSearch", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+        debugMap.put("subjectCount", GrouperUtil.length(subjects));
+      }
+  
+      if ((this.queryOptions != null && this.queryOptions.isRetrieveCount()) || paging) {
+  
+        if (findStems) {
+          long nanoStart = System.nanoTime();
+
+          stemFinder.findStems();
+          debugMap.put("stemSearch", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          
+          stemSize = countOptions.getCount().intValue();
+          debugMap.put("stemCount", stemSize);
+          size += countOptions.getCount();
+        } else {
+          stemSize = 0;
+        }
+  
+        if (findGroups) {
+          long nanoStart = System.nanoTime();
+          groupFinder.findGroups();
+          debugMap.put("groupSearch", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          
+          groupSize = countOptions.getCount().intValue();
+          debugMap.put("groupCount", GrouperUtil.length(subjects));
+          size += countOptions.getCount();
+        } else {
+          groupSize = 0;
+        }
+        
+        if (findAttributeDefs) {
+          long nanoStart = System.nanoTime();
+          attributeDefFinder.findAttributes();
+          debugMap.put("attributeDefSearch", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+    
+          attributeDefSize = countOptions.getCount().intValue();
+          debugMap.put("attributeDefCount", attributeDefSize);
+          size += countOptions.getCount();
+        } else {
+          attributeDefSize = 0;
+        }
+  
+        if (findAttributeDefNames) {
+          long nanoStart = System.nanoTime();
+          attributeDefNameFinder.findAttributeNames();
+          debugMap.put("attributeDefNameSearch", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          
+          attributeDefNameSize = countOptions.getCount().intValue();
+          debugMap.put("attributeDefNmeCount", attributeDefNameSize);
+          size += countOptions.getCount();
+        } else {
+          attributeDefNameSize = 0;
+        }
+        
+        //subjects
+        subjectSize = GrouperUtil.length(subjects);
+        size += subjectSize;
+        
+        //total number of records
+        if (this.queryOptions.getQueryPaging() != null) {
+          this.queryOptions.getQueryPaging().setTotalRecordCount(size);
+        }
+        this.queryOptions.setCount(new Long(size));
+        
+        //if we are only here to get the count, get the count
+        if (this.queryOptions.isRetrieveCount() && !this.queryOptions.isRetrieveResults()) {
+          return results;
+        }
+        
+        this.queryOptions.getQueryPaging().calculateIndexes();
+        
+        firstIndexOnPage = queryOptions.getQueryPaging().getFirstIndexOnPage();
+        lastIndexOnPage = queryOptions.getQueryPaging().getLastIndexOnPage();
+  
+      }
+      
+  
+      {
+        
+        int firstStemIndex = stemSize > 0 ? 0 : -1;
+        int lastStemIndex = stemSize > 0 ? stemSize-1 : -1;
+        
+        QueryOptions stemQueryOptions = null;
+        
+        if (this.queryOptions != null) {
+          stemQueryOptions = new QueryOptions();
+          if (this.queryOptions.getQuerySort() != null) {
+            stemQueryOptions.sort(this.queryOptions.getQuerySort().clone());
           }
         }
-      }
-
-      if (findAttributeDefs && (!paging || decoratePaging(attributeDefQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefIndex, 
-          lastAttributeDefIndex))) {
-
-        attributeDefFinder.assignQueryOptions(attributeDefQueryOptions);
         
-        Set<AttributeDef> attributeDefSet = attributeDefFinder.findAttributes();
-        
-        results.addAll(attributeDefSet);
-      }
-    }
-
-    {
-      int firstAttributeDefNameIndex = attributeDefNameSize > 0 ? attributeDefSize + groupSize + stemSize : -1;
-      int lastAttributeDefNameIndex = attributeDefNameSize > 0 ? attributeDefNameSize+stemSize+groupSize+attributeDefSize-1 : -1;
-
-      QueryOptions attributeDefNameQueryOptions = null;
-      
-      if (this.queryOptions != null) {
-        attributeDefNameQueryOptions = new QueryOptions();
-        if (this.queryOptions.getQuerySort() != null) {
-          attributeDefNameQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+        if (findStems && (!paging || decoratePaging(stemQueryOptions, firstIndexOnPage, lastIndexOnPage, firstStemIndex, lastStemIndex))) {
+  
+          stemFinder.assignQueryOptions(stemQueryOptions);
+  
+          long nanoStart = System.nanoTime();
+          Set<Stem> stems = stemFinder.findStems();
+          debugMap.put("stemSearch2", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          debugMap.put("stemCount2", GrouperUtil.length(stems));
+          results.addAll(stems);
           
-          //take out the display parts...
-          List<QuerySortField> querySortFields = attributeDefNameQueryOptions.getQuerySort().getQuerySortFields();
-          for (int i=0;i<querySortFields.size();i++) {
-            querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
+        }
+        
+        
+      }
+      
+      {
+        int firstGroupIndex = groupSize > 0 ? stemSize : -1;
+        int lastGroupIndex = groupSize > 0 ? stemSize+groupSize-1 : -1;
+  
+        QueryOptions groupQueryOptions = null;
+        
+        if (this.queryOptions != null) {
+          groupQueryOptions = new QueryOptions();
+          if (this.queryOptions.getQuerySort() != null) {
+            groupQueryOptions.sort(this.queryOptions.getQuerySort().clone());
           }
         }
+  
+        if (findGroups && (!paging || decoratePaging(groupQueryOptions, firstIndexOnPage, lastIndexOnPage, firstGroupIndex, lastGroupIndex))) {
+          groupFinder.assignQueryOptions(groupQueryOptions);
+  
+          long nanoStart = System.nanoTime();
+          Set<Group> groups = groupFinder.findGroups();
+          debugMap.put("groupSearch2", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          debugMap.put("groupCount2", GrouperUtil.length(groups));
+          results.addAll(groups);
+        }
       }
-
-      if (findAttributeDefNames && (!paging || decoratePaging(attributeDefNameQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefNameIndex, 
-          lastAttributeDefNameIndex))) {
-        attributeDefNameFinder.assignQueryOptions(attributeDefNameQueryOptions);
-
-        Set<AttributeDefName> attributeDefNameSet = attributeDefNameFinder.findAttributeNames();
-        
-        results.addAll(attributeDefNameSet);
-      }        
-    }
-    
-    {
-      int firstSubjectIndex = subjectSize > 0 ? attributeDefNameSize + attributeDefSize + groupSize + stemSize : -1;
-      int lastSubjectIndex = subjectSize > 0 ? subjectSize+attributeDefNameSize+stemSize+groupSize+attributeDefSize-1 : -1;
-
-      QueryOptions subjectQueryOptions = null;
       
-      if (this.queryOptions != null) {
-        subjectQueryOptions = new QueryOptions();
-        if (this.queryOptions.getQuerySort() != null) {
-          subjectQueryOptions.sort(this.queryOptions.getQuerySort().clone());
-          
-          //take out the display parts...
-          List<QuerySortField> querySortFields = subjectQueryOptions.getQuerySort().getQuerySortFields();
-          for (int i=0;i<querySortFields.size();i++) {
-            querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
-          }
-        }
-      }
-
-      if (findSubjects && retrieveSubjects && (!paging || decoratePaging(subjectQueryOptions, firstIndexOnPage, lastIndexOnPage, firstSubjectIndex, 
-          lastSubjectIndex))) {
+      {
+        int firstAttributeDefIndex = attributeDefSize > 0 ? groupSize + stemSize : -1;
+        int lastAttributeDefIndex = attributeDefSize > 0 ? stemSize+groupSize+attributeDefSize-1 : -1;
+  
+        QueryOptions attributeDefQueryOptions = null;
         
-        //sory by name (case insensitive)?  I guess
-        Map<String, Subject> resultMap = new TreeMap<String, Subject>();
-        
-        for (Subject theSubject : GrouperUtil.nonNull(subjects)) {
-          //concate source id and subject id since there could be multiple with same name
-          resultMap.put(StringUtils.defaultString(theSubject.getName() + theSubject.getSourceId() + theSubject.getId()).toLowerCase(), theSubject);
-        }
-        
-        int pageStartIndex = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
-            0: subjectQueryOptions.getQueryPaging().getPageStartIndex();
-        int pageSize = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
-            GrouperUtil.length(subjects) : subjectQueryOptions.getQueryPaging().getPageSize();
-        
-        int index = 0;
-        int added = 0;
-        //add the subjects which need to be added
-        for (String sortString : resultMap.keySet()) {
-          if (index >= pageStartIndex) {
-            results.add(new GrouperObjectSubjectWrapper(resultMap.get(sortString)));
-            added++;
-            if (added >= pageSize) {
-              break;
+        if (this.queryOptions != null) {
+          attributeDefQueryOptions = new QueryOptions();
+          if (this.queryOptions.getQuerySort() != null) {
+            attributeDefQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+            
+            //take out the display parts...
+            List<QuerySortField> querySortFields = attributeDefQueryOptions.getQuerySort().getQuerySortFields();
+            for (int i=0;i<querySortFields.size();i++) {
+              querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
             }
           }
-          index++;
         }
-      }        
+  
+        if (findAttributeDefs && (!paging || decoratePaging(attributeDefQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefIndex, 
+            lastAttributeDefIndex))) {
+  
+          attributeDefFinder.assignQueryOptions(attributeDefQueryOptions);
+          
+          long nanoStart = System.nanoTime();
+          Set<AttributeDef> attributeDefSet = attributeDefFinder.findAttributes();
+          debugMap.put("subjectDef2", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          debugMap.put("attributeDefCount2", GrouperUtil.length(attributeDefSet));
+
+          results.addAll(attributeDefSet);
+        }
+      }
+  
+      {
+        int firstAttributeDefNameIndex = attributeDefNameSize > 0 ? attributeDefSize + groupSize + stemSize : -1;
+        int lastAttributeDefNameIndex = attributeDefNameSize > 0 ? attributeDefNameSize+stemSize+groupSize+attributeDefSize-1 : -1;
+  
+        QueryOptions attributeDefNameQueryOptions = null;
+        
+        if (this.queryOptions != null) {
+          attributeDefNameQueryOptions = new QueryOptions();
+          if (this.queryOptions.getQuerySort() != null) {
+            attributeDefNameQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+            
+            //take out the display parts...
+            List<QuerySortField> querySortFields = attributeDefNameQueryOptions.getQuerySort().getQuerySortFields();
+            for (int i=0;i<querySortFields.size();i++) {
+              querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
+            }
+          }
+        }
+  
+        if (findAttributeDefNames && (!paging || decoratePaging(attributeDefNameQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefNameIndex, 
+            lastAttributeDefNameIndex))) {
+          attributeDefNameFinder.assignQueryOptions(attributeDefNameQueryOptions);
+  
+          long nanoStart = System.nanoTime();
+          Set<AttributeDefName> attributeDefNameSet = attributeDefNameFinder.findAttributeNames();
+          debugMap.put("attributeName2", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
+          debugMap.put("attributeDefNameCount2", GrouperUtil.length(attributeDefNameSet));
+          
+          results.addAll(attributeDefNameSet);
+        }        
+      }
+      
+      {
+        int firstSubjectIndex = subjectSize > 0 ? attributeDefNameSize + attributeDefSize + groupSize + stemSize : -1;
+        int lastSubjectIndex = subjectSize > 0 ? subjectSize+attributeDefNameSize+stemSize+groupSize+attributeDefSize-1 : -1;
+  
+        QueryOptions subjectQueryOptions = null;
+        
+        if (this.queryOptions != null) {
+          subjectQueryOptions = new QueryOptions();
+          if (this.queryOptions.getQuerySort() != null) {
+            subjectQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+            
+            //take out the display parts...
+            List<QuerySortField> querySortFields = subjectQueryOptions.getQuerySort().getQuerySortFields();
+            for (int i=0;i<querySortFields.size();i++) {
+              querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
+            }
+          }
+        }
+  
+        if (findSubjects && retrieveSubjects && (!paging || decoratePaging(subjectQueryOptions, firstIndexOnPage, lastIndexOnPage, firstSubjectIndex, 
+            lastSubjectIndex))) {
+          
+          //sory by name (case insensitive)?  I guess
+          Map<String, Subject> resultMap = new TreeMap<String, Subject>();
+          
+          for (Subject theSubject : GrouperUtil.nonNull(subjects)) {
+            //concate source id and subject id since there could be multiple with same name
+            resultMap.put(StringUtils.defaultString(theSubject.getName() + theSubject.getSourceId() + theSubject.getId()).toLowerCase(), theSubject);
+          }
+          
+          int pageStartIndex = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
+              0: subjectQueryOptions.getQueryPaging().getPageStartIndex();
+          int pageSize = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
+              GrouperUtil.length(subjects) : subjectQueryOptions.getQueryPaging().getPageSize();
+          
+          int index = 0;
+          int added = 0;
+          //add the subjects which need to be added
+          for (String sortString : resultMap.keySet()) {
+            if (index >= pageStartIndex) {
+              results.add(new GrouperObjectSubjectWrapper(resultMap.get(sortString)));
+              added++;
+              if (added >= pageSize) {
+                break;
+              }
+            }
+            index++;
+          }
+        }        
+      }
+      
+      return results;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("overallTime", ((System.nanoTime() - startOverallNanos) / 1000000L ) + "ms");
+        debugMap.put("overallCount", GrouperUtil.length(results));
+
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
-    
-    return results;
   }
   
 }

@@ -51,7 +51,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        
+        <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
+
         <!-- Plugin Versions -->
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
@@ -104,7 +105,7 @@
         <commons.pool.version>1.6</commons.pool.version>
         <commons.validator.version>1.6</commons.validator.version>
         <cron.parser.core.version>3.4</cron.parser.core.version>
-        <dom4j.version>2.1.0</dom4j.version>
+        <dom4j.version>2.1.1</dom4j.version>
         <shibboleth.common.version>1.3.3</shibboleth.common.version>
         <vt.ldap.version>3.3.9</vt.ldap.version>
         <javassist.version>3.22.0-GA</javassist.version>
@@ -151,7 +152,7 @@
         <hsqldb.version>2.3.5</hsqldb.version>
         <postgresql.version>42.1.4</postgresql.version>
         <mysql.connector.java.version>5.1.45</mysql.connector.java.version>
-        <ldaptive.version>1.1.0</ldaptive.version>
+        <ldaptive.version>1.1.2</ldaptive.version>
         <xml.apis.version>1.4.01</xml.apis.version>
 
         <!-- grouper-ui -->
@@ -806,6 +807,7 @@
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
+                    <failIfMissing>false</failIfMissing>
                     <skipExistingHeaders>true</skipExistingHeaders>
                     <strictCheck>true</strictCheck>
                     <aggregate>true</aggregate>
@@ -1060,7 +1062,7 @@
     </reporting>
 
     <!-- Project Metadata -->
-    <url>http://grouper.internet2.edu</url>
+    <url>https://www.internet2.edu/products-services/trust-identity/grouper/</url>
 
     <licenses>
         <license>

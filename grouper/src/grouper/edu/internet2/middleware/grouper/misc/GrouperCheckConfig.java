@@ -1645,7 +1645,7 @@ public class GrouperCheckConfig {
     checkJar("commons-validator-1.6.jar", 186077, "org.apache.commons.validator.CreditCardValidator", "1.6");
     checkJar("cron-parser-core-3.4.jar", 33945, "net.redhogs.cronparser.DescriptionTypeEnum", "null");
     checkJar("ddlutils-1.0.jar", 353473, "org.apache.ddlutils.DatabaseOperationException", "1.0");
-    checkJar("dom4j-2.1.0.jar", 322938, "org.dom4j.Attribute", "null");
+    checkJar("dom4j-2.1.1.jar", 323600, "org.dom4j.Attribute", "null");
     checkJar("ehcache-core-2.4.8.jar", 1030367, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph-1.0.6.jar", 86487, "net.sf.ezmorph.MorphException", "null");
     checkJar("groovy-all-2.5.0-beta-2.jar", 7715312, "groovy.beans.Bindable", "2.5.0-beta-2");
@@ -1662,7 +1662,7 @@ public class GrouperCheckConfig {
     checkJar("joda-time-2.9.9.jar", 634048, "org.joda.time.base.AbstractDateTime", "2.9.9");
     checkJar("json-lib-2.4-jdk15.jar", 159123, "net.sf.json.JSON", "null");
     checkJar("jta-1.1.jar", 15071, "javax.transaction.HeuristicCommitException", "null");
-    checkJar("ldaptive-1.1.0.jar", 779848, "org.ldaptive.AbstractConfig", "null");
+    checkJar("ldaptive-1.1.2.jar", 818299, "org.ldaptive.AbstractConfig", "null");
     checkJar("log4j-1.2.17.jar", 489884, "org.apache.log4j.Appender", "1.2.17");
     checkJar("mail-1.4.7.jar", 521157, "javax.mail.NoSuchProviderException", "1.4.7");
     checkJar("mchange-commons-java-0.2.14.jar", 623971, "com.mchange.v1.identicator.StrongIdentityIdenticator", "0.2.14");
@@ -2827,6 +2827,8 @@ public class GrouperCheckConfig {
                 "#if using a sql table, and specifying the name like string, then shoudl the group (in addition to memberships)" +
                 "# be removed if not used anywhere else?" +
                 "loader.sqlTable.likeString.removeGroupIfNotUsed = true", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_RESULTS_TRANSFORMATION_CLASS, 
+                "Grouper loader LDAP results transformation class (optional for loader ldap type: LDAP_GROUPS_FROM_ATTRIBUTE)", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE, 
                 "Grouper loader LDAP group attribute name", 
                 "Attribute name of the filter object result that holds the group name (required for " +

@@ -36,6 +36,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.Assert;
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -44,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -57,8 +61,6 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import junit.framework.Assert;
-import junit.textui.TestRunner;
 
 /**
  * Test {@link Stem}.
@@ -73,7 +75,7 @@ public class TestStemFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemFinder("testFindByUuids"));
+    TestRunner.run(new TestStemFinder("testFindByAttributeValueOfAssignment"));
   }
   
   // Private Class Constants
@@ -95,6 +97,170 @@ public class TestStemFinder extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * find stems with two attributes and values (assigned to an assignment)
+   * e.g. typeTagDirect=T and typeTagType=service and subject can ADMIN
+   */
+  public void testFindByAttributeValueOfAssignment() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef attributeDefMarker = new AttributeDefSave(grouperSession).assignAttributeDefNameToEdit("test:typeTagDef")
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true)
+        .assignToStem(true)
+        .assignValueType(AttributeDefValueType.marker).save();
+
+    AttributeDefName attributeDefNameMarker = new AttributeDefNameSave(grouperSession, attributeDefMarker)
+      .assignAttributeDefNameNameToEdit("test:typeTagMarker").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDef attributeDefData = new AttributeDefSave(grouperSession).assignAttributeDefNameToEdit("test:typeTagData")
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true)
+        .assignToStemAssn(true)
+        .assignValueType(AttributeDefValueType.string).save();
+
+    AttributeDefName attributeDefNameDirect = new AttributeDefNameSave(grouperSession, attributeDefData)
+      .assignAttributeDefNameNameToEdit("test:typeTagDirect").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameType = new AttributeDefNameSave(grouperSession, attributeDefData)
+    .assignAttributeDefNameNameToEdit("test:typeTagType").assignCreateParentStemsIfNotExist(true).save();
+
+    // stem 0 has a direct T and a type of service, it should find this one, SUBJ0 can ADMIN, YES FOUND
+    Stem stem0 = new StemSave(grouperSession).assignName("test:stem0").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      AttributeAssign attributeAssign = stem0.getAttributeDelegate().assignAttribute(attributeDefNameMarker).getAttributeAssign();
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagDirect", "T");
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagType", "service");
+      stem0.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+      stem0.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+
+    }
+
+    // stem 1 is not direct, but is a service, and subj0 can admin, NOT FOUND
+    Stem stem1 = new StemSave(grouperSession).assignName("test:stem1").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      AttributeAssign attributeAssign = stem1.getAttributeDelegate().assignAttribute(attributeDefNameMarker).getAttributeAssign();
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagDirect", "F");
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagType", "service");
+      stem1.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+    }
+
+    // stem 2 is yes direct and not type service, subj0 can admin, NOT FOUND
+    Stem stem2 = new StemSave(grouperSession).assignName("test:stem2").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      AttributeAssign attributeAssign = stem2.getAttributeDelegate().assignAttribute(attributeDefNameMarker).getAttributeAssign();
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagDirect", "T");
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagType", "ref");
+      stem2.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+
+    }
+
+    // stem 3 is no direct and not a service, subj0 can admin, NOT FOUND
+    Stem stem3 = new StemSave(grouperSession).assignName("test:stem3").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      AttributeAssign attributeAssign = stem3.getAttributeDelegate().assignAttribute(attributeDefNameMarker).getAttributeAssign();
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagDirect", "F");
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagType", "ref");
+      stem3.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+
+    }
+    
+    // stem 4 is yes direct and yes a service, but cant ADMIN from subj 0, NOT FOUND
+    Stem stem4 = new StemSave(grouperSession).assignName("test:stem4").assignCreateParentStemsIfNotExist(true).save();
+    
+    {
+      AttributeAssign attributeAssign = stem4.getAttributeDelegate().assignAttribute(attributeDefNameMarker).getAttributeAssign();
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagDirect", "T");
+      attributeAssign.getAttributeValueDelegate().assignValueString("test:typeTagType", "service");
+      stem4.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+      stem4.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+
+    }
+
+    // ##############################################
+    // root session should be able to find all if checking read on attribute def
+    // dont check the privileges of the attributes
+    List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(true)
+      .assignNameOfAttributeDefName(attributeDefNameDirect.getName()).addAttributeValuesOnAssignment("T")
+      .assignNameOfAttributeDefName2(attributeDefNameType.getName()).addAttributeValuesOnAssignment2("service")
+      .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertEquals(stem0.getName(), stems.get(0).getName());
+    assertEquals(stem4.getName(), stems.get(1).getName());
+
+    // ##############################################
+    // root session should be able to find all if not checking read
+    // dont check the privileges of the attributes
+    stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+      .assignNameOfAttributeDefName(attributeDefNameDirect.getName()).addAttributeValuesOnAssignment("T")
+      .assignNameOfAttributeDefName2(attributeDefNameType.getName()).addAttributeValuesOnAssignment2("service")
+      .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertEquals(stem0.getName(), stems.get(0).getName());
+    assertEquals(stem4.getName(), stems.get(1).getName());
+
+    // ##############################################
+    // test.subject.0 session should be able to find 1
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+    .assignNameOfAttributeDefName(attributeDefNameDirect.getName()).addAttributeValuesOnAssignment("T")
+      .assignNameOfAttributeDefName2(attributeDefNameType.getName()).addAttributeValuesOnAssignment2("service")
+      .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertEquals(stem0.getName(), stems.get(0).getName());
+
+    // ##############################################
+    // test.subject.1 session should be able to find none
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+    .assignNameOfAttributeDefName(attributeDefNameDirect.getName()).addAttributeValuesOnAssignment("T")
+      .assignNameOfAttributeDefName2(attributeDefNameType.getName()).addAttributeValuesOnAssignment2("service")
+      .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+
+    // ##############################################
+    // test.subject.0 session should be able to find 0 if checking read on attribute
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(true)
+    .assignNameOfAttributeDefName(attributeDefNameDirect.getName()).addAttributeValuesOnAssignment("T")
+      .assignNameOfAttributeDefName2(attributeDefNameType.getName()).addAttributeValuesOnAssignment2("service")
+      .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    
+    // ##############################################
+    // test.subject.0 session should be able to find 1 if now has permissions on attribute def
+
+    grouperSession = GrouperSession.startRootSession();
+    attributeDefMarker.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, true);
+    attributeDefData.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, true);
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(true)
+    .assignNameOfAttributeDefName(attributeDefNameDirect.getName()).addAttributeValuesOnAssignment("T")
+      .assignNameOfAttributeDefName2(attributeDefNameType.getName()).addAttributeValuesOnAssignment2("service")
+      .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertEquals(stem0.getName(), stems.get(0).getName());
+
+    
+    
+  }
+  
   /**
    * 
    */
@@ -368,14 +534,11 @@ public class TestStemFinder extends GrouperTest {
     
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
 
-    try {
-      stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
-          .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
-      fail("Cant find attribute");
-    } catch (Exception e) {
-      //good
-    }
-    
+    stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
+
+    assertEquals(0, GrouperUtil.length(stems));
+
     stems = new ArrayList<Stem>(new StemFinder().assignIdOfAttributeDefName(attributeDefName.getId())
         .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
     

@@ -320,6 +320,12 @@
                             <br /><span class="description">${textContainer.text['grouperLoaderLdapAttributeFilterExpressionDescription']}</span>
                             </td>
                           </tr>
+                          <tr>
+                            <td style="vertical-align: top;"><strong>${textContainer.text['grouperLoaderLdapResultsTransformationClass']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapResultsTransformationClass)}
+                            <br /><span class="description">${textContainer.text['grouperLoaderLdapResultsTransformationClassDescription']}</span>
+                            </td>
+                          </tr>
                         </c:if>
                                                 
                         <tr>

@@ -5126,6 +5126,27 @@ public class GrouperInstaller {
   }
 
   /**
+   *
+   * @param sourceDir directory to copy files from
+   * @param targetDir directory to copy files to
+   * @param filesToCopyFromSource list of files to copy, if exist in source and differ in target
+   */
+  private void syncFilesInDirWithBackup(String sourceDir, String targetDir, String[] filesToCopyFromSource) {
+    for (String filename : filesToCopyFromSource) {
+      File srcFile = new File(sourceDir + filename);
+      File targetFile = new File(targetDir + filename);
+
+      if (srcFile.isFile() && !GrouperInstallerUtils.contentEquals(srcFile, targetFile)) {
+        try {
+          File bakFile = backupAndCopyFile(srcFile, targetFile, true);
+        } catch (Exception e) {
+          System.out.println(" - failed to copy newer bin file " + filename + ": " + e.getMessage());
+        }
+      }
+    }
+  }
+
+  /**
    * upgrade the api
    */
   private void upgradeApi() {
@@ -9070,6 +9091,7 @@ public class GrouperInstaller {
       GrouperInstallerMergePatchFiles.mergePatchFiles(
           apiPatchStatusFile, uiPatchStatusFile, true);
 
+
       //####################################
       // patch the ui
       this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName());
@@ -9078,7 +9100,23 @@ public class GrouperInstaller {
       this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
           + "WEB-INF" + File.separator + "lib" + File.separator;
       this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
-              + "WEB-INF" + File.separator + "bin" + File.separator ;
+          + "WEB-INF" + File.separator + "bin" + File.separator ;
+
+      //####################################
+      // temp fix for 2.4 full install - the api and ui /bin dirs differ in 2.4; this step
+      // will sync by renaming ui files that differ and then copy the api versions
+      String apiBinSource = GrouperInstallerUtils.fileAddLastSlashIfNotExists(
+              this.untarredApiDir.getAbsolutePath()) + "bin" + File.separator;
+      String targetBinSouce = GrouperInstallerUtils.fileAddLastSlashIfNotExists(
+              this.grouperUiBuildToDirName()) + "WEB-INF" + File.separator + "bin" + File.separator;
+      String[] filesToCopyFromApiBin = new String[]{"gsh.sh", "gsh.bat", "gsh", "README.txt", "setenv.example.bat", "setenv.example.sh"};
+      this.grouperBaseBakDir = this.grouperTarballDirectoryString + "bak_UI_"
+              + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + File.separator;
+
+      System.out.println("Reconciling differences between API and UI /bin directories...");
+      syncFilesInDirWithBackup(apiBinSource, targetBinSouce, filesToCopyFromApiBin);
+      this.grouperBaseBakDir = null;
+
       this.patchUi();
     }
     
@@ -9125,7 +9163,7 @@ public class GrouperInstaller {
       System.out.println("  - to: "  + wsPatchStatusFile.getAbsolutePath());
       GrouperInstallerMergePatchFiles.mergePatchFiles(
           apiPatchStatusFile, wsPatchStatusFile, true);
-  
+
       //####################################
       // patch the ws
       this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName());
@@ -9135,6 +9173,21 @@ public class GrouperInstaller {
           + "WEB-INF" + File.separator + "lib" + File.separator;
       this.upgradeExistingBinDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
               + "WEB-INF" + File.separator + "bin" + File.separator ;
+
+      //####################################
+      // temp fix for 2.4 full install - the api and ws /bin dirs differ in 2.4; this step
+      // will sync by renaming ws files that differ and then copy the api versions
+      String apiBinSource = GrouperInstallerUtils.fileAddLastSlashIfNotExists(
+              this.untarredApiDir.getAbsolutePath()) + "bin" + File.separator;
+      String targetBinSouce = GrouperInstallerUtils.fileAddLastSlashIfNotExists(
+              this.grouperWsBuildToDirName()) + "WEB-INF" + File.separator + "bin" + File.separator;
+      String[] filesToCopyFromApiBin = new String[]{"gsh.sh", "gsh.bat", "gsh", "README.txt", "setenv.example.bat", "setenv.example.sh"};
+      this.grouperBaseBakDir = this.grouperTarballDirectoryString + "bak_WS_"
+              + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + File.separator;
+
+      System.out.println("Reconciling differences between API and WS /bin directories...");
+      syncFilesInDirWithBackup(apiBinSource, targetBinSouce, filesToCopyFromApiBin);
+      this.grouperBaseBakDir = null;
 
       this.patchWs();
   

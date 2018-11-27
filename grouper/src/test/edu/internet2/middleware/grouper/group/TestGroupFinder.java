@@ -676,13 +676,9 @@ public class TestGroupFinder extends GrouperTest {
     
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
 
-    try {
-      groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
-          .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());
-      fail("Cant find attribute");
-    } catch (Exception e) {
-      //good
-    }
+    groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());
+    assertEquals(0, GrouperUtil.length(groups));
     
     groups = new ArrayList<Group>(new GroupFinder().assignIdOfAttributeDefName(attributeDefName.getId())
         .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());

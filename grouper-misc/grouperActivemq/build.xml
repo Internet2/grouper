@@ -82,16 +82,18 @@
 
   <target name="jar">
     <tstamp>
-        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
     </tstamp>
     <jar jarfile="${main.jarFile}" duplicate="fail">
       <fileset dir="${main.bin}" />
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
-        <attribute name="Implementation-Vendor"   value="Penn"/>
+        <attribute name="Specification-Title"     value="Grouper AMQ"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
         <attribute name="Implementation-Title"    value="${main.appName}"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
+
      </jar>
      <echo message="Output is: ${main.jarFile}" />
    </target>

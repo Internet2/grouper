@@ -385,9 +385,15 @@ public class LoaderLdapUtils {
   
   /** extension of the attribute def name for groups like string for sql to remove orphans of LDAP_GROUP_LIST */
   public static final String ATTR_DEF_EXTENSION_GROUPS_LIKE = "grouperLoaderLdapGroupsLike";
+  
+  /** extension of the attribute def name for optional results transformation class */
+  public static final String ATTR_DEF_EXTENSION_RESULTS_TRANSFORMATION_CLASS = "grouperLoaderLdapResultsTransformationClass";
 
   /** attribute def name of groups like string for sql to remove orphans of LDAP_GROUP_LIST */
   private static String grouperLoaderLdapGroupsLikeName;
+  
+  /** attribute def name of results transformation class */
+  private static String grouperLoaderLdapResultsTransformationClassName;
 
   /**
    * attribute def name of groups like string for sql to remove orphans of LDAP_GROUP_LIST
@@ -401,11 +407,30 @@ public class LoaderLdapUtils {
   }
   
   /**
+   * attribute def name of results transformation class
+   * @return name
+   */
+  public static String grouperLoaderLdapResultsTransformationClassName() {
+    if (grouperLoaderLdapResultsTransformationClassName == null) {
+      grouperLoaderLdapResultsTransformationClassName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_RESULTS_TRANSFORMATION_CLASS;
+    }
+    return grouperLoaderLdapResultsTransformationClassName;
+  }
+  
+  /**
    * return attribute def name for attribute groups like string for sql to remove orphans of LDAP_GROUP_LIST
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapGroupsLikeAttributeDefName() {
     return AttributeDefNameFinder.findByName(grouperLoaderLdapGroupsLikeName(), true);
+  }
+  
+  /**
+   * return attribute def name for attribute results transformation class
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapResultsTransformationClassAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapResultsTransformationClassName(), true);
   }
   
   /**

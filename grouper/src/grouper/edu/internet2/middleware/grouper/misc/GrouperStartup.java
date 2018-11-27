@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -112,12 +113,10 @@ public class GrouperStartup {
 
     printedConfigLocation = true;
 
-    Properties properties = GrouperUtil.propertiesFromResourceName("grouper.properties");
-    
-    String displayMessageString = GrouperUtil.propertiesValue(properties, "configuration.display.startup.message");
+    boolean displayMessageString = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.startup.message", true);
     
     String grouperStartup = "Grouper starting up: " + versionTimestamp();
-    if (!GrouperUtil.booleanValue(displayMessageString, true)) {
+    if (!displayMessageString) {
       //just log this to make sure we can
       try {
         LOG.warn(grouperStartup);
@@ -160,9 +159,8 @@ public class GrouperStartup {
     }
     resultString.append("grouper.hibernate.properties: " + hibPropertiesFileLocation + "\n");
     
-    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
-    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
-    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    String url = StringUtils.trim(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
+    String user = StringUtils.trim(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username"));
     resultString.append("grouper.hibernate.properties: " + user + "@" + url + "\n");
     String sourcesString = "problem with sources";
     try {
@@ -246,11 +244,11 @@ public class GrouperStartup {
     } catch (Exception e) {
       //its ok, might not be running in jar
     }
-    Properties properties = GrouperUtil.propertiesFromResourceName("grouper.properties");
-    
-    String env = GrouperUtil.propertiesValue(properties, "grouper.env.name");
+
+    String env = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
     env = StringUtils.defaultIfEmpty(env, "<no label configured>");
-    String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION 
+
+    String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION
       + ", build date: " + buildTimestamp + ", env: " + env;
     
     return grouperStartup;

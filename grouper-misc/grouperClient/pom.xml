@@ -32,6 +32,7 @@
     <description>Client for Grouper LDAP and Web Services</description>
     <artifactId>grouperClient</artifactId>
     <packaging>jar</packaging>
+    <url>https://spaces.internet2.edu/display/Grouper/Grouper+Client</url>
 
     <dependencies>
         <dependency>
@@ -131,19 +132,14 @@
                     <archive>
                         <index>true</index>
                         <manifestEntries>
+                            <Specification-Title>${project.name}</Specification-Title>
+                            <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                            <Implementation-Title>${project.artifactId}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-URL>${project.url}</Implementation-URL>
                             <Main-Class>edu.internet2.middleware.grouperClient.GrouperClient</Main-Class>
+                            <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
                         </manifestEntries>
-                        <manifestSections>
-                            <manifestSection>
-                                <name>edu/internet2/middleware/grouper/grouperClient</name>
-                                <manifestEntries>
-                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${project.version}</Implementation-Version>
-                                    <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
-                                    <Implementation-URL>https://spaces.internet2.edu/display/Grouper/Grouper+Client</Implementation-URL>
-                                </manifestEntries>
-                            </manifestSection>
-                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>

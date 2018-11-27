@@ -34,11 +34,15 @@ import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
@@ -119,6 +123,11 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
    * last running time based on loader log
    */
   private String lastRunTotalTime;
+  
+  /**
+   * additional information about change log jobs
+   */
+  private String changeLogInfo;
   
   /**
    * @param jobName
@@ -271,6 +280,28 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
           
           this.setLastRunSummary(firstLoaderLog.getTotalCount() + " total records, " + firstLoaderLog.getInsertCount() + " inserts, " + firstLoaderLog.getDeleteCount() + " deletes, " + firstLoaderLog.getUpdateCount() + " updates");
         }
+      }
+      
+      this.setChangeLogInfo("N/A");
+      
+      if (jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
+        Long max = ChangeLogEntry.maxSequenceNumber(false);
+        if (max != null) {
+          String consumerName = jobName.substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
+          ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
+          if (changeLogConsumer != null && changeLogConsumer.getLastSequenceProcessed() != null) {
+            long diff = max - changeLogConsumer.getLastSequenceProcessed();
+            if (diff < 0) {
+              diff = 0;  // in case one of the numbers is cached?
+            }
+            this.setChangeLogInfo(TextContainer.retrieveFromRequest().getText().get("daemonJobsChangeLogPendingInQueue") + " " + diff);
+          }
+        }
+      }
+      
+      if (jobName.equals("CHANGE_LOG_changeLogTempToChangeLog")) {
+        Long count = HibernateSession.byHqlStatic().createQuery("select count(*) from ChangeLogEntryTemp").uniqueResult(Long.class);
+        this.setChangeLogInfo(TextContainer.retrieveFromRequest().getText().get("daemonJobsChangeLogPendingInQueue") + " " + count);
       }
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
@@ -527,5 +558,21 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
    */
   public void setLastRunStartTime(String lastRunStartTime) {
     this.lastRunStartTime = lastRunStartTime;
+  }
+
+  
+  /**
+   * @return the changeLogInfo
+   */
+  public String getChangeLogInfo() {
+    return changeLogInfo;
+  }
+
+  
+  /**
+   * @param changeLogInfo the changeLogInfo to set
+   */
+  public void setChangeLogInfo(String changeLogInfo) {
+    this.changeLogInfo = changeLogInfo;
   }
 }

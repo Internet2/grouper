@@ -593,13 +593,24 @@
 
 		<!-- make the jar first and include source -->
 		<delete file="${dist.home}/grouper-ws.jar" />
-		<jar file="${dist.home}/grouper-ws.jar">
-      <fileset dir="misc">
-        <include name="META-INF/*" />
-      </fileset>
-			<fileset dir="${build.dir.grouper-ws}" />
+        <tstamp>
+            <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
+        </tstamp>
+        <jar file="${dist.home}/grouper-ws.jar">
+            <fileset dir="misc">
+                <include name="META-INF/*" />
+            </fileset>
+            <fileset dir="${build.dir.grouper-ws}" />
 			<fileset dir="${basedir}/src/grouper-ws" />
-		</jar>
+            <manifest>
+                <attribute name="Built-By"                value="${user.name}"/>
+                <attribute name="Specification-Title"     value="Grouper WS"/>
+                <attribute name="Implementation-Vendor"   value="Internet2"/>
+                <attribute name="Implementation-Title"    value="grouper-ws"/>
+                <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+            </manifest>
+
+        </jar>
 
 		<mkdir dir="${webapp.folder}/WEB-INF/classes" />
 		<mkdir dir="${webapp.folder}/WEB-INF/lib" />
