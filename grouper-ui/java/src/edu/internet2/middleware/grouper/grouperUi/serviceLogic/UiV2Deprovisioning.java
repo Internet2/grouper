@@ -98,8 +98,6 @@ public class UiV2Deprovisioning {
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-    AttestationContainer attestationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAttestationContainer();
-
     if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
           TextContainer.retrieveFromRequest().getText().get("deprovisioningNotEnabledError")));
@@ -110,9 +108,6 @@ public class UiV2Deprovisioning {
     try {
       
       attributeDefBase = GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef();
-
-      //init all the attestation stuff
-      attestationContainer.getGuiAttestation();
 
     } catch (RuntimeException e) {
       if (attributeDefBase == null) {

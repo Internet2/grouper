@@ -59,6 +59,8 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -951,6 +953,70 @@ public class GrouperCheckConfig {
             "(String) number of millis since 1970 that this group was certified for deprovisioning. i.e. the group managers"
             + " indicate that the deprovisioned users are ok being in the group and do not send email reminders about it" 
             + " anymore until there are newly deprovisioned entities", wasInCheckConfig);
+
+      }
+      
+      // add attribute defs for grouper types
+      {
+        String grouperObjectTypesRootStemName = GrouperObjectTypesSettings.objectTypesStemName();
+        
+        Stem grouperTypesStemName = StemFinder.findByName(grouperSession, grouperObjectTypesRootStemName, false);
+        if (grouperTypesStemName == null) {
+          grouperTypesStemName = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper types objects").assignName(grouperObjectTypesRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String grouperObjectTypeDefName = grouperObjectTypesRootStemName + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DEF;
+        AttributeDef grouperObjectType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            grouperObjectTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (grouperObjectType == null) {
+          grouperObjectType = grouperTypesStemName.addChildAttributeDef(GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DEF, AttributeDefType.type);
+          //assign once for each affiliation
+          grouperObjectType.setMultiAssignable(true);
+          grouperObjectType.setAssignToGroup(true);
+          grouperObjectType.setAssignToStem(true);
+          grouperObjectType.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(grouperTypesStemName, grouperObjectType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME, "has grouper object type attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String grouperObjectTypeAttrDefName = grouperObjectTypesRootStemName + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_VALUE_DEF;
+        AttributeDef grouperObjectTypeAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            grouperObjectTypeAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (grouperObjectTypeAttrType == null) {
+          grouperObjectTypeAttrType = grouperTypesStemName.addChildAttributeDef(GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_VALUE_DEF, AttributeDefType.attr);
+          grouperObjectTypeAttrType.setAssignToGroupAssn(true);
+          grouperObjectTypeAttrType.setAssignToStemAssn(true);
+          grouperObjectTypeAttrType.setAssignToAttributeDefAssn(true);
+          grouperObjectTypeAttrType.setValueType(AttributeDefValueType.string);
+          grouperObjectTypeAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        grouperObjectTypeAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+        
+        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME,
+            "ref, basis, policy,etc, bundle, org, test, service, app, readOnly, grouperSecurity", wasInCheckConfig);
+        
+        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER, 
+            "e.g. Registrar's office owns this data", wasInCheckConfig);
+        
+        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION, 
+            "Human readable description of the members of this group", wasInCheckConfig);
+        
+        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, 
+            "if configuration is directly assigned to the group or folder or inherited from parent", wasInCheckConfig);
+        
+        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME, 
+            "name of the service that this app falls under", wasInCheckConfig);
+        
+        checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID, 
+            "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment and not inherited", wasInCheckConfig);
 
       }
       

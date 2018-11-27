@@ -110,6 +110,12 @@
                               >${textContainer.text['createNewTemplateMenuButton'] }</a></li>
                          
                         </c:if>
+                        <c:if test="${grouperRequestContainer.stemContainer.canUpdateAttributes}">
+                          <li class="divider"></li>
+                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                            >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a></li>
+                          
+                        </c:if>
                       </ul>
                     </div>
 

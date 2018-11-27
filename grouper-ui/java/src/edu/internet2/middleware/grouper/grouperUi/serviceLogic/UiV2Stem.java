@@ -44,6 +44,8 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.StemCopy;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemMove;
@@ -59,6 +61,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubject
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -1089,6 +1092,8 @@ public class UiV2Stem {
 
       } else {
         result.setStem(stem);
+        List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
+        grouperRequestContainer.getObjectTypeContainer().setGuiConfiguredGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
       }
 
     } else {

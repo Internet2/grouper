@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -2469,6 +2470,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       // do these in thread?
       GrouperAttestationJob.updateAttestationMetadataForSingleObject(group, true);
       GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(group);
+      GrouperObjectTypesConfiguration.copyConfigFromParent(group);
       
     }
     
@@ -2899,7 +2901,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     if (!GrouperLoader.isDryRun()) {
       // do these in thread?
       GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(stem);
-      
+      GrouperObjectTypesConfiguration.copyConfigFromParent(stem);
     }
 
     

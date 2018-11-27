@@ -502,6 +502,11 @@ public class GrouperRequestContainer {
    */
   private StemTemplateContainer stemTemplateContainer;
   
+  /**
+   * container for groups/stems object types
+   */
+  private ObjectTypeContainer objectTypeContainer;
+  
   
   /**
    * container for deprovisioning screen
@@ -536,6 +541,17 @@ public class GrouperRequestContainer {
     return this.stemTemplateContainer;
   }
   
+  /**
+   * lazy load the object type container
+   * @return the object type container
+   */
+  public ObjectTypeContainer getObjectTypeContainer() {
+    if (this.objectTypeContainer == null) {
+      this.objectTypeContainer = new ObjectTypeContainer();
+    }
+    return this.objectTypeContainer;
+  }
+
   /**
    * container for rules screens
    * @return container for rules screens
