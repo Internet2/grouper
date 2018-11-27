@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -45,6 +46,11 @@ public class ObjectTypeContainer {
    * show service name?
    */
   private boolean showServiceName;
+  
+  /**
+   * list of service stems
+   */
+  private List<Stem> serviceStems = new ArrayList<Stem>();
   
   /**
    * object type name user is currently working on
@@ -145,6 +151,28 @@ public class ObjectTypeContainer {
   
   public List<String> getObjectTypeNames() {
     return GrouperObjectTypesSettings.getObjectTypeNames();
+  }
+  
+  /**
+   * service stems
+   * @return
+   */
+  public List<GuiStem> getServiceStems() {
+    List<GuiStem> guiServiceStems = new ArrayList<GuiStem>();
+    
+    for (Stem stem: serviceStems) {
+      guiServiceStems.add(new GuiStem(stem));
+    }
+    
+    return guiServiceStems;
+  }
+
+  /**
+   * service stems
+   * @param serviceStems
+   */
+  public void setServiceStems(List<Stem> serviceStems) {
+    this.serviceStems = serviceStems;
   }
 
   /**

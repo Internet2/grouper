@@ -185,6 +185,8 @@ public class UiV2GrouperObjectTypes {
           objectTypeContainer.setShowDataOwnerMemberDescription(true);
         }
         if (objectTypeName.equals("app")) {
+          List<Stem> serviceStems = GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
+          objectTypeContainer.setServiceStems(serviceStems);
           objectTypeContainer.setShowServiceName(true);
         }
       }
@@ -286,6 +288,9 @@ public class UiV2GrouperObjectTypes {
           objectTypeContainer.setShowDataOwnerMemberDescription(true);
         }
         if (objectTypeName.equals("app")) {
+          //TODO run the following logic as admin so the attributes work.
+          List<Stem> serviceStems = GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
+          objectTypeContainer.setServiceStems(serviceStems);
           objectTypeContainer.setShowServiceName(true);
         }
       }
