@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
@@ -121,7 +122,7 @@ public class GrouperObjectTypesConfiguration {
   public static void copyConfigFromParent(GrouperObject grouperObject) {
     
     for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
-      copyConfigFromParent(grouperObject, objectType, false); // caller is when new group/stem is created so that will never have any existing settings
+      copyConfigFromParent(grouperObject, objectType);
     }
     
   }
@@ -130,19 +131,26 @@ public class GrouperObjectTypesConfiguration {
    * find type config in the parent hierarchy for a given grouper object and type. Assign that config to the given grouper object
    * @param grouperObject
    * @param objectType
-   * @param deleteCurrentSettings
    */
-  public static void copyConfigFromParent(GrouperObject grouperObject, String objectType, boolean deleteCurrentSettings) {
+  public static void copyConfigFromParent(GrouperObject grouperObject, String objectType) {
     
-    if (deleteCurrentSettings) {
-        deleteAttributeAssign(grouperObject, objectType);
+    //don't do this now
+    if (GrouperCheckConfig.isInCheckConfig()) {
+      return;
     }
     
-    if (grouperObject instanceof Stem && ((Stem) grouperObject).isRootStem()) return;
+    deleteAttributeAssign(grouperObject, objectType);
+    
+    if (grouperObject instanceof Stem && ((Stem) grouperObject).isRootStem()) {
+      return;
+    }
+      
     
     Stem parent = grouperObject.getParentStem();
     
-    if(parent.isRootStem()) return;
+    if(parent.isRootStem()) {
+      return;
+    } 
     
     GrouperObjectTypesAttributeValue savedValue = null;
     

@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
@@ -53,6 +57,12 @@ public class UiV2GrouperObjectTypes {
       if (group == null) {
         return;
       }
+      
+        
+      List stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+            .assignNameOfAttributeDefName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true").findStems());
+        
+      System.out.println(stems.size());
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
             
@@ -399,7 +409,7 @@ public class UiV2GrouperObjectTypes {
       if (isDirect) {
         GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, group); 
       } else {
-        GrouperObjectTypesConfiguration.copyConfigFromParent(group, objectTypeName, true);
+        GrouperObjectTypesConfiguration.copyConfigFromParent(group, objectTypeName);
       }
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=" + group.getId() + "')"));
@@ -458,7 +468,7 @@ public class UiV2GrouperObjectTypes {
       if (isDirect) {        
         GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
       } else {
-        GrouperObjectTypesConfiguration.copyConfigFromParent(stem, objectTypeName, true);
+        GrouperObjectTypesConfiguration.copyConfigFromParent(stem, objectTypeName);
       }
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
