@@ -151,11 +151,8 @@ public class Logout {
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
         guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '../../logout.do'"));
       } else {
-        try {
-          response.sendRedirect(logoutRedirect);
-        } catch (IOException ioe) {
-          throw new RuntimeException(ioe);
-        }
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + logoutRedirect + "'"));
         return false;
       }
     }
@@ -188,7 +185,7 @@ public class Logout {
   public void logout(HttpServletRequest request, HttpServletResponse response) {
 
     if (!logoutLogic(request, response, request.getSession(false), false)) {
-      throw new ControllerDone();
+      throw new ControllerDone(true);
     }
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
