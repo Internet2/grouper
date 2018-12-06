@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -34,6 +35,8 @@ public class AdminContainer {
   private String guiInstrumentationFilterDate;
   
   private boolean daemonJobsShowExtendedResults = false;
+  
+  private List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs;
   
   /**
    * paging for daemon jobs
@@ -225,6 +228,13 @@ public class AdminContainer {
   public int getDaemonJobsRefreshInterval() {
     return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.admin.daemonJobs.refreshInterval", 30);
   }
+  
+  /**
+   * @return refresh count
+   */
+  public int getDaemonJobsRefreshCount() {
+    return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.admin.daemonJobs.refreshCount", 30);
+  }
 
   
   /**
@@ -240,5 +250,30 @@ public class AdminContainer {
    */
   public void setDaemonJobsShowExtendedResults(boolean daemonJobsShowExtendedResults) {
     this.daemonJobsShowExtendedResults = daemonJobsShowExtendedResults;
+  }
+
+  
+  /**
+   * @return the guiHib3GrouperLoaderLogs
+   */
+  public List<GuiHib3GrouperLoaderLog> getGuiHib3GrouperLoaderLogs() {
+    return guiHib3GrouperLoaderLogs;
+  }
+
+  
+  /**
+   * @param guiHib3GrouperLoaderLogs the guiHib3GrouperLoaderLogs to set
+   */
+  public void setGuiHib3GrouperLoaderLogs(
+      List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs) {
+    this.guiHib3GrouperLoaderLogs = guiHib3GrouperLoaderLogs;
+  }
+  
+  /**
+   * 
+   * @return number of rows
+   */
+  public int getDaemonJobsViewLogsNumberOfRows() {
+    return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxSize", 400);
   }
 }

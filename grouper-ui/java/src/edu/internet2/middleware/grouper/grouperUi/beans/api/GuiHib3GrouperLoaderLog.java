@@ -13,10 +13,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -58,12 +56,20 @@ public class GuiHib3GrouperLoaderLog {
       } else {
         
         //see if this is a simple job
+        /*
+        // TODO why was this getting the job name so indirectly??
         GrouperLoaderType grouperLoaderType = GrouperRequestContainer.retrieveFromRequestOrCreate()
             .getGrouperLoaderContainer().getGrouperLoaderType();
         
         if (grouperLoaderType == GrouperLoaderType.SQL_SIMPLE || grouperLoaderType == GrouperLoaderType.LDAP_SIMPLE) {
           jobName = GrouperRequestContainer.retrieveFromRequestOrCreate()
               .getGrouperLoaderContainer().getJobName();
+        } */
+        
+        // this could be run via the AdminContainer as well so don't rely on GrouperLoaderContainer being there
+        if (this.hib3GrouperLoaderLog.getJobName() != null && 
+            this.hib3GrouperLoaderLog.getJobName().startsWith("SQL_SIMPLE__") || this.hib3GrouperLoaderLog.getJobName().startsWith("LDAP_SIMPLE__")) {
+          jobName = this.hib3GrouperLoaderLog.getJobName();
         }
         
       }
@@ -90,6 +96,25 @@ public class GuiHib3GrouperLoaderLog {
     }
     
     return this.loadedGuiGroup;
+  }
+  
+  /**
+   * @return true if this is a job that would load one or more groups
+   */
+  public boolean isLoadedGroupJob() {
+    String jobName = this.hib3GrouperLoaderLog.getJobName();
+    
+    if (jobName == null) {
+      return false;
+    }
+    
+    if (jobName.startsWith("SQL_SIMPLE__") || jobName.startsWith("LDAP_SIMPLE__") ||
+        jobName.startsWith("SQL_GROUP_LIST__") || jobName.startsWith("LDAP_GROUP_LIST") ||
+        jobName.startsWith("LDAP_GROUPS_FROM_ATTRIBUTES")) {
+      return true;
+    }
+    
+    return false;
   }
   
   /**

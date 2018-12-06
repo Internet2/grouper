@@ -16,6 +16,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +40,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -49,9 +52,11 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
@@ -63,15 +68,20 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstance;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceCounts;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -88,7 +98,6 @@ public class UiV2Admin extends UiServiceLogicBase {
 
   
   /** logger */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(UiV2Admin.class);
   
   /**
@@ -338,6 +347,252 @@ public class UiV2Admin extends UiServiceLogicBase {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
+    }
+  }
+  
+  /**
+   * view the logs filter for the daemon job
+   * @param request
+   * @param response
+   */
+  public void viewLogsFilter(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      String jobName = request.getParameter("jobName");
+      
+      AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+      List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
+      guiDaemonJobs.add(new GuiDaemonJob(jobName));
+      adminContainer.setGuiDaemonJobs(guiDaemonJobs);
+
+      viewLogsHelper(request, response);
+      
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * view logs from filter or not
+   * @param request 
+   * @param response 
+   */
+  private void viewLogsHelper(HttpServletRequest request, HttpServletResponse response) {
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    //if the user is allowed
+    if (!daemonJobsAllowed()) {
+      return;
+    }
+
+    String jobName = request.getParameter("jobName");
+
+    List<Criterion> criterionList = new ArrayList<Criterion>();
+
+    if (StringUtils.equals("true", request.getParameter("showSubjobsName"))) {
+
+      criterionList.add(HibUtils.listCritOr(
+          Restrictions.eq("jobName", jobName),
+          Restrictions.eq("parentJobName", jobName)
+          ));
+
+    } else {
+
+      criterionList.add(Restrictions.eq("jobName", jobName));
+      
+    }
+    
+    
+
+    {
+      String startTimeFrom = request.getParameter("startTimeFromName");
+      
+      if (!StringUtils.isBlank(startTimeFrom)) {
+        Timestamp startTimeFromTimestamp = UiV2GrouperLoader.convertFormInputToTimestamp(startTimeFrom);
+        if (startTimeFromTimestamp != null) {
+          criterionList.add(Restrictions.ge("startedTime", startTimeFromTimestamp));
+        }
+      }
+    }
+
+    {
+      String startTimeTo = request.getParameter("startTimeToName");
+      
+      if (!StringUtils.isBlank(startTimeTo)) {
+        Timestamp startTimeToTimestamp = UiV2GrouperLoader.convertFormInputToTimestamp(startTimeTo);
+        if (startTimeToTimestamp != null) {
+          criterionList.add(Restrictions.le("startedTime", startTimeToTimestamp));
+        }
+      }
+    }
+
+    {
+      String endTimeFrom = request.getParameter("endTimeFromName");
+      
+      if (!StringUtils.isBlank(endTimeFrom)) {
+        Timestamp endTimeFromTimestamp = UiV2GrouperLoader.convertFormInputToTimestamp(endTimeFrom);
+        if (endTimeFromTimestamp != null) {
+          criterionList.add(Restrictions.ge("endedTime", endTimeFromTimestamp));
+        }
+      }
+    }
+
+    {
+      String endTimeTo = request.getParameter("endTimeToName");
+      
+      if (!StringUtils.isBlank(endTimeTo)) {
+        Timestamp endTimeToTimestamp = UiV2GrouperLoader.convertFormInputToTimestamp(endTimeTo);
+        if (endTimeToTimestamp != null) {
+          criterionList.add(Restrictions.le("endedTime", endTimeToTimestamp));
+        }
+      }
+    }
+
+    {
+      String lastUpdateTimeFrom = request.getParameter("lastUpdateTimeFromName");
+      
+      if (!StringUtils.isBlank(lastUpdateTimeFrom)) {
+        Timestamp lastUpdateTimeFromTimestamp = UiV2GrouperLoader.convertFormInputToTimestamp(lastUpdateTimeFrom);
+        if (lastUpdateTimeFromTimestamp != null) {
+          criterionList.add(Restrictions.ge("lastUpdated", lastUpdateTimeFromTimestamp));
+        }
+      }
+    }
+
+    {
+      String lastUpdateTimeTo = request.getParameter("lastUpdateTimeToName");
+      
+      if (!StringUtils.isBlank(lastUpdateTimeTo)) {
+        Timestamp lastUpdateTimeToTimestamp = UiV2GrouperLoader.convertFormInputToTimestamp(lastUpdateTimeTo);
+        if (lastUpdateTimeToTimestamp != null) {
+          criterionList.add(Restrictions.le("lastUpdated", lastUpdateTimeToTimestamp));
+        }
+      }
+    }
+
+    {
+      List<String> statuses = new ArrayList<String>();
+      if (StringUtils.equals("true", request.getParameter("statusSuccessName"))) {
+        statuses.add("SUCCESS");
+      }
+      if (StringUtils.equals("true", request.getParameter("statusErrorName"))) {
+        statuses.add("ERROR");
+      }
+      if (StringUtils.equals("true", request.getParameter("statusStartedName"))) {
+        statuses.add("STARTED");
+      }
+      if (StringUtils.equals("true", request.getParameter("statusRunningName"))) {
+        statuses.add("RUNNING");
+      }
+      if (StringUtils.equals("true", request.getParameter("statusConfigErrorName"))) {
+        statuses.add("CONFIG_ERROR");
+      }
+      if (StringUtils.equals("true", request.getParameter("statusSubjectProblemsName"))) {
+        statuses.add("SUBJECT_PROBLEMS");
+      }
+      if (StringUtils.equals("true", request.getParameter("statusWarningName"))) {
+        statuses.add("WARNING");
+      }
+      if (statuses.size() > 0) {
+        criterionList.add(Restrictions.in("status", statuses));
+      }
+    }
+    QueryOptions queryOptions = null;
+    
+    {
+      int maxLogs = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxSize", 400);
+      
+      String numberOfRows = request.getParameter("numberOfRowsName");
+      numberOfRows = StringUtils.trimToNull(numberOfRows);
+      
+      if (!StringUtils.isBlank(numberOfRows)) {
+        
+        try {
+          maxLogs = GrouperUtil.intValue(numberOfRows);
+          
+          int maxMaxLogs = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxMaxSize", 5000);
+          if (maxLogs > maxMaxLogs) {
+            maxLogs = maxMaxLogs;
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderLogsNumberOfRowsOverMax") + " " + maxLogs));
+            
+          }
+          
+        } catch (Exception e) {
+          LOG.info("Not an integer: '" + numberOfRows + "'", e);
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderLogsCannotParseNumberOfRows") + " " + GrouperUtil.xmlEscape(numberOfRows)));
+        }
+        
+      }
+      
+      queryOptions = QueryOptions.create("lastUpdated", false, 1, maxLogs);
+      
+      
+    }
+    
+    Criterion allCriteria = HibUtils.listCrit(criterionList);
+    
+    List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byCriteriaStatic()
+      .options(queryOptions).list(Hib3GrouperLoaderLog.class, allCriteria);
+
+    List<GuiHib3GrouperLoaderLog> guiLoaderLogs = GuiHib3GrouperLoaderLog.convertFromHib3GrouperLoaderLogs(loaderLogs);
+    
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+    adminContainer.setGuiHib3GrouperLoaderLogs(guiLoaderLogs);
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperLoaderLogsResultsId", 
+        "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsResults.jsp"));
+
+  }
+  
+  /**
+   * view the logs for the daemon job
+   * @param request
+   * @param response
+   */
+  public void viewLogs(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      String jobName = request.getParameter("jobName");
+      
+      AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+      List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
+      guiDaemonJobs.add(new GuiDaemonJob(jobName));
+      adminContainer.setGuiDaemonJobs(guiDaemonJobs);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogs.jsp"));
+      
+      viewLogsHelper(request, response);
+      
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
   }
   

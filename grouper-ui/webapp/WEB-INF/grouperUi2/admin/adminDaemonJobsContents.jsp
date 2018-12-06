@@ -19,11 +19,11 @@
                           <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                             data-original-title="${textContainer.textEscapeDouble['adminDaemonJobsColumnTooltipMoreActions']}">${textContainer.text['adminDaemonJobsColumnHeaderMoreActions'] }</span>
                         </th>
+                        <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                            data-original-title="${textContainer.textEscapeDouble['adminDaemonJobsColumnTooltipSchedule']}">${textContainer.text['adminDaemonJobsColumnHeaderSchedule'] }</span>
+                        </th>
                         <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShowExtendedResults}" >
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['adminDaemonJobsColumnTooltipSchedule']}">${textContainer.text['adminDaemonJobsColumnHeaderSchedule'] }</span>
-                          </th>
                           <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                             <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                               data-original-title="${textContainer.textEscapeDouble['adminDaemonJobsColumnTooltipNextFireTime']}">${textContainer.text['adminDaemonJobsColumnHeaderNextFireTime'] }</span>
@@ -54,7 +54,7 @@
                     <tbody>
                       <c:forEach items="${grouperRequestContainer.adminContainer.guiDaemonJobs}" var="guiDaemonJob">
                         <tr>
-                          <td class="expand foo-clicker" style="white-space: nowrap;">${guiDaemonJob.jobName}</td>
+                          <td class="expand foo-clicker" style="white-space: nowrap;"><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a></td>
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.state}</span></td>
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.lastRunStatus}</span></td>
                           <td class="expand foo-clicker">
@@ -75,8 +75,8 @@
                               </ul>
                             </div>
                           </td>
+                          <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.schedule}</span></td>
                           <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShowExtendedResults}" >
-                            <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.schedule}</span></td>
                             <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.nextFireTime}</span></td>
                             <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.lastRunHost}</span></td>
                             <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.lastRunStartTime}</span></td>

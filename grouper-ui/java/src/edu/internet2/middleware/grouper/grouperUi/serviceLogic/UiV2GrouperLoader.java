@@ -1097,6 +1097,9 @@ public class UiV2GrouperLoader {
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, grouperLoaderContainer.getEditLoaderScheduleType());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_TYPE, grouperLoaderContainer.getEditLoaderSqlType());
             
+            if (grouperLoaderContainer.getGuiDaemonJob() != null || "true".equalsIgnoreCase(request.getParameter("editLoaderScheduleJobName"))) {
+              GrouperLoaderType.validateAndScheduleSqlLoad(group, null, false);
+            }
           }
           
           if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType())) {
@@ -1138,7 +1141,9 @@ public class UiV2GrouperLoader {
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapSubjectExpression());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapSubjectLookupType());
 
-  
+            if (grouperLoaderContainer.getGuiDaemonJob() != null || "true".equalsIgnoreCase(request.getParameter("editLoaderScheduleJobName"))) {
+              GrouperLoaderType.validateAndScheduleLdapLoad(attributeAssign, null, false);
+            }
           }
 
         }

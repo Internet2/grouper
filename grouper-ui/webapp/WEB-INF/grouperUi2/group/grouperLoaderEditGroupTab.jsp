@@ -679,6 +679,23 @@
                         </c:if>
                       </c:if>
 
+                      <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowFields}">
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.isLoaderGroup() == false}">
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderScheduleJobId">${textContainer.text['grouperLoaderScheduleJob']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <select name="editLoaderScheduleJobName" id="editLoaderScheduleJobId" style="width: 30em">
+                                  <option value="true">${textContainer.textEscapeXml['grouperLoaderYesScheduleJobLabel']}</option>
+                                  <option value="false">${textContainer.textEscapeXml['grouperLoaderNoDoNotScheduleJobLabel']}</option>
+                                </select>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text['grouperLoaderScheduleJobDescription']}</span>
+                            </td>
+                          </tr>
+                        </c:if>
+                      </c:if>
                       
                       <tr>
                         <td></td>

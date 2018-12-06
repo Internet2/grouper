@@ -1524,19 +1524,27 @@ public class GrouperLoader {
       }
     }
   }
-
+  
   /**
    * @param group
    * @param grouperSession
    * @return status
    */
   public static String runJobOnceForGroup(GrouperSession grouperSession, Group group) {
+    return runJobOnceForGroup(grouperSession, group, false);
+  }
+
+  /**
+   * @param group
+   * @param grouperSession
+   * @param runOnDaemon
+   * @return status
+   */
+  public static String runJobOnceForGroup(GrouperSession grouperSession, Group group, boolean runOnDaemon) {
     
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
 
     try {
-      Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-      hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
   
       @SuppressWarnings("deprecation")
       boolean isSqlLoader = group.hasType(GroupTypeFinder.find("grouperLoader", false));
@@ -1566,8 +1574,15 @@ public class GrouperLoader {
       }
       
       GrouperLoaderType grouperLoaderType = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeString, true);
+      String jobName = grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid();
       
-      hib3GrouperLoaderLog.setJobName(grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid());
+      if (runOnDaemon) {
+        return runOnceByJobName(grouperSession, jobName, true);
+      }
+      
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
+      hib3GrouperLoaderLog.setJobName(jobName);
       hib3GrouperLoaderLog.setJobType(grouperLoaderTypeString);
       
       if (isSqlLoader) {
@@ -1592,14 +1607,45 @@ public class GrouperLoader {
       }
     }      
   }
-
+  
   /**
    * @param grouperSession
    * @param jobName
    * @return status
    */
   public static String runOnceByJobName(GrouperSession grouperSession, String jobName) {
+    return runOnceByJobName(grouperSession, jobName, false);
+  }
+  
+  
+  /**
+   * @param grouperSession
+   * @param jobName
+   * @param runOnDaemon
+   * @return status
+   */
+  public static String runOnceByJobName(GrouperSession grouperSession, String jobName, boolean runOnDaemon) {
     try {
+      
+      if (runOnDaemon) {
+        if (isDryRun()) {
+          throw new RuntimeException("Dry run not supported if running on daemon.");
+        }
+        
+        if (!isJobEnabled(jobName)) {
+          throw new RuntimeException("Job " + jobName + " is not enabled.");
+        }
+  
+        try {
+          Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+          JobKey jobKey = new JobKey(jobName);
+          scheduler.triggerJob(jobKey);
+        } catch (SchedulerException e) {
+          throw new RuntimeException(e);
+        }
+        
+        return "Job successfully scheduled on daemon";
+      }
   
       GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
       if (grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE) || grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST)) {
