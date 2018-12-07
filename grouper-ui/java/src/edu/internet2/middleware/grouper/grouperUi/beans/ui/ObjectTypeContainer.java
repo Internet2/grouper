@@ -1,16 +1,21 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -33,7 +38,7 @@ public class ObjectTypeContainer {
   private List<GuiGrouperObjectTypesAttributeValue> guiGrouperObjectTypesAttributeValues = new ArrayList<GuiGrouperObjectTypesAttributeValue>();
   
   /**
-   * list of all configured onnly grouper object types attribute values for a given group/stem
+   * list of all configured only grouper object types attribute values for a given group/stem
    */
   private List<GuiGrouperObjectTypesAttributeValue> guiConfiguredGrouperObjectTypesAttributeValues = new ArrayList<GuiGrouperObjectTypesAttributeValue>();
   
@@ -153,6 +158,106 @@ public class ObjectTypeContainer {
     return GrouperObjectTypesSettings.getObjectTypeNames();
   }
   
+  public String getUserFriendlyStringForConfiguredAttributes() {
+    
+    StringBuilder output = new StringBuilder();
+    
+    List<String> types = new ArrayList<String>();
+    List<String> dataOwners = new ArrayList<String>();
+    List<String> memberDescriptions = new ArrayList<String>();
+    
+    final StringBuilder wikiTextWithLink = new StringBuilder();
+    final StringBuilder studentSystemsTextWithLink = new StringBuilder();
+    
+    for (GuiGrouperObjectTypesAttributeValue guiGrouperObjectTypesAttributeValue: guiConfiguredGrouperObjectTypesAttributeValues) {
+      
+      final GrouperObjectTypesAttributeValue typesAttributeValue = guiGrouperObjectTypesAttributeValue.getGrouperObjectTypesAttributeValue();
+      types.add(typesAttributeValue.getObjectTypeName());
+      
+      if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeDataOwner())) {        
+        dataOwners.add(typesAttributeValue.getObjectTypeDataOwner());
+      }
+      
+      if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeMemberDescription())) {        
+        memberDescriptions.add(typesAttributeValue.getObjectTypeMemberDescription());
+      }
+      
+      if (typesAttributeValue.getObjectTypeName().equals("app") && !typesAttributeValue.isDirectAssignment()) {
+        
+         GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                Stem stem = StemFinder.findByUuid(grouperSession, typesAttributeValue.getObjectTypeOwnerStemId(), false);
+                if (stem != null && stem.getDisplayExtension().equals("Wiki")) {
+                  String link = new GuiStem(stem).getShortLink();
+                  String wikiText = TextContainer.retrieveFromRequest().getText().get("objectTypeWikiAppText");
+                  wikiText = wikiText.replace("$$folder$$", link);
+                  wikiTextWithLink.append(wikiText);
+                  wikiTextWithLink.append(" ");
+                }
+                return null;
+              }
+            });
+        
+      }
+      
+      if (typesAttributeValue.getObjectTypeName().equals("service") && !typesAttributeValue.isDirectAssignment()) {
+        
+        GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+             
+             @Override
+             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+               Stem stem = StemFinder.findByUuid(grouperSession, typesAttributeValue.getObjectTypeOwnerStemId(), false);
+               if (stem != null && stem.getDisplayExtension().equals("Student systems")) {
+                 String link = new GuiStem(stem).getShortLink();
+                 String studentSystemsText = TextContainer.retrieveFromRequest().getText().get("objectTypeStudentSystemsText");
+                 studentSystemsText = studentSystemsText.replace("$$folder$$", link);
+                 studentSystemsTextWithLink.append(studentSystemsText);
+               }
+               return null;
+             }
+          });
+       
+      }
+      
+    }
+    
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    if (types.size() > 0) {
+      String typeLabelProperty = guiGroup != null ? "objectTypeGroupTypesLabel": "objectTypeFolderTypesLabel";
+      output.append(TextContainer.retrieveFromRequest().getText().get(typeLabelProperty));
+      output.append(" ");
+      output.append(StringUtils.join(types, ", "));
+      output.append(".");
+      output.append(" ");
+    }
+    
+    if (dataOwners.size() > 0) {
+      output.append(TextContainer.retrieveFromRequest().getText().get("objectTypeDataOwnerLabel"));
+      output.append(" ");
+      output.append(StringUtils.join(dataOwners, ", "));
+      output.append(".");
+      output.append(" ");
+    }
+    
+    if (memberDescriptions.size() > 0) {
+      output.append(TextContainer.retrieveFromRequest().getText().get("objectTypeMemberDescriptionLabel"));
+      output.append(" ");
+      output.append(StringUtils.join(memberDescriptions, ", "));
+      output.append(".");
+      output.append(" ");
+    }
+    
+    output.append(wikiTextWithLink);
+    output.append(studentSystemsTextWithLink);
+    
+    return output.toString();
+  }
+  
   /**
    * service stems
    * @return
@@ -209,7 +314,7 @@ public class ObjectTypeContainer {
     GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
     
     if (guiGroup != null) {
-      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanUpdate()) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
         return true;
       }
     }
@@ -252,6 +357,12 @@ public class ObjectTypeContainer {
     }
     
     return false;
+  }
+  
+  public static void main(String[] args) {
+    List<String> types = Arrays.asList("a", "b");
+    String ans = StringUtils.join(types, ", ");
+    System.out.println(ans);
   }
   
 }

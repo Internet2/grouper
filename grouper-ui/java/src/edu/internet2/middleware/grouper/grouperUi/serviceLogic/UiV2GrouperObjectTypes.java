@@ -58,12 +58,6 @@ public class UiV2GrouperObjectTypes {
         return;
       }
       
-        
-      List stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
-            .assignNameOfAttributeDefName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true").findStems());
-        
-      System.out.println(stems.size());
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
             
       ObjectTypeContainer objectTypeContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer();

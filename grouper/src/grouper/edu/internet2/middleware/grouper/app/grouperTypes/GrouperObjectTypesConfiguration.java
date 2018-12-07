@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -24,8 +25,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -119,15 +122,23 @@ public class GrouperObjectTypesConfiguration {
    * find type config in the parent hierarchy for a given grouper object for all object types (ref, basis, etc) and assign that config to this grouper object.
    * @param grouperObject
    */
-  public static void copyConfigFromParent(GrouperObject grouperObject) {
+  public static void copyConfigFromParent(final GrouperObject grouperObject) {
     
-    if(retrieveAttributeDefNameBase() == null) {
-      return;
-    }
-    
-    for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
-      copyConfigFromParent(grouperObject, objectType);
-    }
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        
+        for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
+          copyConfigFromParent(grouperObject, objectType);
+        }
+        
+        return null;
+        
+      }
+      
+    });
     
   }
   

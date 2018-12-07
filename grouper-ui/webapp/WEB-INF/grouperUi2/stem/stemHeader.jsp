@@ -199,22 +199,7 @@
                     </div>
                     
                     <p>${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.description)}</p>
-                    <c:forEach items="${grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}" var="guiGrouperObjectTypesAttributeValue" >
-                      <c:set var="grouperObjectTypesAttributeValue" 
-                            value="${guiGrouperObjectTypesAttributeValue.grouperObjectTypesAttributeValue}" />
-                      
-                      <p>${textContainer.text['objectTypeHasTypeLabel'] }: ${grouperObjectTypesAttributeValue.objectTypeName }, 
-                      ${textContainer.text['objectTypeHasDirectTypeLabel']}: 
-                      <c:choose>
-                        <c:when test="${grouperObjectTypesAttributeValue.directAssignment}">
-                          ${textContainer.textEscapeXml['objectTypeDirectYes']}
-                        </c:when>
-                        <c:otherwise>
-                          ${textContainer.textEscapeXml['objectTypeDirectNo']}                           
-                        </c:otherwise>
-                      </c:choose>
-                      </p>
-                    </c:forEach>
+                    <p>${grouperRequestContainer.objectTypeContainer.userFriendlyStringForConfiguredAttributes}</p>
                     <div id="stemDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">
                         <tbody>
