@@ -58,16 +58,28 @@ public class GrouperObjectTypesConfiguration {
    * @param grouperObject
    * @return
    */
-  public static List<GrouperObjectTypesAttributeValue> getGrouperObjectTypesAttributeValues(GrouperObject grouperObject) {
+  public static List<GrouperObjectTypesAttributeValue> getGrouperObjectTypesAttributeValues(final GrouperObject grouperObject) {
     
-    List<GrouperObjectTypesAttributeValue> result = new ArrayList<GrouperObjectTypesAttributeValue>();
+    final List<GrouperObjectTypesAttributeValue> result = new ArrayList<GrouperObjectTypesAttributeValue>();
     
-    for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
-      GrouperObjectTypesAttributeValue value = getGrouperObjectTypesAttributeValue(grouperObject, objectType);
-      if (value != null) {
-        result.add(value);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        
+        for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
+          GrouperObjectTypesAttributeValue value = getGrouperObjectTypesAttributeValue(grouperObject, objectType);
+          if (value != null) {
+            result.add(value);
+          }
+        }
+        
+        return null;
+        
       }
-    }
+      
+    });
     
     return result;
   }
