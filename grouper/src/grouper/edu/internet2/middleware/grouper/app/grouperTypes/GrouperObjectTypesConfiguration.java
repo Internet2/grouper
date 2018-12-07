@@ -17,8 +17,8 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -121,6 +121,10 @@ public class GrouperObjectTypesConfiguration {
    */
   public static void copyConfigFromParent(GrouperObject grouperObject) {
     
+    if(retrieveAttributeDefNameBase() == null) {
+      return;
+    }
+    
     for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
       copyConfigFromParent(grouperObject, objectType);
     }
@@ -158,13 +162,13 @@ public class GrouperObjectTypesConfiguration {
       
       GrouperObjectTypesAttributeValue attributeValue = getGrouperObjectTypesAttributeValue(parent, objectType);
       
-      if (attributeValue != null) {
+      if (attributeValue != null && attributeValue.isDirectAssignment()) {
         savedValue = new GrouperObjectTypesAttributeValue();
         savedValue.setDirectAssignment(false);
         savedValue.setObjectTypeDataOwner(attributeValue.getObjectTypeDataOwner());
         savedValue.setObjectTypeMemberDescription(attributeValue.getObjectTypeMemberDescription());
         savedValue.setObjectTypeName(attributeValue.getObjectTypeName());
-        savedValue.setObjectTypeOwnerStemId(attributeValue.isDirectAssignment() ? parent.getId(): attributeValue.getObjectTypeOwnerStemId());
+        savedValue.setObjectTypeOwnerStemId(parent.getId());
         savedValue.setObjectTypeServiceName(attributeValue.getObjectTypeServiceName());
         saveOrUpdateTypeAttributes(savedValue, grouperObject);
         break;
@@ -180,7 +184,7 @@ public class GrouperObjectTypesConfiguration {
     
     // if it's a stem where we changed from direct to indirect, we need to go through all the children of that stem and update/delete the attributes
     //update when parent has the value
-    //delete when none of the parents has attributes assigned
+    //delete when none of the parents have attributes assigned
     if (grouperObject instanceof Stem) {
       if (savedValue != null) {
         saveOrUpdateTypeAttributesOnChildren((Stem)grouperObject, savedValue);

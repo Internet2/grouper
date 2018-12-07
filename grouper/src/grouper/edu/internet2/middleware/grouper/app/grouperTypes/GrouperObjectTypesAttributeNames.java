@@ -73,9 +73,6 @@ public class GrouperObjectTypesAttributeNames {
       
     });
   
-    if (attributeDefName == null) {
-      throw new RuntimeException("Why cant grouperObjectTypeMarker attribute def name be found?");
-    }
     return attributeDefName;
   }
   
