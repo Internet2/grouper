@@ -12,21 +12,26 @@
 
             </div>
             <script language="javascript">
-              var daemonJobsRefreshCount = ${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval};
+              var daemonJobsRefreshCountRemaining = ${grouperRequestContainer.adminContainer.daemonJobsRefreshCount};
+              var daemonJobsNextRefreshSeconds = ${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval};
               var daemonJobsRefreshInterval = setInterval(function() {
-                if (!$("#daemonJobsNextRefreshSeconds").length) {
+                if (!$("#daemonJobsNextRefreshSeconds").length || daemonJobsRefreshCountRemaining <= 0) {
+                  if (daemonJobsRefreshCountRemaining <= 0) {
+                    $("#daemonJobsNextRefreshSeconds").text("${textContainer.text['daemonJobsMaxRefreshesReached'] }");
+                  }
                   clearInterval(daemonJobsRefreshInterval);
                 } else {
                   if ($("#daemonJobsRefreshed").val() != "1") {
-                  } else if (daemonJobsRefreshCount == 0) {
+                  } else if (daemonJobsNextRefreshSeconds == 0) {
                     $("#daemonJobsRefreshed").val("0");
-                    daemonJobsRefreshCount = ${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval};
+                    daemonJobsNextRefreshSeconds = ${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval};
+                    daemonJobsRefreshCountRemaining = daemonJobsRefreshCountRemaining - 1;
                     ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'});
                   } else {
-                    daemonJobsRefreshCount = daemonJobsRefreshCount - 1;
+                    daemonJobsNextRefreshSeconds = daemonJobsNextRefreshSeconds - 1;
                   }
                   
-                  $("#daemonJobsNextRefreshSeconds").text(daemonJobsRefreshCount);
+                  $("#daemonJobsNextRefreshSeconds").text(daemonJobsNextRefreshSeconds);
                 }
               }, 1000);
             </script>
@@ -52,7 +57,7 @@
                     </div>
                   </div>
                 </form>
-                <div class="span3">${textContainer.text['daemonJobsNextRefresh']} <span id="daemonJobsNextRefreshSeconds">${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval}</span></div>
+                <div style="white-space: nowrap;" class="span3">${textContainer.text['daemonJobsNextRefresh']} <span id="daemonJobsNextRefreshSeconds">${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval}</span></div>
                 <div id="daemonJobsResultsId" role="region" aria-live="polite">
                 </div>
               </div>
