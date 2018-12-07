@@ -14,7 +14,7 @@ public class GrouperRemedyUser {
   /**
    * cache connections
    */
-  private static ExpirableCache<Boolean, Map<String, GrouperRemedyUser>> retrieveUsersCache = new ExpirableCache<Boolean, Map<String, GrouperRemedyUser>>(5);
+  private static ExpirableCache<Boolean, Map<String, GrouperRemedyUser>> retrieveUsersCache = new ExpirableCache<Boolean, Map<String, GrouperRemedyUser>>(60*12);
   
   /**
    * 
