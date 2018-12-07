@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouperRemedy.digitalMarketplace;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -11,6 +13,7 @@ import java.util.TreeMap;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -52,15 +55,15 @@ public class GrouperDigitalMarketplaceCommands {
 //    deleteDigitalMarketplaceGroup("pg_test", false);
     
     
-    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
-    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
-      if (grouperDigitalMarketplaceGroup.getGroupName().startsWith("pg_")) {
-        System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceGroup.getLongGroupName());
-        for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : grouperDigitalMarketplaceGroup.getMemberUsers().values()) {
-          System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceUser.getLoginName());
-        }
-      }
-    }
+//    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
+//    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
+//      if (grouperDigitalMarketplaceGroup.getGroupName().startsWith("pg_")) {
+//        System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceGroup.getLongGroupName());
+//        for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : grouperDigitalMarketplaceGroup.getMemberUsers().values()) {
+//          System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceUser.getLoginName());
+//        }
+//      }
+//    }
 
 //    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
 //    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
@@ -70,12 +73,12 @@ public class GrouperDigitalMarketplaceCommands {
     
 //    createDigitalMarketplaceGroup("pg_test2", "pg_test2", "comments", false);
     
-//    Map<String, GrouperDigitalMarketplaceUser> mapNameToUser = retrieveDigitalMarketplaceUsers();
-//    for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : mapNameToUser.values()) {
-//      System.out.println(grouperDigitalMarketplaceUser.getLoginName() + " #### " + grouperDigitalMarketplaceUser.getUserId());
-//    }
+    Map<String, GrouperDigitalMarketplaceUser> mapNameToUser = retrieveDigitalMarketplaceUsers();
+    for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : mapNameToUser.values()) {
+      System.out.println(grouperDigitalMarketplaceUser);
+    }
     
-//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("dcamacho");
+//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("cipollad");
 //    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
 //    for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
 //      System.out.println(groupName);
@@ -106,20 +109,73 @@ public class GrouperDigitalMarketplaceCommands {
 
     long startTime = System.nanoTime();
 
+    Map<String, GrouperDigitalMarketplaceUser> results = new LinkedHashMap<String, GrouperDigitalMarketplaceUser>();
+    
     try {
 
-      Map<String, String> paramMap = new HashMap<String, String>();
+      int pageSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperDigitalMarketplace.usersPageSize", 2000);
+      
+      for (int i=0;i<6000;i++) {
+      
+        Map<String, GrouperDigitalMarketplaceUser> localResults = retrieveDigitalMarketplaceUsersHelper(pageSize, 0+results.size());
+        
+        if (localResults.size() == 0) {
+          break;
+        }
+        
+        results.putAll(localResults);
+        
+      }
 
+      // jsonObject.getString("totalSize")
+      debugMap.put("size", GrouperClientUtils.length(results));
+
+      return results;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTime);
+    }
+    
+    
+  }
+
+  /**
+   * @param pageSize 
+   * @param startIndex 
+   * @return remedy login id to user never null
+   */
+  private static Map<String, GrouperDigitalMarketplaceUser> retrieveDigitalMarketplaceUsersHelper(int pageSize, int startIndex) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "retrieveDigitalMarketplaceUsersHelper");
+
+    long startTime = System.nanoTime();
+
+    try {
+    
+      Map<String, String> paramMap = new HashMap<String, String>();
+  
       paramMap.put("dataPageType", "com.bmc.arsys.rx.application.user.datapage.UserDataPageQuery");
-      paramMap.put("pageSize", "30000");
-      paramMap.put("startIndex", "0");
+      paramMap.put("pageSize", "" + pageSize);
+      paramMap.put("startIndex", "" + startIndex);
       
       JSONObject jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
       
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
+      debugMap.put("totalSize", jsonObject.getString("totalSize"));
       
-      debugMap.put("size", GrouperClientUtils.length(results));
+      List<String> ids = new ArrayList<String>(results.keySet());
 
+      if (ids.size() > 0) {
+        debugMap.put("first", ids.get(0));
+        debugMap.put("last", ids.get(ids.size()-1));
+      }      
+      
+      
+  
       return results;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
