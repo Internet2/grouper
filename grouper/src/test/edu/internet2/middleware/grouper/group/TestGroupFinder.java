@@ -801,7 +801,7 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testFlashCachePrivs"));
+    TestRunner.run(new TestGroupFinder("testFindByAttributeDefName"));
   }
 
   /**

@@ -15,6 +15,7 @@ public class AllDbConfigTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(AllDbConfigTests.class.getName());
     //$JUnit-BEGIN$
+    suite.addTestSuite(ConfigFileMetadataTest.class);
     suite.addTestSuite(GrouperConfigHibernateTest.class);
     suite.addTestSuite(GrouperDbConfigTest.class);
     //$JUnit-END$
