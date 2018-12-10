@@ -1735,77 +1735,82 @@ public class GrouperInstaller {
   private GrouperInstallerMainFunction grouperInstallerMainFunction;
   
   /**
-   * 
+   * @param appDir e.g. this.upgradeExistingApplicationDirectoryString
    */
-  private void reportOnConflictingJars() {
+  private void reportOnConflictingJars(String appDir) {
     
     System.out.println("\n##################################");
     System.out.println("Looking for conflicting jars\n");
 
     //look for conflicting jars
-    List<File> allLibraryJars = findAllLibraryFiles();
+    List<File> allLibraryJars = findAllLibraryFiles(appDir);
+    
+    System.out.println("Found " + GrouperInstallerUtils.length(allLibraryJars) + " jars");
     
     Set<String> alreadyProcessed = new HashSet<String>();
     
     for (File jarFile : new ArrayList<File>(allLibraryJars)) {
-      
-      if (!jarFile.exists()) {
-        allLibraryJars.remove(jarFile);
-        continue;
-      }
-      
-      Set<String> baseNames = GrouperInstallerUtils.jarFileBaseNames(jarFile.getName());
-      
-      //dont print multiple times
-      if (alreadyProcessed.containsAll(baseNames)) {
-        continue;
-      }
-      
-      alreadyProcessed.addAll(baseNames);
-      
-      List<File> relatedFiles = GrouperInstallerUtils.nonNull(GrouperInstallerUtils.jarFindJar(allLibraryJars, jarFile.getName()));
-      Iterator<File> relatedFilesIterator = relatedFiles.iterator();
-      
-      while (relatedFilesIterator.hasNext()) {
-        if (jarFile.equals(relatedFilesIterator.next())) {
-          relatedFilesIterator.remove();
+      try {
+        if (!jarFile.exists()) {
+          allLibraryJars.remove(jarFile);
+          continue;
         }
-      }
-      
-      if (GrouperInstallerUtils.length(relatedFiles) >= 1) {
         
-        if (relatedFiles.size() == 1) {
-          File relatedFile = relatedFiles.iterator().next();
-          File newerVersion = GrouperInstallerUtils.jarNewerVersion(relatedFile, jarFile);
-          if (newerVersion != null) {
-            
-            if (newerVersion.equals(jarFile)) {
-              System.out.println("There is a conflicting jar: " + jarFile.getAbsolutePath());
-              System.out.println("Deleting older jar: " + relatedFile.getAbsolutePath());
-              GrouperInstallerUtils.fileDelete(relatedFile);
-              allLibraryJars.remove(relatedFile);
-            } else {
-              System.out.println("There is a conflicting jar: " + relatedFile.getAbsolutePath());
-              System.out.println("Deleting older jar: " + jarFile.getAbsolutePath());
-              GrouperInstallerUtils.fileDelete(jarFile);
-              allLibraryJars.remove(jarFile);
-            }
-            System.out.print("Press <enter> to continue... ");
-            readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
-            continue;
+        Set<String> baseNames = GrouperInstallerUtils.jarFileBaseNames(jarFile.getName());
+        
+        //dont print multiple times
+        if (alreadyProcessed.containsAll(baseNames)) {
+          continue;
+        }
+        
+        alreadyProcessed.addAll(baseNames);
+        
+        List<File> relatedFiles = GrouperInstallerUtils.nonNull(GrouperInstallerUtils.jarFindJar(allLibraryJars, jarFile.getName()));
+        Iterator<File> relatedFilesIterator = relatedFiles.iterator();
+        
+        while (relatedFilesIterator.hasNext()) {
+          if (jarFile.equals(relatedFilesIterator.next())) {
+            relatedFilesIterator.remove();
           }
         }
         
-        System.out.println("There is a conflicting jar: " + GrouperInstallerUtils.toStringForLog(relatedFiles));
-        System.out.println("You should probably delete one of these files (oldest one?) or consult the Grouper team.");
-        System.out.print("Press <enter> to continue... ");
-        readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
+        if (GrouperInstallerUtils.length(relatedFiles) >= 1) {
+          
+          if (relatedFiles.size() == 1) {
+            File relatedFile = relatedFiles.iterator().next();
+            File newerVersion = GrouperInstallerUtils.jarNewerVersion(relatedFile, jarFile);
+            if (newerVersion != null) {
+              
+              if (newerVersion.equals(jarFile)) {
+                System.out.println("There is a conflicting jar: " + jarFile.getAbsolutePath());
+                System.out.println("Deleting older jar: " + relatedFile.getAbsolutePath());
+                GrouperInstallerUtils.fileDelete(relatedFile);
+                allLibraryJars.remove(relatedFile);
+              } else {
+                System.out.println("There is a conflicting jar: " + relatedFile.getAbsolutePath());
+                System.out.println("Deleting older jar: " + jarFile.getAbsolutePath());
+                GrouperInstallerUtils.fileDelete(jarFile);
+                allLibraryJars.remove(jarFile);
+              }
+              System.out.print("Press <enter> to continue... ");
+              readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
+              continue;
+            }
+          }
+          
+          System.out.println("There is a conflicting jar: " + GrouperInstallerUtils.toStringForLog(relatedFiles));
+          System.out.println("You should probably delete one of these files (oldest one?) or consult the Grouper team.");
+          System.out.print("Press <enter> to continue... ");
+          readFromStdIn("grouperInstaller.autorun.conflictingJarContinue");
+        }
+        
+  //      if (GrouperInstallerUtils.length(relatedFiles) == 0) {
+  //        System.out.println("Why is jar file not found??? " + jarFile.getAbsolutePath());
+  //      }
+      } catch (RuntimeException re) {
+        GrouperInstallerUtils.injectInException(re, "Problem with jar: " + jarFile.getAbsolutePath());
+        throw re;
       }
-      
-//      if (GrouperInstallerUtils.length(relatedFiles) == 0) {
-//        System.out.println("Why is jar file not found??? " + jarFile.getAbsolutePath());
-//      }
-      
     }
   }
   
@@ -4222,7 +4227,7 @@ public class GrouperInstaller {
     
     GrouperInstallerUpgradeTaskAction grouperInstallerConvertAction = 
         (GrouperInstallerUpgradeTaskAction)promptForEnum(
-            "What upgrade task do you want to do (convertEhcacheXmlToProperties, convertSourcesXmlToProperties)? : ",
+            "What upgrade task do you want to do (convertEhcacheXmlToProperties, convertSourcesXmlToProperties, analyzeAndFixJars)? : ",
             "grouperInstaller.autorun.upgradeTaskAction", GrouperInstallerUpgradeTaskAction.class);
 
     switch(grouperInstallerConvertAction) {
@@ -4271,6 +4276,16 @@ public class GrouperInstaller {
         System.out.println("File was written: " + grouperCacheProperties.getAbsolutePath());
 
         break;
+        
+      case analyzeAndFixJars:
+        
+        //Find out what directory to install to.  This ends in a file separator
+        this.grouperInstallDirectoryString = grouperInstallDirectory();
+
+        reportOnConflictingJars(this.grouperInstallDirectoryString);
+        
+        break;
+        
       case convertSourcesXmlToProperties:
 
         System.out.println("Note, you need to convert the sources.xml file for each Grouper runtime, e.g. loader, WS, UI.");
@@ -4434,6 +4449,9 @@ public class GrouperInstaller {
    */
   public static enum GrouperInstallerUpgradeTaskAction {
 
+    /** analyze and fix jars */
+    analyzeAndFixJars,
+    
     /** convert */
     convertEhcacheXmlToProperties,
     
@@ -4632,7 +4650,7 @@ public class GrouperInstaller {
       this.revertAllPatchesDefault = false;
     }
 
-    this.reportOnConflictingJars();
+    this.reportOnConflictingJars(this.upgradeExistingApplicationDirectoryString);
     
     System.out.println("\nGrouper is upgraded from " + (this.originalGrouperJarVersion == null ? null : this.originalGrouperJarVersion) 
         + " to " + GrouperInstallerUtils.propertiesValue("grouper.version", true) +  "\n");
@@ -8861,11 +8879,16 @@ public class GrouperInstaller {
    * get all library files
    * @return the list of files
    */
-  private List<File> findAllLibraryFiles() {
+  private List<File> findAllLibraryFiles(String appDir) {
+    
+    if (!appDir.endsWith("/") && !appDir.endsWith("\\")) {
+      appDir = appDir + File.separator;
+    }
+    
     List<File> result = new ArrayList<File>();
     for (String libDir : libDirs) {
 
-      File dir = new File(this.upgradeExistingApplicationDirectoryString + libDir);
+      File dir = new File(appDir + libDir);
       if (dir.exists() && dir.isDirectory()) {
         for (File file : dir.listFiles()) {
           if (file.getName().endsWith(".jar")) {
@@ -9274,7 +9297,7 @@ public class GrouperInstaller {
       }
     }
     
-    reportOnConflictingJars();
+    reportOnConflictingJars(this.upgradeExistingApplicationDirectoryString);
 
     //#####################################
     //start the loader

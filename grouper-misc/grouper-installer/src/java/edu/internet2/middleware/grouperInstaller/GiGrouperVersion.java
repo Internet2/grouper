@@ -184,20 +184,34 @@ public class GiGrouperVersion {
    * @param versionString
    */
   public GiGrouperVersion(String versionString) {
-    Matcher grouperMatcher = pattern.matcher(versionString);
+    Matcher grouperMatcher = shortPattern.matcher(versionString);
+    
+    // 1.2
     if (!grouperMatcher.matches()) {
-      grouperMatcher = rcPattern.matcher(versionString);
+    
+      grouperMatcher = pattern.matcher(versionString);
+      
+      // 1.2.3
       if (!grouperMatcher.matches()) {
         
-        throw new RuntimeException("Invalid grouper version: " + versionString
-            + ", expecting something like: 1.2.3 or 1.2.3rc4");
+
+        grouperMatcher = rcPattern.matcher(versionString);
+        
+        // 1.2.3rc4
+        if (!grouperMatcher.matches()) {
+        
+        
+          throw new RuntimeException("Invalid version: " + versionString
+              + ", expecting something like: 1.1 or 1.2.3 or 1.2.3rc4");
+        }
+        this.rc = GrouperInstallerUtils.intValue(grouperMatcher.group(4));
       }
-      this.rc = GrouperInstallerUtils.intValue(grouperMatcher.group(4));
+      this.build = GrouperInstallerUtils.intValue(grouperMatcher.group(3));
+
     }
     //get the grouper versions
     this.major = GrouperInstallerUtils.intValue(grouperMatcher.group(1));
     this.minor = GrouperInstallerUtils.intValue(grouperMatcher.group(2));
-    this.build = GrouperInstallerUtils.intValue(grouperMatcher.group(3));
 
   }
   
@@ -271,6 +285,15 @@ public class GiGrouperVersion {
    * </pre>
    */
   private static Pattern pattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)$");
+  
+  /**
+   * <pre>
+   * start of string, optional v or V, first digit, period or underscore, second digit, period or underscore, third digit, end of string
+   * parens are for capturing
+   * ^(\\d+)\\.(\\d+)$
+   * </pre>
+   */
+  private static Pattern shortPattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)$");
   
   /**
    * <pre>

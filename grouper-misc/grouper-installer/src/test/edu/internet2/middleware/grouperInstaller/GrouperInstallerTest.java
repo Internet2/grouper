@@ -21,7 +21,7 @@ public class GrouperInstallerTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperInstallerTest("testEhcacheMerge"));
+    TestRunner.run(new GrouperInstallerTest("testGiVersionConstructor"));
   }
 
   /**
@@ -37,6 +37,25 @@ public class GrouperInstallerTest extends TestCase {
    */
   public GrouperInstallerTest(String name) {
     super(name);
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testGiVersionConstructor() {
+    
+    GiGrouperVersion giGrouperVersion = new GiGrouperVersion("1.2");
+    
+    assertEquals("1.2.0", giGrouperVersion.toString());
+    
+    giGrouperVersion = new GiGrouperVersion("v1.2.3");
+    
+    assertEquals("1.2.3", giGrouperVersion.toString());
+    
+    giGrouperVersion = new GiGrouperVersion("1.2.3-rc3");
+    
+    assertEquals("1.2.3rc3", giGrouperVersion.toString());
     
   }
   
