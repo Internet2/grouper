@@ -692,31 +692,10 @@ public class UiV2GrouperLoader {
       
       //not sure who can see attributes etc, just go root
       GrouperSession.stopQuietly(grouperSession);
+      
       grouperSession = GrouperSession.startRootSession();
       
-      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
-
-      AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, loaderMetadataAttributeDefName, false, false);
-      
-      if (groupAttributeAssign != null) {
-        
-        String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED);
-        String loaderGroupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
-        String lastFullMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS);
-        String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
-        String summary = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY);
-      
-        Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, true);
-
-        GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
-            GrouperUtil.booleanObjectValue(metadataLoaded), 
-            lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
-            lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
-            summary);
-        
-        grouperLoaderContainer.setLoaderManagedGroup(guiLoaderManagedGroup);
-        
-      }
+      setupLoaderManagedGroup(group, grouperLoaderContainer);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/grouperLoaderGroupTab.jsp"));
@@ -729,6 +708,34 @@ public class UiV2GrouperLoader {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  public static void setupLoaderManagedGroup(final Group group, GrouperLoaderContainer grouperLoaderContainer) {
+    
+    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
+
+    AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, loaderMetadataAttributeDefName, false, false);
+    
+    if (groupAttributeAssign != null) {
+      
+      String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED);
+      String loaderGroupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
+      String lastFullMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS);
+      String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
+      String summary = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY);
+    
+      Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, true);
+
+      GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
+          GrouperUtil.booleanObjectValue(metadataLoaded), 
+          lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
+          lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
+          summary);
+      
+      grouperLoaderContainer.setLoaderManagedGroup(guiLoaderManagedGroup);
+      
+    }
+    
   }
   
   /**

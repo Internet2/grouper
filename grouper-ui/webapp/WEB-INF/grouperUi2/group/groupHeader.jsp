@@ -130,6 +130,43 @@
                     </div>
                     <p>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</p>
                     <p>${grouperRequestContainer.objectTypeContainer.userFriendlyStringForConfiguredAttributes}</p>
+                    
+                    <c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup}">
+                
+		                  <p>
+		                  
+		                    <c:choose>
+		              <c:when test="${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLoaded}">
+		                <grouper:message key="grouperLoaderGroupManagedByLoader">
+		                      <grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.controllingGroup.shortLinkWithIcon}</grouper:param>
+		                    </grouper:message>
+		              </c:when>
+		              <c:otherwise>
+		                <grouper:message key="grouperLoaderGroupWasManagedByLoader">
+		                      <grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.controllingGroup.shortLinkWithIcon}</grouper:param>
+		                    </grouper:message>
+		              </c:otherwise>
+		            </c:choose>
+		                  
+		                    <c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}">
+		                      <grouper:message key="grouperLoaderGroupManagedByLoaderFullyLoaded">
+		                      <grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastFullMillisSince1970}</grouper:param>
+		                    </grouper:message>
+		                    </c:if>
+		                    <c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastIncrementalMillisSince1970}">
+		                      <grouper:message key="grouperLoaderGroupManagedByLoaderIncrementallyLoaded">
+		                      <grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastIncrementalMillisSince1970}</grouper:param>
+		                    </grouper:message>
+		                    </c:if>
+		                    <c:if test="${not empty grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastSummary}">
+		                      <grouper:message key="grouperLoaderGroupManagedByLoaderSummary">
+		                      <grouper:param>${grouperRequestContainer.grouperLoaderContainer.loaderManagedGroup.grouperLoaderMetadataLastSummary}</grouper:param>
+		                    </grouper:message>
+		                    </c:if>
+		                  </p>
+                
+                </c:if>
+                    
                     <div id="groupDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">
                         <tbody>
