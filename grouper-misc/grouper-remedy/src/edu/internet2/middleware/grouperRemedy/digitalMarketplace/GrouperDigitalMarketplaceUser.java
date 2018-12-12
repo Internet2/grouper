@@ -42,7 +42,7 @@ public class GrouperDigitalMarketplaceUser {
   /**
    * cache group
    */
-  private static ExpirableCache<Boolean, Map<String, GrouperDigitalMarketplaceUser>> retrieveUsersCache = new ExpirableCache<Boolean, Map<String, GrouperDigitalMarketplaceUser>>(5);
+  private static ExpirableCache<Boolean, Map<String, GrouperDigitalMarketplaceUser>> retrieveUsersCache = new ExpirableCache<Boolean, Map<String, GrouperDigitalMarketplaceUser>>(60*12);
   
   /**
    * groupName, netId

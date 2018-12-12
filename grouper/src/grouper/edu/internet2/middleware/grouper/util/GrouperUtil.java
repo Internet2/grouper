@@ -11970,4 +11970,19 @@ public class GrouperUtil {
   public static String getGrouperHome() {
     return grouperHome;
   }
+  
+  /**
+   * split a file on whitespace
+   * @param fileContents
+   * @return the list of file lines
+   */
+  public static List<String> splitFileLines(String fileContents) {
+    fileContents = StringUtils.replace(fileContents, "\r\n", "\n");
+    fileContents = StringUtils.replace(fileContents, "\r", "\n");
+    // keep whitespace in there...
+    String[] resultArray = StringUtils.splitPreserveAllTokens(fileContents, '\n');
+    List<String> result = GrouperUtil.toList(resultArray);
+    return result;
+  }
+  
 }

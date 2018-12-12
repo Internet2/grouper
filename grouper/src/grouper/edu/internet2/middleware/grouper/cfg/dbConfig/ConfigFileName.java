@@ -52,6 +52,16 @@ public enum ConfigFileName {
   SUBJECT_PROPERTIES("subject.properties"),
   
   /**
+   * grouper-ui.properties
+   */
+  GROUPER_UI_PROPERTIES("grouper-ui.properties"),
+  
+  /**
+   * grouper-ws.properties
+   */
+  GROUPER_WS_PROPERTIES("grouper-ws.properties"),
+  
+  /**
    * grouper.client.properties
    */
   GROUPER_CLIENT_PROPERTIES("grouper.client.properties");

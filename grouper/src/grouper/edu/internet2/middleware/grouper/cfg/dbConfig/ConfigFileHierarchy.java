@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * Note, this class is not used
  */
 public enum ConfigFileHierarchy {
 
