@@ -604,7 +604,15 @@ public class UiV2GroupImport {
       Iterator<Group> groupIterator = groups.iterator();
 
       boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
+      boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
 
+      if (importReplaceMembers && removeMembers) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#replaceExistingMembersId",
+            TextContainer.retrieveFromRequest().getText().get("groupImportCantReplaceAndRemove")));
+        return;
+      }
+      
       //lets go through the groups that were submitted
       while (groupIterator.hasNext()) {
 
@@ -665,8 +673,9 @@ public class UiV2GroupImport {
         int existingCount = GrouperUtil.length(existingMembers);
         groupImportContainer.setGroupCountOriginal(existingCount);
         
-        GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList);
+        List<Member> overlappingMembers = new ArrayList<Member>(GrouperUtil.nonNull(GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList)));
 
+        int deletedCount = 0;
         int addedCount = 0;
         int errorsCount = 0;
 
@@ -682,40 +691,62 @@ public class UiV2GroupImport {
             errorsCount++;
           }
         }
-        
-        //first lets add some members
-        for (int i=0;i<subjectList.size();i++) {
-          
-          Subject subject = subjectList.get(i);
-          
-          if (subject instanceof ImportSubjectWrapper) {
-            try {
-              subject = ((ImportSubjectWrapper)subject).wrappedSubject();
-            } catch (Exception e) {
-              //ignore
+
+        if (!removeMembers) {
+          //first lets add some members
+          for (int i=0;i<subjectList.size();i++) {
+            
+            Subject subject = subjectList.get(i);
+            
+            if (subject instanceof ImportSubjectWrapper) {
+              try {
+                subject = ((ImportSubjectWrapper)subject).wrappedSubject();
+              } catch (Exception e) {
+                //ignore
+              }
             }
+            
+            try {
+                
+              group.addMember(subject, false);
+              
+              addedCount++;
+            } catch (Exception e) {
+              
+              String errorLine = errorLine(subject, GrouperUtil.xmlEscape(e.getMessage()));
+              errors.append(errorLine).append("\n");
+              errorsCount++;
+              LOG.warn(errorLine, e);
+            }
+      
+          }
+        } else {
+          //first lets remove some members
+          for (int i=0;i<overlappingMembers.size();i++) {
+            
+            Member member = overlappingMembers.get(i);
+            
+            try {
+                
+              group.deleteMember(member, false);
+              
+              deletedCount++;
+            } catch (Exception e) {
+              
+              String errorLine = errorLine(member.getSubject(), GrouperUtil.xmlEscape(e.getMessage()));
+              errors.append(errorLine).append("\n");
+              errorsCount++;
+              LOG.warn(errorLine, e);
+            }
+      
           }
           
-          try {
-              
-            group.addMember(subject, false);
-            
-            addedCount++;
-          } catch (Exception e) {
-            
-            String errorLine = errorLine(subject, GrouperUtil.xmlEscape(e.getMessage()));
-            errors.append(errorLine).append("\n");
-            errorsCount++;
-            LOG.warn(errorLine, e);
-          }
-    
         }
     
         boolean didntImportDueToSubjects = errorsCount > 0;
-        int deletedCount = 0;
     
         //remove the ones which are already there
-        if (importReplaceMembers && !didntImportDueToSubjects) {
+        if (importReplaceMembers && !didntImportDueToSubjects && !removeMembers) {
           
           for (Member existingMember : existingMembers) {
             

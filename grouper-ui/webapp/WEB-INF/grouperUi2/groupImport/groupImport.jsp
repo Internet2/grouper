@@ -221,7 +221,12 @@
               <div class="control-group">
                 <div class="controls">
                   <label class="checkbox">
-                    <input type="checkbox" name="replaceExistingMembers" value="true">${textContainer.text['groupImportReplaceExistingMembers'] }
+                    <input type="checkbox" id="replaceExistingMembersId" name="replaceExistingMembers" value="true">${textContainer.text['groupImportReplaceExistingMembers'] }
+                  </label>
+                </div>
+                <div class="controls">
+                  <label class="checkbox">
+                    <input type="checkbox" name="removeMembers" value="true">${textContainer.text['groupImportRemoveMembers'] }
                   </label>
                 </div>
               </div>
