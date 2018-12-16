@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
@@ -37,6 +38,8 @@ public class GrouperObjectTypesJobTest extends GrouperTest {
     //Given
     GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
     GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("objectTypes.enable", "true");
 
     Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
     Stem stem1 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test1").save();
