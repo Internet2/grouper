@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -359,10 +358,12 @@ public class ObjectTypeContainer {
     return false;
   }
   
-  public static void main(String[] args) {
-    List<String> types = Arrays.asList("a", "b");
-    String ans = StringUtils.join(types, ", ");
-    System.out.println(ans);
+  /**
+   * if object types are even enabled in the config
+   * @return true if enabled
+   */
+  public boolean isObjectTypesEnabled() {
+    return GrouperObjectTypesSettings.objectTypesEnabled();
   }
   
 }
