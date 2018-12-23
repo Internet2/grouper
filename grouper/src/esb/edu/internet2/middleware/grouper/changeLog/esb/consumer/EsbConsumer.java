@@ -27,6 +27,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -84,6 +87,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           event.setCreatedOnMicros(changeLogEntry.getCreatedOnDb());
         }
         
+        String groupName = null;
+        
         //if this is a group type add action and category
         if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
           event.setEventType(EsbEvent.EsbEventType.GROUP_ADD.name());
@@ -96,6 +101,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.GROUP_ADD.displayName));
           event.setDescription(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_ADD.description));
+          
+          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name);
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)) {
@@ -110,6 +117,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.GROUP_DELETE.displayName));
           event.setDescription(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_DELETE.description));
+          
+          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.name);
 
         } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
           event.setEventType(EsbEvent.EsbEventType.ENTITY_ADD.name());
@@ -210,6 +219,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.GROUP_UPDATE.propertyOldValue));
           event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_UPDATE.propertyNewValue));
+          
+          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.name);
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
@@ -446,6 +457,30 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               processEvent = false;
             }
           }
+          
+          String routingKey = null;
+          if (StringUtils.isNotBlank(groupName)) {
+            String regexRoutingKeyReplacementDefinition = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+                + consumerName + ".regexRoutingKeyReplacementDefinition", "");
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("regexRoutingKeyReplacementDefinition", regexRoutingKeyReplacementDefinition);
+            }
+            
+            boolean replaceColonsWithPeriods = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer."
+                + consumerName + ".replaceRoutingKeyColonsWithPeriods", true);
+            
+            if (StringUtils.isNotBlank(regexRoutingKeyReplacementDefinition)) {
+              Expression parsedExpression = new SpelExpressionParser().parseExpression(regexRoutingKeyReplacementDefinition);
+              
+              routingKey = String.class.cast(parsedExpression.getValue(new StandardEvaluationContext(groupName)));
+              
+              if (replaceColonsWithPeriods) {
+                routingKey = routingKey.replaceAll(":", ".");
+              }
+              
+            }
+          }
+          
           if (processEvent) {
 
             String eventJsonString = null;
@@ -522,21 +557,27 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
             }
             
-            if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
-              //OK;
-              if (LOG.isDebugEnabled()) {
-                debugMap.put("processed", true);
-              }
+            if (esbPublisherBase instanceof EsbMessagingPublisher) {
+              EsbMessagingPublisher esbMessagingPublisher = (EsbMessagingPublisher) esbPublisherBase;
+              esbMessagingPublisher.dispatchEvent(eventJsonString, consumerName, routingKey);
             } else {
-              if (LOG.isDebugEnabled()) {
-                debugMap.put("processed", false);
+              if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
+                //OK;
+                if (LOG.isDebugEnabled()) {
+                  debugMap.put("processed", true);
+                }
+              } else {
+                if (LOG.isDebugEnabled()) {
+                  debugMap.put("processed", false);
+                }
+                // error, need to retry
+                changeLogProcessorMetadata.registerProblem(null,
+                    "Error processing record " + event.getSequenceNumber(), currentId);
+                //we made it to this -1
+                return currentId - 1;
               }
-              // error, need to retry
-              changeLogProcessorMetadata.registerProblem(null,
-                  "Error processing record " + event.getSequenceNumber(), currentId);
-              //we made it to this -1
-              return currentId - 1;
             }
+            
           }
         } else {
           if (LOG.isDebugEnabled()) {
