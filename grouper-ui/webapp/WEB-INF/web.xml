@@ -47,6 +47,7 @@
   <listener>
     <listener-class>org.owasp.csrfguard.CsrfGuardHttpSessionListener</listener-class>
   </listener>
+
   <servlet>
     <servlet-name>StatusServlet</servlet-name>
     <display-name>Status Servlet</display-name>
@@ -62,6 +63,8 @@
     <servlet-name>OwaspJavaScriptServlet</servlet-name>
     <servlet-class>org.owasp.csrfguard.servlet.JavaScriptServlet</servlet-class>
   </servlet>
+
+
   <servlet-mapping>
     <servlet-name>StatusServlet</servlet-name>
     <url-pattern>/status</url-pattern>
