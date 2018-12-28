@@ -27,9 +27,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -263,6 +260,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.MEMBERSHIP_ADD.groupId));
           event.setGroupName(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+          
+          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.groupName);
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
           event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_DELETE.name());
@@ -280,6 +279,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
           event.setGroupName(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+          
+          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE)) {
@@ -304,6 +305,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.MEMBERSHIP_UPDATE.propertyOldValue));
           event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue));
+          
+          groupName = this.getLabelValue(changeLogEntry, ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue);
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
@@ -470,9 +473,11 @@ public class EsbConsumer extends ChangeLogConsumerBase {
                 + consumerName + ".replaceRoutingKeyColonsWithPeriods", true);
             
             if (StringUtils.isNotBlank(regexRoutingKeyReplacementDefinition)) {
-              Expression parsedExpression = new SpelExpressionParser().parseExpression(regexRoutingKeyReplacementDefinition);
               
-              routingKey = String.class.cast(parsedExpression.getValue(new StandardEvaluationContext(groupName)));
+              Map<String, Object> substituteMap = new HashMap<String, Object>();
+              substituteMap.put("groupName", groupName);
+
+              routingKey = GrouperUtil.substituteExpressionLanguage(regexRoutingKeyReplacementDefinition, substituteMap, true, false, false);;
               
               if (replaceColonsWithPeriods) {
                 routingKey = routingKey.replaceAll(":", ".");
