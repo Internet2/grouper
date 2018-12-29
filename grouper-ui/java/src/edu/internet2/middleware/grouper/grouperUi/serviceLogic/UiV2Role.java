@@ -4,14 +4,13 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -32,6 +31,11 @@ import edu.internet2.middleware.subject.Subject;
 
 public class UiV2Role {
   
+  /**
+   * show role edit inheritance screen
+   * @param request
+   * @param response
+   */
   public void roleEditInheritance(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -50,48 +54,11 @@ public class UiV2Role {
         return;
       }
       
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
       if (group.getTypeOfGroup() != TypeOfGroup.role) {
         throw new RuntimeException("Group is not of type role.");
       }
       
-      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      RoleInheritanceContainer roleInheritanceContainer = grouperRequestContainer.getRoleInheritanceContainer();
-      
-      // get all the roles
-      Set<TypeOfGroup> roleTypes = new HashSet<TypeOfGroup>();
-      roleTypes.add(TypeOfGroup.role);
-      Collection<Group> roles = new GroupFinder().assignTypeOfGroups(roleTypes).assignSubject(loggedInSubject).findGroups();
-      roleInheritanceContainer.setAllRoles(castGroupsToRoles(roles));
-      
-      {
-        List<Role> rolesThatImplyThis = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsToThis());
-        Collections.sort(rolesThatImplyThis);
-        roleInheritanceContainer.setRolesThatImplyThis(rolesThatImplyThis);
-      }
-      
-      {
-        List<Role> rolesThatImplyThisImmediate = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsToThisImmediate());
-        Collections.sort(rolesThatImplyThisImmediate);
-        roleInheritanceContainer.setRolesThatImplyThisImmediate(rolesThatImplyThisImmediate);
-      }
-      
-      {
-        List<Role> rolesImpliedByThis = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis());
-        Collections.sort(rolesImpliedByThis);
-        roleInheritanceContainer.setRolesImpliedByThis(rolesImpliedByThis);
-      }
-      
-      {
-        List<Role> rolesImpliedByThisImmediate = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThisImmediate());
-        Collections.sort(rolesImpliedByThisImmediate);
-        roleInheritanceContainer.setRolesImpliedByThisImmediate(rolesImpliedByThisImmediate);
-      }
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/role/roleInheritance.jsp"));
-      
+      editRoleInheritanceHelper(group);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -99,7 +66,50 @@ public class UiV2Role {
     
   }
   
-  public void editRoleInheritanceSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+  @SuppressWarnings("unchecked")
+  private void editRoleInheritanceHelper(Group group) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    RoleInheritanceContainer roleInheritanceContainer = grouperRequestContainer.getRoleInheritanceContainer();
+    
+    {
+      List<Role> rolesThatImplyThis = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsToThis());
+      Collections.sort(rolesThatImplyThis);        
+      roleInheritanceContainer.setRolesThatImplyThis(rolesThatImplyThis);
+    }
+    
+    {
+      List<Role> rolesThatImplyThisImmediate = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsToThisImmediate());
+      Collections.sort(rolesThatImplyThisImmediate);
+      roleInheritanceContainer.setRolesThatImplyThisImmediate(rolesThatImplyThisImmediate);
+    }
+    
+    {
+      List<Role> rolesImpliedByThis = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis());
+      Collections.sort(rolesImpliedByThis);
+      roleInheritanceContainer.setRolesImpliedByThis(rolesImpliedByThis);
+    }
+    
+    {
+      List<Role> rolesImpliedByThisImmediate = new ArrayList<Role>(group.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThisImmediate());
+      Collections.sort(rolesImpliedByThisImmediate);
+      roleInheritanceContainer.setRolesImpliedByThisImmediate(rolesImpliedByThisImmediate);
+    }
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+        "/WEB-INF/grouperUi2/role/roleInheritance.jsp"));
+    
+  }
+  
+  /**
+   * add a role that implies the current role
+   * @param request
+   * @param response
+   */
+  public void addRoleImplies(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -123,36 +133,31 @@ public class UiV2Role {
         throw new RuntimeException("Group is not of type role.");
       }
       
-      String[] rolesThatImply = request.getParameterValues("rolesThatImmediatelyImply[]");
-      String[] rolesImpliedBy = request.getParameterValues("rolesImpliedByImmediate[]");
+      String roleThatImplies = request.getParameter("roleInhertianceRoleComboName");
       
-      if (rolesThatImply != null) {
-        for (Role roleThatImply:  group.getRoleInheritanceDelegate().getRolesInheritPermissionsToThis()) {   
-          roleThatImply.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(group);
+      if (StringUtils.isNotBlank(roleThatImplies)) {
+        Group groupThatImplies = GroupFinder.findByUuid(grouperSession, roleThatImplies, true);
+        
+        if (groupThatImplies.getId().equals(group.getId())) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditSelfError")));
+          return;
         }
         
-        for (String roleId: rolesThatImply) {
-          Group roleThatImplies = GroupFinder.findByUuid(grouperSession, roleId, true);
-          roleThatImplies.getRoleInheritanceDelegate().addRoleToInheritFromThis(group);
+        if (groupThatImplies.getTypeOfGroup() == TypeOfGroup.role) {
+          boolean success = groupThatImplies.getRoleInheritanceDelegate().addRoleToInheritFromThis(group);
+          if (!success) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("roleInheritanceAddRelationshipAlreadyThereInfo")));
+            return;
+          }
+        } else {
+          throw new RuntimeException("Group is not of type role.");
         }
       }
       
-      if (rolesImpliedBy != null) {
-        
-        for (Role roleImpliedBy:  group.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis()) {
-          group.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(roleImpliedBy);
-        }
-        
-        for (String roleId: rolesImpliedBy) {
-          Group roleImpliedBy = GroupFinder.findByUuid(grouperSession, roleId, true);
-          group.getRoleInheritanceDelegate().addRoleToInheritFromThis(roleImpliedBy);
-        }
-      }
-      
-      //go to the view group screen
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+      editRoleInheritanceHelper(group);
   
-      //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditSuccess")));
       
@@ -170,17 +175,208 @@ public class UiV2Role {
     
   }
   
-  private List<Role> castGroupsToRoles(Collection<Group> groups) {
+  /**
+   * add a role that is implied by the current role
+   * @param request
+   * @param response
+   */
+  public void addRoleImpliedBy(HttpServletRequest request, HttpServletResponse response) {
     
-    List<Role> roles = new ArrayList<Role>();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    for (Group group: groups) {
-      Role role = (Role)group;
-      roles.add(role);
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      if (group.getTypeOfGroup() != TypeOfGroup.role) {
+        throw new RuntimeException("Group is not of type role.");
+      }
+      
+      String roleImpliedById = request.getParameter("roleInhertianceRoleComboName");
+      
+      if (StringUtils.isNotBlank(roleImpliedById)) {
+        
+        Group roleImpliedBy = GroupFinder.findByUuid(grouperSession, roleImpliedById, true);
+        
+        if (roleImpliedBy.getId().equals(group.getId())) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditSelfError")));
+          return;
+        }
+        
+        if (roleImpliedBy.getTypeOfGroup() == TypeOfGroup.role) {
+          boolean success = group.getRoleInheritanceDelegate().addRoleToInheritFromThis(roleImpliedBy);
+          if (!success) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("roleInheritanceAddRelationshipAlreadyThereInfo")));
+            return;
+          }
+        } else {
+          throw new RuntimeException("Group is not of type role.");
+        }
+      }
+      
+      editRoleInheritanceHelper(group);
+  
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditSuccess")));
+      
+    } catch (Exception e) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, e)) {
+        return;
+      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditError") 
+          + ": " + GrouperUtil.xmlEscape(e.getMessage(), true)));
+      return;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
     
-    return roles;
+  }
+  
+  /**
+   * delete a role that implies the current role
+   * @param request
+   * @param response
+   */
+  public void deleteRoleImplies(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      if (group.getTypeOfGroup() != TypeOfGroup.role) {
+        throw new RuntimeException("Group is not of type role.");
+      }
+      
+      String roleId = request.getParameter("roleId");
+      
+      if (StringUtils.isNotBlank(roleId)) {
+        
+        Group roleSubmitted = GroupFinder.findByUuid(grouperSession, roleId, true);
+        
+        if (roleSubmitted.getTypeOfGroup() == TypeOfGroup.role) {
+          boolean success = roleSubmitted.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(group);
+          if (!success) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("roleInheritanceDeleteRelationshipAlreadyThereInfo")));
+            return;
+          }
+        } else {
+          throw new RuntimeException("Group is not of type role.");
+        }
+      }
+      
+      editRoleInheritanceHelper(group);
+  
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditSuccess")));
+      
+    } catch (Exception e) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, e)) {
+        return;
+      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditError") 
+          + ": " + GrouperUtil.xmlEscape(e.getMessage(), true)));
+      return;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
     
   }
-
+  
+  /**
+   * delete a role that is implied by the current role
+   * @param request
+   * @param response
+   */
+  public void deleteRoleImpliedBy(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      if (group.getTypeOfGroup() != TypeOfGroup.role) {
+        throw new RuntimeException("Group is not of type role.");
+      }
+      
+      String roleId = request.getParameter("roleId");
+      
+      if (StringUtils.isNotBlank(roleId)) {
+        
+        Group roleSubmitted = GroupFinder.findByUuid(grouperSession, roleId, true);
+        
+        if (roleSubmitted.getTypeOfGroup() == TypeOfGroup.role) {
+          boolean success = group.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(roleSubmitted);
+          if (!success) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("roleInheritanceDeleteRelationshipAlreadyThereInfo")));
+            return;
+          }
+        } else {
+          throw new RuntimeException("Group is not of type role.");
+        }
+      }
+    
+      editRoleInheritanceHelper(group);
+  
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditSuccess")));
+      
+    } catch (Exception e) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, e)) {
+        return;
+      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("roleInheritanceEditError") 
+          + ": " + GrouperUtil.xmlEscape(e.getMessage(), true)));
+      return;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
 }

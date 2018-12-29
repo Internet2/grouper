@@ -19,17 +19,49 @@
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
                   
                   <div class="control-group">
+                    <label for="roleInhertianceRoleComboId" class="control-label">${textContainer.text['editRoleInheritanceLabel'] }</label>
+                    
+                    <div class="controls">
+                      <input type="hidden" name="typeOfGroup" value="role" />
+	                    <grouper:combobox2 idBase="roleInhertianceRoleCombo" style="width: 30em"
+	                       filterOperation="../app/UiV2Group.groupUpdateFilter"
+	                       additionalFormElementNames="typeOfGroup" />
+                    </div>
+                    <br />
+                    <div class="control-group" style="margin-bottom: 5px">
+	                    <div class="controls">
+	                      <a href="#" 
+	                        onclick="ajax('../app/UiV2Role.addRoleImplies', {formIds: 'editRoleInheritanceForm'}); return false;"
+	                        class="btn bulk-add-another-group" role="button">
+	                        <grouper:message key="roleInheritanceEditRolesThatImplyButtonText">
+                            <grouper:param>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</grouper:param>
+                          </grouper:message>
+	                        </a>
+	                        
+	                      <a href="#" 
+	                        onclick="ajax('../app/UiV2Role.addRoleImpliedBy', {formIds: 'editRoleInheritanceForm'}); return false;"
+	                        class="btn bulk-add-another-group" role="button">
+	                         <grouper:message key="roleInheritanceEditRolesImpliedByButtonText">
+                            <grouper:param>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</grouper:param>
+                          </grouper:message>  
+	                      </a>
+	                        
+	                    </div>
+                    </div>
+                    
+                  </div>
+                  
+                  <div class="control-group">
                     <label class="control-label">
                       <grouper:message key="roleInheritanceEditRolesThatImply">
                         <grouper:param>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</grouper:param>
                       </grouper:message>
                     </label>
-                    <div class="controls">
+                    <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThis}" var="roleThatImply">
-                        <label class="inline">
-                            ${roleThatImply.displayExtension}
-                        </label>
-                      </c:forEach> 
+                        ${roleThatImply.displayExtension}
+                        <br/>
+                      </c:forEach>
                     </div>
                   </div>
                   
@@ -40,19 +72,10 @@
                       </grouper:message>
                     </label>
                     <div class="controls">
-                      <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.allRoles}" var="role">
-                        <c:if test="${grouperRequestContainer.groupContainer.guiGroup.group.id != role.id}">
-                          <label class="checkbox inline">
-                            <c:set var="checked" value="false" />
-                            <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThisImmediate}" var="roleThatImmediatelyImply">
-                              <c:if test="${roleThatImmediatelyImply.id == role.id}">
-                                <c:set var="checked" value="true"></c:set>
-                              </c:if>
-                            </c:forEach>
-                            <input type="checkbox" name="rolesThatImmediatelyImply" value="${role.id}" ${checked ? 'checked="checked"' : '' }/>
-                              ${role.extension}
-                          </label>
-                        </c:if>
+                      <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThisImmediate}" var="roleThatImmediatelyImply">
+                        <br />
+                        ${roleThatImmediatelyImply.extension}
+                        <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImplies?roleId=${roleThatImmediatelyImply.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
                       </c:forEach>
                     </div>
                   </div>
@@ -63,11 +86,10 @@
                         <grouper:param>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</grouper:param>
                       </grouper:message>
                     </label>
-                    <div class="controls">
+                    <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThis}" var="roleImpliedBy">
-                        <label class="inline">
-                          ${roleImpliedBy.extension}
-                        </label>
+                        ${roleImpliedBy.extension}
+                        <br/>
                       </c:forEach>
                     </div>
                   </div>
@@ -79,26 +101,12 @@
                       </grouper:message>
                     </label>
                     <div class="controls">
-                      <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.allRoles}" var="role">
-                        <c:if test="${grouperRequestContainer.groupContainer.guiGroup.group.id != role.id}">
-                          <label class="checkbox inline">
-                            <c:set var="checked" value="false" />
-                            <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThisImmediate}" var="roleImpliedByImmediate">
-                              <c:if test="${roleImpliedByImmediate.id == role.id}">
-                                <c:set var="checked" value="true"></c:set>
-                              </c:if>
-                            </c:forEach>
-                            <input type="checkbox" name="rolesImpliedByImmediate" value="${role.id}" ${checked ? 'checked="checked"' : '' }/>
-                              ${role.extension}
-                          </label>
-                        </c:if>
+                      <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThisImmediate}" var="roleImpliedByImmediate">
+                        <br />
+                        ${roleImpliedByImmediate.extension} 
+                        <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImpliedBy?roleId=${roleImpliedByImmediate.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
                       </c:forEach>
                     </div>
-                  </div>
-                 
-                  <div class="form-actions">
-                    <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Role.editRoleInheritanceSubmit', {formIds: 'editRoleInheritanceForm'}); return false;">${textContainer.text['roleInheritanceEditSaveButton'] }</a> 
-                    <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['roleInhertianceEditCancelButton'] }</a>
                   </div>
                   
                 </form>
