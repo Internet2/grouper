@@ -193,6 +193,11 @@ public class ConfigItemMetadata {
         jsonObject.remove("valueType");
       }
       
+      if (jsonObject.containsKey("defaultValue")) {
+        this.defaultValue = jsonObject.getString("defaultValue");
+        jsonObject.remove("defaultValue");
+      }
+      
       if (jsonObject.keySet().size() > 0) {
         this.metadataError = "Extra keys from json (unexpected): " + GrouperUtil.join(jsonObject.keySet().iterator(), ", ");
         throw new RuntimeException(this.metadataError);

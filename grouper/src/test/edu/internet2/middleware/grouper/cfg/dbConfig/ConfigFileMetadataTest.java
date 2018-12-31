@@ -85,9 +85,10 @@ public class ConfigFileMetadataTest extends GrouperTest {
     currentSection = 0;
     currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
     assertEquals("Correct number of items", 2, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
-    
+    assertEquals("Config chaining hierarchy", currentConfigSection.getComment());
+
     currentItem = 0;
-    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(0);
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
     
     assertEquals("comma separated config files that override each other (files on the right override the left) each "
         + "should start with file: or classpath: e.g. classpath:grouper.example.properties, file:c:/something/myconfig.properties", 
@@ -117,77 +118,246 @@ public class ConfigFileMetadataTest extends GrouperTest {
     //
     //  # main stem for grouper built in objects
     //  # Note: there are more locations to change than just this
-    //  # {valueType: "stem", required: true, default: "true"}
+    //  # {valueType: "stem", required: true, defaultValue: "true"}
     //  grouper.rootStemForBuiltinObjects = etc
 
     currentSection++;
     currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
     assertEquals("Correct number of items", 2, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
+    assertEquals("General settings", currentConfigSection.getComment());
 
+    currentItem = 0;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
     
+    assertEquals("used to identify your institution (e.g. in TIER instrumentation)", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"string\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.STRING, currentConfigItem.getValueType());
+    assertFalse(currentConfigItem.isRequired());
+    assertFalse(currentConfigItem.isMultiple());
+    assertFalse(currentConfigItem.isRequiresRestart());
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("main stem for grouper built in objects Note: there are more locations to change than just this", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"stem\", required: true, defaultValue: \"true\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.STEM, currentConfigItem.getValueType());
+    assertTrue(currentConfigItem.isRequired());
+    assertEquals("true", currentConfigItem.getDefaultValue());
+
     //  #######################################
     //  ## inititalization and
     //  ## configuration settings
     //  #######################################
     //
+    
+    currentSection++;
+    currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
+
+    assertEquals("Correct number of items", 13, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
+
+    
+    assertEquals("inititalization and configuration settings", currentConfigSection.getComment());
+
+    
     //  #if grouper should auto init the registry if not initted (i.e. insert the root stem, built in fields, etc)
     //  #defaults to true
     //  # {valueType: "boolean", required: true}
     //  registry.autoinit = true
     //
+    
+    currentItem = 0;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("if grouper should auto init the registry if not initted (i.e. insert the root stem, built in fields, etc) defaults to true", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"boolean\", required: true}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.BOOLEAN, currentConfigItem.getValueType());
+    assertTrue(currentConfigItem.isRequired());
+    assertFalse(currentConfigItem.isMultiple());
+    assertFalse(currentConfigItem.isRequiresRestart());
+
+    
     //  #auto-create groups (increment the integer index), and auto-populate with users 
     //  #(comma separated subject ids) to bootstrap the registry on startup
     //  #(note: check config needs to be on)
     //  # {regex: "configuration.autocreate.group.name.[0-9]+", valueType: "group", required: true}
     //  #configuration.autocreate.group.name.0 = $$grouper.rootStemForBuiltinObjects$$:uiUsers
     //
+
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("auto-create groups (increment the integer index), and auto-populate with users (comma separated subject ids) to bootstrap the registry on startup (note: check config needs to be on)", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{regex: \"configuration.autocreate.group.name.[0-9]+\", valueType: \"group\", required: true}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.GROUP, currentConfigItem.getValueType());
+    assertTrue(currentConfigItem.isRequired());
+    assertEquals("configuration.autocreate.group.name.[0-9]+", currentConfigItem.getRegex());
+
     //  # {regex: "configuration.autocreate.group.description.[0-9]+", valueType: "string"}
     //  #configuration.autocreate.group.description.0 = users allowed to log in to the UI
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("", 
+        GrouperUtil.trimToEmpty(currentConfigItem.getComment()));
+    
+    assertEquals("{regex: \"configuration.autocreate.group.description.[0-9]+\", valueType: \"string\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.STRING, currentConfigItem.getValueType());
+    assertEquals("configuration.autocreate.group.description.[0-9]+", currentConfigItem.getRegex());
+
     //  # {regex: "configuration.autocreate.group.subjects.[0-9]+", valueType: "subject"}
     //  #configuration.autocreate.group.subjects.0 = 
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("", GrouperUtil.trimToEmpty(currentConfigItem.getComment()));
+    
+    assertEquals("{regex: \"configuration.autocreate.group.subjects.[0-9]+\", valueType: \"subject\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.SUBJECT, currentConfigItem.getValueType());
+    assertEquals("configuration.autocreate.group.subjects.[0-9]+", currentConfigItem.getRegex());
+
     //  # some attribute def
     //  # {valueType: "attributeDef"}
     //  someAttrDef =
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some attribute def", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"attributeDef\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.ATTRIBUTEDEF, currentConfigItem.getValueType());
+
     //  # some attribute def name
     //  # {valueType: "attributeDefName"}
     //  someAttrDefName =
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some attribute def name", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"attributeDefName\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.ATTRIBUTEDEFNAME, currentConfigItem.getValueType());
+
     //  # some class extends another class
     //  # {valueType: "class", mustExtendClass: "edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfigAbstractExample"}
     //  someClassExtends =
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some class extends another class", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"class\", mustExtendClass: \"edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfigAbstractExample\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.CLASS, currentConfigItem.getValueType());
+    assertEquals("edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfigAbstractExample", currentConfigItem.getMustExtendClass());
+
     //  # some class implements another class
     //  # {valueType: "class", mustImplementInterface: "edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfigInterfaceExample"}
     //  someClassImplements =
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some class implements another class", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"class\", mustImplementInterface: \"edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfigInterfaceExample\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.CLASS, currentConfigItem.getValueType());
+    assertEquals("edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfigInterfaceExample", currentConfigItem.getMustImplementInterface());
+
     //  # some pass
     //  # {valueType: "password", sensitive: true}
     //  somePass = 
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some pass", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"password\", sensitive: true}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.PASSWORD, currentConfigItem.getValueType());
+    assertTrue(currentConfigItem.isSensitive());
+
     //  # some floatin
     //  # {valueType: "floating"}
     //  someFloating = 
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some floatin", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"floating\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.FLOATING, currentConfigItem.getValueType());
+
     //  # some group
     //  # {valueType: "group"}
     //  someGroup = 
     //
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some group", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"group\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.GROUP, currentConfigItem.getValueType());
+
     //  # some integer
     //  # {valueType: "integer"}
     //  someInteger = 
     //
-    //  # some integer
-    //  # {valueType: "integer"}
-    //  someInteger = 
-    currentSection++;
-    currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
+    
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some integer", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"integer\"}", currentConfigItem.getRawMetadataJson());
 
-    assertEquals("Correct number of items", 13, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
-    
-    
+    assertEquals(ConfigItemMetadataType.INTEGER, currentConfigItem.getValueType());
+
+
   }
   
 }
