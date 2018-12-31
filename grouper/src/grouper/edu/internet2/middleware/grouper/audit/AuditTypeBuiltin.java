@@ -180,6 +180,24 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
       "privilegeType", "stemId", "stemName")),
 
   /**
+   * add attrDef privilege
+   */
+  PRIVILEGE_ATTRIBUTE_DEF_ADD(new AuditType("privilege", "addAttributeDefPrivilege", null, "privilegeName", "memberId", 
+      "privilegeType", "attributeDefId", "attributeDefName")),
+  
+  /**
+   * update attrDef privilege
+   */
+  PRIVILEGE_ATTRIBUTE_DEF_UPDATE(new AuditType("privilege", "updateAttributeDefPrivilege", null,"privilegeName", "memberId", 
+      "privilegeType", "attributeDefId", "attributeDefName")),
+
+  /**
+   * delete attrDef privilege
+   */
+  PRIVILEGE_ATTRIBUTE_DEF_DELETE(new AuditType("privilege", "deleteAttributeDefPrivilege", null, "privilegeName", "memberId", 
+      "privilegeType", "attributeDefId", "attributeDefName")),
+
+  /**
    * add attribute def
    */
   ATTRIBUTE_DEF_ADD(new AuditType("attributeDef", "addAttributeDef", null, 

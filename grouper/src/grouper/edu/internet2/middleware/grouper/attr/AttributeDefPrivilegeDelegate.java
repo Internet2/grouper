@@ -23,6 +23,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -439,7 +443,7 @@ public class AttributeDefPrivilegeDelegate {
       + ", subject: " + GrouperUtil.subjectToString(subj) + ", privilege: " + (priv == null ? null : priv.getName());
   
     return (Boolean)HibernateSession.callbackHibernateSession(
-      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {
   
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -452,6 +456,22 @@ public class AttributeDefPrivilegeDelegate {
             //note, this will validate the inputs
             GrouperSession.staticGrouperSession().getAttributeDefResolver().grantPrivilege(
                 AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv, uuid);
+            
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              
+              Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
+              
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_ADD, "privilegeName", 
+                  priv.getName(),  "memberId",  member.getUuid(),
+                      "privilegeType", "attrDef", 
+                      "attributeDefId", AttributeDefPrivilegeDelegate.this.attributeDef.getUuid(), "attributeDefName", AttributeDefPrivilegeDelegate.this.attributeDef.getName());
+                      
+              auditEntry.setDescription("Added privilege: attributeDef: " + AttributeDefPrivilegeDelegate.this.attributeDef.getName()
+                  + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
+                  + priv.getName());
+              auditEntry.saveOrUpdate(true);
+            }
+
             
             RulesPrivilegeBean rulesPrivilegeBean = new RulesPrivilegeBean(AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv);
             
@@ -508,7 +528,7 @@ public class AttributeDefPrivilegeDelegate {
       + ", subject: " + GrouperUtil.subjectToString(subj) + ", privilege: " + (priv == null ? null : priv.getName());
   
     return (Boolean)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
           new HibernateHandler() {
   
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -521,7 +541,22 @@ public class AttributeDefPrivilegeDelegate {
           //this will validate
           GrouperSession.staticGrouperSession().getAttributeDefResolver().revokePrivilege(
               AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv);
-    
+
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            
+            Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
+            
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE, "privilegeName", 
+                priv.getName(),  "memberId",  member.getUuid(),
+                    "privilegeType", "attrDef", 
+                    "attributeDefId", AttributeDefPrivilegeDelegate.this.attributeDef.getUuid(), "attributeDefName", AttributeDefPrivilegeDelegate.this.attributeDef.getName());
+                    
+            auditEntry.setDescription("Deleted privilege: attributeDef: " + AttributeDefPrivilegeDelegate.this.attributeDef.getName()
+                + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
+                + priv.getName());
+            auditEntry.saveOrUpdate(true);
+          }
+
         } catch (UnableToPerformAlreadyExistsException eUTP) {
           if (exceptionIfAlreadyRevoked) {
             throw new RevokePrivilegeAlreadyRevokedException( eUTP.getMessage() + errorMessageSuffix, eUTP );

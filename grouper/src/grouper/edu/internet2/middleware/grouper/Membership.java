@@ -58,6 +58,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDel
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -116,6 +118,7 @@ import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -2485,9 +2488,70 @@ public class Membership extends GrouperAPI implements
    */
   public static int internal_fixEnabledDisabled() {
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllEnabledDisabledMismatch();
-    for (Membership membership : memberships) {
-      membership.deleteAndStore();
+    for (Membership theMembership : memberships) {
+      
+      final Membership membership = theMembership;
+      
+      //TODO add auditing, maybe try to maintain context id, or create a new one
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+          AuditControl.WILL_AUDIT, new HibernateHandler() {
+        public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+          membership.deleteAndStore();
+          
+          if (membership.getField().isGroupListField() || membership.getField().isEntityListField()) {
+
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, 
+                "id", membership.getUuid(), "fieldId", membership.getFieldId(),
+                    "fieldName", membership.getField().getName(), "memberId",  membership.getMemberUuid(),
+                    "membershipType", membership.getType(), 
+                    "groupId", membership.getOwnerGroupId(), "groupName", membership.getOwnerGroup().getName());
+            auditEntry.setDescription("Expired membership: group: " + membership.getGroupName()
+                + ", subject: " + membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", field: "
+                + membership.getField().getName());
+            auditEntry.saveOrUpdate(true);
+
+          } else if (membership.getField().isGroupAccessField()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, 
+                "privilegeType", "access",
+                    "privilegeName", AccessPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
+                    "groupId", membership.getOwnerGroupId(), "groupName", membership.getOwnerGroup().getName());
+            
+            auditEntry.setDescription("Expired privilege: group: " + membership.getGroupName()
+                + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
+                + AccessPrivilege.listToPriv(membership.getField().getName()).getName());
+
+            auditEntry.saveOrUpdate(true);
+
+          } else if (membership.getField().isStemListField()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, 
+                "privilegeType", "naming",
+                    "privilegeName", NamingPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
+                    "stemId", membership.getOwnerStemId(), "stemName", membership.getOwnerStem().getName());
+            
+            auditEntry.setDescription("Expired privilege: stem: " + membership.getOwnerStem().getName()
+                + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
+                + NamingPrivilege.listToPriv(membership.getField().getName()).getName());
+
+            auditEntry.saveOrUpdate(true);
+          } else if (membership.getField().isAttributeDefListField()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE, 
+                "privilegeType", "naming",
+                    "privilegeName", NamingPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
+                    "stemId", membership.getOwnerStemId(), "stemName", membership.getOwnerStem().getName());
+            
+            auditEntry.setDescription("Expired privilege: stem: " + membership.getOwnerStem().getName()
+                + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
+                + NamingPrivilege.listToPriv(membership.getField().getName()).getName());
+
+            auditEntry.saveOrUpdate(true);
+          } else {
+            LOG.error("Not expecting privilege: " + membership.getField());
+          } 
+          return null;
+        }
+      });
     }
+
     return memberships.size();
   }
   

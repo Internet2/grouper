@@ -64,6 +64,46 @@ public enum PrivilegeType {
     }
   },
 
+  /** access privileges are for groups */
+  ATTRIBUTE_DEF("attrDef") {
+    /**
+     * retrieve a privilege with this name
+     * @param name
+     * @return the privilege
+     */
+    @Override
+    public Privilege retrievePrivilege(String name) {
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_READ.getName())) {
+        return AttributeDefPrivilege.ATTR_READ;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_VIEW.getName())) {
+        return AttributeDefPrivilege.ATTR_VIEW;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_UPDATE.getName())) {
+        return AttributeDefPrivilege.ATTR_UPDATE;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_ADMIN.getName())) {
+        return AttributeDefPrivilege.ATTR_ADMIN;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_OPTIN.getName())) {
+        return AttributeDefPrivilege.ATTR_OPTIN;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_OPTOUT.getName())) {
+        return AttributeDefPrivilege.ATTR_OPTOUT;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName())) {
+        return AttributeDefPrivilege.ATTR_DEF_ATTR_READ;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName())) {
+        return AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE;
+      }
+      if (StringUtils.isBlank(name)) {
+        return null;
+      }
+      throw new RuntimeException("Cant find attrDef privilege name '" + name + "'");
+    }
+  },
+
   /** naming privileges are for stems */
   NAMING("naming") {
     /**
@@ -89,7 +129,7 @@ public enum PrivilegeType {
       if (StringUtils.isBlank(name)) {
         return null;
       }
-      throw new RuntimeException("Cant find access privilege name '" + name + "'");
+      throw new RuntimeException("Cant find naming privilege name '" + name + "'");
     }
   };
 
