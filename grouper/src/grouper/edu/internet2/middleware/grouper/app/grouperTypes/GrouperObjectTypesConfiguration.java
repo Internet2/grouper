@@ -50,7 +50,6 @@ public class GrouperObjectTypesConfiguration {
     }
     
     return buildGrouperObjectTypeAttributeValue(attributeAssign);
-    
   }
 
   /**
@@ -67,7 +66,6 @@ public class GrouperObjectTypesConfiguration {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        
         for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
           GrouperObjectTypesAttributeValue value = getGrouperObjectTypesAttributeValue(grouperObject, objectType);
           if (value != null) {
@@ -76,7 +74,6 @@ public class GrouperObjectTypesConfiguration {
         }
         
         return null;
-        
       }
       
     });
@@ -141,7 +138,6 @@ public class GrouperObjectTypesConfiguration {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        
         for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
           copyConfigFromParent(grouperObject, objectType);
         }
@@ -162,22 +158,27 @@ public class GrouperObjectTypesConfiguration {
   public static void copyConfigFromParent(GrouperObject grouperObject, String objectType) {
     
     //don't do this now
-    if (GrouperCheckConfig.isInCheckConfig()) {
+    if (GrouperCheckConfig.isInCheckConfig() || !GrouperObjectTypesSettings.objectTypesEnabled()) {
+      return;
+    }
+    
+    if (grouperObject instanceof Stem && ((Stem) grouperObject).isRootStem()) {
       return;
     }
     
     deleteAttributeAssign(grouperObject, objectType);
     
-    if (grouperObject instanceof Stem && ((Stem) grouperObject).isRootStem()) {
-      return;
+    // if we changed from direct to indirect, we need to go through all the children
+    // and delete metadata on them that were inheriting from this stem.
+    if (grouperObject instanceof Stem) {
+      deleteAttributesOnAllChildrenWithIndirectConfig((Stem)grouperObject, objectType);
     }
-      
     
     Stem parent = grouperObject.getParentStem();
     
     if(parent.isRootStem()) {
       return;
-    } 
+    }
     
     GrouperObjectTypesAttributeValue savedValue = null;
     
@@ -205,19 +206,10 @@ public class GrouperObjectTypesConfiguration {
       
     }
     
-    // if it's a stem where we changed from direct to indirect, we need to go through all the children of that stem and update/delete the attributes
-    //update when parent has the value
-    //delete when none of the parents have attributes assigned
-    if (grouperObject instanceof Stem) {
-      if (savedValue != null) {
-        saveOrUpdateTypeAttributesOnChildren((Stem)grouperObject, savedValue);
-      } else {
-        
-        // delete the value on all the children where it's indirect and owner stem id is passed in grouperObject
-        // idea is since we deleted the assignment from this passed in stem, delete it from all the children as well
-        deleteAttributesOnAllChildrenWithIndirectConfig((Stem)grouperObject, objectType);
-        
-      }
+    // if it's a stem where we changed from direct to indirect, we need to go through all the children of that stem and update the attributes
+    //with parent's metadata
+    if (grouperObject instanceof Stem && savedValue != null) {
+      saveOrUpdateTypeAttributesOnChildren((Stem)grouperObject, savedValue);
     }
     
   }
@@ -323,7 +315,6 @@ public class GrouperObjectTypesConfiguration {
       
       AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME);
       if (attributeAssignValue == null || StringUtils.isBlank(attributeAssignValue.getValueString())) {
-        //TODO log error
         return null;
       }
       
@@ -342,12 +333,21 @@ public class GrouperObjectTypesConfiguration {
     
     GrouperObjectTypesAttributeValue result = new GrouperObjectTypesAttributeValue();
     result.setObjectTypeName(attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME).getValueString());
-    result.setObjectTypeDataOwner(attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DATA_OWNER).getValueString());
-    result.setObjectTypeMemberDescription(attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION).getValueString());
-    result.setObjectTypeServiceName(attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_SERVICE_NAME).getValueString());
-    result.setObjectTypeOwnerStemId(attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID).getValueString());
     
-    String directAssignmentStr = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT).getValueString();
+    AttributeAssignValue dataOwnerAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DATA_OWNER);
+    result.setObjectTypeDataOwner(dataOwnerAssignValue != null ? dataOwnerAssignValue.getValueString(): null);
+    
+    AttributeAssignValue memberDescriptionAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION);
+    result.setObjectTypeMemberDescription(memberDescriptionAssignValue != null ? memberDescriptionAssignValue.getValueString(): null);
+
+    AttributeAssignValue serviceNameAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_SERVICE_NAME);
+    result.setObjectTypeServiceName(serviceNameAssignValue != null ? serviceNameAssignValue.getValueString(): null);
+    
+    AttributeAssignValue ownerStemIdAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID);
+    result.setObjectTypeOwnerStemId(ownerStemIdAssignValue != null ? ownerStemIdAssignValue.getValueString(): null);
+    
+    AttributeAssignValue directAssignmentAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT);
+    String directAssignmentStr = directAssignmentAssignValue != null ? directAssignmentAssignValue.getValueString(): null;
     boolean directAssignment = BooleanUtils.toBoolean(directAssignmentStr);
     result.setDirectAssignment(directAssignment);
     return result;

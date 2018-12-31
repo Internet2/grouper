@@ -9,6 +9,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperObjectTypesSettings {
 
+  /**
+   * if object types are enabled
+   * @return if object types are enabled
+   */
+  public static boolean objectTypesEnabled() {
+    return GrouperConfig.retrieveConfig().propertyValueBoolean("objectTypes.enable", true);
+  }
   
   /**
    * 

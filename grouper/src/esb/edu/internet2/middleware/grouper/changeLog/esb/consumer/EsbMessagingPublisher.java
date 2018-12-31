@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -44,6 +45,11 @@ public class EsbMessagingPublisher extends EsbListenerBase {
    */
   @Override
   public boolean dispatchEvent(String eventJsonString, String consumerName) {
+    return dispatchEvent(eventJsonString, consumerName, null);
+  }
+  
+  public boolean dispatchEvent(String eventJsonString, String consumerName, String routingKey) {
+ 
     String messagingSystemName = GrouperLoaderConfig.retrieveConfig()
         .propertyValueString("changeLog.consumer."
             + consumerName + ".publisher.messagingSystemName", "grouperBuiltinMessaging");
@@ -55,8 +61,8 @@ public class EsbMessagingPublisher extends EsbListenerBase {
         + consumerName + ".publisher.messageQueueType");
     GrouperMessageQueueType grouperMessageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(messageQueueType, true);
     
-    String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
-        + consumerName + ".publisher.routingKey", "");
+    routingKey = StringUtils.isBlank(routingKey) ? GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
+        + consumerName + ".publisher.routingKey", ""): routingKey;
     
     boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
     
@@ -66,7 +72,9 @@ public class EsbMessagingPublisher extends EsbListenerBase {
         .assignAutocreateObjects(autocreateObjects)
         .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopicName).assignRoutingKey(routingKey));
     return true;
+    
   }
+
 
   /**
    * @see edu.internet2.middleware.grouper.esb.listener.EsbListenerBase#disconnect()

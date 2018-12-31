@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.grouperTypes;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -80,6 +82,31 @@ public class GrouperObjectTypesAttributeNames {
     return attributeDefName;
   }
   
+  
+    /**
+     * attribute value def assigned to stem or group
+     * @return the attribute def name
+     */
+    public static AttributeDef retrieveAttributeDefBaseDef() {
+      
+      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          return AttributeDefFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DEF, false, new QueryOptions().secondLevelCache(false));
+          
+        }
+        
+      });
+    
+      if (attributeDef == null) {
+        throw new RuntimeException("Why cant grouperObjectTypeDef attribute def be found?");
+      }
+      
+      return attributeDef;
+    }
   
   
 

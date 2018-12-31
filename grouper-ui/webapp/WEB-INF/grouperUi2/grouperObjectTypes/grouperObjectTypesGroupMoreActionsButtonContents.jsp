@@ -21,7 +21,7 @@
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.runDaemon'); return false;"
+                          <li><a href="#" onclick="ajax('../app/UiV2GrouperObjectTypes.runDaemon'); return false;"
                               >${textContainer.text['groupObjectTypeMoreActionsRunDaemon'] }</a></li>
                         </c:if>
 
