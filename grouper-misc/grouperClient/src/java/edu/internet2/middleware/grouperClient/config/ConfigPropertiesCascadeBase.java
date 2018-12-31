@@ -121,7 +121,8 @@ public abstract class ConfigPropertiesCascadeBase {
    * 
    */
   public static void clearCache() {
-    
+    configFileCache.clear();
+    databaseConfigCacheLastRetrieved = -1;
   }
   
   /**
@@ -513,6 +514,22 @@ public abstract class ConfigPropertiesCascadeBase {
   private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configFileCache = null;
   
   /**
+   * cache database configs
+   */
+  private static Map<String, Map<String, String>> databaseConfigCache = new HashMap<String, Map<String, String>>();
+  
+  /**
+   * millis since 1970 that the database configs were last retrieved
+   * will cache for grouper.cache.database.configs.seconds in grouper.hibernate.properties
+   */
+  private static long databaseConfigCacheLastRetrieved = -1;
+  
+  /**
+   * keep this for testing
+   */
+  public static int databaseConfigRefreshCount = 0;
+
+  /**
    * config file type
    */
   protected static enum ConfigFileType {
@@ -525,93 +542,224 @@ public abstract class ConfigPropertiesCascadeBase {
       @Override
       public InputStream inputStream(String configFileTypeConfig,
           ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
-        if (!GrouperClientUtils.equalsIgnoreCase(configFileTypeConfig, "grouper")) {
-          throw new RuntimeException("Database configuration must be database:grouper : '" + configFileTypeConfig + "', " + configPropertiesCascadeBase.getMainExampleConfigClasspath());
-        }
+        
+        boolean isDebugEnabled = false;
+        boolean isThisDebugEnabled = false;
+        boolean isOtherDebugEnabled = false;
 
-        //see if there is even a grouper.hibernate.properties on the classpath
-        URL url = GrouperClientUtils.computeUrl("grouper.hibernate.base.properties", true);
-        boolean hasDatabaseConfig = false;
-        if (url != null) {
-          try {
-            String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-            if (!GrouperClientUtils.isBlank(dbUrl)) {
-              hasDatabaseConfig = true;
-            }
-          } catch (Exception e) {
-            //ignore this
+        if (LOG != null) {
+          if (LOG instanceof GrouperClientLog) {
+            isThisDebugEnabled = ((GrouperClientLog)LOG).isEnclosedLogDebugEnabled();
+          } else {
+            isThisDebugEnabled = LOG.isDebugEnabled();
           }
         }
-        
-        // select from the database
-        String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
-        String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
-        String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-        
-        dbPass = Morph.decryptIfFile(dbPass);
-
-        String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-        driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
-
-        String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
-        
-        Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
-        try {
-          gcJdbcConnectionProviderClass = GrouperClientUtils.forName(databaseConnectionProvider);
-        } catch (RuntimeException re) {
-          GrouperClientUtils
-              .injectInException(
-                  re,
-                  "Valid built-in options are: "
-                      + " edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider (if using Grouper).  ");
-          throw re;
+        if (ConfigPropertiesDatabaseLog.LOG != null) {
+          if (ConfigPropertiesDatabaseLog.LOG instanceof GrouperClientLog) {
+            isOtherDebugEnabled = ((GrouperClientLog)ConfigPropertiesDatabaseLog.LOG).isEnclosedLogDebugEnabled();
+          } else {
+            isOtherDebugEnabled = ConfigPropertiesDatabaseLog.LOG.isDebugEnabled();
+          }
         }
 
-        GcJdbcConnectionProvider gcJdbcConnectionProvider = GrouperClientUtils.newInstance(gcJdbcConnectionProviderClass);
-        gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
-            null, 5, dbUrl, dbUser, dbPass, null, true);
-        GcJdbcConnectionBean gcJdbcConnectionBean = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        isDebugEnabled = isThisDebugEnabled || isOtherDebugEnabled;
+        
+        Map<String, Object> debugMap = isDebugEnabled ? new LinkedHashMap<String, Object>() : null;
+
+        if (isDebugEnabled) {
+          debugMap.put("operation", "getDatabaseConfigsOrFromCache");
+          debugMap.put("configFileName", configPropertiesCascadeBase.getMainConfigFileName());
+        }
+
         try {
-          
-          gcJdbcConnectionBean = gcJdbcConnectionProvider.connectionBean();
-          
-          connection = gcJdbcConnectionBean.connection();
+          if (!GrouperClientUtils.equalsIgnoreCase(configFileTypeConfig, "grouper")) {
+            if (isDebugEnabled) {
+              debugMap.put("configFileTypeConfig", configFileTypeConfig);
+            }
+            throw new RuntimeException("Database configuration must be database:grouper : '" + configFileTypeConfig + "', " + configPropertiesCascadeBase.getMainExampleConfigClasspath());
+          }
 
-          preparedStatement = connection.prepareStatement("select config_key, config_value from grouper_config where config_file_name = ? and config_file_hierarchy = ?");
-          preparedStatement.setString(1, configPropertiesCascadeBase.getMainConfigFileName());
-          preparedStatement.setString(2, "INSTITUTION");
-
-          resultSet = preparedStatement.executeQuery();
+          // circular dependency on getting to database and reading config
+          if (configPropertiesCascadeBase.getMainConfigFileName().toLowerCase().contains("hibernate")) {
+            throw new RuntimeException("You cannot configure a database config to have database properties! '" + configPropertiesCascadeBase.getMainConfigFileName() + "'");
+          }
+          
+          //see if there is even a grouper.hibernate.properties on the classpath
+          URL url = GrouperClientUtils.computeUrl("grouper.hibernate.base.properties", true);
+          boolean hasDatabaseConfig = false;
           
           Properties properties = new Properties();
-          
-          while (resultSet.next()) {
-            String configKey = resultSet.getString("config_key");
-            String configValue = resultSet.getString("config_value");
-            properties.put(configKey, configValue);
+  
+          if (url != null) {
+            try {
+              String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+              if (!GrouperClientUtils.isBlank(dbUrl)) {
+                hasDatabaseConfig = true;
+              }
+            } catch (Exception e) {
+              //ignore this
+            }
           }
+  
+          if (isDebugEnabled) {
+            debugMap.put("hasDatabaseConfig", hasDatabaseConfig);
+          }
+
+          if (hasDatabaseConfig) {
+            
+            int cacheForSeconds = GrouperHibernateConfigClient.retrieveConfig().propertyValueInt("grouper.cache.database.configs.seconds", 120);
+            
+            if (isDebugEnabled) {
+              debugMap.put("cacheForSeconds", cacheForSeconds);
+            }
+            boolean needsReload = (System.currentTimeMillis() - ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved) / 1000 > cacheForSeconds;
+            
+            if (isDebugEnabled) {
+              debugMap.put("needsReload", needsReload);
+            }
+            if (needsReload) {
+              
+              synchronized (ConfigPropertiesCascadeBase.databaseConfigCache) {
+  
+                needsReload = (System.currentTimeMillis() - ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved) / 1000 > cacheForSeconds;
+                
+                if (isDebugEnabled) {
+                  debugMap.put("needsReload2", needsReload);
+                }
+                if (needsReload) {
+                  
+                  long startingNanos = System.nanoTime();
+                  
+                  // select from the database
+                  String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+                  String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+                  String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
+                  
+                  dbPass = Morph.decryptIfFile(dbPass);
           
+                  String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+                  driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
+          
+                  String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
+                  
+                  Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
+                  try {
+                    gcJdbcConnectionProviderClass = GrouperClientUtils.forName(databaseConnectionProvider);
+                  } catch (RuntimeException re) {
+                    GrouperClientUtils
+                        .injectInException(
+                            re,
+                            "Valid built-in options are: "
+                                + " edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider (if using Grouper).  ");
+                    throw re;
+                  }
+          
+                  GcJdbcConnectionProvider gcJdbcConnectionProvider = GrouperClientUtils.newInstance(gcJdbcConnectionProviderClass);
+                  gcJdbcConnectionProvider.init(null, null, driver, null, 2, null, 2,
+                      null, 5, dbUrl, dbUser, dbPass, null, true);
+                  GcJdbcConnectionBean gcJdbcConnectionBean = null;
+                  Connection connection = null;
+                  PreparedStatement preparedStatement = null;
+                  ResultSet resultSet = null;
+                  
+                  Map<String, Map<String, String>> databaseConfigCacheTemp = new HashMap<String, Map<String, String>>();
+  
+                  try {
+                    
+                    gcJdbcConnectionBean = gcJdbcConnectionProvider.connectionBean();
+                    
+                    connection = gcJdbcConnectionBean.connection();
+          
+                    preparedStatement = connection.prepareStatement("select config_file_name, config_key, config_value from grouper_config where config_file_hierarchy = ?");
+                    preparedStatement.setString(1, "INSTITUTION");
+          
+                    resultSet = preparedStatement.executeQuery();
+                                      
+                    while (resultSet.next()) {
+                      String configFileName = resultSet.getString("config_file_name");
+                      String configKey = resultSet.getString("config_key");
+                      String configValue = resultSet.getString("config_value");
+                      
+                      Map<String, String> configPropertiesForFile = databaseConfigCacheTemp.get(configFileName);
+                      
+                      if (configPropertiesForFile == null) {
+                        configPropertiesForFile = new HashMap<String, String>();
+                        databaseConfigCacheTemp.put(configFileName, configPropertiesForFile);
+                      }
+                      
+                      configPropertiesForFile.put(configKey, configValue);
+                    }
+                    if (isDebugEnabled) {
+                      debugMap.put("configFilesFound", databaseConfigCacheTemp.size());
+                      for (String configFileName : databaseConfigCacheTemp.keySet()) {
+                        debugMap.put("configFile_" + configFileName + "_propertiesFound", databaseConfigCacheTemp.get(configFileName).size());
+                      }
+                    }
+
+                    
+                  } catch (SQLException e) {
+                    gcJdbcConnectionBean.doneWithConnectionError(e);
+                    throw new RuntimeException(e);
+                  } finally {
+                    GrouperClientUtils.closeQuietly(resultSet);
+                    GrouperClientUtils.closeQuietly(preparedStatement);
+                    gcJdbcConnectionBean.doneWithConnectionFinally();
+                  }
+  
+                  ConfigPropertiesCascadeBase.databaseConfigCache = databaseConfigCacheTemp;
+                  ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved = System.currentTimeMillis();
+                  databaseConfigRefreshCount++;
+                  
+                  if (isDebugEnabled) {
+                    debugMap.put("elapsedDatabaseMillis", ((System.nanoTime() - startingNanos) / 1000000) + "ms");
+                  }
+                }
+                
+              }
+  
+            }
+            // get from cache
+            Map<String, String> cachedPropertiesForThisConfigFileName = ConfigPropertiesCascadeBase.databaseConfigCache.get(configPropertiesCascadeBase.getMainConfigFileName());
+            
+            if (cachedPropertiesForThisConfigFileName != null) {
+              for (String key : cachedPropertiesForThisConfigFileName.keySet()) {
+                properties.put(key, cachedPropertiesForThisConfigFileName.get(key));
+                
+              }
+            }          
+            
+            if (isDebugEnabled) {
+              debugMap.put("configFilePropertiesFromCache", GrouperClientUtils.nonNull(cachedPropertiesForThisConfigFileName).size());
+            }
+          }
+  
           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
           try {
             properties.store(byteArrayOutputStream, "");
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
-
+  
           ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
           return byteArrayInputStream;
-          
-        } catch (SQLException e) {
-          gcJdbcConnectionBean.doneWithConnectionError(e);
-          throw new RuntimeException(e);
+        } catch (RuntimeException re) {
+          String stack = GrouperClientUtils.getFullStackTrace(re);
+          if (LOG != null && isDebugEnabled) {
+            debugMap.put("exception", stack);
+          }
+          GrouperClientUtils.injectInException(re, "configFileName: " + configPropertiesCascadeBase.getMainConfigFileName());
+          throw re;
         } finally {
-          GrouperClientUtils.closeQuietly(resultSet);
-          GrouperClientUtils.closeQuietly(preparedStatement);
-          gcJdbcConnectionBean.doneWithConnectionFinally();
+          
+          String debugLogString = isDebugEnabled ? ConfigPropertiesCascadeUtils.mapToString(debugMap) : null;
+          if (isThisDebugEnabled) {
+            LOG.debug(debugLogString);
+          }
+          if (isOtherDebugEnabled) {
+            ConfigPropertiesDatabaseLog.LOG.debug(debugLogString);
+          }
         }
+
       }
     },
     
@@ -1583,7 +1731,9 @@ public abstract class ConfigPropertiesCascadeBase {
       }
 
       if (!hasProperty) {
-        LOG.debug("Cant find text for variable: '" + variable + "'");
+        if (!"newline".equals(variable)) {
+          LOG.debug("Cant find text for variable: '" + variable + "'");
+        }
         //if we cant find it just keep the variable name
         propertyValue = "$$" + variable + "$$";
       } else {

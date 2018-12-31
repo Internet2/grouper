@@ -44,7 +44,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
 //      System.out.println(i++ + ": " + line);
 //    }
     
-    assertEquals(113, GrouperUtil.length(configFileLinesList));
+    assertEquals(119, GrouperUtil.length(configFileLinesList));
     
   }
   
@@ -160,7 +160,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
     currentSection++;
     currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
 
-    assertEquals("Correct number of items", 13, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
+    assertEquals("Correct number of items", 14, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
 
     
     assertEquals("inititalization and configuration settings", currentConfigSection.getComment());
@@ -205,7 +205,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
     assertTrue(currentConfigItem.isRequired());
     assertEquals("configuration.autocreate.group.name.[0-9]+", currentConfigItem.getRegex());
 
-    //  # {regex: "configuration.autocreate.group.description.[0-9]+", valueType: "string"}
+    //  # {regex: "^configuration.autocreate.group.description.[0-9]+$", valueType: "string"}
     //  #configuration.autocreate.group.description.0 = users allowed to log in to the UI
     //
     
@@ -215,10 +215,10 @@ public class ConfigFileMetadataTest extends GrouperTest {
     assertEquals("", 
         GrouperUtil.trimToEmpty(currentConfigItem.getComment()));
     
-    assertEquals("{regex: \"configuration.autocreate.group.description.[0-9]+\", valueType: \"string\"}", currentConfigItem.getRawMetadataJson());
+    assertEquals("{regex: \"^configuration.autocreate.group.description.[0-9]+$\", valueType: \"string\"}", currentConfigItem.getRawMetadataJson());
 
     assertEquals(ConfigItemMetadataType.STRING, currentConfigItem.getValueType());
-    assertEquals("configuration.autocreate.group.description.[0-9]+", currentConfigItem.getRegex());
+    assertEquals("^configuration.autocreate.group.description.[0-9]+$", currentConfigItem.getRegex());
 
     //  # {regex: "configuration.autocreate.group.subjects.[0-9]+", valueType: "subject"}
     //  #configuration.autocreate.group.subjects.0 = 
@@ -357,7 +357,33 @@ public class ConfigFileMetadataTest extends GrouperTest {
 
     assertEquals(ConfigItemMetadataType.INTEGER, currentConfigItem.getValueType());
 
+    //  # some stem
+    //  # {valueType: "stem"}
+    //  someStem = 
 
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some stem", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"stem\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.STEM, currentConfigItem.getValueType());
+    
+    //  # some subject
+    //  # {valueType: "subject"}
+    //  someSubject = 
+
+    currentItem++;
+    currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
+    
+    assertEquals("some subject", 
+        currentConfigItem.getComment());
+    
+    assertEquals("{valueType: \"subject\"}", currentConfigItem.getRawMetadataJson());
+
+    assertEquals(ConfigItemMetadataType.SUBJECT, currentConfigItem.getValueType());
   }
   
 }

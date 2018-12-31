@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import junit.textui.TestRunner;
 
@@ -96,12 +97,13 @@ public class GrouperDbConfigTest extends GrouperTest {
     grouperConfigHibernate = new GrouperConfigHibernate();
     grouperConfigHibernate.setConfigEncrypted(false);
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
-    grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigClasspath());
+    grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property7.in.database");
     grouperConfigHibernate.setConfigValue("value7.in.database");
     grouperConfigHibernate.saveOrUpdate();
 
     EhcacheController.ehcacheController().flushCache();
+    ConfigPropertiesCascadeBase.clearCache();
     
     //  # property1.in.base.only = 
     //
@@ -117,14 +119,20 @@ public class GrouperDbConfigTest extends GrouperTest {
     //
     //  # property7.in.database
 
-    assertEquals("property1.in.base.only", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value1.in.base"));
-    assertEquals("property2.in.base.and.override", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value2.in.override"));
-    assertEquals("property3.in.base.and.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value3.in.database"));
-    assertEquals("property4.in.base.and.override.and.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value4.in.database"));
-    assertEquals("property5.in.override.and.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value5.in.database"));
-    assertEquals("property6.in.override", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value6.in.override"));
-    assertEquals("property7.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("value7.in.database"));
+    int databaseConfigCount = ConfigPropertiesCascadeBase.databaseConfigRefreshCount;
+    
+    assertEquals("value1.in.base", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property1.in.base.only"));
+    
+    assertEquals(databaseConfigCount +1, ConfigPropertiesCascadeBase.databaseConfigRefreshCount);
+    
+    assertEquals("value2.in.override", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property2.in.base.and.override"));
+    assertEquals("value3.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property3.in.base.and.database"));
+    assertEquals("value4.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property4.in.base.and.override.and.database"));
+    assertEquals("value5.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property5.in.override.and.database"));
+    assertEquals("value6.in.override", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property6.in.override"));
+    assertEquals("value7.in.database", GrouperDbConfigTestConfig.retrieveConfig().propertyValueString("property7.in.database"));
 
+    assertEquals(databaseConfigCount +1, ConfigPropertiesCascadeBase.databaseConfigRefreshCount);
   }
   
 }

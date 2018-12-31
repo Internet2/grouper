@@ -30,12 +30,15 @@ public enum ConfigFileName {
    * grouper.properties
    */
   GROUPER_PROPERTIES("grouper.properties"), 
-  
-  /**
-   * grouper.hibernate.properties
-   */
-  GROUPER_HIBERNATE_PROPERTIES("grouper.hibernate.properties"), 
-  
+
+//  lets hold off on this one since it will be a circular dependency when running the config overlay
+//  the other properties files need to read this one to get to the database, but if this one has
+//  to get to the database to get its own config...   hmm...
+//  /**
+//   * grouper.hibernate.properties
+//   */
+//  GROUPER_HIBERNATE_PROPERTIES("grouper.hibernate.properties"), 
+//  
   /**
    * grouper-loader.properties
    */
