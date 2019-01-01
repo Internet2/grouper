@@ -44,7 +44,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
 //      System.out.println(i++ + ": " + line);
 //    }
     
-    assertEquals(119, GrouperUtil.length(configFileLinesList));
+    assertEquals(120, GrouperUtil.length(configFileLinesList));
     
   }
   
@@ -63,9 +63,9 @@ public class ConfigFileMetadataTest extends GrouperTest {
     assertEquals("Correct number of sections",3, GrouperUtil.length(configFileMetadata.getConfigSectionMetadataList()));
     
     // section comments
-    assertEquals("Config chaining hierarchy", configFileMetadata.getConfigSectionMetadataList().get(0).getComment());
-    assertEquals("General settings", configFileMetadata.getConfigSectionMetadataList().get(1).getComment());
-    assertEquals("inititalization and configuration settings", configFileMetadata.getConfigSectionMetadataList().get(2).getComment());
+    assertEquals("Config chaining hierarchy", configFileMetadata.getConfigSectionMetadataList().get(0).getTitle());
+    assertEquals("General settings", configFileMetadata.getConfigSectionMetadataList().get(1).getTitle());
+    assertEquals("inititalization and configuration settings", configFileMetadata.getConfigSectionMetadataList().get(2).getTitle());
 
     int currentSection = 0;
     int currentItem = -1;
@@ -75,6 +75,8 @@ public class ConfigFileMetadataTest extends GrouperTest {
     //  first section
     //  ########################################
     //  ## Config chaining hierarchy
+    //  ## This section is the configuration
+    //  ## for chaining hierarchy
     //  ########################################
     //  # comma separated config files that override each other (files on the right override the left)
     //  # each should start with file: or classpath:
@@ -85,7 +87,8 @@ public class ConfigFileMetadataTest extends GrouperTest {
     currentSection = 0;
     currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
     assertEquals("Correct number of items", 2, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
-    assertEquals("Config chaining hierarchy", currentConfigSection.getComment());
+    assertEquals("Config chaining hierarchy", currentConfigSection.getTitle());
+    assertEquals("This section is the configuration for chaining hierarchy", currentConfigSection.getComment());
 
     currentItem = 0;
     currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
@@ -124,7 +127,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
     currentSection++;
     currentConfigSection = configFileMetadata.getConfigSectionMetadataList().get(currentSection);
     assertEquals("Correct number of items", 2, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
-    assertEquals("General settings", currentConfigSection.getComment());
+    assertEquals("General settings", currentConfigSection.getTitle());
 
     currentItem = 0;
     currentConfigItem = currentConfigSection.getConfigItemMetadataList().get(currentItem);
@@ -152,8 +155,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
     assertEquals("true", currentConfigItem.getDefaultValue());
 
     //  #######################################
-    //  ## inititalization and
-    //  ## configuration settings
+    //  ## inititalization and configuration settings
     //  #######################################
     //
     
@@ -163,7 +165,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
     assertEquals("Correct number of items", 14, GrouperUtil.length(currentConfigSection.getConfigItemMetadataList()));
 
     
-    assertEquals("inititalization and configuration settings", currentConfigSection.getComment());
+    assertEquals("inititalization and configuration settings", currentConfigSection.getTitle());
 
     
     //  #if grouper should auto init the registry if not initted (i.e. insert the root stem, built in fields, etc)

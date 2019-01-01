@@ -183,7 +183,9 @@ public class ConfigFileMetadata {
           if (configLineSectionStartEnd) {
             
             //assign the comment
-            configSectionMetadata.setComment(comment.toString());
+            if (comment.length() > 0) {
+              configSectionMetadata.setComment(comment.toString());
+            }
             
             // end the section part
             configFileState = ConfigFileState.IN_SECTION;
@@ -205,11 +207,16 @@ public class ConfigFileMetadata {
             // trim after comment
             configFileLine = configFileLine.trim();
             
-            if (comment.length() != 0) {
-              comment.append(" ");
+            // see if title
+            if (comment.length() == 0 && StringUtils.isBlank(configSectionMetadata.getTitle())) {
+              configSectionMetadata.setTitle(configFileLine);
+            } else if (comment.length() != 0) {
+              // non first line of comment
+              comment.append(" ").append(configFileLine);
+            } else {
+              // first line of comment
+              comment.append(configFileLine);
             }
-            comment.append(configFileLine);
-            
           }
           
           continue;
