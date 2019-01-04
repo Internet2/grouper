@@ -71,11 +71,11 @@
                         <grouper:param>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</grouper:param>
                       </grouper:message>
                     </label>
-                    <div class="controls">
+                    <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThisImmediate}" var="roleThatImmediatelyImply">
-                        <br />
                         ${roleThatImmediatelyImply.extension}
                         <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImplies?roleId=${roleThatImmediatelyImply.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
+                         <br />
                       </c:forEach>
                     </div>
                   </div>
@@ -100,11 +100,11 @@
                         <grouper:param>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</grouper:param>
                       </grouper:message>
                     </label>
-                    <div class="controls">
+                    <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThisImmediate}" var="roleImpliedByImmediate">
-                        <br />
                         ${roleImpliedByImmediate.extension} 
                         <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImpliedBy?roleId=${roleImpliedByImmediate.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
+                         <br />
                       </c:forEach>
                     </div>
                   </div>
