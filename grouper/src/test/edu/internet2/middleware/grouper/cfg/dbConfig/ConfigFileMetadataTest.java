@@ -60,14 +60,18 @@ public class ConfigFileMetadataTest extends GrouperTest {
           
         } else if (configFilePath.startsWith("file: ")) {
           configFilePath = GrouperUtil.prefixOrSuffix(configFilePath, "file: ", false);
-          contents = GrouperUtil.readFileIntoString(new File(configFilePath));
+          if (new File(configFilePath).exists()) {
+            contents = GrouperUtil.readFileIntoString(new File(configFilePath));
+          }
         } else {
           throw new RuntimeException("Not expecting prefix: '" + configFilePath + "'");
         }
         
-        ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(configFileName, contents);
-        assertTrue(configFileMetadata.getConfigFileName().getConfigFileName(), GrouperUtil.length(configFileMetadata.getConfigSectionMetadataList()) > 0);
-        assertTrue(configFileMetadata.getConfigFileName().getConfigFileName(), configFileMetadata.isValidConfig());
+        if (contents != null) {
+          ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(configFileName, contents);
+          assertTrue(configFileMetadata.getConfigFileName().getConfigFileName(), GrouperUtil.length(configFileMetadata.getConfigSectionMetadataList()) > 0);
+          assertTrue(configFileMetadata.getConfigFileName().getConfigFileName(), configFileMetadata.isValidConfig());
+        }
       } catch (RuntimeException re) {
         GrouperUtil.injectInException(re, "Problem in configFilePath: '" + configFilePath + "'");
         throw re;
