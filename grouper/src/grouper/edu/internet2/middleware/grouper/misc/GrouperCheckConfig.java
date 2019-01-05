@@ -52,11 +52,11 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
@@ -75,6 +75,8 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
@@ -95,7 +97,6 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
-import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -113,7 +114,6 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -390,6 +390,16 @@ public class GrouperCheckConfig {
     checkResource("morphString.properties");
     checkResource("subject.properties");
     
+    for (ConfigFileName configFileName : ConfigFileName.values()) {
+      ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+      // i.e. the ui and ws will be null if running gsh alone
+      if (configFileMetadata != null) {
+        if (!configFileMetadata.isValidConfig()) {
+          LOG.error("Config " + configFileName.getClasspath() + " is not valid, see logs");
+        }
+      }
+    }
+    
   }
   
   /**
@@ -519,6 +529,9 @@ public class GrouperCheckConfig {
     }
   }
   
+  /**
+   * 
+   */
   public static void postSteps() {
 
     boolean theTesting = false;

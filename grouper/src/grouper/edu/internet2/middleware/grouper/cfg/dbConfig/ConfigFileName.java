@@ -29,7 +29,7 @@ public enum ConfigFileName {
   /**
    * grouper.properties
    */
-  GROUPER_PROPERTIES("grouper.properties"), 
+  GROUPER_PROPERTIES("grouper.properties", "grouper.base.properties"), 
 
 //  lets hold off on this one since it will be a circular dependency when running the config overlay
 //  the other properties files need to read this one to get to the database, but if this one has
@@ -42,32 +42,32 @@ public enum ConfigFileName {
   /**
    * grouper-loader.properties
    */
-  GROUPER_LOADER_PROPERTIES("grouper-loader.properties"), 
+  GROUPER_LOADER_PROPERTIES("grouper-loader.properties", "grouper-loader.base.properties"), 
   
   /**
    * grouper.cache.properties
    */
-  GROUPER_CACHE_PROPERTIES("grouper.cache.properties"),
+  GROUPER_CACHE_PROPERTIES("grouper.cache.properties", "grouper.cache.base.properties"),
   
   /**
    * subject.properties
    */
-  SUBJECT_PROPERTIES("subject.properties"),
+  SUBJECT_PROPERTIES("subject.properties", "subject.base.properties"),
   
   /**
    * grouper-ui.properties
    */
-  GROUPER_UI_PROPERTIES("grouper-ui.properties"),
+  GROUPER_UI_PROPERTIES("grouper-ui.properties", "grouper-ui.base.properties"),
   
   /**
    * grouper-ws.properties
    */
-  GROUPER_WS_PROPERTIES("grouper-ws.properties"),
+  GROUPER_WS_PROPERTIES("grouper-ws.properties", "grouper-ws.base.properties"),
   
   /**
    * grouper.client.properties
    */
-  GROUPER_CLIENT_PROPERTIES("grouper.client.properties");
+  GROUPER_CLIENT_PROPERTIES("grouper.client.properties", "grouper.client.base.properties");
   
   /**
    * order the config gets loaded
@@ -76,13 +76,49 @@ public enum ConfigFileName {
   private String configFileName;
   
   /**
+   * where is this file on the classpath
+   */
+  private String classpath;
+  
+  /**
    * construct
    * @param theConfigFileName
+   * @param theClasspath
    */
-  private ConfigFileName(String theConfigFileName) {
+  private ConfigFileName(String theConfigFileName, String theClasspath) {
     this.configFileName = theConfigFileName;
+    this.classpath = theClasspath;
   }
   
+  /**
+   * 
+   * @return the contents or null if not on classpath
+   */
+  public String fileContents() {
+    String contents = GrouperUtil.readResourceIntoString(this.classpath, true);
+    return contents;
+  }
+
+  /**
+   * 
+   * @return config file metadata
+   */
+  public ConfigFileMetadata configFileMetadata() {
+    String contents = this.fileContents();
+    if (StringUtils.isBlank(contents)) {
+      return null;
+    }
+    ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(this, contents);
+    return configFileMetadata;
+  }
+  
+  /**
+   * @return the classpath
+   */
+  public String getClasspath() {
+    return this.classpath;
+  }
+
   /**
    * order the config gets loaded
    * the lower the number the first it is read

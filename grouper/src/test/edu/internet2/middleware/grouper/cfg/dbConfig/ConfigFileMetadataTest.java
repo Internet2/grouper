@@ -4,7 +4,10 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import java.io.File;
 import java.util.List;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -21,7 +24,7 @@ public class ConfigFileMetadataTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ConfigFileMetadataTest("testGenerateMetadataForConfigFile"));
+    TestRunner.run(new ConfigFileMetadataTest("testParseRealConfigFiles"));
   }
   
   /**
@@ -31,6 +34,50 @@ public class ConfigFileMetadataTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testParseRealConfigFiles() {
+    
+    for (MultiKey configFilePathMultiKey : new MultiKey[] {
+        new MultiKey("resource: grouper-loader.base.properties", ConfigFileName.GROUPER_LOADER_PROPERTIES)
+        , new MultiKey("resource: grouper.base.properties", ConfigFileName.GROUPER_PROPERTIES)
+        , new MultiKey("resource: grouper.cache.base.properties", ConfigFileName.GROUPER_CACHE_PROPERTIES)
+        , new MultiKey("resource: grouper.client.base.properties", ConfigFileName.GROUPER_CLIENT_PROPERTIES)
+        , new MultiKey("resource: subject.base.properties", ConfigFileName.SUBJECT_PROPERTIES)
+        , new MultiKey("file: C:/Users/mchyzer/Documents/GitHub/grouper/grouper-ws/grouper-ws/conf/grouper-ws.base.properties", ConfigFileName.GROUPER_WS_PROPERTIES)
+        , new MultiKey("file: C:/Users/mchyzer/Documents/GitHub/grouper/grouper-ui/conf/grouper-ui.base.properties", ConfigFileName.GROUPER_UI_PROPERTIES)
+      }) {
+
+      String configFilePath = (String)configFilePathMultiKey.getKey(0);
+      ConfigFileName configFileName = (ConfigFileName)configFilePathMultiKey.getKey(1);
+      try {
+        String contents = null;
+
+        if (configFilePath.startsWith("resource: ")) {
+          configFilePath = GrouperUtil.prefixOrSuffix(configFilePath, "resource: ", false);
+          contents = GrouperUtil.readResourceIntoString(configFilePath, false);
+          
+        } else if (configFilePath.startsWith("file: ")) {
+          configFilePath = GrouperUtil.prefixOrSuffix(configFilePath, "file: ", false);
+          contents = GrouperUtil.readFileIntoString(new File(configFilePath));
+        } else {
+          throw new RuntimeException("Not expecting prefix: '" + configFilePath + "'");
+        }
+        
+        ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(configFileName, contents);
+        assertTrue(configFileMetadata.getConfigFileName().getConfigFileName(), GrouperUtil.length(configFileMetadata.getConfigSectionMetadataList()) > 0);
+        assertTrue(configFileMetadata.getConfigFileName().getConfigFileName(), configFileMetadata.isValidConfig());
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "Problem in configFilePath: '" + configFilePath + "'");
+        throw re;
+      }
+    }
+    
+
+  }
+  
+  
   /**
    * 
    */
