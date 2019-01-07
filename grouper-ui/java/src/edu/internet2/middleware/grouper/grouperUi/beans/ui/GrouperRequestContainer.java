@@ -588,7 +588,6 @@ public class GrouperRequestContainer {
   }
   
   private PermissionUpdateRequestContainer permissionUpdateRequestContainer;
-
   
   public PermissionUpdateRequestContainer getPermissionUpdateRequestContainer() {
     
@@ -598,6 +597,21 @@ public class GrouperRequestContainer {
     return permissionUpdateRequestContainer;
   }
   
-  
-  
+  /**
+   * container for role inheritance screens
+   */
+  private RoleInheritanceContainer roleInheritanceContainer;
+
+  /**
+   * lazy load the role inheritance container
+   * @return
+   */
+  public RoleInheritanceContainer getRoleInheritanceContainer() {
+    
+    if (this.roleInheritanceContainer == null) {
+      this.roleInheritanceContainer = new RoleInheritanceContainer();
+    }
+    return roleInheritanceContainer;
+  }
+
 }

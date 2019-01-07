@@ -20,6 +20,27 @@ public class ConfigSectionMetadata {
   }
 
   /**
+   * title of section
+   */
+  private String title;
+
+  /**
+   * title of section
+   * @return
+   */
+  public String getTitle() {
+    return this.title;
+  }
+
+  /**
+   * title of section
+   * @param title1
+   */
+  public void setTitle(String title1) {
+    this.title = title1;
+  }
+
+  /**
    * comment for section
    */
   private String comment;

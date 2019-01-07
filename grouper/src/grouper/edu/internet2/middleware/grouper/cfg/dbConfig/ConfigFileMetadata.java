@@ -58,6 +58,27 @@ public class ConfigFileMetadata {
   private static Pattern defaultValuePattern = Pattern.compile("^#\\s*([^\\s]+)\\s*=\\s*(.*)\\s*$");
   
   /**
+   * if the config is 
+   */
+  private boolean validConfig = false;
+  
+  /**
+   * if the config is 
+   * @return the validConfig
+   */
+  public boolean isValidConfig() {
+    return this.validConfig;
+  }
+
+  /**
+   * if the config is 
+   * @param validConfig the validConfig to set
+   */
+  public void setValidConfig(boolean validConfig) {
+    this.validConfig = validConfig;
+  }
+
+  /**
    * generate a config file metadata from the contents of a config file
    * @param configFileName
    * @param configFileContents
@@ -82,6 +103,8 @@ public class ConfigFileMetadata {
     StringBuilder rawMetadataJson = null;
     String originalConfigFileLine = null;
        
+    boolean localConfigValid = true;
+    
     for (int i=0;i<GrouperUtil.length(configFileLinesList);i++) {
       
       try {
@@ -136,6 +159,7 @@ public class ConfigFileMetadata {
           try {
             configItemMetadata.processMetadata();
           } catch (Exception e) {
+            localConfigValid = false;
             LOG.error("Config file metadata line invalid, " + configFileName + ", line before this line: " + (i+1) + "  '" + originalConfigFileLine + "'.", e);
           }
           rawMetadataJson = null;
@@ -148,6 +172,14 @@ public class ConfigFileMetadata {
         }
   
         if (configLineIsDefaultValue) {
+
+          if (configItemMetadata == null) {
+            configItemMetadata = new ConfigItemMetadata();
+            configSectionMetadata.getConfigItemMetadataList().add(configItemMetadata);
+          }
+          if (GrouperUtil.isBlank(configItemMetadata.getKey())) {
+            
+          }
           configItemMetadata.setSampleValue(configLineDefaultValueMatcher.group(2));
           configItemMetadata = null;
           configFileState = ConfigFileState.IN_SECTION;
@@ -156,12 +188,14 @@ public class ConfigFileMetadata {
         
         //this isnt right
         if (configFileState == ConfigFileState.PROPERTY_METADATA && configLineIsMetadataStart) {
+          localConfigValid = false;
           LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should not be blank or metadata start '" + originalConfigFileLine + "'.");
         }
         
         // if config file line doesnt start with comment?  hmmm
         if (configLineIsBlank) {
           if (configFileState == ConfigFileState.SECTION_COMMENTS) {
+            localConfigValid = false;
             LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should not be a blank line.");
           }
                   
@@ -183,7 +217,9 @@ public class ConfigFileMetadata {
           if (configLineSectionStartEnd) {
             
             //assign the comment
-            configSectionMetadata.setComment(comment.toString());
+            if (comment.length() > 0) {
+              configSectionMetadata.setComment(comment.toString());
+            }
             
             // end the section part
             configFileState = ConfigFileState.IN_SECTION;
@@ -195,6 +231,7 @@ public class ConfigFileMetadata {
           if (configLineIsComment) {
             
             if (!configFileLine.startsWith("##")) {
+              localConfigValid = false;
               LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should be a section comment with 2 hashes but was: '" + originalConfigFileLine + "'");
             }
             
@@ -205,11 +242,16 @@ public class ConfigFileMetadata {
             // trim after comment
             configFileLine = configFileLine.trim();
             
-            if (comment.length() != 0) {
-              comment.append(" ");
+            // see if title
+            if (comment.length() == 0 && StringUtils.isBlank(configSectionMetadata.getTitle())) {
+              configSectionMetadata.setTitle(configFileLine);
+            } else if (comment.length() != 0) {
+              // non first line of comment
+              comment.append(" ").append(configFileLine);
+            } else {
+              // first line of comment
+              comment.append(configFileLine);
             }
-            comment.append(configFileLine);
-            
           }
           
           continue;
@@ -218,6 +260,7 @@ public class ConfigFileMetadata {
         // still in license
         if (configFileState == ConfigFileState.LICENSE) {
           if (configLineIsProperty) {
+            localConfigValid = false;
             LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should be in a section but is in the LICENSE part: '" + originalConfigFileLine + "'");
           }
           continue;
@@ -230,6 +273,7 @@ public class ConfigFileMetadata {
           
           //multiple hashes are weird but whatever
           if (configFileLine.startsWith("#")) {
+            localConfigValid = false;
             LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should be a comment with one hash: '" + originalConfigFileLine + "'");
   
             while(configFileLine.startsWith("#")) {
@@ -270,6 +314,10 @@ public class ConfigFileMetadata {
 
               configFileState = ConfigFileState.PROPERTY_COMMENT;
             } else {
+              if (comment == null) {
+                localConfigValid = false;
+                throw new RuntimeException("Cant have whitespae between comments without a property");
+              }
               if (comment.length() > 0) {
                 comment.append(" ");
               }
@@ -284,24 +332,38 @@ public class ConfigFileMetadata {
         if (configLineIsProperty) {
           int equalsIndex = configFileLine.indexOf('=');
           if (equalsIndex == -1) {
+            localConfigValid = false;
             LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should be key=value: '" + originalConfigFileLine + "'");
             
           } else {
             String key = StringUtils.trim(configFileLine.substring(0, equalsIndex));
+
+            if (configItemMetadata == null) {
+              configItemMetadata = new ConfigItemMetadata();
+              configSectionMetadata.getConfigItemMetadataList().add(configItemMetadata);
+            }
+
             configItemMetadata.setKey(key);
             String value = StringUtils.trim(configFileLine.substring(equalsIndex+1, configFileLine.length()));
             configItemMetadata.setValue(value);
           }
+          
+          // default to string
+          if (configItemMetadata.getValueType() == null) {
+            configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+          }
+          
           configItemMetadata = null;
           configFileState = ConfigFileState.IN_SECTION;
           continue;
         }
       } catch (RuntimeException re) {
+        localConfigValid = false;
         GrouperUtil.injectInException(re, "Config file line invalid, " + configFileName + ", line: " + (i+1) + " '" + originalConfigFileLine + "'");
         throw re;
       }
     }
-    
+    configFileMetadata.setValidConfig(localConfigValid);
     return configFileMetadata;
     
   }

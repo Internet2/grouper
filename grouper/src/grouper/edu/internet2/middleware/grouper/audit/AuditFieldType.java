@@ -160,6 +160,9 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_STEM_ADD, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_STEM_UPDATE, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, "memberId");
+    addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_ADD, "memberId");
+    addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_UPDATE, "memberId");
+    addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE, "memberId");
     
     addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_TYPE_ADD, "id");
     addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_TYPE_DELETE, "id");

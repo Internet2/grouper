@@ -341,7 +341,11 @@ public class GrouperRemedyFullRefresh implements Job {
         for (String remedyUsername : remedyUsernamesNotInGrouper) {
           GrouperRemedyUser grouperRemedyUser = remedyMemberUsernameToUser.get(remedyUsername);
           try {
-            grouperRemedyGroup.removeUserFromGroup(grouperRemedyUser, false);
+            if (grouperRemedyUser == null) {
+              LOG.error("Cant find remedy user: " + remedyUsername + ", group: " + grouperGroup.getExtension());
+            } else {
+              grouperRemedyGroup.removeUserFromGroup(grouperRemedyUser, false);
+            }
           } catch (Exception e) {
             LOG.error("Cant remove membership: '" + grouperRemedyGroup.getPermissionGroupId() + ", " 
                 + grouperRemedyGroup.getPermissionGroup() + "', '" + grouperRemedyUser.getRemedyLoginId() + "'", e);
