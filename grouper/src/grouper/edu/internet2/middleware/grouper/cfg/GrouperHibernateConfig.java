@@ -46,8 +46,8 @@ public class GrouperHibernateConfig extends GrouperHibernateConfigClient {
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static GrouperHibernateConfigClient retrieveConfig() {
-    return GrouperHibernateConfigClient.retrieveConfig();
+  public static GrouperHibernateConfig retrieveConfig() {
+    return retrieveConfig(GrouperHibernateConfig.class);
   }
 
   /**
