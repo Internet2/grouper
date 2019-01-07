@@ -31,14 +31,63 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
 
 
 /** 
- * Grouper configuration information.
+ * Grouper hibernate configuration information.  We need these methods calling super since in the patch 
+ * things dont link.  They can be removed in a future major release.
  * @author  mchyzer
  * @since   ?
  */
 public class GrouperHibernateConfig extends GrouperHibernateConfigClient {
-  
+  /**
+   * retrieve a config from the config file or from cache
+   * @return the config object
+   */
+  public static GrouperHibernateConfigClient retrieveConfig() {
+    return GrouperHibernateConfigClient.retrieveConfig();
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues
+   */
+  @Override
+  public void clearCachedCalculatedValues() {
+    super.clearCachedCalculatedValues();
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getHierarchyConfigKey
+   */
+  @Override
+  protected String getHierarchyConfigKey() {
+    return super.getHierarchyConfigKey();
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainConfigClasspath
+   */
+  @Override
+  protected String getMainConfigClasspath() {
+    return super.getMainConfigClasspath();
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainExampleConfigClasspath
+   */
+  @Override
+  protected String getMainExampleConfigClasspath() {
+    return super.getMainExampleConfigClasspath();
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getSecondsToCheckConfigKey
+   */
+  @Override
+  protected String getSecondsToCheckConfigKey() {
+    return super.getSecondsToCheckConfigKey();
+  }
+
 }
