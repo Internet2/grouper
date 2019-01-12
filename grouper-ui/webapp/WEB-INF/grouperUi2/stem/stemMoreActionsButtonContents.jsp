@@ -95,6 +95,10 @@
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.stemAttestation&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['attestationButton'] }</a></li>
                           </c:if>
+                          <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioning}">
+                            <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
+                          </c:if>
                           <c:if test="${grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning}">
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolderReport&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['deprovisioningMoreActionsMenuLabel'] }</a></li>

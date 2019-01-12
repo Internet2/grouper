@@ -83,31 +83,29 @@ public class GrouperObjectTypesAttributeNames {
   }
   
   
-    /**
-     * attribute value def assigned to stem or group
-     * @return the attribute def name
-     */
-    public static AttributeDef retrieveAttributeDefBaseDef() {
-      
-      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          
-          return AttributeDefFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DEF, false, new QueryOptions().secondLevelCache(false));
-          
-        }
-        
-      });
+  /**
+   * attribute value def assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDef retrieveAttributeDefBaseDef() {
     
-      if (attributeDef == null) {
-        throw new RuntimeException("Why cant grouperObjectTypeDef attribute def be found?");
+    AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DEF, false, new QueryOptions().secondLevelCache(false));
+        
       }
       
-      return attributeDef;
+    });
+  
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeDef attribute def be found?");
     }
-  
-  
+    
+    return attributeDef;
+  }
 
 }

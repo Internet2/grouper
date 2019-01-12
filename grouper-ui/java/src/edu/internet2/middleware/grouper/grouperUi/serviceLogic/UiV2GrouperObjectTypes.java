@@ -87,7 +87,7 @@ public class UiV2GrouperObjectTypes {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
      
       if (group == null) {
         return;
