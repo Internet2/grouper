@@ -16,12 +16,15 @@
 package edu.internet2.middleware.subject.config;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SubjectUtils;
@@ -90,6 +93,20 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
     return "subject.config.secondsBetweenUpdateChecks";
   }
 
+  /**
+   * exclude these sourceIds from the subject cache
+   */
+  private Set<String> subjectCacheExcludeSourceIds = null;
+  
+  /**
+   * @return the cache
+   */
+  public Set<String> subjectCacheExcludeSourceIds() {
+    if (subjectCacheExcludeSourceIds == null) {
+      subjectCacheExcludeSourceIds = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.propertyValueString("subject.cache.excludeSourceIds"), ","));
+    }
+    return subjectCacheExcludeSourceIds;
+  }
   
   /**
    * cache the sources by source config id (which might not be source id)

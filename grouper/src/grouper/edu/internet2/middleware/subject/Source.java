@@ -205,10 +205,16 @@ public interface Source {
   public Set<String> getInternalAttributes();
   
   /**
-   * Get the names of attributes that are subject identifiers.
+   * Get the names of attributes that are subject identifiers.  This only returns the first
    * @return subject identifiers
    */
   public Map<Integer, String> getSubjectIdentifierAttributes();
+  
+  /**
+   * Get all the names of attributes that are subject identifiers.
+   * @return subject identifiers
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributesAll();
   
   /**
    * Get the names of attributes used for sorting.

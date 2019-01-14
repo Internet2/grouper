@@ -263,6 +263,13 @@ public class LazySource implements Source, Serializable {
   }
 
   /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributesAll()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributesAll() {
+    return this.getSource().getSubjectIdentifierAttributesAll();
+  }
+
+  /**
    * @see edu.internet2.middleware.subject.Source#getSortAttributes()
    */
   public Map<Integer, String> getSortAttributes() {

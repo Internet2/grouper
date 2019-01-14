@@ -20,12 +20,17 @@ package edu.internet2.middleware.grouper.subj;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.grouper.subj.cache.AllSubjectSourceCacheTests;
 
 /**
  *
  */
 public class AllSubjectTests {
 
+  /**
+   * 
+   * @return tests
+   */
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.subj");
     //$JUnit-BEGIN$
@@ -42,6 +47,9 @@ public class AllSubjectTests {
     suite.addTestSuite(TestSubject.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
     //$JUnit-END$
+    
+    suite.addTest(AllSubjectSourceCacheTests.suite());
+
     return suite;
   }
 
