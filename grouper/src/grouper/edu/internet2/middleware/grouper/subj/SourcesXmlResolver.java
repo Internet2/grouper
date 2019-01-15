@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -116,7 +117,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       callables.add(new LogLabelCallable<Subject>("find on source: " + sa.getId() + ", '" + id + "'") {
 
         public Subject callLogic() throws Exception {
-          return SOURCE.getSubject(id, false);
+          return SubjectSourceCache.getSubjectFromCacheOrSource(SOURCE, id, false);
         }
         
       });
@@ -306,7 +307,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getSource(source).getSubject(id, true);
+    Subject subj = SubjectSourceCache.getSubjectFromCacheOrSource(getSource(source), id, true);
     updateMemberAttributes(subj);
     
     //before we have started up, it wont find the session :)
@@ -384,7 +385,8 @@ public class SourcesXmlResolver implements SubjectResolver {
       callables.add(new LogLabelCallable<Subject>("findByIdentifier on source: " + sa.getId() + ", '" + id + "'") {
 
         public Subject callLogic() throws Exception {
-          return SOURCE.getSubjectByIdentifier(id, false);
+
+          return SubjectSourceCache.getSubjectByIdentifierFromCacheOrSource(SOURCE, id, false);
         }
         
       });
@@ -412,7 +414,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getSource(source).getSubjectByIdentifier(id, true);
+    Subject subj = SubjectSourceCache.getSubjectByIdentifierFromCacheOrSource(getSource(source), id, true);
     updateMemberAttributes(subj);
     subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     return subj;
@@ -511,7 +513,8 @@ public class SourcesXmlResolver implements SubjectResolver {
       callables.add(new LogLabelCallable<Subject>("findByIdOrIdentifier on source: " + sa.getId() + ", '" + idOrIdentifier + "'") {
 
         public Subject callLogic() throws Exception {
-          return SOURCE.getSubjectByIdOrIdentifier(idOrIdentifier, false);
+          
+          return SubjectSourceCache.getSubjectByIdOrIdentifierFromCacheOrSource(SOURCE, idOrIdentifier, false);
         }
         
       });
@@ -536,7 +539,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       throws IllegalArgumentException, SourceUnavailableException,
       SubjectNotFoundException, SubjectNotUniqueException {
     
-    Subject subj = this.getSource(source).getSubjectByIdOrIdentifier(id, true);
+    Subject subj = SubjectSourceCache.getSubjectByIdOrIdentifierFromCacheOrSource(getSource(source), id, true);
     updateMemberAttributes(subj);
     subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     return subj;
@@ -1006,7 +1009,8 @@ public class SourcesXmlResolver implements SubjectResolver {
           "find by identifiers on source: " + sa.getId() + ", '" + GrouperUtil.toStringForLog(identifiers, 100) + "'") {
 
         public Map<String, Subject> callLogic() throws Exception {
-          return SOURCE.getSubjectsByIdentifiers(identifiers);
+          
+          return SubjectSourceCache.getSubjectsByIdentifiersFromCacheOrSource(SOURCE, identifiers);
         }
         
       });
@@ -1032,8 +1036,8 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source)
       throws IllegalArgumentException, SourceUnavailableException {
-
-    Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIdentifiers(identifiers);
+    
+    Map<String, Subject> subjectMap = SubjectSourceCache.getSubjectsByIdentifiersFromCacheOrSource(this.getSource(source), identifiers);
 //if you are going to do this, do it in a batch!!!!
 //    if (subjectMap != null) {
 //      for (Subject subject : subjectMap.values()) {
@@ -1066,7 +1070,9 @@ public class SourcesXmlResolver implements SubjectResolver {
           "find on source: " + sa.getId() + ", '" + GrouperUtil.toStringForLog(ids, 100) + "'") {
 
         public Map<String, Subject> callLogic() throws Exception {
-          return SOURCE.getSubjectsByIds(ids);
+          
+          return SubjectSourceCache.getSubjectsByIdsFromCacheOrSource(SOURCE, ids);
+          
         }
         
       });
@@ -1092,7 +1098,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   public Map<String, Subject> findByIds(Collection<String> ids, String source)
       throws IllegalArgumentException, SourceUnavailableException {
 
-    Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIds(ids);
+    Map<String, Subject> subjectMap = SubjectSourceCache.getSubjectsByIdsFromCacheOrSource(this.getSource(source), ids);
     if (subjectMap != null) {
 //if you are going to do this, do it in a batch!!!!
 //      for (Subject subject : subjectMap.values()) {
@@ -1133,7 +1139,8 @@ public class SourcesXmlResolver implements SubjectResolver {
           "find by id or identifier on source: " + sa.getId() + ", '" + GrouperUtil.toStringForLog(idsOrIdentifiers, 100) + "'") {
 
         public Map<String, Subject> callLogic() throws Exception {
-          return SOURCE.getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+          
+          return SubjectSourceCache.getSubjectsByIdsOrIdentifiersFromCacheOrSource(SOURCE, idsOrIdentifiers);
         }
         
       });
@@ -1160,7 +1167,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source)
       throws IllegalArgumentException, SourceUnavailableException {
 
-    Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+    Map<String, Subject> subjectMap = SubjectSourceCache.getSubjectsByIdsOrIdentifiersFromCacheOrSource(this.getSource(source), idsOrIdentifiers);
 
 //if you are going to do this, do it in a batch!!!!
 //    if (subjectMap != null) {

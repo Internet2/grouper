@@ -333,6 +333,8 @@ public abstract class BaseSourceAdapter implements Source {
   
   protected Map<Integer, String> subjectIdentifierAttributes = null;
   
+  protected Map<Integer, String> subjectIdentifierAttributesAll = null;
+  
   protected Map<Integer, String> sortAttributes = null;
   
   protected Map<Integer, String> searchAttributes = null;
@@ -637,6 +639,33 @@ public abstract class BaseSourceAdapter implements Source {
     }
     
     return this.subjectIdentifierAttributes;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributesAll()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributesAll() {
+    
+    if (this.subjectIdentifierAttributesAll == null) {
+      synchronized(BaseSourceAdapter.class) {
+        if (this.subjectIdentifierAttributesAll == null) {
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 20; i++) {
+            String value = getInitParam("subjectIdentifierAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }  else {
+              break;
+            }
+          }
+          
+          this.subjectIdentifierAttributesAll = temp;
+        }
+      }
+    }
+    
+    return this.subjectIdentifierAttributesAll;
   }
   
   /**
