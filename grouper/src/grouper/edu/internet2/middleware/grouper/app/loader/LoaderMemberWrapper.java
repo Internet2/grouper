@@ -23,6 +23,7 @@ package edu.internet2.middleware.grouper.app.loader;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
@@ -121,9 +122,14 @@ public class LoaderMemberWrapper {
       if (this.member == null) {
           Subject subject = null;
           try {
-            subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId, true);
+            subject = SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, true);
           } catch (Exception e) {
-            LOG.info("Cant find subject: " + this.sourceId + ", " + this.subjectId, e);
+            if (e instanceof SubjectNotFoundException) {
+              // dont log stack if subject not found
+              LOG.info("Cant find subject: '" + this.sourceId + "', '" + this.subjectId + "'");
+            } else {
+              LOG.info("Cant find subject: '" + this.sourceId + "', '" + this.subjectId + "'", e);
+            }
           }
           if (subject == null) {
             String subjectType = "person";

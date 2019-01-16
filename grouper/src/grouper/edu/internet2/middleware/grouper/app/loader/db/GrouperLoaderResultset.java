@@ -1343,8 +1343,7 @@ public class GrouperLoaderResultset {
           subjectIdForLog = subjectId;
           subjectColForLog = "subjectId";
           if (!StringUtils.isBlank(subjectSourceId)) {
-            this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId,
-                false);
+            this.subject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
             //CH 20091013: we need the loader to be based on subjectId to eliminate lookups...
             //this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId, false);
             //if (this.subject == null) {
