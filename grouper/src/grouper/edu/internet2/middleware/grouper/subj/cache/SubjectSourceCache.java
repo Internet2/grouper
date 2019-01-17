@@ -262,7 +262,7 @@ public class SubjectSourceCache {
             } catch (Throwable t) {
               LOG.error("Error in writeCacheToStorage", t);
             }
-            
+                        
             try {
               logStats();
             } catch (Throwable t) {
@@ -442,6 +442,8 @@ public class SubjectSourceCache {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
     }
+
+    deleteOldStorageFiles();
 
   }
 
@@ -1550,7 +1552,7 @@ public class SubjectSourceCache {
   }
 
   /**
-   * @return
+   * @return if cache enabled
    */
   public static boolean cacheEnabled() {
     return SubjectConfig.retrieveConfig().propertyValueBoolean("subject.cache.enable", true);
@@ -2060,5 +2062,58 @@ public class SubjectSourceCache {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
     }
+  }
+
+  /**
+   * delete cache files not needed
+   */
+  static synchronized void deleteOldStorageFiles() {
+    
+    if (!cacheEnabled() ) {
+      return;
+    }
+  
+    Map<String, Object> debugMap = null;
+    long startNanos = -1;
+    if (LOG.isDebugEnabled()) {
+      debugMap =  new LinkedHashMap();
+      debugMap.put("method", "deleteOldStorageFiles");
+      startNanos = System.nanoTime();
+    }
+    
+    try {
+  
+      SubjectSourceSerializer subjectSourceSerializer = retrieveCacheSerializer(debugMap);
+  
+      if (subjectSourceSerializer == null) {
+        return;
+      }
+
+      // see what the timeout is, has to be less than when the cache was written
+      final int timeToLiveSeconds = SubjectSourceCacheItem.timeToLiveSeconds();
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("timeToLiveSeconds", timeToLiveSeconds);
+      }
+
+      final long newerThanMillis = System.currentTimeMillis() - (1000*SubjectSourceCacheItem.timeToLiveSeconds());
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("newerThan", new Date(newerThanMillis));
+      }
+
+      subjectSourceSerializer.cleanupOldSubjectCaches(newerThanMillis, debugMap);
+            
+    } catch (RuntimeException re) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+      } 
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("took", ((System.nanoTime() - startNanos) / 1000000) + "millis");
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+  
   }
 }
