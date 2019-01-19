@@ -66,7 +66,7 @@ import net.sf.json.util.PropertyFilter;
 /**
  * @author vsachdeva
  */
-
+// https://spaces.at.internet2.edu/display/Grouper/Grouper+messaging+to+web+service+API
 @DisallowConcurrentExecution
 public class MessageConsumerDaemon implements Job {
   
@@ -91,6 +91,7 @@ public class MessageConsumerDaemon implements Job {
     String messagingSystemName = null;
     String queueOrTopicName = null;
     String routingKey = null;
+    String exchangeType = null;
     String messageQueueType = null;
     Integer longPollingSeconds = null;
     
@@ -108,6 +109,7 @@ public class MessageConsumerDaemon implements Job {
         
         queueOrTopicName = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".queueOrTopicName");
         routingKey = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".routingKey");
+        exchangeType = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".exchangeType");
         messageQueueType = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".messageQueueType");
         actAsSubjectSourceId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectSourceId");
         actAsSubjectId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectId");
@@ -137,7 +139,7 @@ public class MessageConsumerDaemon implements Job {
     
     Collection<GrouperMessage> grouperMessages = null;
     try {
-      grouperMessages = receiveMessages(messagingSystemName, queueOrTopicName, routingKey, messageQueueType, longPollingSeconds, grouperMessageSystem);
+      grouperMessages = receiveMessages(messagingSystemName, queueOrTopicName, routingKey, exchangeType, messageQueueType, longPollingSeconds, grouperMessageSystem);
       LOG.info("Received "+grouperMessages.size() +" massages from "+queueOrTopicName +" for message system: "+messagingSystemName);
     } catch (Exception e) {
       LOG.error("Error occurred while receving messages from "+queueOrTopicName, e);
@@ -325,16 +327,9 @@ public class MessageConsumerDaemon implements Job {
     return errors;
   }
 
-  /**
-   * @param messagingSystemName
-   * @param queueOrTopicName
-   * @param messageQueueType
-   * @param longPollingSeconds
-   * @param grouperMessageSystem
-   * @return
-   */
+
   private Collection<GrouperMessage> receiveMessages(String messagingSystemName,
-      String queueOrTopicName, String routingKey, String messageQueueType, Integer longPollingSeconds,
+      String queueOrTopicName, String routingKey, String exchangeType, String messageQueueType, Integer longPollingSeconds,
       GrouperMessagingSystem grouperMessageSystem) {
     
     GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
@@ -354,6 +349,7 @@ public class MessageConsumerDaemon implements Job {
     receiveParam.assignLongPollMillis(longPollingSeconds*1000);
     receiveParam.assignAutocreateObjects(true);
     receiveParam.assignRoutingKey(routingKey);
+    receiveParam.assignExchangeType(exchangeType);
     
     GrouperMessageReceiveResult grouperMessageReceiveResult = grouperMessageSystem.receive(receiveParam);
     return grouperMessageReceiveResult.getGrouperMessages();
@@ -534,6 +530,7 @@ public class MessageConsumerDaemon implements Job {
     
     sendParam.assignMessageBodies(Collections.singleton(finalOuput));
     sendParam.assignRoutingKey(routingKey);
+    sendParam.assignExchangeType(inputGrouperHeader.getReplyToExchangeType());
     try {      
       grouperMessagingSystem.send(sendParam);
     } catch (Exception e) {

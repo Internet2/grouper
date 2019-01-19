@@ -45,8 +45,11 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   /** messaging system name **/
   private String messageSystemName;
   
-  /** routing key - valid for rabbitmq only; **/
+  /** routing key - valid for rabbitmq only **/
   private String routingKey;
+  
+  /** exchange type - valid for rabbitmq only **/
+  private String exchangeType;
   
   /** the millis to block waiting for messages, max of 20000 (optional) **/
   private String blockMillis;
@@ -83,6 +86,20 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    */
   public void setRoutingKey(String routingKey1) {
     this.routingKey = routingKey1;
+  }
+  
+  /**
+   * @return exchangeType
+   */
+  public String getExchangeType() {
+    return this.exchangeType;
+  }
+
+  /**
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
   }
 
   /**

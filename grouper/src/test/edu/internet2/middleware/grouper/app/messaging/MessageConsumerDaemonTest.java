@@ -1,13 +1,18 @@
 package edu.internet2.middleware.grouper.app.messaging;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -19,7 +24,6 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveRes
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.util.HttpURLConnection;
 import net.sf.json.JSONObject;
 
 /**
@@ -79,7 +83,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
       + "  \"subjectSourceId\":\"jdbc\" }] ,"
       + "   \"wsGroupLookup\":{ \"groupName\":\"test:testGroup\" }  }}";
   
-  public void testProcessMessagesHappyPath() throws IOException {
+  public void testProcessMessagesHappyPath() throws Exception {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.wsMessagingBridge.ws.url", 
         "http://localhost:8085/grouper-ws");
@@ -117,7 +121,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     assertEquals(JSONObject.fromObject(replyToBody).getString("result"), "{\"success\":true}");
   }
   
-  public void testProcessMessagesInvalidInputMessages() throws IOException {
+  public void testProcessMessagesInvalidInputMessages() throws Exception {
     
     MessageConsumerDaemon daemon = new MessageConsumerDaemon();
     FakeGrouperMessageSystem grouperMessageSystem = new FakeGrouperMessageSystem();
@@ -143,27 +147,96 @@ public class MessageConsumerDaemonTest extends GrouperTest {
   
   class FakeHttpServer {
     
-    HttpServer httpServer = null;
+    Server httpServer = null;
     
-    void launchHttpServer() throws IOException {
-      httpServer = HttpServer.create(new InetSocketAddress(8085), 0);
-      httpServer.createContext("/grouper-ws/test123", new HttpHandler() {
-        public void handle(HttpExchange exchange) throws IOException {
-          webServiceCalled = true;
-          byte[] response = "\"result\": {\"success\": true }".getBytes();
-          exchange.getResponseHeaders().set("X-Grouper-success", "T");
-          exchange.getResponseHeaders().set("X-Grouper-resultCode", "SUCCESS");
-          exchange.getResponseHeaders().set("X-Grouper-resultCode2", "NONE");
-          exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-          exchange.getResponseBody().write(response);
-          exchange.close();
+    void launchHttpServer() throws Exception {
+      httpServer = new Server(8085);
+      
+      SelectChannelConnector connector = new SelectChannelConnector();
+      connector.setReuseAddress(true);
+      connector.setPort(8085);
+      connector.setHost("localhost");
+      
+      httpServer.setConnectors(new Connector[] {connector});
+      
+      httpServer.setHandler(new Handler() {
+        
+        @Override
+        public void stop() throws Exception {}
+        
+        @Override
+        public void start() throws Exception {}
+        
+        @Override
+        public void removeLifeCycleListener(Listener arg0) {}
+        
+        @Override
+        public boolean isStopping() {
+          return false;
         }
+        
+        @Override
+        public boolean isStopped() {
+          return false;
+        }
+        
+        @Override
+        public boolean isStarting() {
+          return false;
+        }
+        
+        @Override
+        public boolean isStarted() {
+          return false;
+        }
+        
+        @Override
+        public boolean isRunning() {
+          return false;
+        }
+        
+        @Override
+        public boolean isFailed() {
+          return false;
+        }
+        
+        @Override
+        public void addLifeCycleListener(Listener arg0) {}
+        
+        @Override
+        public void setServer(Server arg0) {}
+        
+        @Override
+        public void handle(String arg0, HttpServletRequest request, HttpServletResponse response,
+            int arg3) throws IOException, ServletException {
+          webServiceCalled = true;
+          String responseBody = "\"result\": {\"success\": true }";
+          response.setHeader("X-Grouper-success", "T");
+          response.setHeader("X-Grouper-resultCode", "SUCCESS");
+          response.setHeader("X-Grouper-resultCode2", "NONE");
+          response.setStatus(200);
+          response.setContentType("application/json");
+          response.getWriter().write(responseBody);
+          ((Request) request).setHandled(true);
+        }
+        
+        @Override
+        public Server getServer() {
+          return null;
+        }
+        
+        @Override
+        public void destroy() {}
       });
-      httpServer.start();
+
+      // Start Server
+      httpServer.start() ;
+      httpServer.join();
+      
     }
     
-    void stopHttpServer() {
-       httpServer.stop(0);
+    void stopHttpServer() throws Exception {
+       httpServer.stop();
        httpServer = null;
     }
     

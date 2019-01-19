@@ -40,6 +40,29 @@ public class GrouperMessageSendParam {
   }
   
   /**
+   * if the messaging system can use exchange type (e.g. rabbitmq)
+   */
+  private String exchangeType;
+  
+  /**
+   * if the messaging system can use exchange type (e.g. rabbitmq), set it here
+   * @param exchangeType
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignExchangeType(String exchangeType) {
+    this.exchangeType = exchangeType;
+    return this;
+  }
+  
+  /**
+   * if the messaging system can use exchange type (e.g. rabbitmq)
+   * @return exchange type
+   */
+  public String getExchangeType() {
+    return this.exchangeType;
+  }
+  
+  /**
    * describes the grouper message system
    */
   private GrouperMessageSystemParam grouperMessageSystemParam;

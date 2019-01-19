@@ -52,6 +52,9 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   /** routing key for rabbitmq **/
   private String routingKey;
   
+  /** exchange type for rabbitmq  **/
+  private String exchangeType;
+  
   /** create queue/topic if doesn't exist already. **/
   private String autocreateObjects;
 
@@ -88,6 +91,22 @@ public class WsRestSendMessageRequest implements WsRequestBean {
     this.routingKey = routingKey1;
   }
   
+  /**
+   * exchange type for rabbitmq
+   * @return exchangeType
+   */
+  public String getExchangeType() {
+    return this.exchangeType;
+  }
+
+  /**
+   * exchange type for rabbitmq
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
+  }
+
   /**
    * queue or topic
    * @return queueOrTopic
