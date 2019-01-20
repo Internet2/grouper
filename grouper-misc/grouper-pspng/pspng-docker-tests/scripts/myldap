@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -o pipefail
+set -o nounset
+set -o pipefail
+
 D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 . "$D/functions.bash"
 PROG=$(basename "$0")
