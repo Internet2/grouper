@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# This builds the source code and docker images and volumes
+# necessary for the test harness
+#
+# GROUPER_VERSION: Environment variable that points to a docker-image flavor
+# as described below... GROUPER_VERSION=packaged or devel or testpatched
+# 
+# There are (currently) three flavors, defined by docker-compose.yml
+# reference to grouper-pspng-xxxx directories for the grouper-daemon image
+# source. There are three such directories:
+#  grouper-pspng-packaged    - Just references packaged version
+#  grouper-pspng-devel       - Installs local source atop a packaged version
+#  grouper-pspng-testpatched - Takes the packaged version and applies test patches to it
+#
+#  grouper-pspng-testing-config (confusingly, this is not a testing flavor
+#  but is instead a parent of the others)
+
 set -o errexit
 set -o pipefail
 set -o nounset
@@ -12,15 +28,22 @@ D="$( cd "$( dirname "${ME}" )" && pwd -P )"
 
 cd "$D"
 
+log_always "Building top docker image from grouper-pspng-testing-config"
+
 # This is the base of all other versions
 grouper-pspng-testing-config/buildit
 
 # If we're trying to use the devel version (the default), then compile pspng
-[ "${GROUPER_VERSION}:-devel}" = devel ] &&  grouper-pspng-devel/compile-for-docker-image
+if [ "${GROUPER_VERSION:-devel}" = devel ]; then
+  log_always "Compiling local source code"
+  grouper-pspng-devel/compile-for-docker-image
+fi
 
-docker-compose build
+log_always "Running docker-compose build"
+docker-compose build --no-cache
 
 
+log_always "Making sure volume templates are ready"
 VOLUMES_NEEDED=
 for volume in db-data-template ldap-data-template ldap-config-template; do
     if ! docker volume inspect $volume >/dev/null 2>&1; then
