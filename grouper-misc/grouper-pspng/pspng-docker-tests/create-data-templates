@@ -40,7 +40,7 @@ if [ $FLAGS_keep_ldap -eq $FLAGS_FALSE ]; then
     echo Removing volume $volume if it exists
     if docker volume inspect $volume >/dev/null 2>&1; then
       # Stop and remove any containers using the volume about to be deleted
-      CONTAINERS=$(docker ps -q --filter=volume=$volume)
+      CONTAINERS=$(docker ps -qa --filter=volume=$volume)
       if [ -n "$CONTAINERS" ]; then
         echo Stopping containers using $volume: $CONTAINERS
         docker rm -f $CONTAINERS
@@ -51,6 +51,8 @@ if [ $FLAGS_keep_ldap -eq $FLAGS_FALSE ]; then
   
   docker volume create ldap-data-template
   docker volume create ldap-config-template
+
+  echo "Starting ldap container. Look at its logs if this fails"
   C_LDAP=$($DOCKER_COMPOSE up -d ldap)
 
   $DOCKER_COMPOSE exec -T ldap await-ldap-server

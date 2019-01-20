@@ -33,6 +33,13 @@ PATH="$D:$D/scripts:$PATH"
 
 export TOP_PID=$$
 
+# If CONFIG_EGREP is defined, it will be applied to filter the configs that scripts
+# document that they are compatible with. For instance, a script might worth with
+# several configurations, but you can limit which will be used by defining CONFIG_EGREP
+#
+# By default, this just matches all configs
+CONFIG_EGREP=${CONFIG_EGREP:-.*}
+
 # If N_JOBS is defined, then use gnu parallel's sem command
 # to run things
 if [ -n "${N_JOBS:-}" ]; then
@@ -163,7 +170,12 @@ do
     # loop through the configs that the scripts says it supports
     for config in $configs
     do
-      $SEM_TEST runtest $test_script $config
+      config_matches_filter=$(egrep_ "$CONFIG_EGREP" <<< "$config")
+      if [ -z "$config_matches_filter" ]; then
+        log_warn "Skipping $config because it doesn't match CONFIG_EGREP=$CONFIG_EGREP"
+      else
+        $SEM_TEST runtest $test_script $config
+      fi
     done
   fi
 done
@@ -178,4 +190,4 @@ echo ===
 grep_ -A3 FAILURE $T/result_details
 
 echo === >> $TT/progress
-grep_ FAILURE >>$TT/progress
+grep_ FAILURE $T/result_details >>$TT/progress

@@ -5,11 +5,13 @@ olcAttributeTypes: ( 1.3.6.1.4.1.5923.1.1.1.1
  NAME 'eduPersonAffiliation' 
  DESC 'eduPerson per Internet2 and EDUCAUSE' 
  EQUALITY caseIgnoreMatch 
+ SUBSTR caseIgnoreSubstringsMatch 
  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.3.6.1.4.1.5923.1.1.1.7 
  NAME 'eduPersonEntitlement' 
  DESC 'eduPerson per Internet2 and EDUCAUSE' 
  EQUALITY caseExactMatch 
+ SUBSTR caseIgnoreSubstringsMatch 
  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.3.6.1.4.1.5923.1.1.1.2 
  NAME 'eduPersonNickName' 

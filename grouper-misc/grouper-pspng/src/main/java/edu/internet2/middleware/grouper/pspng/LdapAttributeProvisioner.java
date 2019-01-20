@@ -175,7 +175,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
 
       String allValuesPrefix = config.getAllProvisionedValuesPrefix();
       if ( StringUtils.isEmpty(allValuesPrefix) ) {
-        LOG.error("{}: Unable to cleanup extra groups without allProvisionedValuesPrefix being defined", getDisplayName());
+        LOG.error("{}: Unable to cleanup extra groups without allProvisionedValuesPrefix being defined. Set the prefix to * if you want grouper to fully control the attribute.", getDisplayName());
         return;
       }
 
@@ -187,12 +187,13 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
           allValuesPattern = Pattern.compile(".*");
       }
       else {
-          allValuesLdapFilter = String.format("%s=%s*", attribute, allValuesPrefix);
-          allValuesPattern = Pattern.compile(allValuesPrefix + ".*");
+          allValuesLdapFilter = String.format("%s=%s*", attribute, PspJexlUtils.escapeLdapFilter(allValuesPrefix));
+          allValuesPattern = Pattern.compile(Pattern.quote(allValuesPrefix) + ".*");
       }
 
       LOG.debug("{}: Looking for all grouper-sourced values of {}.", getDisplayName(), attribute);
 
+      Set<String> allValuesOfAttribute = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
       List<LdapObject> usersWithGrouperValues 
         = getLdapSystem().performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
@@ -203,6 +204,8 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       Set<String> grouperSourcedValuesUsedInTargetSystem = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       for ( LdapObject user : usersWithGrouperValues ) {
         Collection<String> values = user.getStringValues(attribute);
+        allValuesOfAttribute.addAll(values);
+
         for ( String value : values ) {
           if ( allValuesPattern.matcher(value).matches() )
             grouperSourcedValuesUsedInTargetSystem.add(value);
@@ -216,7 +219,10 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
         String value = getAttributeValueForGroup(groupInfo);
         valuesDefinedByGrouperGroups.add(value);
       }
-      
+
+      LOG.debug("All values of attributes found in LDAP: {}", allValuesOfAttribute);
+      LOG.debug("Values of attribute found in LDAP that match grouper-responsible pattern: {}", grouperSourcedValuesUsedInTargetSystem);
+      LOG.debug("Values of attribute corresponding to existing grouper groups: {}", valuesDefinedByGrouperGroups);
       
       // Now we know what values are used by current groups and what values are in the ldap server
       // Subtract these and we know what values to remove
@@ -225,6 +231,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       extraValues.removeAll(valuesDefinedByGrouperGroups);
       
       LOG.info("{}: There are {} values that should be purged from the target system", getDisplayName(), extraValues.size());
+      LOG.debug("{}: Values that should be purged: {}", getDisplayName(), extraValues);
       
       for (String extraValue : extraValues ) {
         LOG.info("{}: Purging attribute value {}", getDisplayName(), extraValue);
