@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import org.apache.commons.collections.MultiMap;
@@ -52,6 +54,10 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 {
   // Used to save a list of LDAP MODIFICATIONS in a ProvisioningWorkItem
   private static final String LDAP_MOD_LIST = "LDAP_MODS";
+
+  // This is used to know what strings have already been dn-escaped or ldap-filter escaped
+  private final Set<String> dnEscapedStrings = new HashSet<>();
+  private final Set<String> ldapFilterEscapedStrings = new HashSet<>();
 
   final GrouperCache<Subject, LdapObject> userCache_subject2User;
 
@@ -96,7 +102,93 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
-  
+  /**
+   * Note that the given dn string has already been escaped, in particular
+   * any commas or equal signs in the components of the dn have been escaped.
+   *
+   * These strings can be later checked with isStringDnEscaped
+   *
+   * See RDN.toMinimallyEncodedString(), PspJexlUtils.bushyDn
+   * @param dnString
+   */
+  public static void stringHasBeenDnEscaped(String dnString) {
+    if ( activeProvisioner.get() == null || !(activeProvisioner.get() instanceof LdapProvisioner) ) {
+      // This could throw an IllegalStateException, but that would make the PspJexlUtilities
+      // not work outside of a formal provisioner context
+      return;
+    }
+
+    ((LdapProvisioner) activeProvisioner.get()).dnEscapedStrings.add(dnString);
+  }
+
+  /**
+   * Has this string already been dn-escaped as determined by whether
+   * stringHasBeenDnEscaped(...) was called for it.
+   * @param dnString
+   * @return
+   */
+  public boolean isStringDnEscaped(String dnString) {
+    return dnEscapedStrings.contains(dnString);
+  }
+
+  /**
+   * Note that the given string has already been escaped as an ldap filter, in particular
+   * any (,),* have been escaped.
+   *
+   * These strings can be later checked with isStringLdapFilterEscaped
+   *
+   * See  PspJexlUtils.escapeLdapFilter
+   * @param ldapFilterValue
+   */
+
+  public static void stringHasBeenLdapFilterEscaped(String ldapFilterValue) {
+    if ( activeProvisioner.get() == null || !(activeProvisioner.get() instanceof LdapProvisioner) ) {
+      // This could throw an IllegalStateException, but that would make the PspJexlUtilities
+      // not work outside of a formal provisioner context
+      return;
+    }
+
+    ((LdapProvisioner) activeProvisioner.get()).ldapFilterEscapedStrings.add(ldapFilterValue);
+  }
+
+
+  /**
+   * Has this string already been escaped as an ldap filter, as determined by whether
+   * stringHasBeenLdapFilterEscaped(...) was called for it.
+   * @param filterString
+   * @return
+   */
+
+  public boolean isStringEscapedForLdapFilter(String filterString) {
+    if ( ldapFilterEscapedStrings.contains(filterString) ) {
+      return true;
+    }
+
+    // Check to see if string is a attribute=value, in which case check the value
+
+    // We know the provided String hasn't been escaped and there's nothing else to check
+    // if there is no equals sign
+    if ( !filterString.contains("=") ) {
+      return false;
+    }
+
+    // Check to see if this was a attribute=<escaped value>
+    String ldapFilterValue = StringUtils.substringAfter(filterString, "=");
+    return ldapFilterEscapedStrings.contains(ldapFilterValue);
+  }
+
+  // We're overriding this to clean-up our caches
+  @Override
+  public void finishCoordination(List<ProvisioningWorkItem> workItems, boolean wasSuccessful) {
+    // Flush our caches when our current provisioning finishes
+    ldapFilterEscapedStrings.clear();
+    dnEscapedStrings.clear();
+
+
+    super.finishCoordination(workItems, wasSuccessful);
+  }
+
+
   /**
    * Find the subjects in the ldap server.
    * 
@@ -191,10 +283,32 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     // If the filter contains '||', then this filter is requesting parameter substitution
     String filterPieces[] = result.split("\\|\\|");
+
+    // The first piece is either the entire filter or the filter template
     SearchFilter filter = new SearchFilter(filterPieces[0]);
-    for (int i=1; i<filterPieces.length; i++)
-      filter.setParameter(i-1, filterPieces[i].trim());
-    
+
+    // If the filter is not using ldap-filter parameters, check its syntax
+    if ( filterPieces.length == 1 ) {
+      try {
+        // Use unboundid to sanity-check/parse filter
+        Filter.create(result);
+      }
+      catch (LDAPException e) {
+        LOG.warn("{}: User ldap filter was invalid. " +
+                "Perhaps its filter clauses needed to be escaped with utils.escapeLdapFilter or use ldap-filter positional parameters. " +
+                "Subject={}. Bad filter={}. ",
+                new Object[]{getDisplayName(), subject, result});
+
+        // We're going to proceed here just in case the filter-checking logic is too
+        // sensitive. The ldap server will eventually see the filter and make its own decision
+      }
+    } else {
+      // Set the positional parameters
+
+      for (int i = 1; i < filterPieces.length; i++)
+        filter.setParameter(i - 1, filterPieces[i].trim());
+    }
+
     LOG.debug("{}: User LDAP filter for subject {}: {}",
         new Object[]{getDisplayName(), subject.getId(), filter});
     return filter;
@@ -210,7 +324,9 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     String ldif = config.getUserCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression("UserTemplate", ldif, personSubject, null, null, null);
-    
+
+    ldif = sanityCheckDnAttributesOfLdif(ldif, "User-creation ldif for %s", personSubject);
+
     Connection conn = getLdapSystem().getLdapConnection();
     try {
       Reader reader = new StringReader(ldif);
@@ -237,6 +353,48 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     finally {
       conn.close();
     }
+  }
+
+  /**
+   * Look at attributes that are supposed to store DNs and make sure they
+   * are escaped and/or parsable
+   * @param ldif
+   * @return Presently this just returns the input ldif. Hopefully this
+   * can someday help cleanup dn-escaping problems
+   */
+  protected String sanityCheckDnAttributesOfLdif(String ldif, String ldifSourceFormat, Object... ldifSourceArgs)
+    throws PspException
+  {
+    String ldifSource = String.format(ldifSourceFormat, ldifSourceArgs);
+
+    // Loop through the lines...
+    String ldifLines[] = ldif.split("\\r?\\n");
+    for ( String ldifLine : ldifLines ) {
+      ldifLine = ldifLine.trim();
+
+      // Loop through the attributes configured to require DN syntax
+      for ( String dnAttribute : getConfig().getAttributesNeededingDnEscaping() ) {
+        if ( ldifLine.toLowerCase().matches(String.format("^%s *:.*", dnAttribute)) ) {
+          String value = StringUtils.substringAfter(ldifLine, ":");
+
+          if (! DN.isValidDN(value) ) {
+            if (isStringDnEscaped(value)) {
+              LOG.error("{}: attribute '{}' is an invalid DN even though it was escaped: {}",
+                      new Object[]{getDisplayName(), dnAttribute, value});
+            } else {
+              LOG.error("{}: attribute '{}' is an invalid DN. " +
+                        "Perhaps its components need to be escaped with utils.escapeLdapRdn(rdn): {}",
+                        new Object[]{getDisplayName(), dnAttribute, value});
+            }
+
+            throw new PspException("Attribute '%s' is an invalid DN in %s (utils.escapeLdapRdn is probably necessary): %s",
+                    dnAttribute, ldifSource, ldifLine);
+          }
+        }
+
+      }
+    }
+    return ldif;
   }
 
   @Override

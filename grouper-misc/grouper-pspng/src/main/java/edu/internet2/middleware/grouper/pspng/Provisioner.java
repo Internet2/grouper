@@ -658,7 +658,12 @@ public abstract class Provisioner
         atomicExpressionMatcher = atomicExpressionPattern.matcher(result);
       }
 
-      LOG.debug("Evaluated entire {} Jexl expression: '{}'", expressionName, result);
+      if ( expression.equals(result) ) {
+        LOG.trace("{} Jexl expression did not include any substitutions: {}", expressionName, expression);
+      } else {
+        LOG.debug("Evaluated entire {} Jexl expression: '{}'", expressionName, result);
+      }
+
       return result;
     }
     catch (RuntimeException e) {
