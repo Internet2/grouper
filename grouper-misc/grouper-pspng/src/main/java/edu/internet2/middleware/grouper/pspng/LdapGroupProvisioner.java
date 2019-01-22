@@ -21,6 +21,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPException;
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.*;
 import org.ldaptive.io.LdifReader;
@@ -434,6 +436,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String ldif = config.getGroupCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression("GroupTemplate", ldif, null, null, grouperGroup, null);
+    ldif = sanityCheckDnAttributesOfLdif(ldif, "Group ldif for %s", grouperGroup);
+
     return ldif;
   }
 
@@ -586,10 +590,29 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // If the filter contains '||', then this filter is requesting parameter substitution
     String filterPieces[] = result.split("\\|\\|");
     SearchFilter filter = new SearchFilter(filterPieces[0]);
-    for (int i=1; i<filterPieces.length; i++)
-      filter.setParameter(i-1, filterPieces[i].trim());
- 
-    LOG.trace("{}: Filter for group {}: {}", 
+    // If the filter is not using ldap-filter parameters, check its syntax
+    if ( filterPieces.length == 1 ) {
+      try {
+        // Use unboundid to sanity-check/parse filter
+        Filter.create(result);
+      }
+      catch (LDAPException e) {
+        LOG.warn("{}: Group ldap filter was invalid. " +
+                        "Perhaps its filter clauses needed to be escaped with utils.escapeLdapFilter or use ldap-filter positional parameters. " +
+                        "Group={}. Bad filter={}. ",
+                new Object[]{getDisplayName(), grouperGroup, result});
+
+        // We're going to proceed here just in case the filter-checking logic is too
+        // sensitive. The ldap server will eventually see the filter and make its own decision
+      }
+    } else {
+      // Set the positional parameters
+
+      for (int i = 1; i < filterPieces.length; i++)
+        filter.setParameter(i - 1, filterPieces[i].trim());
+    }
+
+    LOG.trace("{}: Filter for group {}: {}",
         new Object[] {getDisplayName(), grouperGroup, filter});
 
     return filter;

@@ -106,6 +106,11 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     private int maxValuesToChangePerOperation;
     protected int maxValuesToChangePerOperation_defaultValue = 100;
 
+    // LdapAttributes that hold DNs and, therefore, need their values to be dn-escaped
+    private String attributesNeededingDnEscaping[];
+    protected String attributesNeededingDnEscaping_defaultValue = "dn,distinguishedName,entrydn,uniqueMember,member";
+
+
     private String ldapPoolName;
     private Properties ldaptiveProperties = new Properties();
     private BlockingConnectionPool ldapPool;
@@ -142,7 +147,7 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       String userSearchAttributeString =
           GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "userSearchAttributes" , userSearchAttributes_defaultValue);
       userSearchAttributes = userSearchAttributeString.trim().split(" *, *");
-      LOG.debug("Ldap Attribute Provisioner {} - Setting userSearchAttributes to {}", provisionerName, userSearchAttributes);
+      LOG.debug("Ldap Attribute Provisioner {} - Setting userSearchAttributes to {}", provisionerName, Arrays.toString(userSearchAttributes));
       
       userCreationBaseDn =
           GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "userCreationBaseDn" , userCreationBaseDn_defaultValue);
@@ -163,6 +168,16 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       ldapUserCacheSize =
           GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapUserCacheSize", ldapUserCacheSize_defaultValue);
       LOG.debug("Ldap Provisioner {} - Setting ldapUserCacheSize to {}", provisionerName, ldapUserCacheSize);
+
+      String attributesNeededingDnEscapingString =
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "attributesNeededingDnEscaping" , attributesNeededingDnEscaping_defaultValue);
+      attributesNeededingDnEscaping = attributesNeededingDnEscapingString.trim().split(" *, *");
+
+      // Lower-case the attributes
+      for ( int i=0; i<attributesNeededingDnEscaping.length; i++ ) {
+          attributesNeededingDnEscaping[i] = attributesNeededingDnEscaping[i].toLowerCase();
+      }
+      LOG.debug("Ldap Attribute Provisioner {} - Setting attributesNeededingDnEscaping to {}", provisionerName, Arrays.toString(attributesNeededingDnEscaping));
     }
 
     public int getMaxValuesToChangePerOperation() {
@@ -228,4 +243,6 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     public String getOuCreationLdifTemplate() {
       return ouCreationLdifTemplate;
     }
+
+    public String[] getAttributesNeededingDnEscaping() { return attributesNeededingDnEscaping; }
 }

@@ -16,10 +16,7 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import com.unboundid.ldap.sdk.RDN;
 import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
@@ -42,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PspJexlUtils extends GrouperUtilElSafe {
   private static final Logger LOG = LoggerFactory.getLogger(LdapObject.class);
-  
+
   /**
    * This is a null-safe and flexible method for seeing if an item is a member
    * of one or more arrays or collections.
@@ -110,6 +107,15 @@ public class PspJexlUtils extends GrouperUtilElSafe {
       }
     }
 
+    // document if any ldap escaping (filter or dn) has occurred
+    if ( performRdnEscaping ) {
+      LdapProvisioner.stringHasBeenDnEscaped(result.toString());
+    }
+
+    if ( performFilterEscaping ) {
+      LdapProvisioner.stringHasBeenLdapFilterEscaped(result.toString());
+    }
+
     return result.toString();
   }
 
@@ -144,10 +150,13 @@ public class PspJexlUtils extends GrouperUtilElSafe {
    */
   public static String escapeLdapFilter(String filterString) {
       if(filterString == null) return "";
-      return filterString.replace("\\", "\\5C")
+      String result = filterString.replace("\\", "\\5C")
               .replace("*", "\\2A")
               .replace("(", "\\28")
               .replace(")", "\\29")
               .replace("\000", "\\00");
+
+      LdapProvisioner.stringHasBeenLdapFilterEscaped(result);
+      return result;
   }
 }
