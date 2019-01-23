@@ -28,6 +28,7 @@ m-oid: 1.3.6.1.4.1.5923.1.1.1.7
 m-name: eduPersonEntitlement
 m-description: eduPerson per Internet2 and EDUCAUSE
 m-equality: caseExactMatch
+m-substr: caseIgnoreSubstringsMatch
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
 
 dn: m-oid=1.3.6.1.4.1.5923.1.1.1.2, ou=attributeTypes, cn=eduperson, ou=schema

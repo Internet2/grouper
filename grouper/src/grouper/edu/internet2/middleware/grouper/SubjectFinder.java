@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -620,6 +621,7 @@ public class SubjectFinder {
    */
   public static void flushCache() {
     getResolver().flushCache();
+    SubjectSourceCache.clearCache();
   }
   
   /**

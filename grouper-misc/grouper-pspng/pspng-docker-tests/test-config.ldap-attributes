@@ -2,6 +2,11 @@ _D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
 . "$_D/test-config.defaults"
 TEST_CONF=$_D/test-config-files
 
+
+# Normally, we're provisioning with prefix g:, but we're making this flexible so that other prefixes can be
+# used (eg in test11c)
+export EDU_PERSON_ENTITLEMENT_PREFIX=${EDU_PERSON_ENTITLEMENT_PREFIX:-g:}
+
 #
 # This function is to output (to stdout) what grouper-loader.properties should be
 # installed in the api/conf directory
@@ -33,7 +38,7 @@ function validate_provisioning()
   local correct_members="${2}"
 
   test_step "Checking provisioning: $group"
-  x=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu eduPersonEntitlement=g:$group uid | noAttributeLabels | sort | removeNewLines")
+  x=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu 'eduPersonEntitlement=${EDU_PERSON_ENTITLEMENT_PREFIX}$group' uid | noAttributeLabels | sort | removeNewLines")
   assert_equals "$correct_members" "$x" "provisioning for group $group" 
 }
   
@@ -45,7 +50,7 @@ function directly_remove_member()
   local member="${2:?$usage}"
 
   test_step "Direct LDAP change: Removing $group entitlement from $member"
-  local entitlement="g:$group"
+  local entitlement="${EDU_PERSON_ENTITLEMENT_PREFIX}$group"
 
   local user_dn=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu uid=$member dn | noAttributeLabels --show-dn")
 
@@ -67,7 +72,7 @@ function directly_add_member()
   local member="${2:?$usage}"
 
   test_step "Direct LDAP change: Adding $group entitlement from $member"
-  local entitlement="g:$group"
+  local entitlement="${EDU_PERSON_ENTITLEMENT_PREFIX}$group"
 
   local user_dn=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu uid=$member dn | noAttributeLabels --show-dn")
 

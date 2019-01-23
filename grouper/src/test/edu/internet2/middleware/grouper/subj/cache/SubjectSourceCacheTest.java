@@ -357,6 +357,14 @@ public class SubjectSourceCacheTest extends GrouperTest {
     }
 
     SubjectSourceCache.writeCacheToStorage();
+    
+    // write again and it should delete one file
+    SubjectSourceCache.writeCacheToStorageLastRun = -1;
+    SubjectSourceCache.writeCacheToStorage();
+
+    SubjectSourceCache.writeCacheToStorageLastRun = -1;
+    SubjectSourceCache.writeCacheToStorage();
+    
 
     //ok we have the directory, see the files
     files = parentStorage.listFiles(SubjectSourceSerializerFile.serializerFileFilter());

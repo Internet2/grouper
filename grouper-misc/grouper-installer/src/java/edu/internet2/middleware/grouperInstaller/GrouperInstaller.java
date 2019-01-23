@@ -4739,9 +4739,7 @@ public class GrouperInstaller {
 
     System.out.println("You need to revert all patches to upgrade");
     this.patchRevertUi();
-    
-    this.upgradeApiPostRevertPatch();
-    
+        
     System.out.println("\n##################################");
     System.out.println("Upgrading UI\n");
     
@@ -4837,7 +4835,9 @@ public class GrouperInstaller {
           readFromStdIn("grouperInstaller.autorun.continueAfterEditedOwaspCsrfGuard");
         }
       }
-    }    
+    }
+    
+    this.upgradeApiPostRevertPatch();
 
     //patch it
     this.patchUi();
@@ -4853,8 +4853,6 @@ public class GrouperInstaller {
 
     System.out.println("You need to revert all patches to upgrade");
     this.patchRevertPsp();
-    
-    this.upgradeApiPostRevertPatch();
     
     System.out.println("\n##################################");
     System.out.println("Upgrading PSP\n");
@@ -4873,6 +4871,8 @@ public class GrouperInstaller {
     this.copyFiles(this.untarredPspDir + File.separator + "conf" + File.separator,
         this.upgradeExistingApplicationDirectoryString + "conf" + File.separator, null);
 
+    this.upgradeApiPostRevertPatch();
+    
     //patch it
     this.patchPsp();
   }
@@ -4886,8 +4886,6 @@ public class GrouperInstaller {
 
     System.out.println("You need to revert all patches to upgrade");
     this.patchRevertPspng();
-    
-    this.upgradeApiPostRevertPatch();
     
     System.out.println("\n##################################");
     System.out.println("Upgrading PSPNG\n");
@@ -4906,6 +4904,8 @@ public class GrouperInstaller {
     this.copyFiles(this.untarredPspngDir + File.separator + "conf" + File.separator,
         this.upgradeExistingApplicationDirectoryString + "conf" + File.separator, null);
 
+    this.upgradeApiPostRevertPatch();
+    
     //patch it
     this.patchPspng();
   }
@@ -13323,8 +13323,6 @@ public class GrouperInstaller {
     System.out.println("You need to revert all patches to upgrade");
     this.patchRevertWs();
     
-    this.upgradeApiPostRevertPatch();
-    
     System.out.println("\n##################################");
     System.out.println("Upgrading WS\n");
     
@@ -13391,6 +13389,8 @@ public class GrouperInstaller {
         this.grouperWsExamplePropertiesFile, null, "grouperInstaller.autorun.removeRedundantPropetiesFromGrouperWsProperties"
       );
 
+    this.upgradeApiPostRevertPatch();
+    
     //patch it
     this.patchWs();
 

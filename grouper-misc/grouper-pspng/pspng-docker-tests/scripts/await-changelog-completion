@@ -49,7 +49,7 @@ do
  log_always "Watching consumer: $CONSUMER"
  (
   STOP_TIME=$(( $(date +%s) + $FLAGS_time_limit_secs ))
-  MAX_ENTRY=$($MYSQL --execute "SELECT max(sequence_number ) FROM grouper_change_log_entry")
+  MAX_ENTRY=$($MYSQL --execute "SELECT ifnull(max(sequence_number),0) FROM grouper_change_log_entry")
 
   LAST_PROCESSED=$($MYSQL --execute "SELECT ifnull(last_sequence_processed,0) FROM grouper_change_log_consumer WHERE name='$CONSUMER'")
   while [ "$MAX_ENTRY" -gt "${LAST_PROCESSED:-0}" ]; do

@@ -22,6 +22,8 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 
@@ -103,10 +105,12 @@ public class SubjectSourceSerializerFile extends SubjectSourceSerializer {
    * @return the filter
    */
   public static FilenameFilter serializerFileFilter() {
+    final String SUBJECT_SOURCE_CACHE_FILE_PREFIX = subjectSourceCacheFilePrefix();
+
     return new FilenameFilter() {
       
       public boolean accept(File dir, String name) {
-        return name != null && name.startsWith(SUBJECT_SOURCE_FILE_PREFIX);
+        return name != null && name.startsWith(SUBJECT_SOURCE_CACHE_FILE_PREFIX);
       }
     };
   }
@@ -228,10 +232,11 @@ public class SubjectSourceSerializerFile extends SubjectSourceSerializer {
     File cacheFile = null;
     
     for (int i=0;i<10;i++) {
-      cacheFile = new File(GrouperUtil.stripLastSlashIfExists(directory.getAbsolutePath()) + File.separatorChar + SUBJECT_SOURCE_FILE_PREFIX + timestampFileFormat.format(new Date()));
+      cacheFile = new File(GrouperUtil.stripLastSlashIfExists(directory.getAbsolutePath()) + File.separatorChar + subjectSourceCacheFilePrefix() + timestampFileFormat.format(new Date()));
       if (!cacheFile.exists()) {
         break;
       }
+      GrouperUtil.sleep(100);
       cacheFile = null;
     }
 
@@ -240,7 +245,7 @@ public class SubjectSourceSerializerFile extends SubjectSourceSerializer {
     }
 
     if (cacheFile == null) {
-      throw new RuntimeException("Cant find available file in " + SUBJECT_SOURCE_FILE_PREFIX);
+      throw new RuntimeException("Cant find available file in " + subjectSourceCacheFilePrefix());
     }
     
     FileOutputStream fileOutputStream = null;
@@ -259,6 +264,16 @@ public class SubjectSourceSerializerFile extends SubjectSourceSerializer {
       GrouperUtil.closeQuietly(fileOutputStream);
     }
     
+  }
+
+  /**
+   * @return the prefix
+   */
+  public static String subjectSourceCacheFilePrefix() {
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+    GrouperEngineBuiltin grouperEngineBuiltin = grouperContext == null ? null : grouperContext.getGrouperEngine();
+    String engineLabel = grouperEngineBuiltin == null ? "_" : grouperEngineBuiltin.getGrouperEngine();
+    return SUBJECT_SOURCE_FILE_PREFIX + engineLabel + "_";
   }
 
   /**
