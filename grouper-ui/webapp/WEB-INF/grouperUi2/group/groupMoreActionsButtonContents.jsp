@@ -126,6 +126,11 @@
                             >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a></li>
                           
                         </c:if>
+
+                        <li class="divider"></li>
+                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.groupView&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          >${textContainer.text['visualization.title'] }</a></li>
+
                       </ul>
                     </div>
 

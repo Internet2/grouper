@@ -25,6 +25,11 @@
 <script src="../../grouperExternal/public/assets/js/d3.min.js" charset="utf-8"></script>
 <script src="../../grouperExternal/public/assets/js/c3.min.js"></script>
 
+<script src="../../grouperExternal/public/assets/js/viz.v1.8.2.js"></script><!-- type="javascript/worker" -- errors since called by anonymous root-level blob (blob:http://localhost:8080/37783c21-4aad-4ab0-9ec4-c500040ac16e:4:21) -->
+<!--<script src="../../grouperExternal/public/assets/js/viz.js.v2.0.0.full.render.js" type="application/javascript"></script>-->
+<script src="../../grouperExternal/public/assets/js/d3-graphviz.v2.6.1.min.js"></script>
+
+
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
   <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>

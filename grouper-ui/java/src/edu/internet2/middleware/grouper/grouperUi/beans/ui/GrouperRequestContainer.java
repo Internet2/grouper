@@ -614,4 +614,20 @@ public class GrouperRequestContainer {
     return roleInheritanceContainer;
   }
 
+  /**
+   * container for visualization screen
+   */
+  private VisualizationContainer visualizationContainer;
+
+  /**
+   * lazy load the visualization container
+   * @return the visualization container
+   */
+  public VisualizationContainer getVisualizationContainer() {
+    if (this.visualizationContainer == null) {
+      this.visualizationContainer = new VisualizationContainer();
+    }
+    return this.visualizationContainer;
+  }
+
 }
