@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * implement GrouperObject for subjects
@@ -138,4 +139,13 @@ public class GrouperObjectSubjectWrapper implements GrouperObject {
     throw new RuntimeException("Not implemented");
   }
 
+  /**
+   *
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append("subject", this.getSubject().toString())
+      .toString();
+  }
 }
