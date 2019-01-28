@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -71,6 +72,7 @@ import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -690,11 +692,6 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      //not sure who can see attributes etc, just go root
-      GrouperSession.stopQuietly(grouperSession);
-      
-      grouperSession = GrouperSession.startRootSession();
-      
       setupLoaderManagedGroup(group, grouperLoaderContainer);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -710,32 +707,39 @@ public class UiV2GrouperLoader {
     }
   }
   
-  public static void setupLoaderManagedGroup(final Group group, GrouperLoaderContainer grouperLoaderContainer) {
+  public static void setupLoaderManagedGroup(final Group group, final GrouperLoaderContainer grouperLoaderContainer) {
     
-    AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-    AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, loaderMetadataAttributeDefName, false, false);
-    
-    if (groupAttributeAssign != null) {
-      
-      String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED);
-      String loaderGroupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
-      String lastFullMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS);
-      String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
-      String summary = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY);
-    
-      Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, true);
+        AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
 
-      GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
-          GrouperUtil.booleanObjectValue(metadataLoaded), 
-          lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
-          lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
-          summary);
-      
-      grouperLoaderContainer.setLoaderManagedGroup(guiLoaderManagedGroup);
-      
-    }
-    
+        AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, loaderMetadataAttributeDefName, false, false);
+        
+        if (groupAttributeAssign != null) {
+          
+          String metadataLoaded = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED);
+          String loaderGroupId = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
+          String lastFullMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS);
+          String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
+          String summary = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY);
+        
+          Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, true);
+
+          GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
+              GrouperUtil.booleanObjectValue(metadataLoaded), 
+              lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
+              lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
+              summary);
+          
+          grouperLoaderContainer.setLoaderManagedGroup(guiLoaderManagedGroup);
+          
+        }
+        
+        return null;
+      }
+    });
   }
   
   /**
