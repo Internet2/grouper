@@ -313,7 +313,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        
+        if (grouperSession == null || grouperSession.getSubject() == null) {
+          return null;
+        }
         return new GroupFinder().assignGroupIds(ids).assignTypeOfGroups(GrouperSourceAdapter.this.typeOfGroups())
             .assignSubject(grouperSession.getSubject())
             .assignPrivileges(GrouperSourceAdapter.this.privilegesToLimitTo()).findGroups();

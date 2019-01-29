@@ -62,6 +62,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignStemDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -5007,6 +5009,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     
   }
 
+
+  
   /**
    * @param printOutput
    * @param testOnly
@@ -5025,9 +5029,106 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       stem.obliterate(printOutput, testOnly);
     }
 
+    deleteGroups(printOutput, testOnly, Scope.ONE);
+
+    deleteAttributeDefNames(printOutput, testOnly, Scope.ONE);
+
+    deleteAttributeDefs(printOutput, testOnly, Scope.ONE);
+
+    //delete stem
+    if (!testOnly) {
+      Stem.this.delete();
+    }
+  }
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperSession.startRootSession();
+    GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findById("test.subject.0"));
+    
+    Stem stem = StemFinder.findByName(grouperSession, "test");
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(stem.getUuid()).assignStemScope(Scope.SUB)
+    .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
+    .assignQueryOptions(queryOptions).findAttributeNames();
+    System.out.println(queryOptions.getCount());
+    System.out.println(GrouperUtil.length(attributeDefNames));
+  }
+  
+  /**
+   * 
+   * @return if this stem is empty i.e. can be deleted
+   */
+  public boolean isEmpty() {
+//    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
+//    Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, scope);
+//    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(this.uuid).assignStemScope(scope)
+//          .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).findAttributeNames();
+//    Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignParentStemId(this.uuid).assignStemScope(scope)
+//            .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).findAttributes();
+    return false;
+  }
+  
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope
+   */
+  public void deleteAttributeDefs(final boolean printOutput, final boolean testOnly, Scope scope) {
+
+    Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignParentStemId(this.uuid).assignStemScope(scope)
+        .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).findAttributes();
+    
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      if (!testOnly) {
+        attributeDef.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
+        } else {
+          System.out.println("Done deleting attributeDef: " + attributeDef.getName());
+        }
+      }              
+    }
+  }
+
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope
+   */
+  public void deleteAttributeDefNames(final boolean printOutput, final boolean testOnly, Scope scope) {
+
+    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(this.uuid).assignStemScope(scope)
+      .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).findAttributeNames();
+    
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+      if (!testOnly) {
+        attributeDefName.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
+        } else {
+          System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
+        }
+      }              
+    }
+  }
+
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope 
+   */
+  public void deleteGroups(final boolean printOutput, final boolean testOnly, Scope scope) {
     //delete all objects
     //groups
-    Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
+    Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, scope);
     
     //pass one for composites since if you delete a factor first it bombs...
     for (int i : new int[]{0,1}) {
@@ -5049,41 +5150,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         }
         groupIterator.remove();
       }
-    }
-
-    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(Stem.this.getUuid());
-    
-    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
-      if (!testOnly) {
-        attributeDefName.delete();
-      }
-      if (printOutput) {
-        if (testOnly) {
-          System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
-        } else {
-          System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
-        }
-      }              
-    }
-
-    Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(Stem.this.getUuid());
-    
-    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
-      if (!testOnly) {
-        attributeDef.delete();
-      }
-      if (printOutput) {
-        if (testOnly) {
-          System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
-        } else {
-          System.out.println("Done deleting attributeDef: " + attributeDef.getName());
-        }
-      }              
-    }
-
-    //delete stem
-    if (!testOnly) {
-      Stem.this.delete();
     }
   }
 }

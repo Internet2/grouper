@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -42,12 +43,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
-import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
@@ -78,8 +82,10 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.subject.Subject;
@@ -109,6 +115,164 @@ public class TestStem extends GrouperTest {
     super(name);
   }
 
+  public void testStemObliterate2setup() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    long gshTotalObjectCount = 0L;
+    long gshTotalChangeCount = 0L;
+    long gshTotalErrorCount = 0L;
+    
+    // test stem, subject 1 and 2 have admin
+    StemSave stemSave = new StemSave(grouperSession).assignName("test")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test");
+    Stem stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN, false);
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+
+    // some group A, subject 1 and 2 have admin
+    GroupSave groupSave = new GroupSave(grouperSession)
+      .assignName("test:someGroupA")
+      .assignCreateParentStemsIfNotExist(true)
+      .assignDisplayName("test:someGroupA")
+      .assignTypeOfGroup(TypeOfGroup.group);
+    Group group = groupSave.save();
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.UPDATE, false);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ, false);
+    group.addMember(SubjectTestHelper.SUBJ9, false);
+    
+    // some group B, subject 2 has admin
+    groupSave = new GroupSave(grouperSession)
+      .assignName("test:someGroupB")
+      .assignCreateParentStemsIfNotExist(true)
+      .assignDisplayName("test:someGroupB")
+      .assignTypeOfGroup(TypeOfGroup.group);
+    group = groupSave.save();
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    // another folder, test.subject.0 and 1 has admin
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test:anotherFolder");
+    stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN, false);
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+
+    // another folder2, test.subject.0 does not have admin, 1 does
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder2")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test:anotherFolder2");
+    stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+
+    // somegroup3, both have admin
+    groupSave = new GroupSave(grouperSession)
+        .assignName("test:anotherFolder:someGroup3")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDisplayName("test:anotherFolder:someGroup3")
+        .assignTypeOfGroup(TypeOfGroup.group);
+    group = groupSave.save();
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    // somegroup4, 1 has admin
+    groupSave = new GroupSave(grouperSession)
+        .assignName("test:anotherFolder:someGroup4")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDisplayName("test:anotherFolder:someGroup4")
+        .assignTypeOfGroup(TypeOfGroup.group);
+    group = groupSave.save();
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    // somegroup5, both have admin
+    groupSave = new GroupSave(grouperSession)
+        .assignName("test:anotherFolder2:someGroup5")
+        .assignDisplayName("test:anotherFolder2:someGroup5")
+        .assignTypeOfGroup(TypeOfGroup.group);
+    group = groupSave.save();
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    // somegroup6, 1 has admin
+    groupSave = new GroupSave(grouperSession)
+        .assignName("test:anotherFolder2:someGroup6")
+        .assignDisplayName("test:anotherFolder2:someGroup6")
+        .assignTypeOfGroup(TypeOfGroup.group);
+    group = groupSave.save();
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession)
+        .assignName("test:anotherFolder:testAttrDef")
+        .assignCreateParentStemsIfNotExist(true).assignToStem(true)
+        .assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+        .assignMultiValued(false).assignValueType(AttributeDefValueType.marker);
+    AttributeDef attributeDef = attributeDefSave.save();
+
+    Subject subject = SubjectFinder.findByIdAndSource("test.subject.4", "jdbc", false);
+
+    Privilege privilege = null;
+    group = GroupFinder.findByName(grouperSession, "test:testGroup2", false);
+    if (subject != null) {
+      if (group != null) {
+        boolean changed = group.addOrEditMember(subject, false, true, null, null, false);
+        gshTotalObjectCount++;
+        if (changed) {
+          gshTotalChangeCount++;
+          System.out.println("Made change for group membership: " + group.getName()
+              + ", field: members, subject: " + GrouperUtil.subjectToString(subject));
+        }
+      } else {
+        gshTotalErrorCount++;
+        System.out.println("ERROR: cant find group: 'test:testGroup2'");
+      }
+    }
+    subject = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", false);
+
+    privilege = Privilege.listToPriv("updaters", false);
+    group = GroupFinder.findByName(grouperSession, "test:testGroup2", false);
+    if (privilege != null) {
+      if (subject != null) {
+        if (group != null) {
+          boolean changed = group.grantPriv(subject, privilege, false);
+          gshTotalObjectCount++;
+          if (changed) {
+            gshTotalChangeCount++;
+            System.out.println("Made change for group privilege: " + group.getName()
+                + ", privilege: " + privilege + ", subject: "
+                + GrouperUtil.subjectToString(subject));
+          }
+        } else {
+          gshTotalErrorCount++;
+          System.out.println("ERROR: cant find group: 'test:testGroup2'");
+        }
+      }
+    }
+
+    attributeDef = AttributeDefFinder.findByName("test:anotherFolder:testAttrDef", false);
+    if (attributeDef != null) {
+      AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(
+          grouperSession, attributeDef).assignName("test:anotherFolder:testAttrName")
+          .assignCreateParentStemsIfNotExist(true)
+          .assignDisplayName("test:anotherFolder:testAttrName");
+      AttributeDefName attributeDefName = attributeDefNameSave.save();
+      gshTotalObjectCount++;
+      if (attributeDefNameSave.getSaveResultType() != SaveResultType.NO_CHANGE) {
+        gshTotalChangeCount++;
+        System.out.println("Made change for attributeDefName: "
+            + attributeDefName.getName());
+      }
+    } else {
+      gshTotalErrorCount++;
+      System.out
+          .println("ERROR: cant find attributeDef: 'test:anotherFolder:testAttrDef'");
+    }
+
+  }
+  
+  public void testStemObliterate2a() {
+    testStemObliterate2setup();
+
+    
+  }
+  
   public void testGetAllStemsSplitScopeSecure() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     try {

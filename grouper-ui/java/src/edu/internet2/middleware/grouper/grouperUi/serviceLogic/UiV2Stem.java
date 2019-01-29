@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemDeleteContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -1703,15 +1704,68 @@ public class UiV2Stem {
       if (stem == null) {
         return;
       }
-  
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/stem/stemDelete.jsp"));
-  
+      boolean ok = stemDeleteHelper(request, guiResponseJs);
+      
+      if (ok) {
+      
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/stem/stemDelete.jsp"));
+
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * @param request
+   * @param guiResponseJs
+   * @return if should continue
+   */
+  public boolean stemDeleteHelper(HttpServletRequest request, GuiResponseJs guiResponseJs) {
+    String formSubmitted = request.getParameter("formSubmitted");
+
+    // if we are here from form
+    if (GrouperUtil.booleanValue(formSubmitted, false)) {
+
+      String stemObliterate = request.getParameter("stemObliterateName");
+      
+      if (stemObliterate == null) {
+        
+        // shouldnt happen
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#stemObliterateId",
+            TextContainer.retrieveFromRequest().getText().get("stemObliterateRequired")));
+        return false;
+
+      }
+      
+      StemDeleteContainer stemDeleteContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemDeleteContainer();
+      
+      if (StringUtils.equals("deleteStem", stemObliterate)) {
+        stemDeleteContainer.setObliterateType("deleteStem");
+        
+      } else if (StringUtils.equals("obliterateSome", stemObliterate)) {
+        stemDeleteContainer.setObliterateType("obliterateSome");
+        
+      } else if (StringUtils.equals("obliterateAll", stemObliterate)) {
+        stemDeleteContainer.setObliterateType("obliterateAll");
+        
+        String stemDeletePointInTime = request.getParameter("stemDeletePointInTimeName");
+        stemDeleteContainer.setObliteratePointInTime(GrouperUtil.booleanObjectValue(stemDeletePointInTime));
+        
+      } else {
+        throw new RuntimeException("Invalid stem obliterate: '" + stemObliterate + "'");
+      }
+
+      String stemDeleteAreYouSure = request.getParameter("stemDeleteAreYouSureName");
+      
+      stemDeleteContainer.setAreYouSure(GrouperUtil.booleanObjectValue(stemDeleteAreYouSure));
+    }
+    return true;
   }
 
   /**
@@ -1740,10 +1794,38 @@ public class UiV2Stem {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
       try {
-  
-        //get the new folder that was created
-        stem.delete();
-  
+
+        
+        boolean ok = stemDeleteHelper(request, guiResponseJs);
+        
+        if (!ok) {
+        
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/stem/stemDelete.jsp"));
+          return;
+          
+        }
+
+        StemDeleteContainer stemDeleteContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemDeleteContainer();
+
+        // either direction the user needs to be sure
+        if (stemDeleteContainer.getAreYouSure() == null || !stemDeleteContainer.getAreYouSure()) {
+          return;
+        }
+
+        if (StringUtils.equals(stemDeleteContainer.getObliterateType(), "obliterateSome")) {
+          
+        } else if (StringUtils.equals(stemDeleteContainer.getObliterateType(), "deleteStem")) {
+          //get the new folder that was created
+          stem.delete();
+          
+        } else if (StringUtils.equals(stemDeleteContainer.getObliterateType(), "obliterateAll")) {
+          stemDeleteContainer.getObliteratePointInTime();
+
+        } else {
+          
+        }
+        
       } catch (InsufficientPrivilegeException ipe) {
         
         LOG.warn("Insufficient privilege exception for stem delete: " + SubjectHelper.getPretty(loggedInSubject), ipe);
