@@ -10021,7 +10021,6 @@ public class GrouperServiceLogic {
       }
 
       //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
 
@@ -10041,6 +10040,7 @@ public class GrouperServiceLogic {
           .assignRoutingKey(routingKey)
           .assignGrouperMessages(grouperMessages);
       
+      //TODO move to dedicated argument in 2.5
       if (paramMap.containsKey("exchangeType")) {
         String exchangeType = paramMap.get("exchangeType");
         grouperMessageSendParam.assignExchangeType(exchangeType);
@@ -10127,10 +10127,8 @@ public class GrouperServiceLogic {
       }
 
       //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
-
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+      
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
           .assignAutocreateObjects(autocreateObjects)
@@ -10144,9 +10142,18 @@ public class GrouperServiceLogic {
       }
       
       grouperMessageReceiveParam.assignRoutingKey(routingKey);
+      
+      //TODO move to dedicated argument in 2.5
       if (paramMap.containsKey("exchangeType")) {
         String exchangeType = paramMap.get("exchangeType");
         grouperMessageReceiveParam.assignExchangeType(exchangeType);
+      }
+      
+      //TODO move to dedicated argument in 2.5
+      if (paramMap.containsKey("queueType")) {
+        String queueType = paramMap.get("queueType");
+        GrouperMessageQueueType messageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(queueType, true);
+        grouperMessageReceiveParam.assignQueueType(messageQueueType);
       }
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
