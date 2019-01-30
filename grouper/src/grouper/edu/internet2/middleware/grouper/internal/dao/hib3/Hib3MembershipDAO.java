@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -538,7 +539,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, GrouperUtil.toSet(field), null, sources, 
         scope, stem, stemScope, enabled, checkSecurity, null, null, null, null, null, false, 
-        false, false, null, null, false, false, false, null);
+        false, false, null, null, false, false, false, null, null, null, null, null);
   }
 
   /**
@@ -554,14 +555,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, GrouperUtil.toSet(field), null, sources, 
         scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, null, null, false, false, false, 
-        null, null, false, false, false, null);
+        null, null, false, false, false, null, null, null, null, null);
     
   }
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, boolean hasFieldForMember, boolean hasMembershipTypeForMember)
-   * @since v2.2
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.FieldType, java.lang.String, edu.internet2.middleware.grouper.service.ServiceRole, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.Member)
    */
   @Override
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
@@ -577,7 +576,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         fields, privilegesTheUserHas, sources, scope, stem, stemScope, enabled, checkSecurity, fieldType,
         serviceId, serviceRole, queryOptionsForMember, filterForMember, splitScopeForMember, 
         hasFieldForMember, hasMembershipTypeForMember, queryOptionsForGroup, scopeForGroup, 
-        splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup);
+        splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup, null, null, null, null);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.FieldType, java.lang.String, edu.internet2.middleware.grouper.service.ServiceRole, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.Member, java.lang.Boolean, java.lang.Boolean)
+   */
+  @Override
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Collection<Field> fields,  Collection<Privilege> privilegesTheUserHas,
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
+      String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
+      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, Group customCompositeGroup) {
+    return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds,
+        totalMembershipIds, membershipType,
+        fields, privilegesTheUserHas, sources, scope, stem, stemScope, enabled, checkSecurity, fieldType,
+        serviceId, serviceRole, queryOptionsForMember, filterForMember, splitScopeForMember, 
+        hasFieldForMember, hasMembershipTypeForMember, queryOptionsForGroup, scopeForGroup, 
+        splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup, hasEnabledDate, hasDisabledDate,
+        customCompositeType, customCompositeGroup);
   }
 
   /**
@@ -608,6 +629,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param hasFieldForGroup 
    * @param hasMembershipTypeForGroup 
    * @param memberHasMembershipForGroup 
+   * @param hasEnabledDate
+   * @param hasDisabledDate
    * @return results
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Collection, Set, String, Stem, Scope, Boolean, Boolean, FieldType, String, ServiceRole, QueryOptions, String, boolean, boolean, boolean, QueryOptions, String, boolean, boolean, boolean, Member)
    */
@@ -618,7 +641,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
       boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
       String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
-      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup) {
+      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, final Group customCompositeGroup) {
 
     QueryOptions.initTotalCount(queryOptionsForGroup);
     QueryOptions.initTotalCount(queryOptionsForMember);
@@ -626,11 +650,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
     }
-    
+        
     if ((stem == null) != (stemScope == null)) {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
-
+    
+    if ((customCompositeType == null) != (customCompositeGroup == null)) {
+      throw new RuntimeException("If customCompositeType is set, then customCompositeGroup must be set.  If customCompositeType isnt set, then customCompositeGroup must not be set: " + customCompositeType + ", " + customCompositeGroup);
+    }
+    
     if (StringUtils.isBlank(serviceId) != (serviceRole == null)) {
       throw new RuntimeException("If serviceId is set, then serviceRole needs to be set, and vice versa");
     }
@@ -638,12 +666,38 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     final List<String> totalGroupIdsList = GrouperUtil.listFromCollection(totalGroupIds);
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
     List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
+
+    Set<Object[]> totalResults = new HashSet<Object[]>();
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     final Subject grouperSessionSubject = grouperSession.getSubject();
+    
+    if (customCompositeType != null) {
+      if (customCompositeType != CompositeType.INTERSECTION && customCompositeType != CompositeType.COMPLEMENT) {
+        throw new RuntimeException("Unsupported custom composite type: " + customCompositeType);
+      }
+      
+      if (checkSecurity) {
+        // make sure read on group
+        boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
 
-    Set<Object[]> totalResults = new HashSet<Object[]>();
+          /**
+           * 
+           */
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            return PrivilegeHelper.canRead(theGrouperSession, customCompositeGroup, grouperSessionSubject);
+          }
+        });
+
+        //if there is one stem, and checking security, and the user is not allowed to STEM it, then no results
+        if (!allowed) {
+          return totalResults;
+        }
+      }
+    }
     
     final Set<Privilege> privilegesTheUserHasFinal = new HashSet<Privilege>();
     
@@ -758,11 +812,37 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             byHqlStatic.setString("serviceNameId", serviceId);
           }
           
+          if (customCompositeGroup != null) {
+            if (customCompositeType == CompositeType.INTERSECTION) {
+              sql.append(" and exists ");
+            } else {
+              sql.append(" and not exists ");
+            }
+            
+            sql.append("(select 1 from MembershipEntry mscc " +
+                "where mscc.ownerGroupId = '" + customCompositeGroup.getId() + "' " +
+                "and mscc.memberUuid = m.uuid " +
+                "and mscc.fieldId = '" + Group.getDefaultList().getId() + "' " +
+                "and mscc.enabledDb = 'T') ");
+          }
+          
           if (enabled != null && enabled) {
             sql.append(" and ms.enabledDb = 'T' ");
           }
           if (enabled != null && !enabled) {
             sql.append(" and ms.enabledDb = 'F' ");
+          }
+          if (hasEnabledDate != null && hasEnabledDate) {
+            sql.append(" and ms.enabledTimeDb is not null ");
+          }
+          if (hasEnabledDate != null && !hasEnabledDate) {
+            sql.append(" and ms.enabledTimeDb is null ");
+          }
+          if (hasDisabledDate != null && hasDisabledDate) {
+            sql.append(" and ms.disabledTimeDb is not null ");
+          }
+          if (hasDisabledDate != null && !hasDisabledDate) {
+            sql.append(" and ms.disabledTimeDb is null ");
           }
           if (sources != null && sources.size() > 0) {
             sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
@@ -1021,7 +1101,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByGroupOwnerOptionsHelper(totalGroupIds, theMemberIds,
                   totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, hasFieldForMember ? null : fields,  privilegesTheUserHas,
                   sources, scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, 
-                  null, null, false, false, false, null, null, false, false, false, null);
+                  null, null, false, false, false, null, null, false, false, false, null, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -1133,7 +1213,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByGroupOwnerOptionsHelper(theGroupIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForGroup ? null : membershipType, hasFieldForGroup ? null : fields, privilegesTheUserHas, 
                   sources, scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, null, null, false, false, false, 
-                  null, null, false, false, false, null);
+                  null, null, false, false, false, null, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -3596,7 +3676,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
     return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, 
         GrouperUtil.toSet(field), 
-        sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false, null, null, false, false, false);
+        sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false, null, null, false, false, false, null, null, null, null);
   }
 
   /**
@@ -3616,10 +3696,30 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, fields, 
         sources, scope, stem, stemScope, enabled, checkSecurity, queryOptionsForMember, filterForMember, splitScopeForMember,
         hasFieldForMember, hasMembershipTypeForMember, queryOptionsForStem, scopeForStem, 
-        splitScopeForStem, hasFieldForStem, hasMembershipTypeForStem);
+        splitScopeForStem, hasFieldForStem, hasMembershipTypeForStem, null, null, null, null);
     
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, java.lang.Boolean, java.lang.Boolean)
+   */
+  @Override
+  public Set<Object[]> findAllByStemOwnerOptions(Collection<String> totalStemIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Collection<Field> fields,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
+      QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForStem, 
+      String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
+      boolean hasMembershipTypeForStem, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, final Group customCompositeGroup) {
+
+    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, fields, 
+        sources, scope, stem, stemScope, enabled, checkSecurity, queryOptionsForMember, filterForMember, splitScopeForMember,
+        hasFieldForMember, hasMembershipTypeForMember, queryOptionsForStem, scopeForStem, 
+        splitScopeForStem, hasFieldForStem, hasMembershipTypeForStem, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
     
+  }
 
   /**
    * 
@@ -3632,7 +3732,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
       boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForStem, 
       String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
-      boolean hasMembershipTypeForStem) {
+      boolean hasMembershipTypeForStem, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, final Group customCompositeGroup) {
 
     QueryOptions.initTotalCount(queryOptionsForStem);
     QueryOptions.initTotalCount(queryOptionsForMember);
@@ -3644,17 +3745,47 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if ((stem == null) != (stemScope == null)) {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
+    
+    if ((customCompositeType == null) != (customCompositeGroup == null)) {
+      throw new RuntimeException("If customCompositeType is set, then customCompositeGroup must be set.  If customCompositeType isnt set, then customCompositeGroup must not be set: " + customCompositeType + ", " + customCompositeGroup);
+    }
 
     final List<String> totalStemIdsList = GrouperUtil.listFromCollection(totalStemIds);
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
     List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
     
+    Set<Object[]> totalResults = new HashSet<Object[]>();
+
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     final Subject grouperSessionSubject = grouperSession.getSubject();
-  
-    Set<Object[]> totalResults = new HashSet<Object[]>();
+    
+    if (customCompositeType != null) {
+      if (customCompositeType != CompositeType.INTERSECTION && customCompositeType != CompositeType.COMPLEMENT) {
+        throw new RuntimeException("Unsupported custom composite type: " + customCompositeType);
+      }
 
+      if (checkSecurity) {
+        // make sure read on group
+        boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+          /**
+           *
+           */
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            return PrivilegeHelper.canRead(theGrouperSession, customCompositeGroup, grouperSessionSubject);
+          }
+        });
+
+        //if there is one stem, and checking security, and the user is not allowed to STEM it, then no results
+        if (!allowed) {
+          return totalResults;
+        }
+      }
+    }
+  
     //just check security on one stem to help performance
     if (checkSecurity && GrouperUtil.length(totalStemIds) == 1) {
       boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
@@ -3744,12 +3875,38 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           sql.append(" ms.ownerStemId = s.uuid "
               + " and ms.memberUuid = m.uuid ");
+          
+          if (customCompositeGroup != null) {
+            if (customCompositeType == CompositeType.INTERSECTION) {
+              sql.append(" and exists ");
+            } else {
+              sql.append(" and not exists ");
+            }
+
+            sql.append("(select 1 from MembershipEntry mscc " +
+                "where mscc.ownerGroupId = '" + customCompositeGroup.getId() + "' " +
+                "and mscc.memberUuid = m.uuid " +
+                "and mscc.fieldId = '" + Group.getDefaultList().getId() + "' " +
+                "and mscc.enabledDb = 'T') ");
+          }
 
           if (enabled != null && enabled) {
             sql.append(" and ms.enabledDb = 'T' ");
           }
           if (enabled != null && !enabled) {
             sql.append(" and ms.enabledDb = 'F' ");
+          }
+          if (hasEnabledDate != null && hasEnabledDate) {
+            sql.append(" and ms.enabledTimeDb is not null ");
+          }
+          if (hasEnabledDate != null && !hasEnabledDate) {
+            sql.append(" and ms.enabledTimeDb is null ");
+          }
+          if (hasDisabledDate != null && hasDisabledDate) {
+            sql.append(" and ms.disabledTimeDb is not null ");
+          }
+          if (hasDisabledDate != null && !hasDisabledDate) {
+            sql.append(" and ms.disabledTimeDb is null ");
           }
           if (sources != null && sources.size() > 0) {
             sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
@@ -3969,7 +4126,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
                 totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, 
                     hasFieldForMember ? null : fields,  
                 sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false,
-                null, null, false, false, false);
+                null, null, false, false, false, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
             
             //lets sort these by member
             Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -4060,7 +4217,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByStemOwnerOptionsHelper(theStemIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForStem ? null : membershipType, hasFieldForStem ? null : fields,  
                   sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false, 
-                  null, null, false, false, false);
+                  null, null, false, false, false, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -4141,7 +4298,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Boolean checkSecurity) {
     return findAllByAttributeDefOwnerOptionsHelper(totalAttributeDefIds, totalMemberIds,
         totalMembershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, 
-        stem, stemScope, enabled, checkSecurity, null, null, false, false, false, null, null, false, false, false);
+        stem, stemScope, enabled, checkSecurity, null, null, false, false, false, null, null, false, false, false, null, null, null, null);
   }
 
   /**
@@ -4156,7 +4313,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       boolean splitScopeForMember, 
       boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForAttributeDef,
       String scopeForAttributeDef, boolean splitScopeForAttributeDef,
-      boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef) {
+      boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, final Group customCompositeGroup) {
 
     QueryOptions.initTotalCount(queryOptionsForAttributeDef);
     QueryOptions.initTotalCount(queryOptionsForMember);
@@ -4168,6 +4326,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if ((stem == null) != (stemScope == null)) {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
+    
+    if ((customCompositeType == null) != (customCompositeGroup == null)) {
+      throw new RuntimeException("If customCompositeType is set, then customCompositeGroup must be set.  If customCompositeType isnt set, then customCompositeGroup must not be set: " + customCompositeType + ", " + customCompositeGroup);
+    }
 
     List<String> totalAttributeDefIdsList = GrouperUtil.listFromCollection(totalAttributeDefIds);
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
@@ -4175,9 +4337,35 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
-    Subject grouperSessionSubject = grouperSession.getSubject();
+    final Subject grouperSessionSubject = grouperSession.getSubject();
 
     Set<Object[]> totalResults = new HashSet<Object[]>();
+    
+    if (customCompositeType != null) {
+      if (customCompositeType != CompositeType.INTERSECTION && customCompositeType != CompositeType.COMPLEMENT) {
+        throw new RuntimeException("Unsupported custom composite type: " + customCompositeType);
+      }
+
+      if (checkSecurity) {
+        // make sure read on group
+        boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+          /**
+           *
+           */
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            return PrivilegeHelper.canRead(theGrouperSession, customCompositeGroup, grouperSessionSubject);
+          }
+        });
+
+        //if there is one stem, and checking security, and the user is not allowed to STEM it, then no results
+        if (!allowed) {
+          return totalResults;
+        }
+      }
+    }
         
     int attrDefBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefIds, 100);
     
@@ -4236,11 +4424,37 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           StringBuilder sql;
           sql = sqlTables.append(" where ").append(sqlWhereClause);
           
+          if (customCompositeGroup != null) {
+            if (customCompositeType == CompositeType.INTERSECTION) {
+              sql.append(" and exists ");
+            } else {
+              sql.append(" and not exists ");
+            }
+            
+            sql.append("(select 1 from MembershipEntry mscc " +
+                "where mscc.ownerGroupId = '" + customCompositeGroup.getId() + "' " +
+                "and mscc.memberUuid = m.uuid " +
+                "and mscc.fieldId = '" + Group.getDefaultList().getId() + "' " +
+                "and mscc.enabledDb = 'T') ");
+          }
+          
           if (enabled != null && enabled) {
             sql.append(" and ms.enabledDb = 'T' ");
           }
           if (enabled != null && !enabled) {
             sql.append(" and ms.enabledDb = 'F' ");
+          }
+          if (hasEnabledDate != null && hasEnabledDate) {
+            sql.append(" and ms.enabledTimeDb is not null ");
+          }
+          if (hasEnabledDate != null && !hasEnabledDate) {
+            sql.append(" and ms.enabledTimeDb is null ");
+          }
+          if (hasDisabledDate != null && hasDisabledDate) {
+            sql.append(" and ms.disabledTimeDb is not null ");
+          }
+          if (hasDisabledDate != null && !hasDisabledDate) {
+            sql.append(" and ms.disabledTimeDb is null ");
           }
           if (sources != null && sources.size() > 0) {
             sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
@@ -4458,7 +4672,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
                 totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, 
                     hasFieldForMember ? null : fields,  
                 sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false,
-                null, null, false, false, false);
+                null, null, false, false, false, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
             
             //lets sort these by member
             Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -4546,7 +4760,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByAttributeDefOwnerOptionsHelper(theAttributeDefIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForAttributeDef ? null : membershipType, hasFieldForAttributeDef ? null : fields,  
                   sources, scope, stem, stemScope, enabled, checkSecurity,
-                  null, null, false, false, false, null, null, false, false, false);
+                  null, null, false, false, false, null, null, false, false, false, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -4646,7 +4860,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
         enabled, shouldCheckSecurity, queryOptionsForMember, filterForMember, splitScopeForMember, hasFieldForMember, hasMembershipTypeForMember, 
         queryOptionsForAttributeDef, scopeForAttributeDef, 
-        splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
+        splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef, null, null, null, null);
+    return result;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByAttributeDefOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, java.lang.Boolean, java.lang.Boolean)
+   */
+  @Override
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(
+      Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType, Collection<Field> fields,
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled,
+      Boolean shouldCheckSecurity, QueryOptions queryOptionsForMember, String filterForMember, 
+      boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForAttributeDef,
+      String scopeForAttributeDef, boolean splitScopeForAttributeDef,
+      boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, final Group customCompositeGroup) {
+    Set<Object[]> result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
+        membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
+        enabled, shouldCheckSecurity, queryOptionsForMember, filterForMember, splitScopeForMember, hasFieldForMember, hasMembershipTypeForMember, 
+        queryOptionsForAttributeDef, scopeForAttributeDef, 
+        splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
     return result;
   }
 
@@ -4665,7 +4901,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     Set<Object[]> result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
         membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
         enabled, shouldCheckSecurity, null, null, false, false, false, queryOptionsForAttributeDef, scopeForAttributeDef, 
-        splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
+        splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef, null, null, null, null);
     return result;
   }
 

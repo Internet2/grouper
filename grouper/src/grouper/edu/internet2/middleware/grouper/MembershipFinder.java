@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -60,6 +61,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -138,6 +140,32 @@ public class MembershipFinder {
    */
   public MembershipFinder assignHasFieldForMember(boolean theHasField) {
     this.hasFieldForMember = theHasField;
+    return this;
+  }
+  
+  /** if searching point in time data, the start of the range of the point in time query. */
+  private Timestamp pointInTimeFrom;
+  
+  /** if searching point in time data, the end of the range of the point in time query. */
+  private Timestamp pointInTimeTo;
+  
+  /**
+   * if searching point in time data, the start of the range of the point in time query.
+   * @param pointInTimeFrom1
+   * @return this for chaining
+   */
+  public MembershipFinder assignPointInTimeFrom(Timestamp pointInTimeFrom1) {
+    this.pointInTimeFrom = pointInTimeFrom1;
+    return this;
+  }
+  
+  /**
+   * if searching point in time data, the end of the range of the point in time query.
+   * @param pointInTimeTo1
+   * @return this for chaining
+   */
+  public MembershipFinder assignPointInTimeTo(Timestamp pointInTimeTo1) {
+    this.pointInTimeTo = pointInTimeTo1;
     return this;
   }
 
@@ -555,6 +583,18 @@ public class MembershipFinder {
   /** if we should look for all, or enabled only.  default is all */
   private Boolean enabled;
   
+  /** if we should filter based on enable date being set */
+  private Boolean hasEnabledDate;
+  
+  /** if we should filter based on disabled date being set */
+  private Boolean hasDisabledDate;
+  
+  /** if we are are doing a custom composite, this is the composite type (intersection or complement) */
+  private CompositeType customCompositeType;
+  
+  /** if we are are doing a custom composite, this is the group */
+  private Group customCompositeGroup;
+  
   /**
    * 
    */
@@ -566,12 +606,56 @@ public class MembershipFinder {
   private Collection<String> attributeDefIds = null;
   
   /**
+   * if we are are doing a custom composite, this is the composite type (intersection or complement)
+   * @param theCustomCompositeType
+   * @return this for chaining
+   */
+  public MembershipFinder assignCustomCompositeType(CompositeType theCustomCompositeType) {
+    this.customCompositeType = theCustomCompositeType;
+    return this;
+  }
+  
+  /**
+   * if we are are doing a custom composite, this is the group
+   * @param theCustomCompositeGroup
+   * @return this for chaining
+   */
+  public MembershipFinder assignCustomCompositeGroup(Group theCustomCompositeGroup) {
+    this.customCompositeGroup = theCustomCompositeGroup;
+    return this;
+  }
+  
+  /**
    * true means enabled only, false, means disabled only, and null means all
    * @param theEnabled
    * @return this for chaining
    */
   public MembershipFinder assignEnabled(Boolean theEnabled) {
     this.enabled = theEnabled;
+    return this;
+  }
+  
+  /**
+   * true means memberships with enabled dates
+   * false means memberships without enabled dates
+   * null means don't filter based on this (default)
+   * @param theHasEnabledDate
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasEnabledDate(Boolean theHasEnabledDate) {
+    this.hasEnabledDate = theHasEnabledDate;
+    return this;
+  }
+  
+  /**
+   * true means memberships with disabled dates
+   * false means memberships without disabled dates
+   * null means don't filter based on this (default)
+   * @param theHasDisabledDate
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasDisabledDate(Boolean theHasDisabledDate) {
+    this.hasDisabledDate = theHasDisabledDate;
     return this;
   }
   
@@ -673,6 +757,10 @@ public class MembershipFinder {
    */
   public Set<Object[]> findMembershipsMembers() {
     
+    if (pointInTimeFrom != null || pointInTimeTo != null) {
+      throw new RuntimeException("Use findPITMembershipsMembers() for point in time queries");
+    }
+    
     Field field = this.field(true);
     if ((this.fieldType != null && this.fieldType == FieldType.NAMING )
         || (field != null && field.isStemListField())
@@ -740,9 +828,53 @@ public class MembershipFinder {
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
         this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
-        this.hasMembershipTypeForGroup, memberHasMembershipForGroup);  
+        this.hasMembershipTypeForGroup, memberHasMembershipForGroup, this.hasEnabledDate, this.hasDisabledDate, this.customCompositeType, this.customCompositeGroup);  
 
 
+  }
+  
+  /**
+   * find a set of object arrays which have a PITMembershipView, PITGroup|PITStem|PITAttributeDef, PITMember, and Member inside
+   * note that for now this only supports groupIds, memberIds, sources, checkSecurity, queryOptionsForMember, scopeForMember, hasFieldForMember, pointInTimeFrom, and pointInTimeTo
+   * @return the set of arrays never null
+   */
+  public Set<Object[]> findPITMembershipsMembers() {
+    return this.findPITMembershipsGroupsMembers();
+  }
+  
+  
+  /**
+   * find a set of object arrays which have a PITMembershipView, PITGroup, PITMember and Member inside
+   * note that for now this only supports groupIds, memberIds, sources, checkSecurity, queryOptionsForMember, scopeForMember, hasFieldForMember, pointInTimeFrom, and pointInTimeTo
+   * @return the set of arrays never null
+   */
+  private Set<Object[]> findPITMembershipsGroupsMembers() {
+
+    //validate that we are looking at groups
+    Field field = this.field(true);
+    if (field != null && !field.isGroupAccessField() && !field.isGroupListField()) {
+      throw new RuntimeException("Not expecting field: " + field +
+          ", expecting a group field since other part of the query involve group memberships");
+    }
+
+    if (this.fieldType != null && this.fieldType != FieldType.ACCESS && this.fieldType != FieldType.LIST) {
+      throw new RuntimeException("Not expecting fieldType: " + this.fieldType +
+          ", expecting a group field type since other part of the query involve group memberships");
+    }
+
+    if (GrouperUtil.length(this.stemIds) > 0) {
+      throw new RuntimeException("Not expecting stem lookups, since other parts of the query "
+          + " involve group memberships");
+      
+    }
+    
+    if (GrouperUtil.length(this.attributeDefIds) > 0) {
+      throw new RuntimeException("Not expecting attribute definition lookups, since other parts of the query "
+          + " involve group memberships");
+    }
+    
+    return GrouperDAOFactory.getFactory().getPITMembershipView().findAllByGroupOwnerOptions(this.groupIds, this.memberIds, this.fields, this.sources, this.checkSecurity, this.fieldType, 
+        this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, this.hasFieldForMember, this.pointInTimeFrom, this.pointInTimeTo);
   }
 
   /**
@@ -782,7 +914,8 @@ public class MembershipFinder {
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForStem, 
         this.scopeForStem, this.splitScopeForStem, this.hasFieldForStem,
-        this.hasMembershipTypeForStem);  
+        this.hasMembershipTypeForStem, this.hasEnabledDate, this.hasDisabledDate,
+        this.customCompositeType, this.customCompositeGroup);  
 
   }
 
@@ -955,7 +1088,7 @@ public class MembershipFinder {
         this.enabled, this.checkSecurity, this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember,
         this.queryOptionsForAttributeDef, this.scopeForAttributeDef, this.splitScopeForAttributeDef, this.hasFieldForAttributeDef, 
-        this.hasMembershipTypeForAttributeDef);  
+        this.hasMembershipTypeForAttributeDef, this.hasEnabledDate, this.hasDisabledDate, this.customCompositeType, this.customCompositeGroup);  
     return result;
   }
 

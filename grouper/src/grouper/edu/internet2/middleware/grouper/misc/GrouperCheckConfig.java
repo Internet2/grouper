@@ -1224,6 +1224,7 @@ public class GrouperCheckConfig {
     checkGrouperConfigGroupNameValidators();
     checkGrouperConfigIncludeExcludeAndGroups();
     checkGrouperConfigAutocreateGroups();
+    checkGrouperConfigCustomComposites();
   }
 
   /**
@@ -1432,6 +1433,39 @@ public class GrouperCheckConfig {
 
     }
     
+  }
+
+  /**
+   * check custom composites
+   */
+  private static void checkGrouperConfigCustomComposites() {
+    //#grouper.membership.customComposite.uiKey.0 = customCompositeMinusEmployees
+    //#grouper.membership.customComposite.compositeType.0 = complement
+    //#grouper.membership.customComposite.groupName.0 = ref:activeEmployees
+
+    //make sure sequences are ok
+    Map<String, String> keys = GrouperConfig.retrieveConfig().propertiesMap(customCompositePattern);
+    int i=0;
+    while (true) {
+      boolean foundOne = false;
+      String uiKeyKey = "grouper.membership.customComposite.uiKey." + i;
+      String compositeTypeKey = "grouper.membership.customComposite.compositeType." + i;
+      String groupNameKey = "grouper.membership.customComposite.groupName." + i;
+
+      foundOne = assertAndRemove(GROUPER_PROPERTIES_NAME, keys,
+          new String[]{uiKeyKey, compositeTypeKey, groupNameKey});
+      if (!foundOne) {
+        break;
+      }
+      i++;
+    }
+    if (keys.size() > 0) {
+      String error = "in property file: grouper.properties, these properties " +
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(keys.keySet());
+      System.err.println("Grouper error: " + error);
+      LOG.error(error);
+    }
+
   }
   
   /**
@@ -1865,6 +1899,10 @@ public class GrouperCheckConfig {
   /** match something like this: group.attribute.validator.attributeName.0 */
   private static Pattern groupValidatorPattern = Pattern.compile(
       "^group\\.attribute\\.validator\\.(attributeName|regex|vetoMessage)\\.\\d+$");
+
+  /** match something like this: grouper.membership.customComposite.uiKey.0 */
+  private static Pattern customCompositePattern = Pattern.compile(
+      "^grouper\\.membership\\.customComposite\\.(uiKey|compositeType|groupName)\\.\\d+$");
   
   /** match something like this: grouperIncludeExclude.requireGroup.name.0 */
   private static Pattern includeExcludeAndGroupPattern = Pattern.compile(
@@ -1947,6 +1985,9 @@ public class GrouperCheckConfig {
         return true;
       }
       if (memberSortSearchSecurityPattern.matcher(propertyName).matches()) {
+        return true;
+      }
+      if (customCompositePattern.matcher(propertyName).matches()) {
         return true;
       }
     }

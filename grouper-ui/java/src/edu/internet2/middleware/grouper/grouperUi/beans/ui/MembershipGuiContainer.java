@@ -299,6 +299,40 @@ public class MembershipGuiContainer {
   private GuiStem guiStemCurrent;
   
   /**
+   * current gui membership, e.g. when tracing memberships
+   */
+  private GuiMembership guiMembershipCurrent;
+  
+  /**
+   * current gui membership, e.g. when tracing memberships
+   * @return gui membership
+   */
+  public GuiMembership getGuiMembershipCurrent() {
+    return this.guiMembershipCurrent;
+  }
+  
+  /**
+   * current gui membership, e.g. when tracing memberships
+   * @param guiMembershipCurrent1 
+   */
+  public void setGuiMembershipCurrent(GuiMembership guiMembershipCurrent1) {
+    this.guiMembershipCurrent = guiMembershipCurrent1;
+  }
+  
+  /**
+   * @return true if current membership (e.g. when tracing memberships) has membership enabled/disabled dates
+   */
+  public boolean getGuiMembershipCurrentHasMembershipDates() {
+    if (this.guiMembershipCurrent != null) {
+      if (this.guiMembershipCurrent.getMembership().getEnabledTime() != null || this.guiMembershipCurrent.getMembership().getDisabledTime() != null) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
    * current gui stem e.g. when tracing memberships
    * @return gui stem
    */

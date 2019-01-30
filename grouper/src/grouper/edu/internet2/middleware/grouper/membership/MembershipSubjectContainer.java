@@ -321,6 +321,25 @@ public class MembershipSubjectContainer {
   public Map<String, MembershipContainer> getMembershipContainers() {
     return this.membershipContainers;
   }
+  
+  /**
+   * all memberships for field
+   */
+  private Map<String, List<Membership>> allMemberships;
+  
+  /**
+   * @return all memberships for field
+   */
+  public Map<String, List<Membership>> getAllMemberships() {
+    return this.allMemberships;
+  }
+  
+  /**
+   * @param allMemberships
+   */
+  public void setAllMemberships(Map<String, List<Membership>> allMemberships) {
+    this.allMemberships = allMemberships;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer#getSubject()
@@ -871,6 +890,7 @@ public class MembershipSubjectContainer {
         MembershipSubjectContainer membershipSubjectContainer = resultsMemberOwnerToMembershipSubjectContainer.get(memberOwnerKey);
         
         membershipSubjectContainer.setMembershipContainers(new TreeMap<String, MembershipContainer>());
+        membershipSubjectContainer.setAllMemberships(new TreeMap<String, List<Membership>>());
         
         //lets get the memberships
         List<Object[]> membershipList = memberOwnerToMembershipResultMap.get(memberOwnerKey);
@@ -882,6 +902,12 @@ public class MembershipSubjectContainer {
             
             Member member = (Member)objectArray[2];
             Field field = FieldFinder.findById(membership.getFieldId(), true);
+            
+            if (membershipSubjectContainer.getAllMemberships().get(field.getName()) == null) {
+              membershipSubjectContainer.getAllMemberships().put(field.getName(), new ArrayList<Membership>());
+            }
+            
+            membershipSubjectContainer.getAllMemberships().get(field.getName()).add(membership);
             
             //multiple memberships could have the same result, just skip if already set
             if (membershipSubjectContainer.getMembershipContainers().get(field.getName()) == null) {
