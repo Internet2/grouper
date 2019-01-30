@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -149,6 +150,7 @@ public class RegistryReset {
       MemberFinder.clearInternalMembers();
       rr._emptyTables(includeTypesAndFields);
       rr._addSubjects();
+      SubjectSourceCache.clearCache();
     }
     catch (Exception e) {
       rr._abort(ExceptionUtils.getFullStackTrace(e));

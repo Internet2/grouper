@@ -80,6 +80,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -1010,6 +1011,8 @@ public class GrouperTest extends TestCase {
     LOG.debug("setUp");
 
     EhcacheController.ehcacheController().flushCache();
+    
+    SubjectSourceCache.clearCache();
     
     GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
     GrouperSession.clearGrouperSessions();

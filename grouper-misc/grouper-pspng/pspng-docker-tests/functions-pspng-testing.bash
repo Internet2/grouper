@@ -9,8 +9,11 @@ init_test_scenario_variables()
   export TEST_FOLDER_TOP=${TEST_FOLDER_TOP:-parentFolder}
   export TEST_FOLDER=${TEST_FOLDER:-${TEST_FOLDER_TOP}:provisionedFolder}
 
-  export GROUP1_NAME=${GROUP1_NAME:-${TEST_FOLDER}:group1}
-  export GROUP2_NAME=${GROUP2_NAME:-${TEST_FOLDER}:group2}
+  export GROUP1_EXTENSION=${GROUP1_EXTENSION:-group1}
+  export GROUP2_EXTENSION=${GROUP2_EXTENSION:-group2}
+
+  export GROUP1_NAME=${GROUP1_NAME:-${TEST_FOLDER}:${GROUP1_EXTENSION}}
+  export GROUP2_NAME=${GROUP2_NAME:-${TEST_FOLDER}:${GROUP2_EXTENSION}}
   export UNPROVISIONED_GROUP_NAME=${UNPROVISIONED_GROUP_NAME:-${TEST_FOLDER_TOP}:unprovisioned-group}
 
   #Remove everything up to the last colon
