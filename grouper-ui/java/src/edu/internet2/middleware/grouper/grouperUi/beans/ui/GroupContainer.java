@@ -15,22 +15,25 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -56,6 +59,8 @@ public class GroupContainer {
     return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance();
   }
   
+  
+  private Map<Integer, String> customCompositeIndexesAndUiKeys;
 
   /**
    * if displaying composite, this is the owner
@@ -914,4 +919,107 @@ public class GroupContainer {
     this.guiAttributeAssigns = guiAttributeAssigns;
   }
     
+  private boolean showEnabledStatus;
+  
+  private boolean showPointInTimeAudit;
+
+  
+  /**
+   * @return the showEnabledStatus
+   */
+  public boolean isShowEnabledStatus() {
+    return showEnabledStatus;
+  }
+
+  
+  /**
+   * @param showEnabledStatus the showEnabledStatus to set
+   */
+  public void setShowEnabledStatus(boolean showEnabledStatus) {
+    this.showEnabledStatus = showEnabledStatus;
+  }
+
+  
+  /**
+   * @return the showPointInTimeAudit
+   */
+  public boolean isShowPointInTimeAudit() {
+    return showPointInTimeAudit;
+  }
+
+  
+  /**
+   * @param showPointInTimeAudit the showPointInTimeAudit to set
+   */
+  public void setShowPointInTimeAudit(boolean showPointInTimeAudit) {
+    this.showPointInTimeAudit = showPointInTimeAudit;
+  }
+
+  
+  /**
+   * @return the customCompositeUiKeys
+   */
+  @SuppressWarnings("unchecked")
+  public Map<Integer, String> getCustomCompositeUiKeys() {
+    
+    if (customCompositeIndexesAndUiKeys == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+      this.customCompositeIndexesAndUiKeys = (Map<Integer, String>)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              
+              Map<Integer, String> temp = new LinkedHashMap<Integer, String>();
+              
+              int count = 0;
+              while (true) {
+                String uiKey = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.uiKey." + count, null);
+                String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + count, null);
+                String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + count, null);
+                
+                if (uiKey == null || groupName == null || compositeType == null) {
+                  break;
+                }
+                
+                Group group = GroupFinder.findByName(grouperSession, groupName, false);
+                if (group == null) {
+                  // bad config
+                  continue;
+                }
+                
+                if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+                  temp.put(count, uiKey);
+                }
+                
+                count++;
+              }
+              
+              return temp;
+            }
+          });
+    }
+    
+    return customCompositeIndexesAndUiKeys;
+  }
+  
+  private Set<GuiPITMembershipView> guiPITMembershipViews;
+
+  
+  /**
+   * @return the guiPITMembershipViews
+   */
+  public Set<GuiPITMembershipView> getGuiPITMembershipViews() {
+    return guiPITMembershipViews;
+  }
+
+  
+  /**
+   * @param guiPITMembershipViews the guiPITMembershipViews to set
+   */
+  public void setGuiPITMembershipViews(Set<GuiPITMembershipView> guiPITMembershipViews) {
+    this.guiPITMembershipViews = guiPITMembershipViews;
+  }
 }

@@ -3,13 +3,16 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -221,6 +224,7 @@ public class GuiMembershipSubjectContainer {
     this.guiMember = new GuiMember(membershipSubjectContainer1.getMember());
     this.guiSubject = new GuiSubject(membershipSubjectContainer1.getSubject());
     this.guiMembershipContainers = new LinkedHashMap<String, GuiMembershipContainer>();
+    this.allGuiMemberships = new LinkedHashMap<String, List<GuiMembership>>();
     if (membershipSubjectContainer1.getGroupOwner() != null) {
       this.guiGroup = new GuiGroup(membershipSubjectContainer1.getGroupOwner());
     }
@@ -236,6 +240,12 @@ public class GuiMembershipSubjectContainer {
           membershipSubjectContainer1.getMembershipContainers().get(fieldName)));
     }
     
+    for (String fieldName : GrouperUtil.nonNull(membershipSubjectContainer1.getAllMemberships().keySet())) {
+      this.allGuiMemberships.put(fieldName, new ArrayList<GuiMembership>());
+      for (Membership membership : membershipSubjectContainer1.getAllMemberships().get(fieldName)) {
+        this.allGuiMemberships.get(fieldName).add(new GuiMembership(membership));
+      }
+    }
   }
 
   /**
@@ -264,6 +274,21 @@ public class GuiMembershipSubjectContainer {
     return this.membershipSubjectContainer;
   }
 
+  private Map<String, List<GuiMembership>> allGuiMemberships;
+
   
+  /**
+   * @return the allGuiMemberships
+   */
+  public Map<String, List<GuiMembership>> getAllGuiMemberships() {
+    return allGuiMemberships;
+  }
+
   
+  /**
+   * @param allGuiMemberships the allGuiMemberships to set
+   */
+  public void setAllGuiMemberships(Map<String, List<GuiMembership>> allGuiMemberships) {
+    this.allGuiMemberships = allGuiMemberships;
+  }
 }
