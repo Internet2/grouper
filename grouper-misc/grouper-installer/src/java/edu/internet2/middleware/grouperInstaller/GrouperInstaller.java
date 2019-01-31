@@ -275,15 +275,15 @@ public class GrouperInstaller {
 
     if (localFile.exists()) {
       
-      if (useAllLocalFiles != null && useAllLocalFiles == true) {
+      if (this.useAllLocalFiles != null && this.useAllLocalFiles == true) {
         useLocalFile = true;
       } else {
         System.out.print("File exists: " + localFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
         useLocalFile = readFromStdInBoolean(true, autorunUseLocalFilePropertiesKey);
         
-        if (useLocalFile && useAllLocalFiles == null) {
+        if (useLocalFile && this.useAllLocalFiles == null) {
           System.out.print("Would you like to use all local files (t|f)? [t]: ");
-          useAllLocalFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllLocalFiles");
+          this.useAllLocalFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllLocalFiles");
         }
       }
     }
@@ -1987,6 +1987,14 @@ public class GrouperInstaller {
     this.untarredApiDir = new File(sourceTagDir + File.separator + "grouper");
     this.buildGrouperApi(new File(sourceTagDir + File.separator + "grouper"));
     
+    if (this.appToUpgrade == AppToUpgrade.API) {
+      //other packages, e.g. messaging
+      this.buildMessagingRabbitmq(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
+      this.buildMessagingRabbitmq(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
+      
+    }
+    
+
     if (this.appToUpgrade == AppToUpgrade.UI) {
       //lets build the UI
       this.untarredApiDir = new File(sourceDir + File.separator + "grouper");
@@ -2600,6 +2608,19 @@ public class GrouperInstaller {
                 + File.separator + "conf"),
             PatchFileType.clazz);
 
+        // rabbitmq
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq" 
+                + File.separator + "src" + File.separator + "main" + File.separator + "java"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq" 
+                + File.separator + "dist" + File.separator + "bin"),
+            PatchFileType.clazz);
+
         //add grouper api files
         this.patchCreateProcessFiles(theIndexOfFiles, 
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
@@ -3154,6 +3175,51 @@ public class GrouperInstaller {
     }
 
     System.out.println("\nEnd building client");
+    System.out.println("##################################\n");
+    
+  }
+
+  /**
+   * build client API
+   * @param messagingRabbitMqDir
+   */
+  private void buildMessagingRabbitmq(File messagingRabbitMqDir) {
+    if (!messagingRabbitMqDir.exists() || messagingRabbitMqDir.isFile()) {
+      throw new RuntimeException("Cant find messaging rabbitmq: " + messagingRabbitMqDir.getAbsolutePath());
+    }
+    
+    File messaginRabbitmqBuildToDir = new File(messagingRabbitMqDir.getAbsoluteFile() + File.separator + "dist" + File.separator + "bin");
+    
+    boolean rebuildMessagingRabbitmq = true;
+    
+    if (messaginRabbitmqBuildToDir.exists()) {
+      System.out.print("Grouper messaging rabbitmq has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildMessagingRabbitmq = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildMessagingRabbitmqAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildMessagingRabbitmq) {
+      return;
+    }
+
+    List<String> commands = new ArrayList<String>();
+    
+    addAntCommands(commands);
+    
+    System.out.println("\n##################################");
+    System.out.println("Building messaging rabbitmq with command:\n" + messagingRabbitMqDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, messagingRabbitMqDir, null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    System.out.println("\nEnd building messaging rabbitmq");
     System.out.println("##################################\n");
     
   }
@@ -5163,6 +5229,7 @@ public class GrouperInstaller {
 
       if (srcFile.isFile() && !GrouperInstallerUtils.contentEquals(srcFile, targetFile)) {
         try {
+          @SuppressWarnings("unused")
           File bakFile = backupAndCopyFile(srcFile, targetFile, true);
         } catch (Exception e) {
           System.out.println(" - failed to copy newer bin file " + filename + ": " + e.getMessage());
@@ -8877,6 +8944,7 @@ public class GrouperInstaller {
 
   /**
    * get all library files
+   * @param appDir 
    * @return the list of files
    */
   private List<File> findAllLibraryFiles(String appDir) {
@@ -12974,7 +13042,7 @@ public class GrouperInstaller {
     
     if (untarredFile.exists()) {
       
-      if (useAllUntarredDirectories != null && useAllUntarredDirectories == true) {
+      if (this.useAllUntarredDirectories != null && this.useAllUntarredDirectories == true) {
         return untarredFile;
       }
       
@@ -12982,9 +13050,9 @@ public class GrouperInstaller {
       boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
       if (useUnzippedFile) {
         
-        if (useAllUntarredDirectories == null) {
+        if (this.useAllUntarredDirectories == null) {
           System.out.print("Would you like to use all existing untarred directories (t|f)? [t]: ");
-          useAllUntarredDirectories = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllUntarredDirectories");
+          this.useAllUntarredDirectories = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllUntarredDirectories");
         }
         
         return untarredFile;
@@ -13206,16 +13274,16 @@ public class GrouperInstaller {
     File unzippedFile = new File(unzippedFileName);
     if (unzippedFile.exists()) {
       
-      if (useAllUnzippedFiles != null && useAllUnzippedFiles == true) {
+      if (this.useAllUnzippedFiles != null && this.useAllUnzippedFiles == true) {
         return unzippedFile;
       }
       
       System.out.print("Unzipped file exists: " + unzippedFileName + ", use unzipped file (t|f)? [t]: ");
       boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
       if (useUnzippedFile) {
-        if (useAllUnzippedFiles == null) {
+        if (this.useAllUnzippedFiles == null) {
           System.out.print("Would you like to use all existing unzipped files (t|f)? [t]: ");
-          useAllUnzippedFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllUnzippedFiles");
+          this.useAllUnzippedFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.useAllUnzippedFiles");
         }
         
         return unzippedFile;
@@ -14859,6 +14927,7 @@ public class GrouperInstaller {
     return xmlParseAttributesResult;
   }
   
+  /** revert patch excludes */
   private static Set<String> revertPatchExcludes = new HashSet<String>();
   
   static {
