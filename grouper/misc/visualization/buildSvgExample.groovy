@@ -31,7 +31,7 @@ graph.build()
 ss = new VisualSettings().getStyleSet("dot")
 
 
-def dotFile = new File("C:/Temp/x").newWriter()
+def dotFile = new File(inFilename).newWriter()
 
 
 dotFile.write """digraph "Grouper Graph of: ${inObject.name}
@@ -138,7 +138,7 @@ dotFile.close()
 def converter = "dot -Tsvg -o ${inFilename}.svg ${inFilename}".execute()
 converter.waitFor()
 if (converter.exitValue()) {
-    println "Error RUnning svg command -- ${converter.text}"
+    println "Error Running svg command -- ${converter.text}"
 } else {
-    println "Converted to svg"
+    println "Converted to svg in file ${inFilename}.svg"
 }

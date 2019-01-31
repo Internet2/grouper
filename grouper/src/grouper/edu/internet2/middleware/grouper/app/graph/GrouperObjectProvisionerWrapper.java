@@ -69,13 +69,13 @@ public class GrouperObjectProvisionerWrapper implements GrouperObject {
   }
 
   /**
-   * description of object, not implemented
+   * description of object, not implemented so returns blank string
    *
    * @return description
    */
   @Override
   public String getDescription() {
-    throw new RuntimeException("Not implemented");
+    return "";
   }
 
   /**

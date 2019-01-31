@@ -18,16 +18,22 @@ package edu.internet2.middleware.grouper.app.graph;
 
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -67,8 +73,11 @@ public class RelationGraph {
   private static Field grouperMemberField;
   private static AttributeDefName provisionToAttributeDefName;
   private static String loaderGroupIdAttrDefNameId;
+  private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
+  private static AttributeDefName ldapLoaderAttributeDefName; // used by graph nodes to determine if loader job
+  private static boolean attemptedInitAttributeDefs = false;
 
-  private GrouperSession session;
+  private GrouperSession grouperSession;
 
   /* assignX settings for graph construction */
   private GrouperObject startObject;
@@ -106,10 +115,10 @@ public class RelationGraph {
    * assign methods to set build parameters, and then call build() to construct
    * the graph.
    *
-   * @param session The Grouper session
+   * @param grouperSession The session of the user building the graph
    */
-  public RelationGraph(GrouperSession session) {
-    this.session = session;
+  public RelationGraph(GrouperSession grouperSession) {
+    this.grouperSession = grouperSession;
   }
 
   /**
@@ -547,7 +556,13 @@ public class RelationGraph {
 
   // return the loader job(s) for this group
   private List<Group> fetchLoaderJobs(Group g) {
-    Set<AttributeAssign> attrAssigns = g.getAttributeDelegate().retrieveAssignmentsByAttributeDef(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataDef");
+    Set<AttributeAssign> attrAssigns = null;
+    try {
+      attrAssigns = g.getAttributeDelegate().retrieveAssignmentsByAttributeDef(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataDef");
+    } catch (AttributeDefNotFoundException e) {
+      LOG.debug("Could not find loaderMetadataDef attribute for group " + g.getName() + " (" + e.getMessage() + ")");
+    }
+
     if (attrAssigns == null || attrAssigns.size() == 0) {
       return Collections.emptyList();
     }
@@ -572,31 +587,32 @@ public class RelationGraph {
    * Return the set of all groups loaded by a loader group, by its id
    */
   private Set<Group> fetchGroupsLoadedByJob(Group group) {
-    if (loaderGroupIdAttrDefNameId == null) {
-      loaderGroupIdAttrDefNameId = AttributeDefNameFinder.findByName(
-        GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true
-      ).getId();
+    if (loaderGroupIdAttrDefNameId != null) {
+      return new GroupFinder()
+        .assignIdOfAttributeDefName(loaderGroupIdAttrDefNameId)
+        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(group.getId()))
+        .findGroups();
+    } else {
+      // previously unable to init the attributeDef
+      return Collections.emptySet();
     }
-
-    return new GroupFinder()
-      .assignIdOfAttributeDefName(loaderGroupIdAttrDefNameId)
-      .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(group.getId()))
-      .findGroups();
   }
   /*
    * return the PSPNG provisioning targets (as GrouperObject wrappers) for this group,
    * as seen in the provision_to attribute
    */
   private List<GrouperObjectProvisionerWrapper> fetchProvisioners(Group g) {
-    // Set up static AttributeDefName for provision_to attribute. Will throw error if
-    // the provision_to attribute not set up. Caller should unset
-    // assignShowProvisionTargets to avoid this so the build can still run
     if (provisionToAttributeDefName == null) {
-      String prov_to = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":pspng:provision_to";
-      provisionToAttributeDefName = AttributeDefNameFinder.findByName(prov_to, true);
+      return Collections.emptyList();
     }
 
-    Set<AttributeAssign> attrAssigns = g.getAttributeDelegate().retrieveAssignments(provisionToAttributeDefName);
+    Set<AttributeAssign> attrAssigns = null;
+    try {
+      attrAssigns = g.getAttributeDelegate().retrieveAssignments(provisionToAttributeDefName);
+    } catch (AttributeDefNotFoundException e) {
+      LOG.debug("Failed to get provisioner attribute of group " + g.getName() + " (" + e.getMessage() + ")");
+    }
+
     if (attrAssigns == null || attrAssigns.size() == 0) {
       return Collections.emptyList();
     }
@@ -685,8 +701,24 @@ public class RelationGraph {
     if (toNode.isGroup()) {
       Group theGroup = (Group)(toNode.getGrouperObject());
       long numMembersAdded = 0;
-      for (Member m : fetchImmediateGsaMembers(theGroup)) {
-        Group parentGroup = m.toGroup();
+      for (final Member m : fetchImmediateGsaMembers(theGroup)) {
+        Group parentGroup = null;
+        try {
+          // use this version if the graph should exclude groups that can't be viewed
+          //parentGroup = m.toGroup();
+          // use this version to see all the groups.
+          parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+            public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+              return m.toGroup();
+            }
+          });
+        } catch (GroupNotFoundException e) {
+          //user does not have permission to view group
+          LOG.debug("Session " + grouperSession.getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
+            + "-- this group and any connected to it will be skipped");
+          continue;
+        }
+
         if (getMaxSiblings() > 0 && numMembersAdded >= getMaxSiblings()) {
           skippedGroups.add(parentGroup);
         } else if (!matchesFilter(parentGroup)) {
@@ -890,6 +922,9 @@ public class RelationGraph {
       throw new RuntimeException("Starting object was not defined");
     }
 
+    // this may be the first time through; attribute to look up the attribute definitions
+    initAttributeDefs();
+
     skippedFolders = new HashSet<Stem>();
     skipFolderPatterns = new LinkedList<Pattern>();
     if (skipFolderNamePatterns != null) {
@@ -940,7 +975,7 @@ public class RelationGraph {
     // if starting with a stem, also visit the parents of its child groups
     if (startNode.isStem()) {
       for (Group g: ((Stem)startNode.getGrouperObject()).getChildGroups(Stem.Scope.ONE)) {
-        visitNode(fetchOrCreateNode(g), -1, true, false);
+        visitNode(fetchOrCreateNode(g), 1, true, false);
       }
 
     }
@@ -951,5 +986,71 @@ public class RelationGraph {
       e.getFromNode().addChildNode(e.getToNode());
       e.getToNode().addParentNode(e.getFromNode());
     }
+  }
+
+  // If first time called, init the static attributeDef fields. Find these as root user
+  private static void initAttributeDefs() {
+    if (attemptedInitAttributeDefs) {
+      return;
+    }
+
+    String loaderMetadataGroupIdName = GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
+    try {
+      loaderGroupIdAttrDefNameId = AttributeDefNameFinder.findByNameAsRoot(
+        GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true
+      ).getId();
+    } catch (AttributeDefNameNotFoundException e) {
+      LOG.warn("Unable to retrieve attribute " + loaderMetadataGroupIdName + "; results will not include groups loaded by jobs", e);
+    }
+
+    try {
+      String prov_to = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":pspng:provision_to";
+      provisionToAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(prov_to, true);
+    } catch (AttributeDefNameNotFoundException e) {
+      LOG.warn("Unable to retrieve PSPNG provision_to attribute; results will not include provisioning relationships", e);
+    }
+
+    try {
+      // is GroupTypeFinder using root session by default?
+      sqlLoaderAttributeDefName = GroupTypeFinder.find("grouperLoader").getAttributeDefName();
+    } catch (Exception e) {
+      LOG.warn("Unable to retrieve attribute for sql loader jobs; groups might not be detected as loader jobs", e);
+    }
+
+    try {
+      if (ldapLoaderAttributeDefName == null) {
+        ldapLoaderAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(LoaderLdapUtils.grouperLoaderLdapName(), true);
+      }
+    } catch (AttributeDefNameNotFoundException e) {
+      LOG.warn("Unable to retrieve attribute " + LoaderLdapUtils.grouperLoaderLdapName() + "; groups might not be detected as loader jobs", e);
+    }
+
+    attemptedInitAttributeDefs = true;
+  }
+
+  /**
+   * should be only useful for {@link GraphNode} nodes needing the sql loader attribute within the
+   * context of the user session
+   *
+   * @return
+   */
+  public static AttributeDefName getSqlLoaderAttributeDefName() {
+    if (!attemptedInitAttributeDefs) {
+      initAttributeDefs();
+    }
+    return sqlLoaderAttributeDefName;
+  }
+
+  /**
+   * should be only useful for {@link GraphNode} nodes needing the ldap loader attribute within the
+   * context of the user session
+   *
+   * @return
+   */
+  public static AttributeDefName getLdapLoaderAttributeDefName() {
+    if (!attemptedInitAttributeDefs) {
+      initAttributeDefs();
+    }
+    return ldapLoaderAttributeDefName;
   }
 }

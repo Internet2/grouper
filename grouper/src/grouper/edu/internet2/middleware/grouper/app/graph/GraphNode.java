@@ -18,12 +18,8 @@ package edu.internet2.middleware.grouper.app.graph;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
-import edu.internet2.middleware.grouper.app.visualization.VisualStyle;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
@@ -43,11 +39,6 @@ import java.util.Set;
  * set them meaningfully.
  */
 public class GraphNode {
-
-  //todo ?? add a getName here so the root folder can default to something besides blank
-  private static AttributeDefName sqlLoaderAttributeDefName;
-  private static AttributeDefName ldapLoaderAttributeDefName;
-
   private GrouperObject grouperObject;
   private long memberCount;
 
@@ -142,20 +133,14 @@ public class GraphNode {
       Group theGroup = (Group)grouperObject;
       this.group = true;
 
-      // on first run, initialize the singletons for the AttributeDefName lookups
-      if (sqlLoaderAttributeDefName == null) {
-        sqlLoaderAttributeDefName = GroupTypeFinder.find("grouperLoader").getAttributeDefName();
-      }
-      if (ldapLoaderAttributeDefName == null) {
-        ldapLoaderAttributeDefName = LoaderLdapUtils.grouperLoaderLdapAttributeDefName(true);
-      }
-
       // is it a sql loader job?
-      if (theGroup.getAttributeDelegate().retrieveAssignment(null, sqlLoaderAttributeDefName, false, false)!=null) {
+      if (RelationGraph.getSqlLoaderAttributeDefName() != null
+          && theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getSqlLoaderAttributeDefName(), false, false)!=null) {
         this.loaderGroup = true;
       }
       // is an ldap loader job?
-      else if (theGroup.getAttributeDelegate().retrieveAssignment(null, ldapLoaderAttributeDefName, false, false)!=null) {
+      else if (RelationGraph.getLdapLoaderAttributeDefName() != null
+          && theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getLdapLoaderAttributeDefName(), false, false)!=null) {
         this.loaderGroup = true;
       }
 
@@ -427,5 +412,29 @@ public class GraphNode {
    */
   public StyleObjectType getStyleObjectType() {
     return styleObjectType;
+  }
+
+  /**
+   * helper method to get the id of the underlying GrouperObject
+   *
+   * @return the id of the underlying GrouperObject
+   */
+  public String getGrouperObjectId() {
+//    if (isSubject()) {
+//      // GrouperObjectSubjectWrapper constructs a weird source||||id string as the id; dig into the underlying subject to
+//      // get just the id
+//      return ((GrouperObjectSubjectWrapper)this.getGrouperObject()).getSubject().getId();
+//    } else {
+      return this.getGrouperObject().getId();
+//    }
+  }
+
+  /**
+   * Helper method to get the id of the underlying GrouperObject
+   *
+   * @return the name of the underlying GrouperObject
+   */
+  public String getGrouperObjectName() {
+    return this.getGrouperObject().getName();
   }
 }
