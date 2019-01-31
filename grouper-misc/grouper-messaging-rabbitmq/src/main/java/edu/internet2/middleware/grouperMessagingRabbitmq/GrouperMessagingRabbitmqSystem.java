@@ -4,25 +4,17 @@
  */
 package edu.internet2.middleware.grouperMessagingRabbitmq;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeoutException;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.Queue.DeclareOk;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
@@ -56,13 +48,20 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperMessagingRabbitmqSystem.class);
   
-  private MessageReceiveEventListener listener;
+  private RabbitMQConnectionFactory connectionFactory;
   
-  public GrouperMessagingRabbitmqSystem() {}
-
+  public GrouperMessagingRabbitmqSystem() {
+    this(RabbitMQConnectionFactoryImpl.INSTANCE);
+  }
+  
+  protected GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactory connectionFactory) {
+    this.connectionFactory = connectionFactory;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
+  @Override
   public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
         
     if (grouperMessageSendParam.getGrouperMessageQueueParam() == null) {
@@ -70,6 +69,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     }
     
     String queueOrTopicName = grouperMessageSendParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+    String exchangeType = grouperMessageSendParam.getExchangeType();
     
     if (StringUtils.isBlank(queueOrTopicName)) {
       throw new IllegalArgumentException("queueOrTopicName is required.");
@@ -82,11 +82,11 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     
     try {
       
-      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection(grouperMessageSystemParam.getMessageSystemName());
+      Connection connection = connectionFactory.getConnection(grouperMessageSystemParam.getMessageSystemName());
       Channel channel = connection.createChannel();
       
       String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
-          grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType());
+          exchangeType, grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType());
       
       if (error != null) {
         throw new IllegalArgumentException(error);
@@ -114,17 +114,15 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#acknowledge(edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam)
    */
+  @Override
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
     return new GrouperMessageAcknowledgeResult();
   }
   
-  public void addReceiveEventListener(MessageReceiveEventListener listener) {
-    this.listener = listener;
-  }
-
   /**
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
    */
+  @Override
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
     
     GrouperMessageSystemParam grouperMessageSystemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
@@ -148,6 +146,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     final Integer pageSize = maxMessagesToReceiveAtOnce;
     
     String queueOrTopicName = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
+    String exchangeType = grouperMessageReceiveParam.getExchangeType();
     
     if (StringUtils.isBlank(queueOrTopicName)) {
       throw new IllegalArgumentException("queueOrTopicName is required.");
@@ -165,7 +164,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
     
     try {
 
-      Connection connection = RabbitMQConnectionFactory.INSTANCE.getConnection(grouperMessageSystemParam.getMessageSystemName());
+      Connection connection = connectionFactory.getConnection(grouperMessageSystemParam.getMessageSystemName());
       final Channel channel = connection.createChannel();
       Consumer consumer = new DefaultConsumer(channel) {
         @Override
@@ -182,15 +181,12 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
               LOG.error("Error occurred while closing channel", e);
             }
           }
-          if (listener != null) {
-            listener.messageReceived(message);
-          }
           LOG.info("Received: "+message);
         }
       };
       
       String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
-          grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType());
+          exchangeType, grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType());
       
       if (error != null) {
         throw new IllegalArgumentException(error);
@@ -234,13 +230,23 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    * @throws IOException
    */
   private String createQueueOrExchange(GrouperMessageSystemParam grouperMessageSystemParam,
-      Channel channel, String queueOrTopicName, GrouperMessageQueueType queueType) throws IOException {
+      Channel channel, String queueOrTopicName, String exchangeType, GrouperMessageQueueType queueType) throws IOException {
     
     String error = null;
     
     if (queueType == GrouperMessageQueueType.topic) {
       if (grouperMessageSystemParam.isAutocreateObjects()) {
-        channel.exchangeDeclare(queueOrTopicName, BuiltinExchangeType.FANOUT, true);
+        
+        BuiltinExchangeType exchange;
+        try {
+          exchange = BuiltinExchangeType.valueOf(exchangeType.toUpperCase());
+        } catch(Exception e) {
+          String validExchangeTypes = StringUtils.join(BuiltinExchangeType.values(), ",");
+          error = "exchange type "+exchangeType+" is not valid. Valid options are: "+validExchangeTypes;
+          return error;
+        }
+        channel.exchangeDeclare(queueOrTopicName, exchange, true);
+        
       } else {
         try {
           channel.exchangeDeclarePassive(queueOrTopicName);
@@ -263,112 +269,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
   }
   
   public void closeConnection(String messagingSystemName) {
-    RabbitMQConnectionFactory.INSTANCE.closeConnection(messagingSystemName);
-  }
-  
-  private enum RabbitMQConnectionFactory {
-    
-    INSTANCE;
-    
-    private Map<String, Connection> messagingSystemNameConnection = new HashMap<String, Connection>();
-           
-    private void closeConnection(String messagingSystemName) {
-      if (StringUtils.isBlank(messagingSystemName)) {
-        throw new IllegalArgumentException("messagingSystemName is required.");
-      }
-      Connection connection = messagingSystemNameConnection.get(messagingSystemName);
-      synchronized(RabbitMQConnectionFactory.class) { 
-        if (connection != null && connection.isOpen()) {
-          try {
-            connection.close();
-            connection = null;
-          } catch(IOException e) {
-            throw new RuntimeException("Error occurred while closing rabbitmq connection for "+messagingSystemName);
-          }
-        }
-      }
-    }
-    
-    private Connection getConnection(String messagingSystemName) {
-      
-      if (StringUtils.isBlank(messagingSystemName)) {
-        throw new IllegalArgumentException("messagingSystemName is required.");
-      }
-      
-      Connection connection =  messagingSystemNameConnection.get(messagingSystemName);
-      
-      synchronized(RabbitMQConnectionFactory.class) {
-        if (connection != null && !connection.isOpen()) {
-          connection = null;
-        }
-        
-        if (connection == null || !connection.isOpen()) {
-          
-          GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
-
-          
-          String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
-          String virtualHost = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "virtualhost");
-          String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
-          String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
-          
-          String tlsVersion = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "tlsVersion");
-          String pathToTrustStore = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "pathToTrustStore");
-          String trustPassphrase = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "trustPassphrase");
-          
-          if (StringUtils.isNotBlank(password)) {
-            password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
-          }
-          int port = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "port", -1);
-          
-          try {
-            ConnectionFactory factory = new ConnectionFactory();
-           
-            if (StringUtils.isNotEmpty(host)) {
-              factory.setHost(host);
-            }
-            
-            if (StringUtils.isNotEmpty(virtualHost)) {
-              factory.setVirtualHost(virtualHost);
-            }
-            
-            if (StringUtils.isNotEmpty(username)) {
-              factory.setUsername(username);
-            }
-            
-            if (StringUtils.isNotEmpty(password)) {
-              factory.setPassword(password);
-            }
-            
-            if (port != -1) {
-              factory.setPort(port);
-            }
-
-            if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)
-                && StringUtils.isNotEmpty(tlsVersion)) {
-              
-              KeyStore tks = KeyStore.getInstance("JKS");
-              tks.load(new FileInputStream(pathToTrustStore), trustPassphrase.toCharArray());
-              TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-              tmf.init(tks);
-              SSLContext c = SSLContext.getInstance(tlsVersion);
-              c.init(null, tmf.getTrustManagers(), null);
-              
-              factory.useSslProtocol();
-              
-            }
-            
-            connection = factory.newConnection();
-            messagingSystemNameConnection.put(messagingSystemName, connection);
-            
-          } catch (Exception e) {
-            throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host+" for "+messagingSystemName);
-          }
-        }
-      
-      }
-      return connection;
-    }
+    connectionFactory.closeConnection(messagingSystemName);
   }
   
 }

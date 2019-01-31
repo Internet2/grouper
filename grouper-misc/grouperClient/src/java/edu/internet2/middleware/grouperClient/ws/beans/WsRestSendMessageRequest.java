@@ -36,6 +36,12 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   /** messages to be sent **/
   private WsMessage[] messages;
   
+  /** routing key for rabbitmq **/
+  private String routingKey;
+  
+  /** auto create queue/topic **/
+  private Boolean autocreateObjects;
+  
   /**
    * @return the messages to be sent
    */
@@ -50,6 +56,23 @@ public class WsRestSendMessageRequest implements WsRequestBean {
     this.messages = messages1;
   }
   
+  
+  /**
+   * routing key for rabbitmq
+   * @return routingKey
+   */
+  public String getRoutingKey() {
+    return routingKey;
+  }
+
+  /**
+   * outing key for rabbitmq
+   * @param routingKey1
+   */
+  public void setRoutingKey(String routingKey1) {
+    this.routingKey = routingKey1;
+  }
+
   /**
    * queue or topic
    * @return queueType
@@ -151,4 +174,20 @@ public class WsRestSendMessageRequest implements WsRequestBean {
     this.params = params1;
   }
 
+  /**
+   * auto create queue/topic
+   * @return autocreateObjects
+   */
+  public Boolean isAutocreateObjects() {
+    return autocreateObjects;
+  }
+
+  /**
+   * auto create queue/topic
+   * @param autocreateObjects1
+   */
+  public void setAutocreateObjects(Boolean autocreateObjects1) {
+    this.autocreateObjects = autocreateObjects1;
+  }
+  
 }

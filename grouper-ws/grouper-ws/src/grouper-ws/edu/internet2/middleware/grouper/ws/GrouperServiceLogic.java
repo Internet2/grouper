@@ -9974,7 +9974,8 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
       final GrouperMessageQueueType queueType, final String queueOrTopicName,
-      final String messageSystemName, String routingKey, Boolean autocreateObjects,
+      final String messageSystemName, String routingKey,
+      Boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
@@ -10037,9 +10038,15 @@ public class GrouperServiceLogic {
           .assignAutocreateObjects(autocreateObjects)
           .assignQueueOrTopicName(queueOrTopicName)
           .assignQueueType(queueType)
+          .assignRoutingKey(routingKey)
           .assignGrouperMessages(grouperMessages);
+      
+      if (paramMap.containsKey("exchangeType")) {
+        String exchangeType = paramMap.get("exchangeType");
+        grouperMessageSendParam.assignExchangeType(exchangeType);
+      }
 
-      GrouperMessagingEngine.send(grouperMessageSendParam.assignRoutingKey(routingKey));
+      GrouperMessagingEngine.send(grouperMessageSendParam);
 
       wsSendMessageResults.setMessages(messages);
       wsSendMessageResults.setMessageSystemName(messageSystemName);
@@ -10135,9 +10142,15 @@ public class GrouperServiceLogic {
       if (maxMessagesToReceiveAtOnce != null) {
         grouperMessageReceiveParam.assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce);
       }
+      
+      grouperMessageReceiveParam.assignRoutingKey(routingKey);
+      if (paramMap.containsKey("exchangeType")) {
+        String exchangeType = paramMap.get("exchangeType");
+        grouperMessageReceiveParam.assignExchangeType(exchangeType);
+      }
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
-          .receive(grouperMessageReceiveParam.assignRoutingKey(routingKey));
+          .receive(grouperMessageReceiveParam);
 
       WsMessage[] wsMessages = new WsMessage[grouperMessageReceiveResult
           .getGrouperMessages().size()];
