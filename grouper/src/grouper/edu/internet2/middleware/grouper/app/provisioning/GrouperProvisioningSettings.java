@@ -1,18 +1,41 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisioningSettings {
   
+  private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioning\\.target\\.(\\w+)\\.key$");
   
+  private static Map<String, GrouperProvisioningTarget> targets = new HashMap<String, GrouperProvisioningTarget>();
+  
+  static {
+    populateTargets();
+  }
+  
+  private static void populateTargets() {
+    
+    Map<String, String> propertiesMap = GrouperConfig.retrieveConfig().propertiesMap(grouperProvisioningTargetKey);
+    
+    for (Entry<String, String> entry: propertiesMap.entrySet()) {
+          
+      String name = entry.getKey();
+      String key = entry.getValue();
+      
+      Boolean groupAllowedToAssign = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".groupAllowedToAssign");
+      Boolean allowAssignmentsOnlyOnOneStem = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".allowAssignmentsOnlyOnOneStem");
+      
+      targets.put(name, new GrouperProvisioningTarget(key, groupAllowedToAssign, allowAssignmentsOnlyOnOneStem));
+      
+    }
+    
+  }
   
   /**
    * if provisioning in ui is enabled
@@ -33,19 +56,10 @@ public class GrouperProvisioningSettings {
   
   /**
    * all the provisioning targets
-   * @return
+   * @return targets
    */
-  public static List<String> getTargetNames() {
-    
-    //TODO: read targets from config using regex
-    String allTargetsString = GrouperConfig.retrieveConfig().propertyValueString("provisioning.targets");
-    
-    if (!StringUtils.isBlank(allTargetsString)) {
-      Set<String> targetsLabels = GrouperUtil.splitTrimToSet(allTargetsString, ",");
-      return Collections.unmodifiableList(new ArrayList<String>(targetsLabels));
-    }
-    
-    return Collections.unmodifiableList(new ArrayList<String>()); 
+  public static Map<String, GrouperProvisioningTarget> getTargets() {
+    return Collections.unmodifiableMap(targets);
   }
 
 }

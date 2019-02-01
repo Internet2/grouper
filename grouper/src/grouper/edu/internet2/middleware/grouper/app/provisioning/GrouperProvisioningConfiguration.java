@@ -16,6 +16,7 @@ import static edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -66,7 +67,9 @@ public class GrouperProvisioningConfiguration {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        for (String targetName: GrouperProvisioningSettings.getTargetNames()) {
+        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets();
+        
+        for (String targetName: targetNames.keySet()) {
           GrouperProvisioningAttributeValue value = getProvisioningAttributeValue(grouperObject, targetName);
           if (value != null) {
             result.add(value);
@@ -201,7 +204,9 @@ public class GrouperProvisioningConfiguration {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        for (String targetName: GrouperProvisioningSettings.getTargetNames()) {
+        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets();
+        
+        for (String targetName: targetNames.keySet()) {
           copyConfigFromParent(grouperObject, targetName);
         }
         

@@ -174,7 +174,7 @@ public class ProvisioningContainer {
    * @return target names
    */
   public List<String> getTargetNames() {
-    return GrouperProvisioningSettings.getTargetNames();
+    return new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
   }
 
 }
