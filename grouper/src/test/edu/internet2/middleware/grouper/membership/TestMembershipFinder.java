@@ -32,15 +32,20 @@
 
 package edu.internet2.middleware.grouper.membership;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -49,6 +54,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -57,6 +63,8 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.pit.PITMembershipView;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -93,7 +101,7 @@ public class TestMembershipFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembershipFinder("testFindAttrUpdatePrivileges"));
+    TestRunner.run(new TestMembershipFinder("testFindMembersPIT"));
   }
 
   /**
@@ -135,6 +143,14 @@ public class TestMembershipFinder extends GrouperTest {
     stemA.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.STEM_ATTR_READ, false);
     stemA.grantPriv(SubjectTestHelper.SUBJ4, NamingPrivilege.STEM_ATTR_UPDATE, false);
     stemA.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM_ATTR_UPDATE, false);
+    
+    // disabled membership
+    stemA.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, stemA, SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_UPDATE.getField(), true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
 
     stemB.grantPriv(SubjectTestHelper.SUBJ4, NamingPrivilege.CREATE, false);
     stemB.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.CREATE, false);
@@ -149,7 +165,7 @@ public class TestMembershipFinder extends GrouperTest {
 
     //membership, stem, member
     //get them all for a stem
-    Set<Object[]> result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).findMembershipsMembers();
+    Set<Object[]> result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignEnabled(true).findMembershipsMembers();
     assertEquals(10, GrouperUtil.length(result));
 
     assertHasPrivilege(result, stemA, SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
@@ -163,7 +179,7 @@ public class TestMembershipFinder extends GrouperTest {
     assertHasPrivilege(result, stemA, SubjectTestHelper.SUBJ4, NamingPrivilege.STEM_ATTR_UPDATE);
     assertHasPrivilege(result, stemA, SubjectTestHelper.SUBJ8, NamingPrivilege.STEM_ATTR_UPDATE);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).findMembershipsMembers();
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true).findMembershipsMembers();
     assertEquals(10, GrouperUtil.length(result));
 
     //check by calling user, security
@@ -172,7 +188,7 @@ public class TestMembershipFinder extends GrouperTest {
     GrouperSession.start(SubjectTestHelper.SUBJ0);
     
     //this one doesnt have privs
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).findMembershipsMembers();
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true).findMembershipsMembers();
     assertEquals(0, GrouperUtil.length(result));
     
     GrouperSession.stopQuietly(grouperSession);
@@ -180,14 +196,14 @@ public class TestMembershipFinder extends GrouperTest {
     //this subject does have privs on the stem
     GrouperSession.start(SubjectTestHelper.SUBJ1);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).findMembershipsMembers();
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true).findMembershipsMembers();
     assertEquals(10, GrouperUtil.length(result));
 
     //get the first page of two members
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, true);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).findMembershipsMembers();
     
     assertEquals(3, GrouperUtil.length(result));
@@ -200,7 +216,7 @@ public class TestMembershipFinder extends GrouperTest {
 
     //get the result object by subject
     List<MembershipSubjectContainer> membershipSubjectContainers = new ArrayList<MembershipSubjectContainer>(new MembershipFinder()
-      .assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+      .assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).findMembershipResult().getMembershipSubjectContainers());
     
     assertEquals(2, GrouperUtil.length(membershipSubjectContainers));
@@ -217,7 +233,7 @@ public class TestMembershipFinder extends GrouperTest {
     queryOptions = new QueryOptions();
     queryOptions.paging(2, 2, false);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).findMembershipsMembers();
     
     assertEquals(2, GrouperUtil.length(result));
@@ -228,7 +244,7 @@ public class TestMembershipFinder extends GrouperTest {
     assertNull(queryOptions.getCount());
 
     //do paging, and filter for a search string in the subject, all test subjects have test
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignScopeForMember("test").findMembershipsMembers();
 
     assertEquals(2, GrouperUtil.length(result));
@@ -239,7 +255,7 @@ public class TestMembershipFinder extends GrouperTest {
     assertNull(queryOptions.getCount());
 
     //no test subjects have xxx
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignScopeForMember("xxx").findMembershipsMembers();
     
     assertEquals(0, GrouperUtil.length(result));
@@ -248,13 +264,13 @@ public class TestMembershipFinder extends GrouperTest {
     queryOptions.paging(2, 1, false);
 
     //dont split scope, must have test and 2, no subject has this string
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignScopeForMember("test 2").findMembershipsMembers();
     
     assertEquals(0, GrouperUtil.length(result));
 
     //do split scope, one subject has test and 2
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignScopeForMember("test 2")
         .assignSplitScopeForMember(true).findMembershipsMembers();
 
@@ -266,7 +282,7 @@ public class TestMembershipFinder extends GrouperTest {
     queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, true);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignFieldName(Field.FIELD_NAME_CREATORS).assignHasFieldForMember(true)
         .findMembershipsMembers();
     
@@ -282,7 +298,7 @@ public class TestMembershipFinder extends GrouperTest {
     queryOptions = new QueryOptions();
     queryOptions.paging(2, 2, true);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignFieldName(Field.FIELD_NAME_CREATORS).assignHasFieldForMember(true)
         .findMembershipsMembers();
     
@@ -296,7 +312,7 @@ public class TestMembershipFinder extends GrouperTest {
     queryOptions = new QueryOptions();
     queryOptions.paging(2, 2, true);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignFieldName(Field.FIELD_NAME_CREATORS).assignHasFieldForMember(true)
         .assignMembershipType(MembershipType.IMMEDIATE).assignHasMembershipTypeForMember(true)
         .findMembershipsMembers();
@@ -311,7 +327,7 @@ public class TestMembershipFinder extends GrouperTest {
     queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, true);
     
-    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true)
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignEnabled(true)
         .assignQueryOptionsForMember(queryOptions).assignFieldName(Field.FIELD_NAME_CREATORS).assignHasFieldForMember(true)
         .assignMembershipType(MembershipType.COMPOSITE).assignHasMembershipTypeForMember(true)
         .findMembershipsMembers();
@@ -320,6 +336,85 @@ public class TestMembershipFinder extends GrouperTest {
 
     assertEquals(0, queryOptions.getQueryPaging().getTotalRecordCount());
 
+    // check enabled/disabled
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.startRootSession();
+    stemA.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, stemA, SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_UPDATE.getField(), true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    stemA.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, stemA, SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    stemA.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.STEM_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, stemA, SubjectTestHelper.SUBJ3, NamingPrivilege.STEM_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    stemA.grantPriv(SubjectTestHelper.SUBJ5, NamingPrivilege.STEM_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, stemA, SubjectTestHelper.SUBJ5, NamingPrivilege.STEM_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).findMembershipsMembers();
+    assertEquals(15, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasEnabledDate(true).findMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasEnabledDate(false).findMembershipsMembers();
+    assertEquals(12, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasDisabledDate(true).findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasDisabledDate(false).findMembershipsMembers();
+    assertEquals(13, GrouperUtil.length(result));
+    
+    // custom composites
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.revokePriv(AccessPrivilege.READ);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    group.addMember(SubjectTestHelper.SUBJ1);
+    group.addMember(SubjectTestHelper.SUBJ2);
+    group.addMember(SubjectTestHelper.SUBJ3);
+    
+    stemA.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN, false);
+    stemA.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.COMPLEMENT)
+        .findMembershipsMembers();
+    assertEquals(1, GrouperUtil.length(result));
+    assertHasPrivilege(result, stemA, SubjectTestHelper.SUBJ5, NamingPrivilege.STEM_ATTR_UPDATE);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    result = new MembershipFinder().assignStemIds(GrouperUtil.toSet(stemA.getId())).assignCheckSecurity(true).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
   }
 
   /**
@@ -373,6 +468,13 @@ public class TestMembershipFinder extends GrouperTest {
       
     }
     
+    // disabled membership
+    groups[0].grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, groups[0], SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_UPDATE.getField(), true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
 
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, true);
@@ -499,6 +601,94 @@ public class TestMembershipFinder extends GrouperTest {
         .getGroupOwner().getName());
 
     
+
+    // check enabled/disabled
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.startRootSession();
+    groups[0].grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, groups[0], SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_UPDATE.getField(), true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    groups[0].grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, groups[0], SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    groups[0].grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, groups[0], SubjectTestHelper.SUBJ3, AccessPrivilege.GROUP_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    groups[0].grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, groups[0], SubjectTestHelper.SUBJ4, AccessPrivilege.GROUP_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    groups[0].grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, groups[0], SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).findMembershipsMembers();
+    assertEquals(7, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasEnabledDate(true).findMembershipsMembers();
+    assertEquals(4, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasEnabledDate(false).findMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasDisabledDate(true).findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasDisabledDate(false).findMembershipsMembers();
+    assertEquals(5, GrouperUtil.length(result));
+    
+    // custom composites
+    group = new GroupSave(grouperSession).assignName("theStem:theGroup2").assignCreateParentStemsIfNotExist(true).save();
+    group.revokePriv(AccessPrivilege.READ);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    group.addMember(SubjectTestHelper.SUBJ1);
+    group.addMember(SubjectTestHelper.SUBJ2);
+    group.addMember(SubjectTestHelper.SUBJ3);
+    group.addMember(SubjectTestHelper.SUBJ4);
+    
+    groups[0].grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    groups[0].grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.COMPLEMENT)
+        .findMembershipsMembers();
+    assertEquals(1, GrouperUtil.length(result));
+    assertHasPrivilege(result, groups[0], SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_UPDATE);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(groups[0].getId())).assignCheckSecurity(true).assignFieldType(FieldType.ACCESS).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
   }
 
 
@@ -761,7 +951,14 @@ public class TestMembershipFinder extends GrouperTest {
       
     }
     
-  
+    // disabled membership
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, attributeDefs[0], SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getField(), true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, true);
     
@@ -887,7 +1084,93 @@ public class TestMembershipFinder extends GrouperTest {
     assertEquals(attributeDefs[6].getName(), membershipSubjectContainers.get(6)
         .getAttributeDefOwner().getName());
   
+    // check enabled/disabled
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.startRootSession();
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, attributeDefs[0], SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getField(), true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
     
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, attributeDefs[0], SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ3, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, attributeDefs[0], SubjectTestHelper.SUBJ3, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, attributeDefs[0], SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, attributeDefs[0], SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getField(), true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).findMembershipsMembers();
+    assertEquals(7, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasEnabledDate(true).findMembershipsMembers();
+    assertEquals(4, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasEnabledDate(false).findMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasDisabledDate(true).findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasDisabledDate(false).findMembershipsMembers();
+    assertEquals(5, GrouperUtil.length(result));
+    
+    // custom composites
+    group = new GroupSave(grouperSession).assignName("theStem:theGroup2").assignCreateParentStemsIfNotExist(true).save();
+    group.revokePriv(AccessPrivilege.READ);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    group.addMember(SubjectTestHelper.SUBJ1);
+    group.addMember(SubjectTestHelper.SUBJ2);
+    group.addMember(SubjectTestHelper.SUBJ3);
+    group.addMember(SubjectTestHelper.SUBJ4);
+    
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDefs[0].getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.COMPLEMENT)
+        .findMembershipsMembers();
+    assertEquals(1, GrouperUtil.length(result));
+    assertHasPrivilege(result, attributeDefs[0], SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    result = new MembershipFinder().assignAttributeDefIds(GrouperUtil.toSet(attributeDefs[0].getId())).assignCheckSecurity(true).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
   }
   
   /**
@@ -953,5 +1236,339 @@ public class TestMembershipFinder extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession5);
   }
 
+  /**
+   * 
+   */
+  public void testFindMembersEnabledDisabledAndComposite() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    Group[] bogus = new Group[26];
+    
+    for (int i=0;i<26;i++) {
+      bogus[i] = new GroupSave(grouperSession).assignName("stemA:group" + (char)('A' + i)).assignCreateParentStemsIfNotExist(true).save();
+      bogus[i].addMember(SubjectTestHelper.SUBJ0);
+      bogus[i].addMember(SubjectTestHelper.SUBJ1);
+      bogus[i].addMember(SubjectTestHelper.SUBJ2);
+      bogus[i].addMember(SubjectTestHelper.SUBJ3);
+      bogus[i].addMember(SubjectTestHelper.SUBJ4);
+      bogus[i].addMember(SubjectTestHelper.SUBJ5);
+    }
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ0, true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+
+    group.addMember(SubjectTestHelper.SUBJ1);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ1, true);
+      membership.setDisabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    group.addMember(SubjectTestHelper.SUBJ2);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ2, true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() + 100000L));
+      membership.update();
+    }
+    
+    group.addMember(SubjectTestHelper.SUBJ3);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ3, true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    group.addMember(SubjectTestHelper.SUBJ4);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ4, true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    group.addMember(SubjectTestHelper.SUBJ5);
+    {
+      Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ5, true);
+      membership.setEnabledTime(new Timestamp(new Date().getTime() - 100000L));
+      membership.update();
+    }
+    
+    Set<Object[]> result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).findMembershipsMembers();
+    assertEquals(6, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasEnabledDate(true).findMembershipsMembers();
+    assertEquals(4, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasEnabledDate(false).findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasDisabledDate(true).findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasDisabledDate(false).findMembershipsMembers();
+    assertEquals(4, GrouperUtil.length(result));
+    
+    // custom composites
+    Group group2 = new GroupSave(grouperSession).assignName("theStem:theGroup2").assignCreateParentStemsIfNotExist(true).save();
+    group2.revokePriv(AccessPrivilege.READ);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    
+    group2.addMember(SubjectTestHelper.SUBJ0);
+    group2.addMember(SubjectTestHelper.SUBJ1);
+    group2.addMember(SubjectTestHelper.SUBJ2);
+    group2.addMember(SubjectTestHelper.SUBJ3);
+    group2.addMember(SubjectTestHelper.SUBJ4);
+    
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group2).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group2).assignCustomCompositeType(CompositeType.COMPLEMENT)
+        .findMembershipsMembers();
+    assertEquals(1, GrouperUtil.length(result));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    result = new MembershipFinder().assignGroupIds(GrouperUtil.toSet(group.getId())).assignCheckSecurity(true).assignFieldType(FieldType.LIST).assignHasEnabledDate(true)
+        .assignCustomCompositeGroup(group2).assignCustomCompositeType(CompositeType.INTERSECTION)
+        .findMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  public void testFindMembersPIT() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(grouperSession).assignName("theStem:theGroup2").assignCreateParentStemsIfNotExist(true).save();
+    Group group3 = new GroupSave(grouperSession).assignName("theStem:theGroup3").assignCreateParentStemsIfNotExist(true).save();
+    group.addMember(group2.toSubject());
+    
+    Group group4 = new GroupSave(grouperSession).assignName("theStem:theGroup4").assignCreateParentStemsIfNotExist(true).save();
+    group4.addMember(SubjectTestHelper.SUBJ4);
+    group4.deleteMember(SubjectTestHelper.SUBJ4);
+    
+    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ);
+    group.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+
+    Group[] others = new Group[26];
+    
+    for (int i=0;i<26;i++) {
+      others[i] = new GroupSave(grouperSession).assignName("stemA:group" + (char)('A' + i)).assignCreateParentStemsIfNotExist(true).save();
+      others[i].addMember(SubjectTestHelper.SUBJ0);
+      others[i].addMember(SubjectTestHelper.SUBJ1);
+      others[i].addMember(SubjectTestHelper.SUBJ2);
+      others[i].addMember(SubjectTestHelper.SUBJ3);
+      others[i].addMember(SubjectTestHelper.SUBJ4);
+      others[i].addMember(SubjectTestHelper.SUBJ5);
+    }
+    
+    long beforeAdd0and2_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.addMember(SubjectTestHelper.SUBJ0);
+    group.addMember(SubjectTestHelper.SUBJ2);
+    GrouperUtil.sleep(10);
+    long afterAdd0and2_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeAdd0and2_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group2.addMember(SubjectTestHelper.SUBJ0);
+    group2.addMember(SubjectTestHelper.SUBJ2);
+    GrouperUtil.sleep(10);
+    long afterAdd0and2_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    group3.addMember(SubjectTestHelper.SUBJ2);
+
+    long beforeAdd0and2_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.addMember(group3.toSubject());
+    GrouperUtil.sleep(10);
+    long afterAdd0and2_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeAdd1and3_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.addMember(SubjectTestHelper.SUBJ1);
+    group.addMember(SubjectTestHelper.SUBJ3);
+    GrouperUtil.sleep(10);
+    long afterAdd1and3_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    // now remove memberships
+
+    long beforeDelete0_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.deleteMember(SubjectTestHelper.SUBJ0);
+    GrouperUtil.sleep(10);
+    long afterDelete0_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeDelete0_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group2.deleteMember(SubjectTestHelper.SUBJ0);
+    GrouperUtil.sleep(10);
+    long afterDelete0_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeDelete0_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.deleteMember(group3.toSubject());
+    GrouperUtil.sleep(10);
+    long afterDelete0_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeDelete1_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.deleteMember(SubjectTestHelper.SUBJ1);
+    GrouperUtil.sleep(10);
+    long afterDelete1_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    // add stuff that doesn't result in real memberships on the main group (for person subjects)
+    group3.addMember(SubjectTestHelper.SUBJ4);
+    group.addMember(group4.toSubject());
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(20, 1, true);
+    
+    // check security
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    Set<Object[]> result = new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+    
+    result = new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).findPITMembershipsMembers();
+    assertEquals(11, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).addSourceId("g:gsa").findPITMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+    
+    queryOptions.paging(1, 1, true);
+    List<Object[]> listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers());
+    assertEquals(3, listResult.size());
+    assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_1);
+      assertNotNull(pitMembershipView.getEndTime());
+      
+      pitMembershipView = (PITMembershipView)listResult.get(1)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_2);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_2);
+      assertNotNull(pitMembershipView.getEndTime());
+      
+      pitMembershipView = (PITMembershipView)listResult.get(2)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_3);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_3);
+      assertNotNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 4, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers());
+    assertEquals(1, listResult.size());
+    assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ3.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd1and3_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd1and3_1);
+      assertNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeTo(new Timestamp(beforeAdd0and2_1)).findPITMembershipsMembers());
+    assertEquals(0, listResult.size());
+    assertEquals(0, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeTo(new Timestamp(afterAdd0and2_1)).findPITMembershipsMembers());
+    assertEquals(1, listResult.size());
+    assertEquals(2, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_1);
+      assertNotNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeFrom(new Timestamp(afterDelete1_1)).findPITMembershipsMembers());
+    assertEquals(2, listResult.size());
+    assertEquals(2, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ2.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_1);
+      assertNull(pitMembershipView.getEndTime());
+      
+      pitMembershipView = (PITMembershipView)listResult.get(1)[0];
+      assertEquals(SubjectTestHelper.SUBJ2.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_2);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_2);
+      assertNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeFrom(new Timestamp(afterDelete0_1)).assignPointInTimeTo(new Timestamp(System.currentTimeMillis())).findPITMembershipsMembers());
+    assertEquals(2, listResult.size());
+    assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+  }
 }
 
