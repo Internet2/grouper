@@ -5,28 +5,35 @@ public class GrouperProvisioningTarget {
   
   private String key;
   
-  private Boolean groupAllowedToAssign;
+  private String groupAllowedToAssign;
   
-  private Boolean allowAssignmentsOnlyOnOneStem;
+  private boolean allowAssignmentsOnlyOnOneStem;
   
-  public GrouperProvisioningTarget(String key, Boolean groupAllowedToAssign, Boolean allowAssignmentsOnlyOnOneStem) {
+  private boolean readOnly;
+  
+  public GrouperProvisioningTarget(String key, String groupAllowedToAssign, 
+      boolean allowAssignmentsOnlyOnOneStem, boolean readOnly) {
    this.key = key;
    this.groupAllowedToAssign = groupAllowedToAssign;
    this.allowAssignmentsOnlyOnOneStem = allowAssignmentsOnlyOnOneStem;
+   this.readOnly = readOnly;
   }
   
   public String getKey() {
     return key;
   }
 
-  
-  public Boolean getGroupAllowedToAssign() {
+  public String getGroupAllowedToAssign() {
     return groupAllowedToAssign;
   }
-
   
-  public Boolean getAllowAssignmentsOnlyOnOneStem() {
+  public Boolean isAllowAssignmentsOnlyOnOneStem() {
     return allowAssignmentsOnlyOnOneStem;
   }
 
+  
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+  
 }

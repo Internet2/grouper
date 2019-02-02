@@ -28,10 +28,11 @@ public class GrouperProvisioningSettings {
       String name = entry.getKey();
       String key = entry.getValue();
       
-      Boolean groupAllowedToAssign = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".groupAllowedToAssign");
-      Boolean allowAssignmentsOnlyOnOneStem = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".allowAssignmentsOnlyOnOneStem");
+      String groupAllowedToAssign = GrouperConfig.retrieveConfig().propertyValueString("provisioning.target."+name+".groupAllowedToAssign", null);
+      boolean allowAssignmentsOnlyOnOneStem = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".allowAssignmentsOnlyOnOneStem", false);
+      boolean readOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".readOnly", false);
       
-      targets.put(name, new GrouperProvisioningTarget(key, groupAllowedToAssign, allowAssignmentsOnlyOnOneStem));
+      targets.put(name, new GrouperProvisioningTarget(key, groupAllowedToAssign, allowAssignmentsOnlyOnOneStem, readOnly));
       
     }
     

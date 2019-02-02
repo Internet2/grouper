@@ -8,10 +8,12 @@
                             <select name="provisioningTargetName" id="provisioningTargetNameId" style="width: 30em"
                             onchange="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;">
                               <option value=""></option>
-                              <c:forEach items="${grouperRequestContainer.provisioningContainer.targetNames}" var="targetName">
-                                <option value="${targetName}"
-                                    ${grouperRequestContainer.provisioningContainer.targetName == targetName ? 'selected="selected"' : '' }
-                                    >${targetName}</option>
+                              <c:forEach items="${grouperRequestContainer.provisioningContainer.editableTargetNames}" var="targetName">
+                                <c:set var="targetTextKey" value="provisioningUiLabelForKey_${targetName}" />
+                                <option value="${targetName}" 
+                                  ${grouperRequestContainer.provisioningContainer.targetName == targetName ? 'selected="selected"' : '' }
+                                  >${textContainer.text[targetTextKey]}
+                                </option>
                               </c:forEach>
                             </select>
                             <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 

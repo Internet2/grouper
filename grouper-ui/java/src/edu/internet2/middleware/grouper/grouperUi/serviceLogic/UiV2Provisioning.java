@@ -78,7 +78,7 @@ public class UiV2Provisioning {
             
           List<GrouperProvisioningAttributeValue> attributeValuesForStem = GrouperProvisioningConfiguration.getProvisioningAttributeValues(STEM);
           
-          List<String> targetsNotConfigured = new ArrayList<String>(GrouperProvisioningSettings.getTargets());
+          List<String> targetsNotConfigured = new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
           
           for (GrouperProvisioningAttributeValue attributeValue: attributeValuesForStem) {
             targetsNotConfigured.remove(attributeValue.getTarget());
@@ -148,7 +148,7 @@ public class UiV2Provisioning {
             
           List<GrouperProvisioningAttributeValue> attributeValuesForGroup = GrouperProvisioningConfiguration.getProvisioningAttributeValues(GROUP);
           
-          List<String> targetsNotConfigured = new ArrayList<String>(GrouperProvisioningSettings.getTargets());
+          List<String> targetsNotConfigured = new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
           
           for (GrouperProvisioningAttributeValue attributeValue: attributeValuesForGroup) {
             targetsNotConfigured.remove(attributeValue.getTarget());
