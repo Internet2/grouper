@@ -26,6 +26,10 @@ public class GrouperProvisioningJobTest extends GrouperTest {
     super.setUp();
     GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
+    
+    GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapKey", "ldap");
+    GrouperProvisioningSettings.getTargets().put("ldap", target1);
+    
   }
   
   
@@ -53,28 +57,28 @@ public class GrouperProvisioningJobTest extends GrouperTest {
     GrouperProvisioningJob.updateMetadataOnIndirectGrouperObjects();
     
     //Then - All the children of stem0 should have metadata coming from parent
-    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningConfiguration.getProvisioningAttributeValue(stemTest1, "ldap");
+    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stemTest1, "ldap");
     assertEquals(stem0.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
     
-    grouperProvisioningAttributeValue = GrouperProvisioningConfiguration.getProvisioningAttributeValue(stemTest2, "ldap");
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stemTest2, "ldap");
     assertEquals(stem0.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
     
-    grouperProvisioningAttributeValue = GrouperProvisioningConfiguration.getProvisioningAttributeValue(stemTest11a, "ldap");
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stemTest11a, "ldap");
     assertEquals(stem0.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
     
-    grouperProvisioningAttributeValue = GrouperProvisioningConfiguration.getProvisioningAttributeValue(stemTest22a, "ldap");
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stemTest22a, "ldap");
     assertEquals(stem0.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
     
-    grouperProvisioningAttributeValue = GrouperProvisioningConfiguration.getProvisioningAttributeValue(groupDirectAssigned, "ldap");
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(groupDirectAssigned, "ldap");
     assertEquals(stem0.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
     
     //stem1 shouldn't have anything assigned
-    grouperProvisioningAttributeValue = GrouperProvisioningConfiguration.getProvisioningAttributeValue(stem1, "ldap");
+    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem1, "ldap");
     assertNull(grouperProvisioningAttributeValue);
   }
   

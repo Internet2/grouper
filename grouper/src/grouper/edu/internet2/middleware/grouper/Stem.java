@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -2472,7 +2472,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       GrouperAttestationJob.updateAttestationMetadataForSingleObject(group, true);
       GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(group);
       GrouperObjectTypesConfiguration.copyConfigFromParent(group);
-      GrouperProvisioningConfiguration.copyConfigFromParent(group);
+      GrouperProvisioningService.copyConfigFromParent(group);
       
     }
     
@@ -2904,7 +2904,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       // do these in thread?
       GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(stem);
       GrouperObjectTypesConfiguration.copyConfigFromParent(stem);
-      GrouperProvisioningConfiguration.copyConfigFromParent(stem);
+      GrouperProvisioningService.copyConfigFromParent(stem);
     }
 
     

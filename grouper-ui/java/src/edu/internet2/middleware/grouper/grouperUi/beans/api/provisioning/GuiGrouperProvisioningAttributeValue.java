@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
@@ -39,6 +40,13 @@ public class GuiGrouperProvisioningAttributeValue {
     return new GuiStem(stem);
   }
 
+  /**
+   * get target key for current target
+   * @return target key
+   */
+  public String getTargetKey() {
+    return GrouperProvisioningSettings.getTargets().get(this.grouperProvisioningAttributeValue.getTargetName()).getKey();
+  }
   
   public static List<GuiGrouperProvisioningAttributeValue> convertFromGrouperProvisioningAttributeValues(List<GrouperProvisioningAttributeValue> attributeValues) {
     

@@ -7,9 +7,9 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 public class GrouperProvisioningAttributeValue {
   
   /**
-   * provisioning target
+   * provisioning target name
    */
-  private String target;
+  private String targetName;
   
   /**
    * is direct assignment
@@ -52,19 +52,19 @@ public class GrouperProvisioningAttributeValue {
   private String lastIncrementalSummary;
 
   /**
-   * provisioning target
-   * @return
+   * provisioning target name
+   * @return targetName
    */
-  public String getTarget() {
-    return target;
+  public String getTargetName() {
+    return targetName;
   }
 
   /**
-   * provisioning target
-   * @param target
+   * provisioning target name
+   * @param targetName
    */
-  public void setTarget(String target) {
-    this.target = target;
+  public void setTargetName(String targetName) {
+    this.targetName = targetName;
   }
 
   /**
@@ -231,7 +231,7 @@ public class GrouperProvisioningAttributeValue {
     value.setLastIncrementalSummary(from.getLastIncrementalSummary());
     value.setOwnerStemId(from.getOwnerStemId());
     value.setStemScopeString(from.getStemScopeString());
-    value.setTarget(from.getTarget());
+    value.setTargetName(from.getTargetName());
     return value;
   }
   

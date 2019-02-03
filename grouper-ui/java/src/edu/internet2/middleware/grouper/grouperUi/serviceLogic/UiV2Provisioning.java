@@ -14,9 +14,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
@@ -76,23 +77,35 @@ public class UiV2Provisioning {
             return null;
           }
             
-          List<GrouperProvisioningAttributeValue> attributeValuesForStem = GrouperProvisioningConfiguration.getProvisioningAttributeValues(STEM);
+          // we need to show assigned + non assigned both.
+          List<GrouperProvisioningAttributeValue> allProvisioningAttributeValues = new ArrayList<GrouperProvisioningAttributeValue>();
           
-          List<String> targetsNotConfigured = new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
+          // add ones that are already assigned
+          List<GrouperProvisioningAttributeValue> attributeValuesForStem = GrouperProvisioningService.getProvisioningAttributeValues(STEM);
+          allProvisioningAttributeValues.addAll(attributeValuesForStem);
           
+          // add ones that are not assigned
+          List<String> allTargetNames = new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
+          
+          // remove target names that are already configured
           for (GrouperProvisioningAttributeValue attributeValue: attributeValuesForStem) {
-            targetsNotConfigured.remove(attributeValue.getTarget());
+            
+            String targetAlreadyConfigured = attributeValue.getTargetName();
+            if (GrouperProvisioningSettings.getTargets().containsKey(targetAlreadyConfigured)) {
+              allTargetNames.remove(targetAlreadyConfigured);
+            }
           }
           
-          for (String targetNotConfigured: targetsNotConfigured) {
+          //allTargetNames now only contains that are not configured
+          for (String targetNotConfigured: allTargetNames) {
             GrouperProvisioningAttributeValue notConfiguredAttributeValue = new GrouperProvisioningAttributeValue();
-            notConfiguredAttributeValue.setTarget(targetNotConfigured);
+            notConfiguredAttributeValue.setTargetName(GrouperProvisioningSettings.getTargets().get(targetNotConfigured).getName());
             notConfiguredAttributeValue.setDoProvision(false);
-            attributeValuesForStem.add(notConfiguredAttributeValue);
+            allProvisioningAttributeValues.add(notConfiguredAttributeValue);
           }
           
           // convert from raw to gui
-          provisioningContainer.setGuiGrouperProvisioningAttributeValues(GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(attributeValuesForStem));
+          provisioningContainer.setGuiGrouperProvisioningAttributeValues(GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(allProvisioningAttributeValues));
           
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
               "/WEB-INF/grouperUi2/provisioning/provisioningFolderSettingsView.jsp"));
@@ -146,23 +159,35 @@ public class UiV2Provisioning {
             return null;
           }
             
-          List<GrouperProvisioningAttributeValue> attributeValuesForGroup = GrouperProvisioningConfiguration.getProvisioningAttributeValues(GROUP);
+          // we need to show assigned + non assigned both.
+          List<GrouperProvisioningAttributeValue> allProvisioningAttributeValues = new ArrayList<GrouperProvisioningAttributeValue>();
           
-          List<String> targetsNotConfigured = new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
+          // add ones that are already assigned
+          List<GrouperProvisioningAttributeValue> attributeValuesForGroup = GrouperProvisioningService.getProvisioningAttributeValues(GROUP);
+          allProvisioningAttributeValues.addAll(attributeValuesForGroup);
           
+          // add ones that are not assigned
+          List<String> allTargetNames = new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
+          
+          // remove target names that are already configured
           for (GrouperProvisioningAttributeValue attributeValue: attributeValuesForGroup) {
-            targetsNotConfigured.remove(attributeValue.getTarget());
+            
+            String targetAlreadyConfigured = attributeValue.getTargetName();
+            if (GrouperProvisioningSettings.getTargets().containsKey(targetAlreadyConfigured)) {
+              allTargetNames.remove(targetAlreadyConfigured);
+            }
           }
           
-          for (String targetNotConfigured: targetsNotConfigured) {
+          //allTargetNames now only contains that are not configured
+          for (String targetNotConfigured: allTargetNames) {
             GrouperProvisioningAttributeValue notConfiguredAttributeValue = new GrouperProvisioningAttributeValue();
-            notConfiguredAttributeValue.setTarget(targetNotConfigured);
+            notConfiguredAttributeValue.setTargetName(GrouperProvisioningSettings.getTargets().get(targetNotConfigured).getName());
             notConfiguredAttributeValue.setDoProvision(false);
-            attributeValuesForGroup.add(notConfiguredAttributeValue);
+            allProvisioningAttributeValues.add(notConfiguredAttributeValue);
           }
           
           // convert from raw to gui
-          provisioningContainer.setGuiGrouperProvisioningAttributeValues(GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(attributeValuesForGroup));
+          provisioningContainer.setGuiGrouperProvisioningAttributeValues(GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(allProvisioningAttributeValues));
           
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
               "/WEB-INF/grouperUi2/provisioning/provisioningGroupSettingsView.jsp"));
@@ -242,7 +267,7 @@ public class UiV2Provisioning {
           if (StringUtils.isNotBlank(targetName)) {
             provisioningContainer.setTargetName(targetName);
             
-            return GrouperProvisioningConfiguration.getProvisioningAttributeValue(STEM, targetName);
+            return GrouperProvisioningService.getProvisioningAttributeValue(STEM, targetName);
           }
           
           return null;
@@ -351,7 +376,7 @@ public class UiV2Provisioning {
           if (StringUtils.isNotBlank(targetName)) {
             provisioningContainer.setTargetName(targetName);
             
-            return GrouperProvisioningConfiguration.getProvisioningAttributeValue(GROUP, targetName);
+            return GrouperProvisioningService.getProvisioningAttributeValue(GROUP, targetName);
           }
           
           return null;
@@ -456,11 +481,21 @@ public class UiV2Provisioning {
             TextContainer.retrieveFromRequest().getText().get("provisioningTargetNameRequired")));
         return;
       }
+      
+      if (!GrouperProvisioningSettings.getTargets().containsKey(targetName)) {
+        throw new RuntimeException("Invalid target "+targetName);
+      }
+      
+      GrouperProvisioningTarget provisioningTarget = GrouperProvisioningSettings.getTargets().get(targetName);
+      
+      if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, loggedInSubject, STEM)) {
+        throw new RuntimeException("Not Allowed!!!");
+      }
        
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(isDirect);
       attributeValue.setDoProvision(GrouperUtil.booleanValue(shouldDoProvisionString, true));
-      attributeValue.setTarget(targetName);
+      attributeValue.setTargetName(targetName);
       attributeValue.setStemScopeString(stemScopeString);
 
       //switch over to admin so attributes work
@@ -470,9 +505,9 @@ public class UiV2Provisioning {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           if (isDirect) {
-            GrouperProvisioningConfiguration.saveOrUpdateProvisioningAttributes(attributeValue, STEM);
+            GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, STEM);
           } else {
-            GrouperProvisioningConfiguration.copyConfigFromParent(STEM, targetName);
+            GrouperProvisioningService.copyConfigFromParent(STEM, targetName);
           }
           
           return null;
@@ -557,11 +592,21 @@ public class UiV2Provisioning {
             TextContainer.retrieveFromRequest().getText().get("provisioningTargetNameRequired")));
         return;
       }
+      
+      if (!GrouperProvisioningSettings.getTargets().containsKey(targetName)) {
+        throw new RuntimeException("Invalid target "+targetName);
+      }
+      
+      GrouperProvisioningTarget provisioningTarget = GrouperProvisioningSettings.getTargets().get(targetName);
+      
+      if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, loggedInSubject, GROUP)) {
+        throw new RuntimeException("Not Allowed!!!");
+      }
        
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(isDirect);
       attributeValue.setDoProvision(GrouperUtil.booleanValue(shouldDoProvisionString, true));
-      attributeValue.setTarget(targetName);
+      attributeValue.setTargetName(targetName);
 
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -570,9 +615,9 @@ public class UiV2Provisioning {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           if (isDirect) {
-            GrouperProvisioningConfiguration.saveOrUpdateProvisioningAttributes(attributeValue, GROUP);
+            GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, GROUP);
           } else {
-            GrouperProvisioningConfiguration.copyConfigFromParent(GROUP, targetName);
+            GrouperProvisioningService.copyConfigFromParent(GROUP, targetName);
           }
           
           return null;

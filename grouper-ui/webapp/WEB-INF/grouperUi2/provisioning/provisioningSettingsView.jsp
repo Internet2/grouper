@@ -5,7 +5,8 @@
 	                    <c:set var="grouperProvisioningAttributeValue" 
 	                        value="${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue}" />
                       
-                      <h4>${textContainer.text['provisioningTargetNameLabel'] }: ${grouperProvisioningAttributeValue.target}</h4>
+                      <c:set var="targetTextKey" value="provisioningUiLabelForKey_${guiGrouperProvisioningAttributeValue.targetKey}" />
+                      <h4>${textContainer.text['provisioningTargetNameLabel'] }: ${textContainer.text[targetTextKey] }</h4>
                       <table class="table table-condensed table-striped">
                         <tbody>
                          

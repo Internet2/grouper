@@ -4,33 +4,22 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT;
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_TARGET;
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -188,88 +177,42 @@ public class ProvisioningContainer {
   }
   
   /**
-   * @return target names
+   * @return all targets
    */
-  public List<String> getTargetNames() {
-    return new ArrayList<String>(GrouperProvisioningSettings.getTargets().keySet());
+  public Set<GrouperProvisioningTarget> getTargets() {
+    return new HashSet<GrouperProvisioningTarget>(GrouperProvisioningSettings.getTargets().values());
   }
   
-  
-  public Set<String> getEditableTargetNames() {
+  /**
+   * get editable targets for current group/stem and logged in subject
+   * @return
+   */
+  public Set<GrouperProvisioningTarget> getEditableTargets() {
+    
+    GrouperObject grouperObject = null;
     
     GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    
+    if (guiGroup != null) {
+      grouperObject = guiGroup.getGrouperObject();
+    }
+    if (guiStem != null) {
+      grouperObject = guiStem.getGrouperObject();
+    }
     
     Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets();
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    Set<String> editableTargetNames = new HashSet<String>();
+    Set<GrouperProvisioningTarget> editableTargets = new HashSet<GrouperProvisioningTarget>();
     
-    for (Entry<String, GrouperProvisioningTarget> entry: targets.entrySet()) {
-      
-      String groupAllowedToAssign = entry.getValue().getGroupAllowedToAssign();
-      boolean allowAssignOnOneStem = entry.getValue().isAllowAssignmentsOnlyOnOneStem();
-      boolean readOnly = entry.getValue().isReadOnly();
-      
-      if(readOnly) {
-        continue;
+    for (GrouperProvisioningTarget target: targets.values()) {
+      if (GrouperProvisioningService.isTargetEditable(target, loggedInSubject, grouperObject)) {
+        editableTargets.add(target);
       }
-      
-      
-      if (guiGroup == null) { //we are working with a stem
-        
-        if (allowAssignOnOneStem) { //can not edit if this target is already assigned to another stem
-          
-          List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
-              .assignNameOfAttributeDefName(provisioningConfigStemName()+":"+PROVISIONING_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true")
-              .assignNameOfAttributeDefName(provisioningConfigStemName()+":"+PROVISIONING_TARGET).addAttributeValuesOnAssignment2(entry.getKey())
-              .findStems());
-          
-          if (stems.size() > 0) {
-            continue;
-          }
-          
-        }
-        
-      } else { //we are working with a group
-        
-        if (allowAssignOnOneStem) {
-          continue;
-        }
-        
-      }
-      
-      if (StringUtils.isBlank(groupAllowedToAssign)) {
-        
-        if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-          editableTargetNames.add(entry.getKey());
-        }
-      } else {
-        
-        Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupAllowedToAssign, false);
-        if (group == null) {
-          try { // try looking up group by id
-            Long groupId = Long.valueOf(groupAllowedToAssign);
-            group = GroupFinder.findByIdIndexSecure(groupId, false, new QueryOptions());
-            if (group == null) {
-              throw new RuntimeException(groupAllowedToAssign+" is not a valid group id or group name");
-            }
-          } catch (Exception e) {
-            throw new RuntimeException(groupAllowedToAssign+" is not a valid group id or group name");
-          }
-         
-        }
-        
-        for (Member member: group.getMembers()) {
-          Subject groupSubject = member.getSubject();
-          if (loggedInSubject.getId().equals(groupSubject.getId())) {
-            editableTargetNames.add(entry.getKey());
-          }
-        }
-      }
-      
     }
     
-    return editableTargetNames;
+    return editableTargets;
   }
 
 }

@@ -71,10 +71,10 @@ public class GrouperProvisioningJob extends OtherJobBase {
     
     
     for (Stem stem: stems) {
-      List<GrouperProvisioningAttributeValue> attributeValues = GrouperProvisioningConfiguration.getProvisioningAttributeValues(stem);
+      List<GrouperProvisioningAttributeValue> attributeValues = GrouperProvisioningService.getProvisioningAttributeValues(stem);
       
       for (GrouperProvisioningAttributeValue attributeValue: attributeValues) {
-        GrouperProvisioningConfiguration.saveOrUpdateProvisioningAttributes(attributeValue, stem);      
+        GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);      
       }
       
     }
@@ -102,7 +102,7 @@ public class GrouperProvisioningJob extends OtherJobBase {
     indirectGrouperObjects.addAll(groups);
     
     for (GrouperObject grouperObject: indirectGrouperObjects) {
-      GrouperProvisioningConfiguration.copyConfigFromParent(grouperObject);
+      GrouperProvisioningService.copyConfigFromParent(grouperObject);
     }
     
   }

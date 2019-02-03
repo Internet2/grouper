@@ -1,9 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -25,14 +25,24 @@ public class GrouperProvisioningSettings {
     
     for (Entry<String, String> entry: propertiesMap.entrySet()) {
           
-      String name = entry.getKey();
+      String property = entry.getKey();
       String key = entry.getValue();
       
-      String groupAllowedToAssign = GrouperConfig.retrieveConfig().propertyValueString("provisioning.target."+name+".groupAllowedToAssign", null);
-      boolean allowAssignmentsOnlyOnOneStem = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".allowAssignmentsOnlyOnOneStem", false);
-      boolean readOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".readOnly", false);
+      Matcher matcher = grouperProvisioningTargetKey.matcher(property);
       
-      targets.put(name, new GrouperProvisioningTarget(key, groupAllowedToAssign, allowAssignmentsOnlyOnOneStem, readOnly));
+      if (matcher.matches()) {
+        String name = matcher.group(1);
+        
+        String groupAllowedToAssign = GrouperConfig.retrieveConfig().propertyValueString("provisioning.target."+name+".groupAllowedToAssign", null);
+        boolean allowAssignmentsOnlyOnOneStem = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".allowAssignmentsOnlyOnOneStem", false);
+        boolean readOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".readOnly", false);
+        
+        GrouperProvisioningTarget target = new GrouperProvisioningTarget(key, name);
+        target.setGroupAllowedToAssign(groupAllowedToAssign);
+        target.setAllowAssignmentsOnlyOnOneStem(allowAssignmentsOnlyOnOneStem);
+        target.setReadOnly(readOnly);
+        targets.put(name, target);
+      }
       
     }
     
@@ -60,7 +70,7 @@ public class GrouperProvisioningSettings {
    * @return targets
    */
   public static Map<String, GrouperProvisioningTarget> getTargets() {
-    return Collections.unmodifiableMap(targets);
+    return targets;
   }
 
 }

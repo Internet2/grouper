@@ -8,15 +8,15 @@
                             <select name="provisioningTargetName" id="provisioningTargetNameId" style="width: 30em"
                             onchange="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;">
                               <option value=""></option>
-                              <c:forEach items="${grouperRequestContainer.provisioningContainer.editableTargetNames}" var="targetName">
-                                <c:set var="targetTextKey" value="provisioningUiLabelForKey_${targetName}" />
-                                <option value="${targetName}" 
-                                  ${grouperRequestContainer.provisioningContainer.targetName == targetName ? 'selected="selected"' : '' }
+                                <c:forEach items="${grouperRequestContainer.provisioningContainer.editableTargets}" var="target">
+                                <c:set var="targetTextKey" value="provisioningUiLabelForKey_${target.key}" />
+                                <option value="${target.name}"
+                                  ${grouperRequestContainer.provisioningContainer.targetName == target.name ? 'selected="selected"' : '' }
                                   >${textContainer.text[targetTextKey]}
                                 </option>
                               </c:forEach>
                             </select>
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right"
                               data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             <span class="description">${textContainer.text['provisioningTargetNameHint']}</span>
