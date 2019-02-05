@@ -64,7 +64,7 @@ public class EsbMessagingPublisher extends EsbListenerBase {
     routingKey = StringUtils.isBlank(routingKey) ? GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
         + consumerName + ".publisher.routingKey", ""): routingKey;
         
-    String exchangeType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." 
+    String exchangeType = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
         + consumerName + ".publisher.exchangeType");
     
     boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);

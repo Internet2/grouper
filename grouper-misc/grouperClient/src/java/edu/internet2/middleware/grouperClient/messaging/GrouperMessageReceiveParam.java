@@ -178,6 +178,19 @@ public class GrouperMessageReceiveParam {
     this.grouperMessageQueueParam.assignQueueOrTopicName(theQueueName);
     return this;
   }
+  
+  /**
+   * assign if queue or topic
+   * @param grouperMessageQueueType
+   * @return this for chaining
+   */
+  public GrouperMessageReceiveParam assignQueueType(GrouperMessageQueueType grouperMessageQueueType) {
+    if (this.grouperMessageQueueParam == null) {
+      this.grouperMessageQueueParam = new GrouperMessageQueueParam();
+    }
+    this.grouperMessageQueueParam.assignQueueType(grouperMessageQueueType);
+    return this;
+  }
 
   /**
    * @return the grouperMessageQueueParam
