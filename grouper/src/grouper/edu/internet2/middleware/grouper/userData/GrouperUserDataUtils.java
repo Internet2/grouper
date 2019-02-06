@@ -359,6 +359,30 @@ public class GrouperUserDataUtils {
   }
 
 
-  
+  /** extension of the attribute def name for visualization preferences */
+  public static final String ATTR_DEF_EXTENSION_VISUALIZATION_PREFS = "grouperUserDataVisualizationPrefs";
+
+  /** attribute def name of visualization preferences */
+  private static String grouperUserDataVisualizationPrefsName;
+
+  /**
+   * attribute def name of preferences
+   * @return name
+   */
+  public static String grouperUserDataVisualizationPrefsName() {
+    if (grouperUserDataVisualizationPrefsName == null) {
+      grouperUserDataVisualizationPrefsName = grouperUserDataStemName() + ":" + ATTR_DEF_EXTENSION_VISUALIZATION_PREFS;
+    }
+    return grouperUserDataVisualizationPrefsName;
+  }
+
+  /**
+   * return attribute def name for attribute visualization preferences
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperUserDataVisualizationPrefsAttributeDefName() {
+    return AttributeDefNameFinder.findByNameAsRoot(grouperUserDataVisualizationPrefsName(), true);
+  }
+
   
 }

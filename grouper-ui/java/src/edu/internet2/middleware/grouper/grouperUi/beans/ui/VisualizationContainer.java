@@ -21,6 +21,7 @@ public class VisualizationContainer {
 
   private String operation;
   private String drawModule;
+  private String drawObjectNameType;
   private String objectType;
   private String objectId;
   private long drawNumParentsLevels;
@@ -31,7 +32,6 @@ public class VisualizationContainer {
   private boolean drawShowProvisioners;
   private boolean drawShowMemberCounts;
   private GrouperObject grouperObject;
-
 
 
   public VisualizationContainer() {
@@ -71,6 +71,24 @@ public class VisualizationContainer {
    */
   public void setDrawModule(String drawModule, String defaultValue) {
     this.drawModule = (!GrouperUtil.isBlank(drawModule)) ? drawModule : defaultValue;
+  }
+
+  /**
+   * whether to use the display extension or object path in object names
+   *
+   * @return
+   */
+  public String getDrawObjectNameType() {
+    return drawObjectNameType;
+  }
+
+  /**
+   * whether to use the display extension or object path in object names
+   *
+   * @param drawObjectNameType
+   */
+  public void setDrawObjectNameType(String drawObjectNameType, String defaultValue) {
+    this.drawObjectNameType = (!GrouperUtil.isBlank(drawObjectNameType)) ? drawObjectNameType : defaultValue;
   }
 
   /**
@@ -176,6 +194,7 @@ public class VisualizationContainer {
 
   /**
    * true if graph should include parent and child stems
+   *
    * @param drawShowStems true if should include stems
    */
   public void setDrawShowStems(boolean drawShowStems) {
@@ -193,6 +212,7 @@ public class VisualizationContainer {
 
   /**
    * true if graph should include loader jobs
+   *
    * @param drawShowLoaders true if should include loader jobs
    */
   public void setDrawShowLoaders(boolean drawShowLoaders) {
@@ -210,10 +230,12 @@ public class VisualizationContainer {
 
   /**
    * true if graph should include provisioner objects
+   *
    * @param drawShowProvisioners true if should include provisioner objects
    */
   public void setDrawShowProvisioners(boolean drawShowProvisioners) {
     this.drawShowProvisioners = drawShowProvisioners;
+
   }
 
   /**
@@ -227,10 +249,12 @@ public class VisualizationContainer {
 
   /**
    * true if graph should include member counts for groups
+   *
    * @param drawShowMemberCounts true if should include member counts for groups
    */
   public void setDrawShowMemberCounts(boolean drawShowMemberCounts) {
     this.drawShowMemberCounts = drawShowMemberCounts;
+
   }
 
   /**
@@ -249,7 +273,16 @@ public class VisualizationContainer {
       } else if ("stem".equals(getObjectType())) {
         grouperObject = StemFinder.findByUuid(grouperSession, getObjectId(), true);
       } else if ("subject".equals(getObjectType())) {
-        Subject subject = SubjectFinder.findById(getObjectId(), true);
+        // More actions->Visualization sets object id as the subject Id, but
+        // GrouperObjectSubjectWrapper returns sourceId||||subjectId. Do the
+        // appropriate search either way
+        String[] subjectParts = GrouperUtil.split(getObjectId(), "||||");
+        Subject subject = null;
+        if (subjectParts.length >= 2) {
+          subject = SubjectFinder.findByIdAndSource(subjectParts[1], subjectParts[0], true);
+        } else {
+          subject = SubjectFinder.findById(getObjectId(), true);
+        }
         grouperObject = new GrouperObjectSubjectWrapper(subject);
       } else {
         throw new RuntimeException("Unknown object type '" + getObjectType() + "'");
