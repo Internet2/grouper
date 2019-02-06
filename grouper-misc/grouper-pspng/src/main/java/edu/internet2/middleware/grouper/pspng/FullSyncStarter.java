@@ -204,7 +204,7 @@ public class FullSyncStarter
 
 
         if ( runFullSyncAtStartup != null && runFullSyncAtStartup ) {
-          fsProvisioner.queueAllGroupsForFullSync("full-sync-at-startup");
+          fsProvisioner.queueAllGroupsForFullSync(FullSyncProvisioner.QUEUE_TYPE.BACKGROUND_LOCAL,"full-sync-at-startup");
         }
       } catch (PspException e) {
         LOG.error("Problem setting up full sync provisioner {}", name, e);
