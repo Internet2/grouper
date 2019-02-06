@@ -28,6 +28,10 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -36,6 +40,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -48,6 +53,21 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class EsbConsumer extends ChangeLogConsumerBase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //GrouperBuiltinMessagingSystem.createQueue("abc");
+    int i=14;
+    Group group = new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    RegistryReset._addSubjects(i, i+1);
+    Subject subject = SubjectFinder.findById("test.subject." + i, true);
+    group.addMember(subject);
+  }
+  
   /** */
   private EsbListenerBase esbPublisherBase;
 
@@ -240,6 +260,48 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.ENTITY_UPDATE.propertyOldValue));
           event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.ENTITY_UPDATE.propertyNewValue));
+
+        } else if (changeLogEntry
+            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD)) {
+
+          event.setEventType(EsbEvent.EsbEventType.MEMBER_ADD.name());
+          // throws error
+          event.setId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.id));
+          event.setSubjectId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectId));
+          event.setSourceId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectSourceId));
+          event.setSubjectIdentifier0(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
+
+        } else if (changeLogEntry
+            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
+
+          event.setEventType(EsbEvent.EsbEventType.MEMBER_DELETE.name());
+          // throws error
+          event.setId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.id));
+          event.setSubjectId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectId));
+          event.setSourceId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectSourceId));
+          event.setSubjectIdentifier0(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
+
+        } else if (changeLogEntry
+            .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_UPDATE)) {
+
+          event.setEventType(EsbEvent.EsbEventType.MEMBER_UPDATE.name());
+          // throws error
+          event.setId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.id));
+          event.setSubjectId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectId));
+          event.setSourceId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectSourceId));
+          event.setSubjectIdentifier0(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {

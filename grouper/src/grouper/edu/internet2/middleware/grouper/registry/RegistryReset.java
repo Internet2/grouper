@@ -210,6 +210,7 @@ public class RegistryReset {
         throw re;
       }
     }
+    SubjectSourceCache.clearCache();
   } 
 
   private void _abort(String msg) 
