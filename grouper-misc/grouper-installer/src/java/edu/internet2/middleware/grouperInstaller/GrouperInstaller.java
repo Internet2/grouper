@@ -2644,6 +2644,12 @@ public class GrouperInstaller {
                 + File.separator + "grouper"),
             PatchFileType.clazz);
 
+        this.patchCreateProcessFiles(theIndexOfFiles,
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper" + File.separator + "src" 
+                + File.separator + "esb"),
+            PatchFileType.clazz);
+
 // do this at some point
 //        this.patchCreateProcessFiles(theIndexOfFiles,
 //            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
