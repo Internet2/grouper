@@ -987,6 +987,7 @@ public class GroupContainer {
                 Group group = GroupFinder.findByName(grouperSession, groupName, false);
                 if (group == null) {
                   // bad config
+                  count++;
                   continue;
                 }
                 
