@@ -256,6 +256,8 @@ public class UiV2Membership {
         membershipGuiContainer.setLineNumber(pathLineNumber);
         
         boolean firstNode = true;
+        
+        Subject currentSubject = subject;
 
         //loop through each node in the path
         for (MembershipPathNode membershipPathNode : membershipPath.getMembershipPathNodes()) {
@@ -297,12 +299,17 @@ public class UiV2Membership {
           }
           
           membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
-
+          
+          Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), ownerGroup, currentSubject, false);
+          membershipGuiContainer.setGuiMembershipCurrent(new GuiMembership(membership));
+          
           result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
-
+          
           firstNode = false;
           pathLineNumber++;
           membershipGuiContainer.setLineNumber(pathLineNumber);
+          
+          currentSubject = ownerGroup.toSubject();
         }
         
         firstPath = false;
@@ -1054,5 +1061,4 @@ public class UiV2Membership {
     }
 
   }
-
 }

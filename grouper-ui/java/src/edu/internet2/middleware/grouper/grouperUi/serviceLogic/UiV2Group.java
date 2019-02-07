@@ -17,9 +17,11 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -53,7 +55,6 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
@@ -75,6 +76,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
@@ -101,6 +103,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.pit.PITMembershipView;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -108,7 +111,9 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -542,6 +547,11 @@ public class UiV2Group {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     String filterText = request.getParameter("filterText");
+    String membershipEnabledDisabledOptions = request.getParameter("membershipEnabledDisabledOptions");
+    String membershipPITOptions = request.getParameter("membershipPITOptions");
+    String membershipPITToDate = request.getParameter("membershipPITToDate");
+    String membershipPITFromDate = request.getParameter("membershipPITFromDate");
+    String membershipCustomCompositeOptions = request.getParameter("membershipCustomCompositeOptions");
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
     
     //if filtering by subjects that have a certain type
@@ -559,24 +569,105 @@ public class UiV2Group {
     MembershipFinder membershipFinder = new MembershipFinder()
       .addGroupId(group.getId()).assignCheckSecurity(true)
       .assignHasFieldForMember(true)
-      .assignEnabled(true)
-      .assignHasMembershipTypeForMember(true)
       .assignQueryOptionsForMember(queryOptions)
       .assignSplitScopeForMember(true);
     
-    if (membershipType != null) {
-      membershipFinder.assignMembershipType(membershipType);
-    }
-
     if (!StringUtils.isBlank(filterText)) {
       membershipFinder.assignScopeForMember(filterText);
     }
+    
+    if ("yes".equals(membershipPITOptions)) {
+      groupContainer.setShowPointInTimeAudit(true);
+      groupContainer.setShowEnabledStatus(false);
+      
+      if (StringUtils.isNotBlank(membershipPITFromDate)) {
+        membershipFinder.assignPointInTimeFrom(GrouperUtil.stringToTimestamp(membershipPITFromDate));
+      }
+      
+      if (StringUtils.isNotBlank(membershipPITToDate)) {
+        membershipFinder.assignPointInTimeTo(GrouperUtil.stringToTimestamp(membershipPITToDate));
+      }
+      
+      //set of subjects, and what memberships each subject has
+      Set<Object[]> result = membershipFinder.findPITMembershipsMembers();
+      
+      //lets get all the subjects by member id
+      Map<String, Subject> memberIdToSubject = new HashMap<String, Subject>();
 
-    //set of subjects, and what memberships each subject has
-    Set<MembershipSubjectContainer> results = membershipFinder
-        .findMembershipResult().getMembershipSubjectContainers();
+      {
+        Map<String, SubjectBean> memberIdToSubjectBean = new HashMap<String, SubjectBean>();
+        Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
+        for (Object[] membershipResult : result) {
+          Member member = (Member)membershipResult[3];
+          SubjectBean subjectBean = new SubjectBean(member.getSubjectId(), member.getSubjectSourceId());
+          memberIdToSubjectBean.put(member.getUuid(), subjectBean);
+          subjectBeans.add(subjectBean);
+        }
+        Map<SubjectBean, Subject> subjectBeanToSubject = SubjectFinder.findBySubjectBeans(subjectBeans);
+    
+        for (String memberId : memberIdToSubjectBean.keySet()) {
+          SubjectBean subjectBean = memberIdToSubjectBean.get(memberId);
+          Subject subject = subjectBeanToSubject.get(subjectBean);
 
-    groupContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+          if (subject == null) {
+            subject = new UnresolvableSubject(subjectBean.getId(), null, subjectBean.getSourceId());  
+          }
+          
+          memberIdToSubject.put(memberId, subject);
+        }
+      }
+      
+      Set<GuiPITMembershipView> guiPITMembershipViews = new LinkedHashSet<GuiPITMembershipView>();
+      
+      for (Object[] membershipResult : result) {
+        PITMembershipView pitMembershipView = (PITMembershipView)membershipResult[0];
+        GuiPITMembershipView guiPITMembershipView = new GuiPITMembershipView(pitMembershipView);
+        String memberId = pitMembershipView.getPITMember().getSourceId();
+        Subject subject = memberIdToSubject.get(memberId);
+        guiPITMembershipView.setGuiSubject(new GuiSubject(subject));
+        guiPITMembershipViews.add(guiPITMembershipView);
+      }
+
+      groupContainer.setGuiPITMembershipViews(guiPITMembershipViews);
+    } else {
+      groupContainer.setShowPointInTimeAudit(false);
+      membershipFinder.assignHasMembershipTypeForMember(true);
+      
+      if (membershipType != null) {
+        membershipFinder.assignMembershipType(membershipType);
+      }
+      
+      groupContainer.setShowEnabledStatus(true);
+      
+      if ("status".equals(membershipEnabledDisabledOptions)) {
+        // include enabled and disabled memberships
+        membershipFinder.assignEnabled(null);
+      } else if ("disabled_dates".equals(membershipEnabledDisabledOptions)) {
+        // include memberships that have a disabled date
+        membershipFinder.assignHasDisabledDate(true);
+      } else if ("enabled_dates".equals(membershipEnabledDisabledOptions)) {
+        // include memberships that have an enabled date
+        membershipFinder.assignHasEnabledDate(true);
+      } else {
+        // default
+        membershipFinder.assignEnabled(true);
+        groupContainer.setShowEnabledStatus(false);
+      }
+      
+      if (!StringUtils.isBlank(membershipCustomCompositeOptions) && !"nothing".equals(membershipCustomCompositeOptions)) {
+        String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + membershipCustomCompositeOptions, null);
+        String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + membershipCustomCompositeOptions, null);
+        Group customCompositeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+        CompositeType customCompositeType = CompositeType.valueOfIgnoreCase(compositeType);
+        membershipFinder.assignCustomCompositeGroup(customCompositeGroup).assignCustomCompositeType(customCompositeType);
+      }
+      
+      //set of subjects, and what memberships each subject has
+      Set<MembershipSubjectContainer> results = membershipFinder
+          .findMembershipResult().getMembershipSubjectContainers();
+
+      groupContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+    }
     
     guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
@@ -4959,5 +5050,4 @@ public class UiV2Group {
 //      GrouperSession.stopQuietly(grouperSession);
 //    }
 //  }
-
 }

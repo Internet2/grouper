@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,6 +135,9 @@ public class ProvisionerConfiguration {
     private int groupSearch_batchSize;
     protected int groupSearch_batchSize_defaultValue = 50;
 
+    private String grouperMessagingSystemName;
+    protected String grouperMessagingSystemName_defaultValue = GrouperBuiltinMessagingSystem.BUILTIN_NAME;
+
 
     public ProvisionerConfiguration(String provisionerName) {
       this.provisionerName = provisionerName;
@@ -235,6 +239,9 @@ public class ProvisionerConfiguration {
                 GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "areChangesToInternalGrouperSubjectsIgnored", areChangesToInternalGrouperSubjectsIgnored_defaultValue);
         LOG.debug("Provisioner {} - Setting areChangesToInternalGrouperSubjectsIgnored to {}", provisionerName, areChangesToInternalGrouperSubjectsIgnored);
 
+        grouperMessagingSystemName =
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "grouperMessagingSystemName", grouperMessagingSystemName_defaultValue);
+        LOG.debug("Provisioner {} - Setting grouperMessagingSystemName to {}", provisionerName, grouperMessagingSystemName);
     }
 
 
@@ -320,4 +327,6 @@ public class ProvisionerConfiguration {
     public boolean areChangesToInternalGrouperSubjectsIgnored() {
         return areChangesToInternalGrouperSubjectsIgnored;
     }
+
+    public String getGrouperMessagingSystemName() { return grouperMessagingSystemName; }
 }
