@@ -67,6 +67,15 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class GrouperStartup {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    System.out.println(System.getenv("DB_URL"));
+    GrouperStartup.startup();
+  }
+  
   /** if running from main and expecting to print to the screen */
   public static boolean runFromMain = false;
   
