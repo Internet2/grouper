@@ -1,13 +1,8 @@
 
-To build the grouperVoot.jar
-- Have grouper and grouper-ws project checked out and built
-- Copy the build.example.properties to build.properties
-- Configure the build.properties to point to grouper and grouper-ws
-- Run the ant target build or distBinary
+Install grouper voot with patch in 2.3 or 2.4.
 
 To run Grouper Voot
 - Setup and run the grouper WS
-- Copy the grouperVoot.jar to the WEB-INF/lib of grouper WS
 - Make sure your sources.xml has an email attribute name in applicable subject sources:
 
      <!-- If using emails and need email addresses in sources, set which attribute has the email address in this source -->
