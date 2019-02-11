@@ -1,14 +1,3 @@
-package edu.internet2.middleware.grouper.app.loader;
-
-import org.apache.commons.logging.Log;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.PersistJobDataAfterExecution;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-
 /**
  * Copyright 2019 Internet2
  *
@@ -24,7 +13,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package edu.internet2.middleware.grouper.app.loader;
 
+import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.PersistJobDataAfterExecution;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+
+/**
+ * @author shilen
+ */
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class GrouperDaemonJob implements Job {
