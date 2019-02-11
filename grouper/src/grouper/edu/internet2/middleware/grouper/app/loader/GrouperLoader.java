@@ -38,7 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.ddlutils.PlatformFactory;
 import org.hibernate.type.StringType;
 import org.quartz.CronTrigger;
-import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -789,7 +788,7 @@ public class GrouperLoader {
    * schedule other jobs
    */
   public static void scheduleOtherJobs() {
-
+    
     //otherJob.duo.class = 
     //otherJob.duo.quartzCron = 
     //otherJob.duo.priority = 
@@ -829,7 +828,6 @@ public class GrouperLoader {
       String priorityKey = "otherJob." + otherJobName + ".priority";
       
       //check the classname
-      Class<? extends Job> theClass = null;
       String className = otherJobMap.get(classKey);
       String cronString = otherJobMap.get(cronKey);
       int priority = GrouperUtil.intValue(otherJobMap.get(priorityKey), 5);
@@ -850,12 +848,12 @@ public class GrouperLoader {
           throw new RuntimeException("Cant find config param" );
         }
         
-        theClass = GrouperUtil.forName(className);
+        GrouperUtil.forName(className); // just confirm that it resolves
 
         //at this point we have all the attributes and we know the required ones are there, and logged when 
         //forbidden ones are there
 
-        JobDetail jobDetail = JobBuilder.newJob(theClass)
+        JobDetail jobDetail = JobBuilder.newJob(GrouperDaemonJob.class)
           .withIdentity(jobName)
           .build();
         
