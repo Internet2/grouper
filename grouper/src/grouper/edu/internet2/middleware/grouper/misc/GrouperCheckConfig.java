@@ -87,6 +87,8 @@ import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
+import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
+import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -1134,6 +1136,60 @@ public class GrouperCheckConfig {
         checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_SUMMARY, 
             "Summary of last incremental run", wasInCheckConfig);
 
+      }
+      
+      // https://spaces.at.internet2.edu/display/Grouper/USDU+delete+subjects+after+unresolvable+for+X+days
+      // add usdu attributes
+      {
+        String usduRootStemName = UsduSettings.usduStemName();
+        
+        Stem usduStem = StemFinder.findByName(grouperSession, usduRootStemName, false);
+        if (usduStem == null) {
+          usduStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper usdu objects").assignName(usduRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String subjectResolutionTypeDefName = usduRootStemName + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_DEF;
+        AttributeDef subjectResolutionType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            subjectResolutionTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (subjectResolutionType == null) {
+          subjectResolutionType = usduStem.addChildAttributeDef(UsduAttributeNames.SUBJECT_RESOLUTION_DEF, AttributeDefType.type);
+          subjectResolutionType.setAssignToMember(true);
+          subjectResolutionType.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(usduStem, subjectResolutionType, UsduAttributeNames.SUBJECT_RESOLUTION_NAME, "has subject resolution attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String subjectResolutionAttrDefName = usduRootStemName + ":" + UsduAttributeNames.SUBJECT_RESOLUTION_VALUE_DEF;
+        AttributeDef subjectResolutionAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            subjectResolutionAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (subjectResolutionAttrType == null) {
+          subjectResolutionAttrType = usduStem.addChildAttributeDef(UsduAttributeNames.SUBJECT_RESOLUTION_VALUE_DEF, AttributeDefType.attr);
+          subjectResolutionAttrType.setAssignToMemberAssn(true);
+          subjectResolutionAttrType.setValueType(AttributeDefValueType.string);
+          subjectResolutionAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        subjectResolutionAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+        
+        checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE,
+            "false if this subject is currently unresolvable (as of last check)." + 
+            "If the subject is resolvable, remove subjectResolutionMarker and metadata", wasInCheckConfig);
+        
+        checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED, 
+            "yyyy/mm/dd If this subject has a date and is unresolveable, leave it. if this subject doesnt have a date, and is unresolvable, then set to currentDate.", wasInCheckConfig);
+        
+        checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_DAYS_UNRESOLVED, 
+            "7 - the number of days from current date minus dateLastResolved.", wasInCheckConfig);
+        
+        checkAttribute(usduStem, subjectResolutionAttrType, UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, 
+            "yyyy/mm/dd the date this subject was last checked. When the USDU runs, if this subject is current unresolvable, then set to currentDate", wasInCheckConfig);
       }
       
       
