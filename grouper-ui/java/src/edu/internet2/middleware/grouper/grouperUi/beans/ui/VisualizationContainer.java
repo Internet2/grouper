@@ -266,7 +266,7 @@ public class VisualizationContainer {
 
     if (grouperObject == null) {
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
 
       if ("group".equals(getObjectType())) {
         grouperObject = GroupFinder.findByUuid(grouperSession, getObjectId(), true);

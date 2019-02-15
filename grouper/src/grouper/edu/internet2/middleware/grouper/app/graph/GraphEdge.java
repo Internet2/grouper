@@ -48,14 +48,28 @@ public class GraphEdge {
     } else if (fromNode.isStem()) {
       styleObjectType = StyleObjectType.EDGE_FROM_STEM;
     } else if (toNode.isComplementGroup()) {
-      styleObjectType = StyleObjectType.EDGE_COMPLEMENT;
+      throw new RuntimeException("Exception creating a graph edge to a complement group -- should call overloaded method setting left and right group");
     } else if (toNode.isIntersectGroup()) {
-      styleObjectType = StyleObjectType.EDGE_INTERSECT;
+      throw new RuntimeException("Exception creating a graph edge to an intersect group -- should call overloaded method setting left and right group");
     } else if (fromNode.isGroup()) {
       styleObjectType = StyleObjectType.EDGE_MEMBERSHIP;
     } else {
       styleObjectType = StyleObjectType.EDGE;
     }
+  }
+
+  /**
+   * Constructor defining a directional edge, when the type is already known. Useful for complement
+   * factors, since the general calculations can't distinguish left and right
+   *
+   * @param fromNode
+   * @param toNode
+   * @param styleObjecType
+   */
+  public GraphEdge(GraphNode fromNode, GraphNode toNode, StyleObjectType styleObjecType) {
+    this.fromNode = fromNode;
+    this.toNode = toNode;
+    this.styleObjectType = styleObjecType;
   }
 
 

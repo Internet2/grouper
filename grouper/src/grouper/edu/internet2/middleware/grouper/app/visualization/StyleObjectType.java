@@ -26,7 +26,8 @@ public enum StyleObjectType {
   PROVISIONER("provisioner"),
   EDGE("edge"), EDGE_FROM_LOADER("edge_loader"), EDGE_TO_PROVISIONER("edge_provisioner"),
   EDGE_FROM_STEM("edge_stem"), EDGE_MEMBERSHIP("edge_membership"),
-  EDGE_COMPLEMENT("edge_complement"), EDGE_INTERSECT("edge_intersect");
+  EDGE_COMPLEMENT_LEFT("edge_complement_left"), EDGE_COMPLEMENT_RIGHT("edge_complement_right"),
+  EDGE_INTERSECT_LEFT("edge_intersect_left"), EDGE_INTERSECT_RIGHT("edge_intersect_right");
 
   private String name;
 

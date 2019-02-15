@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.app.graph;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -30,10 +31,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.*;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -87,7 +85,7 @@ public class RelationGraph {
   private boolean showLoaderJobs = true;
   private boolean showProvisionTargets = true;
   private boolean showStems = true;
-  private Set<String> skipFolderNamePatterns = new HashSet<String>(Arrays.asList("^etc:.*", "^$"));  // default to skip etc:* and root object
+  private Set<String> skipFolderNamePatterns = new HashSet<String>();  // Arrays.asList("^etc:.*", "^$") -> default to skip etc:* and root object
   private Set<String> skipGroupNamePatterns = new HashSet<String>();  // don't skip etc:* groups since they may be loader jobs
   private List<Pattern> skipFolderPatterns;
   private List<Pattern> skipGroupPatterns;
@@ -670,6 +668,11 @@ public class RelationGraph {
     edges.add(new GraphEdge(fromNode, toNode));
   }
 
+  // add a directed edge, when the edge type is known
+  private void addEdge(GraphNode fromNode, GraphNode toNode, StyleObjectType styleObjecType) {
+    edges.add(new GraphEdge(fromNode, toNode, styleObjecType));
+  }
+
   // recursively walk parents of this node -- includes parent stem, group loaders, group members, and composites
   private void buildParentNodes(GraphNode toNode, long level) {
     if (this.parentLevels != -1 && level > this.parentLevels) {
@@ -683,6 +686,10 @@ public class RelationGraph {
     }
 
     Set<GraphNode> nodesToVisit = new HashSet<GraphNode>();
+
+    // For complement groups, need to handle factors as a completely different case.
+    // For intersect, left and right don't matter much, but still tracking it
+    Map<GraphNode, StyleObjectType> compositeStyleTypes = new HashMap<GraphNode, StyleObjectType>();
 
     // for groups and stems, get the parent stem if including stems.
     // Abort at the root stem since getting its parent will throw an error
@@ -699,22 +706,22 @@ public class RelationGraph {
 
     // for a group, get immediate g:gsa members as parents
     if (toNode.isGroup()) {
-      Group theGroup = (Group)(toNode.getGrouperObject());
+      Group theGroup = (Group) (toNode.getGrouperObject());
       long numMembersAdded = 0;
       for (final Member m : fetchImmediateGsaMembers(theGroup)) {
         Group parentGroup = null;
         try {
           // use this version if the graph should exclude groups that can't be viewed
-          //parentGroup = m.toGroup();
+          parentGroup = m.toGroup();
           // use this version to see all the groups.
-          parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
-            public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-              return m.toGroup();
-            }
-          });
+//        // parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+//        //    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+//        //    return m.toGroup();
+//        //  }
+//        // });
         } catch (GroupNotFoundException e) {
           //user does not have permission to view group
-          LOG.debug("Session " + grouperSession.getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
+          LOG.trace("Session " + grouperSession.getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
             + "-- this group and any connected to it will be skipped");
           continue;
         }
@@ -730,7 +737,7 @@ public class RelationGraph {
 
       if (showLoaderJobs) {
         List<Group> jobGroups = fetchLoaderJobs(theGroup);
-        for (Group jobGroup: jobGroups) {
+        for (Group jobGroup : jobGroups) {
           if (!matchesFilter(jobGroup)) {
             GraphNode jobNode = fetchOrCreateNode(jobGroup);
             //addEdge(jobNode, toNode);
@@ -739,17 +746,39 @@ public class RelationGraph {
         }
       }
 
-      // show composite factors
+      // Show composite factors.
       if (theGroup.hasComposite()) {
-        Group left = theGroup.getComposite(true).getLeftGroup();
-        if (!matchesFilter(left)) {
-          //addEdge(left, toNode);
-          nodesToVisit.add(fetchOrCreateNode(left));
+        Composite composite = theGroup.getComposite(true);
+
+        Group left;
+        try {
+          left = composite.getLeftGroup();
+          if (!matchesFilter(left)) {
+            GraphNode nodeLeft = fetchOrCreateNode(left);
+            nodesToVisit.add(nodeLeft);
+            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
+              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_COMPLEMENT_LEFT);
+            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
+              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_INTERSECT_LEFT);
+            }
+          }
+        } catch (GroupNotFoundException e) {
+          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
-        Group right = theGroup.getComposite(true).getRightGroup();
-        if (!matchesFilter(right)) {
-          //addEdge(right, toNode);
-          nodesToVisit.add(fetchOrCreateNode(right));
+        Group right;
+        try {
+          right = composite.getRightGroup();
+          if (!matchesFilter(right)) {
+            GraphNode nodeRight = fetchOrCreateNode(right);
+            nodesToVisit.add(nodeRight);
+            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
+              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
+            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
+              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_INTERSECT_RIGHT);
+            }
+          }
+        } catch (GroupNotFoundException e) {
+          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
       }
     }
@@ -761,7 +790,11 @@ public class RelationGraph {
         maxParentDistance = level;
       }
       for (GraphNode n : nodesToVisit) {
-        addEdge(n, toNode);
+        if (compositeStyleTypes.containsKey(n)) {
+          addEdge(n, toNode, compositeStyleTypes.get(n));
+        } else {
+          addEdge(n, toNode);
+        }
         n.setDistanceFromStartNode(-1 * level);
         visitNode(n, level, true, false);
       }
@@ -782,6 +815,10 @@ public class RelationGraph {
 
     Set<GraphNode> nodesToVisit = new HashSet<GraphNode>();
 
+    // For complement groups, need to handle factors as a completely different case.
+    // For intersect, left and right don't matter much, but still tracking it
+    Map<GraphNode, StyleObjectType> compositeStyleTypes = new HashMap<GraphNode, StyleObjectType>();
+
     // for stems, always get the child groups. Also get the child stems
     // if showing them
     if (fromNode.isStem()) {
@@ -793,7 +830,7 @@ public class RelationGraph {
           GraphNode toNode = fetchOrCreateNode(g);
           //addEdge(fromNode, toNode);
           nodesToVisit.add(toNode);
-          ++numGroupsFromLoaders;
+          ++numGroupsAdded;
         }
       }
 
@@ -854,6 +891,29 @@ public class RelationGraph {
           ++numLoadedGroupsByJob;
         }
       }
+
+      // get groups where this is a composite factor
+      for (Composite composite : CompositeFinder.findAsFactor(theGroup)) {
+        // findAsFactor doesn't distinguish left/right, so need to compare current group with both
+        Group ownerGroup = composite.getOwnerGroup();
+        if (!matchesFilter(ownerGroup)) {
+          GraphNode toNode = fetchOrCreateNode(ownerGroup);
+          nodesToVisit.add(toNode);
+          if (composite.getType() == CompositeType.COMPLEMENT) {
+            if (theGroup.equals(composite.getLeftGroup())) {
+              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_COMPLEMENT_LEFT);
+            } else if (theGroup.equals(composite.getRightGroup())) {
+              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
+            }
+          } else if (composite.getType() == CompositeType.INTERSECTION) {
+            if (theGroup.equals(composite.getLeftGroup())) {
+              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_INTERSECT_LEFT);
+            } else if (theGroup.equals(composite.getRightGroup())) {
+              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_INTERSECT_RIGHT);
+            }
+          }
+        }
+      }
     } else if (fromNode.isSubject()) {
       Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
       long numSubjectMembershipsAdded = 0;
@@ -879,10 +939,14 @@ public class RelationGraph {
       }
 
       for (GraphNode n : nodesToVisit) {
-        //visitNode(n, level);
-        //buildChildNodes(n, 1 + level);
         n.setDistanceFromStartNode(level);
-        addEdge(fromNode, n);
+
+        if (compositeStyleTypes.containsKey(n)) {
+          addEdge(fromNode, n, compositeStyleTypes.get(n));
+        } else {
+          addEdge(fromNode, n);
+        }
+
         visitNode(n, level, false, true);
       }
     }

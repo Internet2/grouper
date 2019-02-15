@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.graph.RelationGraph;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.app.visualization.VisualSettings;
 import edu.internet2.middleware.grouper.app.visualization.VisualStyleSet;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -94,19 +95,29 @@ public class UiV2Visualization {
   }
 
   public class TextGraph extends VisualizationGraph { //note need to be public for json-lib to parse them
-    private List<TextNode> nodes;
+    private Map<String, Node> nodes;
+    private List<String> sortedNodeIds;
 
     private TextGraph() {
       super();
-      nodes = new LinkedList<TextNode>();
+      nodes = new HashMap<String, Node>();
+      sortedNodeIds = new LinkedList<String>();
     }
 
-    private void addNode(TextNode node) {
-      this.nodes.add(node);
+    private void addNode(String id, Node node) {
+      this.nodes.put(id, node);
     }
 
-    public List<TextNode> getNodes() {
+    public Map<String, Node> getNodes() {
       return nodes;
+    }
+
+    public List<String> getSortedNodeIds() {
+      return sortedNodeIds;
+    }
+
+    public void addSortedNodeId(String id) {
+      this.sortedNodeIds.add(id);
     }
   }
 
@@ -153,16 +164,20 @@ public class UiV2Visualization {
     private String description;
     private String type;
     private String baseType;
+    private String linkType;
     private long memberCount = 0;
+    private String compositeLeftFactorId;
+    private String compositeRightFactorId;
 
     private Node(String id, String name, String displayExtension, String description, String type,
-                 String baseType, long memberCount) {
+                 String baseType, String linkType, long memberCount) {
       this.id = id;
       this.name = name;
       this.displayExtension = displayExtension;
       this.description = description;
       this.type = type;
       this.baseType = baseType;
+      this.linkType = linkType;
       this.memberCount = memberCount;
     }
 
@@ -190,9 +205,30 @@ public class UiV2Visualization {
       return baseType;
     }
 
+    public String getLinkType() {
+      return linkType;
+    }
+
     public long getMemberCount() {
       return memberCount;
     }
+
+    public String getCompositeLeftFactorId() {
+      return compositeLeftFactorId;
+    }
+
+    protected void setCompositeLeftFactorId(String compositeLeftFactorId) {
+      this.compositeLeftFactorId = compositeLeftFactorId;
+    }
+
+    public String getCompositeRightFactorId() {
+      return compositeRightFactorId;
+    }
+
+    protected void setCompositeRightFactorId(String compositeRightFactorId) {
+      this.compositeRightFactorId = compositeRightFactorId;
+    }
+
   }
 
   /**
@@ -201,15 +237,35 @@ public class UiV2Visualization {
    */
   public class TextNode extends Node {
     private long indent;
+    private List<String> parentNodeIds;
+    private List<String> childNodeIds;
 
     private TextNode(String id, String name, String displayExtension, String description, String type,
-                     String linkType, long memberCount, long indent) {
-      super(id, name, displayExtension, description, type, linkType, memberCount);
+                     String baseType, String linkType, long memberCount, long indent) {
+      super(id, name, displayExtension, description, type, baseType, linkType, memberCount);
       this.indent = indent;
+      parentNodeIds = new LinkedList<String>();
+      childNodeIds = new LinkedList<String>();
     }
 
     public long getIndent() {
       return indent;
+    }
+
+    public List<String> getParentNodeIds() {
+      return parentNodeIds;
+    }
+
+    private void addParentNodeId(String id) {
+      this.parentNodeIds.add(id);
+    }
+
+    public List<String> getChildNodeIds() {
+      return childNodeIds;
+    }
+
+    private void addChildNodeId(String id) {
+      this.childNodeIds.add(id);
     }
   }
 
@@ -362,6 +418,17 @@ public class UiV2Visualization {
       .assignShowMemberCounts(visualizationContainer.isDrawShowMemberCounts())
       .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings());
 
+    // filters on stems and groups (e.g., skip etc and the root folder by default).
+    // future enhancement to make this configurable?
+    String stemFilterRegexp = GrouperConfig.retrieveConfig().propertyValueString("visualization.skipFolderNamePatterns");
+    String groupFilterRegexp = GrouperConfig.retrieveConfig().propertyValueString("visualization.skipGroupNamePatterns");
+    if (!GrouperUtil.isBlank(stemFilterRegexp)) {
+      relationGraph.assignSkipFolderNamePatterns(GrouperUtil.splitTrimToSet(stemFilterRegexp, ";"));
+    }
+    if (!GrouperUtil.isBlank(groupFilterRegexp)) {
+      relationGraph.assignSkipGroupNamePatterns(GrouperUtil.splitTrimToSet(groupFilterRegexp, ";"));
+    }
+
     relationGraph.build();
 
     VisualizationGraph graph = null;
@@ -388,7 +455,6 @@ public class UiV2Visualization {
     graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
 
     graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
-    graph.addSetting("showMemberCounts", relationGraph.isShowMemberCounts());
     graph.addSetting("showMemberCounts", relationGraph.isShowMemberCounts());
     //graph.addSetting("objectNameField", visualizationHelper;);
     //what is this in the d3 drawing?? graph.addSetting("text", -1);
@@ -418,6 +484,11 @@ public class UiV2Visualization {
 
     Set<StyleObjectType> styleTypes = new HashSet();
 
+    // create a lookup of all the edges that are left and right factors
+    Map<GraphNode, String> compositeLeftFactors = new HashMap<GraphNode, String>();
+    Map<GraphNode, String> compositeRightFactors = new HashMap<GraphNode, String>();
+    loadLeftRightFactorMaps(relationGraph, compositeLeftFactors, compositeRightFactors);
+
     for (GraphNode graphNode: relationGraph.getNodes()) {
       Node node = new Node(
         graphNode.getGrouperObjectId(),
@@ -425,9 +496,17 @@ public class UiV2Visualization {
         getGrouperObjectDisplayExtension(graphNode),
         graphNode.getGrouperObject().getDescription(),
         graphNode.getStyleObjectType().getName(),
-        getNodeBaseType(graphNode),
+        styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()),
+        styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", ""),
         graphNode.getMemberCount()
       );
+
+      if (compositeLeftFactors.containsKey(graphNode)) {
+        node.setCompositeLeftFactorId(compositeLeftFactors.get(graphNode));
+      }
+      if (compositeRightFactors.containsKey(graphNode)) {
+        node.setCompositeRightFactorId(compositeRightFactors.get(graphNode));
+      }
 
       graph.addNode(graphNode.getGrouperObjectId(), node);
       styleTypes.add(graphNode.getStyleObjectType());
@@ -448,18 +527,12 @@ public class UiV2Visualization {
     styleTypes.add(StyleObjectType.GRAPH);
 
     for (StyleObjectType styleType: styleTypes) {
-      for (String propertyName: new String[]{"shape", "style", "color", "fontcolor", "border", "arrowtail", "dir"}) {
+      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail", "dir", "linkType", "displayTag"}) {
         String propertyValue = styleSet.getStyleProperty(styleType.getName(), propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addStyleProperty(styleType.getName(), propertyName, propertyValue);
         }
       }
-
-      //Style s = new Style();
-      //for (Map.Entry<String, String> property : s.getProperties().entrySet()) {
-        //s.addProperty(property.getKey(), property.getValue());
-      //}
-      //graph.addStyle(styleType.getName(), s);
     }
 
     return graph;
@@ -477,6 +550,11 @@ public class UiV2Visualization {
     List<GraphNode> sortedNodes = new ArrayList<GraphNode>(relationGraph.getNodes());
     Collections.sort(sortedNodes, new SortByIndent());
 
+    // create a lookup of all the edges that are left and right factors
+    Map<GraphNode, String> compositeLeftFactors = new HashMap<GraphNode, String>();
+    Map<GraphNode, String> compositeRightFactors = new HashMap<GraphNode, String>();
+    loadLeftRightFactorMaps(relationGraph, compositeLeftFactors, compositeRightFactors);
+
     for (GraphNode graphNode: sortedNodes) {
       long indent = graphNode.getDistanceFromStartNode() + relationGraph.getMaxParentDistance();
       if (indent < 0) {
@@ -489,38 +567,59 @@ public class UiV2Visualization {
         getGrouperObjectDisplayExtension(graphNode),
         graphNode.getGrouperObject().getDescription(),
         graphNode.getStyleObjectType().getName(),
-        getNodeBaseType(graphNode),
+        styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()) /* getNodeBaseType(graphNode) */,
+        styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", "") /*getNodeLinkType(graphNode)*/,
         graphNode.getMemberCount(),
         indent);
 
-      graph.addNode(node);
+      styleTypes.add(graphNode.getStyleObjectType());
+
+      for (GraphNode n: graphNode.getParentNodes()) {
+        node.addParentNodeId(n.getGrouperObjectId());
+      }
+
+      for (GraphNode n: graphNode.getChildNodes()) {
+        node.addChildNodeId(n.getGrouperObjectId());
+      }
+
+      if (compositeLeftFactors.containsKey(graphNode)) {
+        node.setCompositeLeftFactorId(compositeLeftFactors.get(graphNode));
+      }
+      if (compositeRightFactors.containsKey(graphNode)) {
+        node.setCompositeRightFactorId(compositeRightFactors.get(graphNode));
+      }
+
+      graph.addNode(graphNode.getGrouperObjectId(), node);
+      graph.addSortedNodeId(graphNode.getGrouperObjectId());
       styleTypes.add(graphNode.getStyleObjectType());
     }
 
     for (StyleObjectType styleType: styleTypes) {
-      graph.addStyleProperty(
-        styleType.getName(),
-        "label",
-        styleSet.getStyleProperty(styleType, "label", ""));
+      for (String propertyName : new String[]{"linkType", "displayTag"}) {
+        String propertyValue = styleSet.getStyleProperty(styleType.getName(), propertyName, "");
+        if (!"".equals(propertyValue)) {
+          graph.addStyleProperty(styleType.getName(), propertyName, propertyValue);
+        }
+      }
     }
+
 
     return graph;
   }
 
-
-  private String getNodeBaseType(GraphNode node) {
-    if (node.isStem()) {
-      return "stem";
-    } else if (node.isGroup()) {
-      return "group";
-    } else if (node.isSubject()) {
-      return "subject";
-    } else if (node.isProvisionerTarget()) {
-      return "provisioner";
-    } else {
-      return null;
+  // loads lookup maps from a node to left/right factors, based on the edges that are composite types
+  private void loadLeftRightFactorMaps(RelationGraph relationGraph, Map<GraphNode, String> compositeLeftFactors, Map<GraphNode, String> compositeRightFactors) {
+    for (GraphEdge graphEdge : relationGraph.getEdges()) {
+      if (graphEdge.getStyleObjectType() == StyleObjectType.EDGE_COMPLEMENT_LEFT
+              || graphEdge.getStyleObjectType() == StyleObjectType.EDGE_INTERSECT_LEFT) {
+        compositeLeftFactors.put(graphEdge.getToNode(), graphEdge.getFromNode().getGrouperObjectId());
+      } else if (graphEdge.getStyleObjectType() == StyleObjectType.EDGE_COMPLEMENT_RIGHT
+              || graphEdge.getStyleObjectType() == StyleObjectType.EDGE_INTERSECT_RIGHT) {
+        compositeRightFactors.put(graphEdge.getToNode(), graphEdge.getFromNode().getGrouperObjectId());
+      }
     }
   }
+
 
   /**
    * Custom sort for the text builder, sorts by nodes indentation level
