@@ -30,9 +30,7 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -84,7 +82,7 @@ public class UsduJob extends OtherJobBase {
       String property = entry.getKey();
       String sourceId = entry.getValue();
       
-      try {        
+      try {
         SourceManager.getInstance().getSource(sourceId);
       } catch (SourceUnavailableException e) {
         throw new RuntimeException("source id: "+sourceId+" not found in configured subject sources. ");
@@ -128,19 +126,9 @@ public class UsduJob extends OtherJobBase {
     
     deleteUnresolvableMembers(grouperSession);
     
-    //TODO go through all the members that are tagged as unresolvables and 
-    // if they are now resolvable, clear the attributes
-    
-    
+    clearMetadataFromNowResolvedMembers();
     
     return null;
-  }
-  
-  private static void clearUnresolvableMetadataOnNowResolvedMembers() {
-    
-    String attributeDefId = UsduAttributeNames.retrieveAttributeDefNameBase().getId();
-    
-    
   }
   
   /**
@@ -167,13 +155,15 @@ public class UsduJob extends OtherJobBase {
   }
   
   
-  @SuppressWarnings("unused")
   private void clearMetadataFromNowResolvedMembers() {
     //TODO implement after figuring out how to get members that have subjectResolution attributes assigned.
-    
   }
   
   
+  /**
+   * delete unresolvable members
+   * @param grouperSession
+   */
   private void deleteUnresolvableMembers(GrouperSession grouperSession) {
     
     Set<Member> unresolvableMembers = USDU.getUnresolvableMembers(grouperSession, null);
@@ -182,6 +172,10 @@ public class UsduJob extends OtherJobBase {
     
   }
   
+  /**
+   * delete unresolvable members
+   * @param unresolvables
+   */
   private void deleteUnresolvableMembers(Set<Member> unresolvables) {
     
     Set<Field> fields = getMemberFields();
@@ -210,7 +204,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private static void deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
+  private void deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     int globalMaxAllowed = GrouperConfig.retrieveConfig().propertyValueInt("usdu.failsafe.maxUnresolvableSubjects", 500);
     
@@ -264,7 +258,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private static void addUnresolvedMemberToCorrectSet(Member member, SubjectResolutionAttributeValue memberSubjectResolutionAttributeValue,
+  private void addUnresolvedMemberToCorrectSet(Member member, SubjectResolutionAttributeValue memberSubjectResolutionAttributeValue,
       Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     int globalDeleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.delete.ifAfterDays", 30);
@@ -287,7 +281,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private static SubjectResolutionAttributeValue saveSubjectResolutionAttributeValue(Member member) {
+  private SubjectResolutionAttributeValue saveSubjectResolutionAttributeValue(Member member) {
     
     SubjectResolutionAttributeValue existingSubjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
     
@@ -302,7 +296,7 @@ public class UsduJob extends OtherJobBase {
       newValue.setSubjectResolutionResolvableString(BooleanUtils.toStringTrueFalse(false));
       newValue.setSubjectResolutionDateLastResolvedString(curentDateString);
       newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(0));
-      newValue.setSubjectResolutionLastCheckedString(curentDateString);
+      newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
       
     } else {
       
@@ -318,7 +312,7 @@ public class UsduJob extends OtherJobBase {
       
       long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
       
-      newValue.setSubjectResolutionLastCheckedString(curentDateString);
+      newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
       newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(days));
       
     }
@@ -328,13 +322,14 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private static void deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
+  private void deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
     
     int deletedCount = 0;
     
     for (Member member: unresolvableMembers) {
       
       if (deletedCount >= howMany) {
+        LOG.info("Total: "+unresolvableMembers.size()+" unresolvable members, deleted: "+deletedCount);
         break;
       }
       
@@ -388,7 +383,7 @@ public class UsduJob extends OtherJobBase {
    * @return set of fields
    * @throws SchemaException
    */
-  protected static Set<Field> getMemberFields() throws SchemaException {
+  protected Set<Field> getMemberFields() throws SchemaException {
 
     Set<Field> listFields = new LinkedHashSet<Field>();
     for (Object field : FieldFinder.findAllByType(FieldType.LIST)) {
@@ -412,7 +407,7 @@ public class UsduJob extends OtherJobBase {
    * @return a set of memberships
    * @throws SchemaException
    */
-  protected static Set<Membership> getAllImmediateMemberships(Member member, Set<Field> fields) throws SchemaException {
+  protected Set<Membership> getAllImmediateMemberships(Member member, Set<Field> fields) throws SchemaException {
 
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     for (Field field : fields) {
@@ -433,7 +428,7 @@ public class UsduJob extends OtherJobBase {
    * @param field
    * @return the privilege matching the given field or null
    */
-  protected static Privilege getPrivilege(Field field) {
+  protected Privilege getPrivilege(Field field) {
 
     return list2priv.get(field.getName());
   }

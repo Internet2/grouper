@@ -64,7 +64,7 @@ public class UsduAttributeNames {
     });
   
     if (attributeDefName == null) {
-      throw new RuntimeException("Why cant provisioningMarker attribute def name be found?");
+      throw new RuntimeException("Why cant subjectResolutionMarker attribute def name be found?");
     }
     
     return attributeDefName;
