@@ -32,13 +32,17 @@ public class UsduService {
     return buildSubjectResolutionAttributeValue(attributeAssign);
   }
   
-  
+  /**
+   * save or update subject resolution metadata attributes on a given member
+   * @param subjectResolutionAttributeValue
+   * @param member
+   */
   public static void saveOrUpldateSubjectResolutionAttributeValue(SubjectResolutionAttributeValue subjectResolutionAttributeValue, Member member) {
     
     AttributeAssign attributeAssign = getAttributeAssign(member);
     
     if (attributeAssign == null) {
-      attributeAssign = member.getAttributeDelegate().addAttribute(UsduAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+      attributeAssign = member.getAttributeDelegate().assignAttribute(UsduAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE, true);
@@ -53,7 +57,7 @@ public class UsduService {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved()));
     
     attributeDefName = AttributeDefNameFinder.findByName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), subjectResolutionAttributeValue.getSubjectResolutionLastCheckedString());
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), subjectResolutionAttributeValue.getSubjectResolutionDateLastCheckedString());
     
     attributeAssign.saveOrUpdate();
     
@@ -62,7 +66,7 @@ public class UsduService {
   
   
   /**
-   * build subject resolution attribute object from underlying info
+   * build subject resolution attribute object from member attributes
    * @param attributeAssign
    * @return SubjectResolutionAttributeValue
    */
@@ -77,7 +81,7 @@ public class UsduService {
     result.setSubjectResolutionResolvableString(resolvableString);
     result.setSubjectResolutionDateLastResolvedString(attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+SUBJECT_RESOLUTION_DATE_LAST_RESOLVED).getValueString());
     result.setSubjectResolutionDaysUnresolvedString(attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DAYS_UNRESOLVED).getValueString());
-    result.setSubjectResolutionLastCheckedString(attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED).getValueString());
+    result.setSubjectResolutionDateLastCheckedString(attributeValueDelegate.retrieveAttributeAssignValue(usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_LAST_CHECKED).getValueString());
     
     return result;
   }
