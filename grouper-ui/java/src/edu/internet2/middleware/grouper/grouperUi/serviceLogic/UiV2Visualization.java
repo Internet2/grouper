@@ -408,7 +408,7 @@ public class UiV2Visualization {
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-    RelationGraph relationGraph = new RelationGraph(grouperSession)
+    RelationGraph relationGraph = new RelationGraph()
       .assignStartObject(visualizationContainer.getGrouperObject())
       .assignParentLevels(visualizationContainer.getDrawNumParentsLevels())
       .assignChildLevels(visualizationContainer.getDrawNumChildrenLevels())

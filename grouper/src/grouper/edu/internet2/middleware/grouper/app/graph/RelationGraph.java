@@ -27,7 +27,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -75,8 +74,6 @@ public class RelationGraph {
   private static AttributeDefName ldapLoaderAttributeDefName; // used by graph nodes to determine if loader job
   private static boolean attemptedInitAttributeDefs = false;
 
-  private GrouperSession grouperSession;
-
   /* assignX settings for graph construction */
   private GrouperObject startObject;
   private long parentLevels = -1;
@@ -112,11 +109,8 @@ public class RelationGraph {
    * Create a new graph with default settings. Caller should call the various
    * assign methods to set build parameters, and then call build() to construct
    * the graph.
-   *
-   * @param grouperSession The session of the user building the graph
    */
-  public RelationGraph(GrouperSession grouperSession) {
-    this.grouperSession = grouperSession;
+  public RelationGraph() {
   }
 
   /**
@@ -568,10 +562,11 @@ public class RelationGraph {
     List<Group> ret = new LinkedList<Group>();
 
     ++numGroupsFromLoaders;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     for (AttributeAssign aa: attrAssigns) {
       String jobId = aa.getAttributeValueDelegate().retrieveValueString(GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
       try {
-        Group jobGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), jobId, true);
+        Group jobGroup = GroupFinder.findByUuid(grouperSession, jobId, true);
         ret.add(jobGroup);
       } catch (Exception e) {
         LOG.error("Failed to find loader job with id " + jobId + "referenced by group " + g.getName());
@@ -721,7 +716,7 @@ public class RelationGraph {
 //        // });
         } catch (GroupNotFoundException e) {
           //user does not have permission to view group
-          LOG.trace("Session " + grouperSession.getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
+          LOG.trace("Session " + GrouperSession.staticGrouperSession().getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
             + "-- this group and any connected to it will be skipped");
           continue;
         }

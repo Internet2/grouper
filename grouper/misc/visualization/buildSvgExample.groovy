@@ -23,7 +23,7 @@ if (inFilename == null) {
 }
 //Group obj = GroupFinder.findByName(gs, 'basis:org:110100:staff')
 
-RelationGraph graph = new RelationGraph(gs).assignStartObject(inObject).assignParentLevels(-1).assignChildLevels(-1).assignShowMemberCounts(true).assignShowStems(true)
+RelationGraph graph = new RelationGraph().assignStartObject(inObject).assignParentLevels(-1).assignChildLevels(-1).assignShowMemberCounts(true).assignShowStems(true)
 graph.assignMaxSiblings(20)
 graph.build()
 
