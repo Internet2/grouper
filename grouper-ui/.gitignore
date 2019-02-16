@@ -11,3 +11,4 @@ webapp/WEB-INF/lib/*.jar
 /.project
 /.classpath
 /bin/
+conf/penn*
