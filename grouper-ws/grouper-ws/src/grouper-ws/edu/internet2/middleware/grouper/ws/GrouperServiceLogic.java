@@ -9974,7 +9974,8 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
       final GrouperMessageQueueType queueType, final String queueOrTopicName,
-      final String messageSystemName, String routingKey, Boolean autocreateObjects,
+      final String messageSystemName, String routingKey,
+      Boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
@@ -10020,7 +10021,6 @@ public class GrouperServiceLogic {
       }
 
       //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
 
@@ -10037,9 +10037,16 @@ public class GrouperServiceLogic {
           .assignAutocreateObjects(autocreateObjects)
           .assignQueueOrTopicName(queueOrTopicName)
           .assignQueueType(queueType)
+          .assignRoutingKey(routingKey)
           .assignGrouperMessages(grouperMessages);
+      
+      //TODO move to dedicated argument in 2.5
+      if (paramMap.containsKey("exchangeType")) {
+        String exchangeType = paramMap.get("exchangeType");
+        grouperMessageSendParam.assignExchangeType(exchangeType);
+      }
 
-      GrouperMessagingEngine.send(grouperMessageSendParam.assignRoutingKey(routingKey));
+      GrouperMessagingEngine.send(grouperMessageSendParam);
 
       wsSendMessageResults.setMessages(messages);
       wsSendMessageResults.setMessageSystemName(messageSystemName);
@@ -10120,10 +10127,8 @@ public class GrouperServiceLogic {
       }
 
       //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
-
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+      
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
           .assignAutocreateObjects(autocreateObjects)
@@ -10135,9 +10140,24 @@ public class GrouperServiceLogic {
       if (maxMessagesToReceiveAtOnce != null) {
         grouperMessageReceiveParam.assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce);
       }
+      
+      grouperMessageReceiveParam.assignRoutingKey(routingKey);
+      
+      //TODO move to dedicated argument in 2.5
+      if (paramMap.containsKey("exchangeType")) {
+        String exchangeType = paramMap.get("exchangeType");
+        grouperMessageReceiveParam.assignExchangeType(exchangeType);
+      }
+      
+      //TODO move to dedicated argument in 2.5
+      if (paramMap.containsKey("queueType")) {
+        String queueType = paramMap.get("queueType");
+        GrouperMessageQueueType messageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(queueType, true);
+        grouperMessageReceiveParam.assignQueueType(messageQueueType);
+      }
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
-          .receive(grouperMessageReceiveParam.assignRoutingKey(routingKey));
+          .receive(grouperMessageReceiveParam);
 
       WsMessage[] wsMessages = new WsMessage[grouperMessageReceiveResult
           .getGrouperMessages().size()];

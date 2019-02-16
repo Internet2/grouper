@@ -109,6 +109,15 @@ public class EsbEvent {
     /** MEMBERSHIP_UPDATE event */
     MEMBERSHIP_UPDATE,
 
+    /** MEMBER_ADD event */
+    MEMBER_ADD,
+
+    /** MEMBER_DELETE event */
+    MEMBER_DELETE,
+
+    /** MEMBER_UPDATE event */
+    MEMBER_UPDATE,
+
     /** PRIVILEGE_ADD event */
     PRIVILEGE_ADD,
 
@@ -251,6 +260,9 @@ public class EsbEvent {
   private String subjectId;
 
   /** */
+  private String subjectIdentifier0;
+  
+  /** */
   private String type;
 
   /** */
@@ -329,6 +341,22 @@ public class EsbEvent {
    */
   public void setId(String id) {
     this.id = id;
+  }
+
+  
+  /**
+   * @return the subjectIdentifier
+   */
+  public String getSubjectIdentifier0() {
+    return this.subjectIdentifier0;
+  }
+
+  
+  /**
+   * @param subjectIdentifier the subjectIdentifier to set
+   */
+  public void setSubjectIdentifier0(String subjectIdentifier) {
+    this.subjectIdentifier0 = subjectIdentifier;
   }
 
   /**

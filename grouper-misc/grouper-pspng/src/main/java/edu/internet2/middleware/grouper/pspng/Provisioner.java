@@ -973,7 +973,7 @@ public abstract class Provisioner
   
   
   /**
-   * The specified Grouper or TargetSystem group has changed, remove
+   * The specified Gro uper or TargetSystem group has changed, remove
    * them from various caches, including hibernate L2 cache.
    *
    * Only one parameter is needed
@@ -989,11 +989,11 @@ public abstract class Provisioner
           grouperGroupInfo = gi;
           break;
         }
-    }
-    
-    if ( grouperGroupInfo == null ) {
-    	LOG.warn("Can't find Grouper Group to uncache from tsGroup {}", tsGroup);
-    	return;
+
+      if ( grouperGroupInfo == null ) {
+        LOG.warn("Can't find Grouper Group to uncache from tsGroup {}", tsGroup);
+        return;
+      }
     }
     
     LOG.debug("Flushing group from target-system cache: {}", grouperGroupInfo);
@@ -1092,13 +1092,19 @@ public abstract class Provisioner
         // changes are expected to be infrequent, so we aren't creating an optimized code path
         // that doesn't sync memberships.
 
-        scheduleAndAwaitFullSyncOfGroup(workItem);
+        FullSyncQueueItem fullSyncStatus = getFullSyncer()
+                .scheduleGroupForSync(
+                        FullSyncProvisioner.QUEUE_TYPE.ASAP,
+                        workItem.groupName,
+                        "Changelog: %s", workItem);
+
+        workItem.markAsSuccess("Handled with scheduled FullSync (qid=%d)", fullSyncStatus.id);
       }
       else if (  workItemShouldBeHandledByFullSyncOfEverything(workItem) ) {
         LOG.info("{}: Performing sync of all groups to process work item: {}", getDisplayName(), workItem);
-        getFullSyncer().queueAllGroupsForFullSync(String.format("Work item invokes full sync: %s", workItem));
+        getFullSyncer().queueAllGroupsForFullSync(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,"Work item invokes full sync for everything: %s", workItem);
         if ( getConfig().isGrouperAuthoritative() ) {
-          getFullSyncer().scheduleGroupCleanup();
+          getFullSyncer().scheduleGroupCleanup(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG);
         }
         workItem.markAsSuccess("Scheduled a full-sync of all groups");
       }
@@ -1236,44 +1242,6 @@ public abstract class Provisioner
         return;
       }
       deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
-    }
-  }
-
-
-  private void scheduleAndAwaitFullSyncOfGroup(ProvisioningWorkItem workItem) throws PspException {
-    GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-
-    // We need to remove our lock so full-sync can occur
-    getProvisionerCoordinator().unlockAfterIncrementalProvisioning(grouperGroupInfo);
-
-    FullSyncProvisioner.FullSyncQueueItem fullSyncStatus = getFullSyncer()
-            .scheduleGroupForSync(workItem.getGroupInfo(this),
-                    String.format("Changelog: %s", workItem), true);
-
-    // Wait up to 5 minutes for full sync to occur
-    int fullSyncTimeout_secs = 300;
-    while ( !fullSyncStatus.hasBeenProcessed() && fullSyncStatus.getAge_ms() < 1000L*fullSyncTimeout_secs ) {
-      if ( fullSyncStatus.stats.processingStartTime != null ) {
-        LOG.info("{}: Triggered change: Awaiting completion of active full sync: {}",
-                new Object[]{getDisplayName(), fullSyncStatus});
-      }
-      else {
-        LOG.info("{}: Triggered change: Awaiting start full sync of {}", getDisplayName(), grouperGroupInfo);
-      }
-
-      GrouperUtil.sleep(1000);
-    }
-
-    if ( fullSyncStatus.hasBeenProcessed() ) {
-      if ( fullSyncStatus.wasSuccessful ) {
-        workItem.markAsSuccess("Handled with FullSync");
-      }
-      else {
-        workItem.markAsFailure("FullSync attempted, but failed");
-      }
-    }
-    else {
-      workItem.markAsFailure("FullSync timed out after %d seconds", fullSyncTimeout_secs);
     }
   }
 
@@ -1489,14 +1457,6 @@ public abstract class Provisioner
     return null;
   }
   
-  /**
-   * Schedule a full sync of the given group as soon as possible
-   * @param group
-   */
-  public void scheduleFullSync(GrouperGroupInfo group, String reason) throws PspException {
-    getFullSyncer().scheduleGroupForSync(group, reason, true);
-  }
-
   private FullSyncProvisioner getFullSyncer() throws PspException {
     return FullSyncProvisionerFactory.getFullSyncer(this);
   }

@@ -210,6 +210,9 @@ public class ProvisionerCoordinator {
 
 
     public void unlockAfterFullSync(GrouperGroupInfo group) {
+        if (group==null)
+            return;
+
         get(group).unlockAfterFullSync();
     }
 

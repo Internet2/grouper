@@ -227,8 +227,23 @@ public abstract class ConfigPropertiesCascadeBase {
 
     Properties result = new Properties();
 
+    // first do non el configs
     for (String key : (Set<String>)(Object)tempResult.keySet()) {
       
+      String value = setValues ? tempResult.getProperty(key) : "";
+      
+      //lets look for EL
+      if (!key.endsWith(EL_CONFIG_SUFFIX)) {
+        
+        //cant be null, or hashtable exception
+        result.put(key, ConfigPropertiesCascadeUtils.defaultString(value));
+
+      }
+    }
+
+    // then do EL
+    for (String key : (Set<String>)(Object)tempResult.keySet()) {
+
       String value = setValues ? tempResult.getProperty(key) : "";
       
       //lets look for EL
@@ -241,9 +256,11 @@ public abstract class ConfigPropertiesCascadeBase {
         
         //change the key name
         key = key.substring(0, key.length() - EL_CONFIG_SUFFIX.length());
+
+        //cant be null, or hashtable exception
+        result.put(key, ConfigPropertiesCascadeUtils.defaultString(value));
+
       }
-      //cant be null, or hashtable exception
-      result.put(key, ConfigPropertiesCascadeUtils.defaultString(value));
     }
     
     substituteLocalReferences(result);

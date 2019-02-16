@@ -78,6 +78,7 @@ public class MessagingListenerController {
       String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".messagingSystemName");
       String queueName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queueName");
       String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".routingKey");
+      String exchangeType = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".exchangeType");
       
       int numberOfTriesPerIteration = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".numberOfTriesPerIteration", 3);
       int pollingTimeoutSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".pollingTimeoutSeconds", 18);
@@ -117,8 +118,11 @@ public class MessagingListenerController {
           GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
               new GrouperMessageReceiveParam().assignLongPollMillis(pollingTimeoutSeconds * 1000)
                 .assignAutocreateObjects(autocreateObjects)
-                .assignGrouperMessageSystemName(messagingSystemName).assignQueueName(queueName)
-                .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce).assignRoutingKey(routingKey));
+                .assignGrouperMessageSystemName(messagingSystemName)
+                .assignQueueName(queueName)
+                .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce)
+                .assignRoutingKey(routingKey)
+                .assignExchangeType(exchangeType));
           numberOfTries++;
           grouperMessages = grouperMessageReceiveResult.getGrouperMessages();
 

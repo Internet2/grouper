@@ -194,7 +194,9 @@ public class GcMessageSend {
       messageSendRequest.setQueueOrTopicName(this.queueOrTopicName);
       messageSendRequest.setMessageSystemName(this.messageSystemName);
       messageSendRequest.setMessages(GrouperClientUtils.toArray(this.messages, WsMessage.class));
-
+      messageSendRequest.setRoutingKey(this.routingKey);
+      messageSendRequest.setAutocreateObjects(this.autocreateObjects);
+      
       //add params if there are any
       if (this.params.size() > 0) {
         messageSendRequest.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));

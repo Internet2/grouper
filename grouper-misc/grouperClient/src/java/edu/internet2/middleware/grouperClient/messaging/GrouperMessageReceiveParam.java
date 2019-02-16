@@ -40,6 +40,29 @@ public class GrouperMessageReceiveParam {
   }
   
   /**
+   * if the messaging system can use exchange type (e.g. rabbitmq)
+   */
+  private String exchangeType;
+  
+  /**
+   * if the messaging system can use exchange type (e.g. rabbitmq), set it here
+   * @param exchangeType
+   * @return this for chaining
+   */
+  public GrouperMessageReceiveParam assignExchangeType(String exchangeType) {
+    this.exchangeType = exchangeType;
+    return this;
+  }
+  
+  /**
+   * if the messaging system can use exchange type (e.g. rabbitmq)
+   * @return exchange type
+   */
+  public String getExchangeType() {
+    return this.exchangeType;
+  }
+  
+  /**
    * maximum number of messages to receive at once
    */
   private Integer maxMessagesToReceiveAtOnce;
@@ -153,6 +176,19 @@ public class GrouperMessageReceiveParam {
       this.grouperMessageQueueParam = new GrouperMessageQueueParam();
     }
     this.grouperMessageQueueParam.assignQueueOrTopicName(theQueueName);
+    return this;
+  }
+  
+  /**
+   * assign if queue or topic
+   * @param grouperMessageQueueType
+   * @return this for chaining
+   */
+  public GrouperMessageReceiveParam assignQueueType(GrouperMessageQueueType grouperMessageQueueType) {
+    if (this.grouperMessageQueueParam == null) {
+      this.grouperMessageQueueParam = new GrouperMessageQueueParam();
+    }
+    this.grouperMessageQueueParam.assignQueueType(grouperMessageQueueType);
     return this;
   }
 

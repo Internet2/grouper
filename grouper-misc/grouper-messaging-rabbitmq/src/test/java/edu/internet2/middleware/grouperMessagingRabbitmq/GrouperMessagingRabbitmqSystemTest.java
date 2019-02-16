@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouperMessagingRabbitmq;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertArrayEquals;
+
+import java.util.List;
+
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.RandomUtils;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 /**
  * 
@@ -32,7 +34,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     
     final String messageSystemName = "rabbitmq";
     final String testMessageBody = "this is test message body for queue";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
+    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactoryFake.INSTANACE);
     
     GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
     GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
@@ -48,126 +50,22 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
          
     system.send(sendParam);
     
-    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-    receiveParam.assignGrouperMessageQueueParam(queueParam);
-    receiveParam.assignAutocreateObjects(true);
-    system.addReceiveEventListener(new MessageReceiveEventListener() {
-      
-      @Override
-      public void messageReceived(String messageBody) {
-        assertTrue(messageBody.equals(testMessageBody));
-        system.closeConnection(messageSystemName);
-      }
-    });
-    system.receive(receiveParam);
+    List<? extends Object> arguments = FakeConnection.recordedValues.get("queueDeclare");
+    assertEquals("test_queue", arguments.get(0));
+    
+    arguments = FakeConnection.recordedValues.get("basicPublish");
+    
+    assertEquals("test_queue", arguments.get(1));
+    assertArrayEquals(testMessageBody.getBytes("UTF-8"), (byte[])arguments.get(3));
+    
   }
   
-  public void testErrorSendingWhenQueueNotThereAlready() {
-    
-    final String messageSystemName = "rabbitmq";
-    final String testMessageBody = "this is test message body for queue";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-    String queueName = String.valueOf(RandomUtils.nextLong());
-    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
-    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-    queueParam.assignQueueType(GrouperMessageQueueType.queue);
-    queueParam.assignQueueOrTopicName(queueName);
-    sendParam.assignGrouperMessageQueueParam(queueParam);
-    sendParam.assignGrouperMessageSystemName(messageSystemName);
-    
-    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id");
-    
-    sendParam.addGrouperMessage(rabbitMqMessage);
-    try {
-      system.send(sendParam);
-    } catch (Exception e) {
-      //does rabbitmq autocreate this queue?
-      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
-    }
-  }
-  
-  public void testErrorSendingWhenExchangeNotThereAlready() {
-    
-    final String messageSystemName = "rabbitmq";
-    final String testMessageBody = "this is test message body for queue";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-    String exchangeName = String.valueOf(RandomUtils.nextLong());
-    GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
-    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-    queueParam.assignQueueType(GrouperMessageQueueType.topic);
-    queueParam.assignQueueOrTopicName(exchangeName);
-    sendParam.assignGrouperMessageQueueParam(queueParam);
-    sendParam.assignGrouperMessageSystemName(messageSystemName);
-    GrouperMessageRabbitmq rabbitMqMessage = new GrouperMessageRabbitmq(testMessageBody, "test_id");
-    
-    sendParam.addGrouperMessage(rabbitMqMessage);
-    try {
-      system.send(sendParam);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().equals("exchange "+exchangeName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true."));
-    }
-  }
-  
-  public void testErrorReceivingWhenQueueNotThereAlready() {
-    
-    final String messageSystemName = "rabbitmq";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-    String queueName = String.valueOf(RandomUtils.nextLong());
-    
-    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-    queueParam.assignQueueType(GrouperMessageQueueType.queue);
-    queueParam.assignQueueOrTopicName(queueName);
-    
-    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-    receiveParam.assignGrouperMessageQueueParam(queueParam);
-    system.addReceiveEventListener(new MessageReceiveEventListener() {
-      @Override
-      public void messageReceived(String messageBody) {
-        fail();
-      }
-    });
-    
-    try {
-      system.receive(receiveParam);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().equals("queue "+queueName+" doesn't exist. Either create the queue or set the autoCreateObjects to true."));
-    }
-  }
-  
-  public void testErrorReceivingWhenExchangeNotThereAlready() {
-    
-    final String messageSystemName = "rabbitmq";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
-    String exchangeName = String.valueOf(RandomUtils.nextLong());
-    
-    GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
-    queueParam.assignQueueType(GrouperMessageQueueType.topic);
-    queueParam.assignQueueOrTopicName(exchangeName);
-    
-    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-    receiveParam.assignGrouperMessageQueueParam(queueParam);
-    system.addReceiveEventListener(new MessageReceiveEventListener() {
-      @Override
-      public void messageReceived(String messageBody) {
-        fail();
-      }
-    });
-    
-    try {
-      system.receive(receiveParam);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().equals("exchange "+exchangeName+" doesn't exist. Either create the exchange or set the autoCreateObjects to true."));
-    }
-  }
   
   public void testSendToTopic() throws Exception {
     
     final String messageSystemName = "rabbitmq";
     final String testMessageBody = "this is test message body for topic";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem();
+    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactoryFake.INSTANACE);
     
     GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
     GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
@@ -179,22 +77,17 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     
     sendParam.addGrouperMessage(rabbitMqMessage);
     sendParam.assignAutocreateObjects(true);
+    sendParam.assignExchangeType("DIRECT");
          
-    GrouperMessageReceiveParam receiveParam = new GrouperMessageReceiveParam();
-    receiveParam.assignGrouperMessageSystemName(messageSystemName);
-    receiveParam.assignGrouperMessageQueueParam(queueParam);
-    receiveParam.assignAutocreateObjects(true);
-    system.addReceiveEventListener(new MessageReceiveEventListener() {
-      
-      @Override
-      public void messageReceived(String messageBody) {
-        assertTrue(messageBody.equals(testMessageBody));
-        system.closeConnection(messageSystemName);
-      }
-    });
-    system.receive(receiveParam.assignRoutingKey("test_routing_key"));
-
     system.send(sendParam.assignRoutingKey("test_routing_key"));
+    
+    List<? extends Object> arguments = FakeConnection.recordedValues.get("exchangeDeclare");
+    assertEquals("test_exchange", arguments.get(0));
+    
+    arguments = FakeConnection.recordedValues.get("basicPublish");
+    
+    assertEquals("test_routing_key", arguments.get(1));
+    assertArrayEquals(testMessageBody.getBytes("UTF-8"), (byte[])arguments.get(3));
   }
 
 }
