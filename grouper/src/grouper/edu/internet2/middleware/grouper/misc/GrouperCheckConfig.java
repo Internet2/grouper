@@ -3247,9 +3247,12 @@ public class GrouperCheckConfig {
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_ATTRIBUTE_DEF_NAMES, 
                 "Grouper user data recent attribute definition names", 
                 "A list of attribute definition name ids and metadata in json format that are the recently used attribute definition names for a user", wasInCheckConfig);
-            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_PREFERENCES, 
-                "Grouper user data preferences", 
-                "Preferences and metadata in json format for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_PREFERENCES,
+              "Grouper user data preferences",
+              "Preferences and metadata in json format for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_VISUALIZATION_PREFS,
+              "Grouper user data visualization preferences",
+              "Recent options for the visualization form for a user in json format", wasInCheckConfig);
           }
           
         }

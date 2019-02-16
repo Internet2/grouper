@@ -725,16 +725,19 @@ public class UiV2GrouperLoader {
           String lastIncrementalMillis = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS);
           String summary = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY);
         
-          Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, true);
+          Group controllingGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), loaderGroupId, false);
 
-          GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
-              GrouperUtil.booleanObjectValue(metadataLoaded), 
-              lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
-              lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
-              summary);
-          
-          grouperLoaderContainer.setLoaderManagedGroup(guiLoaderManagedGroup);
-          
+          if (controllingGroup != null) {
+            GuiLoaderManagedGroup guiLoaderManagedGroup = new GuiLoaderManagedGroup(new GuiGroup(group), new GuiGroup(controllingGroup),
+                GrouperUtil.booleanObjectValue(metadataLoaded), 
+                lastFullMillis == null ? null: new Date(Long.valueOf(lastFullMillis)).toString(),
+                lastIncrementalMillis == null ? null: new Date(Long.valueOf(lastIncrementalMillis)).toString(),
+                summary);
+            
+            grouperLoaderContainer.setLoaderManagedGroup(guiLoaderManagedGroup);
+          } else {
+            LOG.debug("Group should not be null by uuid: " + loaderGroupId); 
+          }
         }
         
         return null;

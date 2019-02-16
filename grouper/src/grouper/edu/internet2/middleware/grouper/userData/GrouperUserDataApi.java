@@ -259,6 +259,31 @@ public class GrouperUserDataApi {
       public boolean isSortByName() {
         return false;
       }
+    },
+
+    /*****/
+
+    /**
+     * recent subject
+     */
+    visualizationPrefs {
+
+      /**
+       * @see GrouperUserDataType#attributeDefName()
+       */
+      @Override
+      public AttributeDefName attributeDefName() {
+        return GrouperUserDataUtils.grouperUserDataVisualizationPrefsAttributeDefName();
+      }
+
+      /**
+       * if should sort by name by default
+       * @return true if should sort by name
+       */
+      @Override
+      public boolean isSortByName() {
+        return false;
+      }
     };
     
     /**
@@ -1998,6 +2023,58 @@ public class GrouperUserDataApi {
     recentlyUsedMemberRemove(userDataGroupName, subjectToRemoveFrom, member);
   }
 
+
+  /**
+   * retrieve visualization preferences from attribute assignment on user membership
+   *
+   * @param userDataGroupName
+   * @param subjectToAddTo
+   * @param preferencesClass class to cast to, likely grouper-ui class UiV2VisualizationPreference
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T visualizationPrefs(final String userDataGroupName, final Subject subjectToAddTo, final Class<T> preferencesClass) {
+
+    return (T)GrouperSession.callbackGrouperSession(
+      GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          //no need to check security
+          return (T)GrouperUserDataType.visualizationPrefs.retrieve(userDataGroupName, subjectToAddTo, preferencesClass);
+
+        }
+      });
+
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param preferences
+   */
+  public static void visualizationPrefsAssign(final String userDataGroupName, final Subject subjectToAddTo, final Object preferences) {
+
+    GrouperSession.callbackGrouperSession(
+      GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          String preferencesString = null;
+
+          if (preferences != null) {
+            preferencesString = GrouperUtil.jsonConvertTo(preferences, false);
+          }
+
+          //no need to check security
+
+          GrouperUserDataType.visualizationPrefs.replace(userDataGroupName, subjectToAddTo, preferencesString);
+
+          return null;
+        }
+      });
+
+  }
+
 }
-
-
