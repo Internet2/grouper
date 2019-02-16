@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -604,6 +605,8 @@ public class RelationGraph {
       attrAssigns = g.getAttributeDelegate().retrieveAssignments(provisionToAttributeDefName);
     } catch (AttributeDefNotFoundException e) {
       LOG.debug("Failed to get provisioner attribute of group " + g.getName() + " (" + e.getMessage() + ")");
+    } catch (InsufficientPrivilegeException e) {
+      LOG.debug("Failed to get provisioner attribute of group " + g.getName() + " (insufficient privilege)");
     }
 
     if (attrAssigns == null || attrAssigns.size() == 0) {
