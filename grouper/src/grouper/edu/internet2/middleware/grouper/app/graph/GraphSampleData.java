@@ -93,6 +93,9 @@ public class GraphSampleData {
     loadSampleData4();
     loadSampleData5();
     loadSampleData6();
+    loadSampleData7();
+    loadSampleData8();
+    loadSampleData9();
   }
   
   public static void loadSampleSubjects() {
@@ -2172,6 +2175,10 @@ public class GraphSampleData {
     if (subject != null) { if (group != null) { boolean changed = group.addOrEditMember(subject, false, true, null, null, false);      gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println("Made change for group membership: " + group.getName() + ", field: members, subject: " + GrouperUtil.subjectToString(subject)); } } else { gshTotalErrorCount++; System.out.println("ERROR: cant find group: 'ref:job:by-role:all-faculty'"); } } 
     subject = SubjectFinder.findByIdAndSource("800000000", "jdbc", false);
     if (subject == null) { gshTotalErrorCount++; System.out.println("Error: cant find subject: jdbc: 800000000");  }
+  }
+
+  public static void loadSampleData3() {
+
     privilege = null;
     group = GroupFinder.findByName(grouperSession, "basis:dept:130202:affiliate", false);
     if (subject != null) { if (group != null) { boolean changed = group.addOrEditMember(subject, false, true, null, null, false);      gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println("Made change for group membership: " + group.getName() + ", field: members, subject: " + GrouperUtil.subjectToString(subject)); } } else { gshTotalErrorCount++; System.out.println("ERROR: cant find group: 'basis:dept:130202:affiliate'"); } } 
@@ -2493,9 +2500,6 @@ public class GraphSampleData {
     subject = SubjectFinder.findByIdAndSource("800000048", "jdbc", false);
     if (subject == null) { gshTotalErrorCount++; System.out.println("Error: cant find subject: jdbc: 800000048");  }
   
-  }
-
-  public static void loadSampleData3() {
     group = GroupFinder.findByName(grouperSession, "basis:dept:120201:staff", false);
     if (subject != null) { if (group != null) { boolean changed = group.addOrEditMember(subject, false, true, null, null, false);      gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println("Made change for group membership: " + group.getName() + ", field: members, subject: " + GrouperUtil.subjectToString(subject)); } } else { gshTotalErrorCount++; System.out.println("ERROR: cant find group: 'basis:dept:120201:staff'"); } } 
     subject = SubjectFinder.findByIdAndSource("800000049", "jdbc", false);
@@ -3185,6 +3189,10 @@ public class GraphSampleData {
     if (subject != null) { if (group != null) { boolean changed = group.addOrEditMember(subject, false, true, null, null, false);      gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println("Made change for group membership: " + group.getName() + ", field: members, subject: " + GrouperUtil.subjectToString(subject)); } } else { gshTotalErrorCount++; System.out.println("ERROR: cant find group: 'app:its:lbsimply:sources'"); } } 
     subject = SubjectFinder.findByIdentifierAndSource("basis:org:110000:affiliate", "g:gsa", false);
     if (subject == null) { gshTotalErrorCount++; System.out.println("Error: cant find group subject: g:gsa: a9580e4689714416b4850af3e9ba2513: basis:org:110000:affiliate");  }
+    
+  }
+
+  public static void loadSampleData4() {
     privilege = null;
     group = GroupFinder.findByName(grouperSession, "app:its:nistaff:etc:readers", false);
     if (subject != null) { if (group != null) { boolean changed = group.addOrEditMember(subject, false, true, null, null, false);      gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println("Made change for group membership: " + group.getName() + ", field: members, subject: " + GrouperUtil.subjectToString(subject)); } } else { gshTotalErrorCount++; System.out.println("ERROR: cant find group: 'app:its:nistaff:etc:readers'"); } } 
@@ -4039,10 +4047,7 @@ public class GraphSampleData {
     if (attributeDef != null) {  AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef).assignName("etc:pspng:provision_to").assignCreateParentStemsIfNotExist(true).assignDescription("Defines what provisioners should process a group or groups within a folder").assignDisplayName("etc:pspng:provision_to");  attributeDefName = attributeDefNameSave.save();  gshTotalObjectCount++;  if (attributeDefNameSave.getSaveResultType() != SaveResultType.NO_CHANGE) {gshTotalChangeCount++;  System.out.println("Made change for attributeDefName: " + attributeDefName.getName()); }   } else { gshTotalErrorCount++;  System.out.println("ERROR: cant find attributeDef: 'etc:pspng:provision_to_def'"); } 
     System.out.println(new Date().toString() + " Done with attribute names, objects: " + gshTotalObjectCount + ", expected approx total: 2,300, changes: " + gshTotalChangeCount + ", known errors (view output for full list): " + gshTotalErrorCount);
     System.out.println(new Date().toString() + " Done with attribute name hierarchies, objects: " + gshTotalObjectCount + ", expected approx total: 2,300, changes: " + gshTotalChangeCount + ", known errors (view output for full list): " + gshTotalErrorCount);
-    
-  }
 
-  public static void loadSampleData4() {
     attributeDef = AttributeDefFinder.findByName("etc:attribute:attestation:attestationValueDef", false);
     AttributeDefScopeType attributeDefScopeType = AttributeDefScopeType.valueOfIgnoreCase("nameEquals", true);
     if (attributeDef != null) { if (attributeDefScopeType != null) { gshTotalObjectCount++;  if (attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScope(attributeDefScopeType, "\"etc:attribute:attestation:attestation\"", "null") != null) { gshTotalChangeCount++; attributeDef.getAttributeDefScopeDelegate().assignScope(attributeDefScopeType, "\"etc:attribute:attestation:attestation\"", "null"); System.out.println("Made change for attributeDefScope on attributeDef: etc:attribute:attestation:attestationValueDef, etc:attribute:attestation:attestation, null"); }  } else { gshTotalErrorCount++; System.out.println("ERROR: cant find attributeDefScopeType: 'nameEquals'"); }  } else { gshTotalErrorCount++; System.out.println("ERROR: cant find attributeDef: 'etc:attribute:attestation:attestationValueDef'"); }
@@ -4172,6 +4177,11 @@ public class GraphSampleData {
     attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
     gshTotalObjectCount += 13;
     if (!problemWithAttributeAssign) { AttributeAssign attributeAssign = attributeAssignSave.save(); if (attributeAssignSave.getChangesCount() > 0) { gshTotalChangeCount+=attributeAssignSave.getChangesCount();  System.out.println("Made " + attributeAssignSave.getChangesCount() + " changes for attribute assign: " + attributeAssign.toString()); } }
+  
+  }
+
+  public static void loadSampleData5() {
+    
     problemWithAttributeAssign = false;
     attributeAssignSave = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);
     attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
@@ -5179,6 +5189,9 @@ public class GraphSampleData {
     attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
     gshTotalObjectCount += 9;
     if (!problemWithAttributeAssign) { AttributeAssign attributeAssign = attributeAssignSave.save(); if (attributeAssignSave.getChangesCount() > 0) { gshTotalChangeCount+=attributeAssignSave.getChangesCount();  System.out.println("Made " + attributeAssignSave.getChangesCount() + " changes for attribute assign: " + attributeAssign.toString()); } }
+
+  }
+  public static void loadSampleData6() {
     problemWithAttributeAssign = false;
     attributeAssignSave = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);
     attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
@@ -5487,11 +5500,7 @@ public class GraphSampleData {
     attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
     gshTotalObjectCount += 9;
     if (!problemWithAttributeAssign) { AttributeAssign attributeAssign = attributeAssignSave.save(); if (attributeAssignSave.getChangesCount() > 0) { gshTotalChangeCount+=attributeAssignSave.getChangesCount();  System.out.println("Made " + attributeAssignSave.getChangesCount() + " changes for attribute assign: " + attributeAssign.toString()); } }
-  
-  }
 
-  public static void loadSampleData5() {
-    
     attributeAssignSave = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);
     attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
     attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:loaderMetadata:loaderMetadata", false);
@@ -7066,7 +7075,7 @@ public class GraphSampleData {
     if (!problemWithAttributeAssign) { AttributeAssign attributeAssign = attributeAssignSave.save(); if (attributeAssignSave.getChangesCount() > 0) { gshTotalChangeCount+=attributeAssignSave.getChangesCount();  System.out.println("Made " + attributeAssignSave.getChangesCount() + " changes for attribute assign: " + attributeAssign.toString()); } }
   
   }
-  public static void loadSampleData6(){
+  public static void loadSampleData7(){
     problemWithAttributeAssign = false;
     attributeAssignSave = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);
     attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
@@ -7991,6 +8000,10 @@ public class GraphSampleData {
     attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
     gshTotalObjectCount += 9;
     if (!problemWithAttributeAssign) { AttributeAssign attributeAssign = attributeAssignSave.save(); if (attributeAssignSave.getChangesCount() > 0) { gshTotalChangeCount+=attributeAssignSave.getChangesCount();  System.out.println("Made " + attributeAssignSave.getChangesCount() + " changes for attribute assign: " + attributeAssign.toString()); } }
+    
+  }
+  
+  public static void loadSampleData8() {
     problemWithAttributeAssign = false;
     attributeAssignSave = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);
     attributeAssignSave.assignAttributeAssignType(AttributeAssignType.group);
@@ -9189,6 +9202,10 @@ public class GraphSampleData {
     attributeAssignOnAssignSave.addValue("1545194978584");
     attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
     gshTotalObjectCount += 9;
+
+  }
+  
+  public static void loadSampleData9() {
     if (!problemWithAttributeAssign) { AttributeAssign attributeAssign = attributeAssignSave.save(); if (attributeAssignSave.getChangesCount() > 0) { gshTotalChangeCount+=attributeAssignSave.getChangesCount();  System.out.println("Made " + attributeAssignSave.getChangesCount() + " changes for attribute assign: " + attributeAssign.toString()); } }
     problemWithAttributeAssign = false;
     attributeAssignSave = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);
