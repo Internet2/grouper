@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.member;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
@@ -39,14 +41,26 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -64,7 +78,7 @@ public class TestMemberFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberFinder("testFindAll"));
+    TestRunner.run(new TestMemberFinder("testFindByAttributeDefName"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestMemberFinder.class);
@@ -190,5 +204,80 @@ public class TestMemberFinder extends GrouperTest {
       T.e(e);
     }
   } // public void testFindGrouperSystemByUuid()
+
+  /**
+   * 
+   */
+  public void testFindByAttributeDefName() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignAttributeDefNameToEdit("test:attrDef")
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true)
+        .assignToMember(true)
+        .assignValueType(AttributeDefValueType.string).save();
+    
+    AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef)
+      .assignAttributeDefNameNameToEdit("test:attrDefName").assignCreateParentStemsIfNotExist(true).save();
+  
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ4, true);
+  
+    member0.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    member1.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "xyz");
+    member3.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    member4.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    
+    //subj0 can read attributes
+    //subj1 cannot read attribuets
+    //subj2 can read the group attrs
+    
+    GrouperSession.stopQuietly(grouperSession);
+  
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    List<Member> members = new ArrayList<Member>(new MemberFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignAttributeCheckReadOnAttributeDef(true).assignQueryOptions(QueryOptions.create("subjectId", true, null, null)).findMembers());
+    
+    assertEquals(4, GrouperUtil.length(members));
+    assertEquals(SubjectTestHelper.SUBJ0_ID, members.get(0).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, members.get(1).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ3_ID, members.get(2).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ4_ID, members.get(3).getSubjectId());
+    
+    members = new ArrayList<Member>(new MemberFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignAttributeCheckReadOnAttributeDef(true).assignAttributeValue("abc").assignQueryOptions(QueryOptions.create("subjectId", true, null, null)).findMembers());
+    
+    assertEquals(3, GrouperUtil.length(members));
+    assertEquals(SubjectTestHelper.SUBJ0_ID, members.get(0).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ3_ID, members.get(1).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ4_ID, members.get(2).getSubjectId());
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+  
+    // #####################
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    members = new ArrayList<Member>(new MemberFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignAttributeCheckReadOnAttributeDef(true).assignQueryOptions(QueryOptions.create("subjectId", true, null, null)).findMembers());
+    
+    assertEquals(0, GrouperUtil.length(members));
+    
+    members = new ArrayList<Member>(new MemberFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignAttributeCheckReadOnAttributeDef(true).assignAttributeValue("abc").assignQueryOptions(QueryOptions.create("subjectId", true, null, null)).findMembers());
+    
+    assertEquals(0, GrouperUtil.length(members));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
+  }
 
 } // public class TestMemberFinder_FindAll

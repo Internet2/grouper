@@ -34,6 +34,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -47,18 +48,27 @@ import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -66,6 +76,8 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -943,6 +955,252 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     }
     
     return members;
+  }
+
+  /**
+   * @see MemberDAO#getAllMembersSecure(GrouperSession, QueryOptions, String, Object, Set, Boolean, String, Object, Set)
+   */
+  @Override
+  public Set<Member> getAllMembersSecure(GrouperSession grouperSession,
+      QueryOptions queryOptions,
+      String idOfAttributeDefName,
+      Object attributeValue, Set<Object> attributeValuesOnAssignment, Boolean attributeCheckReadOnAttributeDef,
+      String idOfAttributeDefName2,
+      Object attributeValue2, Set<Object> attributeValuesOnAssignment2) {
+    return findAllMembersSecureHelper(grouperSession, queryOptions, 
+        idOfAttributeDefName, 
+        attributeValue, attributeValuesOnAssignment, attributeCheckReadOnAttributeDef, idOfAttributeDefName2,attributeValue2, attributeValuesOnAssignment2);
+  }
+
+  /**
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param idOfAttributeDefName 
+   * @param attributeValue 
+   * @param attributeValuesOnAssignment
+   * @param attributeCheckReadOnAttributeDef
+   * @param idOfAttributeDefName2
+   * @param attributeValue2
+   * @param attributeValuesOnAssignment2 
+   * @return members
+   * 
+   */
+  private Set<Member> findAllMembersSecureHelper(
+      GrouperSession grouperSession, 
+      QueryOptions queryOptions, 
+      final String idOfAttributeDefName, Object attributeValue, Set<Object> attributeValuesOnAssignment,
+      Boolean attributeCheckReadOnAttributeDef, final String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2) {
+
+    if ((attributeValue != null || GrouperUtil.length(attributeValuesOnAssignment) > 0) && StringUtils.isBlank(idOfAttributeDefName)) {
+      throw new RuntimeException("If you are searching by attributeValue then you must specify an attribute definition name");
+    }
+    
+    if (attributeValue != null && GrouperUtil.length(attributeValuesOnAssignment) > 0) {
+      throw new RuntimeException("Cant send in attributeValue and attributeValuesOnAssignment"); 
+    }
+  
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("id");
+    }
+  
+    Set<Member> overallResults = new LinkedHashSet<Member>();
+    
+    
+    StringBuilder sql = new StringBuilder(
+        "select distinct m from Member m ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      
+    StringBuilder whereClause = new StringBuilder();
+  
+    if (!StringUtils.isBlank(idOfAttributeDefName)) {
+
+      if (whereClause.length() > 0) {
+        
+        whereClause.append(" and ");
+        
+      }
+
+      //default to true
+      attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
+
+      //make sure user can READ the attribute
+      AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
+
+      if (attributeCheckReadOnAttributeDef) {
+        attributeDefNameFinder.addPrivilege(AttributeDefPrivilege.ATTR_READ);
+      }
+
+      AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
+
+      //cant read the attribute????
+      if (attributeDefName == null) {
+        return new HashSet<Member>();
+      }
+
+      AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      if (GrouperUtil.length(attributeValuesOnAssignment) > 0) {
+
+        whereClause.append(" exists ( select aav ");
+        
+        whereClause.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
+        
+        whereClause.append(" where m.uuid = aa.ownerMemberId ");
+        whereClause.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
+        
+        whereClause.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName ");
+        byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+        whereClause.append(" and aa.enabledDb = 'T' ");
+
+        AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+
+        Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValuesOnAssignment, "aaOnAssign");
+        
+        whereClause.append(" ) ");
+        
+            
+      } else {
+        
+        whereClause.append(" exists ( select ");
+        
+        whereClause.append(attributeValue == null ? "aa" : "aav");
+        
+        whereClause.append(" from AttributeAssign aa ");
+
+        if (attributeValue != null) {
+          whereClause.append(", AttributeAssignValue aav ");
+        }
+        
+        whereClause.append(" where m.uuid = aa.ownerMemberId ");
+        whereClause.append(" and aa.attributeDefNameId = :idOfAttributeDefName ");
+        byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+        whereClause.append(" and aa.enabledDb = 'T' ");
+
+        if (attributeValue != null) {
+
+          AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+
+          Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValue);
+          
+        }
+        
+        whereClause.append(" ) ");
+          
+      }
+            
+    }
+    
+    if (!StringUtils.isBlank(idOfAttributeDefName2)) {
+
+      if (whereClause.length() > 0) {
+        
+        whereClause.append(" and ");
+        
+      }
+
+      //default to true
+      attributeCheckReadOnAttributeDef = GrouperUtil.defaultIfNull(attributeCheckReadOnAttributeDef, true);
+
+      //make sure user can READ the attribute
+      AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName2);
+
+      if (attributeCheckReadOnAttributeDef) {
+        attributeDefNameFinder.addPrivilege(AttributeDefPrivilege.ATTR_READ);
+      }
+
+      AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
+
+      //cant read the attribute????
+      if (attributeDefName == null) {
+        return new HashSet<Member>();
+      }
+
+      AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      if (GrouperUtil.length(attributeValuesOnAssignment2) > 0) {
+
+        whereClause.append(" exists ( select aav ");
+        
+        whereClause.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
+        
+        whereClause.append(" where m.uuid = aa.ownerMemberId ");
+        whereClause.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
+        
+        whereClause.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName2 ");
+        byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
+        whereClause.append(" and aa.enabledDb = 'T' ");
+
+        AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+
+        Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValuesOnAssignment2, "aaOnAssign");
+        
+        whereClause.append(" ) ");
+        
+        
+      } else {
+        
+        whereClause.append(" exists ( select ");
+        
+        whereClause.append(attributeValue2 == null ? "aa" : "aav");
+        
+        whereClause.append(" from AttributeAssign aa ");
+
+        if (attributeValue2 != null) {
+          whereClause.append(", AttributeAssignValue aav ");
+        }
+        
+        whereClause.append(" where m.uuid = aa.ownerMemberId ");
+        whereClause.append(" and aa.attributeDefNameId = :idOfAttributeDefName2 ");
+        byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
+        whereClause.append(" and aa.enabledDb = 'T' ");
+
+        if (attributeValue2 != null) {
+
+          AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+
+          Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, whereClause, attributeDefValueType, attributeValue2);
+          
+        }
+        
+        whereClause.append(" ) ");
+          
+      }
+
+    }
+  
+    
+    if (sql.toString().contains(" where ")) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+    sql.append(whereClause);
+
+    if (queryOptions != null) {
+      massageMemberSortFields(queryOptions.getQuerySort());
+    }
+
+    String sqlString = sql.toString();
+    
+    if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      Set<Member> tempGroups = byHqlStatic.createQuery(sqlString)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllMembersSecure")
+        .options(queryOptions)
+        .listSet(Member.class);
+      
+      overallResults.addAll(GrouperUtil.nonNull(tempGroups));
+    }
+    for (Member member : overallResults) {
+      membersFlashCacheAddIfSupposedTo(member);
+    }
+    return overallResults;
+  
   }
 
   /**
