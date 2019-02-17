@@ -38,9 +38,12 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -305,6 +308,28 @@ public interface MemberDAO extends GrouperDAO {
    * @param member
    */
   public void saveUpdateProperties(Member member);
+
+  /**
+   * get all members secure
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param idOfAttributeDefName if looking for members that have this attribute def name
+   * @param attributeValue if looking for members that have this attribute value on the attribute def name
+   * @param attributeValuesOnAssignment if looking for an attribute value on an assignment, could be multiple values
+   * @param attributeCheckReadOnAttributeDef use security around attribute def?  default is true
+   * @param idOfAttributeDefName2 if looking for members that have this attribute def name2
+   * @param attributeValue2 if looking for members that have this attribute value2 on the attribute def name2
+   * @param attributeValuesOnAssignment2 if looking for an attribute value on an assignment2, could be multiple values
+   * @return set of member
+   * @since v2.4.0.patch
+   */
+  public Set<Member> getAllMembersSecure(GrouperSession grouperSession, 
+      QueryOptions queryOptions, 
+      String idOfAttributeDefName, Object attributeValue,
+      Set<Object> attributeValuesOnAssignment, Boolean attributeCheckReadOnAttributeDef,
+      String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2);
 
 } 
 
