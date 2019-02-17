@@ -2,7 +2,7 @@
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<script src="../../grouperExternal/public/assets/js/grouperVisualization.js" type="text/javascript"></script>
+<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190216" type="text/javascript"></script>
 
 <div class="lead">${textContainer.text['visualization.title']}
   <a href="#" aria-label="Set visualization options" id="visualization-settings-button" class="btn btn-medium" aria-expanded="false" onclick="$('#visualization-settings').toggle()">

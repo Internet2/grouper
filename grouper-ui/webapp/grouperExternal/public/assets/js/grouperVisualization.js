@@ -25,10 +25,15 @@ function fetchGraph() {
 // https://stackoverflow.com/a/28458409
 // escape bad characters in javascript strings
 function escapeHTML(unsafe) {
-  return unsafe.replace(/[<"']/g, function(m) {
+  // CH need to escape more chars for some reason...
+  return unsafe.replace(/[<>&"']/g, function(m) {
     switch (m) {
       case '<':
         return '&lt;';
+      case '>':
+        return '&gt;';
+      case '&':
+        return '&amp;';
       case '"':
         return '&quot;';
       case "'":
@@ -245,9 +250,9 @@ function drawGraphModuleD3() {
         }
 
         //when the label is path/extension, use the opposite for the tooltip
-        var tooltip = (drawObjectNameType === "path") ? escapeText(node.displayExtension) : node.name;
+        var tooltip = (drawObjectNameType === "path") ? escapeHTML(node.displayExtension) : escapeHTML(node.name);
         if (node.description !== null && node.description !== "") {
-          tooltip += "\n" + escapeText(node.description);
+          tooltip += "\n" + escapeHTML(node.description);
         }
         props.push('tooltip="' + graph.styles[node.type].displayTag + ": " + tooltip + '"');
 
