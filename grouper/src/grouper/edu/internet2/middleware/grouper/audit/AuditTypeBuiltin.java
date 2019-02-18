@@ -606,7 +606,12 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /** 
    * update attestation for stem
    */
-  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName"));
+  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName")),
+  
+  /** 
+   * USDU member delete
+   */
+  USDU_MEMBER_DELETE(new AuditType("usdu", "usduMemberDelete", null, "memberId", "sourceId", "subjectId"));
   
   /**
    * defaults for audit type, though doesnt hold the id
