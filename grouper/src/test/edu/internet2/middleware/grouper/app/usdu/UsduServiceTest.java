@@ -9,10 +9,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -25,7 +25,7 @@ public class UsduServiceTest extends GrouperTest {
   
   private Date lastChecked;
   
-  private int daysUnresolved;
+  private Long daysUnresolved;
   
   private static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
   
@@ -40,12 +40,10 @@ public class UsduServiceTest extends GrouperTest {
       throw new RuntimeException("why??");
     }
     
-    daysUnresolved = 10;
+    daysUnresolved = 10L;
     
     GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
-    
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
     
   }
   
@@ -58,7 +56,7 @@ public class UsduServiceTest extends GrouperTest {
     Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group1").save();
     group.addMember(SubjectTestHelper.SUBJ0);
     
-    Member member = group.getMembers().iterator().next();
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     
     saveSubjectResolutionAttributeMetadata(member, lastResolved, lastChecked, daysUnresolved);
     
@@ -66,8 +64,8 @@ public class UsduServiceTest extends GrouperTest {
     SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
     
     //Then
-    assertTrue(subjectResolutionAttributeValue.isSubjectResolutionResolvable());
-    assertEquals(10L, subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved().longValue());
+    assertEquals("true", subjectResolutionAttributeValue.getSubjectResolutionResolvableString());
+    assertEquals(String.valueOf(daysUnresolved), subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolvedString());
     assertEquals(dateFormat.format(lastResolved),subjectResolutionAttributeValue.getSubjectResolutionDateLastResolvedString());
     assertEquals(dateFormat.format(lastChecked),subjectResolutionAttributeValue.getSubjectResolutionDateLastCheckedString());
     
@@ -82,7 +80,7 @@ public class UsduServiceTest extends GrouperTest {
     Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group1").save();
     group.addMember(SubjectTestHelper.SUBJ1);
     
-    Member member = group.getMembers().iterator().next();
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
     
     SubjectResolutionAttributeValue subjectResolutionAttributeValue = new SubjectResolutionAttributeValue();
     subjectResolutionAttributeValue.setSubjectResolutionDateLastCheckedString(dateFormat.format(lastChecked));
@@ -91,18 +89,50 @@ public class UsduServiceTest extends GrouperTest {
     subjectResolutionAttributeValue.setSubjectResolutionResolvableString("true");
     
     //When
-    UsduService.saveOrUpldateSubjectResolutionAttributeValue(subjectResolutionAttributeValue, member);
+    UsduService.markMemberAsUnresolved(subjectResolutionAttributeValue, member);
     
     //Then
     SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member);
-    assertTrue(attributeValue.isSubjectResolutionResolvable());
-    assertEquals(10L, attributeValue.getSubjectResolutionDaysUnresolved().longValue());
+    assertEquals("true", attributeValue.getSubjectResolutionResolvableString());
+    assertEquals(String.valueOf(daysUnresolved), attributeValue.getSubjectResolutionDaysUnresolvedString());
     assertEquals(dateFormat.format(lastResolved),attributeValue.getSubjectResolutionDateLastResolvedString());
     assertEquals(dateFormat.format(lastChecked),attributeValue.getSubjectResolutionDateLastCheckedString());
     
   }
   
-  private static void saveSubjectResolutionAttributeMetadata(Member member, Date lastResolved, Date lastChecked, int daysUnresolved) {
+  public void testSetSubjectResolutionDeletedOnMember() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group1").save();
+    group.addMember(SubjectTestHelper.SUBJ2);
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, false);
+    
+    SubjectResolutionAttributeValue subjectResolutionAttributeValue = new SubjectResolutionAttributeValue();
+    subjectResolutionAttributeValue.setSubjectResolutionDateLastCheckedString(dateFormat.format(lastChecked));
+    subjectResolutionAttributeValue.setSubjectResolutionDateLastResolvedString(dateFormat.format(lastResolved));
+    subjectResolutionAttributeValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(daysUnresolved));
+    subjectResolutionAttributeValue.setSubjectResolutionResolvableString("true");
+    UsduService.markMemberAsUnresolved(subjectResolutionAttributeValue, member);
+    
+    //When
+    UsduService.markMemberAsDeleted(member);
+    
+    //Then
+    SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+    assertNull(attributeValue.getSubjectResolutionResolvableString());
+    //assertNull(attributeValue.getSubjectResolutionDaysUnresolved());
+    assertEquals(dateFormat.format(lastResolved),attributeValue.getSubjectResolutionDateLastResolvedString());
+    assertNull(attributeValue.getSubjectResolutionDateLastCheckedString());
+    assertEquals("true", attributeValue.getSubjectResolutionDeletedString());
+    assertNotNull(attributeValue.getSubjectResolutionDateDelete());
+        
+  }
+  
+  private static void saveSubjectResolutionAttributeMetadata(Member member, Date lastResolved, Date lastChecked, Long daysUnresolved) {
     
     String lastResolvedString = dateFormat.format(lastResolved);
     String lastCheckedString = dateFormat.format(lastChecked);
