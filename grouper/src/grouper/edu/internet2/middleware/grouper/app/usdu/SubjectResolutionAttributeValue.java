@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
-
 /**
  * bean that represents metadata attributes on member 
  */
@@ -26,6 +24,17 @@ public class SubjectResolutionAttributeValue {
    * date when the subject was last checked for resolvable/unresolvable
    */
   private String subjectResolutionDateLastCheckedString;
+  
+  /**
+   * set to true when all the memberships are deleted. 
+   * when this attribute is set to true, clear subjectResolutionResolvableString, subjectResolutionDaysUnresolved and subjectResolutionDateLastCheckedString
+   */
+  private String subjectResolutionDeletedString;
+  
+  /**
+   * timestamp when member was marked as deleted
+   */
+  private String subjectResolutionDateDeleteString;
 
   /**
    * 
@@ -68,31 +77,76 @@ public class SubjectResolutionAttributeValue {
   }
 
   /**
-   * false if the subject is not resolvable
-   * @param subjectResolutionDaysUnresolvedString
+   * 
+   * @return false if the subject is not resolvable
+   */
+  public String getSubjectResolutionResolvableString() {
+    return subjectResolutionResolvableString;
+  }
+
+  /**
+   * 
+   * @return number of days subject has been unresolved for
+   */
+  public String getSubjectResolutionDaysUnresolvedString() {
+    return subjectResolutionDaysUnresolvedString;
+  }
+  
+  
+  /**
+   * 
+   * @return number of days subject has been unresolved for
+   */
+  public Long getSubjectResolutionDaysUnresolved() {
+    try {
+      return Long.valueOf(subjectResolutionDaysUnresolvedString);
+    } catch (NumberFormatException e) {
+      return 0L;
+    }
+  }
+
+  
+  /**
+   * number of days subject has been unresolved for
+   * @param subjectResolutionDaysUnresolved
    */
   public void setSubjectResolutionDaysUnresolvedString(String subjectResolutionDaysUnresolvedString) {
     this.subjectResolutionDaysUnresolvedString = subjectResolutionDaysUnresolvedString;
   }
 
   /**
-   * 
-   * @return false if the subject is not resolvable
+   * set to true when all the memberships are deleted. 
+   * when this attribute is set to true, clear subjectResolutionResolvableString, subjectResolutionDaysUnresolvedString and subjectResolutionDateLastCheckedString
+   * @param subjectResolutionDeletedString
    */
-  public boolean isSubjectResolutionResolvable() {
-    return BooleanUtils.toBoolean(subjectResolutionResolvableString);
+  public void setSubjectResolutionDeletedString(String subjectResolutionDeletedString) {
+    this.subjectResolutionDeletedString = subjectResolutionDeletedString;
   }
   
   /**
-   * 
-   * @return number of days subject has been unresolved
+   * set to true when all the memberships are deleted. 
+   * when this attribute is set to true, clear subjectResolutionResolvableString, subjectResolutionDaysUnresolvedString and subjectResolutionDateLastCheckedString
+   * @return
    */
-  public Long getSubjectResolutionDaysUnresolved() {
-    try {
-      return Long.valueOf(subjectResolutionDaysUnresolvedString);
-    } catch (Exception e) {
-      return 0L;
-    }
+  public String getSubjectResolutionDeletedString() {
+    return subjectResolutionDeletedString;
   }
+
+  /**
+   * 
+   * @return timestamp when member was marked as deleted
+   */
+  public String getSubjectResolutionDateDelete() {
+    return subjectResolutionDateDeleteString;
+  }
+
+  /**
+   * timestamp when member was marked as deleted
+   * @param subjectResolutionDateDeleteString
+   */
+  public void setSubjectResolutionDateDeleteString(String subjectResolutionDateDeleteString) {
+    this.subjectResolutionDateDeleteString = subjectResolutionDateDeleteString;
+  }
+
   
 }

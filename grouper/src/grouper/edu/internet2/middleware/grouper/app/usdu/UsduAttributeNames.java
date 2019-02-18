@@ -42,11 +42,20 @@ public class UsduAttributeNames {
    */
   public static final String SUBJECT_RESOLUTION_DAYS_UNRESOLVED = "subjectResolutionDaysUnresolved";
 
-  
   /**
    * yyyy/mm/dd the date this subject was last checked. When the USDU runs, if this subject is current unresolvable, then set to currentDate
    */
   public static final String SUBJECT_RESOLUTION_LAST_CHECKED = "subjectResolutionLastChecked";
+  
+  /**
+   * set to true when member is removed from all the groups/stems/etc
+   */
+  public static final String SUBJECT_RESOLUTION_DELETED = "subjectResolutionDeleted";
+  
+  /**
+   * yyyy/mm/dd the date this subject was removed from all the groups/stems/etc
+   */
+  public static final String SUBJECT_RESOLUTION_DELETE_DATE = "subjectResolutionDeleteDate";
   
   /**
    * marker attribute def assigned to member

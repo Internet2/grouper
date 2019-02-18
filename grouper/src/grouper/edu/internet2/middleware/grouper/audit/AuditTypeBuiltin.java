@@ -630,6 +630,11 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    */
   STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE(new AuditType("stemAttestation", "updateStemLastCertifiedDate", null, "stemId", "stemName")),
   
+  /** 
+   * USDU member delete
+   */
+  USDU_MEMBER_DELETE(new AuditType("usdu", "usduMemberDelete", null, "memberId", "sourceId", "subjectId"));
+  
   /**
    * add report config for stem
    */

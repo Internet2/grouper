@@ -22,14 +22,23 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -126,7 +135,7 @@ public class UsduJob extends OtherJobBase {
     
     deleteUnresolvableMembers(grouperSession);
     
-    clearMetadataFromNowResolvedMembers();
+    clearMetadataFromNowResolvedMembers(grouperSession);
     
     return null;
   }
@@ -155,8 +164,20 @@ public class UsduJob extends OtherJobBase {
   }
   
   
-  private void clearMetadataFromNowResolvedMembers() {
-    //TODO implement after figuring out how to get members that have subjectResolution attributes assigned.
+  private void clearMetadataFromNowResolvedMembers(GrouperSession grouperSession) {
+   
+    Set<Member> members = new MemberFinder()
+      .assignAttributeCheckReadOnAttributeDef(false)
+      .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
+      .addAttributeValuesOnAssignment("false")
+      .findMembers();
+    
+    for (Member member: members) {
+      if (USDU.isMemberResolvable(grouperSession, member)) {
+        UsduService.deleteAttributeAssign(member);
+      }
+    }
+    
   }
   
   
@@ -168,7 +189,15 @@ public class UsduJob extends OtherJobBase {
     
     Set<Member> unresolvableMembers = USDU.getUnresolvableMembers(grouperSession, null);
     
-    deleteUnresolvableMembers(unresolvableMembers);
+    // map to store source id to set of members to be deleted
+    Map<String, Set<Member>> sourceIdToMembers = new HashMap<String, Set<Member>>();
+    
+    // store members for which sources have not been configured
+    Set<Member> membersWithoutExplicitSourceConfiguration = new HashSet<Member>();
+    
+    populateUnresolvableMembersConfig(unresolvableMembers, sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
+    
+    deleteUnresolvableMembers(sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
     
   }
   
@@ -176,14 +205,10 @@ public class UsduJob extends OtherJobBase {
    * delete unresolvable members
    * @param unresolvables
    */
-  private void deleteUnresolvableMembers(Set<Member> unresolvables) {
+  private void populateUnresolvableMembersConfig(Set<Member> unresolvables, Map<String, Set<Member>> sourceIdToMembers, 
+      Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     Set<Field> fields = getMemberFields();
-    
-    // map to store source id to set of members to be deleted
-    Map<String, Set<Member>> sourceIdToMembers = new HashMap<String, Set<Member>>();
-    
-    Set<Member> membersWithoutExplicitSourceConfiguration = new HashSet<Member>();
     
     for (Member member : unresolvables) {
       
@@ -197,8 +222,6 @@ public class UsduJob extends OtherJobBase {
       SubjectResolutionAttributeValue savedSubjectResolutionAttributeValue = saveSubjectResolutionAttributeValue(member);
       
       addUnresolvedMemberToCorrectSet(member, savedSubjectResolutionAttributeValue, sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
-      
-      deleteUnresolvableMembers(sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
       
     }
     
@@ -264,8 +287,8 @@ public class UsduJob extends OtherJobBase {
     int globalDeleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.delete.ifAfterDays", 30);
     
     if (usduConfiguredSources.containsKey(member.getSubjectSourceId())) { // this source has been configured explicitly
-      
-      if (memberSubjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved() > usduConfiguredSources.get(member.getSubjectSourceId()).getDeleteAfterDays()) {
+            
+      if ( memberSubjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved() > usduConfiguredSources.get(member.getSubjectSourceId()).getDeleteAfterDays()) {
         Set<Member> membersPerSource = sourceIdToMembers.get(member.getSubjectSourceId());
         if (membersPerSource == null) {
           membersPerSource = new HashSet<Member>();
@@ -291,12 +314,18 @@ public class UsduJob extends OtherJobBase {
     
     SubjectResolutionAttributeValue newValue = new SubjectResolutionAttributeValue();
     
+    AuditEntry auditEntry = null;
+    
     if (existingSubjectResolutionAttributeValue == null) { //this member has become unresolvable for the first time only
       
       newValue.setSubjectResolutionResolvableString(BooleanUtils.toStringTrueFalse(false));
       newValue.setSubjectResolutionDateLastResolvedString(curentDateString);
-      newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(0));
+      newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(0L));
       newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
+      
+      auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_ADD);
+      
+      auditEntry.setDescription("Subject with id: " + member.getSubjectId() + " is being marked as unresolvable on "+currentDate);
       
     } else {
       
@@ -315,9 +344,27 @@ public class UsduJob extends OtherJobBase {
       newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
       newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(days));
       
+      auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_UPDATE);
+      
+      auditEntry.setDescription("Subject with id: " + member.getSubjectId() + "; updating subject resolution attributes on "+currentDate);
+      
     }
     
-    UsduService.saveOrUpldateSubjectResolutionAttributeValue(newValue, member);
+    UsduService.markMemberAsUnresolved(newValue, member);
+    
+    auditEntry.assignStringValue(auditEntry.getAuditType(), "ownerMemberId", member.getUuid());
+    auditEntry.assignStringValue(auditEntry.getAuditType(), "ownerSourceId", member.getSubjectSourceId());
+    auditEntry.assignStringValue(auditEntry.getAuditType(), "ownerSubjectId", member.getSubjectId());
+    
+    final AuditEntry AUDIT_ENTRY = auditEntry;
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+      public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+        AUDIT_ENTRY.saveOrUpdate(true);
+        return null;
+      }
+    });
+    
     return newValue;
     
   }
@@ -326,7 +373,7 @@ public class UsduJob extends OtherJobBase {
     
     int deletedCount = 0;
     
-    for (Member member: unresolvableMembers) {
+    for (final Member member: unresolvableMembers) {
       
       if (deletedCount >= howMany) {
         LOG.info("Total: "+unresolvableMembers.size()+" unresolvable members, deleted: "+deletedCount);
@@ -337,9 +384,7 @@ public class UsduJob extends OtherJobBase {
       
       Set<Membership> memberships = getAllImmediateMemberships(member, fields);
       
-      boolean deleted = false;
-      
-      for (Membership membership : memberships) {
+      for (final Membership membership : memberships) {
     
         LOG.info("member_uuid='" + member.getUuid() + "' subject=" + member);
         if (membership.getList().getType().equals(FieldType.LIST)
@@ -351,26 +396,45 @@ public class UsduJob extends OtherJobBase {
         }
         LOG.info(" list='" + membership.getList().getName() + "'");
         
-        if (membership.getList().getType().equals(FieldType.LIST)) {
-          USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerGroup(), membership.getList());
-          deleted = true;
-        }
-        if (membership.getList().getType().equals(FieldType.ACCESS)) {
-          USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerGroup(), getPrivilege(membership
-              .getList()));
-          deleted = true;
-        }
-        if (membership.getList().getType().equals(FieldType.NAMING)) {
-          USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerStem(), getPrivilege(membership
-              .getList()));
-          deleted = true;
-        }
         
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+            
+            if (membership.getList().getType().equals(FieldType.LIST)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerGroup(), membership.getList());
+            }
+            
+            if (membership.getList().getType().equals(FieldType.ACCESS)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerGroup(), getPrivilege(membership.getList()));
+            }
+            
+            if (membership.getList().getType().equals(FieldType.NAMING)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerStem(), getPrivilege(membership.getList()));
+            }
+            
+            return null;
+          }
+        });
+                
       }
       
-      if (deleted) {
-        deletedCount++;
-      }
+      UsduService.markMemberAsDeleted(member);
+      
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+        public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.USDU_MEMBER_DELETE);
+          auditEntry.assignStringValue(auditEntry.getAuditType(), "memberId", member.getUuid());
+          auditEntry.assignStringValue(auditEntry.getAuditType(), "sourceId", member.getSubjectSourceId());
+          auditEntry.assignStringValue(auditEntry.getAuditType(), "subjectId", member.getSubjectId());
+          
+          auditEntry.saveOrUpdate(true);
+          
+          return null;
+        }
+      });
+            
+      deletedCount++;
       
     }
     
