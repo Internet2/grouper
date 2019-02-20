@@ -1080,7 +1080,11 @@ public abstract class Provisioner
     
     currentWorkItem.set(workItem);
     ChangeLogEntry entry = workItem.getChangelogEntry();
-    
+    String workItem_identifier = null;
+    if ( workItem.getChangelogEntry()!=null ) {
+      workItem_identifier = Long.toString(workItem.getChangelogEntry().getSequenceNumber());
+    }
+
     try {
       if ( workItem.matchesChangelogType(ChangelogHandlingConfig.changelogTypesThatAreHandledIncrementally) ) {
         processIncrementalSyncEvent(workItem);
@@ -1096,15 +1100,16 @@ public abstract class Provisioner
                 .scheduleGroupForSync(
                         FullSyncProvisioner.QUEUE_TYPE.ASAP,
                         workItem.groupName,
+                        workItem_identifier,
                         "Changelog: %s", workItem);
 
         workItem.markAsSuccess("Handled with scheduled FullSync (qid=%d)", fullSyncStatus.id);
       }
       else if (  workItemShouldBeHandledByFullSyncOfEverything(workItem) ) {
         LOG.info("{}: Performing sync of all groups to process work item: {}", getDisplayName(), workItem);
-        getFullSyncer().queueAllGroupsForFullSync(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,"Work item invokes full sync for everything: %s", workItem);
+        getFullSyncer().queueAllGroupsForFullSync(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,workItem_identifier,"Work item invokes full sync for everything: %s", workItem);
         if ( getConfig().isGrouperAuthoritative() ) {
-          getFullSyncer().scheduleGroupCleanup(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG);
+          getFullSyncer().scheduleGroupCleanup(FullSyncProvisioner.QUEUE_TYPE.CHANGELOG, workItem_identifier, "Changelog-initiated");
         }
         workItem.markAsSuccess("Scheduled a full-sync of all groups");
       }

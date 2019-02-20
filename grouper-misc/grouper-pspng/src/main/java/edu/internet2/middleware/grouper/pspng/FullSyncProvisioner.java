@@ -402,7 +402,7 @@ public class FullSyncProvisioner  {
         processGroupCleanup(queueItem);
         break;
       case FULL_SYNC_ALL_GROUPS:
-        List<FullSyncQueueItem> scheduledItems = queueAllGroupsForFullSync(queueItem.sourceQueue, "Requested by message: %s", queueItem);
+        List<FullSyncQueueItem> scheduledItems = queueAllGroupsForFullSync(queueItem.sourceQueue, queueItem.externalReference, "Requested by message: %s", queueItem);
         for ( FullSyncQueueItem scheduledItem : scheduledItems ) {
           LOG.info("{} message reader: Group is queued for full sync: {}", getName(), scheduledItem);
         }
@@ -456,7 +456,7 @@ public class FullSyncProvisioner  {
       JobStatistics overallStats = new JobStatistics();
 
       List<FullSyncQueueItem> queuedGroupSyncs
-              = queueAllGroupsForFullSync(QUEUE_TYPE.SCHEDULED_LOCAL,"Scheduled full sync");
+              = queueAllGroupsForFullSync(QUEUE_TYPE.SCHEDULED_LOCAL, null,"Scheduled full sync");
 
       boolean everythingHasBeenCompleted = false;
       Date statusLastLoggedDate = null;
@@ -509,18 +509,21 @@ public class FullSyncProvisioner  {
    * Go through the Grouper Groups and queue up the ones that match the provisioner's 
    * ShouldBeProvisioned filter.
    */
-  protected List<FullSyncQueueItem> queueAllGroupsForFullSync(QUEUE_TYPE queue, String reasonFormat, Object... reasonArgs) throws PspException {
+  protected List<FullSyncQueueItem> queueAllGroupsForFullSync(QUEUE_TYPE queue,
+                                                              String externalReference,
+                                                              String reasonFormat, Object... reasonArgs) throws PspException {
     String reason = String.format(reasonFormat, reasonArgs);
     LOG.info("{}: Queuing all groups for full sync. ({})", getName(), reason);
     List<FullSyncQueueItem> result = new ArrayList<>();
 
     Collection<GrouperGroupInfo> allGroups = provisioner.getAllGroupsForProvisioner();
     for ( GrouperGroupInfo group : allGroups ) {
-      result.add(scheduleGroupForSync(queue, group.name, reason));
+      result.add(scheduleGroupForSync(queue, group.name, externalReference, reason));
     }
     
     if ( provisioner.config.isGrouperAuthoritative()) {
-        FullSyncQueueItem cleanupItem = scheduleGroupCleanup(queue);
+        FullSyncQueueItem cleanupItem = scheduleGroupCleanup(queue, externalReference, reason);
+
         if ( cleanupItem != null ) {
             result.add(cleanupItem);
         }
@@ -536,9 +539,14 @@ public class FullSyncProvisioner  {
    * @param groupName
    * @param reasonArgs
    */
-  public FullSyncQueueItem scheduleGroupForSync(QUEUE_TYPE queue, String groupName, String reasonFormat, Object... reasonArgs) {
+  public FullSyncQueueItem scheduleGroupForSync(
+          QUEUE_TYPE queue,
+          String groupName,
+          String externalReference,
+          String reasonFormat, Object... reasonArgs) {
     String reason = String.format(reasonFormat, reasonArgs);
     FullSyncQueueItem queueItem = new FullSyncQueueItem(getConfigName(), groupName, reason);
+    queueItem.externalReference = externalReference;
 
     LOG.debug("[qid={}] Scheduling group for {} full-sync: {}: {}",
             new Object[] {
@@ -560,13 +568,16 @@ public class FullSyncProvisioner  {
    * the target system will be checked for information about groups that either
    * no longer exist or that are no longer selected to be provisioned to the system.
    */
-  public FullSyncQueueItem scheduleGroupCleanup(QUEUE_TYPE queue) {
+  public FullSyncQueueItem scheduleGroupCleanup(QUEUE_TYPE queue, String externalReference, String reasonFormat, Object... reasonArgs) {
+    String reason = String.format(reasonFormat, reasonArgs);
+
     if ( provisioner.config.isGrouperAuthoritative() ) {
       FullSyncQueueItem queueItem = new FullSyncQueueItem(
               getConfigName(),
               FULL_SYNC_COMMAND.CLEANUP,
-              "Cleanup as part of scheduled full sync");
-      LOG.debug("[qid={}]Scheduling group cleanup [{}]", queueItem.id, queue.name());
+              reason);
+      queueItem.externalReference = externalReference;
+      LOG.debug("Scheduling group cleanup [{}]: {}", queue.name(), queueItem);
 
       return queue(queue, queueItem);
     } else {
