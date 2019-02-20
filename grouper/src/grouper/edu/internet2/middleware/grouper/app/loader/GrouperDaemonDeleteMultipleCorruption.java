@@ -276,24 +276,36 @@ public class GrouperDaemonDeleteMultipleCorruption {
       GrouperLoaderLogger.addLogEntry(GrouperDaemonDeleteOldRecords.LOG_LABEL, "fixAssignsLogOnly", logOnly);
       
       //find value problems
-      List<Object[]> listOfObjects = HibernateSession.byHqlStatic()
-          .createQuery("SELECT distinct gaa, gadn, gad FROM AttributeAssign gaa, "
-              + " AttributeDefName gadn, AttributeDef gad WHERE "
-              + " gaa.attributeDefNameId = gadn.id AND gadn.attributeDefId = gad.id AND gad.multiAssignableDb = 'F' "
-              + " AND EXISTS (SELECT 1 FROM AttributeAssign gaa2 "
-              + " WHERE gaa2.id != gaa.id"
-              + " AND gaa2.attributeAssignActionId = gaa.attributeAssignActionId"
-              + " AND gaa2.attributeDefNameId = gaa.attributeDefNameId"
-              + " AND gaa2.attributeAssignTypeDb = gaa.attributeAssignTypeDb"
-              + " AND ((gaa2.attributeAssignTypeDb = 'group' AND gaa2.ownerGroupId = gaa.ownerGroupId) "
-              + " OR (gaa2.attributeAssignTypeDb = 'stem' AND gaa2.ownerStemId = gaa.ownerStemId) "
-              + " OR (gaa2.attributeAssignTypeDb = 'member' AND gaa2.ownerMemberId = gaa.ownerMemberId) "
-              + " OR (gaa2.attributeAssignTypeDb = 'attr_def' AND gaa2.ownerAttributeDefId = gaa.ownerAttributeDefId) "
-              + " OR (gaa2.attributeAssignTypeDb = 'imm_mem' AND gaa2.ownerMembershipId = gaa.ownerMembershipId) "
-              + " OR (gaa2.attributeAssignTypeDb = 'any_mem' AND gaa2.ownerMemberId = gaa.ownerMemberId AND gaa2.ownerGroupId = gaa.ownerGroupId) "
-              + " OR (gaa2.attributeAssignTypeDb in ('any_mem_asgn', 'attr_def_asgn', 'group_asgn', 'imm_mem_asgn', 'mem_asgn', 'stem_asgn') AND gaa2.ownerAttributeAssignId = gaa.ownerAttributeAssignId) )"
-              + ")")
-          .list(Object[].class);
+      List<Object[]> listOfObjects = new ArrayList<Object[]>();
+      String sqlPrefix = "SELECT distinct gaa, gadn, gad FROM AttributeAssign gaa, "
+          + " AttributeDefName gadn, AttributeDef gad WHERE "
+          + " gaa.attributeDefNameId = gadn.id AND gadn.attributeDefId = gad.id AND gad.multiAssignableDb = 'F' "
+          + " AND EXISTS (SELECT 1 FROM AttributeAssign gaa2 "
+          + " WHERE gaa2.id != gaa.id"
+          + " AND gaa2.attributeAssignActionId = gaa.attributeAssignActionId"
+          + " AND gaa2.attributeDefNameId = gaa.attributeDefNameId"
+          + " AND gaa2.attributeAssignTypeDb = gaa.attributeAssignTypeDb"
+          + " AND ";
+      
+      String sqlSuffix = ")";
+      
+      // breaking this up due to GRP-2040: Query produced by GrouperDaemonDeleteMultipleCorruption.fixAssign is expensive causing job to fail
+      String[] sqlCheckAssignTypes = new String[] {
+          "gaa2.attributeAssignTypeDb = 'group' AND gaa2.ownerGroupId = gaa.ownerGroupId",
+          "gaa2.attributeAssignTypeDb = 'stem' AND gaa2.ownerStemId = gaa.ownerStemId",
+          "gaa2.attributeAssignTypeDb = 'member' AND gaa2.ownerMemberId = gaa.ownerMemberId",
+          "gaa2.attributeAssignTypeDb = 'attr_def' AND gaa2.ownerAttributeDefId = gaa.ownerAttributeDefId",
+          "gaa2.attributeAssignTypeDb = 'imm_mem' AND gaa2.ownerMembershipId = gaa.ownerMembershipId",
+          "gaa2.attributeAssignTypeDb = 'any_mem' AND gaa2.ownerMemberId = gaa.ownerMemberId AND gaa2.ownerGroupId = gaa.ownerGroupId",
+          "gaa2.attributeAssignTypeDb in ('any_mem_asgn', 'attr_def_asgn', 'group_asgn', 'imm_mem_asgn', 'mem_asgn', 'stem_asgn') AND gaa2.ownerAttributeAssignId = gaa.ownerAttributeAssignId"
+      };
+      
+      for (String sqlCheckAssignType : sqlCheckAssignTypes) {
+        List<Object[]> currListOfObjects = HibernateSession.byHqlStatic()
+            .createQuery(sqlPrefix + sqlCheckAssignType + sqlSuffix)
+            .list(Object[].class);
+        listOfObjects.addAll(currListOfObjects);
+      }
 
       if (GrouperUtil.length(listOfObjects) == 0) {
         jobMessage.append("fixAssignsCount: 0");
