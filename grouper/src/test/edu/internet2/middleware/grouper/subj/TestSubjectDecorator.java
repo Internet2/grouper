@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.subj.decoratorExamples.SubjectCustomizerForDecoratorExtraAttributes;
@@ -138,6 +139,9 @@ public class TestSubjectDecorator extends GrouperTest {
     Group privilegedGroup = new GroupSave(grouperSession)
       .assignName(SubjectCustomizerForDecoratorTestingHideStudentData.PRIVILEGED_EMPLOYEE_GROUP_NAME)
       .assignCreateParentStemsIfNotExist(true).save();
+    Group otherGroup = new GroupSave(grouperSession)
+        .assignName("etc:otherGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
 
     //subject0 is privileged, subject1 is not
     privilegedGroup.addMember(SubjectTestHelper.SUBJ0, true);
@@ -146,6 +150,9 @@ public class TestSubjectDecorator extends GrouperTest {
     studentGroup.addMember(SubjectTestHelper.SUBJ3, true);
     studentGroup.addMember(SubjectTestHelper.SUBJ4, true);
     studentGroup.addMember(SubjectTestHelper.SUBJ5, true);
+    
+    // add so member object gets created
+    otherGroup.addMember(SubjectTestHelper.SUBJ2);
 
     //now, configure the subject decorator
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingHideStudentData.class.getName());
@@ -164,6 +171,12 @@ public class TestSubjectDecorator extends GrouperTest {
       assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
       
       subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
+      
+      subject = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ2_ID, "jdbc", true).getSubject();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ3_ID, "jdbc", true).getSubject();
       assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
   
       subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
@@ -196,7 +209,13 @@ public class TestSubjectDecorator extends GrouperTest {
       
       subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
       assertEquals("Should see loginid for student", SubjectTestHelper.SUBJ3_IDENTIFIER, subject.getName());
-  
+      
+      subject = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ2_ID, "jdbc", true).getSubject();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ3_ID, "jdbc", true).getSubject();
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_IDENTIFIER, subject.getName());
+      
       subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
       assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
       

@@ -99,7 +99,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testResolveSubjects"));
+    TestRunner.run(new TestMember("testGetSource"));
   }
   
   /** logger */
@@ -113,59 +113,6 @@ public class TestMember extends GrouperTest {
     super(name);
   }
 
-  /**
-   * 
-   */
-  public void testResolveSubjects() {
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
-    
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-        
-    Group group = new GroupSave(grouperSession)
-      .assignName("test:testGroup")
-      .assignCreateParentStemsIfNotExist(true).save();
-
-    group.addMember(SubjectTestHelper.SUBJ0);
-    group.addMember(SubjectTestHelper.SUBJ1);
-    group.addMember(SubjectTestHelper.SUBJ2);
-    group.addMember(SubjectTestHelper.SUBJ3);
-    group.addMember(SubjectTestHelper.SUBJ4);
-    group.addMember(SubjectTestHelper.SUBJ5);
-    group.addMember(SubjectTestHelper.SUBJ6);
-    group.addMember(SubjectTestHelper.SUBJ7);
-    group.addMember(SubjectTestHelper.SUBJ8);
-    group.addMember(SubjectTestHelper.SUBJ9);
-    
-    EhcacheController.ehcacheController().flushCache();
-    //clear cache so we can see it work
-    SubjectFinder.flushCache();
-    
-    long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
-
-    Set<Member> members = group.getMembers();
-    
-    Member.resolveSubjects(members, false);
-    
-    //should be one query
-    long queryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
-    //3, one for members, fields, subjects
-    assertEquals("Query count: " + (queryCount - initialQueryCount), initialQueryCount+3, queryCount);
-
-    //###################  SHOULD BE THERE
-    EhcacheController.ehcacheController().flushCache();
-    //clear cache so we can see it work
-    SubjectFinder.flushCache();
-
-    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
-    
-    for (Member member : members) {
-      member.getSubject().getName();
-    }
-    
-    queryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
-    assertEquals("Query count: " + (queryCount - initialQueryCount), initialQueryCount, queryCount);
-  }
   
   public void testGetSource() {
     LOG.info("testGetSource");
