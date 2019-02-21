@@ -15,196 +15,324 @@
  */
 package edu.internet2.middleware.grouper.instrumentation;
 
-import java.io.File;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sf.json.JSONObject;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
-import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * @author shilen
  */
 @DisallowConcurrentExecution
-public class TierInstrumentationDaemon implements Job {
+public class TierInstrumentationDaemon extends OtherJobBase {
   
   private static final Log LOG = GrouperUtil.getLog(TierInstrumentationDaemon.class);
   
   /**
-   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+   * run the daemon
+   * @param args
    */
-  @Override
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-    long startTime = System.currentTimeMillis();
-    long startTimeMinus24Hours = startTime - 86400000L;
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    GrouperSession grouperSession = null;
+  public static void main(String[] args) {
+    runDaemonStandalone();
     
-    try {
-      grouperSession = GrouperSession.startRootSession();
-      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+    /*
+    String release = "NON_PACKAGE_" + GrouperVersion.GROUPER_VERSION;
 
-      String jobName = context.getJobDetail().getKey().getName();
+    Map<String, Set<Integer>> patchesInstalled = new java.util.TreeMap<String, Set<Integer>>();
+    patchesInstalled.put("api", new java.util.HashSet<Integer>());
+    patchesInstalled.get("api").add(0);
+    patchesInstalled.get("api").add(1);
+    patchesInstalled.get("api").add(2);
+    patchesInstalled.get("api").add(5);
+    
+    patchesInstalled.put("pspng", new java.util.HashSet<Integer>());
+    patchesInstalled.get("pspng").add(0);
+    patchesInstalled.get("pspng").add(1);
 
-      if (GrouperLoader.isJobRunning(jobName)) {
-        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
-        return;
-      }
-      
-      hib3GrouploaderLog.setJobName(jobName);
-      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));
-      hib3GrouploaderLog.setJobType("OTHER_JOB");
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-      hib3GrouploaderLog.store();
-      
-      LOG.info("Running TIER instrumentation daemon.");
-      
-      AttributeAssign parentAssignment = InstrumentationDataUtils.grouperInstrumentationCollectorParentAttributeAssignment(jobName);
 
-      String lastCollectorUpdateString = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR);
-      long lastCollectorUpdate = 0;
-      if (!StringUtils.isEmpty(lastCollectorUpdateString)) {
-        lastCollectorUpdate = Long.parseLong(lastCollectorUpdateString);
-      }
+    List<String> patchStrings = new ArrayList<String>();
+    for (String engine : patchesInstalled.keySet()) {
+      String engineLabel = engine.substring(0, 1);
+      List<Integer> patchNumbers = new ArrayList<Integer>(patchesInstalled.get(engine));
+      Collections.sort(patchNumbers);
       
-      String collectorUuid = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR);
-            
-      Map<String, Object> data = new LinkedHashMap<String, Object>();
-      data.put("reportFormat", 1);
-      data.put("uuid", collectorUuid);
-      data.put("component", "grouper");
-      data.put("institution", getInstitution());
-      data.put("environment", GrouperConfig.retrieveConfig().getProperty("grouper.env.name", ""));
-      
-      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.version", false)) {
-        data.put("version", GrouperVersion.GROUPER_VERSION);
-      }
-      
-      data.put("platformWindows", SystemUtils.IS_OS_WINDOWS);
-      data.put("platformLinux", SystemUtils.IS_OS_LINUX);
-      data.put("platformMac", SystemUtils.IS_OS_MAC);
-      data.put("platformSolaris", SystemUtils.IS_OS_SOLARIS);
-      
-      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.transactionCounts", false)) {
-        Long membershipChanges = HibernateSession.byHqlStatic().createQuery("select count(*) from AuditEntry where createdOnDb > :createdOn and auditTypeId in (:auditTypeAdd, :auditTypeUpdate, :auditTypeDelete)")
-          .setLong("createdOn", startTimeMinus24Hours)
-          .setString("auditTypeAdd", AuditTypeFinder.find("membership", "addGroupMembership", true).getId())
-          .setString("auditTypeUpdate", AuditTypeFinder.find("membership", "updateGroupMembership", true).getId())
-          .setString("auditTypeDelete", AuditTypeFinder.find("membership", "deleteGroupMembership", true).getId())
-          .uniqueResult(Long.class);
+      if (patchNumbers.size() > 0) {
+        Integer maxConsecutive = null;
+        boolean othersAfter = false;
+        for (int i = 0; i < patchNumbers.size(); i++) {
+          if (i == patchNumbers.get(i)) {
+            maxConsecutive = i;
+          } else {
+            othersAfter = true;
+            break;
+          }
+        }
         
-        data.put("transactionCountMemberships", membershipChanges);
-  
-        Long privilegeChanges = HibernateSession.byHqlStatic().createQuery("select count(*) from AuditEntry where createdOnDb > :createdOn and auditTypeId in (:auditTypeGroupAdd, :auditTypeGroupUpdate, :auditTypeGroupDelete, :auditTypeStemAdd, :auditTypeStemUpdate, :auditTypeStemDelete)")
-          .setLong("createdOn", startTimeMinus24Hours)
-          .setString("auditTypeGroupAdd", AuditTypeFinder.find("privilege", "addGroupPrivilege", true).getId())
-          .setString("auditTypeGroupUpdate", AuditTypeFinder.find("privilege", "updateGroupPrivilege", true).getId())
-          .setString("auditTypeGroupDelete", AuditTypeFinder.find("privilege", "deleteGroupPrivilege", true).getId())
-          .setString("auditTypeStemAdd", AuditTypeFinder.find("privilege", "addStemPrivilege", true).getId())
-          .setString("auditTypeStemUpdate", AuditTypeFinder.find("privilege", "updateStemPrivilege", true).getId())
-          .setString("auditTypeStemDelete", AuditTypeFinder.find("privilege", "deleteStemPrivilege", true).getId())
-          .uniqueResult(Long.class);
-        
-        data.put("transactionCountPrivileges", privilegeChanges);
+        if (maxConsecutive == null) {
+          patchStrings.add(engineLabel + "UnknownPatches");
+        } else {
+          if (othersAfter) {
+            patchStrings.add(engineLabel + maxConsecutive + "AndUnknownPatches");
+          } else {
+            patchStrings.add(engineLabel + maxConsecutive);
+          }
+        }
       }
-      
-      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.registryCounts", false)) {
-        Long totalMemberships = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString = 'list'").uniqueResult(Long.class);
-        data.put("registryCountDirectMemberships", totalMemberships);
-        
-        Long totalPrivileges = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString in ('access', 'naming', 'attributeDef')").uniqueResult(Long.class);
-        data.put("registryCountDirectPrivileges", totalPrivileges);
-        
-        Long totalDirectPermissions = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeAssign aa, AttributeDef ad, AttributeDefName adn where aa.attributeDefNameId=adn.id and adn.attributeDefId=ad.id and ad.attributeDefTypeDb='perm'").uniqueResult(Long.class);
-        data.put("registryCountDirectPermissions", totalDirectPermissions);
-      }
-      
-      Map<String, String> changeLogJobs = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
-          GrouperCheckConfig.grouperLoaderConsumerPattern);
-      data.put("provisionToLdapUsingPsp", changeLogJobs.containsValue("edu.internet2.middleware.psp.grouper.PspChangeLogConsumer"));
-      data.put("provisionToLdapUsingPspng", changeLogJobs.containsValue("edu.internet2.middleware.grouper.pspng.PspChangelogConsumerShim"));
-      
-      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.patchesInstalled", false)) {
-        data.put("patchesInstalled", getPatchesInstalled());
-      }
-      
-      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.instanceData", false)) {
-        data.put("instances", getInstances(lastCollectorUpdate, startTime));
-      }
-      
-      //System.out.println(GrouperUtil.jsonConvertTo(data, false));
-      sendToTier(data);
-
-      // set new last updated
-      parentAssignment.getAttributeValueDelegate().assignValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, "" + startTime);
-      
-      LOG.info("Finished running TIER instrumentation daemon.");
-      hib3GrouploaderLog.appendJobMessage("Finished running TIER instrumentation daemon.");
-      
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-      storeLogInDb(hib3GrouploaderLog, true, startTime);
-    } catch (Exception e) {
-      LOG.error("Error running job", e);
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
-      
-      if (!(e instanceof JobExecutionException)) {
-        e = new JobExecutionException(e);
-      }
-      JobExecutionException jobExecutionException = (JobExecutionException)e;
-      storeLogInDb(hib3GrouploaderLog, false, startTime);
-      throw jobExecutionException;
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
     }
+        
+    if (patchStrings.size() > 0) {
+      release = release + "-" + String.join("-", patchStrings);
+    }
+    
+    System.out.println(release);
+    */
+  }
+
+  /**
+   * run standalone
+   */
+  public static void runDaemonStandalone() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    
+    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+    String jobName = "OTHER_JOB_tierInstrumentationDaemon";
+
+    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+    hib3GrouperLoaderLog.store();
+    
+    OtherJobInput otherJobInput = new OtherJobInput();
+    otherJobInput.setJobName(jobName);
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    otherJobInput.setGrouperSession(grouperSession);
+    new TierInstrumentationDaemon().run(otherJobInput);
   }
   
   /**
-   * @param hib3GrouploaderLog
-   * @param throwException 
-   * @param startTime
+   * @see edu.internet2.middleware.grouper.app.loader.OtherJobBase#run(edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput)
    */
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    
+    Map<String, String> dataForTier = new LinkedHashMap<String, String>();
+    /*
+    try {
+      dataForTier.put("host", InetAddress.getLocalHost().getHostAddress());
+    } catch (UnknownHostException e1) {
+      LOG.warn("Unable to get ip address, proceeding without it", e1);
+    }*/
+    
+    dataForTier.put("msgType", "TIERBEACON");
+    dataForTier.put("msgName", "TIER");
+    dataForTier.put("msgVersion", "1.0");
+    dataForTier.put("tbProduct", "Grouper");
+    dataForTier.put("tbProductVersion", GrouperVersion.GROUPER_VERSION);
+        
+    if (!StringUtils.isEmpty(System.getenv("GROUPER_CONTAINER_VERSION"))) {
+      dataForTier.put("tbTIERRelease", "PACKAGE_" + System.getenv("GROUPER_CONTAINER_VERSION"));
+    } else {
+      String release = "NON_PACKAGE_" + GrouperVersion.GROUPER_VERSION;
+      
+      Map<String, Set<Integer>> patchesInstalled = GrouperVersion.patchesInstalled();
+
+      List<String> patchStrings = new ArrayList<String>();
+      for (String engine : patchesInstalled.keySet()) {
+        String engineLabel = engine.substring(0, 1);
+        List<Integer> patchNumbers = new ArrayList<Integer>(patchesInstalled.get(engine));
+        Collections.sort(patchNumbers);
+        
+        if (patchNumbers.size() > 0) {
+          Integer maxConsecutive = null;
+          boolean othersAfter = false;
+          for (int i = 0; i < patchNumbers.size(); i++) {
+            if (i == patchNumbers.get(i)) {
+              maxConsecutive = i;
+            } else {
+              othersAfter = true;
+              break;
+            }
+          }
+          
+          if (maxConsecutive == null) {
+            patchStrings.add(engineLabel + "UnknownPatches");
+          } else {
+            if (othersAfter) {
+              patchStrings.add(engineLabel + maxConsecutive + "AndUnknownPatches");
+            } else {
+              patchStrings.add(engineLabel + maxConsecutive);
+            }
+          }
+        }
+      }
+          
+      if (patchStrings.size() > 0) {
+        release = release + "-" + String.join("-", patchStrings);
+      }
+      
+      dataForTier.put("tbTIERRelease", release); 
+    }
+    
+    // sleep for random time between 0 and 10 minutes so collector doesn't get hit all at once..
+    int sleepTime = ThreadLocalRandom.current().nextInt(0, 600000);
+    LOG.info("Sleeping for " + sleepTime + " milliseconds");
+
+    try {
+      Thread.sleep(sleepTime);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    try {
+      sendToTier(dataForTier);
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running TIER instrumentation daemon.");
+    } catch (Exception e) {
+      LOG.warn("Error while sending instrumentation data to TIER", e);
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running TIER instrumentation daemon but received an error while sending data to TIER: " + ExceptionUtils.getFullStackTrace(e));
+    } finally {
+      otherJobInput.getHib3GrouperLoaderLog().store();
+    }
+
+    return null;
+  }
+  
+  private static void sendToTier(Map<String, String> data) throws IOException {
+    String dataJson = GrouperUtil.jsonConvertTo(data, false);
+    //System.out.println(dataJson);
+    
+    HttpClient httpClient = new HttpClient();
+    httpClient.getParams().setSoTimeout(60000);
+    httpClient.getParams().setParameter("http.connection.timeout", 60000);
+    String collectorUrl = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob.tierInstrumentationDaemon.collectorUrl");
+    
+    PostMethod method = new PostMethod(collectorUrl);
+    method.setRequestEntity(new StringRequestEntity(dataJson, "application/json", "UTF-8"));
+    int collectorReturnCode = httpClient.executeMethod(method);
+    String collectorBody = IOUtils.toString(method.getResponseBodyAsStream());
+
+    if (collectorReturnCode == 200 || collectorReturnCode == 201) {
+      // we're good
+      LOG.info("Successfully sent data to endpoint " + collectorUrl);
+    } else {    
+      throw new RuntimeException("Failed to send data to endpoint " + collectorUrl + ".  Code=" + collectorReturnCode + ", body=" + collectorBody);    
+    }
+  }
+  
+  /*
+  private static void legacyInstrumentationCode(String jobName) {
+
+    long startTime = System.currentTimeMillis();
+    long startTimeMinus24Hours = startTime - 86400000L;
+    
+    AttributeAssign parentAssignment = InstrumentationDataUtils.grouperInstrumentationCollectorParentAttributeAssignment(jobName);
+
+    String lastCollectorUpdateString = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR);
+    long lastCollectorUpdate = 0;
+    if (!StringUtils.isEmpty(lastCollectorUpdateString)) {
+      lastCollectorUpdate = Long.parseLong(lastCollectorUpdateString);
+    }
+    
+    String collectorUuid = parentAssignment.getAttributeValueDelegate().retrieveValueString(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR);
+          
+    Map<String, Object> data = new LinkedHashMap<String, Object>();
+    data.put("reportFormat", 1);
+    data.put("uuid", collectorUuid);
+    data.put("component", "grouper");
+    data.put("institution", getInstitution());
+    data.put("environment", GrouperConfig.retrieveConfig().getProperty("grouper.env.name", ""));
+    
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.version", false)) {
+      data.put("version", GrouperVersion.GROUPER_VERSION);
+    }
+    
+    data.put("platformWindows", SystemUtils.IS_OS_WINDOWS);
+    data.put("platformLinux", SystemUtils.IS_OS_LINUX);
+    data.put("platformMac", SystemUtils.IS_OS_MAC);
+    data.put("platformSolaris", SystemUtils.IS_OS_SOLARIS);
+    
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.transactionCounts", false)) {
+      Long membershipChanges = HibernateSession.byHqlStatic().createQuery("select count(*) from AuditEntry where createdOnDb > :createdOn and auditTypeId in (:auditTypeAdd, :auditTypeUpdate, :auditTypeDelete)")
+        .setLong("createdOn", startTimeMinus24Hours)
+        .setString("auditTypeAdd", AuditTypeFinder.find("membership", "addGroupMembership", true).getId())
+        .setString("auditTypeUpdate", AuditTypeFinder.find("membership", "updateGroupMembership", true).getId())
+        .setString("auditTypeDelete", AuditTypeFinder.find("membership", "deleteGroupMembership", true).getId())
+        .uniqueResult(Long.class);
+      
+      data.put("transactionCountMemberships", membershipChanges);
+
+      Long privilegeChanges = HibernateSession.byHqlStatic().createQuery("select count(*) from AuditEntry where createdOnDb > :createdOn and auditTypeId in (:auditTypeGroupAdd, :auditTypeGroupUpdate, :auditTypeGroupDelete, :auditTypeStemAdd, :auditTypeStemUpdate, :auditTypeStemDelete)")
+        .setLong("createdOn", startTimeMinus24Hours)
+        .setString("auditTypeGroupAdd", AuditTypeFinder.find("privilege", "addGroupPrivilege", true).getId())
+        .setString("auditTypeGroupUpdate", AuditTypeFinder.find("privilege", "updateGroupPrivilege", true).getId())
+        .setString("auditTypeGroupDelete", AuditTypeFinder.find("privilege", "deleteGroupPrivilege", true).getId())
+        .setString("auditTypeStemAdd", AuditTypeFinder.find("privilege", "addStemPrivilege", true).getId())
+        .setString("auditTypeStemUpdate", AuditTypeFinder.find("privilege", "updateStemPrivilege", true).getId())
+        .setString("auditTypeStemDelete", AuditTypeFinder.find("privilege", "deleteStemPrivilege", true).getId())
+        .uniqueResult(Long.class);
+      
+      data.put("transactionCountPrivileges", privilegeChanges);
+    }
+    
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.registryCounts", false)) {
+      Long totalMemberships = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString = 'list'").uniqueResult(Long.class);
+      data.put("registryCountDirectMemberships", totalMemberships);
+      
+      Long totalPrivileges = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry m, Field f where m.fieldId=f.uuid and f.typeString in ('access', 'naming', 'attributeDef')").uniqueResult(Long.class);
+      data.put("registryCountDirectPrivileges", totalPrivileges);
+      
+      Long totalDirectPermissions = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeAssign aa, AttributeDef ad, AttributeDefName adn where aa.attributeDefNameId=adn.id and adn.attributeDefId=ad.id and ad.attributeDefTypeDb='perm'").uniqueResult(Long.class);
+      data.put("registryCountDirectPermissions", totalDirectPermissions);
+    }
+    
+    Map<String, String> changeLogJobs = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
+        GrouperCheckConfig.grouperLoaderConsumerPattern);
+    data.put("provisionToLdapUsingPsp", changeLogJobs.containsValue("edu.internet2.middleware.psp.grouper.PspChangeLogConsumer"));
+    data.put("provisionToLdapUsingPspng", changeLogJobs.containsValue("edu.internet2.middleware.grouper.pspng.PspChangelogConsumerShim"));
+    
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.patchesInstalled", false)) {
+      data.put("patchesInstalled", getPatchesInstalled());
+    }
+    
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.tierInstrumentationDaemon.exclude.instanceData", false)) {
+      data.put("instances", getInstances(lastCollectorUpdate, startTime));
+    }
+    
+    //System.out.println(GrouperUtil.jsonConvertTo(data, false));
+    try {
+      sendToTier(data);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    // set new last updated
+    parentAssignment.getAttributeValueDelegate().assignValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, "" + startTime);
+    
+  }
+  
+  
   private static void storeLogInDb(Hib3GrouperLoaderLog hib3GrouploaderLog,
       boolean throwException, long startTime) {
     //store this safely
@@ -224,6 +352,7 @@ public class TierInstrumentationDaemon implements Job {
       }
     }
   }
+  
   
   private static List<JSONObject> getInstances(long lastCollectorUpdate, long currentCollectorStart) {
     
@@ -372,4 +501,5 @@ public class TierInstrumentationDaemon implements Job {
       }
     }
   }
+  */
 }
