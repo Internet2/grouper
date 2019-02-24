@@ -22,8 +22,8 @@ class FullSyncQueueItem {
   // This is used to give each queue item a unique number (at least for the current daemon run)
   private static final AtomicInteger queueItemCounter = new AtomicInteger();
 
-  final public static String id_property = "id";
-  final int id = queueItemCounter.incrementAndGet();
+  final public static String ID_PROPERTY = "id";
+  int id;
 
   // What provisioner is this message targeting?
   final public static String PROVISIONER_NAME_PROPERTY = "provisioner_name";
@@ -57,6 +57,10 @@ class FullSyncQueueItem {
   // When was this request most recently queued or requeued
   final public static String MOST_RECENT_QUEUED_JEPOCH_PROPERTY = "most_recent_queued_jepoch";
   DateTime mostRecentQueuedDate = new DateTime();
+
+  // When was this object pulled out of a queue. This allows us to
+  // calculate how long object spent in queue, even after it's been in memory for a while
+  transient DateTime mostRecentDequeueTime = null;
 
   // Should this request wait for a while before being processed. This is used to
   // implement an 'exponential' backoff as retry_count increases
@@ -99,6 +103,7 @@ class FullSyncQueueItem {
 
   public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.FULL_SYNC_COMMAND command, String reason)
   {
+    this.id = queueItemCounter.incrementAndGet();
     this.command=command;
     this.provisionerName = provisionerName;
     this.reason=reason;
@@ -112,6 +117,7 @@ class FullSyncQueueItem {
   public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.FULL_SYNC_COMMAND command,
                            String groupName, String reason,
                            GrouperMessageAcknowledgeParam messageToAcknowledge) {
+      this.id = queueItemCounter.incrementAndGet();
       this.command= command;
       this.provisionerName = provisionerName;
       this.groupName = groupName;
@@ -149,6 +155,9 @@ class FullSyncQueueItem {
 
 
     // Fill in the details
+    if ( jsonObject.containsKey(ID_PROPERTY) )
+      result.id = jsonObject.getInt(ID_PROPERTY);
+
     if ( jsonObject.containsKey(SOURCE_PROPERTY) )
       result.source = jsonObject.getString(SOURCE_PROPERTY);
     if ( jsonObject.containsKey(EXTERNAL_REFERENCE) )
@@ -201,6 +210,7 @@ class FullSyncQueueItem {
     // nor to control the attribute names.
     Map<String, Object> result = new HashMap<>();
 
+    result.put(ID_PROPERTY, id);
     result.put(PROVISIONER_NAME_PROPERTY, provisionerName);
     result.put(COMMAND_PROPERTY, command.name());
 
@@ -248,6 +258,11 @@ class FullSyncQueueItem {
   }
 
 
+  public void wasDequeued() {
+    mostRecentDequeueTime=DateTime.now();
+  }
+
+
   public void processingCompletedSuccessfully() {
       // Only act the first time we're told this was completed
       if ( stats.processingCompletedTime != null ) {
@@ -285,8 +300,12 @@ class FullSyncQueueItem {
   return stats.processingCompletedTime != null;
 }
 
-  public Duration getTimeSinceMostRecentQueuedDate() {
+  public Duration getTimeSpentInQueue() {
+    if ( mostRecentDequeueTime==null ) {
       return new Duration(mostRecentQueuedDate, Instant.now());
+    } else {
+      return new Duration(mostRecentQueuedDate, mostRecentDequeueTime);
+    }
 }
 
   public Duration getTimeSinceFirstQueued() {
@@ -306,10 +325,10 @@ class FullSyncQueueItem {
   }
 
   public String toString() {
-      return String.format("%s|qid=%d|Trigger=%s|ExternalRef=%s|QTime=%d secs|Age=%d secs",
+      return String.format("%s|qid=%d|Trigger=%s|ExternalRef=%s|QTime=%.1f secs|Age=%.1f secs",
               getName(), id, reason, externalReference,
-              getTimeSinceMostRecentQueuedDate().getMillis(),
-              getTimeSinceFirstQueued().getMillis());
+              getTimeSpentInQueue().getMillis()/1000.0,
+              getTimeSinceFirstQueued().getMillis()/1000.0);
   }
 
   public void incrementRetryCount() {

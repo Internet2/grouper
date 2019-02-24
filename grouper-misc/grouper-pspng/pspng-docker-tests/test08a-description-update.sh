@@ -58,6 +58,9 @@ EOF
 
 await_changelog_catchup
 
+test_step "Waiting for changelog-triggered full sync to be completed"
+run_in_grouper_daemon await-latest-full-sync-to-finish
+
 validate_group_attribute "$GROUP1_NAME" description "First description"
 
 #make sure extra groups were not provisioned

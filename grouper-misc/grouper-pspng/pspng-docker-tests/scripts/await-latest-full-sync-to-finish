@@ -1,0 +1,48 @@
+#!/bin/bash
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+. "$D/shflags"
+PATH="$D:$PATH"
+
+DEFINE_integer time_limit_secs 60 "How long to wait for the full-sync to finish"
+DEFINE_integer log_line_number -1 "If the consumer does not catch up, the log is displayed starting with this line. If this is not specified, then the display starts at whatever the last line of the file was when we were started."
+
+# parse the command-line
+FLAGS "$@" || exit $?
+eval set -- "${FLAGS_ARGV}"
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+if [ $FLAGS_log_line_number -ge 0 ]; then
+  GROUPER_ERROR_LINE_NUMBER=$FLAGS_log_line_number
+else
+  GROUPER_ERROR_LINE_NUMBER=$(wc -l < $API/logs/grouper_error.log)
+fi
+
+await-mysql-server
+await-grouper-loader
+
+# Get the last qid=## 
+qid=$(egrep_ -i '\[qid=[0-9]*\] Scheduling' $API/logs/grouper_error.log | tr A-Z a-z | sed 's/.*\(qid=[0-9]*\).*/\1/' | tail -1)
+
+log_always "Waiting for $qid to be completed"
+
+START=$(date +%s)
+GIVE_UP=$((START + $FLAGS_time_limit_secs))
+while [ $(date +%s) -lt $GIVE_UP ]; do
+  completed=$(egrep_ -i "$qid.*Work item handled.*done=true,successful=true" $API/logs/grouper_error.log)
+  last_qid_log=$(fgrep_ -iw "$qid" $API/logs/grouper_error.log | tail -1)
+
+  if [ -n "$completed" ]; then
+    log_always "$qid has completed: $completed"
+    exit 0
+  else
+    log_always "$qid has not completed. Last log line: $last_qid_log"
+  fi
+  sleep 5
+done
+
+fail "$qid never completed"

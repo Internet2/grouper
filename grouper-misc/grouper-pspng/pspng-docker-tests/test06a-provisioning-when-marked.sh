@@ -60,8 +60,8 @@ validate_deprovisioning "$GROUP2_NAME"
 mark_test_folder_for_provisioning
 
 await_changelog_catchup
-#find full-syncs scheduled by changelog events
-#egrep 'full-sync-message-reader.*queuing onto'
+test_step "Waiting for changelog-triggered full sync to be completed"
+run_in_grouper_daemon await-latest-full-sync-to-finish
 
 validate_provisioning "$GROUP1_NAME" "agasper,banderson,bbrown705"
 validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"

@@ -428,6 +428,8 @@ public class FullSyncProvisioner  {
           continue;
         }
 
+        result.wasDequeued();
+
         // Item is not ready yet. Push it back into its queue and sleep so we
         // don't busyloop. This sleep only happens when the front of the queues
         // are not ready to be run.
@@ -442,6 +444,7 @@ public class FullSyncProvisioner  {
           Thread.sleep(5000);
           continue;
         }
+
         LOG.info("{}: Next full-sync request: {}", getName(), result);
 
       } catch (InterruptedException e) {
@@ -588,6 +591,9 @@ public class FullSyncProvisioner  {
 
   protected FullSyncQueueItem queue(QUEUE_TYPE queue, FullSyncQueueItem queueItem)
   {
+    // Item is going into a queue, so clear it's dequeue time
+    queueItem.mostRecentDequeueTime=null;
+
     if (queue.usesGrouperMessagingQueue)
     {
       // JSON queueItem and message it
