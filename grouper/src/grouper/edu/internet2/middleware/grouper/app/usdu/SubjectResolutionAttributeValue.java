@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
+import edu.internet2.middleware.grouper.Member;
+
 /**
  * bean that represents metadata attributes on member 
  */
@@ -26,7 +28,7 @@ public class SubjectResolutionAttributeValue {
   private String subjectResolutionDateLastCheckedString;
   
   /**
-   * set to true when all the memberships are deleted. 
+   * set to true when all the memberships are deleted.
    * when this attribute is set to true, clear subjectResolutionResolvableString, subjectResolutionDaysUnresolved and subjectResolutionDateLastCheckedString
    */
   private String subjectResolutionDeletedString;
@@ -35,6 +37,17 @@ public class SubjectResolutionAttributeValue {
    * timestamp when member was marked as deleted
    */
   private String subjectResolutionDateDeleteString;
+  
+  /**
+   * member that has been assigned the attribute
+   */
+  private Member member;
+  
+  /**
+   * date subject will be deleted string
+   */
+  private String dateSubjectWillBeDeletedString;
+  
 
   /**
    * 
@@ -148,5 +161,37 @@ public class SubjectResolutionAttributeValue {
     this.subjectResolutionDateDeleteString = subjectResolutionDateDeleteString;
   }
 
+  /**
+   * 
+   * @return member that has been assigned the attribute
+   */
+  public Member getMember() {
+    return member;
+  }
+
+  /**
+   * member that has been assigned the attribute
+   * @param member
+   */
+  public void setMember(Member member) {
+    this.member = member;
+  }
+
+  /**
+   * 
+   * @return date subject will be deleted string
+   */
+  public String getDateSubjectWillBeDeletedString() {
+    return dateSubjectWillBeDeletedString;
+  }
+
+  /**
+   * date subject will be deleted string
+   * @param dateSubjectWillBeDeletedString
+   */
+  public void setDateSubjectWillBeDeletedString(String dateSubjectWillBeDeletedString) {
+    this.dateSubjectWillBeDeletedString = dateSubjectWillBeDeletedString;
+  }
+  
   
 }
