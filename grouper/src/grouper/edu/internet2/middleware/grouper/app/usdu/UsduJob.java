@@ -322,6 +322,7 @@ public class UsduJob extends OtherJobBase {
       newValue.setSubjectResolutionDateLastResolvedString(curentDateString);
       newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(0L));
       newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
+      newValue.setMember(member);
       
       auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_ADD);
       
@@ -343,6 +344,7 @@ public class UsduJob extends OtherJobBase {
       
       newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
       newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(days));
+      newValue.setMember(member);
       
       auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_UPDATE);
       
@@ -395,7 +397,6 @@ public class UsduJob extends OtherJobBase {
           LOG.info(" stem='" + membership.getOwnerStem().getName());
         }
         LOG.info(" list='" + membership.getList().getName() + "'");
-        
         
         HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
           public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
