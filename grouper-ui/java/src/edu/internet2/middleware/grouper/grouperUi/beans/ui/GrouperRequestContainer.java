@@ -507,6 +507,11 @@ public class GrouperRequestContainer {
    */
   private ObjectTypeContainer objectTypeContainer;
   
+  /**
+   * container for subject resolution
+   */
+  private SubjectResolutionContainer subjectResolutionContainer;
+  
   
   /**
    * container for deprovisioning screen
@@ -550,6 +555,18 @@ public class GrouperRequestContainer {
       this.objectTypeContainer = new ObjectTypeContainer();
     }
     return this.objectTypeContainer;
+  }
+
+  
+  /**
+   * lazy load the subject resolution container
+   * @return
+   */
+  public SubjectResolutionContainer getSubjectResolutionContainer() {
+    if (this.subjectResolutionContainer == null) {
+      this.subjectResolutionContainer = new SubjectResolutionContainer();
+    }
+    return this.subjectResolutionContainer;
   }
 
   /**

@@ -41,6 +41,10 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain');" style="white-space: nowrap;"
                       >${textContainer.text['deprovisioningMainLink'] }</a>
                     </c:if>
+                    <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
+                      >${textContainer.text['subjectResolutionMainLink'] }</a>
+                    </c:if>
                   </div>
                 </div>
               </div>

@@ -3,18 +3,30 @@ package edu.internet2.middleware.grouper.app.usdu;
 import static edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames.SUBJECT_RESOLUTION_DATE_LAST_RESOLVED;
 import static edu.internet2.middleware.grouper.app.usdu.UsduSettings.usduStemName;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import edu.internet2.middleware.subject.Source;
 
 public class UsduService {
   
@@ -31,7 +43,7 @@ public class UsduService {
       return null;
     }
     
-    return buildSubjectResolutionAttributeValue(attributeAssign);
+    return buildSubjectResolutionAttributeValue(attributeAssign, member);
   }
   
   /**
@@ -116,18 +128,102 @@ public class UsduService {
     }
   }
   
+  /**
+   * 
+   * @return the list of subject sources with unresolved and resolved count
+   */
+  public static List<SubjectResolutionStat> getSubjectResolutionStats() {
+    
+    Set<Source> sources = SubjectFinder.getSources();
+    
+    GrouperSession session = GrouperSession.startRootSession();
+    
+    List<SubjectResolutionStat> subjectResolutionStats = new ArrayList<SubjectResolutionStat>();
+    
+    for (Source source: sources) {
+      
+      long unresolvedCount = 0L;
+      long resolvedCount = 0L;
+      
+      for (Object m : MemberFinder.findAllUsed(session, source)) {
+        Member member = (Member) m;
+        
+        if (!USDU.isMemberResolvable(session, member)) {
+          unresolvedCount++;
+        } else {
+          resolvedCount++;
+        }
+      }
+      
+      subjectResolutionStats.add(new SubjectResolutionStat(source.getName(), unresolvedCount, resolvedCount));
+      
+    }
+    
+    return subjectResolutionStats;
+    
+  }
+  
+  /**
+   * 
+   * @param queryOptions
+   * @return unresolved subjects
+   */
+  public static Set<SubjectResolutionAttributeValue> getUnresolvedSubjects(QueryOptions queryOptions) {
+    
+    Set<SubjectResolutionAttributeValue> unresolvedSubjects = new HashSet<SubjectResolutionAttributeValue>();
+    
+    Set<Member> members = new MemberFinder()
+        .assignAttributeCheckReadOnAttributeDef(false)
+        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
+        .addAttributeValuesOnAssignment("false")
+        .assignQueryOptions(queryOptions)
+        .findMembers();
+    
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    Date currentDate = new Date();
+    Calendar c = Calendar.getInstance();
+    
+    for (Member member: members) {
+      
+      String sourceId = member.getSubjectSourceId();
+      
+      Integer deleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.source."+sourceId+".delete.ifAfterDays");
+      if (deleteAfterDays == null) {
+        deleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.delete.ifAfterDays", 30);
+      }
+      
+      SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member);
+      
+      Long daysSubjectHasBeenUnresolved = subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved();
+      
+      Long daysAfterWhichSubjectWillBeDeleted = deleteAfterDays - daysSubjectHasBeenUnresolved;
+      
+      c.setTime(currentDate);
+      c.add(Calendar.DATE, daysAfterWhichSubjectWillBeDeleted.intValue());
+      String dateSubjectWillBeDeleted = dateFormat.format(c.getTime());
+      
+      subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(dateSubjectWillBeDeleted);
+      
+      unresolvedSubjects.add(subjectResolutionAttributeValue);
+    }
+    
+    return unresolvedSubjects;
+    
+  }
   
   
   /**
    * build subject resolution attribute object from member attributes
    * @param attributeAssign
+   * @param member
    * @return SubjectResolutionAttributeValue
    */
-  private static SubjectResolutionAttributeValue buildSubjectResolutionAttributeValue(AttributeAssign attributeAssign) {
+  private static SubjectResolutionAttributeValue buildSubjectResolutionAttributeValue(AttributeAssign attributeAssign, Member member) {
     
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
     
     SubjectResolutionAttributeValue result = new SubjectResolutionAttributeValue();
+    result.setMember(member);
     
     AttributeAssignValue assignValue = attributeValueDelegate.retrieveAttributeAssignValue(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE);
     if (assignValue != null) {      
