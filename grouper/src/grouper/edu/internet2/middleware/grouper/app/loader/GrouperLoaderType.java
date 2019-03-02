@@ -1876,8 +1876,8 @@ public enum GrouperLoaderType {
    * @param groupNameToDescription
    * @param privsToAdd
    * @param groupStartedMillis
-   * @param membershipsInRegistry
    * @param groupName
+   * @param groupNameOverall
    */
   private static void syncGroupLogicForOneGroup(
       GrouperLoaderResultset grouperLoaderResultsetOverall,
@@ -2659,9 +2659,14 @@ public enum GrouperLoaderType {
         groupSave.assignGroupNameToEdit(groupName).assignName(groupName);
         groupSave.assignDisplayExtension(groupExtension);
         groupSave.assignDisplayName(groupDisplayNameForInsert);
-        String theGroupDescription = StringUtils.isBlank(groupDescription) ? 
-            groupExtension + " auto-created by grouperLoader" : groupDescription;
+
+        String theGroupDescription = groupDescription;
+        if (StringUtils.isBlank(theGroupDescription)
+          && !GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.allowBlankGroupDescriptions", false)) {
+          theGroupDescription = groupExtension + " auto-created by grouperLoader";
+        }
         groupSave.assignDescription(theGroupDescription);
+
         groupSave.assignCreateParentStemsIfNotExist(true);
         
         GrouperLoaderLogger.initializeThreadLocalMap("groupManagement");
