@@ -38,8 +38,8 @@ tweak_grouper_config() {
   # Change the eduPersonEntitlement prefix so validate_provisioning works
   EDU_PERSON_ENTITLEMENT_PREFIX="g|"
 
-  sed -i .bak 's:allProvisionedValuesPrefix.*:allProvisionedValuesPrefix=g|:' $DIR/grouper-loader.properties
-  sed -i .bak 's:provisionedAttributeValueFormat.*:provisionedAttributeValueFormat=g|${group.name}:' $DIR/grouper-loader.properties
+  sed -i.bak 's:allProvisionedValuesPrefix.*:allProvisionedValuesPrefix=g|:' $DIR/grouper-loader.properties
+  sed -i.bak 's:provisionedAttributeValueFormat.*:provisionedAttributeValueFormat=g|${group.name}:' $DIR/grouper-loader.properties
 }
 
 

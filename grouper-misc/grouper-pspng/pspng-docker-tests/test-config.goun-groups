@@ -93,7 +93,7 @@ $uid"
 
   done 12<<<"$dn_list" 
 
-  uid_list=$(sort <<<"$uid_list" | removeNewLines)
+  uid_list=$(sort <<<"$uid_list" | removeNewlines)
 
   assert_equals "$correct_members" "$uid_list" "provisioning for group $group" 
 }

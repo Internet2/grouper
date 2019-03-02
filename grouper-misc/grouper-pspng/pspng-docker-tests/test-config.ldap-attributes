@@ -38,7 +38,7 @@ function validate_provisioning()
   local correct_members="${2}"
 
   test_step "Checking provisioning: $group"
-  x=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu 'eduPersonEntitlement=${EDU_PERSON_ENTITLEMENT_PREFIX}$group' uid | noAttributeLabels | sort | removeNewLines")
+  x=$($DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu 'eduPersonEntitlement=${EDU_PERSON_ENTITLEMENT_PREFIX}$group' uid | noAttributeLabels | sort | removeNewlines")
   assert_equals "$correct_members" "$x" "provisioning for group $group" 
 }
   

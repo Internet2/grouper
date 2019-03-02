@@ -120,6 +120,7 @@ export -f increment_counter get_next_counter
 
 
 runtest() {
+  #set -x 
   local CMD="$@"
   local TEST_NUMBER=$(get_next_counter)
 

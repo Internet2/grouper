@@ -12,4 +12,7 @@ then
     export GSH_JVMARGS="-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=y"
 fi
 
+await-ldap-server
+await-mysql-server
+
 gsh -loader

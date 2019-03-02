@@ -213,15 +213,15 @@ function check_progress_timer()
 
   if [ $time_since_progress -lt $time_limit_secs ]; then
     if [ $((time_since_task_started % 5)) -eq 0 ]; then
-      echo "[$progress]."
+      echo "$(date) [$progress]."
     else
       echo -n .
     fi
   else
     echo ""
-    echo "Timeout: $message"
+    echo "$(date) Timeout error: $message"
     echo "grouper_error lines:"
-    tail -n +$GROUPER_ERROR_LINE_NUMBER $API/logs/grouper_error.log
+    tail -n +$GROUPER_ERROR_LINE_NUMBER $API/logs/grouper_error.log | sed "s/^/Grouper logs lines while $message timed out/"
     exit 1
   fi
 }

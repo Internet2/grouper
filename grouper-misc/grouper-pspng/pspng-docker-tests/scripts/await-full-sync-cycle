@@ -110,7 +110,7 @@ log_always "A new full-sync started at $current_full_sync"
 # A new full sync started, now we have to wait for it to finish
 while [ -z "$(end_time_of_specific_full_sync "$current_full_sync")" ] 
 do
-  check_progress_timer --time_limit_secs $FLAGS_time_limit_secs "$current_full_sync is running" "Waiting for full-sync to finish"
+  check_progress_timer --time_limit_secs $FLAGS_time_limit_secs "$current_full_sync has not yet completed" "Waiting for full-sync started at $current_full_sync to finish"
   sleep 5
 done
 log_always "Full sync that started at $current_full_sync has finished"

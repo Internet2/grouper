@@ -50,7 +50,7 @@ init_test_scenario_variables
 wait_for_grouper_daemon_to_be_running
 
 #pre-add some users to group1 and group2 outside of grouper (rogue ldap additions)
-log_always "Adding members the wrong way (directly in ldap)
+log_always "Adding members the wrong way (directly in ldap)"
 directly_add_member "$GROUP1_NAME" kwhite
 directly_add_member "$GROUP1_NAME" ddavis
 directly_add_member "$GROUP2_NAME" ddavis

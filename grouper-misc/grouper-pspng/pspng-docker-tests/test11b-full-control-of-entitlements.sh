@@ -33,7 +33,7 @@ tweak_grouper_config() {
   DIR="$1"
   add_full_sync_starter 
 
-  sed -i .bak 's:allProvisionedValuesPrefix.*:allProvisionedValuesPrefix=*:' $DIR/grouper-loader.properties
+  sed -i.bak 's:allProvisionedValuesPrefix.*:allProvisionedValuesPrefix=*:' $DIR/grouper-loader.properties
 }
 
 

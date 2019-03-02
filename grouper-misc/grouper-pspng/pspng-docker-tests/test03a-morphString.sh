@@ -47,7 +47,7 @@ EOF
   # /opt/java/bin/java -jar /opt/grouper/grouper.apiBinary/lib/grouper/morphString.jar
   echo 'WodH8pSuV9MqORn/BZ9qpw==' > $DIR/password.morph
 
-  sed -i .bak 's:secret:/opt/grouper/grouper.apiBinary/conf/password.morph:' $DIR/grouper-loader.properties  
+  sed -i.bak 's:secret:/opt/grouper/grouper.apiBinary/conf/password.morph:' $DIR/grouper-loader.properties  
 }
 
 
