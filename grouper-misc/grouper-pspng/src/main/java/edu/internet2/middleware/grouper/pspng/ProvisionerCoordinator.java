@@ -80,7 +80,7 @@ public class ProvisionerCoordinator {
                         }
                     }
                     else {
-                        LOG.info("{}: Locking group before full sync: {}", provisionerConfigName, group);
+                        LOG.debug("{}: Locking group before full sync: {}", provisionerConfigName, group);
                         lastFullSyncStart = new Date();
                         isBeingFullSynced = true;
                         lockHolder = Thread.currentThread();
@@ -88,7 +88,7 @@ public class ProvisionerCoordinator {
                     }
                 }
             }
-            LOG.warn("{}: Giving up on coordination efforts between full and incremental provisioning");
+            LOG.warn("{}: Giving up on coordination efforts between full and incremental provisioning", provisionerConfigName);
             lastFullSyncStart = new Date();
             isBeingFullSynced = true;
         }
@@ -105,7 +105,7 @@ public class ProvisionerCoordinator {
                 lastSuccessfulFullSyncStart = lastFullSyncStart;
             }
 
-            LOG.info("{}: Unlocking group after full sync: {}", provisionerConfigName, group);
+            LOG.debug("{}: Unlocking group after full sync: {}", provisionerConfigName, group);
 
             isBeingFullSynced = false;
             this.notify();
@@ -136,7 +136,7 @@ public class ProvisionerCoordinator {
                         }
                     }
                     else {
-                        LOG.info("{}: Locking group before incremental sync: {}", provisionerConfigName, group);
+                        LOG.debug("{}: Locking group before incremental sync: {}", provisionerConfigName, group);
 
                         lastIncrementalProvisioningStart = new Date();
                         isBeingIncrementallyProvisioned = true;
@@ -157,7 +157,7 @@ public class ProvisionerCoordinator {
             if ( ! isBeingIncrementallyProvisioned ) {
                 return;
             }
-            LOG.info("{}: Unlocking group after incremental sync: {}", provisionerConfigName, group);
+            LOG.debug("{}: Unlocking group after incremental sync: {}", provisionerConfigName, group);
 
             isBeingIncrementallyProvisioned = false;
             this.notify();

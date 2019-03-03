@@ -301,8 +301,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     // Get all the LDAP Groups that match the filter
     List<LdapObject> allProvisionedGroups
-            = getLdapSystem().performLdapSearchRequest(new SearchRequest(baseDn, filterString,
-            getLdapAttributesToFetch()));
+            = getLdapSystem().performLdapSearchRequest(
+            -1, baseDn, SearchScope.SUBTREE,
+                    Arrays.asList(getLdapAttributesToFetch()), filterString);
 
 
     // See what LDAP Groups match the correct list of groups
@@ -477,9 +478,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       try {
         searchResult = getLdapSystem().performLdapSearchRequest(
-                new SearchRequest(config.getGroupSearchBaseDn(),
-                        combinedLdapFilter.toString(),
-                        returnAttributes));
+                -1, config.getGroupSearchBaseDn(), SearchScope.SUBTREE,
+                Arrays.asList(returnAttributes),
+                combinedLdapFilter.toString());
       } catch (PspException e) {
         LOG.error("Problem fetching groups with filter '{}' on base '{}'",
                 new Object[]{combinedLdapFilter, config.getGroupSearchBaseDn(), e});
@@ -540,9 +541,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
         // Actually do the search
         List<LdapObject> searchResult = getLdapSystem().performLdapSearchRequest(
-                new SearchRequest(config.getGroupSearchBaseDn(),
-                        groupLdapFilter,
-                        returnAttributes));
+                -1, config.getGroupSearchBaseDn(), SearchScope.SUBTREE,
+                Arrays.asList(returnAttributes),
+                groupLdapFilter);
 
         if (searchResult.size() == 1) {
           LdapObject ldapObject = searchResult.iterator().next();

@@ -51,7 +51,7 @@ public class FullSyncProvisioner  {
   private static final int FULL_SYNC_PROGRESS_INTERVAL_SECS = 5;
 
   // This string is chosen to not match any group name
-  private static final String FULL_SYNC_ALL_GROUPS = "::full-sync-all-groups::";
+  public static final String FULL_SYNC_ALL_GROUPS = "::full-sync-all-groups::";
   private static final InheritableThreadLocal<FullSyncQueueItem> currentFullSyncItem
               = new InheritableThreadLocal<FullSyncQueueItem>();
 
@@ -109,7 +109,7 @@ public class FullSyncProvisioner  {
   }
 
 
-  final Map<String, Date> lastSuccessfulFullSyncDate = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+  final Map<String, DateTime> lastSuccessfulFullSyncDate = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   /**
    * Constructor used by the getfullSyncer() factory method to construct a full-sync wrapper
@@ -183,7 +183,7 @@ public class FullSyncProvisioner  {
 
                 PspUtils.setupNewThread();
                 try {
-                    thread_fullSyncMessageQueueReader(queue_type.getQueueName_grouperMessaging(theFullSyncProvisioner), queue_type.queueName_short);
+                    thread_fullSyncMessageQueueReader(queue_type);
                 } catch (Throwable t) {
                     LOG.error("{}: Full-sync queue reader failed ({})", getName(), queue_type, t);
                 }
@@ -262,6 +262,11 @@ public class FullSyncProvisioner  {
       finally {
         MDC.remove("why");
       }
+      if ( provisioner.getConfig().needsTargetSystemUsers() || provisioner.getConfig().needsTargetSystemGroups()) {
+        LOG.debug("Caching Stats: TSSubject: {} || TSGroup: {}",
+                provisioner.targetSystemUserCache.getStats(), provisioner.targetSystemGroupCache.getStats());
+      }
+
     }
   }
 
@@ -279,9 +284,12 @@ public class FullSyncProvisioner  {
    * Note: each full-sync provisioner runs several of these, one for the different
    * of the different messaging queues
    */
-  protected void thread_fullSyncMessageQueueReader(String messagingQueueName, String subQueueName) {
-      MDC.put("why", String.format("full-sync-message-reader:%s/", subQueueName));
+  protected void thread_fullSyncMessageQueueReader(QUEUE_TYPE queueType) {
+      MDC.put("why", String.format("full-sync-message-reader:%s/", queueType.queueName_short));
       MDC.put("who", getName() + "/");
+
+      String messagingQueueName = queueType.getQueueName_grouperMessaging(this);
+      String subQueueName = queueType.queueName_short;
 
       LOG.info("{} message reader Starting: {}-->{}",
               new Object[]{getName(), messagingQueueName, subQueueName});
@@ -316,13 +324,24 @@ public class FullSyncProvisioner  {
               GrouperUtil.sleep(1000L * nextSleepTime_secs);
           }
 
+          // Check to see if there is space in our assigned subQueue
+          if ( queues.getSubQueue(subQueueName).remainingCapacity() < 0) {
+            LOG.trace("{} message reader: waiting for space in queue {}",
+                    getName(), messagingQueueName);
+
+
+            nextSleepTime_secs=1;
+            continue;
+          }
+
+
           // Normally, we don't want to sleep, so start each loop like nothing went wrong
           nextSleepTime_secs = 0;
 
           GrouperMessageReceiveParam receive = new GrouperMessageReceiveParam();
           receive.assignGrouperMessageSystemName(provisioner.getConfig().getGrouperMessagingSystemName());
           receive.assignQueueName(messagingQueueName);
-          receive.assignMaxMessagesToReceiveAtOnce(QUEUE_CAPCITY);
+          receive.assignMaxMessagesToReceiveAtOnce(queues.getSubQueue(subQueueName).remainingCapacity());
           receive.assignLongPollMillis(300*1000);
 
           GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(receive);
@@ -342,7 +361,7 @@ public class FullSyncProvisioner  {
 
           if (grouperMessages.size() == 0) {
               nextSleepTime_secs = 5;
-              LOG.info("{}/{} message reader: no messages received", getName(), subQueueName);
+              LOG.debug("{}/{} message reader: no messages received", getName(), subQueueName);
               continue;
           }
 
@@ -363,7 +382,7 @@ public class FullSyncProvisioner  {
                   LOG.debug("{}/{} message reader: Processing grouper message {} = {}",
                           new Object[]{getName(), subQueueName,message.getId(), body});
 
-                  FullSyncQueueItem queueItem = FullSyncQueueItem.fromJson(getConfigName(), body);
+                  FullSyncQueueItem queueItem = FullSyncQueueItem.fromJson(queueType, getConfigName(), body);
 
                   if ( queueItem==null ) {
                     LOG.error("{}: Skipping invalid full-sync message: {}", getConfigName(), body);
@@ -389,6 +408,15 @@ public class FullSyncProvisioner  {
   protected void processQueueItem(FullSyncQueueItem queueItem) throws PspException {
     switch (queueItem.command) {
       case FULL_SYNC_GROUP:
+        DateTime lastSuccessFullSync = lastSuccessfulFullSyncDate.get(queueItem.groupName);
+        if ( lastSuccessFullSync!=null && queueItem.asofDate!=null && lastSuccessFullSync.isAfter(queueItem.asofDate) ) {
+          queueItem.processingCompletedSuccessfully("Skipping redundant full-sync. Group was full-synced successfully on %s which is after (asOf date) %s",
+                  lastSuccessFullSync, queueItem.asofDate);
+          return;
+        }
+
+
+        queueItem.startStep("ReadGroupFromGrouper");
         GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfo(queueItem.groupName);
         if ( grouperGroupInfo==null ) {
           LOG.error("{}: Group not found for full-sync: '{}'", getConfigName(), queueItem.groupName);
@@ -406,6 +434,7 @@ public class FullSyncProvisioner  {
         for ( FullSyncQueueItem scheduledItem : scheduledItems ) {
           LOG.info("{} message reader: Group is queued for full sync: {}", getName(), scheduledItem);
         }
+        queueItem.processingCompletedSuccessfully("Scheduled %d groups for full sync", scheduledItems.size());
         break;
       default:
         queueItem.processingCompletedUnsuccessfully(false, "Full-sync command not known: %s", queueItem.command);
@@ -516,7 +545,7 @@ public class FullSyncProvisioner  {
                                                               String externalReference,
                                                               String reasonFormat, Object... reasonArgs) throws PspException {
     String reason = String.format(reasonFormat, reasonArgs);
-    LOG.info("{}: Queuing all groups for full sync. ({})", getName(), reason);
+    LOG.info("{}: Queuing ({}) all groups for full sync. ({})", getName(), queue.queueName_short, reason);
     List<FullSyncQueueItem> result = new ArrayList<>();
 
     Collection<GrouperGroupInfo> allGroups = provisioner.getAllGroupsForProvisioner();
@@ -548,16 +577,14 @@ public class FullSyncProvisioner  {
           String externalReference,
           String reasonFormat, Object... reasonArgs) {
     String reason = String.format(reasonFormat, reasonArgs);
-    FullSyncQueueItem queueItem = new FullSyncQueueItem(getConfigName(), groupName, reason);
+    FullSyncQueueItem queueItem = new FullSyncQueueItem(getConfigName(), queue, groupName, reason);
     queueItem.externalReference = externalReference;
 
     LOG.debug("[qid={}] Scheduling group for {} full-sync: {}: {}",
-            new Object[] {
                 queueItem.id,
-                queue.name().toLowerCase(),
+                queue.queueName_short,
                 groupName,
                 reason
-            }
         );
     return queue(queue, queueItem);
   }
@@ -576,7 +603,7 @@ public class FullSyncProvisioner  {
 
     if ( provisioner.config.isGrouperAuthoritative() ) {
       FullSyncQueueItem queueItem = new FullSyncQueueItem(
-              getConfigName(),
+              getConfigName(), queue,
               FULL_SYNC_COMMAND.CLEANUP,
               reason);
       queueItem.externalReference = externalReference;
@@ -653,16 +680,17 @@ public class FullSyncProvisioner  {
   protected boolean fullSyncGroup(GrouperGroupInfo _grouperGroupInfo, FullSyncQueueItem fullSyncQueueItem) {
       Provisioner.activeProvisioner.set(provisioner);
 
+      fullSyncQueueItem.startStep("ClearingGroupCache");
       // Uncache the group we're processing
       provisioner.uncacheGroup(_grouperGroupInfo, null);
-      provisioner.targetSystemUserCache.clear();
       provisioner.targetSystemGroupCache.clear();
 
       GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfo(_grouperGroupInfo.getName());
 
-      ProvisioningWorkItem workItem = ProvisioningWorkItem.createForFullSync(grouperGroupInfo);
+      ProvisioningWorkItem workItem = ProvisioningWorkItem.createForFullSync(grouperGroupInfo, fullSyncQueueItem.asofDate);
       final List<ProvisioningWorkItem> workItems = Arrays.asList(workItem);
 
+      fullSyncQueueItem.startStep("StartCoordination");
       provisioner.startCoordination(workItems);
       try {
           MDC.put("what", String.format("%s/", grouperGroupInfo));
@@ -671,17 +699,25 @@ public class FullSyncProvisioner  {
           LOG.info("{}: Starting Full-Sync ({}) of group {}",
                   new Object[]{getName(), fullSyncQueueItem.reason, grouperGroupInfo});
 
+          fullSyncQueueItem.startStep("StartProvisioning(get group & subject info)");
           provisioner.startProvisioningBatch(workItems);
 
           MDC.put("step",  "doit/");
 
           provisioner.setCurrentWorkItem(workItem);
-          provisioner.doFullSync(grouperGroupInfo, fullSyncQueueItem.stats);
+
+          fullSyncQueueItem.startStep("doFullSync");
+          provisioner.doFullSync(grouperGroupInfo, fullSyncQueueItem.asofDate, fullSyncQueueItem.stats);
 
           MDC.put("step", "finsh/");
+          fullSyncQueueItem.startStep("FinishProvisioning");
           provisioner.finishProvisioningBatch(workItems);
+
+          fullSyncQueueItem.startStep("FinishCoordination");
           provisioner.finishCoordination( workItems, true);
-          fullSyncQueueItem.processingCompletedSuccessfully();
+
+          lastSuccessfulFullSyncDate.put(fullSyncQueueItem.groupName, DateTime.now());
+          fullSyncQueueItem.processingCompletedSuccessfully("Success");
           return true;
       } catch (PspException e) {
           LOG.error("{}: Problem doing full sync. Requeuing group {}",
@@ -713,7 +749,7 @@ public class FullSyncProvisioner  {
       MDC.put("why", String.format("QID=%d/ExtRef=%s/", queueItem.id, queueItem.externalReference));
 
       LOG.info("{}: Starting Group Cleanup ({})", getName(), queueItem.reason);
-      ProvisioningWorkItem workItem = ProvisioningWorkItem.createForGroupCleanup();
+      ProvisioningWorkItem workItem = ProvisioningWorkItem.createForGroupCleanup(queueItem.asofDate);
       MDC.put("step", "start/");
       provisioner.startProvisioningBatch(Arrays.asList(workItem));
 
@@ -723,8 +759,7 @@ public class FullSyncProvisioner  {
       
       MDC.put("step",  "finish/");
       provisioner.finishProvisioningBatch(Arrays.asList(workItem));
-      LOG.info("{}: Group-cleanup done. Stats: {}", getName(), queueItem.stats);
-      queueItem.processingCompletedSuccessfully();
+      queueItem.processingCompletedSuccessfully("Success");
       return true;
     } catch (PspException e) {
       LOG.error("{}: Problem doing group cleanup",
@@ -745,5 +780,11 @@ public class FullSyncProvisioner  {
     }
   
   }
-  
+
+  public DateTime getLastSuccessfulFullSyncDate(String groupName) {
+    return lastSuccessfulFullSyncDate.get(groupName);
+  }
+
+
+
 }

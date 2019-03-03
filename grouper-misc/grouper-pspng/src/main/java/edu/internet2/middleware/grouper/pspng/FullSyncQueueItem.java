@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,6 +75,12 @@ class FullSyncQueueItem {
   final public static String REPLY_QUEUE = "reply_queue";
   String replyQueue;
 
+  // Tracking/measuring how long processing took
+  transient DateTime processingCompletionTime = null;
+  transient Map<String, Duration> processingStepTimingMeasurements = new LinkedHashMap<>();
+  transient String currentProcessingStep;
+  transient Instant currentProcessingStepStartTime;
+
   // Was this request processed successfully
   final public static String WAS_SUCCESSFUL_PROPERTY="was_successful";
   Boolean wasSuccessful;
@@ -101,23 +109,28 @@ class FullSyncQueueItem {
   String processingResultMessage;
 
 
-  public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.FULL_SYNC_COMMAND command, String reason)
+  public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.QUEUE_TYPE sourceQueue,
+                           FullSyncProvisioner.FULL_SYNC_COMMAND command, String reason)
   {
     this.id = queueItemCounter.incrementAndGet();
+    this.sourceQueue = sourceQueue;
     this.command=command;
     this.provisionerName = provisionerName;
     this.reason=reason;
     messageToAcknowledge=null;
   }
 
-  public FullSyncQueueItem(String provisionerName, String groupName, String reason) {
-      this(provisionerName, FullSyncProvisioner.FULL_SYNC_COMMAND.FULL_SYNC_GROUP, groupName, reason, null);
+  public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.QUEUE_TYPE sourceQueue,
+                           String groupName, String reason) {
+      this(provisionerName, sourceQueue, FullSyncProvisioner.FULL_SYNC_COMMAND.FULL_SYNC_GROUP, groupName, reason, null);
   }
 
-  public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.FULL_SYNC_COMMAND command,
+  public FullSyncQueueItem(String provisionerName, FullSyncProvisioner.QUEUE_TYPE sourceQueue,
+                           FullSyncProvisioner.FULL_SYNC_COMMAND command,
                            String groupName, String reason,
                            GrouperMessageAcknowledgeParam messageToAcknowledge) {
       this.id = queueItemCounter.incrementAndGet();
+      this.sourceQueue = sourceQueue;
       this.command= command;
       this.provisionerName = provisionerName;
       this.groupName = groupName;
@@ -126,11 +139,15 @@ class FullSyncQueueItem {
   }
 
 
-  public static FullSyncQueueItem fromJson(String provisionerName, String jsonString) {
-    // Old message format: just the group's name or all-groups (TODO)
+  public static FullSyncQueueItem fromJson(FullSyncProvisioner.QUEUE_TYPE sourceQueue, String provisionerName, String jsonString) {
+    // Old message format: just the group's name or all-groups
     if ( !jsonString.startsWith("{") ) {
-      return new FullSyncQueueItem(
+      if ( jsonString.equalsIgnoreCase(FullSyncProvisioner.FULL_SYNC_ALL_GROUPS))
+        return new FullSyncQueueItem(provisionerName, sourceQueue,  FullSyncProvisioner.FULL_SYNC_COMMAND.FULL_SYNC_ALL_GROUPS, "from old-format message");
+      else
+        return new FullSyncQueueItem(
               provisionerName,
+              sourceQueue,
               jsonString,
               "from old-format message");
     }
@@ -150,6 +167,7 @@ class FullSyncQueueItem {
 
     FullSyncQueueItem result = new FullSyncQueueItem(
             provisionerName,
+            sourceQueue,
             FullSyncProvisioner.FULL_SYNC_COMMAND.valueOf(commandString),
             reason);
 
@@ -260,20 +278,51 @@ class FullSyncQueueItem {
 
   public void wasDequeued() {
     mostRecentDequeueTime=DateTime.now();
+    currentProcessingStep="init";
+    currentProcessingStepStartTime = Instant.now();
+  }
+
+  public void startStep(String stepLabel) {
+    // Complete the previous step if one is happening
+    if ( currentProcessingStep!=null ) {
+      Duration processingTimePeriod = new Duration(currentProcessingStepStartTime, Instant.now());
+      processingStepTimingMeasurements.put(currentProcessingStep, processingTimePeriod);
+    }
+
+    currentProcessingStep=stepLabel;
+    currentProcessingStepStartTime = Instant.now();
   }
 
 
-  public void processingCompletedSuccessfully() {
+  public FullSyncQueueItem setSourceQueue(FullSyncProvisioner.QUEUE_TYPE queueType) {
+    sourceQueue = queueType;
+    return this;
+  }
+
+
+  public void processingCompletedSuccessfully(String messageFormat, Object... messageArgs) {
       // Only act the first time we're told this was completed
       if ( stats.processingCompletedTime != null ) {
           return;
       }
 
-      processingResultMessage="Successful";
-      stats.processingCompletedTime = new Date();
-      wasSuccessful = true;
+      if (StringUtils.isNotEmpty(messageFormat))
+        processingResultMessage = String.format("Successful: " + messageFormat, messageArgs);
+      else
+        processingResultMessage = "Successful";
 
-      acknowledgeMessage();
+      wasSuccessful = true;
+      processingCompleted();
+  }
+
+  private void processingCompleted() {
+    stats.processingCompletedTime = new Date();
+    startStep(null);
+    processingCompletionTime = DateTime.now();
+    LOG.info("FullSync Item done ({}). Stats: {}/{}: {}",
+            processingResultMessage, stats, getProcessingTimeBreakdown(), this);
+
+    acknowledgeMessage();
   }
 
   public void processingCompletedUnsuccessfully(boolean willBeRetried, String messageFormat, Object... messageArgs) {
@@ -284,9 +333,8 @@ class FullSyncQueueItem {
     this.willBeRetried=willBeRetried;
     processingResultMessage = String.format(messageFormat, messageArgs);
 
-    stats.processingCompletedTime = new Date();
     wasSuccessful = false;
-    acknowledgeMessage();
+    processingCompleted();
   }
 
   public void acknowledgeMessage() {
@@ -312,7 +360,7 @@ class FullSyncQueueItem {
     return new Duration(firstQueuedDate, Instant.now());
   }
 
-  public String getName() {
+  public String getRequestedAction() {
     switch (command) {
       case FULL_SYNC_GROUP:
         return groupName;
@@ -325,11 +373,39 @@ class FullSyncQueueItem {
   }
 
   public String toString() {
-      return String.format("%s|qid=%d|Trigger=%s|ExternalRef=%s|QTime=%.1f secs|Age=%.1f secs",
-              getName(), id, reason, externalReference,
-              getTimeSpentInQueue().getMillis()/1000.0,
-              getTimeSinceFirstQueued().getMillis()/1000.0);
+      return String.format("Action=%s|qid=%d|Trigger=%s|ExternalRef=%s|AsOf=%s|QTime=%s|Age=%s",
+              getRequestedAction(), id, reason, externalReference,
+              PspUtils.formatDate_DateHoursMinutes(asofDate, "none"),
+              PspUtils.formatElapsedTime(getTimeSpentInQueue()),
+              PspUtils.formatElapsedTime(getTimeSinceFirstQueued()));
   }
+
+  public String getProcessingTimeBreakdown() {
+    StringBuilder result = new StringBuilder();
+
+    Duration totalProcessingTime;
+    if ( mostRecentDequeueTime == null )
+      return "NotYetProcessed";
+
+    if ( processingCompletionTime==null ) {
+      totalProcessingTime = new Duration(mostRecentDequeueTime, Instant.now());
+      result.append(String.format("ProcTime(SoFar): %s", PspUtils.formatElapsedTime(totalProcessingTime)));
+    } else {
+      totalProcessingTime = new Duration(mostRecentDequeueTime, processingCompletionTime);
+      result.append(String.format("ProcTime: %s", PspUtils.formatElapsedTime(totalProcessingTime)));
+    }
+
+    if (processingStepTimingMeasurements.size()>0 && totalProcessingTime.getMillis()>0) {
+      result.append(" Timing breakdown: ");
+
+      for (Map.Entry<String, Duration> processingStep : processingStepTimingMeasurements.entrySet()) {
+        result.append(String.format("%s=%d%%/", processingStep.getKey(), (int) (100 * processingStep.getValue().getMillis() / totalProcessingTime.getMillis())));
+      }
+    }
+
+    return result.toString();
+  }
+
 
   public void incrementRetryCount() {
     retryCount++;

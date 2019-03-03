@@ -16,6 +16,9 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +42,12 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.ReadableInstant;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.ldaptive.LdapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,4 +315,86 @@ public class PspUtils {
         // Ignoring error as deleted objects do not need to be refreshed
       }
     }
+
+    static String formatElapsedTime(ReadableInstant periodStart, Period period) {
+      return formatElapsedTime(period.toDurationFrom(periodStart));
+    }
+
+    static String formatElapsedTime(Duration duration) {
+      return formatElapsedTime(duration.getMillis());
+    }
+
+    static String formatElapsedTime(final long milliseconds) {
+      StringBuilder result = new StringBuilder();
+
+      long millisecondsRemaining = milliseconds;
+
+      // Used to grab days/hours/minutes/etc of the starting time
+      long chunk;
+
+      // Seconds and milliseconds are distracting when the ElapsedTime is big
+      // This is roughly removing units that are <1% of the total
+      boolean ignoreSeconds=     milliseconds > Duration.standardHours(2).getMillis();
+      boolean ignoreMilliseconds=milliseconds > Duration.standardMinutes(2).getMillis();
+
+
+      // Days
+      chunk=24*60*60*1000;
+      if ( result.length()>0 || millisecondsRemaining > chunk ) {
+        result.append(String.format("%dd+", millisecondsRemaining/chunk));
+        millisecondsRemaining=millisecondsRemaining % chunk;
+      }
+
+      // Hours
+      chunk=60*60*1000;
+      if ( result.length()>0 || millisecondsRemaining > chunk ) {
+        result.append(String.format("%02dh:", millisecondsRemaining/chunk));
+        millisecondsRemaining=millisecondsRemaining % chunk;
+      }
+      // Minutes
+      chunk=60*1000;
+      if ( result.length()>0 || millisecondsRemaining > chunk ) {
+        result.append(String.format("%02dm:", millisecondsRemaining/chunk));
+        millisecondsRemaining=millisecondsRemaining % chunk;
+      }
+      if ( !ignoreSeconds )
+      {
+        result.append(String.format("%02d", millisecondsRemaining/1000));
+
+        if (!ignoreMilliseconds && millisecondsRemaining%1000 != 0)
+          result.append(String.format(".%03d", millisecondsRemaining%1000));
+
+        result.append("s");
+      }
+
+      return result.toString();
+    }
+
+  /**
+   * Format the number with an adjustable number of decimal places, so decimal places are
+   * only used if they're needed to show significant values. This also rounds the number
+   * to significant digits
+   * @param number
+   * @param significantDigits
+   * @return
+   */
+    public static String formatWithSignificantDigits(double number, int significantDigits) {
+      BigDecimal bdNumber = new BigDecimal(number);
+      BigDecimal bdRounded = bdNumber.round(new MathContext(significantDigits));
+      double rounded = bdRounded.doubleValue();
+
+      // This is from https://stackoverflow.com/a/25308216
+      DecimalFormat df = new DecimalFormat("0");
+      df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+
+      return df.format(rounded);
+    }
+
+  public static Object formatDate_DateHoursMinutes(DateTime asofDate, String ifNull) {
+        if (asofDate==null)
+          return ifNull;
+
+        return DateTimeFormat.mediumDateTime().print(asofDate);
+
+  }
 }

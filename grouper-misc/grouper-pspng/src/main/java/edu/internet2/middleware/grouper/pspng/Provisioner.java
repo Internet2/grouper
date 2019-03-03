@@ -37,11 +37,14 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,7 +123,7 @@ public abstract class Provisioner
   // Cache TargetSystemUsers by Subject. This is typically a long-lived cache
   // used across provisioning batches. These are only fetched and cached
   // if our config has needsTargetSystemUsers=true.
-  final GrouperCache<Subject, TSUserClass> targetSystemUserCache;
+  final PspDatedCache<Subject, TSUserClass> targetSystemUserCache;
   
   // This stores TargetSystemUserss during the provisioning batch. This Map might seem
   // redundant to the targetSystemUserCache, but it is needed for
@@ -163,9 +166,11 @@ public abstract class Provisioner
   
   final protected ConfigurationClass config;
 
+  final private ExecutorService tsUserFetchingService;
+
   // This is managed during incremental and full provisioning activities
-  public static final ThreadLocal<Provisioner> activeProvisioner = new ThreadLocal<>();
-  
+  public static final ThreadLocal<Provisioner>  activeProvisioner = new ThreadLocal<>();
+
   
   Provisioner(String provisionerConfigName, ConfigurationClass config, boolean fullSyncMode) {
     this.provisionerConfigName = provisionerConfigName;
@@ -188,33 +193,47 @@ public abstract class Provisioner
       = new GrouperCache<String, GrouperGroupInfo>(String.format("PSP-%s-GrouperGroupInfoCache", getDisplayName()),
           config.getGrouperGroupCacheSize(),
           false,
-          config.getGrouperDataCacheTime_secs(),
-          config.getGrouperDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
           false);
     
     grouperSubjectCache 
       = new GrouperCache<String, Subject>(String.format("PSP-%s-GrouperSubjectCache", getDisplayName()),
           config.getGrouperSubjectCacheSize(),
           false,
-          config.getGrouperDataCacheTime_secs(),
-          config.getGrouperDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
           false);
 
     targetSystemUserCache 
-      = new GrouperCache<Subject, TSUserClass>(String.format("PSP-%s-TargetSystemUserCache", getDisplayName()),
+      = new PspDatedCache<Subject, TSUserClass>(String.format("PSP-%s-TargetSystemUserCache", getDisplayName()),
           config.getGrouperSubjectCacheSize(),
           false,
-          config.getGrouperDataCacheTime_secs(),
-          config.getGrouperDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
           false);
     
     targetSystemGroupCache 
       = new GrouperCache<GrouperGroupInfo, TSGroupClass>(String.format("PSP-%s-TargetSystemGroupCache", getDisplayName()),
           config.getGrouperGroupCacheSize(),
           false,
-          config.getGrouperDataCacheTime_secs(),
-          config.getGrouperDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
+          config.getDataCacheTime_secs(),
           false);
+
+    if ( config.needsTargetSystemUsers() ) {
+      tsUserFetchingService = Executors.newFixedThreadPool(
+              config.getNumberOfDataFetchingWorkers(),
+              new ThreadFactory() {
+                AtomicInteger counter = new AtomicInteger(1);
+                @Override
+                public Thread newThread(Runnable r) {
+                  return new Thread(r, String.format("TSUserFetcher-%s-%d", getDisplayName(), counter.getAndIncrement()));
+                }
+              });
+    } else {
+      tsUserFetchingService=null;
+    }
   }
   
 
@@ -469,6 +488,15 @@ public abstract class Provisioner
         return false;
     }
 
+    // Only group-deletions are processed for groups that have been deleted
+    // This skips all the membership-removal changelog entries that precede the
+    // DElETE changelog entry
+    if ( workItem.getGroupInfo(this) != null &&
+         workItem.getGroupInfo(this).hasGroupBeenDeleted() &&
+         !workItem.matchesChangelogType(ChangeLogTypeBuiltin.GROUP_DELETE) ) {
+      return false;
+    }
+
     return workItem.matchesChangelogType(ChangelogHandlingConfig.allRelevantChangelogTypes );
   }
 
@@ -527,9 +555,30 @@ public abstract class Provisioner
   public void startProvisioningBatch(List<ProvisioningWorkItem> workItems) throws PspException {
     Provisioner.activeProvisioner.set(this);
     LOG.info("Starting provisioning batch of {} items", workItems.size());
+
+    warnAboutCacheSizeConcerns();
+
+    DateTime newestAsOfDate=null;
     for ( ProvisioningWorkItem workItem : workItems) {
       LOG.debug("-->Work item: {}", workItem);
+
+      if ( workItem.asOfDate!=null ) {
+        if ( workItem.groupName != null ) {
+          DateTime lastFullSync = getFullSyncer().getLastSuccessfulFullSyncDate(workItem.groupName);
+          if ( lastFullSync!=null && lastFullSync.isAfter(workItem.asOfDate) ) {
+            workItem.markAsSkipped("Change was covered by full sync: {}",
+                    PspUtils.formatDate_DateHoursMinutes(lastFullSync,null));
+            continue;
+          }
+        }
+        // Is the workItem's asOfDate newer?
+        if (newestAsOfDate == null || newestAsOfDate.isBefore(workItem.asOfDate)) {
+          newestAsOfDate = workItem.asOfDate;
+        }
+      }
     }
+
+    LOG.info("Information cached after {} will be ignored", newestAsOfDate);
 
     Set<Subject> subjects = new HashSet<Subject>();
 
@@ -551,7 +600,26 @@ public abstract class Provisioner
     }
     
     prepareGroupCache(grouperGroupInfos);
-    prepareUserCache(subjects);
+    prepareUserCache(subjects, newestAsOfDate);
+  }
+
+  protected void warnAboutCacheSizeConcerns() {
+    warnAboutCacheSizeConcerns(grouperGroupInfoCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouperGroupCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouperGroupCacheSize");
+    warnAboutCacheSizeConcerns(grouperSubjectCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouperSubjectCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouperSubjectCacheSize");
+  }
+
+  private void warnAboutCacheSizeConcerns(long cacheObjectCount, int configuredSize, String configurationProperty) {
+    if ( !config.areCacheSizeWarningsEnabled() )
+      return;
+
+    double cacheFullness_percentage = 100.0*cacheObjectCount/configuredSize;
+
+    if ( cacheFullness_percentage > config.getCacheFullnessWarningThreshold_percentage() )
+      LOG.warn("Cache is very full (%.0f%%). Performance is much higher if {} is large enough to hold the number provisioned groups or subjects",
+              cacheFullness_percentage, configurationProperty);
+
   }
 
   private ProvisionerCoordinator getProvisionerCoordinator() {
@@ -719,12 +787,12 @@ public abstract class Provisioner
    * @param subjects
    * @throws PspException
    */
-  private void prepareUserCache(Set<Subject> subjects) throws PspException {
+  private void prepareUserCache(Set<Subject> subjects, DateTime oldestCacheTimeAllowed) throws PspException {
     LOG.debug("Starting to cache user information for {} items", subjects.size());
     tsUserCache_shortTerm.clear();
     
     // Nothing to do if TargetSystemUsers are not used by this provisioner
-    if ( ! config.needsTargetSystemUsers() )
+    if ( ! config.needsTargetSystemUsers() || subjects.size()==0 )
       return;
     Collection<Subject> subjectsToFetch = new ArrayList<Subject>();
     
@@ -734,45 +802,96 @@ public abstract class Provisioner
         continue;
       
       // See if the subject is already cached.
-      TSUserClass cachedTSU = targetSystemUserCache.get(s);
+      TSUserClass cachedTSU = targetSystemUserCache.get(s, oldestCacheTimeAllowed);
       if ( cachedTSU != null )
         // Cache user in shortTerm cache as well as refresh it in longterm cache
         cacheUser(s, cachedTSU);
       else
         subjectsToFetch.add(s);
     }
-    
+
+    LOG.info("{} out of {} subjects were found in cache ({}%)",
+            tsUserCache_shortTerm.size(), subjects.size(),
+            (int) 100.0*tsUserCache_shortTerm.size()/subjects.size());
+
     if ( subjectsToFetch.size() == 0 )
       return;
-    
+
+    ProgressMonitor fetchingProgress = new ProgressMonitor(subjectsToFetch.size(), LOG, false, 15, "Fetching subjects");
+
     List<List<Subject>> batchesOfSubjectsToFetch = PspUtils.chopped(subjectsToFetch, config.getUserSearch_batchSize());
-    
-    for (List<Subject> batchOfSubjectsToFetch : batchesOfSubjectsToFetch ) {
-      Map<Subject, TSUserClass> fetchedData;
-      
-      try {
-        fetchedData = fetchTargetSystemUsers(batchOfSubjectsToFetch);
-        // Save the fetched data in our cache
-        for ( Entry<Subject, TSUserClass> subjectInfo : fetchedData.entrySet() )
-          cacheUser(subjectInfo.getKey(), subjectInfo.getValue());
-      }
-      catch (PspException e1) {
-        LOG.warn("Batch-fetching subject information failed. Trying fetching information for each subject individually", e1);
-        // Batch-fetching failed. Let's see if we can narrow it down to a single
-        // Subject
-          for ( Subject subject : batchOfSubjectsToFetch ) {
-            try {
-              TSUserClass tsUser = fetchTargetSystemUser(subject);
-              cacheUser(subject, tsUser);
-            }
-            catch (PspException e2) {
-              LOG.error("Problem fetching information about subject '{}'", subject, e2);
-              throw new RuntimeException("Problem fetching information on subject " + subject + ": " + e2.getMessage());
-            }
+
+    List<Future<Map<Subject, TSUserClass>>> futures = new ArrayList<>();
+
+    // Submit these batches to the Fetching ExecutorService and get Futures back
+    for (final List<Subject> batchOfSubjectsToFetch : batchesOfSubjectsToFetch ) {
+
+      // This essentially calls fetchTargetSystemUsers on the batch and returns
+      // a Map<Subject, TSUserClass>
+
+      Future<Map<Subject, TSUserClass>> future = tsUserFetchingService.submit(
+              new Callable<Map<Subject, TSUserClass>>() {
+                @Override
+                public Map<Subject, TSUserClass> call() throws Exception {
+                  Provisioner.activeProvisioner.set(Provisioner.this);
+                  Map<Subject, TSUserClass> fetchedData;
+                  try {
+                    fetchedData = fetchTargetSystemUsers(batchOfSubjectsToFetch);
+                  } catch (PspException e1) {
+                    LOG.warn("Batch-fetching subject information failed. Trying fetching information for each subject individually", e1);
+                    // Batch-fetching failed. Let's see if we can narrow it down to a single
+                    // Subject
+                    fetchedData = new HashMap<>();
+                    for (Subject subject : batchOfSubjectsToFetch) {
+                      try {
+                        TSUserClass tsUser = fetchTargetSystemUser(subject);
+                        fetchedData.put(subject, tsUser);
+                      } catch (PspException e2) {
+                        LOG.error("Problem fetching information about subject '{}'", subject, e2);
+                        throw new RuntimeException("Problem fetching information on subject " + subject + ": " + e2.getMessage());
+                      }
+                    }
+                  }
+                  return fetchedData;
+                }
+              });
+
+      futures.add(future);
+    }
+
+    // Gather up the futures until there are no more
+    while (!futures.isEmpty()) {
+      Iterator<Future<Map<Subject, TSUserClass>>> futureIterator = futures.iterator();
+
+      while (futureIterator.hasNext()) {
+        Future<Map<Subject, TSUserClass>> future = futureIterator.next();
+
+        // Process (and remove) any future that has completed its fetching
+        if ( future.isDone() ) {
+          Map<Subject, TSUserClass> fetchedData;
+          try {
+            fetchedData = future.get();
+          } catch (InterruptedException e) {
+            LOG.error("Problem fetching information on subjects", e);
+
+            throw new RuntimeException("Problem fetching information on subjects: " + e.getMessage());
+          } catch (ExecutionException e) {
+            LOG.error("Problem fetching information on subjects", e);
+
+            throw new RuntimeException("Problem fetching information on subjects: " + e.getMessage());
           }
+
+          // Save the fetched data in our cache
+          for ( Entry<Subject, TSUserClass> subjectInfo : fetchedData.entrySet() )
+            cacheUser(subjectInfo.getKey(), subjectInfo.getValue());
+
+          fetchingProgress.workCompleted(fetchedData.size());
+          futureIterator.remove();
+        }
       }
     }
-    
+    fetchingProgress.completelyDone("Success");
+
     // CREATE MISSING TARGET SYSTEM USERS (IF ENABLED)
     // Go through the subjects and see if any of them were not found above. 
     // If user-creation is enabled, just create the
@@ -923,31 +1042,6 @@ public abstract class Provisioner
     tsUserCache_shortTerm.put(subject, newTSUser);
   }
 
-  protected void uncacheUser(Subject subject, TSUserClass oldTSUser) {
-    // If the caller only knew the TSUser but didn't know what Grouper Subject to flush,
-    // let's see if we can find it
-    if ( subject == null && oldTSUser != null ) {
-      for (Subject s : targetSystemUserCache.keySet())
-        if (targetSystemUserCache.get(s) == oldTSUser) {
-          subject = s;
-          break;
-        }
-    }
-    
-    // If we didn't find a match
-    if ( subject == null ) {
-      LOG.warn("Cache-flush failed: Could not find Subject that matches Target System User {}", oldTSUser );
-      return;
-    }
-    
-    LOG.debug("Flushing user from target-system-user cache: {}", subject.getName());
-    targetSystemUserCache.remove(subject);
-    LOG.debug("Flushing user from pspng's subject-info cache: {}", subject.getName());
-    grouperSubjectCache.remove(getSubjectCacheKey(subject));
-
-    // TODO: Some subject-implementing classes (LdapSubject) are not known to hibernate
-    // PspUtils.hibernateRefresh(subject);
-  }
 
   /**
    * Store Group-->TSGroupClass mapping in long-term and short-term caches
@@ -995,7 +1089,7 @@ public abstract class Provisioner
         return;
       }
     }
-    
+
     LOG.debug("Flushing group from target-system cache: {}", grouperGroupInfo);
     targetSystemGroupCache.remove(grouperGroupInfo);
 
@@ -1295,10 +1389,11 @@ public abstract class Provisioner
    * overridden and to prevent subclasses from overriding this one by mistake.
    * 
    * @param grouperGroupInfo
+ * @param oldestCacheTimeAllowed only use cached information fresher than this date
  * @param stats
  @throws PspException
    */
-  final void doFullSync(GrouperGroupInfo grouperGroupInfo, JobStatistics stats)
+  final void doFullSync(GrouperGroupInfo grouperGroupInfo, DateTime oldestCacheTimeAllowed, JobStatistics stats)
         throws PspException {
     activeProvisioner.set(this);
     // Make sure this is only used within Provisioners set up for full-sync mode
@@ -1338,7 +1433,7 @@ public abstract class Provisioner
     }
 
     if ( correctSubjects.size() > 0 )
-      prepareUserCache(correctSubjects);
+      prepareUserCache(correctSubjects, oldestCacheTimeAllowed);
     
     Set<TSUserClass> correctTSUsers = new HashSet<TSUserClass>();
     
@@ -1349,8 +1444,8 @@ public abstract class Provisioner
         TSUserClass tsUser = tsUserCache_shortTerm.get(correctSubject);
         if ( tsUser == null ) {
           // User is necessary in target system, but is not present
-          LOG.warn("{}: Member in grouper group {} is being ignored because subject is not present in target system",
-              getDisplayName(), grouperGroupInfo);
+          LOG.warn("{}: Member in grouper group {} is being ignored because subject is not present in target system: {}",
+              getDisplayName(), grouperGroupInfo, correctSubject);
           
           correctSubjects.remove(correctSubject);
         }
@@ -1746,5 +1841,28 @@ public abstract class Provisioner
 
     return false;
   }
+
+  /**
+   * Were enough subjects missing from target system that we should log more information than normal
+   * to help track down why they were missing?
+   *
+   * Subclasses should use this in fetchTargetSystemUsers()
+   * @param subjectsToFetch
+   * @param subjectsInfoFound
+   * @return
+   */
+
+  protected boolean shouldLogAboutMissingSubjects(Collection<Subject> subjectsToFetch, Collection<?> subjectsInfoFound) {
+    int missingResults_count = subjectsToFetch.size() - subjectsInfoFound.size();
+    double missingResults_percentage = 100.0 * missingResults_count / subjectsToFetch.size();
+
+    if (subjectsToFetch.size() > 5 && missingResults_percentage > config.getMissingSubjectsWarningThreshold_percentage()) {
+      return true;
+    }
+    return false;
+  }
+
+
+
 
 }

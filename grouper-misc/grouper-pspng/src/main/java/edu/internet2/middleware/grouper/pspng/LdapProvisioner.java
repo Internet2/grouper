@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
@@ -198,7 +197,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
    */
   protected Map<Subject, LdapUser> fetchTargetSystemUsers( Collection<Subject> subjectsToFetch) 
       throws PspException {
-    LOG.info("Fetching {} users from target system", subjectsToFetch.size());
+    LOG.debug("Fetching {} users from target system", subjectsToFetch.size());
     
     if ( subjectsToFetch.size() > config.getUserSearch_batchSize() )
       throw new IllegalArgumentException("LdapProvisioner.fetchTargetSystemUsers: invoked with too many subjects to fetch");
@@ -226,11 +225,16 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     try {
       searchResult = getLdapSystem().performLdapSearchRequest(
-        new SearchRequest(config.getUserSearchBaseDn(), 
-              combinedLdapFilter.toString(), 
-              config.getUserSearchAttributes()));
-      
-      LOG.info("Read {} user objects from directory", searchResult.size());
+              subjectsToFetch.size(), config.getUserSearchBaseDn(),
+              SearchScope.SUBTREE,
+              Arrays.asList(config.getUserSearchAttributes()),
+              combinedLdapFilter.toString());
+
+      LOG.debug("Read {} user objects from directory", searchResult.size());
+
+      if (shouldLogAboutMissingSubjects(subjectsToFetch, searchResult)) {
+        LOG.warn("Several subjects were not found: {} subjects found with filter {}", searchResult.size(), combinedLdapFilter);
+      }
     }
     catch (PspException e) {
       LOG.error("Problem searching for subjects with filter {} on base {}", 
@@ -274,7 +278,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     return result;
   }
-
 
   protected SearchFilter getUserLdapFilter(Subject subject) throws PspException  {
     String result = evaluateJexlExpression("UserSearchFilter", config.getUserSearchFilter(), subject, null, null, null);

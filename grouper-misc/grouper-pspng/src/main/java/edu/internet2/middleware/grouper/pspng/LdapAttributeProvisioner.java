@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.pspng;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,8 +15,6 @@ import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModificationType;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.ModifyRequest;
-import org.ldaptive.SearchFilter;
-import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 
 import edu.internet2.middleware.subject.Subject;
@@ -117,45 +114,53 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     stats.totalCount.set(correctTSUsers.size());
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
-    
-    List<LdapObject> currentMatches_ldapObjects = getLdapSystem().performLdapSearchRequest(
-        config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
-        Arrays.asList(config.getUserSearchAttributes()), attributeName + "={0}",
+
+    LOG.info("Fetching all ldap users that have {}={}", attributeName, attributeValue);
+    Set<String> currentMatches_dnList = getLdapSystem().performLdapSearchRequest_returningValuesOfAnAttribute(
+            correctSubjects.size(), config.getUserSearchBaseDn(), SearchScope.SUBTREE,
+        "dn", attributeName + "={0}",
         attributeValue);
-    
-    List<LdapUser> currentMatches = new ArrayList<LdapUser>(currentMatches_ldapObjects.size());
-    for ( LdapObject ldapObject : currentMatches_ldapObjects )
-      currentMatches.add(new LdapUser(ldapObject));
+
+
+    Set<String> correctMembers_dnList = new HashSet<>(correctTSUsers.size());
+    for(LdapUser ldapUser : correctTSUsers) {
+      correctMembers_dnList.add(ldapUser.dn_lc);
+    }
+
+
 
     LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
-      new Object[] {getDisplayName(), grouperGroupInfo, correctTSUsers.size(), currentMatches.size()});
+      new Object[] {getDisplayName(), grouperGroupInfo, correctTSUsers.size(), currentMatches_dnList.size()});
 
-    LOG.debug("{}: Full-sync comparison: Correct: {}", getDisplayName(), correctTSUsers);
-    LOG.debug("{}: Full-sync comparison: Actual: {}", getDisplayName(), currentMatches);
+    LOG.trace("{}: Full-sync comparison: Correct: {}", getDisplayName(), correctMembers_dnList);
+    LOG.trace("{}: Full-sync comparison: Actual: {}", getDisplayName(), currentMatches_dnList);
 
 
+    LOG.info("{}: Finding users that need attribute removed", getDisplayName());
     // EXTRA MATCHES = CURRENT_MATCHES - CORRECT_MATCHES
-    Set<LdapUser> extraMatches = new HashSet<LdapUser>(currentMatches);
-    extraMatches.removeAll(correctTSUsers);
+    Set<String> extraMatches_dnList = new HashSet<String>(currentMatches_dnList);
+    extraMatches_dnList.removeAll(correctMembers_dnList);
 
-    stats.deleteCount.set(extraMatches.size());
+    LOG.info("{}: There are {} users that need the attribute removed", getDisplayName(), extraMatches_dnList.size());
+    stats.deleteCount.set(extraMatches_dnList.size());
     
-    for (LdapUser extraMatch : extraMatches)
-      scheduleUserModification(extraMatch, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
-            
+    for (String extraMatch_dn : extraMatches_dnList)
+      scheduleUserModification(new LdapUser(extraMatch_dn), AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
+
+    LOG.info("{}: Finding users that need attribute added", getDisplayName());
     // MISSING MATCHES = CORRECT_MATCHES - CURRENT_MATCHES
-    Set<LdapUser> missingMatches = new HashSet<LdapUser>((Set<LdapUser>)correctTSUsers);
-    missingMatches.removeAll(currentMatches);
+    Set<String> missingMatches_dnList = new HashSet<String>(correctMembers_dnList);
+    missingMatches_dnList.removeAll(currentMatches_dnList);
 
-    stats.insertCount.set(missingMatches.size());
+    LOG.info("{}: There are {} users that need the attribute added", getDisplayName(), missingMatches_dnList.size());
+    stats.insertCount.set(missingMatches_dnList.size());
 
-    for (LdapUser missingMatch : missingMatches)
-      scheduleUserModification(missingMatch, AttributeModificationType.ADD, Arrays.asList(attributeValue));
+    for (String missingMatch_dn : missingMatches_dnList)
+      scheduleUserModification(new LdapUser(missingMatch_dn), AttributeModificationType.ADD, Arrays.asList(attributeValue));
 
     LOG.info("{}: Brief full-sync summary: Correct={}, Current={}, Extra={}, Missing={}", 
-        new Object[] {getDisplayName(), correctSubjects.size(), currentMatches_ldapObjects.size(),
-        extraMatches.size(), missingMatches.size()});
-    
+        new Object[] {getDisplayName(), correctSubjects.size(), currentMatches_dnList.size(),
+        extraMatches_dnList.size(), missingMatches_dnList.size()});
   }
 
 
@@ -196,7 +201,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       Set<String> allValuesOfAttribute = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
       List<LdapObject> usersWithGrouperValues 
-        = getLdapSystem().performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
+        = getLdapSystem().performLdapSearchRequest(-1, config.getUserSearchBaseDn(), SearchScope.SUBTREE,
             Arrays.asList(attribute), allValuesLdapFilter);
       
       // We're going to go through all the values of all the ldap objects. 
@@ -261,19 +266,17 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   
 
   protected void purgeAttributeValue(String attributeName, String valueToPurge, JobStatistics stats) throws PspException {
-    SearchFilter filter = new SearchFilter(attributeName + "={0}");
-    filter.setParameter(0, valueToPurge);
-    
-    List<LdapObject> objectsWithAttribute = getLdapSystem().performLdapSearchRequest(
-        new SearchRequest(config.getUserSearchBaseDn(), filter));
-    
+    Set<String> objectsWithAttribute_dnList = getLdapSystem().performLdapSearchRequest_returningValuesOfAnAttribute(
+            -1, config.getUserSearchBaseDn(), SearchScope.SUBTREE,
+            "dn",  attributeName + "={0}", valueToPurge);
+
     LOG.info("{}: There are {} ldap objects with attribute value={}", 
-        new Object[] {getDisplayName(), objectsWithAttribute.size(), valueToPurge});
+        new Object[] {getDisplayName(), objectsWithAttribute_dnList.size(), valueToPurge});
 
-    stats.deleteCount.addAndGet(objectsWithAttribute.size());
+    stats.deleteCount.addAndGet(objectsWithAttribute_dnList.size());
 
-    for ( LdapObject objectWithAttribute : objectsWithAttribute )
-      scheduleUserModification(new LdapUser(objectWithAttribute), AttributeModificationType.REMOVE, Arrays.asList(valueToPurge));
+    for ( String objectWithAttribute_dn : objectsWithAttribute_dnList )
+      scheduleUserModification(new LdapUser(objectWithAttribute_dn), AttributeModificationType.REMOVE, Arrays.asList(valueToPurge));
   }
 
   

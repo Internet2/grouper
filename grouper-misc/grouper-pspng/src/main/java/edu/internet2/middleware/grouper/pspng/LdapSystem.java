@@ -9,15 +9,13 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.RDN;
-import com.unboundid.ldap.sdk.persist.LDAPObject;
 import edu.internet2.middleware.morphString.Morph;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.*;
 import org.ldaptive.ad.handler.RangeEntryHandler;
 import org.ldaptive.control.util.PagedResultsClient;
-import org.ldaptive.io.LdifReader;
+import org.ldaptive.handler.HandlerResult;
+import org.ldaptive.handler.SearchEntryHandler;
 import org.ldaptive.pool.BlockingConnectionPool;
 import org.ldaptive.pool.PoolConfig;
 import org.ldaptive.pool.PoolException;
@@ -650,7 +648,7 @@ public class LdapSystem {
    * @return
    * @throws LdapException
    */
-  protected List<LdapObject> performLdapSearchRequest(SearchRequest request) throws PspException {
+  protected void performLdapSearchRequest(int approximateNumResultsExpected, SearchRequest request, SearchEntryHandler callback) throws PspException {
     LOG.debug("Doing ldap search: {} / {} / {}", 
         new Object[] {request.getSearchFilter(), request.getBaseDn(), Arrays.toString(request.getReturnAttributes())});
     List<LdapObject> result = new ArrayList<LdapObject>();
@@ -664,41 +662,28 @@ public class LdapSystem {
         LOG.debug("Using attribute-value paging");
         request.setSearchEntryHandlers(new RangeEntryHandler());
       }
-      
-      Response<SearchResult> response;
-      
-      // Perform search. This is slightly different if paging is enabled or not. 
+
+      request.setSearchEntryHandlers(
+              new LdapSearchProgressHandler(approximateNumResultsExpected, LOG, "Performing ldap search"),
+              callback);
+
+      // Perform search. This is slightly different if paging is enabled or not.
       if ( isSearchResultPagingEnabled() ) {
         PagedResultsClient client = new PagedResultsClient(conn, getSearchResultPagingSize());
         LOG.debug("Using ldap search-result paging");
-        response = client.executeToCompletion(request);
+        client.executeToCompletion(request);
       }
       else {
         LOG.debug("Not using ldap search-result paging");
         SearchOperation searchOp = new SearchOperation(conn);
-        response = searchOp.execute(request);
+        searchOp.execute(request);
       }
       
-      SearchResult searchResult = response.getResult();
-      for (LdapEntry entry : searchResult.getEntries()) {
-        result.add(new LdapObject(entry, request.getReturnAttributes()));
-      }
-
-      LOG.info("LDAP search returned {} entries", result.size());
-
-      if ( LOG.isDebugEnabled() ) {
-        int i=0;
-        for (LdapObject ldapObject : result ) {
-          i++;
-          LOG.debug("...ldap-search result {} of {}: {}", new Object[]{i, result.size(), ldapObject.getMap()});
-        }
-      }
-      return result;
     }
     catch (LdapException e) {
       if ( e.getResultCode() == ResultCode.NO_SUCH_OBJECT ) {
         LOG.warn("Search base does not exist: {} (No such object ldap error)", request.getBaseDn());
-        return Collections.EMPTY_LIST;
+        return;
       }
       
       LOG.error("Problem during ldap search {}", request, e);
@@ -714,23 +699,109 @@ public class LdapSystem {
     }
   }
 
-  
-  
-  protected List<LdapObject> performLdapSearchRequest(String searchBaseDn, SearchScope scope, Collection<String> attributesToReturn, String filterTemplate, Object... filterParams) 
+
+
+  public List<LdapObject> performLdapSearchRequest(int approximateNumResultsExpected, String searchBaseDn, SearchScope scope, Collection<String> attributesToReturn, String filterTemplate, Object... filterParams)
   throws PspException {
     SearchFilter filter = new SearchFilter(filterTemplate);
-    LOG.debug("Running ldap search: <{}>/{}: {} << {}", 
-        new Object[]{searchBaseDn, scope, filterTemplate, Arrays.toString(filterParams)});
-    
+
     for (int i=0; i<filterParams.length; i++) {
       filter.setParameter(i, filterParams[i]);
     }
-    
-    SearchRequest request = new SearchRequest(searchBaseDn, filter, attributesToReturn.toArray(new String[0]));
-    request.setSearchScope(scope);
-    return performLdapSearchRequest(request);
+
+    return performLdapSearchRequest(approximateNumResultsExpected, searchBaseDn, scope, attributesToReturn, filter);
   }
 
+
+  public List<LdapObject> performLdapSearchRequest(int approximateNumResultsExpected, String searchBaseDn, SearchScope scope, Collection<String> attributesToReturn, SearchFilter filter)
+          throws PspException {
+    LOG.debug("Running ldap search: <{}>/{}: {} << {}",
+            searchBaseDn, scope, filter.getFilter(), filter.getParameters());
+
+    final SearchRequest request = new SearchRequest(searchBaseDn, filter, attributesToReturn.toArray(new String[0]));
+    request.setSearchScope(scope);
+
+
+    final List<LdapObject> result = new ArrayList<>();
+    SearchEntryHandler searchCallback = new SearchEntryHandler() {
+      @Override
+      public HandlerResult<SearchEntry> handle(Connection connection, SearchRequest searchRequest, SearchEntry searchEntry) throws LdapException {
+        LOG.debug("Ldap result: {}", searchEntry.getDn());
+        result.add(new LdapObject(searchEntry, request.getReturnAttributes()));
+        return null;
+      }
+
+      @Override
+      public void initializeRequest(SearchRequest searchRequest) {
+
+      }
+    };
+    performLdapSearchRequest(approximateNumResultsExpected, request, searchCallback);
+
+    LOG.info("LDAP search returned {} entries", result.size());
+
+    if ( LOG.isTraceEnabled() ) {
+      int i=0;
+      for (LdapObject ldapObject : result ) {
+        i++;
+        LOG.trace("...ldap-search result {} of {}: {}", new Object[]{i, result.size(), ldapObject.getMap()});
+      }
+    }
+    return result;
+
+  }
+
+
+  public Set<String> performLdapSearchRequest_returningValuesOfAnAttribute(int approximateNumResultsExpected, String searchBaseDn, SearchScope scope, final String attributeToReturn, String filterTemplate, Object... filterParams)
+          throws PspException {
+    SearchFilter filter = new SearchFilter(filterTemplate);
+    LOG.debug("Running ldap search: <{}>/{}: {} << {}",
+            new Object[]{searchBaseDn, scope, filterTemplate, Arrays.toString(filterParams)});
+
+    for (int i=0; i<filterParams.length; i++) {
+      filter.setParameter(i, filterParams[i]);
+    }
+
+    final SearchRequest request = new SearchRequest(searchBaseDn, filter, new String[]{attributeToReturn});
+    request.setSearchScope(scope);
+
+
+    // Create a place to hold the String-only results and a handler to put them into it
+    final Set<String> result = new HashSet<>();
+    SearchEntryHandler searchCallback = new SearchEntryHandler() {
+      @Override
+      public HandlerResult<SearchEntry> handle(Connection connection, SearchRequest searchRequest, SearchEntry searchEntry) throws LdapException {
+
+        if ( attributeToReturn.equalsIgnoreCase("dn") || attributeToReturn.equalsIgnoreCase("distinguishedName") ) {
+          result.add(searchEntry.getDn().toLowerCase());
+        } else {
+          LdapAttribute attribute = searchEntry.getAttribute(attributeToReturn);
+          if (attribute != null)
+            result.addAll(attribute.getStringValues());
+        }
+        return null;
+      }
+
+      @Override
+      public void initializeRequest(SearchRequest searchRequest) {
+
+      }
+    };
+
+    performLdapSearchRequest(approximateNumResultsExpected, request, searchCallback);
+
+    LOG.info("LDAP search returned {} entries", result.size());
+
+    if ( LOG.isTraceEnabled() ) {
+      int i=0;
+      for (String attributeValue : result ) {
+        i++;
+        LOG.trace("...ldap-search result {} of {}: {}", i, result.size(), attributeValue);
+      }
+    }
+    return result;
+
+  }
 
 
   public boolean makeLdapObjectCorrect(LdapEntry correctEntry,

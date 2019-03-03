@@ -56,8 +56,8 @@ public class ProvisionerConfiguration {
     private int sleepTimeAfterError_ms;
     protected int sleepTimeAfterError_ms_defaultValue = 1000;
     
-    private int grouperDataCacheTime_secs;
-    protected int grouperGroupCacheTime_secs_defaultValue = 600;
+    private int dataCacheTime_secs;
+    protected int dataCacheTime_secs_defaultValue = 12*3600;
     
     private int grouperGroupCacheSize, grouperSubjectCacheSize;
     protected int grouperGroupCacheSize_defaultValue = 10000;
@@ -81,6 +81,16 @@ public class ProvisionerConfiguration {
     protected boolean areChangesToInternalGrouperSubjectsIgnored;
     protected boolean areChangesToInternalGrouperSubjectsIgnored_defaultValue = true;
 
+    // When to log messier details about missing subjects
+    protected int missingSubjectsWarningThreshold_percentage;
+    protected int missingSubjectsWarningThreshold_percentage_defaultValue = 100; // Never log
+
+    // When to log about cache sizes
+    protected boolean areCacheSizeWarningsEnabled;
+    protected boolean areCacheSizeWarningsEnabled_defaultValue = true;
+
+    protected int cacheFullnessWarningThreshold_percentage;
+    protected int cacheFullnessWarningThreshold_percentage_defaultValue = 95; // Never log
 
     /**
      * This expression says that the provisionerName has to be in a group or stem provision_to attribute
@@ -138,6 +148,8 @@ public class ProvisionerConfiguration {
     private String grouperMessagingSystemName;
     protected String grouperMessagingSystemName_defaultValue = GrouperBuiltinMessagingSystem.BUILTIN_NAME;
 
+    private int numberOfDataFetchingWorkers;
+    protected int numberOfDataFetchingWorkers_defaultValue = 1;
 
     public ProvisionerConfiguration(String provisionerName) {
       this.provisionerName = provisionerName;
@@ -161,9 +173,16 @@ public class ProvisionerConfiguration {
             GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "grouperIsAuthoritative", grouperIsAuthoritative_defaultValue);
         LOG.debug("Provisioner {} - Setting grouperIsAuthoritative to {}", provisionerName, grouperIsAuthoritative);
 
-        grouperDataCacheTime_secs =
-            GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "grouperGroupCacheTime_secs", grouperGroupCacheTime_secs_defaultValue);
-        LOG.debug("Provisioner {} - Setting grouperGroupCacheTime_secs to {}", provisionerName, grouperDataCacheTime_secs);
+        // This attribute used to have a poorly-named configuration property. Keeping compatibility with it.
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(qualifiedParameterNamespace + "grouperGroupCacheTime_secs") ) {
+            dataCacheTime_secs =
+                    GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "grouperGroupCacheTime_secs", dataCacheTime_secs_defaultValue);
+        } else {
+            dataCacheTime_secs =
+                    GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "dataCacheTime_secs", dataCacheTime_secs_defaultValue);
+        }
+
+        LOG.debug("Provisioner {} - Setting dataCacheTime_secs to {}", provisionerName, dataCacheTime_secs);
     
         sleepTimeAfterError_ms =
             GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "sleepTimeAfterError_ms", sleepTimeAfterError_ms_defaultValue);
@@ -242,24 +261,34 @@ public class ProvisionerConfiguration {
         grouperMessagingSystemName =
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "grouperMessagingSystemName", grouperMessagingSystemName_defaultValue);
         LOG.debug("Provisioner {} - Setting grouperMessagingSystemName to {}", provisionerName, grouperMessagingSystemName);
+
+        numberOfDataFetchingWorkers =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "numberOfDataFetchingWorkers", numberOfDataFetchingWorkers_defaultValue);
+        LOG.debug("Provisioner {} - Setting numberOfDataFetchingWorkers to {}", provisionerName, numberOfDataFetchingWorkers);
+
+        missingSubjectsWarningThreshold_percentage =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "missingSubjectsWarningThreshold_percentage", missingSubjectsWarningThreshold_percentage_defaultValue);
+        LOG.debug("Provisioner {} - Setting missingSubjectsWarningThreshold_percentage to {}", provisionerName, missingSubjectsWarningThreshold_percentage);
+
+
+        areCacheSizeWarningsEnabled =
+                GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "areCacheSizeWarningsEnabled", areCacheSizeWarningsEnabled_defaultValue);
+        LOG.debug("Provisioner {} - Setting areCacheSizeWarningsEnabled to {}", provisionerName, areCacheSizeWarningsEnabled);
+
+
+        cacheFullnessWarningThreshold_percentage =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "cacheFullnessWarningThreshold_percentage", cacheFullnessWarningThreshold_percentage_defaultValue);
+        LOG.debug("Provisioner {} - Setting cacheFullnessWarningThreshold_percentage to {}", provisionerName, cacheFullnessWarningThreshold_percentage);
     }
 
 
-    public boolean isEnabled() {
-    	return enabled;
-    }
+    public boolean isEnabled() { return enabled; }
     
-    public int getGrouperDataCacheTime_secs() {
-      return grouperDataCacheTime_secs;
-    }
+    public int getDataCacheTime_secs() { return dataCacheTime_secs; }
 
-    public int getGrouperGroupCacheSize() {
-      return grouperGroupCacheSize;
-    }
+    public int getGrouperGroupCacheSize() { return grouperGroupCacheSize; }
 
-    public int getGrouperSubjectCacheSize() {
-      return grouperSubjectCacheSize;
-    }
+    public int getGrouperSubjectCacheSize() { return grouperSubjectCacheSize; }
     
     /**
      * The groupSelectionExpression is an arbitrary jexl expression. As such, it's hard
@@ -273,60 +302,43 @@ public class ProvisionerConfiguration {
       return attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName;
     }
     
-    public boolean isCreatingMissingUsersEnabled() {
-      return createMissingUsers;
-    }
+    public boolean isCreatingMissingUsersEnabled() { return createMissingUsers; }
     
-    public boolean areEmptyGroupsSupported() {
-      return supportsEmptyGroups;
-    }
+    public boolean areEmptyGroupsSupported() { return supportsEmptyGroups; }
     
-    public int getUserSearch_batchSize() {
-      return userSearch_batchSize;
-    }
+    public int getUserSearch_batchSize() { return userSearch_batchSize; }
     
-    public int getGroupSearch_batchSize() {
-      return groupSearch_batchSize;
-    }
+    public int getGroupSearch_batchSize() { return groupSearch_batchSize; }
     
-    public boolean needsTargetSystemUsers() {
-      return needsTargetSystemUsers;
-    }
+    public boolean needsTargetSystemUsers() { return needsTargetSystemUsers; }
 
-    public boolean needsTargetSystemGroups() {
-      return needsTargetSystemGroups;
-    }
+    public boolean needsTargetSystemGroups() { return needsTargetSystemGroups; }
     
-    public String getGroupSelectionExpression() {
-      return groupSelectionExpression;
-    }
+    public String getGroupSelectionExpression() { return groupSelectionExpression; }
     
-    public Collection<String> getAttributesUsedInGroupSelectionExpression() {
-      return attributesUsedInGroupSelectionExpression;
-    }
+    public Collection<String> getAttributesUsedInGroupSelectionExpression() { return attributesUsedInGroupSelectionExpression; }
 
     public void populateElMap(Map<String, Object> variableMap) {
       variableMap.put("provisionerName", provisionerName);
     }
 
-    public long getSleepTimeAfterError_ms() {
-      return sleepTimeAfterError_ms;
-    }
+    public long getSleepTimeAfterError_ms() { return sleepTimeAfterError_ms; }
     
-    public boolean isGrouperAuthoritative() {
-    	return grouperIsAuthoritative;
-    }
+    public boolean isGrouperAuthoritative() { return grouperIsAuthoritative; }
 
-    public int getCoordinationTimout_secs() {
-        return coordinationTimeout_secs;
-    }
-    public int getCoordinationUpdateInterval_secs() {
-        return coordinationUpdateInterval_secs;
-    }
+    public int getCoordinationTimout_secs() {return coordinationTimeout_secs;}
 
-    public boolean areChangesToInternalGrouperSubjectsIgnored() {
-        return areChangesToInternalGrouperSubjectsIgnored;
-    }
+    public int getCoordinationUpdateInterval_secs() {return coordinationUpdateInterval_secs;}
+
+    public boolean areChangesToInternalGrouperSubjectsIgnored() {return areChangesToInternalGrouperSubjectsIgnored;}
 
     public String getGrouperMessagingSystemName() { return grouperMessagingSystemName; }
+
+    public int getNumberOfDataFetchingWorkers() { return numberOfDataFetchingWorkers; }
+
+    public int getMissingSubjectsWarningThreshold_percentage() { return missingSubjectsWarningThreshold_percentage; }
+
+    public double getCacheFullnessWarningThreshold_percentage() { return cacheFullnessWarningThreshold_percentage; }
+
+    public boolean areCacheSizeWarningsEnabled() { return areCacheSizeWarningsEnabled; }
 }

@@ -89,7 +89,10 @@ public class LdapObject {
   
   
   public LdapObject(LdapEntry ldapEntry, String attributesRequested[]) {
-    LOG.debug("LdapObject #{}: {}", id, ldapEntry);
+    LOG.debug("Creating LdapObject #{}: {}", id, ldapEntry);
+
+    if ( provisioner==null )
+      throw new IllegalStateException("The active provisioner should be defined when creating LdapObjects");
 
     this.ldapEntry = ldapEntry;
     if ( attributesRequested == null || attributesRequested.length == 0 )
@@ -98,6 +101,13 @@ public class LdapObject {
     this.attributesRequested.addAll(Arrays.asList(attributesRequested));
   }
 
+  /**
+   * Create an LdapObject wrapper around a dn. This will not have any attributes.
+   * @param dn
+   */
+  public LdapObject(String dn) {
+    this(new LdapEntry(dn), new String[]{});
+  }
 
   /**
    * Get just part of a DN, along with an elipses to indicate that it is a summary
@@ -299,18 +309,18 @@ public class LdapObject {
     ToStringBuilder result = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
 
     result.append("id", id);
-    if ( attributesRequested.contains("cn") )
-      result.append("cn", getStringValues("cn"));
 
-    if ( attributesRequested.contains("uid") && StringUtils.isNotEmpty(getStringValue("uid")) )
-      result.append("uid", getStringValues("uid"));
-    else if ( attributesRequested.contains("samAccountName") && StringUtils.isNotEmpty(getStringValue("samaccountname")) )
-      result.append("samAccountName", getStringValue("samAccountName"));
+    for (String attribute : new String[]{"cn", "uid","samAccountName"}) {
+      if ( attributesRequested.contains(attribute) && StringUtils.isNotEmpty(getStringValue(attribute)) )
+        result.append(attribute, getStringValue(attribute));
+    }
 
     result.append("dn", getDn());
 
-    result.append("provisioner", provisioner.toString());
-    result.append("attributesRequested", attributesRequested.toString());
+    if ( provisioner!=null ) {
+      result.append("provisioner", provisioner.toString());
+    }
+    //result.append("attributesRequested", attributesRequested.toString());
 
     return result.toString();
   }

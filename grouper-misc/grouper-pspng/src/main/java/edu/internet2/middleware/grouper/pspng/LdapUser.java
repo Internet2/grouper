@@ -31,13 +31,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LdapUser implements TargetSystemUser {
   final LdapObject ldapObject;
-  final String dn;
+  final String dn_lc;
   
   
   public LdapUser(LdapObject ldapObject) {
     GrouperUtil.assertion(ldapObject != null, "Cannot create LdapUser without an ldap object");
     this.ldapObject = ldapObject;
-    this.dn = ldapObject.getDn().toLowerCase();
+    this.dn_lc = ldapObject.getDn().toLowerCase();
+  }
+
+  public LdapUser(String dn) {
+    this(new LdapObject(dn));
   }
   
   public LdapObject getLdapObject() {
@@ -61,7 +65,7 @@ public class LdapUser implements TargetSystemUser {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((dn == null) ? 0 : dn.hashCode());
+    result = prime * result + ((dn_lc == null) ? 0 : dn_lc.hashCode());
     return result;
   }
 
@@ -74,11 +78,11 @@ public class LdapUser implements TargetSystemUser {
     if (getClass() != obj.getClass())
       return false;
     LdapUser other = (LdapUser) obj;
-    if (dn == null) {
-      if (other.dn != null)
+    if (dn_lc == null) {
+      if (other.dn_lc != null)
         return false;
     }
-    else if (!dn.equals(other.dn))
+    else if (!dn_lc.equals(other.dn_lc))
       return false;
     return true;
   }

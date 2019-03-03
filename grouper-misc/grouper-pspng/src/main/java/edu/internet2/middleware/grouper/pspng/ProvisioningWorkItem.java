@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ public class ProvisioningWorkItem {
   protected final ChangeLogEntry work;
   protected String groupName;
 
+  protected DateTime asOfDate;
   protected Boolean success=null;
   protected String status=null;
   protected String statusMessage=null;
@@ -74,9 +76,10 @@ public class ProvisioningWorkItem {
    * @param command - What command does this Item represent
    * @param group
    */
-  protected ProvisioningWorkItem(WORK_ITEM_COMMAND command, GrouperGroupInfo group) {
+  protected ProvisioningWorkItem(WORK_ITEM_COMMAND command, GrouperGroupInfo group, DateTime asOfDate) {
     this.command = command;
     this.work = null;
+    this.asOfDate = asOfDate;
 
     if ( group != null )
       this.groupName=group.getName();
@@ -88,14 +91,15 @@ public class ProvisioningWorkItem {
   public ProvisioningWorkItem(ChangeLogEntry work) {
     this.command = WORK_ITEM_COMMAND.HANDLE_CHANGELOG_ENTRY;
     this.work=work;
+    this.asOfDate = new DateTime(work.getCreatedOn().getTime());
   }
 
-  public static ProvisioningWorkItem createForFullSync(GrouperGroupInfo grouperGroupInfo) {
-    return new ProvisioningWorkItem(WORK_ITEM_COMMAND.FULL_SYNC_GROUP, grouperGroupInfo);
+  public static ProvisioningWorkItem createForFullSync(GrouperGroupInfo grouperGroupInfo, DateTime asOfDate) {
+    return new ProvisioningWorkItem(WORK_ITEM_COMMAND.FULL_SYNC_GROUP, grouperGroupInfo, asOfDate);
   }
 
-  public static ProvisioningWorkItem createForGroupCleanup() {
-    return new ProvisioningWorkItem(WORK_ITEM_COMMAND.REMOVE_EXTRA_GROUPS, null);
+  public static ProvisioningWorkItem createForGroupCleanup(DateTime asOfDate) {
+    return new ProvisioningWorkItem(WORK_ITEM_COMMAND.REMOVE_EXTRA_GROUPS, null, asOfDate);
   }
 
 
