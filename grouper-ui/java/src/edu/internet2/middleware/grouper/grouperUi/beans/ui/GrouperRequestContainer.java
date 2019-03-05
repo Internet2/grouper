@@ -483,6 +483,30 @@ public class GrouperRequestContainer {
   }
   
   /**
+   * container for stem delete screens
+   */
+  private StemDeleteContainer stemDeleteContainer;
+  
+  /**
+   * container for stem delete screens
+   * @return container for stem delete screens
+   */
+  public StemDeleteContainer getStemDeleteContainer() {
+    if (this.stemDeleteContainer == null) {
+      this.stemDeleteContainer = new StemDeleteContainer();
+    }
+    return this.stemDeleteContainer;
+  }
+  
+  /**
+   * container for stem delete screens
+   * @param theStemDeleteContainer
+   */
+  public void setStemDeleteContainer(StemDeleteContainer theStemDeleteContainer) {
+    this.stemDeleteContainer = theStemDeleteContainer;
+  }
+  
+  /**
    * container for rules
    */
   private RulesContainer rulesContainer;

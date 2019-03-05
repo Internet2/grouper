@@ -642,6 +642,8 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     
     Set<AttributeDefName> overallResult = new LinkedHashSet<AttributeDefName>();
     
+    long count = 0L;
+
     for (int i=0; i<pages; i++) {
       List<String> idsOfAttributeDefNamesListBatch = GrouperUtil.batchList(idsOfAttributeDefNamesList, 100, i);
 
@@ -893,6 +895,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         .options(queryOptions)
         .listSet(AttributeDefName.class);
       
+      if (queryOptions != null && queryOptions.isRetrieveCount()) {
+        count += queryOptions.getCount();
+      }
+
       //if find by uuid or name, try to narrow down to one...
       if (findByUuidOrName) {
         
@@ -912,6 +918,8 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       }
       overallResult.addAll(GrouperUtil.nonNull(attributeDefNames));
     }
+    queryOptions.setCount(count);
+
     return overallResult;
   
   }

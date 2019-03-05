@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -68,6 +69,15 @@ public enum ConfigFileName {
    * grouper.client.properties
    */
   GROUPER_CLIENT_PROPERTIES("grouper.client.properties", "grouper.client.base.properties");
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName.GROUPER_WS_PROPERTIES.configFileMetadata();
+  }
   
   /**
    * order the config gets loaded

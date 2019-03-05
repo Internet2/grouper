@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -62,6 +63,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignStemDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -580,6 +583,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param attributeDef is the definition of this attribute
    * @param   extension attributeDef's extension
    * @param displayExtension 
+   * @param uuid 
    * @return  The added {@link AttributeDef}
    * @throws  InsufficientPrivilegeException
    */
@@ -4814,6 +4818,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         System.out.println("Obliterating stem: " + this.getName());
       }
     }
+
+    StemObliterateResults stemObliterateResults = new StemObliterateResults();
+    stemObliterateResultsThreadLocal.set(stemObliterateResults);
+
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.obliterate.stem.in.transaction", false)) {
       
       HibernateSession.callbackHibernateSession(
@@ -5008,6 +5016,199 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   }
 
   /**
+   * counts when obliterating or seeing if can obliterate
+   */
+  public static class StemObliterateResults {
+
+    /**
+     * stem count total (even ones not allowed to delete)
+     */
+    private int stemCountTotal;
+    
+    /**
+     * @return the stemCountTotal
+     */
+    public int getStemCountTotal() {
+      return this.stemCountTotal;
+    }
+    
+    /**
+     * @param stemCountTotal1 the stemCountTotal to set
+     */
+    public void setStemCountTotal(int stemCountTotal1) {
+      this.stemCountTotal = stemCountTotal1;
+    }
+
+    /**
+     * group count total (even ones not allowed to delete)
+     */
+    private int groupCountTotal;
+    
+    /**
+     * group count total (even ones not allowed to delete)
+     * @return the groupCountTotal
+     */
+    public int getGroupCountTotal() {
+      return this.groupCountTotal;
+    }
+
+    /**
+     * group count total (even ones not allowed to delete)
+     * @param groupCountTotal1 the groupCountTotal to set
+     */
+    public void setGroupCountTotal(int groupCountTotal1) {
+      this.groupCountTotal = groupCountTotal1;
+    }
+
+    /**
+     * attribute def count total (even ones arent allowed to delete)
+     */
+    private int attributeDefCountTotal;
+    
+    /**
+     * attribute def count total (even ones arent allowed to delete)
+     * @return the attributeDefCountTotal
+     */
+    public int getAttributeDefCountTotal() {
+      return this.attributeDefCountTotal;
+    }
+    
+    /**
+     * attribute def count total (even ones arent allowed to delete)
+     * @param attributeDefCountTotal the attributeDefCountTotal to set
+     */
+    public void setAttributeDefCountTotal(int attributeDefCountTotal) {
+      this.attributeDefCountTotal = attributeDefCountTotal;
+    }
+
+    /**
+     * attribute def name count total objects (even ones you arent allowed to delete)
+     */
+    private int attributeDefNameCountTotal;
+    
+    
+    /**
+     * attribute def name count total objects (even ones you arent allowed to delete)
+     * @return the attributeDefNameCountTotal
+     */
+    public int getAttributeDefNameCountTotal() {
+      return this.attributeDefNameCountTotal;
+    }
+    
+    /**
+     * attribute def name count total objects (even ones you arent allowed to delete)
+     * @param attributeDefNameCountTotal1 the attributeDefNameCountTotal to set
+     */
+    public void setAttributeDefNameCountTotal(int attributeDefNameCountTotal1) {
+      this.attributeDefNameCountTotal = attributeDefNameCountTotal1;
+    }
+
+    /**
+     * stem count
+     */
+    private int stemCount;
+    
+    /**
+     * stem count
+     * @return the stemCount
+     */
+    public int getStemCount() {
+      return this.stemCount;
+    }
+    
+    /**
+     * stem count
+     * @param stemCount1 the stemCount to set
+     */
+    public void setStemCount(int stemCount1) {
+      this.stemCount = stemCount1;
+    }
+    
+    /**
+     * group count
+     */
+    private int groupCount;
+    
+    /**
+     * group count
+     * @return the groupCount
+     */
+    public int getGroupCount() {
+      return this.groupCount;
+    }
+    
+    /**
+     * group count
+     * @param groupCount1 the groupCount to set
+     */
+    public void setGroupCount(int groupCount1) {
+      this.groupCount = groupCount1;
+    }
+    
+    /** attribute def count */
+    private int attributeDefCount;
+
+
+    
+    /**
+     * attribute def count
+     * @return the attributeDefCount
+     */
+    public int getAttributeDefCount() {
+      return this.attributeDefCount;
+    }
+
+
+    
+    /**
+     * attribute def count
+     * @param attributeDefCount the attributeDefCount to set
+     */
+    public void setAttributeDefCount(int attributeDefCount) {
+      this.attributeDefCount = attributeDefCount;
+    }
+    
+    /**
+     * attribute def name count
+     */
+    private int attributeDefNameCount;
+
+
+    
+    /**
+     * attribute def name count
+     * @return the attributeDefNameCount
+     */
+    public int getAttributeDefNameCount() {
+      return this.attributeDefNameCount;
+    }
+
+
+    
+    /**
+     * attribute def name count
+     * @param attributeDefNameCount1 the attributeDefNameCount to set
+     */
+    public void setAttributeDefNameCount(int attributeDefNameCount1) {
+      this.attributeDefNameCount = attributeDefNameCount1;
+    }
+
+  }
+
+  /**
+   * keep results for obliterate
+   */
+  private static ThreadLocal<StemObliterateResults> stemObliterateResultsThreadLocal = new InheritableThreadLocal<StemObliterateResults>();
+  
+  /**
+   * 
+   * @return obliterate results
+   */
+  public static StemObliterateResults retrieveObliterateResults() {
+    return stemObliterateResultsThreadLocal.get();
+  }
+  
+  /**
    * @param printOutput
    * @param testOnly
    * @param hibernateHandlerBean
@@ -5018,25 +5219,285 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     if (hibernateHandlerBean != null) {
       hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
     }
-    //obliterate all child stems
-    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
     
-    for (Stem stem : GrouperUtil.nonNull(stems)) {
-      stem.obliterate(printOutput, testOnly);
+    StemObliterateResults stemObliterateResults = retrieveObliterateResults();
+
+    {
+      //obliterate all child stems
+      Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
+  
+      // done below
+      //stemObliterateResults.setStemCount(stemObliterateResults.getStemCount() + GrouperUtil.length(stems));
+      
+      for (Stem stem : GrouperUtil.nonNull(stems)) {
+        stem.obliterateHelper(printOutput, testOnly, hibernateHandlerBean);
+      }
+    }
+    
+    {
+      Set<Group> groups = deleteGroups(printOutput, testOnly, Scope.ONE);
+  
+      stemObliterateResults.setGroupCount(stemObliterateResults.getGroupCount() + GrouperUtil.length(groups));
+    }
+    
+    {
+      Set<AttributeDefName> attributeDefNames = deleteAttributeDefNames(printOutput, testOnly, Scope.ONE);
+  
+      stemObliterateResults.setAttributeDefNameCount(stemObliterateResults.getAttributeDefNameCount() + GrouperUtil.length(attributeDefNames));
+    }
+    
+    {
+      Set<AttributeDef> attributeDefs = deleteAttributeDefs(printOutput, testOnly, Scope.ONE);
+  
+      stemObliterateResults.setAttributeDefCount(stemObliterateResults.getAttributeDefCount() + GrouperUtil.length(attributeDefs));
+    }
+    
+    //delete stem
+    if (!testOnly) {
+      Stem.this.delete();
+    }
+    stemObliterateResults.setStemCount(stemObliterateResults.getStemCount() + 1);
+  }
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperSession.startRootSession();
+    GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findById("test.subject.0", true));
+    
+    Stem stem = StemFinder.findByName(grouperSession, "test", true);
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(stem.getUuid()).assignStemScope(Scope.SUB)
+    .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
+    .assignQueryOptions(queryOptions).findAttributeNames();
+    System.out.println(queryOptions.getCount());
+    System.out.println(GrouperUtil.length(attributeDefNames));
+  }
+  
+  /**
+   * 
+   * @return if this stem is empty i.e. can be deleted
+   */
+  public boolean isEmpty() {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
+        if (GrouperUtil.length(stems) > 0) {
+          return false;
+        }
+        Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
+        if (GrouperUtil.length(groups) > 0) {
+          return false;
+        }
+        Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(Stem.this.uuid).assignStemScope(Scope.ONE)
+              .findAttributeNames();
+        if (GrouperUtil.length(attributeDefNames) > 0) {
+          return false;
+        }
+        Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignParentStemId(Stem.this.uuid).assignStemScope(Scope.ONE)
+              .findAttributes();
+        if (GrouperUtil.length(attributeDefs) > 0) {
+          return false;
+        }
+        return true;
+      }
+    });
+  }
+  
+  /**
+   * see if the current session can obliterate.  also setup counts of object types
+   * @return true if can obliterate
+   */
+  public boolean isCanObliterate() {
+
+    final StemObliterateResults stemObliterateResults = new StemObliterateResults();
+    stemObliterateResultsThreadLocal.set(stemObliterateResults);
+
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    new AttributeDefFinder().assignParentStemId(this.uuid).assignStemScope(Scope.SUB)
+        .assignSubject(subject)
+        .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
+        .assignQueryOptions(queryOptions).findAttributes();
+    stemObliterateResults.setAttributeDefCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+    
+    queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    new AttributeDefNameFinder().assignParentStemId(this.uuid).assignStemScope(Scope.SUB)
+        .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
+        .assignSubject(subject)
+        .assignQueryOptions(queryOptions).findAttributeNames();
+    stemObliterateResults.setAttributeDefNameCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+    
+    queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    new GroupFinder().assignStemScope(Scope.SUB).assignParentStemId(this.uuid)
+        .assignPrivileges(AccessPrivilege.ADMIN_PRIVILEGES)
+        .assignQueryOptions(queryOptions).findGroups();
+    stemObliterateResults.setGroupCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+
+    queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    new StemFinder().assignStemScope(Scope.SUB).assignParentStemId(this.uuid)
+        .assignPrivileges(NamingPrivilege.ADMIN_PRIVILEGES)
+        .assignQueryOptions(queryOptions).findStems();
+    stemObliterateResults.setStemCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+    if (stemObliterateResults.getStemCount() >= 0 && this.canHavePrivilege(subject, NamingPrivilege.STEM_ADMIN.toString(), false)) {
+      // add one for parent folder
+      stemObliterateResults.setStemCount(stemObliterateResults.getStemCount()+1);
+    }
+    
+    boolean isWheelOrRoot = PrivilegeHelper.isWheelOrRoot(subject);
+    //TODO: if an inheritable admin then yes
+
+    if (isWheelOrRoot) {
+      stemObliterateResults.setAttributeDefCountTotal(stemObliterateResults.getAttributeDefCount());
+      stemObliterateResults.setAttributeDefNameCountTotal(stemObliterateResults.getAttributeDefNameCount());
+      stemObliterateResults.setStemCountTotal(stemObliterateResults.getStemCount());
+      stemObliterateResults.setGroupCountTotal(stemObliterateResults.getGroupCount());
+      return true;
     }
 
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        Subject subject = SubjectFinder.findRootSubject();
+        QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+        new AttributeDefFinder().assignParentStemId(Stem.this.uuid).assignStemScope(Scope.SUB)
+            .assignQueryOptions(queryOptions).findAttributes();
+        stemObliterateResults.setAttributeDefCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
+        
+        queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+        new AttributeDefNameFinder().assignParentStemId(Stem.this.uuid).assignStemScope(Scope.SUB)
+            .assignQueryOptions(queryOptions).findAttributeNames();
+        stemObliterateResults.setAttributeDefNameCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
+        
+        queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+        new GroupFinder().assignStemScope(Scope.SUB).assignParentStemId(Stem.this.uuid)
+            .assignQueryOptions(queryOptions).findGroups();
+        stemObliterateResults.setGroupCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
+
+        queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+        new StemFinder().assignStemScope(Scope.SUB).assignParentStemId(Stem.this.uuid)
+            .assignQueryOptions(queryOptions).findStems();
+        stemObliterateResults.setStemCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
+
+        if (stemObliterateResults.getStemCount() >= 0) {
+          // add one for parent folder
+          stemObliterateResults.setStemCountTotal(stemObliterateResults.getStemCountTotal()+1);
+        }
+
+        return null;
+      }
+    });
+
+    //see if counts match
+    if (stemObliterateResults.getAttributeDefCount() != stemObliterateResults.getAttributeDefCountTotal()) {
+      return false;
+    }
+    if (stemObliterateResults.getAttributeDefNameCount() != stemObliterateResults.getAttributeDefNameCountTotal()) {
+      return false;
+    }
+    if (stemObliterateResults.getStemCount() != stemObliterateResults.getStemCountTotal()) {
+      return false;
+    }
+    if (stemObliterateResults.getGroupCount() != stemObliterateResults.getGroupCountTotal()) {
+      return false;
+    }
+    return true;
+    
+    
+  }
+  
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope
+   * @return attribute defs to be deleted or would be deleted
+   */
+  public Set<AttributeDef> deleteAttributeDefs(final boolean printOutput, final boolean testOnly, Scope scope) {
+
+    Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignParentStemId(this.uuid).assignStemScope(scope)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).findAttributes();
+    
+    Set<AttributeDef> deletedObjects = new HashSet<AttributeDef>();
+
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      
+      deletedObjects.add(attributeDef);
+
+      if (!testOnly) {
+        attributeDef.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
+        } else {
+          System.out.println("Done deleting attributeDef: " + attributeDef.getName());
+        }
+      }              
+    }
+    return deletedObjects;
+
+  }
+
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope
+   * @return attribute def names deleted or to be deleted
+   */
+  public Set<AttributeDefName> deleteAttributeDefNames(final boolean printOutput, final boolean testOnly, Scope scope) {
+
+    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(this.uuid).assignStemScope(scope)
+      .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).assignSubject(GrouperSession.staticGrouperSession().getSubject()).findAttributeNames();
+    
+    Set<AttributeDefName> deletedObjects = new HashSet<AttributeDefName>();
+
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+      deletedObjects.add(attributeDefName);
+      if (!testOnly) {
+        attributeDefName.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
+        } else {
+          System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
+        }
+      }              
+    }
+    return deletedObjects;
+  }
+
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope 
+   * @return groups to be deleted or would be deleted
+   */
+  public Set<Group> deleteGroups(final boolean printOutput, final boolean testOnly, Scope scope) {
     //delete all objects
     //groups
-    Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
+    Set<Group> groups = new GroupFinder().assignStemScope(scope).assignParentStemId(this.uuid)
+        .assignPrivileges(AccessPrivilege.ADMIN_PRIVILEGES).findGroups();
+    
+    Set<Group> deletedObjects = new HashSet<Group>();
     
     //pass one for composites since if you delete a factor first it bombs...
     for (int i : new int[]{0,1}) {
       Iterator<Group> groupIterator = groups.iterator();
       while (groupIterator.hasNext()) {
         Group group = groupIterator.next();
+        
         if (i==0 && !group.isHasComposite()) {
           continue;
         }
+        
+        deletedObjects.add(group);
+        
         if (!testOnly) {
           group.delete();
         }
@@ -5050,41 +5511,83 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         groupIterator.remove();
       }
     }
-
-    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(Stem.this.getUuid());
     
-    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
-      if (!testOnly) {
-        attributeDefName.delete();
-      }
-      if (printOutput) {
-        if (testOnly) {
-          System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
-        } else {
-          System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
-        }
-      }              
-    }
-
-    Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(Stem.this.getUuid());
+    return deletedObjects;
     
-    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
-      if (!testOnly) {
-        attributeDef.delete();
-      }
-      if (printOutput) {
-        if (testOnly) {
-          System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
-        } else {
-          System.out.println("Done deleting attributeDef: " + attributeDef.getName());
-        }
-      }              
-    }
-
-    //delete stem
-    if (!testOnly) {
-      Stem.this.delete();
-    }
   }
+
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope 
+   * @return groups have memberships deleted or would be deleted
+   */
+  public Set<Group> deleteGroupMemberships(boolean printOutput, final boolean testOnly, Scope scope) {
+    //delete all objects
+    //groups
+    Set<Group> groups = new GroupFinder().assignStemScope(scope).assignParentStemId(this.uuid)
+        .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES).addTypeOfGroup(TypeOfGroup.group).addTypeOfGroup(TypeOfGroup.role).findGroups();
+    
+    Set<Group> deletedObjects = new HashSet<Group>();
+    
+    //pass one for composites since if you delete a factor first it bombs...
+    Iterator<Group> groupIterator = groups.iterator();
+    while (groupIterator.hasNext()) {
+      Group group = groupIterator.next();
+      
+      deletedObjects.add(group);
+      
+      if (!testOnly) {
+        group.deleteAllMemberships();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting memberships from " + group.getTypeOfGroup() + ": " + group.getName());
+        } else {
+          System.out.println("Done deleting memberships from " + group.getTypeOfGroup() + ": " + group.getName());
+        }
+      }
+      groupIterator.remove();
+    }
+    
+    return deletedObjects;
+    
+  }
+
+  /**
+   * @param printOutput
+   * @param testOnly
+   * @param scope 
+   * @return stems to be deleted or would be deleted
+   */
+  public Set<Stem> deleteEmptyStems(final boolean printOutput, final boolean testOnly, Scope scope) {
+    //delete all non empty stems
+    //stems sorted by name desc so if stems contain empty stems they will be deleted
+    Set<Stem> stems = new StemFinder().assignStemScope(scope).assignParentStemId(this.uuid)
+        .assignPrivileges(NamingPrivilege.ADMIN_PRIVILEGES).assignQueryOptions(new QueryOptions().sortDesc("name")).findStems();
+
+    Set<Stem> deletedObjects = new HashSet<Stem>();
+
+    Iterator<Stem> stemIterator = stems.iterator();
+    while (stemIterator.hasNext()) {
+      Stem stem = stemIterator.next();
+      if (!stem.isEmpty()) {
+        continue;
+      }
+      deletedObjects.add(stem);
+      if (!testOnly) {
+        stem.delete();
+      }
+      if (printOutput) {
+        if (testOnly) {
+          System.out.println("Would be done deleting stem: " + stem.getName());
+        } else {
+          System.out.println("Done deleting stem: " + stem.getName());
+        }
+      }
+    }
+    return deletedObjects;
+  }
+
 }
 

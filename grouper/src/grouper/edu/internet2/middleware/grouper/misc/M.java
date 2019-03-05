@@ -59,6 +59,7 @@ public class M {
   public static final String GROUP_ADD           = "add group: ";
   public static final String GROUP_ADDTYPE       = "group add type: group=";
   public static final String GROUP_DEL           = "delete group: ";
+  public static final String GROUP_ALL_MEMBERSHIPS_DEL           = "delete all memberships from group: ";
   public static final String GROUP_DELTYPE       = "group delete type: group=";
   public static final String GROUPTYPE_ADD       = "add group type: ";
   public static final String GROUPTYPE_ADDFIELD  = "add group field: field=";
