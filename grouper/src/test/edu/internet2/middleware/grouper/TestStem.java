@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -52,6 +51,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
@@ -82,10 +82,9 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
-import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.subject.Subject;
@@ -99,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class TestStem extends GrouperTest {
 
-  // Private Class Constants
+  /** Private Class Constants */
   private static final Log LOG = GrouperUtil.getLog(TestStem.class);
 
   /**
@@ -107,19 +106,53 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testCache"));
+    //TestRunner.run(new TestStem("testStemObliterate2AttributeDef3"));
     //TestRunner.run(TestStem.class);
+    stemObliterate2setup();
+    
   }
 
+  /**
+   * 
+   * @param name
+   */
   public TestStem(String name) {
     super(name);
   }
 
-  public void testStemObliterate2setup() {
+  /**
+   * 
+   */
+  public static void stemObliterate2setup() {
+    
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+    
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    long gshTotalObjectCount = 0L;
-    long gshTotalChangeCount = 0L;
-    long gshTotalErrorCount = 0L;
     
     // test stem, subject 1 and 2 have admin
     StemSave stemSave = new StemSave(grouperSession).assignName("test")
@@ -128,11 +161,10 @@ public class TestStem extends GrouperTest {
     stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN, false);
     stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
 
-    // some group A, subject 1 and 2 have admin
+    // some group A, subject 0 and 1 have admin
     GroupSave groupSave = new GroupSave(grouperSession)
       .assignName("test:someGroupA")
       .assignCreateParentStemsIfNotExist(true)
-      .assignDisplayName("test:someGroupA")
       .assignTypeOfGroup(TypeOfGroup.group);
     Group group = groupSave.save();
     group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
@@ -141,27 +173,87 @@ public class TestStem extends GrouperTest {
     group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ, false);
     group.addMember(SubjectTestHelper.SUBJ9, false);
     
+    //some attribute A, subject 0 and 1 have admin
+    AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession)
+      .assignName("test:someAttrDefA")
+      .assignCreateParentStemsIfNotExist(true).assignToStem(true)
+      .assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+      .assignMultiValued(false).assignValueType(AttributeDefValueType.marker);
+    AttributeDef attributeDef = attributeDefSave.save();
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_UPDATE, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
+
+    AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(
+      grouperSession, attributeDef).assignName("test:someAttrDefNameA")
+      .assignCreateParentStemsIfNotExist(true);
+    AttributeDefName attributeDefName = attributeDefNameSave.save();
+
     // some group B, subject 2 has admin
     groupSave = new GroupSave(grouperSession)
       .assignName("test:someGroupB")
       .assignCreateParentStemsIfNotExist(true)
-      .assignDisplayName("test:someGroupB")
       .assignTypeOfGroup(TypeOfGroup.group);
     group = groupSave.save();
     group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    group.addMember(SubjectTestHelper.SUBJ9, false);
+
+    attributeDefSave = new AttributeDefSave(grouperSession)
+      .assignName("test:someAttrDefB")
+      .assignCreateParentStemsIfNotExist(true).assignToStem(true)
+      .assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+      .assignMultiValued(false).assignValueType(AttributeDefValueType.marker);
+    attributeDef = attributeDefSave.save();
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, false);
+
+    attributeDefNameSave = new AttributeDefNameSave(
+        grouperSession, attributeDef).assignName("test:someAttrDefNameB")
+        .assignCreateParentStemsIfNotExist(true);
+    attributeDefName = attributeDefNameSave.save();
 
     // another folder, test.subject.0 and 1 has admin
     stemSave = new StemSave(grouperSession).assignName("test:anotherFolder")
-        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test:anotherFolder");
+        .assignCreateParentStemsIfNotExist(true);
     stem = stemSave.save();
     stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN, false);
     stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
 
     // another folder2, test.subject.0 does not have admin, 1 does
     stemSave = new StemSave(grouperSession).assignName("test:anotherFolder2")
-        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test:anotherFolder2");
+        .assignCreateParentStemsIfNotExist(true);
     stem = stemSave.save();
     stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+
+    // another folder2, test.subject.0 does not have admin, 1 does
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder3")
+        .assignCreateParentStemsIfNotExist(true);
+    stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder4")
+        .assignCreateParentStemsIfNotExist(true);
+    stem = stemSave.save();
+
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder3:someFolder5")
+        .assignCreateParentStemsIfNotExist(true);
+    stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+    
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder3:someFolder6")
+        .assignCreateParentStemsIfNotExist(true);
+    stem = stemSave.save();
+    
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder7")
+        .assignCreateParentStemsIfNotExist(true);
+    stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+
+    stemSave = new StemSave(grouperSession).assignName("test:anotherFolder7:someFolder8")
+        .assignCreateParentStemsIfNotExist(true);
+    stem = stemSave.save();
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN, false);
+    
 
     // somegroup3, both have admin
     groupSave = new GroupSave(grouperSession)
@@ -172,106 +264,312 @@ public class TestStem extends GrouperTest {
     group = groupSave.save();
     group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
     group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.UPDATE, false);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ, false);
+    group.addMember(SubjectTestHelper.SUBJ9, false);
 
     // somegroup4, 1 has admin
     groupSave = new GroupSave(grouperSession)
         .assignName("test:anotherFolder:someGroup4")
         .assignCreateParentStemsIfNotExist(true)
-        .assignDisplayName("test:anotherFolder:someGroup4")
         .assignTypeOfGroup(TypeOfGroup.group);
     group = groupSave.save();
     group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    group.addMember(SubjectTestHelper.SUBJ9, false);
 
-    // somegroup5, both have admin
-    groupSave = new GroupSave(grouperSession)
-        .assignName("test:anotherFolder2:someGroup5")
-        .assignDisplayName("test:anotherFolder2:someGroup5")
-        .assignTypeOfGroup(TypeOfGroup.group);
-    group = groupSave.save();
-    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
-    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    attributeDefSave = new AttributeDefSave(grouperSession)
+      .assignName("test:anotherFolder:attributeDef3")
+      .assignCreateParentStemsIfNotExist(true).assignToStem(true)
+      .assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+      .assignMultiValued(false).assignValueType(AttributeDefValueType.marker);
+    attributeDef = attributeDefSave.save();
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_UPDATE, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
+  
+    attributeDefNameSave = new AttributeDefNameSave(
+      grouperSession, attributeDef).assignName("test:anotherFolder:attributeDefName3")
+      .assignCreateParentStemsIfNotExist(true);
+    attributeDefName = attributeDefNameSave.save();
 
-    // somegroup6, 1 has admin
-    groupSave = new GroupSave(grouperSession)
-        .assignName("test:anotherFolder2:someGroup6")
-        .assignDisplayName("test:anotherFolder2:someGroup6")
-        .assignTypeOfGroup(TypeOfGroup.group);
-    group = groupSave.save();
-    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    attributeDefSave = new AttributeDefSave(grouperSession)
+      .assignName("test:anotherFolder:attributeDef4")
+      .assignCreateParentStemsIfNotExist(true).assignToStem(true)
+      .assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
+      .assignMultiValued(false).assignValueType(AttributeDefValueType.marker);
+    attributeDef = attributeDefSave.save();
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, false);
 
-    AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession)
-        .assignName("test:anotherFolder:testAttrDef")
-        .assignCreateParentStemsIfNotExist(true).assignToStem(true)
-        .assignAttributeDefType(AttributeDefType.attr).assignMultiAssignable(false)
-        .assignMultiValued(false).assignValueType(AttributeDefValueType.marker);
-    AttributeDef attributeDef = attributeDefSave.save();
+    attributeDefNameSave = new AttributeDefNameSave(
+      grouperSession, attributeDef).assignName("test:anotherFolder:attributeDefName4")
+      .assignCreateParentStemsIfNotExist(true);
+    attributeDefName = attributeDefNameSave.save();
 
-    Subject subject = SubjectFinder.findByIdAndSource("test.subject.4", "jdbc", false);
 
-    Privilege privilege = null;
-    group = GroupFinder.findByName(grouperSession, "test:testGroup2", false);
-    if (subject != null) {
-      if (group != null) {
-        boolean changed = group.addOrEditMember(subject, false, true, null, null, false);
-        gshTotalObjectCount++;
-        if (changed) {
-          gshTotalChangeCount++;
-          System.out.println("Made change for group membership: " + group.getName()
-              + ", field: members, subject: " + GrouperUtil.subjectToString(subject));
-        }
-      } else {
-        gshTotalErrorCount++;
-        System.out.println("ERROR: cant find group: 'test:testGroup2'");
-      }
-    }
-    subject = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", false);
+  }
 
-    privilege = Privilege.listToPriv("updaters", false);
-    group = GroupFinder.findByName(grouperSession, "test:testGroup2", false);
-    if (privilege != null) {
-      if (subject != null) {
-        if (group != null) {
-          boolean changed = group.grantPriv(subject, privilege, false);
-          gshTotalObjectCount++;
-          if (changed) {
-            gshTotalChangeCount++;
-            System.out.println("Made change for group privilege: " + group.getName()
-                + ", privilege: " + privilege + ", subject: "
-                + GrouperUtil.subjectToString(subject));
-          }
-        } else {
-          gshTotalErrorCount++;
-          System.out.println("ERROR: cant find group: 'test:testGroup2'");
-        }
-      }
-    }
+  /**
+   * 
+   */
+  public void testStemObliterate2Group0() {
 
-    attributeDef = AttributeDefFinder.findByName("test:anotherFolder:testAttrDef", false);
-    if (attributeDef != null) {
-      AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(
-          grouperSession, attributeDef).assignName("test:anotherFolder:testAttrName")
-          .assignCreateParentStemsIfNotExist(true)
-          .assignDisplayName("test:anotherFolder:testAttrName");
-      AttributeDefName attributeDefName = attributeDefNameSave.save();
-      gshTotalObjectCount++;
-      if (attributeDefNameSave.getSaveResultType() != SaveResultType.NO_CHANGE) {
-        gshTotalChangeCount++;
-        System.out.println("Made change for attributeDefName: "
-            + attributeDefName.getName());
-      }
-    } else {
-      gshTotalErrorCount++;
-      System.out
-          .println("ERROR: cant find attributeDef: 'test:anotherFolder:testAttrDef'");
-    }
 
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+
+    stemObliterate2setup();
+
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    assertFalse(testStem.isCanObliterate());
+
+    int count = testStem.deleteGroups(false, false, Scope.ONE).size();
+    assertEquals(0, count);
   }
   
-  public void testStemObliterate2a() {
-    testStemObliterate2setup();
+  /**
+   * 
+   */
+  public void testStemObliterate2Group1() {
 
-    
+
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+
+    stemObliterate2setup();
+
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    int count = testStem.deleteGroups(false, false, Scope.ONE).size();
+    assertEquals(0, count);
   }
+  
+  /**
+   * 
+   */
+  public void testStemObliterate2Group2() {
+
+
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+
+    stemObliterate2setup();
+
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", true);
+    assertNotNull(group);
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", true);
+    assertNotNull(group);
+    
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    int count = testStem.deleteGroups(false, false, Scope.ONE).size();
+    assertEquals(2, count);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNull(group);
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", false);
+    assertNull(group);
+  }
+  
+  /**
+   * 
+   */
+  public void testStemObliterate2Group3() {
+
+
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+
+    stemObliterate2setup();
+
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", true);
+    assertNotNull(group);
+    
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    int count = testStem.deleteGroups(false, false, Scope.ONE).size();
+    assertEquals(1, count);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNull(group);
+  }
+  
+  /**
+   * 
+   */
+  public void testStemObliterate2GroupMemberships4() {
+
+
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+
+    stemObliterate2setup();
+
+    // subj0 can delete two groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:anotherFolder:someGroup3", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:anotherFolder:someGroup4", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    int count = testStem.deleteGroupMemberships(false, false, Scope.SUB).size();
+    assertEquals(2, count);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNotNull(group);
+    assertFalse(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", false);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:anotherFolder:someGroup3", false);
+    assertNotNull(group);
+    assertFalse(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:anotherFolder:someGroup4", false);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+}
   
   public void testGetAllStemsSplitScopeSecure() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -2747,5 +3045,1047 @@ public class TestStem extends GrouperTest {
     }
     
   }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2Stem0() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can delete no folders
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+  
+    Stem stem = StemFinder.findByName(grouperSession, "test", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", true);
+    assertNotNull(stem);
+    
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteEmptyStems(false, false, Scope.SUB).size();
+    assertEquals(0, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    stem = StemFinder.findByName(grouperSession, "test", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", false);
+    assertNotNull(stem);
+  }
+  /**
+   * 
+   */
+  public void testStemObliterate2Stem1() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+
+    // subj7 can delete no folders
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    Stem stem = StemFinder.findByName(grouperSession, "test", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder6", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder4", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7:someFolder8", true);
+    assertNotNull(stem);
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    int count = testStem.deleteEmptyStems(false, false, Scope.ONE).size();
+    assertEquals(1, count);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    stem = StemFinder.findByName(grouperSession, "test", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", false);
+    assertNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder6", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder4", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7:someFolder8", false);
+    assertNotNull(stem);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2Stem2() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can delete no folders
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    Stem stem = StemFinder.findByName(grouperSession, "test", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder6", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder4", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7", true);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7:someFolder8", true);
+    assertNotNull(stem);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    int count = testStem.deleteEmptyStems(false, false, Scope.SUB).size();
+    assertEquals(4, count);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    stem = StemFinder.findByName(grouperSession, "test", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder2", false);
+    assertNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder5", false);
+    assertNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder3:someFolder6", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder4", false);
+    assertNotNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7", false);
+    assertNull(stem);
+    stem = StemFinder.findByName(grouperSession, "test:anotherFolder7:someFolder8", false);
+    assertNull(stem);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2GroupMemberships0() {
+  
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteGroupMemberships(false, false, Scope.ONE).size();
+    assertEquals(0, count);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2GroupMemberships1() {
+  
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj2 can update
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNotNull(group);
+
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", false);
+    assertNotNull(group);
+
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteGroupMemberships(false, false, Scope.ONE).size();
+    assertEquals(1, count);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNotNull(group);
+
+    assertFalse(group.hasMember(SubjectTestHelper.SUBJ9));
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", false);
+    assertNotNull(group);
+
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2GroupMemberships2() {
+  
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteGroupMemberships(false, false, Scope.ONE).size();
+    assertEquals(2, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNotNull(group);
+    assertFalse(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", false);
+    assertNotNull(group);
+    assertFalse(group.hasMember(SubjectTestHelper.SUBJ9));
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2GroupMemberships3() {
+  
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+
+    stemObliterate2setup();
+
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", true);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
+
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteGroupMemberships(false, false, Scope.ONE).size();
+    assertEquals(1, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNotNull(group);
+    assertFalse(group.hasMember(SubjectTestHelper.SUBJ9));
+
+    group = GroupFinder.findByName(grouperSession, "test:someGroupB", false);
+    assertNotNull(group);
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ9));
 }
 
+  /**
+   * 
+   */
+  public void testStemObliterate2Group4() {
+  
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj0 can delete two groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    Group group = GroupFinder.findByName(grouperSession, "test:someGroupA", true);
+    assertNotNull(group);
+    group = GroupFinder.findByName(grouperSession, "test:anotherFolder:someGroup3", true);
+    assertNotNull(group);
+    
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteGroups(false, false, Scope.SUB).size();
+    assertEquals(2, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group = GroupFinder.findByName(grouperSession, "test:someGroupA", false);
+    assertNull(group);
+    group = GroupFinder.findByName(grouperSession, "test:anotherFolder:someGroup3", false);
+    assertNull(group);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDef0() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
+    assertEquals(0, count);
+    
+    assertFalse(testStem.isCanObliterate());
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDef1() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
+    assertEquals(0, count);
+    
+    assertFalse(testStem.isCanObliterate());
+
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDef2() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+
+    // test:anotherFolder2 (subj1[ADMIN])
+
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+
+    // test:anotherFolder4
+
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    AttributeDef attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", true);
+    assertNotNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByName("test:someAttrDefB", true);
+    assertNotNull(attributeDef);
+    
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    assertTrue(testStem.isCanObliterate());
+
+    int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
+    assertEquals(2, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", false);
+    assertNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByName("test:someAttrDefB", false);
+    assertNull(attributeDef);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDef3() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    AttributeDef attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", false);
+    assertNotNull(attributeDef);
+
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    assertFalse(testStem.isCanObliterate());
+
+    Stem.StemObliterateResults stemObliterateResults = Stem.retrieveObliterateResults();
+    assertEquals(2, stemObliterateResults.getStemCount());
+    assertEquals(9, stemObliterateResults.getStemCountTotal());
+    assertEquals(2, stemObliterateResults.getGroupCount());
+    assertEquals(4, stemObliterateResults.getGroupCountTotal());
+    assertEquals(2, stemObliterateResults.getAttributeDefCount());
+    assertEquals(4, stemObliterateResults.getAttributeDefCountTotal());
+    assertEquals(2, stemObliterateResults.getAttributeDefNameCount());
+    assertEquals(4, stemObliterateResults.getAttributeDefNameCountTotal());
+    
+    int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
+    assertEquals(1, count);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+
+    assertTrue(testStem.isCanObliterate());
+
+    attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", false);
+    assertNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByName("test:someAttrDefB", false);
+    assertNotNull(attributeDef);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDef4() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    AttributeDef attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", false);
+    assertNotNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByName("test:anotherFolder:attributeDef3", false);
+    assertNotNull(attributeDef);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteAttributeDefs(false, false, Scope.SUB).size();
+    assertEquals(2, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+
+    grouperSession = GrouperSession.startRootSession();
+
+    attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", false);
+    assertNull(attributeDef);
+    attributeDef = AttributeDefFinder.findByName("test:anotherFolder:attributeDef3", false);
+    assertNull(attributeDef);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDefName0() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
+    assertEquals(0, count);
+    
+    assertFalse(testStem.isCanObliterate());
+
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDefName1() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj7 can do nothing
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    assertFalse(testStem.isCanObliterate());
+
+    int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
+    assertEquals(0, count);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDefName2() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameA", true);
+    assertNotNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameB", true);
+    assertNotNull(attributeDefName);
+    
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+
+    assertTrue(testStem.isCanObliterate());
+
+    int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
+    assertEquals(2, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameA", false);
+    assertNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameB", false);
+    assertNull(attributeDefName);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDefName3() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameA", false);
+    assertNotNull(attributeDefName);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    assertFalse(testStem.isCanObliterate());
+
+    int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
+    assertEquals(1, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameA", false);
+    assertNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameB", false);
+    assertNotNull(attributeDefName);
+  }
+
+  /**
+   * 
+   */
+  public void testStemObliterate2AttributeDefName4() {
+  
+    // test stem has objects and privs (subj0[ADMIN], subj1[ADMIN])
+    // test:someGroupA has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefA has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someAttrDefNameA has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:someGroupB has a member: subj9, and privs (subj1[ADMIN])
+    // test:someAttrDefB has privs (subj1[ADMIN])
+    // test:someAttrDefNameB has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder (subj0[ADMIN], subj1[ADMIN])
+    // test:anotherFolder:someGroup3 has a member: subj9, and privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:someGroup4 has a member: subj9, and privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDef3 has privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDefName3 has effective privs (subj0[ADMIN], subj1[ADMIN], subj2[READ,UPDATE])
+    // test:anotherFolder:attributeDef4 has privs (subj1[ADMIN])
+    // test:anotherFolder:attributeDefName4 has effective privs (subj1[ADMIN])
+  
+    // test:anotherFolder2 (subj1[ADMIN])
+  
+    // test:anotherFolder3 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder5 (subj1[ADMIN])
+    // test:anotherFolder3:someFolder6
+  
+    // test:anotherFolder4
+  
+    // test:anotherFolder7 (subj1[ADMIN])
+    // test:anotherFolder7:someFolder8 (subj1[ADMIN])
+  
+    stemObliterate2setup();
+  
+    // subj1 can ddelete 2 groups
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameA", false);
+    assertNotNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName("test:anotherFolder:attributeDefName3", false);
+    assertNotNull(attributeDefName);
+  
+    Stem testStem = StemFinder.findByName(grouperSession, "test", true);
+  
+    int count = testStem.deleteAttributeDefs(false, false, Scope.SUB).size();
+    assertEquals(2, count);
+  
+    GrouperSession.stopQuietly(grouperSession);
+  
+    grouperSession = GrouperSession.startRootSession();
+  
+    attributeDefName = AttributeDefNameFinder.findByName("test:someAttrDefNameA", false);
+    assertNull(attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName("test:anotherFolder:attributeDefName3", false);
+    assertNull(attributeDefName);
+  }
+}

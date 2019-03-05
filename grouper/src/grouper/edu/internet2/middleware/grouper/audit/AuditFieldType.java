@@ -84,10 +84,9 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_DELETE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_DELETE_ALL_MEMBERSHIPS, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_UPDATE, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_ADD, "parentStemId");
-    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_DELETE, "parentStemId");
-    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_UPDATE, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ADD, "id");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ADD, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_DELETE, "id");
@@ -116,6 +115,7 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ADD, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_UPDATE, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_DELETE, "id");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_DELETE_ALL_MEMBERSHIPS, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTRIBUTE_ADD, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTRIBUTE_DELETE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTRIBUTE_UPDATE, "groupId");

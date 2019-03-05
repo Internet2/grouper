@@ -8028,6 +8028,84 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /**
+   * Delete all direct memberships Groups Registry.  And remove composites
+   * <pre class="eg">
+   * try {
+   *   g.deleteAllMemberships();
+   * }
+   * catch (GroupDeleteException e0) {
+   *   // Unable to delete group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to delete this group
+   * }
+   * </pre>
+   * @throws  GroupDeleteException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void deleteAllMemberships() throws GroupDeleteException, InsufficientPrivilegeException {
+    final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + this.extension
+      + ", group dExtension: " + this.displayExtension + ", uuid: " + this.uuid + ", ";
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+  
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+  
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+  
+            StopWatch sw = new StopWatch();
+            sw.start();
+            GrouperSession.validate( GrouperSession.staticGrouperSession() );
+
+            if ( !PrivilegeHelper.canUpdate( GrouperSession.staticGrouperSession(), Group.this, 
+                GrouperSession.staticGrouperSession().getSubject() ) ) {
+              throw new InsufficientPrivilegeException(
+                  E.CANNOT_UPDATE + errorMessageSuffix);
+            }
+  
+            if (Group.this.getTypeOfGroup() == TypeOfGroup.entity) {
+              throw new RuntimeException("Cant delete memberships from entity, must be a group or role");
+            }
+            
+            // ... And delete composite mship if it exists
+            if (Group.this.hasComposite()) {
+              Group.this.deleteCompositeMember();
+            }
+
+            // ... And delete all memberships - as root
+            // Deletes (and saves) now happen within internal_deleteAllFieldType().  See GRP-254.
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+                Membership.internal_deleteAllFieldType( 
+                  GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST );
+                
+                return null;
+              }
+            });
+
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              AuditEntry auditEntry = null;
+              auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DELETE_ALL_MEMBERSHIPS, "id", 
+                  Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                  "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+              auditEntry.setDescription("Deleted all group memberships: " + Group.this.getName());
+                
+              auditEntry.saveOrUpdate(true);
+            }
+            
+            sw.stop();
+            EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ALL_MEMBERSHIPS_DEL + Quote.single(Group.this.getName()), sw);
+            return null;
+          }
+        });
+  }
+
+  /**
    * keep track of properties of pre/post update
    */
   private class DisplayProperties {

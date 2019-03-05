@@ -1461,6 +1461,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       subject = GrouperSession.staticGrouperSession().getSubject();
     }
     
+    long count = 0L;
+    
     for (int stemIndex = 0; stemIndex < stemBatches; stemIndex++) {
       
       List<String> stemIds = GrouperUtil.batchList(totalStemIdsList, 100, stemIndex);
@@ -1791,20 +1793,24 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       if (queryOptions != null) {
         massageSortFields(queryOptions.getQuerySort());
       }
-  
       Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllStemsSecure")
-        .options(queryOptions)
-        .listSet(Stem.class);
-      
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllStemsSecure")
+          .options(queryOptions)
+          .listSet(Stem.class);
+        
       //if the hql didnt filter, this will
       Set<Stem> tempStems = grouperSession.getNamingResolver()
         .postHqlFilterStems(stems, subject, inPrivSet);
       
       overallResults.addAll(GrouperUtil.nonNull(tempStems));
+      if (queryOptions != null && queryOptions.isRetrieveCount()) {
+        count += queryOptions.getCount();
+      }
     }
       
+    queryOptions.setCount(count);
+    
     //if find by uuid or name, try to narrow down to one...
     if (findByUuidOrName) {
       

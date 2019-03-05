@@ -2915,6 +2915,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     List<String> totalGroupIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalGroupIds));
     
+    long count = 0L;
+
     for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
       
       List<String> groupIds = GrouperUtil.batchList(totalGroupIdsList, 100, groupIndex);
@@ -3360,10 +3362,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             .listSet(Group.class);
           
           overallResults.addAll(GrouperUtil.nonNull(tempGroups));
+          
+          if (queryOptions != null && queryOptions.isRetrieveCount()) {
+            count += queryOptions.getCount();
+          }
+
         }
       }      
     }
     
+    queryOptions.setCount(count);
+
     //if find by uuid or name, try to narrow down to one...
     if (findByUuidOrName) {
       

@@ -497,6 +497,8 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
     List<String> totalAttributeDefIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalAttributeDefIds));
     
+    long count = 0L;
+
     for (int attributeDefIndex = 0; attributeDefIndex < attributeDefBatches; attributeDefIndex++) {
       
       List<String> attributeDefIds = GrouperUtil.batchList(totalAttributeDefIdsList, 100, attributeDefIndex);
@@ -664,6 +666,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         .options(queryOptions)
         .listSet(AttributeDef.class);
       
+      if (queryOptions != null && queryOptions.isRetrieveCount()) {
+        count += queryOptions.getCount();
+      }
+
       //if the hql didnt filter, this will
       Set<AttributeDef> tempResult = GrouperUtil.length(privileges) == 0 ? attributeDefs 
           : grouperSession.getAttributeDefResolver()
@@ -671,6 +677,8 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
       overallResults.addAll(GrouperUtil.nonNull(tempResult));
     }
+    
+    queryOptions.setCount(count);
 
     for (AttributeDef attributeDef : GrouperUtil.nonNull(overallResults)) {
       attributeDefCacheAsRootAddIfSupposedTo(attributeDef);

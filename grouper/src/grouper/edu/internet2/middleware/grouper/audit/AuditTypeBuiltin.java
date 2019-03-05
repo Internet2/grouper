@@ -430,6 +430,12 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   GROUP_DELETE(new AuditType("group", "deleteGroup", null, "id", "name", "parentStemId", 
       "displayName", "description")),
   
+  /**
+   * delete group
+   */
+  GROUP_DELETE_ALL_MEMBERSHIPS(new AuditType("group", "deleteAllGroupMemberships", null, "id", "name", "parentStemId", 
+      "displayName", "description")),
+  
       
   /**
    * add entity
