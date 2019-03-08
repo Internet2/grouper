@@ -4,16 +4,19 @@
  */
 package edu.internet2.middleware.grouperDuo;
 
+import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT;
+import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
+
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -32,9 +35,11 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import net.sf.json.JSONObject;
 
 
 /**
@@ -107,10 +112,7 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
     
     try {
       
-      //# put groups in here which go to duo, the name in duo will be the extension here
-      //grouperDuo.folder.name.withDuoGroups = duo
-      String grouperDuoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.folder.name.withDuoGroups");
-      Stem grouperDuoFolder = StemFinder.findByName(grouperSession, grouperDuoFolderName, true);
+      Stem grouperDuoFolder = GrouperDuoUtils.duoStem(debugMap);
       
       Set<Group> grouperGroups = grouperDuoFolder.getChildGroups(Scope.ONE);
       
@@ -127,13 +129,17 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
             invalidGroupNameCount++;
           }
         }
-  
-        debugMap.put("grouperGroupNameCount", grouperGroups.size());
+
+        if (debugMap != null) {
+          debugMap.put("grouperGroupNameCount", grouperGroups.size());
+        }
         if (invalidGroupNameCount > 0) {
-          debugMap.put("invalidGrouperGroupNameCount", invalidGroupNameCount);
+          if (debugMap != null) {
+            debugMap.put("invalidGrouperGroupNameCount", invalidGroupNameCount);
+          }
         }
       }
-      
+            
       //make a map from group extension
       Map<String, Group> grouperGroupExtensionToGroupMap = new HashMap<String, Group>();
       
