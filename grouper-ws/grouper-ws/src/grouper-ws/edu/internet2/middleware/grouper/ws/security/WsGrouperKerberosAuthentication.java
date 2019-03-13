@@ -20,6 +20,8 @@
 package edu.internet2.middleware.grouper.ws.security;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -155,6 +157,15 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
   }
 
   /**
+   * return something like 1ms to troubleshoot time issues
+   * @param startNanos
+   * @return the millis
+   */
+  private static String timeMillis(long startNanos) {
+    return ((System.nanoTime() - startNanos) / 1000000) + "ms";
+  }
+  
+  /**
    * see if a user and pass are correct with berberos
    * @param principal
    * @param password
@@ -162,74 +173,147 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
    */
   public static boolean authenticateKerberos(String principal, String password) {
 
-    // Obtain a LoginContext, needed for authentication. Tell it 
-    // to use the LoginModule implementation specified by the 
-    // entry named "JaasSample" in the JAAS login configuration 
-    // file and to also use the specified CallbackHandler.
-
-    File jaasConf = GrouperServiceUtils.fileFromResourceName("jaas.conf");
-
-    if (jaasConf == null) {
-      throw new RuntimeException("Cant find jaas.conf!");
-    }
-
-    String krb5Location = GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.krb5.conf.location");
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    long startNanos = System.nanoTime();
     
-    File krb5confFile = null;
-    
-    //first look for external central file on OS
-    if (!StringUtils.isBlank(krb5Location)) {
-      krb5confFile = new File(krb5Location);
-      if (!krb5confFile.exists() || !krb5confFile.isFile()) {
-        throw new RuntimeException("krb5 conf file in " + krb5Location + " does not exist or is not a file");
+    try {
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("method", "authenticateKerberos()");
       }
-    } else {
-         
-       krb5confFile = GrouperUtil.fileFromResourceName("krb5.conf"); 
-    }
-    
-    if (krb5confFile == null) { 
-      LOG.info("Cant find krb5.conf from classpath or config location: kerberos.krb5.conf.location"); 
-      System.setProperty("java.security.krb5.realm", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.realm"));
-      System.setProperty("java.security.krb5.kdc", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.kdc.address"));
-    } else {
+  
+      // Obtain a LoginContext, needed for authentication. Tell it 
+      // to use the LoginModule implementation specified by the 
+      // entry named "JaasSample" in the JAAS login configuration 
+      // file and to also use the specified CallbackHandler.
+  
+      File jaasConf = GrouperServiceUtils.fileFromResourceName("jaas.conf");
+  
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("jaasConfFound", jaasConf != null);
+        debugMap.put("jaasConfLocation", jaasConf == null ? null : jaasConf.getAbsolutePath());
+      }
+  
+      if (jaasConf == null) {
+        throw new RuntimeException("Cant find jaas.conf!");
+      }
+  
+      String krb5Location = GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.krb5.conf.location");
+  
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("krb5Location", krb5Location);
+      }
+  
+      File krb5confFile = null;
       
-      System.setProperty("java.security.krb5.conf", krb5confFile.getAbsolutePath()); 
-    }
- 
-    
-    System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
-    //System.setProperty("sun.security.krb5.debug", "true");
-    
-    LoginContext lc = null;
-    try {
-      lc = new LoginContext("JaasSample", new GrouperWsKerberosHandler(principal, password));
+      //first look for external central file on OS
+      if (!StringUtils.isBlank(krb5Location)) {
+        krb5confFile = new File(krb5Location);
+  
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("krb5confFile", krb5confFile.getAbsolutePath());
+          debugMap.put("krb5confFileFound", krb5confFile.exists() || krb5confFile.isFile());
+        }
+  
+        if (!krb5confFile.exists() || !krb5confFile.isFile()) {
+          throw new RuntimeException("krb5 conf file in " + krb5Location + " does not exist or is not a file");
+        }
+      } else {
+           
+         krb5confFile = GrouperUtil.fileFromResourceName("krb5.conf"); 
+  
+         if (LOG.isDebugEnabled()) {
+           debugMap.put("krb5confFile", krb5confFile == null ? null : krb5confFile.getAbsolutePath());
+           debugMap.put("krb5confFileFound", krb5confFile.exists() || krb5confFile.isFile());
+         }
+      }
       
-
-    } catch (LoginException le) {
-      LOG.error("Cannot create LoginContext. ", le);
-      return false;
-    } catch (SecurityException se) {
-      LOG.error("Cannot create LoginContext. " , se);
-      return false;
-    }
-
-    try {
-
-      // attempt authentication
-      lc.login();
-
+      if (krb5confFile == null) { 
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("krb5confFileNotFoundFound", true);
+          debugMap.put("kerberos.realm", GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.realm"));
+          debugMap.put("kerberos.kdc.address", GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.kdc.address"));
+        }
+        
+        System.setProperty("java.security.krb5.realm", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.realm"));
+        System.setProperty("java.security.krb5.kdc", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.kdc.address"));
+      } else {
+        
+        System.setProperty("java.security.krb5.conf", krb5confFile.getAbsolutePath()); 
+      }
+   
+      
+      System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
+      
+      // # debug kerberos, sets system property sun.security.krb5.debug = true
+      // # {valueType: "boolean"}
+      // kerberos.debug = false
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("kerberos.debug", false)) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("kerberos.debug", true);
+        }
+        
+        System.setProperty("sun.security.krb5.debug", "true");
+      }
+      
+      LoginContext lc = null;
       try {
-        lc.logout();
-      } catch (Exception e) {
-        LOG.warn(e);
+        lc = new LoginContext("JaasSample", new GrouperWsKerberosHandler(principal, password));
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("loginContextCreated", true + " " + timeMillis(startNanos));
+        }
+  
+      } catch (LoginException le) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("errorCreatingLoginContext", true + " " + timeMillis(startNanos));
+        }
+        LOG.error("Cannot create LoginContext. ", le);
+        return false;
+      } catch (SecurityException se) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("errorCreatingLoginContext", true + " " + timeMillis(startNanos));
+        }
+        LOG.error("Cannot create LoginContext. " , se);
+        return false;
       }
-      return true;
-    } catch (LoginException le) {
+  
+      try {
+  
+        // attempt authentication
+        lc.login();
+  
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("loggedIn", true + " " + timeMillis(startNanos));
+        }
+  
+        try {
+          lc.logout();
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("loggedOut", true + " " + timeMillis(startNanos));
+          }
+        } catch (Exception e) {
+          LOG.warn(e);
+        }
+        return true;
+      } catch (LoginException le) {
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("loginException", true + " " + timeMillis(startNanos));
+        }
+        LOG.warn(le);
+      }
+    } catch (RuntimeException re) {
       
-      LOG.warn(le);
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("took", timeMillis(startNanos));
+      }
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("took", timeMillis(startNanos));
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
-
     return false;
   }
 
