@@ -4615,7 +4615,7 @@ public enum GrouperLoaderType {
       GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
 
       if (LOG.isInfoEnabled() && (count[0] != 0 && count[0] % 200 == 0)) {
-        LOG.info(groupName + " removing: " + count + " of " + numberOfRows + " members");
+        LOG.info(groupName + " removing: " + count[0] + " of " + numberOfRows + " members");
       }
 
     } catch (RuntimeException e) {
@@ -4631,7 +4631,7 @@ public enum GrouperLoaderType {
       count[0]++;
     
       if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {
-        String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, deleting members, " + count + " of " + numberOfRows + " subjects";
+        String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, deleting members, " + count[0] + " of " + numberOfRows + " subjects";
         LOG.info(logStatus);
         jobStatus[0] = logStatus;
         HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
@@ -4681,7 +4681,7 @@ public enum GrouperLoaderType {
       GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
 
       if (LOG.isInfoEnabled() && (count[0] != 0 && count[0] % 200 == 0)) {
-        LOG.info(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
+        LOG.info(groupName + " adding: " + count[0] + " of " + numberOfRows + " subjects"
             + (alreadyAdded ? ", [note: was already added... weird]" : ""));
       }
     } catch (RuntimeException e) {
@@ -4701,7 +4701,7 @@ public enum GrouperLoaderType {
     count[0]++;
     
     if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {
-      String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, adding members, " + count + " of " + numberOfRows + " subjects";
+      String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, adding members, " + count[0] + " of " + numberOfRows + " subjects";
       LOG.info(logStatus);
       jobStatus[0] = logStatus;
       HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
