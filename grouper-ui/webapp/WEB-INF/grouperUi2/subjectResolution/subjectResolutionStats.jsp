@@ -6,6 +6,7 @@
                         <th class="sorted" style="width: 200px;">${textContainer.text['subjectResolutionStatsTableHeaderSourceName']}</th>
                         <th class="sorted">${textContainer.text['subjectResolutionStatsTableHeaderUnresolvableCount']}</th>
                         <th class="sorted">${textContainer.text['subjectResolutionStatsTableHeaderResolvableCount']}</th>
+                        <th class="sorted">${textContainer.text['subjectResolutionStatsTableHeaderDeletedCount']}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -15,6 +16,7 @@
                           <td>${subjectResolutionStat.source}</td>
                           <td>${subjectResolutionStat.unresolvedCount}</td>
                           <td>${subjectResolutionStat.resolvedCount}</td>
+                          <td>${subjectResolutionStat.deletedCount}</td>
                         </tr>
                       </c:forEach>
                     </tbody>

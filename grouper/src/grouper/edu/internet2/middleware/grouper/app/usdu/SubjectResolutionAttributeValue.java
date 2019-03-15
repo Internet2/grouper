@@ -1,6 +1,11 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * bean that represents metadata attributes on member 
@@ -150,7 +155,13 @@ public class SubjectResolutionAttributeValue {
    * @return timestamp when member was marked as deleted
    */
   public String getSubjectResolutionDateDelete() {
-    return subjectResolutionDateDeleteString;
+    
+    if (StringUtils.isNotBlank(subjectResolutionDateDeleteString)) {
+      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+      Long millis = Long.valueOf(subjectResolutionDateDeleteString);
+      return dateFormat.format(new Date(millis));
+    }
+    return null;
   }
 
   /**

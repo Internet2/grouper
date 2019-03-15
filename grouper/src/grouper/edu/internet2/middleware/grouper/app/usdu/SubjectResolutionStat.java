@@ -9,7 +9,7 @@ public class SubjectResolutionStat {
   private String source;
   
   /**
-   * number of unresolved subjects
+   * number of unresolved subjects; this also includes the deleted count
    */
   private long unresolvedCount;
   
@@ -18,10 +18,17 @@ public class SubjectResolutionStat {
    */
   private long resolvedCount;
   
-  public SubjectResolutionStat(String source, long unresolvedCount, long resolvedCount) {
+  /**
+   * number of subjects marked as deleted
+   */
+  private long deletedCount;
+  
+  
+  public SubjectResolutionStat(String source, long unresolvedCount, long resolvedCount, long deletedCount) {
     this.source = source;
     this.unresolvedCount = unresolvedCount;
     this.resolvedCount = resolvedCount;
+    this.deletedCount = deletedCount;
   }
 
   /**
@@ -34,7 +41,7 @@ public class SubjectResolutionStat {
 
   /**
    * 
-   * @return number of unresolved subjects
+   * @return number of unresolved subjects; this also includes the deleted count
    */
   public long getUnresolvedCount() {
     return unresolvedCount;
@@ -48,4 +55,12 @@ public class SubjectResolutionStat {
     return resolvedCount;
   }
 
+  /**
+   * 
+   * @return number of subjects marked as deleted
+   */
+  public long getDeletedCount() {
+    return deletedCount;
+  }
+  
 }
