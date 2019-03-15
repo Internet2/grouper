@@ -3,11 +3,10 @@
  <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                     <thead>
                       <tr>
-                      <th>${textContainer.text['subjectResolutionSubjectDeleteAuditLogFilterColumnDate']}</th>
-                      <th>${textContainer.text['subjectResolutionSubjectDeleteLogFilterColumnActor']}</th>
+                      <th style="width: 120px;">${textContainer.text['subjectResolutionSubjectDeleteAuditLogFilterColumnDate']}</th>
                       <th>${textContainer.text['subjectResolutionSubjectDeleteLogFilterColumnEngine']}</th>
                       <th>${textContainer.text['subjectResolutionSubjectDeleteLogFilterColumnSummary']}</th>
-                      <c:if test="${grouperRequestContainer.groupContainer.auditExtendedResults }" >
+                      <c:if test="${grouperRequestContainer.subjectResolutionContainer.auditExtendedResults }" >
                         <th>${textContainer.text['groupAuditLogFilterColumnDuration']}</th>
                         <th>${textContainer.text['groupAuditLogFilterColumnQueryCount']}</th>
                         <th>${textContainer.text['groupAuditLogFilterColumnServerUsername']}</th>
@@ -25,10 +24,9 @@
                       <c:set var="auditEntry" value="${guiAuditEntry.auditEntry}" />
                       <tr>
                         <td>${guiAuditEntry.guiDate}</td>
-                        <td style="white-space: nowrap">${guiAuditEntry.guiSubjectPerformedAction.shortLinkWithIcon}</td>
                         <td>${guiAuditEntry.grouperEngineLabel}</td>
                         <td>${guiAuditEntry.auditLine }</td>
-                        <c:if test="${grouperRequestContainer.groupContainer.auditExtendedResults }" >
+                        <c:if test="${grouperRequestContainer.subjectResolutionContainer.auditExtendedResults }" >
                           <td>${guiAuditEntry.durationLabel }</td>
                           <td>${auditEntry.queryCount}</td>
                           <td>${auditEntry.serverUserName }</td>

@@ -14,7 +14,7 @@
                       <c:forEach items="${grouperRequestContainer.subjectResolutionContainer.unresolvedSubjects}"
                         var="unresolvedSubject" >
                         <tr>
-                          <td>${unresolvedSubject.member.subject.name}</td>
+                          <td>${unresolvedSubject.member.name}</td>
                           <td>${unresolvedSubject.subjectResolutionDateLastResolvedString}</td>
                           <td>${unresolvedSubject.subjectResolutionDateLastCheckedString}</td>
                           <td>${unresolvedSubject.subjectResolutionDaysUnresolvedString}</td>
@@ -24,6 +24,6 @@
                     </tbody>
                   </table>
           <div class="data-table-bottom gradient-background">
-            <grouper:paging2 guiPaging="${grouperRequestContainer.subjectResolutionContainer.guiPaging}" formName="unresolvedSubjectsPagingForm" ajaxFormIds="unresolvedSubjectsFilterFormId"
+            <grouper:paging2 guiPaging="${grouperRequestContainer.subjectResolutionContainer.guiPaging}" formName="unresolvedSubjectsPagingForm"
               refreshOperation="../app/UiV2SubjectResolution.viewUnresolvedSubjects" />
           </div>

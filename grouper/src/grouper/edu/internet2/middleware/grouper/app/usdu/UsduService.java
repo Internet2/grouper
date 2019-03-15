@@ -144,18 +144,24 @@ public class UsduService {
       
       long unresolvedCount = 0L;
       long resolvedCount = 0L;
+      long deletedCount = 0L;
       
-      for (Object m : MemberFinder.findAllUsed(session, source)) {
+      for (Object m : MemberFinder.findAll(session, source)) {
         Member member = (Member) m;
         
-        if (!USDU.isMemberResolvable(session, member)) {
-          unresolvedCount++;
-        } else {
+        SubjectResolutionAttributeValue resolutionAttributeValue = getSubjectResolutionAttributeValue(member);
+        
+        if (resolutionAttributeValue == null) {
           resolvedCount++;
+        } else if (BooleanUtils.toBoolean(resolutionAttributeValue.getSubjectResolutionDeletedString())) {
+          deletedCount++;
+        } else {
+          unresolvedCount++;
         }
+        
       }
       
-      subjectResolutionStats.add(new SubjectResolutionStat(source.getName(), unresolvedCount, resolvedCount));
+      subjectResolutionStats.add(new SubjectResolutionStat(source.getName(), unresolvedCount, resolvedCount, deletedCount));
       
     }
     
@@ -172,10 +178,17 @@ public class UsduService {
     
     Set<SubjectResolutionAttributeValue> unresolvedSubjects = new HashSet<SubjectResolutionAttributeValue>();
     
-    Set<Member> members = new MemberFinder()
+    Set<Member> unresolvedMembers = new MemberFinder()
         .assignAttributeCheckReadOnAttributeDef(false)
         .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_RESOLVABLE)
         .addAttributeValuesOnAssignment("false")
+        .assignQueryOptions(queryOptions)
+        .findMembers();
+    
+    Set<Member> deletedMembers = new MemberFinder()
+        .assignAttributeCheckReadOnAttributeDef(false)
+        .assignNameOfAttributeDefName(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_DELETED)
+        .addAttributeValuesOnAssignment("true")
         .assignQueryOptions(queryOptions)
         .findMembers();
     
@@ -183,7 +196,7 @@ public class UsduService {
     Date currentDate = new Date();
     Calendar c = Calendar.getInstance();
     
-    for (Member member: members) {
+    for (Member member: unresolvedMembers) {
       
       String sourceId = member.getSubjectSourceId();
       
@@ -193,9 +206,8 @@ public class UsduService {
       }
       
       SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member);
-      
+        
       Long daysSubjectHasBeenUnresolved = subjectResolutionAttributeValue.getSubjectResolutionDaysUnresolved();
-      
       Long daysAfterWhichSubjectWillBeDeleted = deleteAfterDays - daysSubjectHasBeenUnresolved;
       
       c.setTime(currentDate);
@@ -205,6 +217,17 @@ public class UsduService {
       subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(dateSubjectWillBeDeleted);
       
       unresolvedSubjects.add(subjectResolutionAttributeValue);
+    }
+    
+    for (Member member: deletedMembers) {
+      
+      SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member);
+      
+      String deletedDate = subjectResolutionAttributeValue.getSubjectResolutionDateDelete();
+      subjectResolutionAttributeValue.setDateSubjectWillBeDeletedString(deletedDate);
+      
+      unresolvedSubjects.add(subjectResolutionAttributeValue);
+      
     }
     
     return unresolvedSubjects;

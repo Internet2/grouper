@@ -974,6 +974,9 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_XML_IMPORT");
         
+        case USDU_MEMBER_DELETE:
+          return TextContainer.retrieveFromRequest().getText().get("audits_USDU_DELETE_MEMBER");
+        
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
           return TextContainer.retrieveFromRequest().getText().get("auditsUndefinedAction");

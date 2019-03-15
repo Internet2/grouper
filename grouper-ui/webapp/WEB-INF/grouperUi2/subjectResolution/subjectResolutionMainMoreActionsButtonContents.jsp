@@ -24,8 +24,9 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.viewSubjectDeleteAudits'); return false;"
                               >${textContainer.text['subjectResolutionMainMoreActionsViewAuditLogs'] }</a></li>  
                               
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.viewAuditLogs'); return false;"
-                              >${textContainer.text['subjectResolutionMainMoreActionsViewAuditLogs'] }</a></li>    
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs&daemonJobsFilter=usduDaemon'); return false;" style="white-space: nowrap;"
+                              >${textContainer.text['subjectResolutionMainMoreActionsViewDaemonLogs'] }</a></li>    
+                              
                         </c:if>
                         
                       </ul>

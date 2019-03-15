@@ -1,7 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -9,15 +10,12 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionAttributeValue;
 import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -27,8 +25,6 @@ import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubjectResolutionSubject;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -39,18 +35,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectResolutionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 public class UiV2SubjectResolution {
-  
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(UiV2SubjectResolution.class);
   
   /**
    * 
@@ -73,6 +65,16 @@ public class UiV2SubjectResolution {
       subjectResolutionContainer.assertSubjectResolutionEnabledAndAllowed();
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          subjectResolutionContainer.setSubjectResolutionStats(UsduService.getSubjectResolutionStats()); 
+          return null;
+        }
+      });
             
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/subjectResolution/subjectResolutionMain.jsp"));
@@ -104,7 +106,24 @@ public class UiV2SubjectResolution {
       subjectResolutionContainer.assertSubjectResolutionEnabledAndAllowed();
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-            
+      
+      GuiPaging guiPaging = subjectResolutionContainer.getGuiPaging();
+      final QueryOptions queryOptions = new QueryOptions();
+      
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+      
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Set<SubjectResolutionAttributeValue> unresolvedSubjects = UsduService.getUnresolvedSubjects(queryOptions);
+          subjectResolutionContainer.setUnresolvedSubjects(unresolvedSubjects);
+          return null;
+        }
+      });
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/subjectResolution/unresolvedSubjects.jsp"));
       
@@ -136,6 +155,8 @@ public class UiV2SubjectResolution {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/subjectResolution/subjectDeleteAudits.jsp"));
       
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -148,9 +169,6 @@ public class UiV2SubjectResolution {
           return null;
         }
       });
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/subjectResolution/subjectDeleteAudits.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -249,6 +267,7 @@ public class UiV2SubjectResolution {
     SubjectResolutionContainer subjectResolutionContainer = grouperRequestContainer.getSubjectResolutionContainer();
     
     GuiPaging guiPaging = subjectResolutionContainer.getGuiPaging();
+
     QueryOptions queryOptions = new QueryOptions();
   
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
@@ -332,114 +351,11 @@ public class UiV2SubjectResolution {
   }
   
   /**
-   * combo filter
+   * submit button on search subjects page was clicked
    * @param request
    * @param response
    */
-  public void addMemberFilter(HttpServletRequest request, HttpServletResponse response) {
-  
-    //run the combo logic
-    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Subject>() {
-  
-      /**
-       */
-      @Override
-      public Subject lookup(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
-  
-        //when we refer to subjects in the dropdown, we will use a sourceId / subject tuple
-        
-        Subject subject = null;
-            
-        try {
-          GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
-          if (query != null && query.contains("||")) {
-            String sourceId = GrouperUtil.prefixOrSuffix(query, "||", true);
-            String subjectId = GrouperUtil.prefixOrSuffix(query, "||", false);
-            subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
-          } else {
-            try {
-              subject = SubjectFinder.findByIdOrIdentifier(query, false);
-            } catch (SubjectNotUniqueException snue) {
-              //ignore this...
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Find by id or identifier not unique: '" + query + "'");
-              }
-            }
-          }
-        } finally {
-          GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
-        }
-
-        //dont do groups or internal
-        if (subject != null && !SubjectHelper.inSourceList(GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision(), subject.getSource())) {
-          subject = null;
-        }
-        
-        return subject;
-      }
-  
-      /**
-       * 
-       */
-      @Override
-      public Collection<Subject> search(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
-        
-        try {
-          GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
-          Collection<Subject> results = 
-              SubjectFinder.findPage(query, GrouperDeprovisioningSettings.retrieveSourcesAllowedToDeprovision()).getResults();
-          return results;
-        } finally {
-          GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
-        }
-      
-      }
-  
-      /**
-       * 
-       * @param t
-       * @return source with id
-       */
-      @Override
-      public String retrieveId(GrouperSession grouperSession, Subject t) {
-        return t.getSourceId() + "||" + t.getId();
-      }
-      
-      /**
-       * 
-       */
-      @Override
-      public String retrieveLabel(GrouperSession grouperSession, Subject t) {
-        return new GuiSubject(t).getScreenLabelLong();
-      }
-  
-      /**
-       * 
-       */
-      @Override
-      public String retrieveHtmlLabel(GrouperSession grouperSession, Subject t) {
-        String value = new GuiSubject(t).getScreenLabelLongWithIcon();
-        return value;
-      }
-  
-      /**
-       * 
-       */
-      @Override
-      public String initialValidationError(HttpServletRequest localRequest, GrouperSession grouperSession) {
-  
-        return null;
-      }
-    });
-              
-  }
-  
-  /**
-   * view subject
-   * @param request
-   * @param response
-   */
-  public void viewSubject(HttpServletRequest request, HttpServletResponse response) {
+  public void searchSubjectsSubmit(final HttpServletRequest request, final HttpServletResponse response) {
     
     final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     final SubjectResolutionContainer subjectResolutionContainer = grouperRequestContainer.getSubjectResolutionContainer();
@@ -456,50 +372,70 @@ public class UiV2SubjectResolution {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      String subjectString = request.getParameter("groupAddMemberComboName");
+      final String subjectId = request.getParameter("subjectId");
       
-      if (StringUtils.isBlank(subjectString)) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupAddMemberComboId",
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningNoAffiliationSelected")));
+      if (StringUtils.isBlank(subjectId)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("subjectResolutionSubjectSearchSubjectIdBlank")));
         return;
       }
       
-      Subject subject = null;
-      
-      if (subjectString != null && subjectString.contains("||")) {
-        String sourceId = GrouperUtil.prefixOrSuffix(subjectString, "||", true);
-        String subjectId = GrouperUtil.prefixOrSuffix(subjectString, "||", false);
-        subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
-
-      } else {
-        try {
-          subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
-        } catch (SubjectNotUniqueException snue) {
-          //ignore
-        }
-          
-      }
-
-      final Subject SUBJECT = subject;
-      
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      GuiSubjectResolutionSubject guiSubjectResolutionSub = (GuiSubjectResolutionSubject) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-          Member member = MemberFinder.findBySubject(grouperSession, SUBJECT, true);
           
-          SubjectResolutionAttributeValue subjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+          Subject subject = SubjectFinder.findById(subjectId, false);
+          
           GuiSubjectResolutionSubject guiSubjectResolutionSubject = new GuiSubjectResolutionSubject();
-          guiSubjectResolutionSubject.setGuiSubject(new GuiSubject(SUBJECT));
-          guiSubjectResolutionSubject.setSubjectResolutionAttributeValue(subjectResolutionAttributeValue);
-          subjectResolutionContainer.setGuiSubjectResolutionSubject(guiSubjectResolutionSubject);
           
-          return null;
+          if (subject != null) {
+            guiSubjectResolutionSubject.setGuiSubject(new GuiSubject(subject));
+          } else {
+            // look for subject in member; maybe it's not resolvable
+            Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(subjectId, false);
+            
+            if (member == null) {
+              return null;
+            }
+            
+            SubjectResolutionAttributeValue attributeValue = UsduService.getSubjectResolutionAttributeValue(member);
+            if (attributeValue == null) {
+              
+              // maybe the UsduJob has not run yet and that's why the attributes are not populated.
+              // let's populate right now.
+              
+              DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+              Date currentDate = new Date();
+              String curentDateString = dateFormat.format(currentDate);
+              
+              SubjectResolutionAttributeValue newValue = new SubjectResolutionAttributeValue();
+              newValue.setSubjectResolutionResolvableString(BooleanUtils.toStringTrueFalse(false));
+              newValue.setSubjectResolutionDateLastResolvedString(curentDateString);
+              newValue.setSubjectResolutionDaysUnresolvedString(String.valueOf(0L));
+              newValue.setSubjectResolutionDateLastCheckedString(curentDateString);
+              newValue.setMember(member);
+              
+              UsduService.markMemberAsUnresolved(newValue, member);
+              
+              guiSubjectResolutionSubject.setSubjectResolutionAttributeValue(newValue);
+              
+            } else {
+              guiSubjectResolutionSubject.setSubjectResolutionAttributeValue(attributeValue);
+            }
+          }
+          
+          return guiSubjectResolutionSubject;
         }
-        
       });
+      
+      if (guiSubjectResolutionSub == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("subjectResolutionSubjectSearchSubjectNotFound")));        
+        return;
+      } else {
+        subjectResolutionContainer.setGuiSubjectResolutionSubject(guiSubjectResolutionSub);
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultId",
           "/WEB-INF/grouperUi2/subjectResolution/subjectResolutionViewSubject.jsp"));
@@ -507,7 +443,7 @@ public class UiV2SubjectResolution {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-
+    
   }
 
 }

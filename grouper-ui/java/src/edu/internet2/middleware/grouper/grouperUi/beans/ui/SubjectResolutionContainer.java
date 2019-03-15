@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +21,16 @@ import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.subject.Subject;
 
 public class SubjectResolutionContainer {
+  
+  /**
+   * stats for resolvable/unresolvable subjects per source
+   */
+  private List<SubjectResolutionStat> subjectResolutionStats = new ArrayList<SubjectResolutionStat>();
+  
+  /**
+   * unresolved subjects
+   */
+  private Set<SubjectResolutionAttributeValue> unresolvedSubjects = new HashSet<SubjectResolutionAttributeValue>();
   
   /**
    * keep track of the paging
@@ -64,28 +76,36 @@ public class SubjectResolutionContainer {
    * @return the list of subject sources with unresolved and resolved count
    */
   public List<SubjectResolutionStat> getSubjectResolutionStats() {
-    return UsduService.getSubjectResolutionStats();
+    return this.subjectResolutionStats;
   }
   
+  
+  /**
+   * the list of subject sources with unresolved and resolved count
+   * @param subjectResolutionStats
+   */
+  public void setSubjectResolutionStats(List<SubjectResolutionStat> subjectResolutionStats) {
+    this.subjectResolutionStats = subjectResolutionStats;
+  }
+
   /**
    * 
    * @return get unresolved subjects
    */
   public Set<SubjectResolutionAttributeValue> getUnresolvedSubjects() {
-    
-    GuiPaging guiPaging = this.getGuiPaging();
-    QueryOptions queryOptions = new QueryOptions();
-    
-    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
-
-    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
-    
-    Set<SubjectResolutionAttributeValue> unresolvedSubjects = UsduService.getUnresolvedSubjects(queryOptions);
-    
-    return unresolvedSubjects;
-    
+    return this.unresolvedSubjects;
   }
   
+  
+  /**
+   * unresolved subjects
+   * @param unresolvedSubjects
+   */
+  public void setUnresolvedSubjects(Set<SubjectResolutionAttributeValue> unresolvedSubjects) {
+    this.unresolvedSubjects = unresolvedSubjects;
+  }
+
+
   /**
    * sorting, e.g. for the audit screen
    */
@@ -169,6 +189,5 @@ public class SubjectResolutionContainer {
   public void setGuiSubjectResolutionSubject(GuiSubjectResolutionSubject guiSubjectResolutionSubject) {
     this.guiSubjectResolutionSubject = guiSubjectResolutionSubject;
   }
-
   
 }

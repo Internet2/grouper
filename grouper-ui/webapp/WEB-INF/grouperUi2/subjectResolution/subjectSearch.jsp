@@ -28,15 +28,18 @@
                     </div>
                     <div class="span3" style="white-space: nowrap;">
                       
-                      <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
+                      <%-- <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
                           filterOperation="../app/UiV2SubjectResolution.addMemberFilter"/>
-                        ${textContainer.text['miscellaneousSubjectResolutionSearchSubjectEntityLabel']}
+                        ${textContainer.text['miscellaneousSubjectResolutionSearchSubjectEntityLabel']} --%>
+                        
+                       <input type="text" name="subjectId" placeholder="${textContainer.text['subjectResolutionSubjectsSearchQueryTextFieldPlaceholder']}"
+                        aria-label="${textContainer.text['ariaLabelSubjectResolutionSubjectsSearchQueryTextFieldPlaceholder']}">
                       
                     </div>
                   </div>
                   <div class="form-actions">
                     <div class="span2">&nbsp;</div>
-                    <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectResolution.viewSubject', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</a>
+                    <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectResolution.searchSubjectsSubmit', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</a>
                   </div>
                 </form>
                 
