@@ -133,9 +133,16 @@ public class UsduJob extends OtherJobBase {
       return null;
     }
     
-    deleteUnresolvableMembers(grouperSession);
+    LOG.info("Going to mark members as deleted.");
+    long deletedMembers = deleteUnresolvableMembers(grouperSession);
+    otherJobInput.getHib3GrouperLoaderLog().store();
     
-    clearMetadataFromNowResolvedMembers(grouperSession);
+    long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
+    otherJobInput.getHib3GrouperLoaderLog().store();
+    
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members");
+    
+    LOG.info("UsduJob finished successfully.");
     
     return null;
   }
@@ -164,7 +171,12 @@ public class UsduJob extends OtherJobBase {
   }
   
   
-  private void clearMetadataFromNowResolvedMembers(GrouperSession grouperSession) {
+  /**
+   * clear attributes from members who have become resolvable again.
+   * @param grouperSession
+   * @return
+   */
+  private long clearMetadataFromNowResolvedMembers(GrouperSession grouperSession) {
    
     Set<Member> members = new MemberFinder()
       .assignAttributeCheckReadOnAttributeDef(false)
@@ -172,11 +184,16 @@ public class UsduJob extends OtherJobBase {
       .addAttributeValuesOnAssignment("false")
       .findMembers();
     
+    long resolvableMembers = 0; 
+    
     for (Member member: members) {
       if (USDU.isMemberResolvable(grouperSession, member)) {
         UsduService.deleteAttributeAssign(member);
+        resolvableMembers++;
       }
     }
+    
+    return resolvableMembers;
     
   }
   
@@ -184,8 +201,9 @@ public class UsduJob extends OtherJobBase {
   /**
    * delete unresolvable members
    * @param grouperSession
+   * @return number of members marked as deleted
    */
-  private void deleteUnresolvableMembers(GrouperSession grouperSession) {
+  private long deleteUnresolvableMembers(GrouperSession grouperSession) {
     
     Set<Member> unresolvableMembers = USDU.getUnresolvableMembers(grouperSession, null);
     
@@ -197,7 +215,7 @@ public class UsduJob extends OtherJobBase {
     
     populateUnresolvableMembersConfig(unresolvableMembers, sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
     
-    deleteUnresolvableMembers(sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
+    return deleteUnresolvableMembers(sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
     
   }
   
@@ -227,11 +245,13 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private void deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
+  private long deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     int globalMaxAllowed = GrouperConfig.retrieveConfig().propertyValueInt("usdu.failsafe.maxUnresolvableSubjects", 500);
     
     boolean globalRemoveUpToFailSafe = GrouperConfig.retrieveConfig().propertyValueBoolean("usdu.failsafe.removeUpToFailsafe", false);
+    
+    long deletedCount = 0;
     
     // now we need to decide if we need to delete unresolvable members and how many
     for (String sourceId: sourceIdToMembers.keySet()) {
@@ -251,12 +271,12 @@ public class UsduJob extends OtherJobBase {
           LOG.info("For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
               + "removeUpToFailsafe is set to true hence going to delete "+maxUnresolvableSubjectsAllowed+" members.");
           
-          deleteUnresolvableMembers(unresolvableMembersForASource, maxUnresolvableSubjectsAllowed);
+          deletedCount += deleteUnresolvableMembers(unresolvableMembersForASource, maxUnresolvableSubjectsAllowed);
           
         }
         
       } else {
-        deleteUnresolvableMembers(unresolvableMembersForASource, unresolvableMembersForASource.size());
+        deletedCount += deleteUnresolvableMembers(unresolvableMembersForASource, unresolvableMembersForASource.size());
       }
         
     }
@@ -271,13 +291,15 @@ public class UsduJob extends OtherJobBase {
         LOG.info("For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
             + "usdu.failsafe.removeUpToFailsafe is set to true hence not going to delete "+globalMaxAllowed+" members.");
         
-        deleteUnresolvableMembers(membersWithoutExplicitSourceConfiguration, globalMaxAllowed);
+        deletedCount += deleteUnresolvableMembers(membersWithoutExplicitSourceConfiguration, globalMaxAllowed);
         
       }
       
     } else {
-      deleteUnresolvableMembers(membersWithoutExplicitSourceConfiguration, membersWithoutExplicitSourceConfiguration.size());
+      deletedCount += deleteUnresolvableMembers(membersWithoutExplicitSourceConfiguration, membersWithoutExplicitSourceConfiguration.size());
     }
+    
+    return deletedCount;
     
   }
   
@@ -371,9 +393,9 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private void deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
+  private long deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
     
-    int deletedCount = 0;
+    long deletedCount = 0;
     
     for (final Member member: unresolvableMembers) {
       
@@ -428,6 +450,7 @@ public class UsduJob extends OtherJobBase {
           auditEntry.assignStringValue(auditEntry.getAuditType(), "memberId", member.getUuid());
           auditEntry.assignStringValue(auditEntry.getAuditType(), "sourceId", member.getSubjectSourceId());
           auditEntry.assignStringValue(auditEntry.getAuditType(), "subjectId", member.getSubjectId());
+          auditEntry.setDescription("Deleted subject id: "+member.getSubjectId()+" name: "+member.getName());
           
           auditEntry.saveOrUpdate(true);
           
@@ -438,6 +461,8 @@ public class UsduJob extends OtherJobBase {
       deletedCount++;
       
     }
+    
+    return deletedCount;
     
   }
   
