@@ -1680,6 +1680,7 @@ public class GrouperCheckConfig {
     checkJar("commons-cli-1.4.jar", 53820, "org.apache.commons.cli.GnuParser", "1.4");
     checkJar("commons-codec-1.11.jar", 335042, "org.apache.commons.codec.binary.Base32OutputStream", "1.11");
     checkJar("commons-collections-3.2.2.jar", 588337, "org.apache.commons.collections.keyvalue.AbstractKeyValue", "3.2.2");
+    checkJar("commons-csv-1.6.jar", 42400, "org.apache.commons.csv.QuoteMode", "1.6");
     checkJar("commons-digester-2.1.jar", 196768, "org.apache.commons.digester.AbstractObjectCreationFactory", "2.1");
     checkJar("commons-digester3-3.2.jar", 241614, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
     checkJar("commons-httpclient-3.1.jar", 305001, "org.apache.commons.httpclient.ChunkedInputStream", "3.1");
