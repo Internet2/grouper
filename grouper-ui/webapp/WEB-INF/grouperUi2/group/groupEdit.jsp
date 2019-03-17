@@ -97,6 +97,29 @@
                         </div>
                       </div>
                     </c:if>
+                    <c:if test="${grouperRequestContainer.groupContainer.cannotAddSelfUserCanView}">
+                      <div class="control-group">
+                        <label for="groupCreateCannotAddSelfId" class="control-label">${textContainer.text['groupCreateCannotAddSelfLabel'] }</label>
+                        <div class="controls">
+                          <c:choose>
+                             <c:when test="${grouperRequestContainer.groupContainer.cannotAddSelfUserCanEdit}">
+                                <select name="groupCreateCannotAddSelfName"
+                                  id="groupCreateCannotAddSelfId" style="width: 30em">
+                                    <option value="true"
+                                      ${grouperRequestContainer.groupContainer.cannotAddSelfAssignedToGroup ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['groupCreateCannotAddSelfTrue']}</option>
+                                    <option value="false"
+                                      ${grouperRequestContainer.groupContainer.cannotAddSelfAssignedToGroup ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['groupCreateCannotAddSelfFalse']}</option>
+                                </select>
+                             </c:when>
+                             <c:otherwise>
+                                ${grouperRequestContainer.groupContainer.cannotAddSelfAssignedToGroup ? textContainer.textEscapeXml['groupCreateCannotAddSelfTrue'] : textContainer.textEscapeXml['groupCreateCannotAddSelfFalse'] }
+                             </c:otherwise>
+                           </c:choose>
+                            <br />
+                            <span class="help-block">${textContainer.text['groupCreateCannotAddSelfDescription'] }</span>
+                        </div>
+                      </div>
+                    </c:if>
                   </div>
                   <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
                   <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</a></div>

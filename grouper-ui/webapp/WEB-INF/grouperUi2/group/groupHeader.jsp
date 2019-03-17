@@ -239,6 +239,14 @@
                             <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>
                           </tr>
 
+                          <c:if test="${grouperRequestContainer.groupContainer.cannotAddSelfUserCanView}">
+                            <tr>
+                              <td><strong>${textContainer.text['groupCreateCannotAddSelfLabel']}</strong></td>
+                              <td>${grouperRequestContainer.groupContainer.cannotAddSelfAssignedToGroup ? textContainer.textEscapeXml['groupCreateCannotAddSelfTrue'] : textContainer.textEscapeXml['groupCreateCannotAddSelfFalse'] }</td>
+                            </tr>
+                            </div>
+                          </c:if>
+
                         </tbody>
                       </table>
                     </div>

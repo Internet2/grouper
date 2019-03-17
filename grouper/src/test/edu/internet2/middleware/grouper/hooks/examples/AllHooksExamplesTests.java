@@ -36,6 +36,7 @@ public class AllHooksExamplesTests {
     suite.addTestSuite(GroupAttributeNameValidationHookTest.class);
     suite.addTestSuite(GroupUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(LDAPProvisioningHookTest.class);
+    suite.addTestSuite(MembershipCannotAddSelfToGroupHookTest.class);
     suite.addTestSuite(MembershipOneInFolderMaxHookTest.class);
     suite.addTestSuite(StemUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(UniqueObjectHookTest.class);

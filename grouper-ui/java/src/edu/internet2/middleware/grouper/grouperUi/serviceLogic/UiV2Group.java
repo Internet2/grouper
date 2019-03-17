@@ -94,6 +94,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -2108,7 +2109,7 @@ public class UiV2Group {
       final boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
       final boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
       final boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
-  
+      final boolean cannotAddSelf = GrouperUtil.booleanValue(request.getParameter("groupCreateCannotAddSelfName"), false);
       String groupType = request.getParameter("groupType[]");
       
       final TypeOfGroup typeOfGroup = TypeOfGroup.valueOfIgnoreCase(groupType, true);
@@ -2149,12 +2150,25 @@ public class UiV2Group {
             .assignPrivAllOptout(optoutChecked).assignPrivAllRead(readChecked)
             .assignPrivAllUpdate(updateChecked).assignPrivAllView(viewChecked);
         group = groupSave.save();
+
+        boolean madeChange = groupSave.getSaveResultType() != SaveResultType.NO_CHANGE;
+        
+        GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+        if (groupContainer.isCannotAddSelfUserCanEdit()) {
+          if (cannotAddSelf && !groupContainer.isCannotAddSelfAssignedToGroup()) {
+            MembershipCannotAddSelfToGroupHook.cannotAddSelfAssign(group);
+            madeChange = true;
+          } else if (!cannotAddSelf && groupContainer.isCannotAddSelfAssignedToGroup()) {
+            MembershipCannotAddSelfToGroupHook.cannotAddSelfRevoke(group);
+            madeChange = true;
+          }
+        }
         
         //go to the view group screen
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
     
         //lets show a success message on the new screen
-        if (groupSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        if (!madeChange) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
               TextContainer.retrieveFromRequest().getText().get("groupEditNoChangeNote")));
         } else {

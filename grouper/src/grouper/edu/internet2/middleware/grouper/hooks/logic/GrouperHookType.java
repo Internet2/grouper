@@ -346,7 +346,7 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
 
       //we have a class, make sure it is the right one
       if (!baseClass.isAssignableFrom(theHooksClass)) {
-        throw new RuntimeException("Class configured in grouper config: '" + propertyFileKey 
+        throw new RuntimeException((theHooksClass == null ? null : theHooksClass.getName()) + " class configured in grouper config: '" + propertyFileKey 
             + "' does not extend " + baseClass.getName());
       }
       

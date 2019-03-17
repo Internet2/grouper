@@ -97,7 +97,9 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
@@ -843,6 +845,57 @@ public class GrouperCheckConfig {
         checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, description, 
             "member sort/search security from grouper.properties key: " + key, null);
         
+      }
+      
+      if (MembershipCannotAddSelfToGroupHook.cannotAddSelfEnabled()){
+        String cannotAddSelfRootStemName = MembershipCannotAddSelfToGroupHook.cannotAddSelfStemName();
+        
+        Stem cannotAddSelfRootStem = StemFinder.findByName(grouperSession, cannotAddSelfRootStemName, false);
+        if (cannotAddSelfRootStem == null) {
+          cannotAddSelfRootStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for objects related to cannot add self to group").assignName(cannotAddSelfRootStemName)
+            .save();
+        }
+
+        {
+          // users who can assign "cannot add self as member of group"
+          String cannotAddSelfAssignGroupName = MembershipCannotAddSelfToGroupHook.cannotAddSelfAssignGroupName();
+
+          checkGroup(grouperSession, cannotAddSelfAssignGroupName, wasInCheckConfig, true, 
+              wasInCheckConfig, null, 
+              "users who can assign \"cannot add self as member of group\"", 
+              "users who can assign \"cannot add self as member of group\"",
+              null);
+        }        
+        
+        {
+          // users who can revoke "cannot add self as member of group"
+          String cannotAddSelfRevokeGroupName = MembershipCannotAddSelfToGroupHook.cannotAddSelfRevokeGroupName();
+
+          checkGroup(grouperSession, cannotAddSelfRevokeGroupName, wasInCheckConfig, true, 
+              wasInCheckConfig, null, 
+              "users who can revoke \"cannot add self as member of group\"", 
+              "users who can revoke \"cannot add self as member of group\"",
+              null);
+        }        
+        
+        //see if attributeDef is there
+        String cannotAddSelfTypeDefName = MembershipCannotAddSelfToGroupHook.cannotAddSelfNameOfAttributeDef();
+        AttributeDef cannotAddSelfType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            cannotAddSelfTypeDefName, false, new QueryOptions().secondLevelCache(false));
+        if (cannotAddSelfType == null) {
+          cannotAddSelfType = cannotAddSelfRootStem.addChildAttributeDef(GrouperUtil.extensionFromName(cannotAddSelfTypeDefName), AttributeDefType.type);
+          //assign once
+          cannotAddSelfType.setMultiAssignable(false);
+          cannotAddSelfType.setAssignToGroup(true);
+          cannotAddSelfType.store();
+        }
+        
+        //add a name
+        checkAttribute(cannotAddSelfRootStem, cannotAddSelfType, GrouperUtil.extensionFromName(MembershipCannotAddSelfToGroupHook.cannotAddSelfNameOfAttributeDefName()), 
+            "Assign this attribute to a group and users will not be able to add themself to the group for separation of duties", wasInCheckConfig);
+        
+        MembershipCannotAddSelfToGroupHook.registerHookIfNecessary();
       }
       
       //if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {

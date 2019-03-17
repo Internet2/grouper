@@ -31,8 +31,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -543,7 +545,39 @@ public class GroupContainer {
     }
     return this.canOptin;
   }
+
+  /**
+   * if cannot add self is enabled
+   * @return true if cannot add self is enabled
+   */
+  public boolean isCannotAddSelfEnabled() {
+    return MembershipCannotAddSelfToGroupHook.cannotAddSelfEnabled();
+  }
   
+  /**
+   * if the current group has cannotAddSelf
+   * @return is can optin
+   */
+  public boolean isCannotAddSelfAssignedToGroup() {
+    return MembershipCannotAddSelfToGroupHook.cannotAddSelfAssignedToGroup(GroupContainer.this.getGuiGroup().getGroup());
+  }
+
+  /**
+   * if the current user can assign cannotAddSelf
+   * @return is can optin
+   */
+  public boolean isCannotAddSelfUserCanEdit() {
+    return MembershipCannotAddSelfToGroupHook.cannotAddSelfUserCanEdit(this.getGuiGroup().getGroup(), GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
+  /**
+   * if the current user can assign cannotAddSelf
+   * @return is can optin
+   */
+  public boolean isCannotAddSelfUserCanView() {
+    return MembershipCannotAddSelfToGroupHook.cannotAddSelfUserCanView(this.getGuiGroup().getGroup(), GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
   /**
    * if the logged in user can optout
    */
