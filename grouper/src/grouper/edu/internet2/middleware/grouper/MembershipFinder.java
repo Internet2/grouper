@@ -835,7 +835,7 @@ public class MembershipFinder {
   
   /**
    * find a set of object arrays which have a PITMembershipView, PITGroup|PITStem|PITAttributeDef, PITMember, and Member inside
-   * note that for now this only supports groupIds, memberIds, sources, checkSecurity, queryOptionsForMember, scopeForMember, hasFieldForMember, pointInTimeFrom, and pointInTimeTo
+   * note that for now this only supports stem, stemScope, groupIds, memberIds, sources, checkSecurity, queryOptionsForMember, scopeForMember, hasFieldForMember, pointInTimeFrom, and pointInTimeTo
    * @return the set of arrays never null
    */
   public Set<Object[]> findPITMembershipsMembers() {
@@ -845,7 +845,7 @@ public class MembershipFinder {
   
   /**
    * find a set of object arrays which have a PITMembershipView, PITGroup, PITMember and Member inside
-   * note that for now this only supports groupIds, memberIds, sources, checkSecurity, queryOptionsForMember, scopeForMember, hasFieldForMember, pointInTimeFrom, and pointInTimeTo
+   * note that for now this only supports stem, stemScope, groupIds, memberIds, sources, checkSecurity, queryOptionsForMember, scopeForMember, hasFieldForMember, pointInTimeFrom, and pointInTimeTo
    * @return the set of arrays never null
    */
   private Set<Object[]> findPITMembershipsGroupsMembers() {
@@ -873,7 +873,7 @@ public class MembershipFinder {
           + " involve group memberships");
     }
     
-    return GrouperDAOFactory.getFactory().getPITMembershipView().findAllByGroupOwnerOptions(this.groupIds, this.memberIds, this.fields, this.sources, this.checkSecurity, this.fieldType, 
+    return GrouperDAOFactory.getFactory().getPITMembershipView().findAllByGroupOwnerOptions(this.groupIds, this.memberIds, this.fields, this.sources, this.stem, this.stemScope, this.checkSecurity, this.fieldType, 
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, this.hasFieldForMember, this.pointInTimeFrom, this.pointInTimeTo);
   }
 

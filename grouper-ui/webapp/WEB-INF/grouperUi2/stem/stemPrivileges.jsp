@@ -11,11 +11,7 @@
                 <ul class="nav nav-tabs">
                   <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
                   <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['stemPrivileges'] }</a></li>
-                  <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
-                    
-                    <%@ include file="stemMoreTab.jsp" %>
-                    
-                  </c:if>
+                  <%@ include file="stemMoreTab.jsp" %>
                 </ul>
                 <p class="lead">${textContainer.text['stemPrivilegesDecription'] }</p>
                 <form class="form-inline form-filter" id="stemFilterPrivilegesFormId">

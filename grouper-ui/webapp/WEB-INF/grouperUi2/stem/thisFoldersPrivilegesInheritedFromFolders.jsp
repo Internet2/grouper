@@ -14,11 +14,7 @@
                   <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
                     <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
                   </c:if>
-                  <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
-                    
-                    <%@ include file="stemMoreTab.jsp" %>
-                    
-                  </c:if>
+                  <%@ include file="stemMoreTab.jsp" %>
                 </ul>
                 <p class="lead">${textContainer.text['stemPrivilegesInheritedFromFoldersDecription'] }</p>
                 <c:choose>

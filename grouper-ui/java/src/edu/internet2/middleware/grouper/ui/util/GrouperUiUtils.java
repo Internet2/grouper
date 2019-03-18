@@ -62,10 +62,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -75,7 +78,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.j2ee.GenericServletResponseWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -1946,4 +1951,50 @@ public class GrouperUiUtils {
     throw new RuntimeException("Unsupported object type: " + GrouperUtil.className(object));
   }
   
+  /**
+   * @return map of custom composites
+   */
+  public static Map<Integer, String> getCustomCompositeUiKeys() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    @SuppressWarnings("unchecked")
+    Map<Integer, String> customCompositeIndexesAndUiKeys = (Map<Integer, String>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            
+            Map<Integer, String> temp = new LinkedHashMap<Integer, String>();
+            
+            int count = 0;
+            while (true) {
+              String uiKey = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.uiKey." + count, null);
+              String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + count, null);
+              String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + count, null);
+              
+              if (uiKey == null || groupName == null || compositeType == null) {
+                break;
+              }
+              
+              Group group = GroupFinder.findByName(grouperSession, groupName, false);
+              if (group == null) {
+                // bad config
+                count++;
+                continue;
+              }
+              
+              if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+                temp.put(count, uiKey);
+              }
+              
+              count++;
+            }
+            
+            return temp;
+          }
+        });
+    
+    return customCompositeIndexesAndUiKeys;
+  }
 }

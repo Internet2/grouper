@@ -38,10 +38,12 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -57,14 +59,17 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic;
@@ -83,12 +88,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.pit.PITMembershipView;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -99,7 +106,9 @@ import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -1159,6 +1168,383 @@ public class UiV2Stem {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+
+  /**
+   * view group memberships in stem
+   * @param request
+   * @param response
+   */
+  public void groupMembershipsInFolder(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/groupMembershipsInFolder.jsp"));
+      groupMembershipsInFolderFilter(request, response);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * the filter button was pressed, or paging or sorting or something
+   * @param request
+   * @param response
+   */
+  public void groupMembershipsInFolderFilter(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+    GrouperSession grouperSession = null;
+    
+    Stem stem = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+  
+      groupMembershipsInFolderFilterHelper(request, response, stem);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+
+  /**
+   * the remove members button was pressed
+   * @param request
+   * @param response
+   */
+  public void removeGroupMembers(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Stem stem = retrieveStemHelper(request, false).getStem();
+  
+      if (stem == null) {
+        return;
+      }
+  
+      final Set<String> membershipsIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String membershipId = request.getParameter("membershipRow_" + i + "[]");
+        if (!StringUtils.isBlank(membershipId)) {
+          membershipsIds.add(membershipId);
+        }
+      }
+  
+      if (membershipsIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupMembershipsRemoveNoSubjectSelects")));
+        return;
+      }
+
+      int successes = 0;
+      int failures = 0;
+      
+      int count = 0;
+      
+      Set<Group> groups = new HashSet<Group>();
+      
+      for (String membershipId : membershipsIds) {
+        try {
+          Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
+
+          Member member = membership.getMember();
+          Group group = membership.getOwnerGroup();
+          
+          group.deleteMember(member, false);
+          groups.add(group);
+          
+          if (count++ < 5 && group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
+            GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+                loggedInSubject, member);
+
+          }
+          
+          successes++;
+        } catch (Exception e) {
+          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
+          failures++;
+        }
+      }
+      
+      for (Group group : groups) {
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
+          GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            loggedInSubject, group);
+        }
+      }
+      
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setSuccessCount(successes);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setFailureCount(failures);
+
+
+      groupMembershipsInFolderFilter(request, response);
+      
+      //put this after redirect
+      if (failures > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersFromFolderErrors")));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersFromFolderSuccesses")));
+      }
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * @param request
+   * @param response
+   * @param stem
+   */
+  private void groupMembershipsInFolderFilterHelper(HttpServletRequest request, HttpServletResponse response, Stem stem) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    String filterText = request.getParameter("filterText");
+    String membershipEnabledDisabledOptions = request.getParameter("membershipEnabledDisabledOptions");
+    String membershipPITOptions = request.getParameter("membershipPITOptions");
+    String membershipPITToDate = request.getParameter("membershipPITToDate");
+    String membershipPITFromDate = request.getParameter("membershipPITFromDate");
+    String membershipCustomCompositeOptions = request.getParameter("membershipCustomCompositeOptions");
+    StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+    
+    //if filtering by subjects that have a certain type
+    String membershipTypeString = request.getParameter("membershipType");
+    MembershipType membershipType = null;
+    if (!StringUtils.isBlank(membershipTypeString)) {
+      membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+    }
+
+    GuiPaging guiPaging = stemContainer.getGuiPaging();
+    QueryOptions queryOptions = new QueryOptions();
+
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .assignStem(stem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true)
+      .assignHasFieldForMember(false)
+      .assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true);
+    
+    if (!StringUtils.isBlank(filterText)) {
+      membershipFinder.assignScopeForMember(filterText);
+    }
+    
+    if ("yes".equals(membershipPITOptions)) {
+      stemContainer.setShowPointInTimeAudit(true);
+      stemContainer.setShowEnabledStatus(false);
+      
+      if (StringUtils.isNotBlank(membershipPITFromDate)) {
+        membershipFinder.assignPointInTimeFrom(GrouperUtil.stringToTimestamp(membershipPITFromDate));
+      }
+      
+      if (StringUtils.isNotBlank(membershipPITToDate)) {
+        membershipFinder.assignPointInTimeTo(GrouperUtil.stringToTimestamp(membershipPITToDate));
+      }
+      
+      //set of subjects, and what memberships each subject has
+      Set<Object[]> result = membershipFinder.findPITMembershipsMembers();
+      
+      //lets get all the subjects by member id
+      Map<String, Subject> memberIdToSubject = new HashMap<String, Subject>();
+
+      {
+        Map<String, SubjectBean> memberIdToSubjectBean = new HashMap<String, SubjectBean>();
+        Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
+        for (Object[] membershipResult : result) {
+          Member member = (Member)membershipResult[3];
+          SubjectBean subjectBean = new SubjectBean(member.getSubjectId(), member.getSubjectSourceId());
+          memberIdToSubjectBean.put(member.getUuid(), subjectBean);
+          subjectBeans.add(subjectBean);
+        }
+        Map<SubjectBean, Subject> subjectBeanToSubject = SubjectFinder.findBySubjectBeans(subjectBeans);
+    
+        for (String memberId : memberIdToSubjectBean.keySet()) {
+          SubjectBean subjectBean = memberIdToSubjectBean.get(memberId);
+          Subject subject = subjectBeanToSubject.get(subjectBean);
+
+          if (subject == null) {
+            subject = new UnresolvableSubject(subjectBean.getId(), null, subjectBean.getSourceId());  
+          }
+          
+          memberIdToSubject.put(memberId, subject);
+        }
+      }
+      
+      Set<GuiPITMembershipView> guiPITMembershipViews = new LinkedHashSet<GuiPITMembershipView>();
+      
+      for (Object[] membershipResult : result) {
+        PITMembershipView pitMembershipView = (PITMembershipView)membershipResult[0];
+        GuiPITMembershipView guiPITMembershipView = new GuiPITMembershipView(pitMembershipView);
+        String memberId = pitMembershipView.getPITMember().getSourceId();
+        Subject subject = memberIdToSubject.get(memberId);
+        guiPITMembershipView.setGuiSubject(new GuiSubject(subject));
+        guiPITMembershipViews.add(guiPITMembershipView);
+      }
+
+      stemContainer.setGuiPITMembershipViews(guiPITMembershipViews);
+    } else {
+      stemContainer.setShowPointInTimeAudit(false);
+      membershipFinder.assignHasMembershipTypeForMember(false);
+      
+      if (membershipType != null) {
+        membershipFinder.assignMembershipType(membershipType);
+      }
+      
+      stemContainer.setShowEnabledStatus(true);
+      
+      if ("status".equals(membershipEnabledDisabledOptions)) {
+        // include enabled and disabled memberships
+        membershipFinder.assignEnabled(null);
+      } else if ("disabled_dates".equals(membershipEnabledDisabledOptions)) {
+        // include memberships that have a disabled date
+        membershipFinder.assignHasDisabledDate(true);
+      } else if ("enabled_dates".equals(membershipEnabledDisabledOptions)) {
+        // include memberships that have an enabled date
+        membershipFinder.assignHasEnabledDate(true);
+      } else {
+        // default
+        membershipFinder.assignEnabled(true);
+        stemContainer.setShowEnabledStatus(false);
+      }
+      
+      if (!StringUtils.isBlank(membershipCustomCompositeOptions) && !"nothing".equals(membershipCustomCompositeOptions)) {
+        String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + membershipCustomCompositeOptions, null);
+        String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + membershipCustomCompositeOptions, null);
+        Group customCompositeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+        CompositeType customCompositeType = CompositeType.valueOfIgnoreCase(compositeType);
+        membershipFinder.assignCustomCompositeGroup(customCompositeGroup).assignCustomCompositeType(customCompositeType);
+      }
+      
+      //set of subjects, and what memberships each subject has
+      Set<MembershipSubjectContainer> results = membershipFinder
+          .findMembershipResult().getMembershipSubjectContainers();
+
+      stemContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+    }
+    
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMembershipsInFolderResultsId", 
+        "/WEB-INF/grouperUi2/stem/groupMembershipsInFolderContents.jsp"));
+  
+  }
+  
+  /**
+   * remove one member from the group
+   * @param request
+   * @param response
+   */
+  public void removeGroupMember(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final Stem stem = retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      String groupId = request.getParameter("groupId");
+      
+      Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
+      
+      String memberId = request.getParameter("memberId");
+      
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, false);
+
+      //not sure why this would happen
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberCantFindMember")));
+        
+      } else {
+      
+        boolean madeChanges = group.deleteMember(member, false);
+        
+        if (madeChanges) {
+    
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+              
+        } else {
+          
+          //not sure why this would happen (race condition?)
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberNoChangesSuccess")));
+    
+        }
+      }
+      
+      groupMembershipsInFolderFilterHelper(request, response, stem);
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, member);
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
 
   /**
    * remove line items from inherited privileges

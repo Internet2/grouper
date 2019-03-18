@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
@@ -31,6 +33,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -651,4 +654,93 @@ public class StemContainer {
     this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
+ private boolean showEnabledStatus;
+  
+  private boolean showPointInTimeAudit;
+
+  
+  /**
+   * @return the showEnabledStatus
+   */
+  public boolean isShowEnabledStatus() {
+    return showEnabledStatus;
+  }
+
+  
+  /**
+   * @param showEnabledStatus the showEnabledStatus to set
+   */
+  public void setShowEnabledStatus(boolean showEnabledStatus) {
+    this.showEnabledStatus = showEnabledStatus;
+  }
+
+  
+  /**
+   * @return the showPointInTimeAudit
+   */
+  public boolean isShowPointInTimeAudit() {
+    return showPointInTimeAudit;
+  }
+
+  
+  /**
+   * @param showPointInTimeAudit the showPointInTimeAudit to set
+   */
+  public void setShowPointInTimeAudit(boolean showPointInTimeAudit) {
+    this.showPointInTimeAudit = showPointInTimeAudit;
+  }
+  
+  /**
+   * groups, stems, etc in this stem which are children, only in the current page
+   */
+  private Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers;
+  
+  /**
+   * memberships in group
+   * @return subjects and memberships
+   */
+  public Set<GuiMembershipSubjectContainer> getGuiMembershipSubjectContainers() {
+    return this.guiMembershipSubjectContainers;
+  }
+
+  /**
+   * assign the membership containers
+   * @param guiMembershipSubjectContainers1
+   */
+  public void setGuiMembershipSubjectContainers(
+      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers1) {
+    this.guiMembershipSubjectContainers = guiMembershipSubjectContainers1;
+  }
+  
+  private Set<GuiPITMembershipView> guiPITMembershipViews;
+
+  
+  /**
+   * @return the guiPITMembershipViews
+   */
+  public Set<GuiPITMembershipView> getGuiPITMembershipViews() {
+    return guiPITMembershipViews;
+  }
+
+  
+  /**
+   * @param guiPITMembershipViews the guiPITMembershipViews to set
+   */
+  public void setGuiPITMembershipViews(Set<GuiPITMembershipView> guiPITMembershipViews) {
+    this.guiPITMembershipViews = guiPITMembershipViews;
+  }
+  
+  private Map<Integer, String> customCompositeIndexesAndUiKeys;
+
+  /**
+   * @return the customCompositeUiKeys
+   */
+  public Map<Integer, String> getCustomCompositeUiKeys() {
+    
+    if (customCompositeIndexesAndUiKeys == null) {
+      this.customCompositeIndexesAndUiKeys = GrouperUiUtils.getCustomCompositeUiKeys();
+    }
+    
+    return customCompositeIndexesAndUiKeys;
+  }
 }
