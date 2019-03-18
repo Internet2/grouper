@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
@@ -64,7 +63,9 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMembershipView;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -101,7 +102,7 @@ public class TestMembershipFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembershipFinder("testFindMembersPIT"));
+    TestRunner.run(new TestMembershipFinder("testFindMembersInStemPIT"));
   }
 
   /**
@@ -1566,6 +1567,251 @@ public class TestMembershipFinder extends GrouperTest {
     
     queryOptions.paging(1, 1, true);
     listResult = new ArrayList<Object[]>(new MembershipFinder().addGroupId(group.getId()).assignCheckSecurity(true).assignHasFieldForMember(true).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeFrom(new Timestamp(afterDelete0_1)).assignPointInTimeTo(new Timestamp(System.currentTimeMillis())).findPITMembershipsMembers());
+    assertEquals(2, listResult.size());
+    assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+  }
+  
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  public void testFindMembersInStemPIT() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(grouperSession).assignName("theStem:theGroup2").assignCreateParentStemsIfNotExist(true).save();
+    Group group3 = new GroupSave(grouperSession).assignName("theStem:theGroup3").assignCreateParentStemsIfNotExist(true).save();
+    group.addMember(group2.toSubject());
+    
+    Stem theStem = group.getParentStem();
+        
+    Group group4 = new GroupSave(grouperSession).assignName("theStem:theGroup4").assignCreateParentStemsIfNotExist(true).save();
+    group4.addMember(SubjectTestHelper.SUBJ4);
+    group4.deleteMember(SubjectTestHelper.SUBJ4);
+    
+    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ);
+    group.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+
+    Group[] others = new Group[26];
+    
+    for (int i=0;i<26;i++) {
+      others[i] = new GroupSave(grouperSession).assignName("stemA:group" + (char)('A' + i)).assignCreateParentStemsIfNotExist(true).save();
+      others[i].addMember(SubjectTestHelper.SUBJ0);
+      others[i].addMember(SubjectTestHelper.SUBJ1);
+      others[i].addMember(SubjectTestHelper.SUBJ2);
+      others[i].addMember(SubjectTestHelper.SUBJ3);
+      others[i].addMember(SubjectTestHelper.SUBJ4);
+      others[i].addMember(SubjectTestHelper.SUBJ5);
+    }
+    
+    Stem stemA = others[0].getParentStem();
+    
+    long beforeAdd0and2_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.addMember(SubjectTestHelper.SUBJ0);
+    group.addMember(SubjectTestHelper.SUBJ2);
+    GrouperUtil.sleep(10);
+    long afterAdd0and2_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeAdd0and2_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group2.addMember(SubjectTestHelper.SUBJ0);
+    group2.addMember(SubjectTestHelper.SUBJ2);
+    GrouperUtil.sleep(10);
+    long afterAdd0and2_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    group3.addMember(SubjectTestHelper.SUBJ0);
+    group3.addMember(SubjectTestHelper.SUBJ2);
+
+    long beforeAdd0and2_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.addMember(group3.toSubject());
+    GrouperUtil.sleep(10);
+    long afterAdd0and2_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeAdd1and3_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.addMember(SubjectTestHelper.SUBJ1);
+    group.addMember(SubjectTestHelper.SUBJ3);
+    GrouperUtil.sleep(10);
+    long afterAdd1and3_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    // now remove memberships
+
+    long beforeDelete0_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.deleteMember(SubjectTestHelper.SUBJ0);
+    GrouperUtil.sleep(10);
+    long afterDelete0_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeDelete0_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group2.deleteMember(SubjectTestHelper.SUBJ0);
+    GrouperUtil.sleep(10);
+    long afterDelete0_2 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeDelete0_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.deleteMember(group3.toSubject());
+    GrouperUtil.sleep(10);
+    long afterDelete0_3 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    long beforeDelete1_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    group.deleteMember(SubjectTestHelper.SUBJ1);
+    GrouperUtil.sleep(10);
+    long afterDelete1_1 = System.currentTimeMillis();
+    GrouperUtil.sleep(10);
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    // add stuff that doesn't result in real memberships on the main group (for person subjects)
+    group3.addMember(SubjectTestHelper.SUBJ4);
+    group.addMember(group4.toSubject());
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup = PITGroupFinder.findBySourceId(group.getId(), true).iterator().next();
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(20, 1, true);
+    
+    // check security
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    Set<Object[]> result = new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+    
+    result = new MembershipFinder().assignStem(stemA).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStem(stemA).assignStemScope(Stem.Scope.ONE).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(0, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.ONE).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).findPITMembershipsMembers();
+    assertEquals(11, GrouperUtil.length(result));
+    
+    result = new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+        .assignSplitScopeForMember(true).addSourceId("g:gsa").findPITMembershipsMembers();
+    assertEquals(3, GrouperUtil.length(result));
+    
+    queryOptions.paging(1, 1, true);
+    List<Object[]> listResult = new ArrayList<Object[]>(new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers());
+    assertEquals(3, listResult.size());
+    assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_1);
+      assertNotNull(pitMembershipView.getEndTime());
+      
+      pitMembershipView = (PITMembershipView)listResult.get(1)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_2);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_2);
+      assertNotNull(pitMembershipView.getEndTime());
+      
+      pitMembershipView = (PITMembershipView)listResult.get(2)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_3);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_3);
+      assertNotNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 4, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").findPITMembershipsMembers());
+    assertEquals(1, listResult.size());
+    assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ3.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd1and3_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd1and3_1);
+      assertNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeTo(new Timestamp(beforeAdd0and2_1)).findPITMembershipsMembers());
+    assertEquals(0, listResult.size());
+    assertEquals(0, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeTo(new Timestamp(afterAdd0and2_1)).findPITMembershipsMembers());
+    assertEquals(1, listResult.size());
+    assertEquals(2, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_1);
+      assertNotNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeFrom(new Timestamp(afterDelete1_1)).findPITMembershipsMembers());
+    assertEquals(2, listResult.size());
+    assertEquals(2, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    {
+      PITMembershipView pitMembershipView = (PITMembershipView)listResult.get(0)[0];
+      assertEquals(SubjectTestHelper.SUBJ2.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_1);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_1);
+      assertNull(pitMembershipView.getEndTime());
+      
+      pitMembershipView = (PITMembershipView)listResult.get(1)[0];
+      assertEquals(SubjectTestHelper.SUBJ2.getId(), pitMembershipView.getPITMember().getSubjectId());
+      assertEquals(pitGroup.getId(), pitMembershipView.getOwnerGroupId());
+      assertTrue(pitMembershipView.getStartTime().getTime() > beforeAdd0and2_2);
+      assertTrue(pitMembershipView.getStartTime().getTime() < afterAdd0and2_2);
+      assertNull(pitMembershipView.getEndTime());
+    }
+    
+    queryOptions.paging(1, 1, true);
+    listResult = new ArrayList<Object[]>(new MembershipFinder().assignStem(theStem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true).assignHasFieldForMember(false).assignQueryOptionsForMember(queryOptions)
       .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeFrom(new Timestamp(afterDelete0_1)).assignPointInTimeTo(new Timestamp(System.currentTimeMillis())).findPITMembershipsMembers());
     assertEquals(2, listResult.size());
     assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());

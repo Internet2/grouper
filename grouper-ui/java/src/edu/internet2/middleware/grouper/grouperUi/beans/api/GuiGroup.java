@@ -581,6 +581,18 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
 
   }
+  
+  /**
+   * if the logged in user can read (or inherit), dont check security
+   * @return true
+   */
+  public boolean isCanRead() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false);
+
+  }
 
   /**
    * if the logged in user has update

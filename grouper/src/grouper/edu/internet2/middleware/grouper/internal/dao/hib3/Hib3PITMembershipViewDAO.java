@@ -34,6 +34,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -277,17 +279,17 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
    */
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
       Collection<Field> fields,
-      Set<Source> sources, Boolean checkSecurity, FieldType fieldType,
+      Set<Source> sources, Stem stem, Scope stemScope, Boolean checkSecurity, FieldType fieldType,
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
       boolean hasFieldForMember, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
     
-    return this.findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, fields, sources, checkSecurity, fieldType, 
+    return this.findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, fields, sources, stem, stemScope, checkSecurity, fieldType, 
         queryOptionsForMember, filterForMember, splitScopeForMember, hasFieldForMember, pointInTimeFrom, pointInTimeTo); 
   }
 
   private Set<Object[]> findAllByGroupOwnerOptionsHelper(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
       Collection<Field> fields,
-      Set<Source> sources, Boolean checkSecurity, FieldType fieldType,
+      Set<Source> sources, Stem stem, Scope stemScope, Boolean checkSecurity, FieldType fieldType,
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
       boolean hasFieldForMember, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
 
@@ -303,6 +305,10 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     
     if (fieldType != null) {
       throw new RuntimeException("Field type not supported for now.");
+    }
+    
+    if ((stem == null) != (stemScope == null)) {
+      throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
     
     final List<String> totalGroupIdsList = GrouperUtil.listFromCollection(totalGroupIds);
@@ -353,10 +359,6 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
       
       checkSecurity = false;
     }
-
-    if (checkSecurity) {
-      throw new RuntimeException("Unsupported for now");
-    }
     
     int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100);
 
@@ -373,8 +375,8 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
         int groupIdsSize = GrouperUtil.length(groupIds);
         int memberIdsSize = GrouperUtil.length(memberIds);
         
-        if (groupIdsSize == 0 && memberIdsSize == 0 ) {
-          throw new RuntimeException("Must pass in group(s) and/or member(s)");
+        if (groupIdsSize == 0 && memberIdsSize == 0 && stem == null) {
+          throw new RuntimeException("Must pass in group(s), member(s), and/or stem");
         }
 
         ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
@@ -384,7 +386,21 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
         //note: mysql wont let you do count distinct of multiple columns
         String countPrefix = "select count(*) ";
 
-        StringBuilder sql = new StringBuilder(" from Member m, PITMembershipView pitms, Group g, Field f, PITMember pitm, PITGroup pitg, PITField pitf where");
+        StringBuilder sql = new StringBuilder(" from Member m, PITMembershipView pitms, Group g, Field f, PITMember pitm, PITGroup pitg, PITField pitf ");
+        
+        boolean changedQuery = false;
+        
+        if (checkSecurity) { 
+          changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+            grouperSessionSubject, byHqlStatic, 
+            sql, "g.uuid", privilegesTheUserHasFinal);
+        }
+
+        if (changedQuery && sql.toString().contains(" where ")) {
+          sql.append(" and ");
+        } else {
+          sql.append(" where ");
+        }
         
         sql.append(" pitms.ownerGroupId = pitg.id "
             + " and pitms.fieldId = pitf.id "
@@ -395,6 +411,24 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
         
         if (sources != null && sources.size() > 0) {
           sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
+        }
+        
+        if (stem != null) {
+          switch (stemScope) {
+            case ONE:
+              
+              sql.append(" and g.parentUuid = :stemId ");
+              byHqlStatic.setString("stemId", stem.getUuid());
+              break;
+            case SUB:
+              
+              sql.append(" and g.nameDb like :stemSub ");
+              byHqlStatic.setString("stemSub", stem.getName() + ":%");
+              
+              break;
+            default:
+              throw new RuntimeException("Not expecting scope: " + stemScope);
+          }
         }
         
         if (GrouperUtil.length(fields) > 0) {
@@ -560,7 +594,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
             //dont pass for people with membership type or field... we already filtered by that...
             Set<Object[]> tempResults = findAllByGroupOwnerOptionsHelper(totalGroupIds, theMemberIds,
                 hasFieldForMember ? null : fields,
-                sources, checkSecurity, fieldType, 
+                sources, stem, stemScope, checkSecurity, fieldType, 
                 null, null, false, false,
                 pointInTimeFrom, pointInTimeTo);
             

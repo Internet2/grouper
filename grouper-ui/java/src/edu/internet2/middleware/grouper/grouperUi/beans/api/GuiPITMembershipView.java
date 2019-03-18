@@ -17,7 +17,15 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMembershipView;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 
 
 /**
@@ -91,7 +99,25 @@ public class GuiPITMembershipView {
   public void setPITMembershipView(PITMembershipView membership1) {
     this.membership = membership1;
   }
-
+  
+  /**
+   * @return the guiGroup
+   */
+  public GuiGroup getOwnerGuiGroup() {
+    String pitOwnerGroupId = this.membership.getOwnerGroupId();
+    
+    if (StringUtils.isEmpty(pitOwnerGroupId)) {
+      return null;
+    }
+    
+    PITGroup pitOwnerGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitOwnerGroupId, true);
+    
+    String ownerGroupId = pitOwnerGroup.getSourceId();
+    
+    Group ownerGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerGroupId, true);
+    
+    return new GuiGroup(ownerGroup);
+  }
   
   /**
    * @return the guiSubject
