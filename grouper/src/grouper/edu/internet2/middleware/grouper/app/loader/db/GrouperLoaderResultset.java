@@ -36,8 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.joda.time.Days;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
@@ -355,11 +357,18 @@ public class GrouperLoaderResultset {
    */
   public GrouperLoaderResultset(GrouperLoaderResultset parentResultSet, String groupName) {
     
+    this.dataIndex = null;
+    
     //if bulk lookuped the parent, then use that for the child
     this.hasBulkLookupedSubjects = parentResultSet.hasBulkLookupedSubjects;
 
     this.columnNames = parentResultSet.columnNames == null ? null
         : new ArrayList<String>(parentResultSet.columnNames);
+    
+    for (int i = 0; i < GrouperUtil.length(this.columnNames); i++) {
+      this.columnNameToIndex.put(this.columnNames.get(i).toUpperCase(), i);
+    }
+
     this.columnTypes = parentResultSet.columnTypes == null ? null
         : new ArrayList<Integer>(parentResultSet.columnTypes);
     for (int i = 0; i < parentResultSet.data.size(); i++) {
@@ -395,6 +404,8 @@ public class GrouperLoaderResultset {
   public GrouperLoaderResultset(GrouperLoaderDb grouperLoaderDb, String query,
       String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
+    this.dataIndex = null;
+    
     //small security check (not failsafe, but better than nothing)
     if (!query.toLowerCase().trim().startsWith("select")) {
       throw new RuntimeException("Invalid query, must start with select: " + query);
@@ -415,6 +426,7 @@ public class GrouperLoaderResultset {
         int columnCount = resultSetMetaData.getColumnCount();
         for (int i = 0; i < columnCount; i++) {
           this.columnNames.add(resultSetMetaData.getColumnLabel(i + 1));
+          this.columnNameToIndex.put(resultSetMetaData.getColumnLabel(i + 1).toUpperCase(), i);
           this.columnTypes.add(resultSetMetaData.getColumnType(i + 1));
         }
 
@@ -494,6 +506,8 @@ public class GrouperLoaderResultset {
       String subjectIdType, String ldapSearchScope, String jobName,
       Hib3GrouperLoaderLog hib3GrouperLoaderLog, String ldapSubjectExpression) {
 
+    this.dataIndex = null;
+    
     //run the query
     LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
         ldapSearchScope, false);
@@ -511,7 +525,10 @@ public class GrouperLoaderResultset {
       this.columnTypes.add(Types.VARCHAR);
 
     }
-
+    for (int i = 0; i < GrouperUtil.length(this.columnNames); i++) {
+      this.columnNameToIndex.put(this.columnNames.get(i).toUpperCase(), i);
+    }
+    
     List<String> results = LdapSessionUtils.ldapSession().list(String.class, ldapServerId, searchDn,
         ldapSearchScopeEnum, filter, subjectAttribute);
 
@@ -526,6 +543,7 @@ public class GrouperLoaderResultset {
         rowData[1] = sourceId;
       }
     }
+    
     this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, ldapSubjectExpression);
   }
 
@@ -567,6 +585,8 @@ public class GrouperLoaderResultset {
       final Map<String, String> groupNameToDisplayName,
       final Map<String, String> groupNameToDescription, final Set<String> groupNames) {
 
+    this.dataIndex = null;
+    
     //run the query
     final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
         ldapSearchScope, false);
@@ -588,6 +608,10 @@ public class GrouperLoaderResultset {
 
     }
 
+    for (int i = 0; i < GrouperUtil.length(this.columnNames); i++) {
+      this.columnNameToIndex.put(this.columnNames.get(i).toUpperCase(), i);
+    }
+    
     final String groupName = hib3GrouperLoaderLog.getGroupNameFromJobName();
 
     if (StringUtils.isBlank(groupName)) {
@@ -780,6 +804,8 @@ public class GrouperLoaderResultset {
       final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression,
       final String resultsTransformationClass) {
 
+    this.dataIndex = null;
+    
     boolean hasSourceId = !StringUtils.isBlank(sourceId);
 
     String subjectIdCol = subjectIdCol(subjectIdType);
@@ -797,6 +823,10 @@ public class GrouperLoaderResultset {
 
     }
     
+    for (int i = 0; i < GrouperUtil.length(this.columnNames); i++) {
+      this.columnNameToIndex.put(this.columnNames.get(i).toUpperCase(), i);
+    }
+
     final String overallGroupName = hib3GrouperLoaderLog.getGroupNameFromJobName();
 
     if (StringUtils.isBlank(overallGroupName)) {
@@ -824,6 +854,7 @@ public class GrouperLoaderResultset {
         }
       }
     }
+    
     this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null);
   }
   
@@ -1261,6 +1292,9 @@ public class GrouperLoaderResultset {
   /** column names (toUpper) */
   private List<String> columnNames = new ArrayList<String>();
 
+  /** column names (toUpper) to integer position */
+  private Map<String, Integer> columnNameToIndex = new HashMap<String, Integer>();
+
   /** column types (from java.sql.Types) */
   private List<Integer> columnTypes = new ArrayList<Integer>();
 
@@ -1463,12 +1497,9 @@ public class GrouperLoaderResultset {
    * @return the column index or -1 if not found or exception
    */
   public int columnIndex(String columnNameInput, boolean throwErrorIfNotFound) {
-    int i = 0;
-    for (String columnName : this.columnNames) {
-      if (StringUtils.equalsIgnoreCase(columnName, columnNameInput)) {
-        return i;
-      }
-      i++;
+    Integer index = this.columnNameToIndex.get(columnNameInput == null ? null : columnNameInput.toUpperCase());
+    if (index != null) {
+      return index.intValue();
     }
     if (throwErrorIfNotFound) {
       throw new RuntimeException("Cant find column: " + columnNameInput);
@@ -1517,10 +1548,8 @@ public class GrouperLoaderResultset {
    * @param columnName
    */
   public void assertColumnName(String columnName) {
-    for (String existingColumn : this.columnNames) {
-      if (StringUtils.equalsIgnoreCase(columnName, existingColumn)) {
-        return;
-      }
+    if (this.columnNameToIndex.containsKey(columnName == null ? null : columnName.toUpperCase())) {
+      return;
     }
     StringBuilder error = new StringBuilder("Cant find column: '" + columnName
         + "' in columns: ");
@@ -1536,13 +1565,7 @@ public class GrouperLoaderResultset {
    * @return true if the column is there
    */
   public boolean hasColumnName(String columnName) {
-
-    for (String existingColumn : this.columnNames) {
-      if (StringUtils.equalsIgnoreCase(columnName, existingColumn)) {
-        return true;
-      }
-    }
-    return false;
+    return this.columnNameToIndex.containsKey(columnName == null ? null : columnName.toUpperCase());
   }
 
   /**
@@ -1550,6 +1573,7 @@ public class GrouperLoaderResultset {
    * @param row
    */
   public void remove(Row row) {
+    this.removeFromIndex(row);
     this.data.remove(row);
   }
 
@@ -1558,7 +1582,146 @@ public class GrouperLoaderResultset {
    * @param i
    */
   public void remove(int i) {
-    this.data.remove(i);
+    Row row = this.data.remove(i);
+    if (row != null) {
+      this.removeFromIndex(row);
+    }
+  }
+
+  /**
+   * multikey is the optional-sourceId, and subjectId|subjectIdentifier|subjectIdOrIdentifier
+   */
+  private Map<MultiKey, Row> dataIndex = null;
+
+  /**
+   * index in data grid of subjectIdOrIdentifier
+   */
+  private Integer subjectIdOrIdentifierIndex = null;
+  
+  /**
+   * index in data grid of subjectIdentifier
+   */
+  private Integer subjectIdentifierIndex = null;
+  
+  /**
+   * index in data grid of subjectId
+   */
+  private Integer subjectIdIndex = null;
+
+  /**
+   * index of source if column if exists
+   */
+  private Integer subjectSourceIdIndex = null;
+
+  
+  /**
+   * if removing from data, then remove from index
+   * @param row
+   */
+  private void removeFromIndex(Row row) {
+    if (dataIndex == null) {
+      return;
+    }
+    
+    List<MultiKey> keys = indexMultiKey(row);
+    for (MultiKey key : GrouperUtil.nonNull(keys)) {
+      dataIndex.remove(key);
+    }
+  }
+
+  /**
+   * multikeys by row
+   * @param row
+   * @return the keys
+   */
+  private List<MultiKey> indexMultiKey(Row row) {
+    Object[] rowData = row.getRowData();
+    String subjectId = this.subjectIdIndex != null ? (String) rowData[subjectIdIndex] : null;
+    String subjectIdentifier = this.subjectIdentifierIndex != null ? (String) rowData[subjectIdentifierIndex] : null;
+    String subjectSourceId = this.subjectSourceIdIndex != null ? (String) rowData[subjectSourceIdIndex] : null;
+    String subjectIdOrIdentifier = this.subjectIdOrIdentifierIndex != null ? (String) rowData[subjectIdOrIdentifierIndex] : null;
+    
+    return indexMultiKey(subjectId, subjectSourceId, subjectIdentifier, subjectIdOrIdentifier);
+  }
+
+  /**
+   * create 0, 1, or 2 keys
+   * @param subjectId
+   * @param subjectSourceId
+   * @param subjectIdentifier
+   * @param subjectIdOrIdentifier
+   * @return the multikeys
+   */
+  private List<MultiKey> indexMultiKey(String subjectId, String subjectSourceId, String subjectIdentifier, String subjectIdOrIdentifier) {
+    List<MultiKey> result = new ArrayList<MultiKey>();
+    
+    // spread these out if that is what we are looking for
+    if (StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectIdOrIdentifier)) {
+      subjectId = subjectIdOrIdentifier;
+    }
+    if (StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectIdOrIdentifier)) {
+      subjectIdentifier = subjectIdOrIdentifier;
+    }
+    
+    if ((this.subjectIdOrIdentifierIndex != null || this.subjectIdIndex != null) && !StringUtils.isBlank(subjectId)) {
+      if (this.subjectSourceIdIndex != null && !StringUtils.isBlank(subjectSourceId)) {
+        result.add(new MultiKey("id", subjectSourceId, subjectId));
+      } else {
+        result.add(new MultiKey("id", subjectId));
+      }
+    }
+    if ((this.subjectIdOrIdentifierIndex != null || this.subjectIdentifierIndex != null) && !StringUtils.isBlank(subjectIdentifier)) {
+      if (this.subjectSourceIdIndex != null && !StringUtils.isBlank(subjectSourceId)) {
+        result.add(new MultiKey("identifier", subjectSourceId, subjectIdentifier));
+      } else {
+        // the true is just there since we need two keys
+        result.add(new MultiKey("identifier", subjectIdentifier));
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * setup the index from the data
+   */
+  private synchronized void setupIndex() {
+    Map<MultiKey, Row> newMap = new HashMap<MultiKey, Row>();
+    this.subjectIdentifierIndex = null;
+    this.subjectIdIndex = null;
+    this.subjectIdOrIdentifierIndex = null;
+    
+    //might not have subject id or identifier
+    this.subjectIdOrIdentifierIndex = this.hasColumnName(SUBJECT_ID_OR_IDENTIFIER_COL) ? this.columnIndex(SUBJECT_ID_OR_IDENTIFIER_COL) : null;
+    
+    //might not have subject identifier
+    this.subjectIdentifierIndex = this.hasColumnName(SUBJECT_IDENTIFIER_COL) ? this.columnIndex(SUBJECT_IDENTIFIER_COL) : null;
+    
+    //might not have subject id
+    this.subjectIdIndex = this.hasColumnName(SUBJECT_ID_COL) ? this.columnIndex(SUBJECT_ID_COL) : null;
+
+    //might not have subject source id
+    this.subjectSourceIdIndex = this.hasColumnName(SUBJECT_SOURCE_ID_COL) ? this.columnIndex(SUBJECT_SOURCE_ID_COL) : null;
+
+    for (Row row : this.data) {
+      List<MultiKey> keys = indexMultiKey(row);
+      for (MultiKey key : GrouperUtil.nonNull(keys)) {
+        newMap.put(key, row);
+      }
+    }
+    this.dataIndex = newMap;
+  }
+
+  /**
+   * if index not setup, then set it up
+   */
+  private void setupIndexIfNotSetup() {
+    if (this.dataIndex == null) {
+      synchronized (this) {
+        if (this.dataIndex == null) {
+          this.setupIndex();
+        }
+      }
+    }
   }
 
   /**
@@ -1570,41 +1733,15 @@ public class GrouperLoaderResultset {
    */
   public Row find(String subjectId, String subjectSourceId, String subjectIdentifier0) {
 
-    //might not have subject id or identifier
-    boolean hasSubjectIdOrIdentifierCol = this.hasColumnName(SUBJECT_ID_OR_IDENTIFIER_COL);
-    int subjectIdOrIdentifierIndex = hasSubjectIdOrIdentifierCol ? this.columnIndex(SUBJECT_ID_OR_IDENTIFIER_COL) : -1;
-    
-    //might not have subject identifier
-    boolean hasSubjectIdentifierCol = this.hasColumnName(SUBJECT_IDENTIFIER_COL);
-    int subjectIdentifierIndex = hasSubjectIdentifierCol ? this.columnIndex(SUBJECT_IDENTIFIER_COL) : -1;
-    
-    //might not have subject id
-    boolean hasSubjectIdCol = this.hasColumnName(SUBJECT_ID_COL);
-    int subjectIdIndex = hasSubjectIdCol ? this.columnIndex(SUBJECT_ID_COL) : -1;
+    this.setupIndexIfNotSetup();
 
-    //might not have subject source id
-    boolean hasSubjectSourceIdCol = this.hasColumnName(SUBJECT_SOURCE_ID_COL);
-    int subjectSourceIdIndex = hasSubjectSourceIdCol ? this.columnIndex(SUBJECT_SOURCE_ID_COL) : -1;
-
-    Iterator<Row> iterator = this.data.iterator();
-    while (iterator.hasNext()) {
-      Row row = iterator.next();
-      Object[] rowData = row.getRowData();
-      if ((hasSubjectIdCol && StringUtils.equals((String) rowData[subjectIdIndex], subjectId)) || 
-          (hasSubjectIdentifierCol && StringUtils.equals((String) rowData[subjectIdentifierIndex], subjectIdentifier0)) ||
-          (hasSubjectIdOrIdentifierCol && (StringUtils.equals((String) rowData[subjectIdOrIdentifierIndex], subjectId) 
-              || StringUtils.equals((String) rowData[subjectIdOrIdentifierIndex], subjectIdentifier0)))) {
-        if (hasSubjectSourceIdCol) {
-          if (!StringUtils.equals((String) rowData[subjectSourceIdIndex], subjectSourceId)) {
-            continue;
-          }
-        }
-        //at this point, they are the same
+    List<MultiKey> keys = indexMultiKey(subjectId, subjectSourceId, subjectIdentifier0, null);
+    for (MultiKey key : GrouperUtil.nonNull(keys)) {
+      Row row = dataIndex.get(key);
+      if (row != null) {
         return row;
-        //dont break, since could have multiple
       }
     }
-    
     return null;
   }
 
