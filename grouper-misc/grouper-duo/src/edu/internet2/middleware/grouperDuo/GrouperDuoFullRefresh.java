@@ -212,19 +212,16 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
         
         GrouperDuoGroup duoGroup = duoGroupNameToGroupMap.get(groupExtensionInGrouper);
 
-        //get group info to see if description ok
-        JSONObject groupInfoResponse = GrouperDuoCommands.retrieveGroupInfo(duoGroup.getId(), false);
-
         //see if update description
         {
-          String duoDescription = groupInfoResponse.getString("desc");
+          String duoDescription = duoGroup.getDescription();
           
           if (!StringUtils.equals(grouperGroup.getDescription(), duoDescription)) {
             GrouperDuoCommands.updateDuoGroup(duoGroup.getId(), grouperGroup.getDescription(), false);
           }
         }
         
-        Map<String, GrouperDuoUser> duoUsernameToUser = GrouperDuoCommands.retrieveUsersForGroup(groupInfoResponse);
+        Map<String, GrouperDuoUser> duoUsernameToUser = GrouperDuoCommands.retrieveUsersForGroup(duoGroup.getId());
         
         Set<String> grouperUsernamesInGroup = new HashSet<String>();
         
