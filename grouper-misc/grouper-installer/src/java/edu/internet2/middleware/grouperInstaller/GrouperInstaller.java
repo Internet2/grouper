@@ -1992,6 +1992,9 @@ public class GrouperInstaller {
       this.buildMessagingRabbitmq(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
       this.buildMessagingRabbitmq(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
       
+      this.buildDuo(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-duo"));
+      this.buildDuo(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-duo"));
+      
     }
     
 
@@ -2621,6 +2624,19 @@ public class GrouperInstaller {
                 + File.separator + "dist" + File.separator + "bin"),
             PatchFileType.clazz);
 
+        // rabbitmq
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-duo"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-duo" 
+                + File.separator + "src"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-duo"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-duo" 
+                + File.separator + "dist" + File.separator + "bin"),
+            PatchFileType.clazz);
+
         //add grouper api files
         this.patchCreateProcessFiles(theIndexOfFiles, 
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper"),
@@ -3181,6 +3197,51 @@ public class GrouperInstaller {
     }
 
     System.out.println("\nEnd building client");
+    System.out.println("##################################\n");
+    
+  }
+
+  /**
+   * build client API
+   * @param duoDir
+   */
+  private void buildDuo(File duoDir) {
+    if (!duoDir.exists() || duoDir.isFile()) {
+      throw new RuntimeException("Cant find duo: " + duoDir.getAbsolutePath());
+    }
+    
+    File duoBuildToDir = new File(duoDir.getAbsoluteFile() + File.separator + "dist" + File.separator + "bin");
+    
+    boolean rebuildDuo = true;
+    
+    if (duoBuildToDir.exists()) {
+      System.out.print("Grouper duo has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildDuo = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildDuoAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildDuo) {
+      return;
+    }
+
+    List<String> commands = new ArrayList<String>();
+    
+    addAntCommands(commands);
+    
+    System.out.println("\n##################################");
+    System.out.println("Building duo with command:\n" + duoDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, duoDir, null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    System.out.println("\nEnd building duo");
     System.out.println("##################################\n");
     
   }
