@@ -628,27 +628,51 @@ function dojoInitMenu(autoSelectNode) {
 
   if (autoSelectNode) {
     var itemId = null;
+    var itemType = null;
     var uri = new URI(location.href);
     uri.search(function (data) {
-      if (data.stemId != undefined) {
-        itemId = data.stemId;
-      }
-      if (data.groupId != undefined) {
-        itemId = data.groupId;
-      }
-      if (data.attributeDefId != undefined) {
-        itemId = data.attributeDefId;
+      if (data.operation === "UiV2Stem.viewStem") {
+        // the breadcrumb menu uses name not id
+        itemId = (data.stemName != undefined) ? data.stemName : data.stemId;
+        itemType = (data.stemName != undefined) ? "stemName" : "stem";
+      } else if (data.operation === "UiV2Visualization.stemView") {
+        itemId = data.objectId;
+        itemType = "stem";
+      } else if (data.operation === "UiV2Group.viewGroup") {
+        itemId = (data.groupName != undefined) ? data.groupName : data.groupId;
+        itemType = (data.groupName != undefined) ? "groupName" : "group";
+      } else if (data.operation === "UiV2Visualization.groupView") {
+        itemId = data.objectId;
+        itemType = "group";
+      } else if (data.operation === "UiV2AttributeDef.viewAttributeDef") {
+        itemId = (data.nameOfAttributeDef != undefined) ? data.nameOfAttributeDef : data.attributeDefId;
+        itemType = (data.nameOfAttributeDef != undefined) ? "nameOfAttributeDef" : "attributeDef";
+      } else if (data.operation === "UiV2AttributeDefName.viewAttributeDefName") {
+        itemId = (data.nameOfAttributeDefName != undefined) ? data.nameOfAttributeDefName : data.attributeDefNameId;
+        itemType = (data.nameOfAttributeDefName != undefined) ? "nameOfAttributeDefName" : "attributeDefName";
       }
 
+      if (itemType !== null) {
+        $.ajax({
+          url: "UiV2Main.folderMenuObjectPath",
+          /* headers: owaspCsrfTokenHeader, */
+          type: "POST",
+          cache: true,
+          dataType: 'json',
+          data: {"id": itemId, "type": itemType},
+          timeout: 15000,
+          async: true,
+          success: function(json){
+            openFolderTreePathToObject(json);
+          }
+        });
+      }
     });
-
-    if (itemId != null) {
-      folderTree.autoExpand = true;
-    }
   }
 
   folderTree.startup();
 
+  /*
   if (autoSelectNode) {
     folderTree.onLoadDeferred.then(function () {
       var selectedNode = null;
@@ -668,6 +692,7 @@ function dojoInitMenu(autoSelectNode) {
       }
     });
   }
+  */
 }
 
 //function dojoClearTree(theTree, theStore) {
@@ -2456,4 +2481,14 @@ function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
       }
     });
   }
+}
+
+/**
+ * Refreshes the dijit Treefolder navigation to expand folders to the current
+ * object and highlight it. It simulates manually clicking
+ * from root; i.e., if the object hasn't been loaded, it will query all
+ * the unloaded folders in the path and load them
+ */
+function openFolderTreePathToObject(pathArray) {
+  folderTree.set('path', pathArray);
 }

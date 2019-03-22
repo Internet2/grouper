@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import net.sf.json.JSONArray;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.commons.lang.StringUtils;
@@ -65,7 +66,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -1950,7 +1955,81 @@ public class GrouperUiUtils {
     //cant clone
     throw new RuntimeException("Unsupported object type: " + GrouperUtil.className(object));
   }
-  
+
+  /**
+   * Return either the root stem, or the one configured by default.browse.stem.uiv2.menu and default.browse.stem
+   *
+   * @param grouperSession the session to locate the root folder as
+   * @return the absolute or alternate root stem
+   */
+  public static Stem getConfiguredRootFolder(GrouperSession grouperSession) {
+    Stem stem = null;
+
+    // GRP-1107 browse starting from stem configured by property:
+    // default.browse.stem, otherwise from root.
+    boolean startTreeAtDefaultStem = GrouperUiConfig.retrieveConfig().propertyValueBoolean("default.browse.stem.uiv2.menu", true);
+    String defaultBrowseStem = GrouperUiConfig.retrieveConfig().propertyValueString("default.browse.stem");
+    if (startTreeAtDefaultStem && !StringUtils.isBlank(defaultBrowseStem)) {
+      stem = StemFinder.findByName(grouperSession, defaultBrowseStem, false);
+    } else {
+      stem = StemFinder.findRootStem(grouperSession);
+    }
+
+    return stem;
+  }
+
+  /**
+   * Given a group, stem, attributeDef or attributeDefName, return an array of the quoted object ids
+   *   from the root object (or psuedo-root if default.browse.stem is set) down to the object; e.g.,
+   *   ["root","64f667e0f346476497b62ff3ee28e906","9f8353d4c9be4212addffe806be0841a","e41cc3e6cd194a93b4037f31a715f4ce","85fc77e648ce40968b327e2f51b35a9d"].
+   * The should be suitable to pass to a dijitTree set('path', pathArray) funtion to load and expand the path to the object
+   *
+   * @param grouperSession session to use to locate the root folder
+   * @param grouperObject the target object, will be last item in the array
+   * @return string representation of a Javascript array of double-quoted object ids
+   */
+  public static String pathArrayToCurrentObject(GrouperSession grouperSession, GrouperObject grouperObject) {
+    Stem root = getConfiguredRootFolder(grouperSession);
+    Stem realRoot = StemFinder.findRootStem(grouperSession);
+    String rootId = "root";
+
+    List<String> ids = new ArrayList<String>();
+
+    ids.add(grouperObject.equals(realRoot) ? rootId : grouperObject.getId());
+
+    Stem curStem;
+    try {
+      curStem = grouperObject.getParentStem();
+    } catch (StemNotFoundException e) {
+      curStem = null; // possibly is already the root stem
+    }
+
+    while (curStem != null) {
+      ids.add(curStem.equals(realRoot) ? rootId : curStem.getId());
+      if (curStem.equals(root) || curStem.equals(realRoot)) {
+        break;
+      }
+
+      curStem = (curStem.isRootStem()) ? null : curStem.getParentStem();
+    }
+
+    Collections.reverse(ids);
+
+    JSONArray jsonArray = new JSONArray();
+    jsonArray.addAll(ids);
+
+    return jsonArray.toString();
+  }
+
+  /**
+   * Return whether the left navigation menu should refresh on object view changes
+   *
+   * @return
+   */
+  public static boolean isMenuRefreshOnView() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", false);
+  }
+
   /**
    * @return map of custom composites
    */

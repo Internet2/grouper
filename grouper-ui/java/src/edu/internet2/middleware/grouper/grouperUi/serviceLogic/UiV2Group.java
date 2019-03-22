@@ -286,6 +286,10 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/viewGroup.jsp"));
 
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, group) + ")"));
+      }
+
       if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
         filterHelper(request, response, group);
       }

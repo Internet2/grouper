@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.*;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -335,6 +336,11 @@ public class UiV2Visualization {
 
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
       "/WEB-INF/grouperUi2/group/groupVisualization.jsp"));
+
+    if (GrouperUiUtils.isMenuRefreshOnView()) {
+      guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, group) + ")"));
+    }
+
   }
 
   /**
@@ -361,6 +367,10 @@ public class UiV2Visualization {
 
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
       "/WEB-INF/grouperUi2/stem/stemVisualization.jsp"));
+
+    if (GrouperUiUtils.isMenuRefreshOnView()) {
+      guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, stem) + ")"));
+    }
 
   }
 

@@ -354,7 +354,11 @@ public class UiV2AttributeDef {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/attributeDef/viewAttributeDef.jsp"));
-  
+
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, attributeDef) + ")"));
+      }
+
       filterHelper(request, response, attributeDef);
     } finally {
       GrouperSession.stopQuietly(grouperSession);

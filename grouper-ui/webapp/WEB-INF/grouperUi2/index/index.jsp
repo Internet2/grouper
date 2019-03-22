@@ -84,8 +84,8 @@
                 </div>
               </div>
               <div class="btn btn-block btn-grouper last" style="cursor: default;">${textContainer.text['indexBrowseFolders'] }
-              <i class="fa fa-refresh" style="cursor: pointer;" aria-label="${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }"
-                onclick="dojoInitMenu()"
+              <i class="fa fa-exchange" style="cursor: pointer;" aria-label="${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }"
+                onclick="dojoInitMenu(true)"
               ></i></div>
               <div class="accordion-inner">
                 <script>

@@ -710,6 +710,9 @@ public class UiV2AttributeDefName {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/attributeDefName/attributeDefNameView.jsp"));
 
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, attributeDefName) + ")"));
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

@@ -971,7 +971,11 @@ public class UiV2Stem {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/viewStem.jsp"));
-      
+
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, stem) + ")"));
+      }
+
       //if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
         filterHelper(request, response, stem);
       //}

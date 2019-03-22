@@ -254,18 +254,8 @@ public class UiV2Main extends UiServiceLogicBase {
       
       Stem stem = null;
       
-      //un-url-encrypt
       if (StringUtils.equals("root", folderQueryString)) {
-        
-        // GRP-1107 browse starting from stem configured by property: 
-        // default.browse.stem, otherwise from root.
-        boolean startTreeAtDefaultStem = GrouperUiConfig.retrieveConfig().propertyValueBoolean("default.browse.stem.uiv2.menu", true);
-        String defaultBrowseStem = GrouperUiConfig.retrieveConfig().propertyValueString("default.browse.stem");
-        if (startTreeAtDefaultStem && !StringUtils.isBlank(defaultBrowseStem)) {
-          stem = StemFinder.findByName(grouperSession, defaultBrowseStem, false);
-        } else {
-          stem = StemFinder.findRootStem(grouperSession);
-        }
+        stem = GrouperUiUtils.getConfiguredRootFolder(grouperSession);
       } else {
         int lastSlash = folderQueryString.lastIndexOf('/');
         String stemId = null;
@@ -364,7 +354,63 @@ public class UiV2Main extends UiServiceLogicBase {
 
     
   }
-  
+
+  /**
+   * Retrive a JSON array of the path from root to the object
+   */
+  public void folderMenuObjectPath(HttpServletRequest httpServletRequest, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    String objectId = httpServletRequest.getParameter("id");
+    String objectType = httpServletRequest.getParameter("type");
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperObject grouperObject = null;
+
+      if ("group".equals(objectType)) {
+        grouperObject = GroupFinder.findByUuid(grouperSession, objectId, true);
+      } else if ("groupName".equals(objectType)) {
+        grouperObject = GroupFinder.findByName(grouperSession, objectId, true);
+      } else if ("stem".equals(objectType)) {
+        grouperObject = StemFinder.findByUuid(grouperSession, objectId, true);
+      } else if ("stemName".equals(objectType)) {
+        grouperObject = StemFinder.findByName(grouperSession, objectId, true);
+      } else if ("attributeDef".equals(objectType)) {
+        grouperObject = AttributeDefFinder.findById(objectId, true);
+      } else if ("nameOfAttributeDef".equals(objectType)) {
+        grouperObject = AttributeDefFinder.findByName(objectId, true);
+      } else if ("attributeDefName".equals(objectType)) {
+        grouperObject = AttributeDefNameFinder.findById(objectId, true);
+      } else if ("nameOfAttributeDefName".equals(objectType)) {
+        grouperObject = AttributeDefNameFinder.findByName(objectId, true);
+      } else {
+        throw new RuntimeException("Unable to find object id " + objectId + " with type " + objectType);
+      }
+
+      GrouperUiUtils.printToScreen(GrouperUiUtils.pathArrayToCurrentObject(grouperSession, grouperObject), HttpContentType.APPLICATION_JSON, false, false);
+
+
+    } catch (Exception se) {
+      LOG.error("Error searching for object id " + objectId + " with type " + objectType + ": " + se.getMessage(), se);
+
+      //dont rethrow or the control will get confused
+      GrouperUiUtils.printToScreen("{\"name\": \"Error\", \"id\": \"error\"}",
+        HttpContentType.APPLICATION_JSON, false, false);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    //dont print the regular JSON
+    throw new ControllerDone();
+
+  }
+
+
   /**
    * change a column to my favorites
    * @param request

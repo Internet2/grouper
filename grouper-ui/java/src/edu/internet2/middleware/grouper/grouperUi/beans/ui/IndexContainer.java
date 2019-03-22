@@ -1033,10 +1033,12 @@ public class IndexContainer {
 
   /**
    * Decide if the browser folder/group pane should auto-select
-   * the currently selected object in the view.
+   * the currently selected object in the view. Deprecated and replaced
+   * by @link edu.internet2.middleware.grouper.ui.util.GrouperUiUtils#isMenuRefreshOnView()
    */
+  @Deprecated
   public boolean isMenuRefreshOnView() {
-    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", true);
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", false);
   }
 
 }
