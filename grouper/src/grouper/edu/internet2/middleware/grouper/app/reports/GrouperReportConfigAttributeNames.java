@@ -1,5 +1,14 @@
 package edu.internet2.middleware.grouper.app.reports;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+
 /**
  *
  */
@@ -106,5 +115,57 @@ public class GrouperReportConfigAttributeNames {
    * logic from loader enabled, either enable or disabled this job
    */
   public static final String GROUPER_REPORT_CONFIG_ENABLED = "reportConfigEnabled";
+  
+  
+  /**
+   * marker attribute def assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameBase() {
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeMarker attribute def name be found?");
+    }
+    
+    return attributeDefName;
+  }
+  
+  
+    /**
+     * attribute value def assigned to stem or group
+     * @return the attribute def name
+     */
+    public static AttributeDef retrieveAttributeDefBaseDef() {
+      
+      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          return AttributeDefFinder.findByName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_DEF, false, new QueryOptions().secondLevelCache(false));
+          
+        }
+        
+      });
+    
+      if (attributeDef == null) {
+        throw new RuntimeException("Why cant grouperObjectTypeDef attribute def be found?");
+      }
+      
+      return attributeDef;
+    }
 
 }

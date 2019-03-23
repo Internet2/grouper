@@ -120,6 +120,10 @@
                         <li class="divider"></li>
                         <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.stemView&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                           >${textContainer.text['visualization.title'] }</a></li>
+                          
+                        <li class="divider"></li>
+                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          >${textContainer.text['stemViewReportButton'] }</a></li>
 
                       </ul>
                     </div>
