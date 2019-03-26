@@ -33,8 +33,21 @@
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /** 
  * Hibernate representation of the JDBC <code>SubjectAttribute</code> table.
@@ -143,6 +156,134 @@ public class RegistrySubjectAttribute implements Serializable {
     this.value = value;
     return this;
   }
+
+  /**
+   * Delete existing {@link RegistrySubjectAttribute}.
+   * <pre>
+   * try {
+   *   rSubjAttr.delete(s);
+   * }
+   * catch (GrouperException eG) {
+   *   // failed to delete this RegistrySubject
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete this RegistrySubject
+   * }
+   * </pre>
+   * @throws  GrouperException  if <i>RegistrySubjectAttribute</i> cannot be deleted.
+   * @throws  IllegalStateException if <i>GrouperSession</i> is null.
+   * @throws  InsufficientPrivilegeException if not privileged to delete <i>RegistrySubject</i>s.
+   * @since   2.4.0
+   */
+  public void delete() 
+    throws  GrouperException,
+            IllegalStateException,
+            InsufficientPrivilegeException
+  {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession s = GrouperSession.staticGrouperSession();
+    if (s == null) {
+      throw new IllegalStateException("null session");
+    }
+    if ( !PrivilegeHelper.isRoot(s) ) {
+      throw new InsufficientPrivilegeException("must be root-like to delete RegistrySubjectAttributes");
+    }    
+    try {
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().delete( this );
+    }
+    catch (GrouperDAOException eDAO) {
+      throw new GrouperException( eDAO.getMessage(), eDAO );
+    }
+  }
+
+  /**
+   * Delete existing {@link RegistrySubjectAttribute}.
+   * <pre>
+   * try {
+   *   rSubjAttr.delete(s);
+   * }
+   * catch (GrouperException eG) {
+   *   // failed to delete this RegistrySubject
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete this RegistrySubject
+   * }
+   * </pre>
+   * @throws  GrouperException  if <i>RegistrySubjectAttribute</i> cannot be deleted.
+   * @throws  IllegalStateException if <i>GrouperSession</i> is null.
+   * @throws  InsufficientPrivilegeException if not privileged to delete <i>RegistrySubject</i>s.
+   * @since   2.4.0
+   */
+  public void store() 
+    throws  GrouperException,
+            IllegalStateException,
+            InsufficientPrivilegeException
+  {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession s = GrouperSession.staticGrouperSession();
+    if (s == null) {
+      throw new IllegalStateException("null session");
+    }
+    if ( !PrivilegeHelper.isRoot(s) ) {
+      throw new InsufficientPrivilegeException("must be root-like to delete RegistrySubjectAttributes");
+    }    
+    if (StringUtils.isBlank(this.subjectId)) {
+      throw new RuntimeException("needs subjectId");
+    }
+    if (StringUtils.isBlank(this.name)) {
+      throw new RuntimeException("needs attribute name");
+    }
+    RegistrySubjectAttribute existing = find(this.subjectId, this.name, false);
+    if (existing == null) {
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().create(existing);
+    } else {
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().update(existing);
+    }
+  }
+
+  /**
+   * @param subjectId 
+   * @param attributeName 
+   * @param exceptionIfNotFound
+   * @return the attribute or null
+   */
+  public static RegistrySubjectAttribute find(String subjectId, String attributeName, boolean exceptionIfNotFound) {
+    
+    RegistrySubjectAttribute registrySubjectAttribute = GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().find(subjectId, attributeName, false);  
+    if (registrySubjectAttribute == null) {
+      if (exceptionIfNotFound) {
+        throw new RuntimeException("Registry subject attribute not found '" + subjectId + "', '" + attributeName + "'");
+      }
+      return null;
+    }
+    return registrySubjectAttribute;
+  }
+
+  /**
+   * Add or update registry subject attribute
+   * @param subjectId 
+   * @param attributeName 
+   * @param value 
+   * @return  The created {@link RegistrySubjectAttribute}.
+   * @since   2.4.0
+   */
+  public static RegistrySubjectAttribute addOrUpdate(String subjectId, String attributeName, String value) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    //note, no need for GrouperSession inverse of control
+    if ( !PrivilegeHelper.isRoot(grouperSession) ) {
+      throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
+    }    
+    RegistrySubjectAttribute registrySubjectAttribute = new RegistrySubjectAttribute();
+    registrySubjectAttribute.setSubjectId(subjectId);
+    registrySubjectAttribute.setName(attributeName);
+    registrySubjectAttribute.setValue(value);
+    registrySubjectAttribute.setSearchValue(value == null ? null : value.toLowerCase());
+    registrySubjectAttribute.store();
+    return registrySubjectAttribute;
+  }
+
 
 }
 

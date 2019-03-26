@@ -199,6 +199,7 @@ public class AllTests extends GrouperTest {
     suite.addTestSuite(TestCompositeI.class);
     suite.addTestSuite(TestCompositeModel.class);
     suite.addTestSuite(TestGrouperSession.class);
+    suite.addTestSuite(TestRegistrySubject.class);
     //$JUnit-END$
 
     //////////////////////////////////////////

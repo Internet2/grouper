@@ -31,50 +31,40 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import edu.internet2.middleware.grouper.RegistrySubject;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 
 /** 
- * Basic <code>RegistrySubject</code> DAO interface.
- * @author  blair christensen.
- * @version $Id: RegistrySubjectDAO.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
- * @since   1.2.0
+ * Basic <code>RegistrySubjectAttribute</code> DAO interface.
+ * @since   2.4.0.patch
  */
-public interface RegistrySubjectDAO extends GrouperDAO {
+public interface RegistrySubjectAttributeDAO extends GrouperDAO {
 
   /**
-   * @since   1.2.0
+   * @since   2.4.0.patch
    */
-  void create(RegistrySubject _subj)
-    throws  GrouperDAOException;
+  void create(RegistrySubjectAttribute _subjAttribute);
 
   /**
-   * @since   1.2.0
+   * @since   2.4.0.patch
    */
-  void delete(RegistrySubject _subj)
-    throws  GrouperDAOException;
+  void delete(RegistrySubjectAttribute _subjAttribute);
 
   /**
-   * @since   1.2.0
-   * @deprecated
+   * @since   2.4.0.patch
    */
-  @Deprecated
-  RegistrySubject find(String id, String type) 
-    throws  GrouperDAOException,
-            SubjectNotFoundException;
+  void update(RegistrySubjectAttribute _subjAttribute);
 
   /**
    * @since 2.4.0.patch
    */
-  public RegistrySubject find(String id, boolean exceptionIfNotFound) throws SubjectNotFoundException;
+  public RegistrySubjectAttribute find(String subjectId, String attributeName, boolean exceptionIfNotFound);
 
   /**
-   * @since   1.2.0
+   * @since 2.4.0.patch
    */
-  RegistrySubject find(String id, String type, boolean exceptionIfNotFound) 
-    throws  GrouperDAOException,
-            SubjectNotFoundException;
+  public Set<RegistrySubjectAttribute> findByRegistrySubjectId(String subjectId);
 
 } 
 

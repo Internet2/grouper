@@ -184,30 +184,17 @@ public class RegistryReset {
           createdSession = true;
         }
         subject = SubjectFinder.findById(id, false);
+        if (subject != null) {
+          continue;
+        }
+  
+        String name = "my name is " + id;
+  
+        RegistrySubject.add(grouperSession, id, SUBJ_TYPE, name);
       } finally {
         if (createdSession) {
           GrouperSession.stopQuietly(grouperSession);
         }
-      }
-      if (subject != null) {
-        continue;
-      }
-      
-      String name = "my name is " + id;
-      RegistrySubject registrySubject = new RegistrySubject();
-      registrySubject.setId(id);
-      registrySubject.setName(name);
-      registrySubject.setTypeString(SUBJ_TYPE);
-      
-      registrySubject.getAttributes(false).put("name", GrouperUtil.toSet("name." + id));
-      registrySubject.getAttributes(false).put("loginid", GrouperUtil.toSet("id." + id));
-      registrySubject.getAttributes(false).put("description", GrouperUtil.toSet("description." + id));
-      registrySubject.getAttributes(false).put("email", GrouperUtil.toSet(id + "@somewhere.someSchool.edu"));
-      try {
-        GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
-      } catch (RuntimeException re) {
-        GrouperUtil.injectInException(re, "registrySubject: " + registrySubject.getId());
-        throw re;
       }
     }
     SubjectSourceCache.clearCache();

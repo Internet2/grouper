@@ -78,6 +78,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
+import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectAttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
@@ -167,6 +168,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
    */
   public RegistrySubjectDAO getRegistrySubject() {
     return new Hib3RegistrySubjectDAO();
+  } 
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getRegistrySubject()
+   */
+  public RegistrySubjectAttributeDAO getRegistrySubjectAttribute() {
+    return new Hib3RegistrySubjectAttributeDAO();
   } 
 
   /**

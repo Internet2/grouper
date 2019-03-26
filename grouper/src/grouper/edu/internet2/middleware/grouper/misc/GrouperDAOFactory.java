@@ -79,6 +79,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
+import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectAttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
@@ -301,6 +302,12 @@ public abstract class GrouperDAOFactory {
    * @since   1.2.0
    */
   public abstract RegistrySubjectDAO getRegistrySubject();
+
+  /**
+   * @return registry subject attribute dao
+   * @since   2.4.0
+   */
+  public abstract RegistrySubjectAttributeDAO getRegistrySubjectAttribute();
 
   /**
    * @return stem dao

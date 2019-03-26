@@ -34,15 +34,21 @@ package edu.internet2.middleware.grouper;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
@@ -94,27 +100,210 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public static RegistrySubject add(GrouperSession s, String id, String type, String name)
-      throws  GrouperException,
-              InsufficientPrivilegeException
-  {
+      throws  GrouperException, InsufficientPrivilegeException {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("create.attributes.when.creating.registry.subjects", true)) {
+      return add(s, id, type, name, "name." + id, "id." + id, "description." + id, id + "@somewhere.someSchool.edu");
+    }
+    return add(s, id, type, name, null, null, null, null);
+  } // public static RegistrySubject add(s, id, type, name)
+
+  /**
+   * Add a {@link Subject} to a {@link Source} within the Groups Registry.
+   * <p>Subjects may only be added within a root-like session.</p>
+   * <pre class="eg">
+   * try {
+   *   RegistrySubject subj = RegistrySubject.add(s, "subject id", "person", "name");
+   * }
+   * catch (GrouperException eG) {
+   *   // unable to add subject
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to add subject
+   * }
+   * </pre>
+   * @param   s     Create subject within this session context.
+   * @param   id    The subject id to assign to the subject.
+   * @param   type  The subject type to assign to the subject.
+   * @param   name  The name to assign to the subject.
+   * @param nameAttributeValue 
+   * @param loginid 
+   * @param description 
+   * @param email 
+   * @return  The created {@link RegistrySubject}.
+   * @throws  GrouperException
+   * @throws  InsufficientPrivilegeException
+   * @since   2.4.0
+   */
+  public static RegistrySubject add(GrouperSession s, String id, String type, String name, String nameAttributeValue, String loginid, String description, String email)
+      throws  GrouperException, InsufficientPrivilegeException {
     //note, no need for GrouperSession inverse of control
     if ( !PrivilegeHelper.isRoot(s) ) {
       throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
     }    
     try {
-      GrouperDAOFactory.getFactory().getRegistrySubject().find(id, type, true);
-      throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + type + "/" + name);
+      GrouperDAOFactory.getFactory().getRegistrySubject().find(id, true);
+      throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + name);
     }
     catch (SubjectNotFoundException eSNF) {
       RegistrySubject subj  = new RegistrySubject();
       subj.setId(id);
       subj.setName(name);
       subj.setTypeString(type);
+      
+      if (!StringUtils.isBlank(name)) {
+        subj.getAttributes(false).put("name", GrouperUtil.toSet(nameAttributeValue));
+      }
+      
+      if (!StringUtils.isBlank(loginid)) {
+        subj.getAttributes(false).put("loginid", GrouperUtil.toSet(loginid));
+      }
+
+      if (!StringUtils.isBlank(description)) {
+        subj.getAttributes(false).put("description", GrouperUtil.toSet(description));
+      }
+      
+      if (!StringUtils.isBlank(email)) {
+        subj.getAttributes(false).put("email", GrouperUtil.toSet(email));
+      }
+      
       GrouperDAOFactory.getFactory().getRegistrySubject().create(subj);
+      
+      try {
+        SubjectSourceCache.clearCache();
+
+        SubjectFinder.findById(id, true);
+      } catch (SubjectNotFoundException snfe) {
+        if (!GrouperConfig.retrieveConfig().propertyValueBoolean("allow.registry.subjects.without.resolution", false)) {
+          throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need a source (e.g. the Grouper jdbc source) to resolve registry subjects!");
+        }
+      } catch (SubjectNotUniqueException snue) {
+        // this is ok
+      }
+      
       return subj;
     }
   } // public static RegistrySubject add(s, id, type, name)
 
+
+  /**
+   * Add or update a {@link Subject} to a {@link Source} within the Groups Registry.
+   * <p>Subjects may only be added within a root-like session.</p>
+   * <pre class="eg">
+   * try {
+   *   RegistrySubject subj = RegistrySubject.add(s, "subject id", "person", "name");
+   * }
+   * catch (GrouperException eG) {
+   *   // unable to add subject
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to add subject
+   * }
+   * </pre>
+   * @param   s     Create subject within this session context.
+   * @param   id    The subject id to assign to the subject.
+   * @param   type  The subject type to assign to the subject.
+   * @param   name  The name to assign to the subject.
+   * @param loginid 
+   * @param description 
+   * @param email 
+   * @return  The created {@link RegistrySubject}.
+   * @throws  GrouperException
+   * @throws  InsufficientPrivilegeException
+   * @since   2.4.0
+   */
+  public static RegistrySubject addOrUpdate(GrouperSession s, String id, String type, String name, String nameAttributeValue, String loginid, String description, String email)
+      throws  GrouperException, InsufficientPrivilegeException {
+    //note, no need for GrouperSession inverse of control
+    if ( !PrivilegeHelper.isRoot(s) ) {
+      throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
+    }    
+    RegistrySubject registrySubject = GrouperDAOFactory.getFactory().getRegistrySubject().find(id, false);
+    if (registrySubject == null) {
+      return add(s, id, type, name, nameAttributeValue, loginid, description, email);
+    } 
+    if (!StringUtils.equals(type, registrySubject.getTypeString())) {
+      registrySubject.setTypeString(type);
+    }
+    if (!StringUtils.equals(name, registrySubject.getName())) {
+      registrySubject.setName(name);
+    }
+    addOrUpdateOrDeleteAttribute(registrySubject, id, "loginid", loginid);
+    addOrUpdateOrDeleteAttribute(registrySubject, id, "name", nameAttributeValue);
+    addOrUpdateOrDeleteAttribute(registrySubject, id, "description", description);
+    addOrUpdateOrDeleteAttribute(registrySubject, id, "email", email);
+    return registrySubject;
+  }
+
+  /**
+   * 
+   * @param id
+   * @param exceptionIfNotFound
+   * @return the subject or null
+   */
+  public static RegistrySubject find(String id, boolean exceptionIfNotFound) {
+    
+    RegistrySubject registrySubject = GrouperDAOFactory.getFactory().getRegistrySubject().find(id, false);  
+    if (registrySubject == null) {
+      if (exceptionIfNotFound) {
+        throw new RuntimeException("Registry subject not found '" + id + "'");
+      }
+      return null;
+    }
+
+    String subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("registrySubjectSourceId", "jdbc");
+
+    Subject theSubject = SubjectFinder.findByIdAndSource(id, subjectSourceId, false);
+
+    if (theSubject == null) {
+      try {
+        theSubject = SubjectFinder.findById(id, false);
+      } catch (SubjectNotUniqueException snue) {
+        throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need to set the RegistyrSubject source id in grouper.properties: registrySubjectSourceId", snue);
+      }
+      if (theSubject == null) {
+        throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need a source (e.g. the Grouper jdbc source) to resolve registry subjects!");
+      }
+    }
+
+    registrySubject.subject = (SubjectImpl)theSubject;
+    return registrySubject;
+  }
+
+  /**
+   * @param registrySubject
+   * @param subjectId
+   * @param attributeName
+   * @param attributeValue
+   */
+  public static void addOrUpdateOrDeleteAttribute(RegistrySubject registrySubject, String subjectId, String attributeName, String attributeValue) {
+
+    RegistrySubjectAttribute registrySubjectAttribute = GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().find(subjectId, attributeName, false);
+    if (StringUtils.isBlank(attributeValue) &&  registrySubjectAttribute == null) {
+      
+      registrySubject.getAttributes(false).remove(attributeName);
+      // we good
+      
+      
+    } else if (registrySubjectAttribute != null && StringUtils.equals(attributeValue, registrySubjectAttribute.getValue())) {
+      
+      registrySubject.getAttributes(false).put(attributeName, GrouperUtil.toSet(attributeValue) );
+      // we good
+      
+      
+    } else if (StringUtils.isBlank(attributeValue)) {
+
+      registrySubject.getAttributes(false).remove(attributeName);
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().delete(registrySubjectAttribute);
+      
+    } else {
+      
+      registrySubject.getAttributes(false).put(attributeName, GrouperUtil.toSet(attributeValue) );
+      registrySubjectAttribute.setValue(attributeValue);
+      registrySubjectAttribute.setSearchValue(attributeValue.toLowerCase());
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().update(registrySubjectAttribute);
+      
+    }
+  }
 
   /**
    * Delete existing {@link RegistrySubject}.
@@ -148,6 +337,11 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throw new InsufficientPrivilegeException("must be root-like to delete RegistrySubjects");
     }    
     try {
+      
+      for (RegistrySubjectAttribute registrySubjectAttribute : GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().findByRegistrySubjectId(this.getId())) {
+        GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().delete( registrySubjectAttribute );
+      }
+      
       GrouperDAOFactory.getFactory().getRegistrySubject().delete( this );
     }
     catch (GrouperDAOException eDAO) {

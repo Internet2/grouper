@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -63,7 +64,7 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
       registrySubjectAttribute.setValue(value);
       registrySubjectAttribute.setSearchValue(value == null ? null : value.toLowerCase());
       registrySubjectAttribute.setSubjectId(_subj.getId());
-      HibernateSession.byObjectStatic().save(registrySubjectAttribute);    
+      GrouperDAOFactory.getFactory().getRegistrySubjectAttribute().create(registrySubjectAttribute);
     }
     
   } 
@@ -85,6 +86,25 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
     throws  GrouperDAOException,
             SubjectNotFoundException {
     return find(id, type, true);
+  }
+
+  /**
+   * @since
+   */
+  public RegistrySubject find(String id, boolean exceptionIfNotFound) 
+    throws  GrouperDAOException,
+            SubjectNotFoundException {
+    RegistrySubject subj = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from RegistrySubject as rs where " 
+        + "     rs.id   = :id  ")
+      .setCacheable(false) 
+      .setString( "id",   id   )
+      .uniqueResult(RegistrySubject.class);
+    if (subj == null && exceptionIfNotFound) {
+      throw new SubjectNotFoundException("subject not found"); 
+    }
+    return subj;
   }
 
   /**
@@ -112,7 +132,6 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hibernateSession.byHql().createQuery("delete from RegistrySubjectAttribute").executeUpdate();
     hibernateSession.byHql().createQuery("delete from RegistrySubject").executeUpdate();
   } 
 
