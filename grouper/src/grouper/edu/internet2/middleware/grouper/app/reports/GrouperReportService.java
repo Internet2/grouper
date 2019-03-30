@@ -21,18 +21,33 @@ import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GrouperReportService {
+  
+  private static final Log LOG = GrouperUtil.getLog(GrouperReportService.class);
   
   /**
    * retrieve report config for a given grouper object (group/stem) and report config name
@@ -136,7 +151,63 @@ public class GrouperReportService {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigViewersGroupId());
     
     attributeAssign.saveOrUpdate();
+    // 459271e8240545d3ab308e011b5bff16
         
+  }
+  
+  public static void scheduleJob(GrouperReportConfigurationBean configBean, GrouperObject owner)
+      throws SchedulerException {
+    
+    String jobName = "grouper_report_"+owner.getId()+"_"+configBean.getAttributeAssignmentMarkerId();
+    
+    JobDetail jobDetail = JobBuilder.newJob(GrouperReportJob.class)
+      .withIdentity(jobName)
+      .build();
+    
+    String triggerName = "triggerFor_" + jobName;
+    
+    Trigger trigger = GrouperLoaderScheduleType.CRON.createTrigger(
+        triggerName,
+        Trigger.DEFAULT_PRIORITY,
+        configBean.getReportConfigQuartzCron(),
+        null);
+
+    GrouperLoader.scheduleJobIfNeeded(jobDetail, trigger);
+  }
+  
+  public static void unscheduleJob(GrouperReportConfigurationBean configBean, GrouperObject owner) throws SchedulerException {
+
+    String jobName = "grouper_report_"+owner.getId()+"_"+configBean.getAttributeAssignmentMarkerId();
+    
+    Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+    
+    String triggerName = "triggerFor_" + jobName;
+    
+    scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+    
+  }
+  
+  public static void deleteJobs(String ownerId) {
+    
+    try {
+      
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"));
+      
+      for (JobKey jobKey: jobKeys) {
+        String jobName = jobKey.getName();
+        
+        if (jobName.startsWith("grouper_report_"+ownerId)) {
+          //String triggerName = "triggerFor_" + jobName;
+          //scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+          scheduler.deleteJob(jobKey);
+        }
+      }
+    } catch(SchedulerException e) {
+      LOG.error("Error deleting jobs for owner id: "+ownerId);
+    }
+    
+    
   }
   
   

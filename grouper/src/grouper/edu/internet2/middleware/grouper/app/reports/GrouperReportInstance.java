@@ -103,8 +103,6 @@ public class GrouperReportInstance {
     
     GrouperReportConfigurationBean grouperReportConfigurationBean = this.getGrouperReportConfigurationBean();
     
-    File reportFile = null;
-
     //reports/YYYY/MM/DD/group__$groupName$__$groupId$__report__$reportInstanceId$.csv
     
     Calendar calendar = new GregorianCalendar();
@@ -122,7 +120,7 @@ public class GrouperReportInstance {
 
     filename = StringUtils.replace(filename, "$$timestamp$$", new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date(this.getReportDateMillis())));
     
-    final File theFile = new File(tempFileParentDirPath + File.separator + reportFile);
+    final File theFile = new File(tempFileParentDirPath + File.separator + filename);
     GrouperUtil.fileCreateNewFile(theFile);
 
     this.setReportFileUnencrypted(theFile);

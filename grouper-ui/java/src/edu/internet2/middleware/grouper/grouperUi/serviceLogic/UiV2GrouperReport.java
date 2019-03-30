@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -75,10 +76,11 @@ public class UiV2GrouperReport {
         return;
       }
       
+      //TODO we need to merge report config with report instance to display attributes on the UI
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
+          GrouperReportService.getGrouperReportConfigs(STEM);
           return null;
         }
       });
@@ -318,15 +320,29 @@ public class UiV2GrouperReport {
         return;
       }
       
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      boolean saved = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          GrouperReportService.saveOrUpdateReportConfigAttributes(bean, STEM);
-          return null;
+          try {    
+            GrouperReportService.saveOrUpdateReportConfigAttributes(bean, STEM);
+            GrouperReportConfigurationBean savedBean = GrouperReportService.getGrouperReportConfig(STEM, bean.getReportConfigName());
+            GrouperReportService.scheduleJob(savedBean, STEM);
+          } catch (SchedulerException e) {
+            return false;
+          }
+          
+          return true;
         }
       });
+      
+      if (!saved) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportJobScheduleError")));
+        return;
+      }
+      
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/grouperReport/folderReportConfigAdd.jsp"));

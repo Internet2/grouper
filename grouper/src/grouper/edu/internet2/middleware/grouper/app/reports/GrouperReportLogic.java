@@ -22,13 +22,13 @@ public class GrouperReportLogic {
    * run report
    * @param grouperReportConfigurationBean
    */
-  @SuppressWarnings("cast")
   public static void runReport(GrouperReportConfigurationBean grouperReportConfigurationBean) {
     
     // get report data
     GrouperReportData grouperReportData = grouperReportConfigurationBean.getReportConfigType().retrieveReportDataByConfig(grouperReportConfigurationBean);
 
     GrouperReportInstance grouperReportInstance = new GrouperReportInstance();
+    grouperReportInstance.setGrouperReportConfigurationBean(grouperReportConfigurationBean);
 
     // now the file is in the report instance, remember to delete it and parent folders
     grouperReportConfigurationBean.getReportConfigFormat().formatReport(grouperReportData, grouperReportInstance);
