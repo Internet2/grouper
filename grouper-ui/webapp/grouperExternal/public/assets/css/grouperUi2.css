@@ -56,6 +56,59 @@ table.attributeDefAssignToTable td {
 	margin-bottom: 10px;
 }
 
+/* Visualization frame for the SVG canvas */
+.vis-graph-svg-outer {
+  display: none;
+  background: white;
+  border: 1px solid gray;
+  height: 500px;
+  width: 100%;
+}
+
+.vis-fullscreen-open {
+  float: right;
+}
+
+/* Visualization lightbox */
+.vis-graph-modal {
+  display: none;
+  position: fixed;
+  z-index: 101; /* the breadcrumb menu has z-index 100 so we need a higher number to push it behind */
+  padding-top: 50px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: black;
+}
+
+.vis-graph-modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  width: 95%;
+  // max-width: 1200px;
+}
+
+.vis-fullscreen-close {
+  color: white;
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.vis-fullscreen-close:hover,
+.vis-fullscreen-close:focus {
+  color: #999;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Visualization text mode formatting */
 div.visualization-text-node {
 	margin-bottom: 10px;
 }

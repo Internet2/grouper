@@ -4,6 +4,7 @@
 
 <script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190216" type="text/javascript"></script>
 
+
 <div class="lead">${textContainer.text['visualization.title']}
   <a href="#" aria-label="Set visualization options" id="visualization-settings-button" class="btn btn-medium" aria-expanded="false" onclick="$('#visualization-settings').toggle()">
   <span class="fa fa-cog"></span><span class="caret"></span>
@@ -144,13 +145,20 @@
     ${textContainer.text['visualization.graph.copySVG']}
     <span class="caret"></span>
   </a>
+  <span class="vis-fullscreen-open"><a href="javascript:openVisualizationModal()">${textContainer.text['visualization.graph.expand']}&nbsp;<i class="fa fa-expand"></i></a></span>
 
   <div id="vis-copy-dot-output" style="display: none">
     <textarea id="vis-copy-dot-output-txt" cols="80" rows="20" style="width: 99%"></textarea>
   </div>
 </div>
-<!--<div id="vis-graph-svg-outer" style="display: none; position: fixed; left: 0; background: white; border: white 12px solid">-->
-<div id="vis-graph-svg-outer" style="display: none; background: white; border: 1px solid gray; height: 500px; width: 100%">
+<div id="vis-graph-svg-outer">
   <div id="vis-graph-svg-pane"></div>
 </div>
 <div id="vis-graph-text" style="display: none"></div>
+
+<!-- The Modal/Lightbox -->
+<div id="visualization-fullscreen" class="vis-graph-modal">
+  <span class="vis-fullscreen-close" onclick="closeVisualizationModal()">&times;</span>
+  <div id="visualization-fullscreen-content" class="vis-graph-modal-content">
+  </div>
+</div>

@@ -11,6 +11,17 @@ $(document).ready(function() {
     $("#vis-settings-siblings-all").change(function(){ $("#vis-settings-siblings").prop("disabled", this.checked); });
 });
 
+// Visualization fullscreen lightbox
+function openVisualizationModal() {
+  d3.select("#visualization-fullscreen-content").graphviz().fit(true).renderDot(visualizationDotOutput);
+  document.getElementById('visualization-fullscreen').style.display = "block";
+}
+
+// Exit visualization fullscreen
+function closeVisualizationModal() {
+  document.getElementById('visualization-fullscreen').style.display = "none";
+}
+
 
 function fetchGraph() {
   // hide the button to show the D3 dot output until successful return
