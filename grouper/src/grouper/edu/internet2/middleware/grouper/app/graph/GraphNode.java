@@ -54,6 +54,8 @@ public class GraphNode {
 
   private boolean visitedParents;
   private boolean visitedChildren;
+  private boolean startedProcessingParentPaths;
+  private boolean startedProcessingChildPaths;
 
   private long distanceFromStartNode;
   private Set<GraphNode> parentNodes;

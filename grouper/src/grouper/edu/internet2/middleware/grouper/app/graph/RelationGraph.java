@@ -156,7 +156,7 @@ public class RelationGraph {
   /**
    * sets the start object from a subject, by converting to a {@link GrouperObjectSubjectWrapper}
    *
-   * @param theStartsubject to start the tree from
+   * @param theStartSubject subject to start the tree from
    * @return
    */
   public RelationGraph assignStartObject(Subject theStartSubject) {
@@ -760,8 +760,12 @@ public class RelationGraph {
         for (Group jobGroup : jobGroups) {
           if (!matchesFilter(jobGroup)) {
             GraphNode jobNode = fetchOrCreateNode(jobGroup);
-            //addEdge(jobNode, toNode);
-            nodesToVisit.add(jobNode);
+            if (jobNode.equals(toNode)) {
+              // this is a simple loader self link; add the edge to self but don't visit it to avoid infinite recursion
+              addEdge(jobNode, toNode);
+            } else {
+              nodesToVisit.add(jobNode);
+            }
           }
         }
       }
@@ -803,20 +807,29 @@ public class RelationGraph {
       }
     }
 
-    if (nodesToVisit.size() == 0) {
-      leafParentNodes.add(toNode);
+    boolean didAddEdges = false;
+    for (GraphNode n : nodesToVisit) {
+      GraphEdge edgeCandidate = null;
+      if (compositeStyleTypes.containsKey(n)) {
+        edgeCandidate = new GraphEdge(n, toNode, compositeStyleTypes.get(n));
+      } else {
+        edgeCandidate = new GraphEdge(n, toNode);
+      }
+      if (!edges.contains(edgeCandidate)) {
+        edges.add(edgeCandidate);
+        didAddEdges = true;
+        n.setDistanceFromStartNode(-1 * level);
+        visitNode(n, level, true, false);
+      } else {
+        LOG.debug("Loop detected; object " + n.getGrouperObjectName() + " has been seen a second time as a parent (second link was from " + toNode.getGrouperObjectName() + ")");
+      }
+    }
+
+    if (!didAddEdges) {
+      leafChildNodes.add(toNode);
     } else {
       if (level > maxParentDistance) {
         maxParentDistance = level;
-      }
-      for (GraphNode n : nodesToVisit) {
-        if (compositeStyleTypes.containsKey(n)) {
-          addEdge(n, toNode, compositeStyleTypes.get(n));
-        } else {
-          addEdge(n, toNode);
-        }
-        n.setDistanceFromStartNode(-1 * level);
-        visitNode(n, level, true, false);
       }
     }
   }
@@ -867,14 +880,13 @@ public class RelationGraph {
           }
         }
       }
-    }
-    else if (fromNode.isGroup()) {
-      Group theGroup = (Group)(fromNode.getGrouperObject());
+    } else if (fromNode.isGroup()) {
+      Group theGroup = (Group) (fromNode.getGrouperObject());
 
       // for groups, find groups having this as a direct member
       Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
       long numMembershipsAdded = 0;
-      for (MembershipSubjectContainer msc: memberships) {
+      for (MembershipSubjectContainer msc : memberships) {
         Group toGroup = msc.getGroupOwner();
         if (toGroup == null) {
           continue;
@@ -891,7 +903,7 @@ public class RelationGraph {
       // get provisioners
       if (showProvisionTargets) {
         List<GrouperObjectProvisionerWrapper> provTargets = fetchProvisioners(theGroup);
-        for (GrouperObjectProvisionerWrapper p: provTargets) {
+        for (GrouperObjectProvisionerWrapper p : provTargets) {
           if (!matchesFilter(p)) {
             GraphNode provNode = fetchOrCreateNode(p);
             nodesToVisit.add(provNode);
@@ -907,8 +919,13 @@ public class RelationGraph {
           skippedGroups.add(childGroup);
         } else if (!matchesFilter(childGroup)) {
           GraphNode childNode = fetchOrCreateNode(childGroup);
-          nodesToVisit.add(childNode);
-          ++numLoadedGroupsByJob;
+          if (childNode.equals(fromNode)) {
+            // this is a simple loader self link; add the edge to self but don't visit it to avoid infinite recursion
+            addEdge(fromNode, childNode);
+          } else {
+            nodesToVisit.add(childNode);
+            ++numLoadedGroupsByJob;
+          }
         }
       }
 
@@ -937,7 +954,7 @@ public class RelationGraph {
     } else if (fromNode.isSubject()) {
       Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
       long numSubjectMembershipsAdded = 0;
-      for (MembershipSubjectContainer msc: memberships) {
+      for (MembershipSubjectContainer msc : memberships) {
         Group toGroup = msc.getGroupOwner();
         if (toGroup == null) {
           continue;
@@ -951,23 +968,29 @@ public class RelationGraph {
       }
     }
 
-    if (nodesToVisit.size() == 0) {
+    boolean didAddEdges = false;
+    for (GraphNode n : nodesToVisit) {
+      GraphEdge edgeCandidate = null;
+      if (compositeStyleTypes.containsKey(n)) {
+        edgeCandidate = new GraphEdge(fromNode, n, compositeStyleTypes.get(n));
+      } else {
+        edgeCandidate = new GraphEdge(fromNode, n);
+      }
+      if (!edges.contains(edgeCandidate)) {
+        edges.add(edgeCandidate);
+        didAddEdges = true;
+        n.setDistanceFromStartNode(level);
+        visitNode(n, level, false, true);
+      } else {
+        LOG.debug("Loop detected; object " + n.getGrouperObjectName() + " has been seen a second time as a child (second link was from " + fromNode.getGrouperObjectName() + ")");
+      }
+    }
+
+    if (!didAddEdges) {
       leafChildNodes.add(fromNode);
     } else {
       if (level > maxChildDistance) {
         maxChildDistance = level;
-      }
-
-      for (GraphNode n : nodesToVisit) {
-        n.setDistanceFromStartNode(level);
-
-        if (compositeStyleTypes.containsKey(n)) {
-          addEdge(fromNode, n, compositeStyleTypes.get(n));
-        } else {
-          addEdge(fromNode, n);
-        }
-
-        visitNode(n, level, false, true);
       }
     }
   }
