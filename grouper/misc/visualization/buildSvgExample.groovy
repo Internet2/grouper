@@ -23,8 +23,15 @@ if (inFilename == null) {
 }
 //Group obj = GroupFinder.findByName(gs, 'basis:org:110100:staff')
 
-RelationGraph graph = new RelationGraph().assignStartObject(inObject).assignParentLevels(-1).assignChildLevels(-1).assignShowMemberCounts(true).assignShowStems(true)
-graph.assignMaxSiblings(20)
+RelationGraph graph = new RelationGraph().assignStartObject(inObject)
+
+graph.assignParentLevels(-1)
+graph.assignChildLevels(-1)
+graph.assignShowMemberCounts(true)
+graph.assignShowStems(true)
+graph.assignShowLoaderJobs(true)
+//graph.assignMaxSiblings(4)
+
 graph.build()
 
 
@@ -43,7 +50,7 @@ at ${tstamp}" {
 \tgraph\t[ 
 \t\tcenter=true; splines=spline; ratio=auto;
 \t\tranksep = ".5"; nodesep = ".25 equally"; rankdir=LR;
-\t\tfontname="${ss.getStyle("graph").getProperty("font","")}"; ${ss.getStyle("graph").getProperty("style")};
+\t\tfontname="${ss.getStyle("graph").getProperty("font","")}"; ${ss.getStyle("graph").getProperty("style")}
 \t\t];
 
 """

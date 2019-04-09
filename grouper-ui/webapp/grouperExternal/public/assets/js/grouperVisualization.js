@@ -255,9 +255,9 @@ function drawGraphModuleD3() {
         }
 
         if (graph.settings.showMemberCounts && (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group")) {
-          props.push("label=<" + getObjectNameUsingPrefs(node) + "<br/>" + (node.memberCount||0) + ">");
+          props.push("label=<" + escapeHTML(getObjectNameUsingPrefs(node)) + "<br/>" + (node.memberCount||0) + ">");
         } else {
-          props.push('label="' + getObjectNameUsingPrefs(node) + '"');
+          props.push('label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"');
         }
 
         //when the label is path/extension, use the opposite for the tooltip
@@ -353,9 +353,9 @@ function drawGraphModuleD3() {
 
 
 function setCopyWindowDot() {
-  $("#vis-copy-dot-output-txt").html(visualizationDotOutput);
+  $("#vis-copy-dot-output-txt").val(visualizationDotOutput);
 }
 
 function setCopyWindowSVG() {
-  $("#vis-copy-dot-output-txt").html($("#vis-graph-svg-pane").html());
+  $("#vis-copy-dot-output-txt").val($("#vis-graph-svg-pane").html());
 }
