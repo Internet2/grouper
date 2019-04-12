@@ -112,9 +112,9 @@ function drawGraphModuleText() {
       contents += "Member count: " + node.memberCount + "<br/>";
     }
 
-    // contains
-    if (node.linkType === "group" || node.baseType === "stem") {
-      contents += (node.linkType === "group" ? "Direct membership in these groups: " : "Contains: ");
+    // contains (for stem), direct membership in a group (group, subject)
+    if (node.linkType === "group" || node.baseType === "stem" || node.baseType === "subject") {
+      contents += (node.linkType === "stem" ? "Contains: " : "Direct membership in these groups: ");
       if (node.childNodeIds.length > 0) {
         contents += "<ul>";
         node.childNodeIds.forEach(function(id) {
