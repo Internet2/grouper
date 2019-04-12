@@ -21,6 +21,7 @@ public enum StyleObjectType {
   STEM("stem"), START_STEM("start_stem"), SKIP_STEM("skip_stem"),
   GROUP("group"), START_GROUP("start_group"), SKIP_GROUP("skip_group"),
   LOADER_GROUP("loader_group"), START_LOADER_GROUP("start_loader_group"),
+  SIMPLE_LOADER_GROUP("simple_loader_group"), START_SIMPLE_LOADER_GROUP("start_simple_loader_group"),
   COMPLEMENT_GROUP("complement_group"), INTERSECT_GROUP("intersect_group"),
   SUBJECT("subject"), START_SUBJECT("start_subject"),
   PROVISIONER("provisioner"),

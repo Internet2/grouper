@@ -41,7 +41,6 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -94,7 +93,6 @@ public class RelationGraph {
   private static AttributeDefName provisionToAttributeDefName;
   private static String loaderGroupIdAttrDefNameId;
   private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
-  private static AttributeDefName ldapLoaderAttributeDefName; // used by graph nodes to determine if loader job
   private static boolean attemptedInitAttributeDefs = false;
 
   /* assignX settings for graph construction */
@@ -1124,14 +1122,6 @@ public class RelationGraph {
       LOG.warn("Unable to retrieve attribute for sql loader jobs; groups might not be detected as loader jobs", e);
     }
 
-    try {
-      if (ldapLoaderAttributeDefName == null) {
-        ldapLoaderAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(LoaderLdapUtils.grouperLoaderLdapName(), true);
-      }
-    } catch (AttributeDefNameNotFoundException e) {
-      LOG.warn("Unable to retrieve attribute " + LoaderLdapUtils.grouperLoaderLdapName() + "; groups might not be detected as loader jobs", e);
-    }
-
     attemptedInitAttributeDefs = true;
   }
 
@@ -1148,16 +1138,4 @@ public class RelationGraph {
     return sqlLoaderAttributeDefName;
   }
 
-  /**
-   * should be only useful for {@link GraphNode} nodes needing the ldap loader attribute within the
-   * context of the user session
-   *
-   * @return
-   */
-  public static AttributeDefName getLdapLoaderAttributeDefName() {
-    if (!attemptedInitAttributeDefs) {
-      initAttributeDefs();
-    }
-    return ldapLoaderAttributeDefName;
-  }
 }

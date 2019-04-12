@@ -254,7 +254,9 @@ function drawGraphModuleD3() {
             props.push("URL=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\"");
         }
 
-        if (graph.settings.showMemberCounts && (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group")) {
+        if (graph.settings.showMemberCounts
+            && (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group"
+                || node.type === "simple_loader_group" || node.type === "start_simple_loader_group")) {
           props.push("label=<" + escapeHTML(getObjectNameUsingPrefs(node)) + "<br/>" + (node.memberCount||0) + ">");
         } else {
           props.push('label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"');

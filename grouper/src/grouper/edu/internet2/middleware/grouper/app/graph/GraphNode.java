@@ -19,7 +19,10 @@ package edu.internet2.middleware.grouper.app.graph;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
@@ -46,6 +49,7 @@ public class GraphNode {
   private boolean group;
   private boolean subject;
   private boolean loaderGroup;
+  private boolean simpleLoaderGroup;
   private boolean provisionerTarget;
   private boolean intersectGroup;
   private boolean complementGroup;
@@ -127,6 +131,7 @@ public class GraphNode {
     this.group = false;
     this.subject = false;
     this.loaderGroup = false;
+    this.simpleLoaderGroup = false;
     this.intersectGroup = false;
     this.complementGroup = false;
     this.provisionerTarget = false;
@@ -139,11 +144,22 @@ public class GraphNode {
       if (RelationGraph.getSqlLoaderAttributeDefName() != null
           && theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getSqlLoaderAttributeDefName(), false, false)!=null) {
         this.loaderGroup = true;
+
+        if ("SQL_SIMPLE".equals(theGroup.getAttribute(GrouperLoader.GROUPER_LOADER_TYPE))) {
+          this.simpleLoaderGroup = true;
+        }
       }
       // is an ldap loader job?
-      else if (RelationGraph.getLdapLoaderAttributeDefName() != null
-          && theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getLdapLoaderAttributeDefName(), false, false)!=null) {
-        this.loaderGroup = true;
+      else {
+        AttributeAssign ldapAttributeAssign = theGroup.getAttributeDelegate().retrieveAssignment(null, LoaderLdapUtils.grouperLoaderLdapAttributeDefName(), false, false);
+        if (ldapAttributeAssign != null) {
+          this.loaderGroup = true;
+
+          if ("LDAP_SIMPLE".equals(ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName()))) {
+            this.simpleLoaderGroup = true;
+          }
+
+        }
       }
 
       // is it an intersect/complement group?
@@ -171,7 +187,9 @@ public class GraphNode {
     }
 
     // determine the VisualStyle object type this maps to
-    if (loaderGroup) {
+    if (simpleLoaderGroup) {
+      styleObjectType = isStartNode() ? StyleObjectType.START_SIMPLE_LOADER_GROUP : StyleObjectType.SIMPLE_LOADER_GROUP;
+    } else if (loaderGroup) {
       styleObjectType = isStartNode() ? StyleObjectType.START_LOADER_GROUP : StyleObjectType.LOADER_GROUP;
     } else if (provisionerTarget) {
       styleObjectType = StyleObjectType.PROVISIONER;
@@ -355,6 +373,16 @@ public class GraphNode {
    */
   public boolean isLoaderGroup() {
     return loaderGroup;
+  }
+
+  /**
+   * True if the underlying Grouper object is a group set up
+   * as a SQL_SIMPLE or LDAP_SIMPLE Grouper Loader job
+   *
+   * @return whether the Grouper object is a group with loader settings
+   */
+  public boolean isSimpleLoaderGroup() {
+    return simpleLoaderGroup;
   }
 
   /**
