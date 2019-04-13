@@ -21,7 +21,6 @@ import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -37,17 +36,15 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
-public class GrouperReportService {
-  
-  private static final Log LOG = GrouperUtil.getLog(GrouperReportService.class);
+public class GrouperReportConfigService {
   
   /**
    * retrieve report config for a given grouper object (group/stem) and report config name
@@ -66,6 +63,20 @@ public class GrouperReportService {
     }
     
     return buildGrouperReportConfigurationBean(attributeAssignForReporConfigName);
+  }
+  
+  public static GrouperReportConfigurationBean getGrouperReportConfigBean(GrouperObject grouperObject, String attributeAssignmentMarkerId) {
+    
+    Set<AttributeAssign> attributeAssigns = getAttributeAssigns(grouperObject);
+    
+    AttributeAssign attributeAssignForReporConfigName = findAttributeAssignForAttributeAssignmentMarkerId(attributeAssigns, attributeAssignmentMarkerId);
+    
+    if (attributeAssignForReporConfigName == null) {
+      return null;
+    }
+    
+    return buildGrouperReportConfigurationBean(attributeAssignForReporConfigName);
+    
   }
   
   /**
@@ -150,11 +161,16 @@ public class GrouperReportService {
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigViewersGroupId());
     
-    attributeAssign.saveOrUpdate();
-    // 459271e8240545d3ab308e011b5bff16
-        
+    attributeAssign.saveOrUpdate();        
   }
   
+  
+  /**
+   * schedule quartz job
+   * @param configBean
+   * @param owner
+   * @throws SchedulerException
+   */
   public static void scheduleJob(GrouperReportConfigurationBean configBean, GrouperObject owner)
       throws SchedulerException {
     
@@ -175,6 +191,12 @@ public class GrouperReportService {
     GrouperLoader.scheduleJobIfNeeded(jobDetail, trigger);
   }
   
+  /**
+   * unschedule quartz job
+   * @param configBean
+   * @param owner
+   * @throws SchedulerException
+   */
   public static void unscheduleJob(GrouperReportConfigurationBean configBean, GrouperObject owner) throws SchedulerException {
 
     String jobName = "grouper_report_"+owner.getId()+"_"+configBean.getAttributeAssignmentMarkerId();
@@ -187,27 +209,39 @@ public class GrouperReportService {
     
   }
   
-  public static void deleteJobs(String ownerId) {
+  /**
+   * delete jobs for a given group/stem id
+   * @param ownerId
+   * @throws SchedulerException
+   */
+  public static void deleteJobs(String ownerId) throws SchedulerException {
     
-    try {
+    Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+    Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"));
+    
+    for (JobKey jobKey: jobKeys) {
+      String jobName = jobKey.getName();
       
-      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-      Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"));
-      
-      for (JobKey jobKey: jobKeys) {
-        String jobName = jobKey.getName();
-        
-        if (jobName.startsWith("grouper_report_"+ownerId)) {
-          //String triggerName = "triggerFor_" + jobName;
-          //scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
-          scheduler.deleteJob(jobKey);
-        }
+      if (jobName.startsWith("grouper_report_"+ownerId)) {
+        //String triggerName = "triggerFor_" + jobName;
+        //scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+        scheduler.deleteJob(jobKey);
       }
-    } catch(SchedulerException e) {
-      LOG.error("Error deleting jobs for owner id: "+ownerId);
     }
-    
-    
+  }
+  
+  public static void deleteGrouperReportConfig(GrouperObject grouperObject, GrouperReportConfigurationBean reportConfigBean) {
+    Set<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(grouperObject, reportConfigBean.getAttributeAssignmentMarkerId());
+    for (GrouperReportInstance reportInstance: reportInstances) {
+      GrouperReportInstanceService.deleteReportInstance(reportInstance);
+    }
+    deleteReportConfig(reportConfigBean);
+  }
+  
+  public static void deleteReportConfig(GrouperReportConfigurationBean reportConfig) {
+    String attributeAssignId = reportConfig.getAttributeAssignmentMarkerId();
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
+    attributeAssign.delete();
   }
   
   
@@ -287,6 +321,19 @@ public class GrouperReportService {
       String reportConfigNameFromDb = attributeAssignValue.getValueString();
       if (reportConfigName.equals(reportConfigNameFromDb)) {
        return attributeAssign;
+      }
+      
+    }
+    
+    return null;
+  }
+  
+  private static AttributeAssign findAttributeAssignForAttributeAssignmentMarkerId(Set<AttributeAssign> attributeAssigns, String attributeAssignmentMarkerId) {
+    
+    for (AttributeAssign attributeAssign: attributeAssigns) {
+      
+      if (attributeAssign.getId().equals(attributeAssignmentMarkerId)) {
+        return attributeAssign;
       }
       
     }

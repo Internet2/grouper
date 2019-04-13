@@ -12,13 +12,18 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  *
  */
 public class GrouperReportInstance {
+  
+  public static final String STATUS_SUCCESS = "SUCCESS";
+  public static final String STATUS_ERROR = "ERROR";
 
   /**
    * 
@@ -96,6 +101,160 @@ public class GrouperReportInstance {
     this.reportFileUnencrypted = reportFileUnencrypted;
   }
   
+  private String reportInstanceStatus;
+  
+  private long reportElapsedMillis;
+  
+  private String reportInstanceConfigMarkerAssignmentId;
+  
+  private long reportInstanceMillisSince1970;
+  
+  private long reportInstanceSizeBytes;
+  
+  private String reportInstanceFilePointer;
+  
+  private long reportInstanceDownloadCount;
+  
+  private String reportInstanceEncryptionKey;
+  
+  private long reportInstanceRows;
+  
+  private String reportInstanceEmailToSubjects;
+  
+  private String reportInstanceEmailToSubjectsError;
+  
+  private String reportInstanceFileName;
+  
+  private String attributeAssignId;
+  
+  
+  public String getReportInstanceStatus() {
+    return reportInstanceStatus;
+  }
+
+  
+  public void setReportInstanceStatus(String reportInstanceStatus) {
+    this.reportInstanceStatus = reportInstanceStatus;
+  }
+
+  
+  public long getReportElapsedMillis() {
+    return reportElapsedMillis;
+  }
+
+  
+  public void setReportElapsedMillis(long reportElapsedMillis) {
+    this.reportElapsedMillis = reportElapsedMillis;
+  }
+
+  
+  public String getReportInstanceConfigMarkerAssignmentId() {
+    return reportInstanceConfigMarkerAssignmentId;
+  }
+
+  
+  public void setReportInstanceConfigMarkerAssignmentId(
+      String reportInstanceConfigMarkerAssignmentId) {
+    this.reportInstanceConfigMarkerAssignmentId = reportInstanceConfigMarkerAssignmentId;
+  }
+
+  
+  public long getReportInstanceMillisSince1970() {
+    return reportInstanceMillisSince1970;
+  }
+
+  
+  public void setReportInstanceMillisSince1970(long reportInstanceMillisSince1970) {
+    this.reportInstanceMillisSince1970 = reportInstanceMillisSince1970;
+  }
+
+  
+  public long getReportInstanceSizeBytes() {
+    return reportInstanceSizeBytes;
+  }
+
+  
+  public void setReportInstanceSizeBytes(long reportInstanceSizeBytes) {
+    this.reportInstanceSizeBytes = reportInstanceSizeBytes;
+  }
+
+  
+  public String getReportInstanceFilePointer() {
+    return reportInstanceFilePointer;
+  }
+
+  
+  public void setReportInstanceFilePointer(String reportInstanceFilePointer) {
+    this.reportInstanceFilePointer = reportInstanceFilePointer;
+  }
+
+  
+  public long getReportInstanceDownloadCount() {
+    return reportInstanceDownloadCount;
+  }
+
+  
+  public void setReportInstanceDownloadCount(long reportInstanceDownloadCount) {
+    this.reportInstanceDownloadCount = reportInstanceDownloadCount;
+  }
+  
+  public String getReportInstanceEncryptionKey() {
+    return reportInstanceEncryptionKey;
+  }
+
+  public void setReportInstanceEncryptionKey(String reportInstanceEncryptionKey) {
+    this.reportInstanceEncryptionKey = reportInstanceEncryptionKey;
+  }
+
+  
+  public long getReportInstanceRows() {
+    return reportInstanceRows;
+  }
+
+  
+  public void setReportInstanceRows(long reportInstanceRows) {
+    this.reportInstanceRows = reportInstanceRows;
+  }
+
+  
+  public String getReportInstanceEmailToSubjects() {
+    return reportInstanceEmailToSubjects;
+  }
+
+  
+  public void setReportInstanceEmailToSubjects(String reportInstanceEmailToSubjects) {
+    this.reportInstanceEmailToSubjects = reportInstanceEmailToSubjects;
+  }
+
+  
+  public String getReportInstanceEmailToSubjectsError() {
+    return reportInstanceEmailToSubjectsError;
+  }
+
+  
+  public void setReportInstanceEmailToSubjectsError(String reportInstanceEmailToSubjectsError) {
+    this.reportInstanceEmailToSubjectsError = reportInstanceEmailToSubjectsError;
+  }
+  
+  public String getReportInstanceFileName() {
+    return reportInstanceFileName;
+  }
+
+  
+  public void setReportInstanceFileName(String reportInstanceFileName) {
+    this.reportInstanceFileName = reportInstanceFileName;
+  }
+  
+  
+  public String getAttributeAssignId() {
+    return attributeAssignId;
+  }
+
+  
+  public void setAttributeAssignId(String attributeAssignId) {
+    this.attributeAssignId = attributeAssignId;
+  }
+
   /**
    * create an empty grouper report file
    */
@@ -124,7 +283,12 @@ public class GrouperReportInstance {
     GrouperUtil.fileCreateNewFile(theFile);
 
     this.setReportFileUnencrypted(theFile);
-    
+        
+  }
+  
+  public boolean isReportStoredInS3() {
+    //TODO do proper url check and then check for s3
+    return this.getReportInstanceFilePointer().contains("amazonaws");
   }
   
 }

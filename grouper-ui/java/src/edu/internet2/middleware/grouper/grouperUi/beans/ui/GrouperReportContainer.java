@@ -22,12 +22,25 @@ public class GrouperReportContainer {
    */
   private GrouperReportConfigurationBean configBean;
   
+  /**
+   * set of report configs for one stem/group
+   */
   private Set<GrouperReportConfigurationBean> reportConfigBeans = new HashSet<GrouperReportConfigurationBean>();
   
-  public boolean isCanReadGrouperReports() {
-    //TODO add logic
-    return true;
-  }
+  /**
+   * report configs for gui
+   */
+  private Set<GuiReportConfig> guiReportConfigs = new HashSet<GuiReportConfig>();
+  
+  /**
+   * encapsulates config and all instances together
+   */
+  private GrouperReportConfigInstance grouperReportConfigInstance;
+  
+  /**
+   * one report instance details
+   */
+  private GuiReportInstance guiReportInstance;
   
   public boolean isCanWriteGrouperReports() {
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -74,5 +87,34 @@ public class GrouperReportContainer {
   public void setReportConfigBeans(Set<GrouperReportConfigurationBean> reportConfigBeans) {
     this.reportConfigBeans = reportConfigBeans;
   }
-  
+
+  public Set<GuiReportConfig> getGuiReportConfigs() {
+    return guiReportConfigs;
+  }
+
+  public void setGuiReportConfigs(Set<GuiReportConfig> guiReportConfigs) {
+    this.guiReportConfigs = guiReportConfigs;
+  }
+
+  public GrouperReportConfigInstance getGrouperReportConfigInstance() {
+    return grouperReportConfigInstance;
+  }
+
+  public void setGrouperReportConfigInstance(GrouperReportConfigInstance grouperReportConfigInstance) {
+    this.grouperReportConfigInstance = grouperReportConfigInstance;
+  }
+
+  public GuiReportInstance getGuiReportInstance() {
+    return guiReportInstance;
+  }
+
+  public void setGuiReportInstance(GuiReportInstance guiReportInstance) {
+    this.guiReportInstance = guiReportInstance;
+  }
+
+  public boolean isShowPartialEncryptionKey() {
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    return PrivilegeHelper.isWheelOrRoot(loggedInSubject);
+  }
+    
 }

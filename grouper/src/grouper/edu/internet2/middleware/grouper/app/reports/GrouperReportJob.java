@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.app.reports;
 
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus.ERROR;
+import static edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus.SUCCESS;
+
 import java.sql.Timestamp;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -80,7 +83,7 @@ public class GrouperReportJob implements Job {
       
       if (groupOrStem == null) {
         LOG.error("owner grouper object is null for uuid: "+ownerGroupStemId+" job name is: "+jobName);
-        GrouperReportService.deleteJobs(ownerGroupStemId);
+        GrouperReportConfigService.deleteJobs(ownerGroupStemId);
         return;
       }
       
@@ -90,7 +93,7 @@ public class GrouperReportJob implements Job {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouploaderLog.store();
 
-      Set<GrouperReportConfigurationBean> reportConfigs = GrouperReportService.getGrouperReportConfigs(groupOrStem);
+      Set<GrouperReportConfigurationBean> reportConfigs = GrouperReportConfigService.getGrouperReportConfigs(groupOrStem);
       
       GrouperReportConfigurationBean reportConfig = null;
       for (GrouperReportConfigurationBean reportConfigBean: reportConfigs) {
@@ -101,13 +104,20 @@ public class GrouperReportJob implements Job {
       }
       
       if (reportConfig != null) {
-        GrouperReportLogic.runReport(reportConfig);
+        GrouperReportInstance reportInstance = GrouperReportLogic.runReport(reportConfig);
         
-        hib3GrouploaderLog.setJobMessage("Ran the grouper report");
+        hib3GrouploaderLog.setJobMessage("Ran grouper report: "+reportConfig.getReportConfigName());
         
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        GrouperLoaderStatus loaderStatus = reportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS) ? SUCCESS: ERROR;
+        
+        hib3GrouploaderLog.setStatus(loaderStatus.name());
+        
+        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, groupOrStem);
+        
       } else {
         LOG.error("No config found for attributeAssignmentMarkerId: "+attributeAssignmentMarkerId);
+        hib3GrouploaderLog.setStatus(ERROR.name());
+        hib3GrouploaderLog.setJobMessage("No config found for attributeAssignmentMarkerId: "+attributeAssignmentMarkerId);
       }
             
     } catch(Exception e) {
@@ -116,7 +126,7 @@ public class GrouperReportJob implements Job {
         e = new JobExecutionException(e);
       }
       JobExecutionException jobExecutionException = (JobExecutionException)e;
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      hib3GrouploaderLog.setStatus(ERROR.name());
       hib3GrouploaderLog.setJobMessage(e.getMessage());
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;

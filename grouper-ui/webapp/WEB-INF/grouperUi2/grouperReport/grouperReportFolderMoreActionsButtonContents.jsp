@@ -7,11 +7,9 @@
                           ${textContainer.text['grouperReportMoreActionsButton'] } <span class="caret"></span></a>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="grouper-report-more-options">
-
-                        <c:if test="${grouperRequestContainer.grouperReportContainer.canReadGrouperReports}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['grouperReportMoreActionsStemViewReports'] }</a></li>
-                        </c:if>
+                        
+                         <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                             >${textContainer.text['grouperReportMoreActionsStemViewReports'] }</a></li>
 
                         <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}" >
 	                            
@@ -22,21 +20,6 @@
                               >${textContainer.text['grouperReportMoreActionsStemEditReports'] }</a></li>
                         </c:if>
 
-                       <%--  <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain'); return false;"
-                            >${textContainer.text['deprovisioningMoreActionsOverallDeprovision'] }</a></li>
-
-                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolderReport&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-	                            >${textContainer.text['deprovisioningMoreActionsDeprovisioningReport'] }</a></li>
-	                    </c:if>
-                            
-                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.updateFolderLastCertifiedDateClear'); return false;"
-                              >${textContainer.text['deprovisioningMoreActionsClearCertify'] }</a></li>
-                        </c:if>
-                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.runDaemon'); return false;">${textContainer.text['groupDeprovisioningMoreActionsRunDaemon'] }</a></li>
-	                    </c:if> --%>
                       </ul>
 
                     </div>

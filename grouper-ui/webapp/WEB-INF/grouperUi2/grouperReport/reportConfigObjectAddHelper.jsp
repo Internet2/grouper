@@ -89,12 +89,40 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigViewersGroupIdId">${textContainer.text['grouperReportConfigViewersGroupIdLabel']}</label></strong></td>
                           <td>
-                            <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId)}"
-                                name="grouperReportConfigViewersGroupId" id="grouperReportConfigViewersGroupIdId" />
+                            <%-- <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId)}"
+                                name="grouperReportConfigViewersGroupId" id="grouperReportConfigViewersGroupIdId" /> --%>
+                                
+						                    <grouper:combobox2 idBase="grouperReportConfigViewersGroupCombo" style="width: 30em" 
+						                       value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId}"
+						                       filterOperation="../app/UiV2Group.groupUpdateFilter" />
+                            
                             <br />
                             <span class="description">${textContainer.text['grouperReportConfigViewersGroupIdHint']}</span>
                           </td>
                         </tr>
+                        
+                        
+                        <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
+              <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                <h3 id="group-search-label">${textContainer.text['groupImportSearchForGroupButton']}</h3>
+              </div>
+
+              <div class="modal-body">
+                <form class="form form-inline" id="addGroupSearchFormId">
+                  <input id="addGroupSearchId" name="addGroupSearch" type="text" placeholder="${textContainer.text['groupImportSearchGroupPlaceholder']}" />
+                  <button class="btn" onclick="ajax('../app/UiV2GroupImport.groupImportGroupSearch', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['groupImportSearchButton'] }</button>
+                  <br />
+                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
+                </form>
+                <div id="addGroupResults">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['subjectSearchCloseButton']}</button>
+              </div>
+            </div>
+                        
+                        
                         
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigQuartzCronId">${textContainer.text['grouperReportConfigQuartzCronLabel']}</label></strong></td>

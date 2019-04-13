@@ -4,6 +4,14 @@
  */
 package edu.internet2.middleware.grouper.app.reports;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  *
@@ -352,6 +360,32 @@ public class GrouperReportConfigurationBean {
    */
   public void setReportConfigEnabled(boolean reportConfigEnabled) {
     this.reportConfigEnabled = reportConfigEnabled;
+  }
+  
+  public boolean isCanRead(Subject subject) {
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
+    }
+    
+    String groupId = this.getReportConfigViewersGroupId();
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    Group group = GroupFinder.findByUuid(rootSession, groupId, false);
+    if (group == null) {
+      return false;
+    }
+    
+    Subject everyEntitySubject = SubjectFinder.findAllSubject();
+    Member everyEntityMember = MemberFinder.findBySubject(rootSession, everyEntitySubject, false);
+    if (group.getMembers().contains(everyEntityMember)) {
+      return true;
+    }
+    
+    Member member = MemberFinder.findBySubject(rootSession, subject, false);
+    if (group.getMembers().contains(member)) {
+      return true;
+    }
+    
+    return false;
   }
   
   

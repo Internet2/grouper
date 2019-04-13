@@ -23,21 +23,6 @@
                         
                      <c:if test="${!grouper:isBlank(grouperRequestContainer.grouperReportContainer.configBean.reportConfigName)}">
                      
-                      <tr>
-                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigEnabledId">${textContainer.text['grouperReportConfigEnabledLabel']}</label></strong></td>
-                        <td>
-                          <select name="grouperReportConfigEnabled" id="grouperReportConfigEnabledId" style="width: 30em"
-                              onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Edit', {formIds: 'editReportConfigFormId'}); return false;">
-                            <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigEnabled ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotEnableLabel']}</option>
-                            <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigEnabled ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesEnableLabel']}</option>
-                          </select>
-                          <br />
-                          <%-- <span class="description">${textContainer.text['grouperReportConfigEnabledHint']}</span> --%>
-                        </td>
-                      </tr>
-                     
-                      <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigEnabled }">
-                      
 	                      <tr>
 	                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigHasTypeId">${textContainer.text['grouperReportConfigTypeLabel']}</label></strong></td>
 	                        <td>
@@ -116,8 +101,12 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigViewersGroupIdId">${textContainer.text['grouperReportConfigViewersGroupIdLabel']}</label></strong></td>
                           <td>
-                            <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId)}"
-                                name="grouperReportConfigViewersGroupId" id="grouperReportConfigViewersGroupIdId" />
+                            <%-- <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId)}"
+                                name="grouperReportConfigViewersGroupId" id="grouperReportConfigViewersGroupIdId" /> --%>
+                                
+                            <grouper:combobox2 idBase="grouperReportConfigViewersGroupCombo" style="width: 30em" 
+                                   value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId}"
+                                   filterOperation="../app/UiV2Group.groupUpdateFilter" />
                             <br />
                             <span class="description">${textContainer.text['grouperReportConfigViewersGroupIdHint']}</span>
                           </td>
@@ -215,12 +204,19 @@
                         </tr>
                         </c:if>
                         
+                        <tr>
+	                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigEnabledId">${textContainer.text['grouperReportConfigEnabledLabel']}</label></strong></td>
+	                        <td>
+	                          <select name="grouperReportConfigEnabled" id="grouperReportConfigEnabledId" style="width: 30em">
+	                            <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigEnabled ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotEnableLabel']}</option>
+	                            <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigEnabled ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesEnableLabel']}</option>
+	                          </select>
+	                          <br />
+	                          <%-- <span class="description">${textContainer.text['grouperReportConfigEnabledHint']}</span> --%>
+	                        </td>
+                        </tr>
+                        
                         </c:if>
                       
-                      </c:if>
-                     
-                     
-                     
-                     
                      </c:if>
                      

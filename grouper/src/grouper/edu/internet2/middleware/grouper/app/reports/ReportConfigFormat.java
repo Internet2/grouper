@@ -48,10 +48,9 @@ public enum ReportConfigFormat {
 
         //Write a new student object list to the CSV file
         for (String[] row : grouperReportData.getData()) {
-
           csvFilePrinter.printRecord((Object[])(Object)row);
         }
-
+        
       } catch (Exception e) {
 
         throw new RuntimeException("Error in CsvFileWriter !!! " + grouperReportInstance.getReportFileUnencrypted().getAbsolutePath(), e);
@@ -60,6 +59,9 @@ public enum ReportConfigFormat {
 
         GrouperUtil.closeQuietly(fileWriter);
         GrouperUtil.closeQuietly(csvFilePrinter);
+        
+        grouperReportInstance.setReportInstanceSizeBytes(grouperReportInstance.getReportFileUnencrypted().length());
+        
       }
     }
 
