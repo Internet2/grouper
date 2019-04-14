@@ -43,6 +43,8 @@ public class GrouperReportsClearJob extends OtherJobBase {
         .assignNameOfAttributeDefName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_NAME)
         .findStems());
     
+    //TODO do the same for groups
+    
     clearOldReports(stems);
     
   }
@@ -85,7 +87,7 @@ public class GrouperReportsClearJob extends OtherJobBase {
     
   }
   
-  private static void deleteAllGivenInstances(List<GrouperReportInstance> instancesToBeDeleted) {
+  public static void deleteAllGivenInstances(List<GrouperReportInstance> instancesToBeDeleted) {
     
     for (GrouperReportInstance instance: instancesToBeDeleted) {
       if (instance.isReportStoredInS3()) {

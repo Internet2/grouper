@@ -18,6 +18,7 @@ import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAt
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportSettings.reportConfigStemName;
 import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -232,9 +233,8 @@ public class GrouperReportConfigService {
   
   public static void deleteGrouperReportConfig(GrouperObject grouperObject, GrouperReportConfigurationBean reportConfigBean) {
     Set<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(grouperObject, reportConfigBean.getAttributeAssignmentMarkerId());
-    for (GrouperReportInstance reportInstance: reportInstances) {
-      GrouperReportInstanceService.deleteReportInstance(reportInstance);
-    }
+    
+    GrouperReportsClearJob.deleteAllGivenInstances(new ArrayList<GrouperReportInstance>(reportInstances));
     deleteReportConfig(reportConfigBean);
   }
   

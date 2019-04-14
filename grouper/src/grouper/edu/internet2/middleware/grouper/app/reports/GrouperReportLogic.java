@@ -7,6 +7,11 @@ package edu.internet2.middleware.grouper.app.reports;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -15,6 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
@@ -31,19 +37,25 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.StaticEncryptionMaterialsProvider;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  *
  */
 public class GrouperReportLogic {
 
-  /**
-   * 
-   */
-  public GrouperReportLogic() {
-  }
-  
+  private static final Log LOG = GrouperUtil.getLog(GrouperReportLogic.class);
 
   /**
    * run report
@@ -61,7 +73,7 @@ public class GrouperReportLogic {
       grouperReportInstance.setGrouperReportConfigurationBean(grouperReportConfigurationBean);
       grouperReportInstance.setReportInstanceRows(grouperReportData.getData().size());
 
-      // now the file is in the report instance, remember to delete it and parent folders
+      // now the file is in the report instance
       grouperReportConfigurationBean.getReportConfigFormat().formatReport(grouperReportData, grouperReportInstance);
       
       long endTime = System.currentTimeMillis();
@@ -92,8 +104,7 @@ public class GrouperReportLogic {
         grouperReportInstance.setReportInstanceFilePointer(filePath);
       }
       
-      
-      
+      sendReportLinkViaEmail(grouperReportInstance);
       //TODO need to email this out
       //grouperReportInstance.setReportInstanceEmailToSubjects(reportInstanceEmailToSubjects);
       //grouperReportInstance.setReportInstanceEmailToSubjectsError(reportInstanceEmailToSubjectsError);
@@ -103,12 +114,113 @@ public class GrouperReportLogic {
     } catch(Exception e) {
       grouperReportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_ERROR);
     } finally {
-      //TODO delete the temporary file grouperReportInstance.getReportFileUnencrypted() 
+      
+      File tmpReportsPath = new File(GrouperUtil.tmpDir() + "reports");
+      if (tmpReportsPath.exists()) {        
+        FileUtils.deleteQuietly(tmpReportsPath);
+      }
     }
     
     return grouperReportInstance;
     
   }
+  
+  private static void sendReportLinkViaEmail(GrouperReportInstance reportInstance) {
+    GrouperReportConfigurationBean configBean = reportInstance.getGrouperReportConfigurationBean();
+    
+    if (!configBean.isReportConfigSendEmail()) {
+      LOG.info("Config send email is set to false. not going to send any emails");
+      return;
+    }
+    
+    String uiUrl = GrouperConfig.getGrouperUiUrl(false);
+    
+    if (StringUtils.isBlank(uiUrl)) {
+      LOG.error("grouper.properties grouper.ui.url is blank/null. Please fix that first. No emails have been sent.");
+      return;
+    }
+    
+    boolean sendToViewers = configBean.isReportConfigSendEmailToViewers();
+    
+    Group emailGroup = null;
+    
+    if (sendToViewers) {
+      String groupId = configBean.getReportConfigViewersGroupId();
+      emailGroup = GroupFinder.findByUuid(GrouperSession.startRootSession(), groupId, false);
+    } else {
+      emailGroup = GroupFinder.findByUuid(GrouperSession.startRootSession(), configBean.getReportConfigSendEmailToGroupId(), false);
+    }
+    
+    if (emailGroup == null) {
+      LOG.error("group to send email to for config: "+configBean.getReportConfigName()+ " is null. not sending any emails");
+      return;
+    }
+    
+    String subject = reportInstance.getGrouperReportConfigurationBean().getReportConfigEmailSubject();
+    if (StringUtils.isBlank(subject)) {
+      subject = GrouperConfig.retrieveConfig().getProperty("grouper.report.email.subject", "Subject for report email");
+    }
+    String templateBody = reportInstance.getGrouperReportConfigurationBean().getReportConfigEmailBody();
+    if (StringUtils.isBlank(templateBody)) {
+      templateBody = GrouperConfig.retrieveConfig().getProperty("grouper.report.email.body", "Email body for report email");
+    }
+    
+    List<String> emailSuccessSubjects = new ArrayList<String>();
+    List<String> emailFailureSubjects = new ArrayList<String>();
+    
+    Set<Member> members = emailGroup.getMembers();
+    for (Member member: members) {
+      String emailAddress = GrouperEmailUtils.getEmail(member.getSubject());
+      if (StringUtils.isBlank(emailAddress)) {
+        LOG.info("For subject: "+member.getSubjectId()+" no email address found.");
+        emailFailureSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+        continue;
+      }
+
+      try {   
+        String emailBody = buildEmailBody(member.getSubject(), templateBody, reportInstance, uiUrl);
+        new GrouperEmail().setBody(emailBody).setSubject(subject).setTo(emailAddress).send();
+        emailSuccessSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+      } catch (Exception e) {
+        emailFailureSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+      }
+    }
+    
+    reportInstance.setReportInstanceEmailToSubjects(StringUtils.join(emailSuccessSubjects, ","));
+    reportInstance.setReportInstanceEmailToSubjectsError(StringUtils.join(emailFailureSubjects, ","));
+    
+  }
+  
+  private static String buildEmailBody(Subject recipient, String templatedBody, 
+      GrouperReportInstance reportInstance, String uiUrl) {
+    
+    String link = "grouperUi/app/UiV2Main.index?operation=UiV2GrouperReport.viewReportInstanceDetails&attributeAssignId="+reportInstance.getAttributeAssignId();
+    
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(reportInstance.getAttributeAssignId(), true);
+    Stem stem = attributeAssign.getOwnerStem();
+    if (stem == null) {
+      stem = attributeAssign.getOwnerAttributeAssign().getOwnerStem(); 
+    }
+    
+    if (stem != null) {
+      link = link + "&stemId="+stem.getId();
+    } else {
+      //must be group
+      Group group = attributeAssign.getOwnerGroup();
+      group  = group == null ? attributeAssign.getOwnerAttributeAssign().getOwnerGroup(): group;
+      link = link + "&groupId="+group.getId();
+    }
+        
+    GrouperReportConfigurationBean reportConfigBean = reportInstance.getGrouperReportConfigurationBean();
+    String emailBody = templatedBody.replaceAll("$$reportConfigName$$", reportConfigBean.getReportConfigName());
+    emailBody = emailBody.replaceAll("$$reportConfigDescription$$", reportConfigBean.getReportConfigDescription());
+    emailBody = emailBody.replaceAll("$$reportLink$$", uiUrl+link);    
+    emailBody = emailBody.replaceAll("$$subjectName$$", recipient.getName());
+    
+    return emailBody;
+  }
+  
+  
   
   public static String getReportContent(GrouperReportInstance reportInstance) {
     
@@ -188,6 +300,15 @@ public class GrouperReportLogic {
   
   private static String saveFileToFileSystem(File file, String encryptionKey, String reportOutputDirectory) {
     
+    Calendar calendar = new GregorianCalendar();
+    calendar.setTimeInMillis(System.currentTimeMillis());
+    
+    String baseDirectory = reportOutputDirectory.endsWith(File.separator) ? reportOutputDirectory: reportOutputDirectory + File.separator;
+    
+    String reportDirectoryPath = baseDirectory + "reports" + File.separator + calendar.get(Calendar.YEAR) + File.separator 
+        + StringUtils.leftPad(""+(calendar.get(Calendar.MONTH)+1), 2, '0') + File.separator + StringUtils.leftPad(""+calendar.get(Calendar.DAY_OF_MONTH), 2, '0')
+        + File.separator + GrouperUtil.uniqueId();
+    
     try {
       
       SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
@@ -201,7 +322,7 @@ public class GrouperReportLogic {
        
       byte[] outputBytes = cipher.doFinal(inputBytes);
        
-      FileOutputStream outputStream = new FileOutputStream(reportOutputDirectory+File.separator+file.getName());
+      FileOutputStream outputStream = new FileOutputStream(reportDirectoryPath+File.separator+file.getName());
       outputStream.write(outputBytes);
        
       inputStream.close();
@@ -211,7 +332,7 @@ public class GrouperReportLogic {
       // TODO: handle exception
     }
     
-    return reportOutputDirectory+File.separator+file.getName();
+    return reportDirectoryPath+File.separator+file.getName();
   }
   
   public static void deleteFromFileSystem(GrouperReportInstance reportInstance) {
