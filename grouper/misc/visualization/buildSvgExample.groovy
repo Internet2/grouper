@@ -1,5 +1,18 @@
-import edu.internet2.middleware.grouper.*
 
+/**
+ * Sample script to generate a GraphViz .dot file and convert to svg
+ *
+ * From gsh, bind two parameters, inFilename and inObject, and then call the script; e.g.:
+ *
+ * gs = GrouperSession.startRootSession();
+ * def binding = new Binding()
+ * binding.inFilename = "C:/Temp/x.dot"
+ * binding.inObject = GroupFinder.findByName(gs, 'basis:org:110100:contractor')
+ * def ret = new GroovyShell(binding).evaluate(new File('../misc/visualization/buildSvgExample.groovy'))
+ *
+ */
+
+import edu.internet2.middleware.grouper.*
 
 import java.text.SimpleDateFormat
 import edu.internet2.middleware.grouper.app.graph.RelationGraph
@@ -30,6 +43,7 @@ graph.assignChildLevels(-1)
 graph.assignShowMemberCounts(true)
 graph.assignShowStems(true)
 graph.assignShowLoaderJobs(true)
+graph.assignIncludeGroupsInMemberCounts(false)
 //graph.assignMaxSiblings(4)
 
 graph.build()

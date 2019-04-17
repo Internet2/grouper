@@ -432,7 +432,8 @@ public class UiV2Visualization {
       .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
       .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
       .assignShowMemberCounts(visualizationContainer.isDrawShowMemberCounts())
-      .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings());
+      .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
+      .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
 
     // filters on stems and groups (e.g., skip etc and the root folder by default).
     // future enhancement to make this configurable?
@@ -802,6 +803,18 @@ public class UiV2Visualization {
       }
     } else {
       visualizationContainer.setDrawShowMemberCounts(prefsFromAttribute.isDrawShowMemberCounts());
+    }
+
+    /* include groups in member counts */
+    if (fromSubmission) {
+      visualizationContainer.setDrawIncludeGroupsInMemberCounts(
+        GrouperUtil.booleanValue(request.getParameter("drawIncludeGroupsInMemberCounts"), false));
+      if (visualizationContainer.isDrawIncludeGroupsInMemberCounts() != prefsFromAttribute.isDrawIncludeGroupsInMemberCounts()) {
+        prefsFromAttribute.setDrawIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawIncludeGroupsInMemberCounts(prefsFromAttribute.isDrawIncludeGroupsInMemberCounts());
     }
 
     // force a find of the lazy-loaded based on the id and type

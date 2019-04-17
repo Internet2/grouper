@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -93,7 +94,8 @@ public class RelationGraph {
   private static AttributeDefName provisionToAttributeDefName;
   private static String loaderGroupIdAttrDefNameId;
   private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
-  private static boolean attemptedInitAttributeDefs = false;
+  private static Set<Source> nonGroupSourcesCache = null;
+  private static boolean attemptedInitLookupFields = false;
 
   /* assignX settings for graph construction */
   private GrouperObject startObject;
@@ -103,6 +105,7 @@ public class RelationGraph {
   private boolean showLoaderJobs = true;
   private boolean showProvisionTargets = true;
   private boolean showStems = true;
+  private boolean includeGroupsInMemberCounts = false;
   private Set<String> skipFolderNamePatterns = new HashSet<String>();  // Arrays.asList("^etc:.*", "^$") -> default to skip etc:* and root object
   private Set<String> skipGroupNamePatterns = new HashSet<String>();  // don't skip etc:* groups since they may be loader jobs
   private List<Pattern> skipFolderPatterns;
@@ -230,6 +233,17 @@ public class RelationGraph {
   }
 
   /**
+   * flags whether to include groups in the count of group members
+   *
+   * @param includeGroupsInMemberCounts whether to consider groups when counting members
+   * @return
+   */
+  public RelationGraph assignIncludeGroupsInMemberCounts(boolean includeGroupsInMemberCounts) {
+    this.includeGroupsInMemberCounts = includeGroupsInMemberCounts;
+    return this;
+  }
+
+  /**
    * Assigns patterns for stem names to be filtered out. Will not skip the starting node even
    * if it matches.
    *
@@ -324,6 +338,16 @@ public class RelationGraph {
    */
   public boolean isShowStems() {
     return showStems;
+  }
+
+  /**
+   * returns whether to include groups in the count of group members
+   *
+   * @see #assignIncludeGroupsInMemberCounts(boolean)
+   * @return if groups are considered in the count of group members
+   */
+  public boolean isIncludeGroupsInMemberCounts() {
+    return includeGroupsInMemberCounts;
   }
 
   /**
@@ -527,14 +551,6 @@ public class RelationGraph {
 
   // return the immediate groups that are members for this group
   private Set<Member> fetchImmediateGsaMembers(Group g) {
-    // init the g:gsa source if not set
-    if (grouperGSASources == null) {
-      grouperGSASources = Collections.singleton(SubjectFinder.internal_getGSA());
-    }
-    if (grouperMemberField == null) {
-      grouperMemberField = FieldFinder.find("members", true);
-    }
-
     //currently just memberships, not privileges
     return g.getImmediateMembers(grouperMemberField, grouperGSASources, null);
   }
@@ -648,7 +664,11 @@ public class RelationGraph {
   // returns the number of members in this group
   private long fetchGroupCount(Group g) {
     QueryOptions q = new QueryOptions().retrieveResults(false).retrieveCount(true);
-    new MembershipFinder().addGroup(g).assignField(grouperMemberField).assignQueryOptionsForMember(q).findMembershipsMembers();
+    if (includeGroupsInMemberCounts) {
+      MembershipFinder.findMembers(g, grouperMemberField, q);
+    } else {
+      MembershipFinder.findMembers(g, grouperMemberField, nonGroupSourcesCache, q);
+    }
     return q.getCount();
   }
 
@@ -1028,7 +1048,7 @@ public class RelationGraph {
     }
 
     // this may be the first time through; attribute to look up the attribute definitions
-    initAttributeDefs();
+    initLookupFields();
 
     skippedFolders = new HashSet<Stem>();
     skipFolderPatterns = new LinkedList<Pattern>();
@@ -1093,10 +1113,25 @@ public class RelationGraph {
     }
   }
 
-  // If first time called, init the static attributeDef fields. Find these as root user
-  private static void initAttributeDefs() {
-    if (attemptedInitAttributeDefs) {
+  // If first time called, init the static attributeDef fields, and other class properties. Find these as root user
+  private static void initLookupFields() {
+    if (attemptedInitLookupFields) {
       return;
+    }
+
+    if (grouperMemberField == null) {
+      grouperMemberField = FieldFinder.find("members", true);
+    }
+
+    // init the g:gsa source if not set
+    if (grouperGSASources == null) {
+      grouperGSASources = Collections.singleton(SubjectFinder.internal_getGSA());
+    }
+
+    // SubjectHelper has a method to get non-group subject sources, but doesn't cache it.
+    // Fetch and save it in this class so it doesn't need to be recalculated for every group.
+    if (nonGroupSourcesCache == null) {
+      nonGroupSourcesCache = SubjectHelper.nonGroupSources();
     }
 
     String loaderMetadataGroupIdName = GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
@@ -1122,7 +1157,7 @@ public class RelationGraph {
       LOG.warn("Unable to retrieve attribute for sql loader jobs; groups might not be detected as loader jobs", e);
     }
 
-    attemptedInitAttributeDefs = true;
+    attemptedInitLookupFields = true;
   }
 
   /**
@@ -1132,8 +1167,8 @@ public class RelationGraph {
    * @return
    */
   public static AttributeDefName getSqlLoaderAttributeDefName() {
-    if (!attemptedInitAttributeDefs) {
-      initAttributeDefs();
+    if (!attemptedInitLookupFields) {
+      initLookupFields();
     }
     return sqlLoaderAttributeDefName;
   }

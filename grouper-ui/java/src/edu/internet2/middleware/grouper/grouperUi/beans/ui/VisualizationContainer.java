@@ -31,6 +31,7 @@ public class VisualizationContainer {
   private boolean drawShowLoaders;
   private boolean drawShowProvisioners;
   private boolean drawShowMemberCounts;
+  private boolean drawIncludeGroupsInMemberCounts;
   private GrouperObject grouperObject;
 
 
@@ -254,7 +255,25 @@ public class VisualizationContainer {
    */
   public void setDrawShowMemberCounts(boolean drawShowMemberCounts) {
     this.drawShowMemberCounts = drawShowMemberCounts;
+  }
 
+  /**
+   * returns whether to include groups in the count of group members
+   *
+   * @return if groups are considered in the count of group members
+   */
+  public boolean isDrawIncludeGroupsInMemberCounts() {
+    return drawIncludeGroupsInMemberCounts;
+  }
+
+  /**
+   * flags whether to include groups in the count of group members
+   *
+   * @param drawIncludeGroupsInMemberCounts whether to consider groups when counting members
+   * @return
+   */
+  public void setDrawIncludeGroupsInMemberCounts(boolean drawIncludeGroupsInMemberCounts) {
+    this.drawIncludeGroupsInMemberCounts = drawIncludeGroupsInMemberCounts;
   }
 
   /**

@@ -130,6 +130,17 @@
             <span class="description">${textContainer.text['visualization.form.showMemberCounts.description']}</span>
           </td>
         </tr>
+        <!-- include groups in member counts -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-include-group-member-counts">${textContainer.text['visualization.form.includeGroupsInMemberCounts']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawIncludeGroupsInMemberCounts" id="vis-settings-include-group-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawIncludeGroupsInMemberCounts ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.includeGroupsInMemberCounts.description']}</span>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

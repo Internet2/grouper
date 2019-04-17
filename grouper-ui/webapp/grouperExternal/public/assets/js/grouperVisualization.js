@@ -5,10 +5,12 @@ $(document).ready(function() {
     $("#vis-settings-parents-levels").prop("disabled", document.getElementById("vis-settings-parents-all").checked);
     $("#vis-settings-children-levels").prop("disabled", document.getElementById("vis-settings-children-all").checked);
     $("#vis-settings-siblings").prop("disabled", document.getElementById("vis-settings-siblings-all").checked);
+    $("#vis-settings-include-group-member-counts").prop("disabled", !document.getElementById("vis-settings-show-member-counts").checked);
 
     $("#vis-settings-parents-all").change(function(){ $("#vis-settings-parents-levels").prop("disabled", this.checked); });
     $("#vis-settings-children-all").change(function(){ $("#vis-settings-children-levels").prop("disabled", this.checked); });
     $("#vis-settings-siblings-all").change(function(){ $("#vis-settings-siblings").prop("disabled", this.checked); });
+    $("#vis-settings-show-member-counts").change(function(){ $("#vis-settings-include-group-member-counts").prop("disabled", !this.checked); });
 });
 
 // Visualization fullscreen lightbox
