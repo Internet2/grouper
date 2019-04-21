@@ -1,21 +1,24 @@
 package edu.internet2.middleware.grouper.app.reports;
 
-import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_NAME;
+import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -27,50 +30,106 @@ public class GrouperReportsClearJob extends OtherJobBase {
 
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
-    GrouperSession session = GrouperSession.startRootSession();
-    clearReports(session);
+    
+    int instancesDeleted = clearReports();
+    
+    otherJobInput.getHib3GrouperLoaderLog().store();
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Deleted "+instancesDeleted+" of grouper reports");
+    
     return null;
   }
   
-  private static void clearReports(GrouperSession session) {
+  
+  /**
+   * run the daemon
+   * @param args
+   */
+  public static void main(String[] args) {
+    runDaemonStandalone();
+  }
+  
+  /**
+   * run standalone
+   */
+  public static void runDaemonStandalone() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    
+    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+    String jobName = "OTHER_JOB_reportsClearDaemon";
+
+    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+    hib3GrouperLoaderLog.store();
+    
+    OtherJobInput otherJobInput = new OtherJobInput();
+    otherJobInput.setJobName(jobName);
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    otherJobInput.setGrouperSession(grouperSession);
+    new GrouperReportsClearJob().run(otherJobInput);
+  }
+  
+  /**
+   * delete report instances that are old
+   * @return number of deleted report instances
+   */
+  private static int clearReports() {
     
     if (!GrouperReportSettings.grouperReportsEnabled()) {
       LOG.info("grouper reports are not enabled. not going to run the grouper reports clear job");
-      return;
+      return 0;
     }
     
-    List<GrouperObject> stems = new ArrayList<GrouperObject>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_NAME)
+    List<GrouperObject> grouperObjects = new ArrayList<GrouperObject>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+        .assignNameOfAttributeDefName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME)
         .findStems());
     
-    //TODO do the same for groups
+    grouperObjects.addAll(new ArrayList<GrouperObject>(new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
+        .assignNameOfAttributeDefName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME)
+        .findGroups()));
     
-    clearOldReports(stems);
+    return clearOldReports(grouperObjects);
     
   }
   
-  private static void clearOldReports(List<GrouperObject> grouperObjects) {
+  /**
+   * @param grouperObjects
+   * @return number of deleted reports
+   */
+  private static int clearOldReports(List<GrouperObject> grouperObjects) {
     
+    int totalInstancesCleared = 0;
     for (GrouperObject grouperObject: grouperObjects) {
       
-      Set<GrouperReportConfigurationBean> reportConfigs = GrouperReportConfigService.getGrouperReportConfigs(grouperObject);
+      List<GrouperReportConfigurationBean> reportConfigs = GrouperReportConfigService.getGrouperReportConfigs(grouperObject);
       
       for (GrouperReportConfigurationBean configBean: reportConfigs) {
-        Set<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(grouperObject, configBean.getAttributeAssignmentMarkerId());
-        deleteOldInstances(new ArrayList<>(reportInstances));
+        List<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(grouperObject, configBean.getAttributeAssignmentMarkerId());
+        int instancesClearedPerConfig = deleteOldInstances(new ArrayList<>(reportInstances));
+        totalInstancesCleared = totalInstancesCleared + instancesClearedPerConfig;
       }
       
     }
     
+    return totalInstancesCleared;
+    
   }
   
-  private static void deleteOldInstances(List<GrouperReportInstance> reportInstances) {
+  /**
+   * pick old reports from given list of instances and delete them
+   * @param reportInstances
+   * @return number of deleted reports
+   */
+  private static int deleteOldInstances(List<GrouperReportInstance> reportInstances) {
     
     sortInstancesByReportGeneratedTime(reportInstances);
+    int instancesCleared = 0;
     // only keep 100 instances; delete rest
     if (reportInstances.size() > 100) {
       List<GrouperReportInstance> toBeDeleted = reportInstances.subList(100, reportInstances.size());
-      deleteAllGivenInstances(toBeDeleted);
+      GrouperReportInstanceService.deleteReportInstances(toBeDeleted);
+      instancesCleared = instancesCleared + toBeDeleted.size();
       reportInstances.subList(100, reportInstances.size()).clear();
     }
     
@@ -81,40 +140,27 @@ public class GrouperReportsClearJob extends OtherJobBase {
       long diff = today - reportGeneratedTime;
       long diffInDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
       if (diffInDays > 30) {
-        deleteAllGivenInstances(Arrays.asList(reportInstance));
+        GrouperReportInstanceService.deleteReportInstances(Arrays.asList(reportInstance));
+        instancesCleared = instancesCleared + 1;
       }
     }
     
-  }
-  
-  public static void deleteAllGivenInstances(List<GrouperReportInstance> instancesToBeDeleted) {
-    
-    for (GrouperReportInstance instance: instancesToBeDeleted) {
-      if (instance.isReportStoredInS3()) {
-        GrouperReportLogic.deleteFileFromS3(instance);
-        GrouperReportInstanceService.deleteReportInstance(instance);
-      } else {
-        GrouperReportLogic.deleteFromFileSystem(instance);
-        GrouperReportInstanceService.deleteReportInstance(instance);
-      }
-    }
+    return instancesCleared;
     
   }
   
+  /**
+   * @param instances
+   */
   private static void sortInstancesByReportGeneratedTime(List<GrouperReportInstance> instances) {
     
     instances.sort(new Comparator<GrouperReportInstance>() {
-
       @Override
       public int compare(GrouperReportInstance o1, GrouperReportInstance o2) {
         return new Long(o1.getReportInstanceMillisSince1970()).compareTo(new Long(o2.getReportInstanceMillisSince1970()));
       }
     });
     
-  }
-  
-  private static boolean shouldInstanceBeDeleted(GrouperReportInstance reportInstance) {
-    return false;
   }
   
 }

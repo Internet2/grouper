@@ -101,9 +101,6 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigViewersGroupIdId">${textContainer.text['grouperReportConfigViewersGroupIdLabel']}</label></strong></td>
                           <td>
-                            <%-- <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId)}"
-                                name="grouperReportConfigViewersGroupId" id="grouperReportConfigViewersGroupIdId" /> --%>
-                                
                             <grouper:combobox2 idBase="grouperReportConfigViewersGroupCombo" style="width: 30em" 
                                    value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId}"
                                    filterOperation="../app/UiV2Group.groupUpdateFilter" />
@@ -177,8 +174,11 @@
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigSendEmailToGroupIdId">${textContainer.text['grouperReportConfigSendEmailToGroupIdLabel']}</label></strong></td>
                               <td>
-                                <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToGroupId)}"
-                                    name="grouperReportConfigSendEmailToGroupId" id="grouperReportConfigSendEmailToGroupIdId" />
+                              
+                                <grouper:combobox2 idBase="grouperReportConfigSendEmailToGroupCombo" style="width: 30em" 
+                                 value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToGroupId}"
+                                 filterOperation="../app/UiV2Group.groupUpdateFilter" />
+                                
                                 <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                   data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                                 <br />

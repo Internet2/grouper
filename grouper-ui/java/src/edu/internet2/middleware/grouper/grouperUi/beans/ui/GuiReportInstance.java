@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.morphString.Morph;
+
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
 
@@ -26,6 +28,11 @@ public class GuiReportInstance {
    */
   private GrouperReportInstance reportInstance;
   
+  /**
+   * @param reportConfigBean
+   * @param reportInstances
+   * @return list of gui report instances
+   */
   public static List<GuiReportInstance> buildGuiReportInstances(GrouperReportConfigurationBean reportConfigBean, List<GrouperReportInstance> reportInstances) {
     
     Collections.sort(reportInstances, new Comparator<GrouperReportInstance>() {
@@ -48,36 +55,66 @@ public class GuiReportInstance {
     return result;
   }
 
+  /**
+   * @return user friendly run time
+   */
   public String getRunTime() {
     Date date = new Date(reportInstance.getReportInstanceMillisSince1970());
     String runTimeString = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
     return runTimeString;
   }
 
+  /**
+   * @return get human friendly unencrypted report file size
+   */
   public String getUnencryptedReportFileSize() {
-    return FileUtils.byteCountToDisplaySize(reportInstance.getReportInstanceSizeBytes());
+    if (reportInstance.getReportInstanceSizeBytes() != null) {      
+      return FileUtils.byteCountToDisplaySize(reportInstance.getReportInstanceSizeBytes());
+    }
+    return null;
   }
 
+  /**
+   * @return report config bean associated with the current object
+   */
   public GrouperReportConfigurationBean getReportConfigBean() {
     return reportConfigBean;
   }
 
+  /**
+   * @return report instance associated with the current object
+   */
   public GrouperReportInstance getReportInstance() {
     return reportInstance;
   }
 
+  /**
+   * report config bean associated with the current object
+   * @param reportConfigBean
+   */
   public void setReportConfigBean(GrouperReportConfigurationBean reportConfigBean) {
     this.reportConfigBean = reportConfigBean;
   }
 
+  /**
+   * report instance associated with the current object
+   * @param reportInstance
+   */
   public void setReportInstance(GrouperReportInstance reportInstance) {
     this.reportInstance = reportInstance;
   }
   
+  /**
+   * @return report instance encryption key with masking
+   */
   public String getReportInstanceEncryptionKey() {
-    final String overlay = StringUtils.repeat("X", reportInstance.getReportInstanceEncryptionKey().length() - 3);
-    String masked = StringUtils.overlay(reportInstance.getReportInstanceEncryptionKey(), overlay, 3, reportInstance.getReportInstanceEncryptionKey().length());
-    return masked;
+    if (StringUtils.isNotBlank(reportInstance.getReportInstanceEncryptionKey())) {
+      String encryptionKey = Morph.decrypt(reportInstance.getReportInstanceEncryptionKey());
+      final String overlay = StringUtils.repeat("X", encryptionKey.length() - 3);
+      String masked = StringUtils.overlay(encryptionKey, overlay, 3, encryptionKey.length());
+      return masked;
+    }
+    return null;
   }
   
   

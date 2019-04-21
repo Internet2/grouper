@@ -7,7 +7,6 @@ import static edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus.ER
 import static edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus.SUCCESS;
 
 import java.sql.Timestamp;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +48,7 @@ public class GrouperReportJob implements Job {
     
     GrouperObject groupOrStem = null;
     GrouperSession grouperSession = null;
+    GrouperReportInstance newReportInstance = new GrouperReportInstance();
     try {
       grouperSession = GrouperSession.startRootSession();
       String jobName = context.getJobDetail().getKey().getName();
@@ -56,6 +56,12 @@ public class GrouperReportJob implements Job {
       if (GrouperLoader.isJobRunning(jobName)) {
         GrouperLoaderLogger.addLogEntry("grouperReportLog", "grouperReportingJobAlreadyRunningSoAborting", true);
         LOG.warn("job " + jobName + " is currently running already.  Aborting this run");
+        return;
+      }
+      
+      if (!GrouperReportSettings.grouperReportsEnabled()) {
+        GrouperLoaderLogger.addLogEntry("grouperReportLog", "grouperReportingNotEnabledSoAborting", true);
+        LOG.info("grouper reporting is not enabled. aborting this run");
         return;
       }
       
@@ -72,7 +78,6 @@ public class GrouperReportJob implements Job {
       
       if (ownerGroupStemId == null || attributeAssignmentMarkerId == null) {
         LOG.error("what?? why ownerGroupStemId or attributeAssignmentMarkerId is null. job name is "+jobName);
-        //TODO delete the job??
         return;
       }
       
@@ -82,7 +87,7 @@ public class GrouperReportJob implements Job {
       }
       
       if (groupOrStem == null) {
-        LOG.error("owner grouper object is null for uuid: "+ownerGroupStemId+" job name is: "+jobName);
+        LOG.warn("owner grouper object is null for uuid: "+ownerGroupStemId+" job name is: "+jobName);
         GrouperReportConfigService.deleteJobs(ownerGroupStemId);
         return;
       }
@@ -93,26 +98,23 @@ public class GrouperReportJob implements Job {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouploaderLog.store();
 
-      Set<GrouperReportConfigurationBean> reportConfigs = GrouperReportConfigService.getGrouperReportConfigs(groupOrStem);
-      
-      GrouperReportConfigurationBean reportConfig = null;
-      for (GrouperReportConfigurationBean reportConfigBean: reportConfigs) {
-        if (reportConfigBean.getAttributeAssignmentMarkerId().equals(attributeAssignmentMarkerId)) {
-          reportConfig = reportConfigBean;
-          break;
-        }
-      }
+      GrouperReportConfigurationBean reportConfig = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
       
       if (reportConfig != null) {
-        GrouperReportInstance reportInstance = GrouperReportLogic.runReport(reportConfig);
+        
+        newReportInstance.setGrouperReportConfigurationBean(reportConfig);
+        newReportInstance.setReportInstanceConfigMarkerAssignmentId(reportConfig.getAttributeAssignmentMarkerId());
+        newReportInstance.setReportInstanceMillisSince1970(System.currentTimeMillis());
+        newReportInstance.setReportInstanceDownloadCount(0L);
+        
+        // run report and populate newReportInstance with values
+        GrouperReportLogic.runReport(reportConfig, newReportInstance, groupOrStem);
         
         hib3GrouploaderLog.setJobMessage("Ran grouper report: "+reportConfig.getReportConfigName());
         
-        GrouperLoaderStatus loaderStatus = reportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS) ? SUCCESS: ERROR;
+        GrouperLoaderStatus loaderStatus = newReportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS) ? SUCCESS: ERROR;
         
         hib3GrouploaderLog.setStatus(loaderStatus.name());
-        
-        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, groupOrStem);
         
       } else {
         LOG.error("No config found for attributeAssignmentMarkerId: "+attributeAssignmentMarkerId);

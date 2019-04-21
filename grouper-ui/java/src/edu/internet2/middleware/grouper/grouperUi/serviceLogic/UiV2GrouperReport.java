@@ -7,16 +7,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.Group;
@@ -44,8 +43,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
@@ -53,13 +54,16 @@ import net.redhogs.cronparser.CronExpressionDescriptor;
  * 
  */
 public class UiV2GrouperReport {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(UiV2GrouperReport.class);
     
   /**
    * view report configs on a folder
    * @param request
    * @param response
    */
-  public void viewReportOnFolder(HttpServletRequest request, HttpServletResponse response) {
+  public void viewReportConfigsOnFolder(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -88,26 +92,7 @@ public class UiV2GrouperReport {
         return;
       }
       
-      @SuppressWarnings("unchecked")
-      Set<GuiReportConfig> guiReportConfigs = (Set<GuiReportConfig>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          Set<GuiReportConfig> guiReportConfigs = new HashSet<GuiReportConfig>();
-          Set<GrouperReportConfigurationBean> grouperReportConfigs = GrouperReportConfigService.getGrouperReportConfigs(STEM);
-          
-          for (GrouperReportConfigurationBean configBean: grouperReportConfigs) {
-            GrouperReportInstance mostRecentReportInstance = GrouperReportInstanceService.getMostRecentReportInstance(STEM, configBean.getAttributeAssignmentMarkerId());
-            GuiReportConfig guiReportConfig = new GuiReportConfig(configBean, mostRecentReportInstance);
-            if (guiReportConfig.isCanRead()) {              
-              guiReportConfigs.add(guiReportConfig);
-            }
-          }
-          
-          return guiReportConfigs;
-        }
-        
-      });
+      List<GuiReportConfig> guiReportConfigs = buildGuiReportConfigs(STEM);
       
       grouperReportContainer.setGuiReportConfigs(guiReportConfigs);
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -119,6 +104,54 @@ public class UiV2GrouperReport {
     
   }
   
+  
+  /**
+   * view report configs on a group
+   * @param request
+   * @param response
+   */
+  public void viewReportConfigsOnGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      List<GuiReportConfig> guiReportConfigs = buildGuiReportConfigs(GROUP);
+      
+      grouperReportContainer.setGuiReportConfigs(guiReportConfigs);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/grouperReport/groupReportConfig.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
   /**
    * edit button was clicked on folder report screen
    * @param request
@@ -153,28 +186,15 @@ public class UiV2GrouperReport {
         return;
       }
       
-      //switch over to admin so attributes work
-      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (!grouperReportContainer.isCanWriteGrouperReports()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEditFolder")));
-            return false;
-          }
-
-          return true;
-        }
-      });
-      
-      if (!shouldContinue) {
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEdit")));
         return;
       }
       
+      
       @SuppressWarnings("unchecked")
-      Set<GrouperReportConfigurationBean> reportConfigBeans = (Set<GrouperReportConfigurationBean>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      List<GrouperReportConfigurationBean> reportConfigBeans = (List<GrouperReportConfigurationBean>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           return GrouperReportConfigService.getGrouperReportConfigs(STEM);
@@ -220,8 +240,97 @@ public class UiV2GrouperReport {
     
   }
   
+  
   /**
-   * screen to allow adding a new report config
+   * edit button was clicked on group report screen
+   * @param request
+   * @param response
+   */
+  public void reportOnGroupEdit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEdit")));
+        return;
+      }
+      
+      
+      @SuppressWarnings("unchecked")
+      List<GrouperReportConfigurationBean> reportConfigBeans = (List<GrouperReportConfigurationBean>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          return GrouperReportConfigService.getGrouperReportConfigs(GROUP);
+        }
+      });
+      
+      grouperReportContainer.setReportConfigBeans(reportConfigBeans);
+      
+      Map<String, GrouperReportConfigurationBean> reportConfigNameToBean = new HashMap<String, GrouperReportConfigurationBean>();
+      
+      for (GrouperReportConfigurationBean bean: reportConfigBeans) {
+        reportConfigNameToBean.put(bean.getReportConfigName(), bean);
+      }
+      
+      String previousReportConfigName = request.getParameter("previousReportConfigName");
+      String reportConfigName = request.getParameter("grouperReportConfigName");
+      
+      // first time loading the bean by config name, load from database
+      if (StringUtils.isBlank(previousReportConfigName) && StringUtils.isNotBlank(reportConfigName)) {
+        GrouperReportConfigurationBean grouperReportConfigurationBean = reportConfigNameToBean.get(reportConfigName);
+        grouperReportContainer.setConfigBean(grouperReportConfigurationBean);
+      }
+      
+      // change was made on the form
+      if (StringUtils.isNotBlank(previousReportConfigName) && previousReportConfigName.equals(reportConfigName)) {
+        GrouperReportConfigurationBean bean = new GrouperReportConfigurationBean();
+        populateGrouperReportConfigBean(request, bean);
+        grouperReportContainer.setConfigBean(bean);
+      }
+      
+      // config name was changed, load from database
+      if (StringUtils.isNotBlank(previousReportConfigName) && !previousReportConfigName.equals(reportConfigName)) {
+        GrouperReportConfigurationBean grouperReportConfigurationBean = reportConfigNameToBean.get(reportConfigName);
+        grouperReportContainer.setConfigBean(grouperReportConfigurationBean);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/grouperReport/groupReportConfigEdit.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * screen to allow adding a new report config for folders
    * @param request
    * @param response
    */
@@ -252,23 +361,9 @@ public class UiV2GrouperReport {
         return;
       }
       
-      //switch over to admin so attributes work
-      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (!grouperReportContainer.isCanWriteGrouperReports()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToAddFolder")));
-            return false;
-          }
-
-          return true;
-        }
-      });
-      
-      if (!shouldContinue) {
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToAdd")));
         return;
       }
       
@@ -279,6 +374,58 @@ public class UiV2GrouperReport {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/grouperReport/folderReportConfigAdd.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * screen to allow adding a new report config for groups
+   * @param request
+   * @param response
+   */
+  public void reportOnGroupAdd(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToAdd")));
+        return;
+      }
+      
+      GrouperReportConfigurationBean newBean = new GrouperReportConfigurationBean();
+      populateGrouperReportConfigBean(request, newBean);
+      
+      grouperReportContainer.setConfigBean(newBean);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/grouperReport/groupReportConfigAdd.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -320,29 +467,19 @@ public class UiV2GrouperReport {
         return;
       }
       
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToAdd")));
+        return;
+      }
+      
       final GrouperReportConfigurationBean bean = new GrouperReportConfigurationBean();
       final String mode = request.getParameter("mode");
       final boolean isAdd = (mode != null) && mode.equalsIgnoreCase("add");
       
-      //switch over to admin so attributes work
-      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (!grouperReportContainer.isCanWriteGrouperReports()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToAddFolder")));
-            return false;
-          }
-          
-          populateGrouperReportConfigBean(request, bean);
-          boolean isValid = validateGrouperReportConfigBean(bean, theGrouperSession, STEM, isAdd);
-          return isValid;
-        }
-      });
-      
-      if (!shouldContinue) {
+      populateGrouperReportConfigBean(request, bean);
+      boolean isValid = validateGrouperReportConfigBean(bean, grouperSession, STEM, isAdd);
+      if (!isValid) {
         return;
       }
       
@@ -353,11 +490,13 @@ public class UiV2GrouperReport {
           
           try {    
             GrouperReportConfigService.saveOrUpdateReportConfigAttributes(bean, STEM);
-            GrouperReportConfigurationBean savedBean = GrouperReportConfigService.getGrouperReportConfig(STEM, bean.getReportConfigName());
+            GrouperReportConfigurationBean savedBean = GrouperReportConfigService.getGrouperReportConfigBean(STEM, bean.getReportConfigName());
             if (!isAdd) {              
               GrouperReportConfigService.unscheduleJob(savedBean, STEM); // unschedule and schedule again if we are editing
             }
-            GrouperReportConfigService.scheduleJob(savedBean, STEM);
+            if (savedBean.isReportConfigEnabled()) {
+              GrouperReportConfigService.scheduleJob(savedBean, STEM);
+            }
           } catch (SchedulerException e) {
             return false;
           }
@@ -372,7 +511,95 @@ public class UiV2GrouperReport {
         return;
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=" + stem.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=" + stem.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigAddEditSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * Save a new report config to the database 
+   * @param request
+   * @param response
+   */
+  public void reportOnGroupAddEditSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToAdd")));
+        return;
+      }
+      
+      final GrouperReportConfigurationBean bean = new GrouperReportConfigurationBean();
+      final String mode = request.getParameter("mode");
+      final boolean isAdd = (mode != null) && mode.equalsIgnoreCase("add");
+      
+      populateGrouperReportConfigBean(request, bean);
+      boolean isValid = validateGrouperReportConfigBean(bean, grouperSession, GROUP, isAdd);
+      if (!isValid) {
+        return;
+      }
+      
+      boolean saved = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          try {    
+            GrouperReportConfigService.saveOrUpdateReportConfigAttributes(bean, GROUP);
+            GrouperReportConfigurationBean savedBean = GrouperReportConfigService.getGrouperReportConfigBean(GROUP, bean.getReportConfigName());
+            if (!isAdd) {              
+              GrouperReportConfigService.unscheduleJob(savedBean, GROUP); // unschedule and schedule again if we are editing
+            }
+            if (savedBean.isReportConfigEnabled()) {
+              GrouperReportConfigService.scheduleJob(savedBean, GROUP);
+            }
+          } catch (SchedulerException e) {
+            return false;
+          }
+          
+          return true;
+        }
+      });
+      
+      if (!saved) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportJobScheduleError")));
+        return;
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=" + group.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperReportConfigAddEditSuccess")));
       
@@ -387,7 +614,7 @@ public class UiV2GrouperReport {
    * @param request
    * @param response
    */
-  public void viewAllReportInstances(HttpServletRequest request, HttpServletResponse response) {
+  public void viewAllReportInstancesForFolder(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -421,14 +648,17 @@ public class UiV2GrouperReport {
         throw new RuntimeException("why is attributeAssignmentMarkerId blank??");
       }
       
-      //TODO check that logged in user can view the settings and view/download the report
-      
       GrouperReportConfigInstance grouperReportConfigInstance = (GrouperReportConfigInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(STEM, attributeAssignmentMarkerId);
-          Set<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(STEM, attributeAssignmentMarkerId);
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          
+          if (!configBean.isCanRead(loggedInSubject)) {
+            return null;
+          }
+          
+          List<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(STEM, attributeAssignmentMarkerId);
           
           List<GuiReportInstance> guiReportInstances = GuiReportInstance.buildGuiReportInstances(configBean, new ArrayList<GrouperReportInstance>(reportInstances));
           
@@ -441,6 +671,12 @@ public class UiV2GrouperReport {
         
       });
       
+      if (grouperReportConfigInstance == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNoEntitiesFound")));
+        return;
+      }
+      
       grouperReportContainer.setGrouperReportConfigInstance(grouperReportConfigInstance);
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/grouperReport/folderReportConfigWithInstances.jsp"));
@@ -450,7 +686,90 @@ public class UiV2GrouperReport {
     }
   }
   
-  public void viewReportInstanceDetails(final HttpServletRequest request, HttpServletResponse response) {
+  
+  /**
+   * view report instances for a report config
+   * @param request
+   * @param response
+   */
+  public void viewAllReportInstancesForGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      final String attributeAssignmentMarkerId = request.getParameter("attributeAssignmentMarkerId");
+      if (StringUtils.isBlank(attributeAssignmentMarkerId)) {
+        throw new RuntimeException("why is attributeAssignmentMarkerId blank??");
+      }
+      
+      GrouperReportConfigInstance grouperReportConfigInstance = (GrouperReportConfigInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          
+          if (!configBean.isCanRead(loggedInSubject)) {
+            return null;
+          }
+          
+          List<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(GROUP, attributeAssignmentMarkerId);
+          
+          List<GuiReportInstance> guiReportInstances = GuiReportInstance.buildGuiReportInstances(configBean, new ArrayList<GrouperReportInstance>(reportInstances));
+          
+          GrouperReportConfigInstance grouperReportConfigInstance = new GrouperReportConfigInstance();
+          grouperReportConfigInstance.setGuiReportInstances(guiReportInstances);
+          grouperReportConfigInstance.setReportConfigBean(configBean);
+          
+          return grouperReportConfigInstance;
+        }
+        
+      });
+      
+      if (grouperReportConfigInstance == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNoEntitiesFound")));
+        return;
+      }
+      
+      grouperReportContainer.setGrouperReportConfigInstance(grouperReportConfigInstance);
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/grouperReport/groupReportConfigWithInstances.jsp"));
+            
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * view report instance details for a folder
+   * @param request
+   * @param response
+   */
+  public void viewReportInstanceDetailsForFolder(final HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -484,7 +803,6 @@ public class UiV2GrouperReport {
         throw new RuntimeException("why is attributeAssignId blank??");
       }
       
-      //TODO check that logged in user can view the settings and view/download the report
       GuiReportInstance guiReportInstance = (GuiReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -493,16 +811,25 @@ public class UiV2GrouperReport {
           
           String configMarkerAssignmentId = reportInstance.getReportInstanceConfigMarkerAssignmentId();
           
-          GrouperReportConfigurationBean grouperReportConfigBean = GrouperReportConfigService.getGrouperReportConfigBean(STEM, configMarkerAssignmentId);
+          GrouperReportConfigurationBean grouperReportConfigBean = GrouperReportConfigService.getGrouperReportConfigBean(configMarkerAssignmentId);
           
-          GuiReportInstance guiReportInstance = new GuiReportInstance();
-          guiReportInstance.setReportConfigBean(grouperReportConfigBean);
-          guiReportInstance.setReportInstance(reportInstance);
+          if (grouperReportConfigBean.isCanRead(loggedInSubject)) {
+            GuiReportInstance guiReportInstance = new GuiReportInstance();
+            guiReportInstance.setReportConfigBean(grouperReportConfigBean);
+            guiReportInstance.setReportInstance(reportInstance);
+            return guiReportInstance;
+          }
           
-          return guiReportInstance;
+          return null;
         }
         
       });
+      
+      if (guiReportInstance == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToViewDetails")));
+        return;
+      }
       
       grouperReportContainer.setGuiReportInstance(guiReportInstance);
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -515,7 +842,90 @@ public class UiV2GrouperReport {
     
   }
   
-  public void changeReportConfigStatus(final HttpServletRequest request, final HttpServletResponse response) {
+  /**
+   * view report instance details for a group
+   * @param request
+   * @param response
+   */
+  public void viewReportInstanceDetailsForGroup(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      final String attributeAssignId = request.getParameter("attributeAssignId");
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("why is attributeAssignId blank??");
+      }
+      
+      GuiReportInstance guiReportInstance = (GuiReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          GrouperReportInstance reportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          
+          String configMarkerAssignmentId = reportInstance.getReportInstanceConfigMarkerAssignmentId();
+          
+          GrouperReportConfigurationBean grouperReportConfigBean = GrouperReportConfigService.getGrouperReportConfigBean(configMarkerAssignmentId);
+          
+          if (grouperReportConfigBean.isCanRead(loggedInSubject)) {
+            GuiReportInstance guiReportInstance = new GuiReportInstance();
+            guiReportInstance.setReportConfigBean(grouperReportConfigBean);
+            guiReportInstance.setReportInstance(reportInstance);
+            return guiReportInstance;
+          }
+          
+          return null;
+        }
+        
+      });
+      
+      if (guiReportInstance == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToViewDetails")));
+        return;
+      }
+      
+      grouperReportContainer.setGuiReportInstance(guiReportInstance);
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/grouperReport/groupReportInstanceDetails.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * enable/disable button was clicked
+   * @param request
+   * @param response
+   */
+  public void changeReportConfigStatusForFolder(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -538,6 +948,15 @@ public class UiV2GrouperReport {
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEdit")));
         return;
       }
       
@@ -551,24 +970,36 @@ public class UiV2GrouperReport {
         throw new RuntimeException("why is attributeAssignmentMarkerId blank??");
       }
       
-      //TODO check that logged in user can enable/disable the report
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      boolean isSaved = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(STEM, attributeAssignmentMarkerId);
-          if (newStatus.equals("enable")) {            
-            configBean.setReportConfigEnabled(true);
-          } else {
-            configBean.setReportConfigEnabled(false);
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          try {
+            if (newStatus.equals("enable")) { 
+              configBean.setReportConfigEnabled(true);
+              GrouperReportConfigService.scheduleJob(configBean, STEM);
+            } else {
+              configBean.setReportConfigEnabled(false);
+              GrouperReportConfigService.unscheduleJob(configBean, STEM);
+            }
+          } catch(SchedulerException e) {
+            return false;
           }
+          
           GrouperReportConfigService.saveOrUpdateReportConfigAttributes(configBean, STEM);
           
-          return null;
+          return true;
         }
         
       });
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=" + stem.getId() + "')"));
+      if (!isSaved) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportJobScheduleError")));
+        return;
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperReportConfigStatusChangeSuccess")));
       
@@ -577,28 +1008,49 @@ public class UiV2GrouperReport {
     }
   }
   
-  public void downloadReport(final HttpServletRequest request, HttpServletResponse response) {
+  /**
+   * enable/disable button was clicked
+   * @param request
+   * @param response
+   */
+  public void changeReportConfigStatusForGroup(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
   
-    Stem stem = null;
+    Group group = null;
 
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
       
-      if (stem == null) {
+      if (group == null) {
         return;
       }
-
-      final Stem STEM = stem;
+      
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       if (!checkReportConfigActive()) {
         return;
+      }
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEdit")));
+        return;
+      }
+      
+      final String newStatus = request.getParameter("newStatus");
+      if (StringUtils.isBlank(newStatus)) {
+        throw new RuntimeException("why is newStatus blank??");
       }
       
       final String attributeAssignmentMarkerId = request.getParameter("attributeAssignmentMarkerId");
@@ -606,21 +1058,103 @@ public class UiV2GrouperReport {
         throw new RuntimeException("why is attributeAssignmentMarkerId blank??");
       }
       
-      GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      boolean isSaved = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getMostRecentReportInstance(STEM, attributeAssignmentMarkerId);
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          try {
+            if (newStatus.equals("enable")) {            
+              configBean.setReportConfigEnabled(true);
+              GrouperReportConfigService.scheduleJob(configBean, GROUP);
+            } else {
+              configBean.setReportConfigEnabled(false);
+              GrouperReportConfigService.unscheduleJob(configBean, GROUP);
+            }
+          } catch(SchedulerException e) {
+            return false;
+          }
+          
+          GrouperReportConfigService.saveOrUpdateReportConfigAttributes(configBean, GROUP);
+          
+          return true;
+        }
+        
+      });
+      
+      if (!isSaved) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportJobScheduleError")));
+        return;
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigStatusChangeSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * download report link was clicked
+   * @param request
+   * @param response
+   */
+  public void downloadReportForFolder(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      final String attributeAssignId = request.getParameter("attributeAssignId");
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("why is attributeAssignId blank??");
+      }
+      
+      GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
           return recentReportInstance;
         }
         
       });
       
-      try {
+      if (reportInstance == null) {
+        throw new RuntimeException("No report instance found");
+      }
+      
+      
+      if (!reportInstance.getGrouperReportConfigurationBean().isCanRead(loggedInSubject)) {
+
+        final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToDownload")));
+        return;
+      }
+      
+      Stem stem = (Stem) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
-        //TODO remove the following two lines. they are here so that we 
-        // don't have to run daemon
-        reportInstance.setReportInstanceEncryptionKey("fcPInvBpYbEO0XLP");
-        reportInstance.setReportInstanceFilePointer("https://grouper-reports.s3.us-west-2.amazonaws.com/one_rel_history.csv");
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Stem stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
+          return stem;
+        }
+        
+      });
+      
+      if (stem == null) {
+        throw new RuntimeException();
+      }
+      
+      try {
         
         String reportContent = GrouperReportLogic.getReportContent(reportInstance);
         
@@ -630,9 +1164,93 @@ public class UiV2GrouperReport {
         PrintWriter out = response.getWriter();
         out.write(reportContent);
         out.close();
+        
+        reportInstance.setReportInstanceDownloadCount(reportInstance.getReportInstanceDownloadCount() + 1);
+        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, stem);
+        
       } catch (IOException e) {
-        // TODO: handle exception
-        e.printStackTrace();
+        throw new RuntimeException("Error occured while downloading the report");
+      }
+      
+      throw new ControllerDone();
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * download report link was clicked
+   * @param request
+   * @param response
+   */
+  public void downloadReportForGroup(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      final String attributeAssignId = request.getParameter("attributeAssignId");
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("why is attributeAssignId blank??");
+      }
+      
+      GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          return recentReportInstance;
+        }
+        
+      });
+      
+      if (!reportInstance.getGrouperReportConfigurationBean().isCanRead(loggedInSubject)) {
+
+        final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToDownload")));
+        return;
+      }
+      
+      Group group = (Group) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+          
+          return group;
+        }
+        
+      });
+      
+      if (group == null) {
+        throw new RuntimeException();
+      }
+      
+      try {
+        
+        String reportContent = GrouperReportLogic.getReportContent(reportInstance);
+        
+        response.setContentType("text/csv");
+        response.setHeader ("Content-Disposition", "inline;filename=\"" + reportInstance.getReportInstanceFileName() + "\"");
+        
+        PrintWriter out = response.getWriter();
+        out.write(reportContent);
+        out.close();
+        
+        reportInstance.setReportInstanceDownloadCount(reportInstance.getReportInstanceDownloadCount() + 1);
+        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, group);
+        
+      } catch (IOException e) {
+        throw new RuntimeException("Error occured while downloading the report");
       }
       
       throw new ControllerDone();
@@ -643,54 +1261,74 @@ public class UiV2GrouperReport {
     
   }
  
-  public void deleteReportConfig(final HttpServletRequest request, final HttpServletResponse response) {
+  /**
+   * delete report config
+   * @param request
+   * @param response
+   */
+  public void deleteReportConfigForFolder(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
   
-    Stem stem = null;
-
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
-      
-      if (stem == null) {
-        return;
-      }
-
-      final Stem STEM = stem;
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       if (!checkReportConfigActive()) {
         return;
       }
-      
+            
       final String attributeAssignmentMarkerId = request.getParameter("attributeAssignmentMarkerId");
       if (StringUtils.isBlank(attributeAssignmentMarkerId)) {
         throw new RuntimeException("why is attributeAssignmentMarkerId blank??");
       }
       
-      //TODO check that logged in user can delete the report
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEdit")));
+        return;
+      }
+      
+      final Stem stem = (Stem) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Stem stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
+          return stem;
+        }
+        
+      });
+      
+      if (stem == null) {
+        throw new RuntimeException();
+      }
+      
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(STEM, attributeAssignmentMarkerId);
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
           if (configBean == null) {
             throw new RuntimeException("Invalid attributeAssignmentMarkerId");
           }
           
-          GrouperReportConfigService.deleteGrouperReportConfig(STEM, configBean);
+          try {            
+            GrouperReportConfigService.deleteGrouperReportConfig(stem, configBean);
+          } catch(SchedulerException e) {
+            LOG.error("Error deleting quartz job for config: "+configBean.getReportConfigName());
+          }
           
           return null;
         }
         
       });
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=" + stem.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperReportConfigDeleteSuccess")));
       
@@ -700,7 +1338,89 @@ public class UiV2GrouperReport {
     
   }
   
+  /**
+   * delete report config
+   * @param request
+   * @param response
+   */
+  public void deleteReportConfigForGroup(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
   
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+            
+      final String attributeAssignmentMarkerId = request.getParameter("attributeAssignmentMarkerId");
+      if (StringUtils.isBlank(attributeAssignmentMarkerId)) {
+        throw new RuntimeException("why is attributeAssignmentMarkerId blank??");
+      }
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!grouperReportContainer.isCanWriteGrouperReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToEdit")));
+        return;
+      }
+      
+      final Group group = (Group) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+          return group;
+        }
+        
+      });
+      
+      if (group == null) {
+        throw new RuntimeException();
+      }
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          if (configBean == null) {
+            throw new RuntimeException("Invalid attributeAssignmentMarkerId");
+          }
+          
+          try {
+            GrouperReportConfigService.deleteGrouperReportConfig(group, configBean);
+          }
+          catch(SchedulerException e) {
+            LOG.error("Error deleting quartz job for config: "+configBean.getReportConfigName());
+          }
+          
+          return null;
+        }
+        
+      });
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigDeleteSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * populate report config bean object from the form
+   * @param request
+   * @param bean
+   */
   private void populateGrouperReportConfigBean(HttpServletRequest request, GrouperReportConfigurationBean bean) {
     
     String reportConfigType = request.getParameter("grouperReportConfigType");
@@ -730,8 +1450,6 @@ public class UiV2GrouperReport {
     String reportConfigDescription = request.getParameter("grouperReportConfigDescription");
     bean.setReportConfigDescription(reportConfigDescription);
     
-    
-    //if moving combobox down to extra list or getting all groups
     String viewersGroup = request.getParameter("grouperReportConfigViewersGroupComboName");
     
     if (StringUtils.isBlank(viewersGroup)) {
@@ -739,7 +1457,6 @@ public class UiV2GrouperReport {
       viewersGroup = request.getParameter("grouperReportConfigViewersGroupComboNameDisplay");
     }
     
-    //String reportConfigViewersGroupIdOrName = request.getParameter("grouperReportConfigViewersGroupId");
     bean.setReportConfigViewersGroupId(viewersGroup);
     
     String reportConfigQuartzCron = request.getParameter("grouperReportConfigQuartzCron");
@@ -765,7 +1482,11 @@ public class UiV2GrouperReport {
     }
     bean.setReportConfigSendEmailToViewers(configSendEmailToViewers);
     
-    String reportConfigSendEmailToGroupId = request.getParameter("grouperReportConfigSendEmailToGroupId");
+    String reportConfigSendEmailToGroupId = request.getParameter("grouperReportConfigSendEmailToGroupComboName");
+    if (StringUtils.isBlank(reportConfigSendEmailToGroupId)) {
+      //if didnt pick one from results
+      reportConfigSendEmailToGroupId = request.getParameter("grouperReportConfigSendEmailToGroupComboNameDisplay");
+    }
     bean.setReportConfigSendEmailToGroupId(reportConfigSendEmailToGroupId);
     
     String reportConfigQuery = request.getParameter("grouperReportConfigQuery");
@@ -773,6 +1494,14 @@ public class UiV2GrouperReport {
     
   }
   
+  /**
+   * validate grouper report config bean
+   * @param bean
+   * @param session
+   * @param grouperObject
+   * @param isAddMode
+   * @return
+   */
   private boolean validateGrouperReportConfigBean(GrouperReportConfigurationBean bean, GrouperSession session,
       GrouperObject grouperObject, boolean isAddMode) {
     
@@ -811,7 +1540,7 @@ public class UiV2GrouperReport {
     }
     
     if (isAddMode) {
-      GrouperReportConfigurationBean existingConfigBean = GrouperReportConfigService.getGrouperReportConfig(grouperObject, bean.getReportConfigName());
+      GrouperReportConfigurationBean existingConfigBean = GrouperReportConfigService.getGrouperReportConfigBean(grouperObject, bean.getReportConfigName());
       if (existingConfigBean != null) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#grouperReportConfigNameId",
@@ -891,6 +1620,12 @@ public class UiV2GrouperReport {
     return true;
   }
   
+  /**
+   * check if group exists - look up by id and name
+   * @param idName
+   * @param session
+   * @return
+   */
   private boolean groupExists(String idName, GrouperSession session) {
     
     Group group = GroupFinder.findByUuid(session, idName, false);
@@ -909,6 +1644,11 @@ public class UiV2GrouperReport {
     return group != null;
   }
   
+  /**
+   * is cron expression valid
+   * @param cronExpression
+   * @return
+   */
   private boolean isCronExpressionValid(String cronExpression) {
     try {
       CronExpressionDescriptor.getDescription(cronExpression);
@@ -933,8 +1673,36 @@ public class UiV2GrouperReport {
       return false;
     }
 
-    
     return true;
+  }
+  
+  /**
+   * @param grouperObject
+   * @return
+   */
+  private List<GuiReportConfig> buildGuiReportConfigs(final GrouperObject grouperObject) {
+    
+    @SuppressWarnings("unchecked")
+    List<GuiReportConfig> guiReportConfigs = (List<GuiReportConfig>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        List<GuiReportConfig> guiReportConfigs = new ArrayList<GuiReportConfig>();
+        List<GrouperReportConfigurationBean> grouperReportConfigs = GrouperReportConfigService.getGrouperReportConfigs(grouperObject);
+        
+        for (GrouperReportConfigurationBean configBean: grouperReportConfigs) {
+          GrouperReportInstance mostRecentReportInstance = GrouperReportInstanceService.getMostRecentReportInstance(grouperObject, configBean.getAttributeAssignmentMarkerId());
+          GuiReportConfig guiReportConfig = new GuiReportConfig(configBean, mostRecentReportInstance);
+          if (guiReportConfig.isCanRead()) {              
+            guiReportConfigs.add(guiReportConfig);
+          }
+        }
+        
+        return guiReportConfigs;
+      }
+      
+    });
+    return guiReportConfigs;
   }
 
 }

@@ -137,7 +137,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Stem.class.getSimpleName() + ".createAttributeDefParentFolderFilter",
       UiV2Admin.class.getSimpleName() + ".subjectApiDiagnosticsActAsCombo",
       UiV2Deprovisioning.class.getSimpleName() + ".addMemberFilter",
-      UiV2GrouperReport.class.getSimpleName() + ".downloadReport"
+      UiV2GrouperReport.class.getSimpleName() + ".downloadReportForFolder",
+      UiV2GrouperReport.class.getSimpleName() + ".downloadReportForGroup"
   );
 
   /**

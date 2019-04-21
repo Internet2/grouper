@@ -362,7 +362,13 @@ public class GrouperReportConfigurationBean {
     this.reportConfigEnabled = reportConfigEnabled;
   }
   
+  /**
+   * can given subject read this report config
+   * @param subject
+   * @return
+   */
   public boolean isCanRead(Subject subject) {
+    
     if (PrivilegeHelper.isWheelOrRoot(subject)) {
       return true;
     }

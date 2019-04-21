@@ -12,9 +12,7 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -56,14 +54,14 @@ public class GrouperReportInstance {
   /**
    * if not set will default to now
    */
-  private long reportDateMillis = System.currentTimeMillis();
+  private Long reportDateMillis = System.currentTimeMillis();
 
   
   /**
    * if not set will default to now
    * @return the reportDateMillis
    */
-  public long getReportDateMillis() {
+  public Long getReportDateMillis() {
     return this.reportDateMillis;
   }
 
@@ -72,7 +70,7 @@ public class GrouperReportInstance {
    * if not set will default to now
    * @param reportDateMillis1 the reportDateMillis to set
    */
-  public void setReportDateMillis(long reportDateMillis1) {
+  public void setReportDateMillis(Long reportDateMillis1) {
     this.reportDateMillis = reportDateMillis1;
   }
 
@@ -101,156 +99,276 @@ public class GrouperReportInstance {
     this.reportFileUnencrypted = reportFileUnencrypted;
   }
   
+  /**
+   * report instance status: SUCCESS or ERROR
+   */
   private String reportInstanceStatus;
   
-  private long reportElapsedMillis;
+  /**
+   * millis took to generate the report
+   */
+  private Long reportElapsedMillis;
   
+  /**
+   * id of report config marker that has this instance
+   */
   private String reportInstanceConfigMarkerAssignmentId;
   
-  private long reportInstanceMillisSince1970;
+  /**
+   * time when the report is generated
+   */
+  private Long reportInstanceMillisSince1970;
   
-  private long reportInstanceSizeBytes;
+  /**
+   * size of report in bytes
+   */
+  private Long reportInstanceSizeBytes;
   
+  /**
+   * pointer to the location of the file
+   */
   private String reportInstanceFilePointer;
   
-  private long reportInstanceDownloadCount;
+  /**
+   * how many times the file has been downloaded
+   */
+  private Long reportInstanceDownloadCount;
   
+  /**
+   * encryption key with which the report has been encrypted
+   */
   private String reportInstanceEncryptionKey;
   
-  private long reportInstanceRows;
+  /**
+   * number of rows in the report
+   */
+  private Long reportInstanceRows;
   
+  /**
+   * subjects who were sent report link via email 
+   */
   private String reportInstanceEmailToSubjects;
   
+  /**
+   * subjects who were configured to receive but system couldn't send email to
+   */
   private String reportInstanceEmailToSubjectsError;
   
+  /**
+   * file name of the report
+   */
   private String reportInstanceFileName;
   
+  /**
+   * attribute assign id
+   */
   private String attributeAssignId;
   
-  
+  /**
+   * report instance status: SUCCESS or ERROR
+   * @return
+   */
   public String getReportInstanceStatus() {
     return reportInstanceStatus;
   }
 
-  
+  /**
+   * report instance status: SUCCESS or ERROR
+   * @param reportInstanceStatus
+   */
   public void setReportInstanceStatus(String reportInstanceStatus) {
     this.reportInstanceStatus = reportInstanceStatus;
   }
 
-  
-  public long getReportElapsedMillis() {
+  /**
+   * millis took to generate the report
+   * @return
+   */
+  public Long getReportElapsedMillis() {
     return reportElapsedMillis;
   }
 
-  
-  public void setReportElapsedMillis(long reportElapsedMillis) {
+  /**
+   * millis took to generate the report
+   * @param reportElapsedMillis
+   */
+  public void setReportElapsedMillis(Long reportElapsedMillis) {
     this.reportElapsedMillis = reportElapsedMillis;
   }
 
-  
+  /**
+   * id of report config marker that has this instance
+   * @return
+   */
   public String getReportInstanceConfigMarkerAssignmentId() {
     return reportInstanceConfigMarkerAssignmentId;
   }
 
-  
+  /**
+   * id of report config marker that has this instance
+   * @param reportInstanceConfigMarkerAssignmentId
+   */
   public void setReportInstanceConfigMarkerAssignmentId(
       String reportInstanceConfigMarkerAssignmentId) {
     this.reportInstanceConfigMarkerAssignmentId = reportInstanceConfigMarkerAssignmentId;
   }
 
-  
-  public long getReportInstanceMillisSince1970() {
+  /**
+   * time when the report is generated
+   * @return
+   */
+  public Long getReportInstanceMillisSince1970() {
     return reportInstanceMillisSince1970;
   }
 
-  
-  public void setReportInstanceMillisSince1970(long reportInstanceMillisSince1970) {
+  /**
+   * time when the report is generated
+   * @param reportInstanceMillisSince1970
+   */
+  public void setReportInstanceMillisSince1970(Long reportInstanceMillisSince1970) {
     this.reportInstanceMillisSince1970 = reportInstanceMillisSince1970;
   }
 
-  
-  public long getReportInstanceSizeBytes() {
+  /**
+   * size of report in bytes
+   * @return
+   */
+  public Long getReportInstanceSizeBytes() {
     return reportInstanceSizeBytes;
   }
 
-  
-  public void setReportInstanceSizeBytes(long reportInstanceSizeBytes) {
+  /**
+   * size of report in bytes
+   * @param reportInstanceSizeBytes
+   */
+  public void setReportInstanceSizeBytes(Long reportInstanceSizeBytes) {
     this.reportInstanceSizeBytes = reportInstanceSizeBytes;
   }
 
-  
+  /**
+   * pointer to the location of the file
+   * @return
+   */
   public String getReportInstanceFilePointer() {
     return reportInstanceFilePointer;
   }
 
-  
+  /**
+   * pointer to the location of the file
+   * @param reportInstanceFilePointer
+   */
   public void setReportInstanceFilePointer(String reportInstanceFilePointer) {
     this.reportInstanceFilePointer = reportInstanceFilePointer;
   }
 
-  
-  public long getReportInstanceDownloadCount() {
+  /**
+   * how many times the file has been downloaded
+   * @return
+   */
+  public Long getReportInstanceDownloadCount() {
     return reportInstanceDownloadCount;
   }
 
-  
-  public void setReportInstanceDownloadCount(long reportInstanceDownloadCount) {
+  /**
+   * how many times the file has been downloaded
+   * @param reportInstanceDownloadCount
+   */
+  public void setReportInstanceDownloadCount(Long reportInstanceDownloadCount) {
     this.reportInstanceDownloadCount = reportInstanceDownloadCount;
   }
   
+  /**
+   * encryption key with which the report has been encrypted
+   * @return
+   */
   public String getReportInstanceEncryptionKey() {
     return reportInstanceEncryptionKey;
   }
 
+  /**
+   * encryption key with which the report has been encrypted
+   * @param reportInstanceEncryptionKey
+   */
   public void setReportInstanceEncryptionKey(String reportInstanceEncryptionKey) {
     this.reportInstanceEncryptionKey = reportInstanceEncryptionKey;
   }
 
-  
-  public long getReportInstanceRows() {
+  /**
+   * number of rows in the report
+   * @return
+   */
+  public Long getReportInstanceRows() {
     return reportInstanceRows;
   }
 
-  
-  public void setReportInstanceRows(long reportInstanceRows) {
+  /**
+   * number of rows in the report
+   * @param reportInstanceRows
+   */
+  public void setReportInstanceRows(Long reportInstanceRows) {
     this.reportInstanceRows = reportInstanceRows;
   }
 
-  
+  /**
+   * subjects who were sent report link via email
+   * @return
+   */
   public String getReportInstanceEmailToSubjects() {
     return reportInstanceEmailToSubjects;
   }
 
-  
+  /**
+   * subjects who were sent report link via email
+   * @param reportInstanceEmailToSubjects
+   */
   public void setReportInstanceEmailToSubjects(String reportInstanceEmailToSubjects) {
     this.reportInstanceEmailToSubjects = reportInstanceEmailToSubjects;
   }
 
-  
+  /**
+   * subjects who were configured to receive but system couldn't send email to
+   * @return
+   */
   public String getReportInstanceEmailToSubjectsError() {
     return reportInstanceEmailToSubjectsError;
   }
 
-  
+  /**
+   * subjects who were configured to receive but system couldn't send email to
+   * @param reportInstanceEmailToSubjectsError
+   */
   public void setReportInstanceEmailToSubjectsError(String reportInstanceEmailToSubjectsError) {
     this.reportInstanceEmailToSubjectsError = reportInstanceEmailToSubjectsError;
   }
   
+  /**
+   * file name of the report
+   * @return
+   */
   public String getReportInstanceFileName() {
     return reportInstanceFileName;
   }
 
-  
+  /**
+   * file name of the report
+   * @param reportInstanceFileName
+   */
   public void setReportInstanceFileName(String reportInstanceFileName) {
     this.reportInstanceFileName = reportInstanceFileName;
   }
   
-  
+  /**
+   * attribute assign id
+   * @return
+   */
   public String getAttributeAssignId() {
     return attributeAssignId;
   }
-
   
+  /**
+   * attribute assign id
+   * @param attributeAssignId
+   */
   public void setAttributeAssignId(String attributeAssignId) {
     this.attributeAssignId = attributeAssignId;
   }
@@ -287,8 +405,7 @@ public class GrouperReportInstance {
   }
   
   public boolean isReportStoredInS3() {
-    //TODO do proper url check and then check for s3
-    return this.getReportInstanceFilePointer().contains("amazonaws");
+    return this.getReportInstanceFilePointer().startsWith("https://s3");
   }
   
 }

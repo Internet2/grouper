@@ -1,11 +1,10 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigFormat;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigType;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperReportConfig;
@@ -15,6 +14,9 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GrouperReportContainer {
   
+  /**
+   * list of gui report configs
+   */
   private List<GuiGrouperReportConfig> guiGrouperReportConfigs = new ArrayList<GuiGrouperReportConfig>();
   
   /**
@@ -23,14 +25,14 @@ public class GrouperReportContainer {
   private GrouperReportConfigurationBean configBean;
   
   /**
-   * set of report configs for one stem/group
+   * list of report configs for one stem/group
    */
-  private Set<GrouperReportConfigurationBean> reportConfigBeans = new HashSet<GrouperReportConfigurationBean>();
+  private List<GrouperReportConfigurationBean> reportConfigBeans = new ArrayList<GrouperReportConfigurationBean>();
   
   /**
    * report configs for gui
    */
-  private Set<GuiReportConfig> guiReportConfigs = new HashSet<GuiReportConfig>();
+  private List<GuiReportConfig> guiReportConfigs = new ArrayList<GuiReportConfig>();
   
   /**
    * encapsulates config and all instances together
@@ -42,15 +44,25 @@ public class GrouperReportContainer {
    */
   private GuiReportInstance guiReportInstance;
   
+  /**
+   * can logged in subject make changes to grouper report configs
+   * @return
+   */
   public boolean isCanWriteGrouperReports() {
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     return PrivilegeHelper.isWheelOrRoot(loggedInSubject);
   }
 
+  /**
+   * @return list of gui report configs
+   */
   public List<GuiGrouperReportConfig> getGuiGrouperReportConfigs() {
     return guiGrouperReportConfigs;
   }
   
+  /**
+   * @return all the report config types (eg: SQL)
+   */
   public List<String> getAllReportConfigTypes() {
     
     List<String> reportConfigTypes = new ArrayList<String>();
@@ -62,6 +74,9 @@ public class GrouperReportContainer {
     return reportConfigTypes;
   }
   
+  /**
+   * @return all the report config formats (eg: CSV)
+   */
   public List<String> getAllReportConfigFormats() {
     
     List<String> reportConfigFormats = new ArrayList<String>();
@@ -72,49 +87,94 @@ public class GrouperReportContainer {
     return reportConfigFormats;
   }
 
+  /**
+   * @return report config bean user is currently working on
+   */
   public GrouperReportConfigurationBean getConfigBean() {
     return configBean;
   }
 
+  /**
+   * report config bean user is currently working on
+   * @param configBean
+   */
   public void setConfigBean(GrouperReportConfigurationBean configBean) {
     this.configBean = configBean;
   }
 
-  public Set<GrouperReportConfigurationBean> getReportConfigBeans() {
+  /**
+   * @return list of report configs for one stem/group
+   */
+  public List<GrouperReportConfigurationBean> getReportConfigBeans() {
     return reportConfigBeans;
   }
 
-  public void setReportConfigBeans(Set<GrouperReportConfigurationBean> reportConfigBeans) {
+  /**
+   * list of report configs for one stem/group
+   * @param reportConfigBeans
+   */
+  public void setReportConfigBeans(List<GrouperReportConfigurationBean> reportConfigBeans) {
     this.reportConfigBeans = reportConfigBeans;
   }
 
-  public Set<GuiReportConfig> getGuiReportConfigs() {
+  /**
+   * @return report configs for gui
+   */
+  public List<GuiReportConfig> getGuiReportConfigs() {
     return guiReportConfigs;
   }
 
-  public void setGuiReportConfigs(Set<GuiReportConfig> guiReportConfigs) {
+  /**
+   * report configs for gui
+   * @param guiReportConfigs
+   */
+  public void setGuiReportConfigs(List<GuiReportConfig> guiReportConfigs) {
     this.guiReportConfigs = guiReportConfigs;
   }
 
+  /**
+   * @return encapsulates config and all instances together
+   */
   public GrouperReportConfigInstance getGrouperReportConfigInstance() {
     return grouperReportConfigInstance;
   }
 
+  /**
+   * encapsulates config and all instances together
+   * @param grouperReportConfigInstance
+   */
   public void setGrouperReportConfigInstance(GrouperReportConfigInstance grouperReportConfigInstance) {
     this.grouperReportConfigInstance = grouperReportConfigInstance;
   }
 
+  /**
+   * @return one report instance details
+   */
   public GuiReportInstance getGuiReportInstance() {
     return guiReportInstance;
   }
 
+  /**
+   * one report instance details
+   * @param guiReportInstance
+   */
   public void setGuiReportInstance(GuiReportInstance guiReportInstance) {
     this.guiReportInstance = guiReportInstance;
   }
 
+  /**
+   * @return should the partial encryption key be shown
+   */
   public boolean isShowPartialEncryptionKey() {
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     return PrivilegeHelper.isWheelOrRoot(loggedInSubject);
+  }
+  
+  /**
+   * @return is the global reporting enabled
+   */
+  public boolean isReportingEnabled() {
+    return GrouperReportSettings.grouperReportsEnabled();
   }
     
 }

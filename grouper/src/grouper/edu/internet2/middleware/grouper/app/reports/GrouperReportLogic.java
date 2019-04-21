@@ -45,10 +45,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
  *
@@ -59,72 +62,96 @@ public class GrouperReportLogic {
 
   /**
    * run report
-   * @param grouperReportConfigurationBean
+   * @param reportConfigBean
+   * @param reportInstance
+   * @param owner
    */
-  public static GrouperReportInstance runReport(GrouperReportConfigurationBean grouperReportConfigurationBean) {
+  public static void runReport(GrouperReportConfigurationBean reportConfigBean,
+      GrouperReportInstance reportInstance, GrouperObject owner) {
     
     long startTime = System.currentTimeMillis();
-    GrouperReportInstance grouperReportInstance = new GrouperReportInstance();
-
+    
     try {
       // get report data
-      GrouperReportData grouperReportData = grouperReportConfigurationBean.getReportConfigType().retrieveReportDataByConfig(grouperReportConfigurationBean);
-
-      grouperReportInstance.setGrouperReportConfigurationBean(grouperReportConfigurationBean);
-      grouperReportInstance.setReportInstanceRows(grouperReportData.getData().size());
-
+      GrouperReportData grouperReportData = reportConfigBean.getReportConfigType().retrieveReportDataByConfig(reportConfigBean);
+  
+      reportInstance.setGrouperReportConfigurationBean(reportConfigBean);
+      reportInstance.setReportInstanceRows(Long.valueOf(grouperReportData.getData().size()));
+  
       // now the file is in the report instance
-      grouperReportConfigurationBean.getReportConfigFormat().formatReport(grouperReportData, grouperReportInstance);
-      
+      reportConfigBean.getReportConfigFormat().formatReport(grouperReportData, reportInstance);
+        
       long endTime = System.currentTimeMillis();
-      grouperReportInstance.setReportElapsedMillis(endTime - startTime);
-      grouperReportInstance.setReportInstanceConfigMarkerAssignmentId(grouperReportConfigurationBean.getAttributeAssignmentMarkerId());
-
+      reportInstance.setReportElapsedMillis(endTime - startTime);
+  
       String randomEncryptionKey = RandomStringUtils.random(16, true, true);
-      grouperReportInstance.setReportInstanceEncryptionKey(randomEncryptionKey);
       
+      reportInstance.setReportInstanceEncryptionKey(Morph.encrypt(randomEncryptionKey));
+        
       String reportDestination = GrouperConfig.retrieveConfig().propertyValueString("reporting.storage.option");
       if (StringUtils.isBlank(reportDestination)) {
         throw new RuntimeException("reporting.storage.option cannot be blank. Valid values are S3 and fileSystem");
       }
       
-      if (!reportDestination.equals("S3") || !reportDestination.equals("fileSystem")) {
-        throw new RuntimeException("reporting.storage.option cannot be blank. Valid values are S3 and fileSystem");
+      if (!reportDestination.equals("S3") && !reportDestination.equals("fileSystem")) {
+        throw new RuntimeException("reporting.storage.option is not valid. Use S3 or fileSystem");
       }
-      
+        
       if (reportDestination.equals("S3")) {
-        String s3Url = uploadFileToS3(grouperReportInstance.getReportFileUnencrypted(), randomEncryptionKey);
-        grouperReportInstance.setReportInstanceFilePointer(s3Url);
+        String s3Url = uploadFileToS3(reportInstance.getReportFileUnencrypted(), randomEncryptionKey);
+        reportInstance.setReportInstanceFilePointer(s3Url);
       } else {
         String reportOutputDirectory = GrouperConfig.retrieveConfig().propertyValueString("reporting.file.system.path");
         if (StringUtils.isBlank(reportOutputDirectory)) {          
           throw new RuntimeException("reporting.file.system.path cannot be blank");
         }
-        String filePath = saveFileToFileSystem(grouperReportInstance.getReportFileUnencrypted(), randomEncryptionKey, reportOutputDirectory);
-        grouperReportInstance.setReportInstanceFilePointer(filePath);
+        String filePath = saveFileToFileSystem(reportInstance.getReportFileUnencrypted(), randomEncryptionKey, reportOutputDirectory);
+        reportInstance.setReportInstanceFilePointer(filePath);
       }
+        
+      reportInstance.setReportInstanceFileName(reportInstance.getReportFileUnencrypted().getName());
+      reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
       
-      sendReportLinkViaEmail(grouperReportInstance);
-      //TODO need to email this out
-      //grouperReportInstance.setReportInstanceEmailToSubjects(reportInstanceEmailToSubjects);
-      //grouperReportInstance.setReportInstanceEmailToSubjectsError(reportInstanceEmailToSubjectsError);
-      
-      grouperReportInstance.setReportInstanceMillisSince1970(System.currentTimeMillis());
-      grouperReportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
     } catch(Exception e) {
-      grouperReportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_ERROR);
+      reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_ERROR);
     } finally {
-      
       File tmpReportsPath = new File(GrouperUtil.tmpDir() + "reports");
       if (tmpReportsPath.exists()) {        
         FileUtils.deleteQuietly(tmpReportsPath);
       }
     }
     
-    return grouperReportInstance;
+    try {
+      GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, owner);
+    } catch(Exception e) {
+      LOG.error("Error saving report instance. Config name is "+reportConfigBean.getReportConfigName());
+      return;
+    }
+      
+    if (reportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS)) {
+      try {
+        //now the attribute assign id on report instance is populated and we can use it to generate link in the email
+        sendReportLinkViaEmail(reportInstance);
+      } catch(Exception e) {
+        LOG.error("Error sending report email. Config name is "+reportConfigBean.getReportConfigName());
+        return;
+      }
+      
+      // now the email attributes are populated on the report instance, let's save them as well.
+      try {
+        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, owner);
+      } catch(Exception e) {
+        LOG.error("Error saving report instance. Config name is "+reportConfigBean.getReportConfigName());
+        return;
+      }
+    }
     
   }
   
+  /**
+   * send report link in email
+   * @param reportInstance
+   */
   private static void sendReportLinkViaEmail(GrouperReportInstance reportInstance) {
     GrouperReportConfigurationBean configBean = reportInstance.getGrouperReportConfigurationBean();
     
@@ -156,13 +183,23 @@ public class GrouperReportLogic {
       return;
     }
     
-    String subject = reportInstance.getGrouperReportConfigurationBean().getReportConfigEmailSubject();
-    if (StringUtils.isBlank(subject)) {
-      subject = GrouperConfig.retrieveConfig().getProperty("grouper.report.email.subject", "Subject for report email");
+    String templateSubject = configBean.getReportConfigEmailSubject();
+    if (StringUtils.isBlank(templateSubject)) {
+      templateSubject = GrouperConfig.retrieveConfig().propertyValueString("reporting.email.subject");
     }
-    String templateBody = reportInstance.getGrouperReportConfigurationBean().getReportConfigEmailBody();
+    
+    if (StringUtils.isBlank(templateSubject)) {
+      templateSubject = "Report $$reportConfigName$$ generated";
+    }
+    
+    String subject = StringUtils.replace(templateSubject, "$$reportConfigName$$", configBean.getReportConfigName());
+    
+    String templateBody = configBean.getReportConfigEmailBody();
     if (StringUtils.isBlank(templateBody)) {
-      templateBody = GrouperConfig.retrieveConfig().getProperty("grouper.report.email.body", "Email body for report email");
+      templateBody = GrouperConfig.retrieveConfig().propertyValueString("reporting.email.body");
+    }
+    if (StringUtils.isBlank(templateBody)) {
+      templateBody = "Hello $$subjectName$$, \n\n Report $$reportConfigName$$ has been generated. Download the report: $$reportLink$$ \n\n Thanks";
     }
     
     List<String> emailSuccessSubjects = new ArrayList<String>();
@@ -170,19 +207,22 @@ public class GrouperReportLogic {
     
     Set<Member> members = emailGroup.getMembers();
     for (Member member: members) {
-      String emailAddress = GrouperEmailUtils.getEmail(member.getSubject());
-      if (StringUtils.isBlank(emailAddress)) {
-        LOG.info("For subject: "+member.getSubjectId()+" no email address found.");
-        emailFailureSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
-        continue;
-      }
+      if (member.getSubject().getType() == SubjectTypeEnum.PERSON) {
+        String emailAddress = GrouperEmailUtils.getEmail(member.getSubject());
+        if (StringUtils.isBlank(emailAddress)) {
+          LOG.info("For subject: "+member.getSubjectId()+" no email address found.");
+          emailFailureSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+          continue;
+        }
 
-      try {   
-        String emailBody = buildEmailBody(member.getSubject(), templateBody, reportInstance, uiUrl);
-        new GrouperEmail().setBody(emailBody).setSubject(subject).setTo(emailAddress).send();
-        emailSuccessSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
-      } catch (Exception e) {
-        emailFailureSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+        try {
+          String emailBody = buildEmailBody(member.getSubject(), templateBody, reportInstance, uiUrl, configBean);
+          new GrouperEmail().setBody(emailBody).setSubject(subject).setTo(emailAddress).send();
+          emailSuccessSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+        } catch (Exception e) {
+          emailFailureSubjects.add(member.getSubject().getSourceId()+"::::"+member.getSubjectId());
+          LOG.error("Error sending report email to "+emailAddress+ " Config name is "+configBean.getReportConfigName());
+        }
       }
     }
     
@@ -191,80 +231,98 @@ public class GrouperReportLogic {
     
   }
   
-  private static String buildEmailBody(Subject recipient, String templatedBody, 
-      GrouperReportInstance reportInstance, String uiUrl) {
+  /**
+   * build personalized email content for recipient
+   * @param recipient
+   * @param templateBody
+   * @param reportInstance
+   * @param uiUrl
+   * @param configBean
+   * @return
+   */
+  private static String buildEmailBody(Subject recipient, String templateBody, 
+      GrouperReportInstance reportInstance, String uiUrl, GrouperReportConfigurationBean configBean) {
     
-    String link = "grouperUi/app/UiV2Main.index?operation=UiV2GrouperReport.viewReportInstanceDetails&attributeAssignId="+reportInstance.getAttributeAssignId();
+    String link = null;
     
-    AttributeAssign attributeAssign = AttributeAssignFinder.findById(reportInstance.getAttributeAssignId(), true);
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(configBean.getAttributeAssignmentMarkerId(), true);
     Stem stem = attributeAssign.getOwnerStem();
-    if (stem == null) {
-      stem = attributeAssign.getOwnerAttributeAssign().getOwnerStem(); 
-    }
-    
     if (stem != null) {
+      link = "grouperUi/app/UiV2Main.index?operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId="+reportInstance.getAttributeAssignId();
       link = link + "&stemId="+stem.getId();
     } else {
-      //must be group
       Group group = attributeAssign.getOwnerGroup();
-      group  = group == null ? attributeAssign.getOwnerAttributeAssign().getOwnerGroup(): group;
+      link = "grouperUi/app/UiV2Main.index?operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId="+reportInstance.getAttributeAssignId();
       link = link + "&groupId="+group.getId();
     }
-        
+    
     GrouperReportConfigurationBean reportConfigBean = reportInstance.getGrouperReportConfigurationBean();
-    String emailBody = templatedBody.replaceAll("$$reportConfigName$$", reportConfigBean.getReportConfigName());
-    emailBody = emailBody.replaceAll("$$reportConfigDescription$$", reportConfigBean.getReportConfigDescription());
-    emailBody = emailBody.replaceAll("$$reportLink$$", uiUrl+link);    
-    emailBody = emailBody.replaceAll("$$subjectName$$", recipient.getName());
+    
+    String emailBody = StringUtils.replace(templateBody, "$$reportConfigName$$", reportConfigBean.getReportConfigName());
+    
+    emailBody = StringUtils.replace(emailBody, "$$reportConfigDescription$$", reportConfigBean.getReportConfigDescription());
+    
+    emailBody = StringUtils.replace(emailBody, "$$reportLink$$", uiUrl+link);
+    
+    emailBody = StringUtils.replace(emailBody, "$$subjectName$$", recipient.getName());
     
     return emailBody;
   }
   
   
-  
+  /**
+   * retrieves report content from given report instance
+   * @param reportInstance
+   * @return
+   */
   public static String getReportContent(GrouperReportInstance reportInstance) {
     
-    if (reportInstance.isReportStoredInS3()) {
-      //TODO refactor to read only once
-      
-      String accessKey = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.access.key");
-      String secretKey = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.secret.key");
-      
-      try {
-        String encryptionKey = reportInstance.getReportInstanceEncryptionKey();
-        SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
-        EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
-        
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-        AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-        
-        AmazonS3URI s3Uri = new AmazonS3URI(reportInstance.getReportInstanceFilePointer());
-        AmazonS3 s3Client = AmazonS3EncryptionClientBuilder.standard()
-                .withRegion(s3Uri.getRegion())
-                .withCredentials(credentialsProvider)
-                .withEncryptionMaterials(new StaticEncryptionMaterialsProvider(encryptionMaterials))
-                .build();
-        
-        // Download and decrypt the object.
-        S3Object downloadedObject = s3Client.getObject(s3Uri.getBucket(), s3Uri.getKey());     
-        byte[] decrypted = com.amazonaws.util.IOUtils.toByteArray(downloadedObject.getObjectContent());
-        String reportContent = new String(decrypted);
-        return reportContent;
-        
-      } catch (Exception e) {
-        // TODO: handle exception
-      }
-    } else {
-      return getReportContentFromFileSystem(reportInstance);
-    }
-    
-    return "";
-    
+    return reportInstance.isReportStoredInS3() ? 
+        getReportContentFromS3(reportInstance): getReportContentFromFileSystem(reportInstance);
   }
   
+  /**
+   * @param reportInstance
+   * @return report content from s3 for a given report instance
+   */
+  private static String getReportContentFromS3(GrouperReportInstance reportInstance) {
+    
+    String accessKey = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.access.key");
+    String secretKey = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.secret.key");
+    
+    String encryptionKey = Morph.decrypt(reportInstance.getReportInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
+    
+    try {
+      
+      AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+      AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+      
+      AmazonS3URI s3Uri = new AmazonS3URI(reportInstance.getReportInstanceFilePointer());
+      AmazonS3 s3Client = AmazonS3EncryptionClientBuilder.standard()
+              .withRegion(s3Uri.getRegion())
+              .withCredentials(credentialsProvider)
+              .withEncryptionMaterials(new StaticEncryptionMaterialsProvider(encryptionMaterials))
+              .build();
+      
+      // Download and decrypt the object.
+      S3Object downloadedObject = s3Client.getObject(s3Uri.getBucket(), s3Uri.getKey());     
+      byte[] decrypted = com.amazonaws.util.IOUtils.toByteArray(downloadedObject.getObjectContent());
+      return new String(decrypted);
+    } catch (Exception e) {
+      throw new RuntimeException("Error getting report content from S3", e);
+    }
+  }
+  
+  /**
+   * @param reportInstance
+   * @return report content from file system for a given report instance
+   */
   private static String getReportContentFromFileSystem(GrouperReportInstance reportInstance) {
     
-    SecretKey encryptionKeySecret = new SecretKeySpec(reportInstance.getReportInstanceEncryptionKey().getBytes(), "AES");
+    String encryptionKey = Morph.decrypt(reportInstance.getReportInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
     
     Cipher cipher;
     try {
@@ -281,23 +339,18 @@ public class GrouperReportLogic {
       return new String(outputBytes);
       
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new RuntimeException("Error in getting report content from file system", e);
     }
     
-    return "";
   }
   
-  public static void main(String[] args) {
-    
-    File file = new File("/Users/vsachdeva/Downloads/one_rel_history.csv");
-    String encryptionKey = RandomStringUtils.random(16, true, true);
-    System.out.println(encryptionKey);
-    String url = uploadFileToS3(file, encryptionKey);
-    System.out.println(url);
-    
-  }
-  
+  /**
+   * save report file to file system
+   * @param file
+   * @param encryptionKey
+   * @param reportOutputDirectory
+   * @return pointer to the file location
+   */
   private static String saveFileToFileSystem(File file, String encryptionKey, String reportOutputDirectory) {
     
     Calendar calendar = new GregorianCalendar();
@@ -309,9 +362,9 @@ public class GrouperReportLogic {
         + StringUtils.leftPad(""+(calendar.get(Calendar.MONTH)+1), 2, '0') + File.separator + StringUtils.leftPad(""+calendar.get(Calendar.DAY_OF_MONTH), 2, '0')
         + File.separator + GrouperUtil.uniqueId();
     
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    
     try {
-      
-      SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
       
       Cipher cipher = Cipher.getInstance("AES");
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKeySecret);
@@ -321,20 +374,29 @@ public class GrouperReportLogic {
       inputStream.read(inputBytes);
        
       byte[] outputBytes = cipher.doFinal(inputBytes);
+      
+      GrouperUtil.mkdirs(new File(reportDirectoryPath));
        
-      FileOutputStream outputStream = new FileOutputStream(reportDirectoryPath+File.separator+file.getName());
+      File outputFile = new File(reportDirectoryPath+File.separator+file.getName());
+      GrouperUtil.fileCreateNewFile(outputFile);
+       
+      FileOutputStream outputStream = new FileOutputStream(outputFile);
       outputStream.write(outputBytes);
        
       inputStream.close();
       outputStream.close();
       
     } catch (Exception e) {
-      // TODO: handle exception
+      throw new RuntimeException("Error in saving report to file system", e);
     }
     
     return reportDirectoryPath+File.separator+file.getName();
   }
   
+  /**
+   * delete file from file system for a given report instance
+   * @param reportInstance
+   */
   public static void deleteFromFileSystem(GrouperReportInstance reportInstance) {
     
     String filePath = reportInstance.getReportInstanceFilePointer();
@@ -344,15 +406,20 @@ public class GrouperReportLogic {
     }
   }
   
+  /**
+   * delete file from S3 for a given report instance
+   * @param reportInstance
+   */
   public static void deleteFileFromS3(GrouperReportInstance reportInstance) {
     
     String accessKey = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.access.key");
     String secretKey = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.secret.key");
     
+    String encryptionKey = Morph.decrypt(reportInstance.getReportInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
+    
     try {
-      String encryptionKey = reportInstance.getReportInstanceEncryptionKey();
-      SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
-      EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
       
       AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
       AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
@@ -367,11 +434,17 @@ public class GrouperReportLogic {
       s3Client.deleteObject(s3Uri.getBucket(), s3Uri.getKey());
       
     } catch (Exception e) {
-      // TODO: handle exception
+      throw new RuntimeException("Error deleting report file from S3");
     }
     
   }
   
+  /**
+   * upload given file to file system
+   * @param file
+   * @param encryptionKey
+   * @return s3 url of file 
+   */
   private static String uploadFileToS3(File file, String encryptionKey) {
     
     String bucketName = GrouperConfig.retrieveConfig().propertyValueString("reporting.s3.bucket.name");
@@ -382,10 +455,10 @@ public class GrouperReportLogic {
     
     String fileObjKeyName = file.getName();
     
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
+    
     try {
-      
-      SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
-      EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
       
       AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
       AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
@@ -404,19 +477,13 @@ public class GrouperReportLogic {
       s3Client.putObject(request);
       
       return s3Client.getUrl(bucketName, fileObjKeyName).toString();
-    //TODO handle exceptions properly
     } catch(AmazonServiceException e) {
-        // The call was transmitted successfully, but Amazon S3 couldn't process 
-        // it, so it returned an error response.
-        e.printStackTrace();
+      LOG.error("Error uploading report file to S3. file name: "+file.getName());
+      throw new RuntimeException("Error uploading file to S3");
     } catch(SdkClientException e) {
-        // Amazon S3 couldn't be contacted for a response, or the client
-        // couldn't parse the response from Amazon S3.
-        e.printStackTrace();
+      LOG.error("Error uploading report file to S3. file name: "+file.getName());
+      throw new RuntimeException("Error uploading file to S3");
     }
-    
-    return null;
-    
     
   }
   

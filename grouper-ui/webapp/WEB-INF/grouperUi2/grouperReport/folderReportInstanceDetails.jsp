@@ -47,49 +47,64 @@
 		          <td>${guiReportInstance.reportConfigBean.reportConfigDescription}</td>
 		        </tr>
 		        
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsDownload']}</label></strong></td>
-		          <td>
-  		          <a href="../app/UiV2GrouperReport.downloadReport?attributeAssignmentMarkerId=${guiReportInstance.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}">${textContainer.text['grouperReportConfigInstanceDetailsDownloadReport'] }</a>
-		          </td>
-		        </tr>
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
+			        <tr>
+	              <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsDownload']}</label></strong></td>
+	              <td>
+	                <a href="../app/UiV2GrouperReport.downloadReportForFolder?attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}">${textContainer.text['grouperReportConfigInstanceDetailsDownloadReport'] }</a>
+	              </td>
+	            </tr>
+		        </c:if>
 		        
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsFileSize']}</label></strong></td>
-		          <td>${guiReportInstance.unencryptedReportFileSize}</td>
-		        </tr>
 		        
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsFilename']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceFileName}</td>
-		        </tr>
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
+			        <tr>
+			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsFileSize']}</label></strong></td>
+			          <td>${guiReportInstance.unencryptedReportFileSize}</td>
+			        </tr>
+		        </c:if>
+		        
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
+			        <tr>
+			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsFilename']}</label></strong></td>
+			          <td>${guiReportInstance.reportInstance.reportInstanceFileName}</td>
+			        </tr>
+			      </c:if>
 		                
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsNumberOfRows']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceRows}</td>
-		        </tr>
+            <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">		                
+			        <tr>
+			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsNumberOfRows']}</label></strong></td>
+			          <td>${guiReportInstance.reportInstance.reportInstanceRows}</td>
+			        </tr>
+			      </c:if>
 		        
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsReportDownloadCount']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceDownloadCount}</td>
-		        </tr>
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
+			        <tr>
+			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsReportDownloadCount']}</label></strong></td>
+			          <td>${guiReportInstance.reportInstance.reportInstanceDownloadCount}</td>
+			        </tr>
+			      </c:if>
 		
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsSuccessSubjects']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceEmailToSubjects}</td>
-		        </tr>
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
+			        <tr>
+			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsSuccessSubjects']}</label></strong></td>
+			          <td>${guiReportInstance.reportInstance.reportInstanceEmailToSubjects}</td>
+			        </tr>
+		        </c:if>
 		        
-		        <tr>
-		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsErrorSubjects']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceEmailToSubjectsError}</td>
-		        </tr>
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
+			        <tr>
+			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsErrorSubjects']}</label></strong></td>
+			          <td>${guiReportInstance.reportInstance.reportInstanceEmailToSubjectsError}</td>
+			        </tr>
+			      </c:if>
 		        
-		        <c:if test="${grouperRequestContainer.grouperReportContainer.showPartialEncryptionKey}">
+		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS' and grouperRequestContainer.grouperReportContainer.showPartialEncryptionKey}">
 		          <tr>
 		            <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsEncryptionKey']}</label></strong></td>
 		            <td>${guiReportInstance.reportInstanceEncryptionKey}</td>
 		          </tr>
-		        </c:if>
+			      </c:if>
 		
 		      </tbody>
 		    </table>

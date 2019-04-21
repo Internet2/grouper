@@ -1,25 +1,23 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- for the new group or new stem button --%>
-<input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+<input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
-<%@ include file="../stem/stemHeader.jsp" %>
+<%@ include file="../group/groupHeader.jsp" %>
 
 <div class="row-fluid">
   <div class="span12 tab-interface">
     <ul class="nav nav-tabs">
-      <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
-      <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-        <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
+      <li><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
+      <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
+        <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
       </c:if>
-      <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
-        <%@ include file="../stem/stemMoreTab.jsp" %>
-      </c:if>
+      <%@ include file="../group/groupMoreTab.jsp" %>
     </ul>
     <div class="row-fluid">
-      <div class="lead span9">${textContainer.text['groupReportOnFolderDescription'] }</div>
-      <div class="span3" id="grouperReportFolderMoreActionsButtonContentsDivId">
-        <%@ include file="grouperReportFolderReportViewButtonContents.jsp"%>
+      <div class="lead span9">${textContainer.text['groupReportOnGroupDescription'] }</div>
+      <div class="span3" id="grouperReportGroupMoreActionsButtonContentsDivId">
+        <%@ include file="grouperReportGroupMoreActionsButtonContents.jsp"%>
       </div>
     </div>
     <div class="row-fluid">
@@ -102,7 +100,7 @@
                    <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceStatus}</td>
                    <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceRows}</td>
                    <td>
-                     <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">
+                     <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
                        ${textContainer.text['grouperReportConfigInstanceTableViewDetails']}
                      </a>
                    </td>

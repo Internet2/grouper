@@ -1,27 +1,30 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- for the new group or new stem button --%>
-<input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+<input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
-<%@ include file="../stem/stemHeader.jsp" %>
+<%@ include file="../group/groupHeader.jsp" %>
 
 <div class="row-fluid">
-  <div class="span12 tab-interface">
-    <ul class="nav nav-tabs">
-      <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
-      <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-        <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
-      </c:if>
-      <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
-        <%@ include file="../stem/stemMoreTab.jsp" %>
-      </c:if>
-    </ul>
+  <div class="span12">
+    <div id="messages"></div>
+        
+    <div class="tab-interface">
+      <ul class="nav nav-tabs">
+        <li><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
+        <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
+          <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+        </c:if>
+        <%@ include file="../group/groupMoreTab.jsp" %>
+      </ul>
+    </div>
     <div class="row-fluid">
-      <div class="lead span9">${textContainer.text['groupReportOnFolderDescription'] }</div>
-      <div class="span3" id="grouperReportFolderMoreActionsButtonContentsDivId">
-        <%@ include file="grouperReportFolderMoreActionsButtonContents.jsp"%>
+      <div class="lead span9">${textContainer.text['groupReportOnGroupDescription'] }</div>
+      <div class="span3" id="grouperReportGroupMoreActionsButtonContentsDivId">
+        <%@ include file="grouperReportGroupMoreActionsButtonContents.jsp"%>
       </div>
     </div>
+    
     <div class="row-fluid">
       <div class="span9"> <p>${textContainer.text['grouperReportDescription'] }</p></div>
     </div>
@@ -47,7 +50,7 @@
               
                 <tr>
                    <td style="white-space: nowrap;">
-                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">
+                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
                     ${guiReportConfig.reportConfigBean.reportConfigName}</a>
                    </td>
                    <td style="white-space: nowrap;">
@@ -61,14 +64,14 @@
                      </c:choose>
                    </td>
                    <td style="white-space: nowrap;">
-	                   <c:choose>
-	                    <c:when test="${not empty guiReportConfig.lastRunTime}">                    
-	                      ${guiReportConfig.lastRunTime}
-	                    </c:when>
-	                    <c:otherwise>
-	                      ${textContainer.text['grouperReportInstanceNeverRun']}
-	                    </c:otherwise>
-	                   </c:choose>
+                     <c:choose>
+                      <c:when test="${not empty guiReportConfig.lastRunTime}">                    
+                        ${guiReportConfig.lastRunTime}
+                      </c:when>
+                      <c:otherwise>
+                        ${textContainer.text['grouperReportInstanceNeverRun']}
+                      </c:otherwise>
+                     </c:choose>
                    </td>
                    <td style="white-space: nowrap;">
                     <c:choose>
@@ -105,27 +108,27 @@
                            </a>
                            <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                              
-                             <c:if test="${not empty guiReportConfig.mostRecentReportInstance}">
-                               <li><a href="../app/UiV2GrouperReport.downloadReportForFolder?attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsReportInstances'] }</a></li>
+                             <c:if test="${not empty guiReportConfig.mostRecentReportInstance }">
+                               <li><a href="../app/UiV2GrouperReport.downloadReportForGroup?attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
+                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
+                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsReportInstances'] }</a></li>
                                
                                <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}">                               
-                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.stemContainer.guiStem.stem.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
+                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
                                </c:if>
                                
                              </c:if>
                              
-                             <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}">
+                             <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports }">
                                <c:choose>
-	                               <c:when test="${guiReportConfig.reportConfigBean.reportConfigEnabled}">
-	                                 <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForFolder&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
-	                               </c:when>
-	                               <c:otherwise>
-	                                 <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForFolder&newStatus=enable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</a></li>
-	                               </c:otherwise>
-	                             </c:choose>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.deleteReportConfigForFolder&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</a></li>                             
+                                 <c:when test="${guiReportConfig.reportConfigBean.reportConfigEnabled}">
+                                   <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
+                                 </c:when>
+                                 <c:otherwise>
+                                   <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=enable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</a></li>
+                                 </c:otherwise>
+                               </c:choose>
+                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.deleteReportConfigForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</a></li>                             
                              </c:if>
                            </ul>
                          </div>
@@ -142,7 +145,7 @@
         </div>
       </c:otherwise>
     </c:choose>
-
+    
   </div>
 </div>
-                
+        

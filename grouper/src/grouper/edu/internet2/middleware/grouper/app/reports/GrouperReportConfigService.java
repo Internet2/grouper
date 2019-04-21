@@ -19,7 +19,7 @@ import static edu.internet2.middleware.grouper.app.reports.GrouperReportSettings
 import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.quartz.JobBuilder;
@@ -53,7 +53,7 @@ public class GrouperReportConfigService {
    * @param reportConfigName
    * @return GrouperReportConfigurationBean
    */
-  public static GrouperReportConfigurationBean getGrouperReportConfig(GrouperObject grouperObject, String reportConfigName) {
+  public static GrouperReportConfigurationBean getGrouperReportConfigBean(GrouperObject grouperObject, String reportConfigName) {
     
     Set<AttributeAssign> attributeAssigns = getAttributeAssigns(grouperObject);
     
@@ -66,17 +66,16 @@ public class GrouperReportConfigService {
     return buildGrouperReportConfigurationBean(attributeAssignForReporConfigName);
   }
   
-  public static GrouperReportConfigurationBean getGrouperReportConfigBean(GrouperObject grouperObject, String attributeAssignmentMarkerId) {
+  /**
+   * retrieve report config bean from owner object and attribute assign marker id
+   * @param attributeAssignmentMarkerId
+   * @return
+   */
+  public static GrouperReportConfigurationBean getGrouperReportConfigBean(String attributeAssignmentMarkerId) {
     
-    Set<AttributeAssign> attributeAssigns = getAttributeAssigns(grouperObject);
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignmentMarkerId, true);
     
-    AttributeAssign attributeAssignForReporConfigName = findAttributeAssignForAttributeAssignmentMarkerId(attributeAssigns, attributeAssignmentMarkerId);
-    
-    if (attributeAssignForReporConfigName == null) {
-      return null;
-    }
-    
-    return buildGrouperReportConfigurationBean(attributeAssignForReporConfigName);
+    return buildGrouperReportConfigurationBean(attributeAssign);
     
   }
   
@@ -85,9 +84,9 @@ public class GrouperReportConfigService {
    * @param grouperObject
    * @return set of GrouperReportConfigurationBean
    */
-  public static Set<GrouperReportConfigurationBean> getGrouperReportConfigs(GrouperObject grouperObject) {
+  public static List<GrouperReportConfigurationBean> getGrouperReportConfigs(GrouperObject grouperObject) {
     
-    Set<GrouperReportConfigurationBean> grouperReportConfigBeans = new HashSet<GrouperReportConfigurationBean>();
+    List<GrouperReportConfigurationBean> grouperReportConfigBeans = new ArrayList<GrouperReportConfigurationBean>();
     
     Set<AttributeAssign> attributeAssigns = getAttributeAssigns(grouperObject);
     
@@ -162,7 +161,7 @@ public class GrouperReportConfigService {
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigViewersGroupId());
     
-    attributeAssign.saveOrUpdate();        
+    attributeAssign.saveOrUpdate();       
   }
   
   
@@ -224,27 +223,57 @@ public class GrouperReportConfigService {
       String jobName = jobKey.getName();
       
       if (jobName.startsWith("grouper_report_"+ownerId)) {
-        //String triggerName = "triggerFor_" + jobName;
-        //scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
         scheduler.deleteJob(jobKey);
       }
     }
   }
   
-  public static void deleteGrouperReportConfig(GrouperObject grouperObject, GrouperReportConfigurationBean reportConfigBean) {
-    Set<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(grouperObject, reportConfigBean.getAttributeAssignmentMarkerId());
+  /**
+   * delete grouper report config and all the instances associated with it
+   * @param grouperObject
+   * @param reportConfigBean
+   */
+  public static void deleteGrouperReportConfig(GrouperObject grouperObject, GrouperReportConfigurationBean reportConfigBean) throws SchedulerException {
+    List<GrouperReportInstance> reportInstances = GrouperReportInstanceService.getReportInstances(grouperObject, reportConfigBean.getAttributeAssignmentMarkerId());
     
-    GrouperReportsClearJob.deleteAllGivenInstances(new ArrayList<GrouperReportInstance>(reportInstances));
+    GrouperReportInstanceService.deleteReportInstances(new ArrayList<GrouperReportInstance>(reportInstances));
     deleteReportConfig(reportConfigBean);
+    
+    deleteJob(reportConfigBean, grouperObject);
   }
   
-  public static void deleteReportConfig(GrouperReportConfigurationBean reportConfig) {
+  
+  /**
+   * delete quartz job
+   * @param configBean
+   * @param owner
+   * @throws SchedulerException
+   */
+  private static void deleteJob(GrouperReportConfigurationBean configBean, GrouperObject owner) throws SchedulerException {
+
+    String jobName = "grouper_report_"+owner.getId()+"_"+configBean.getAttributeAssignmentMarkerId();
+    
+    Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+    
+    scheduler.deleteJob(JobKey.jobKey(jobName));
+    
+  }
+  
+  /**
+   * delete report config
+   * @param reportConfig
+   */
+  private static void deleteReportConfig(GrouperReportConfigurationBean reportConfig) {
     String attributeAssignId = reportConfig.getAttributeAssignmentMarkerId();
     AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
     attributeAssign.delete();
   }
   
-  
+  /**
+   * populate report config bean from attribute assign values
+   * @param attributeAssign
+   * @return
+   */
   private static GrouperReportConfigurationBean buildGrouperReportConfigurationBean(AttributeAssign attributeAssign) {
     
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
@@ -297,6 +326,11 @@ public class GrouperReportConfigService {
     return result;
   }
   
+  /**
+   * get config attribute assigns for a given grouper object
+   * @param grouperObject
+   * @return
+   */
   private static Set<AttributeAssign> getAttributeAssigns(GrouperObject grouperObject) {
     
     if (grouperObject instanceof Group) {
@@ -309,6 +343,11 @@ public class GrouperReportConfigService {
     
   }
   
+  /**
+   * @param attributeAssigns
+   * @param reportConfigName
+   * @return
+   */
   private static AttributeAssign findAttributeAssignForReportConfigName(Set<AttributeAssign> attributeAssigns, String reportConfigName) {
     
     for (AttributeAssign attributeAssign: attributeAssigns) {
@@ -321,19 +360,6 @@ public class GrouperReportConfigService {
       String reportConfigNameFromDb = attributeAssignValue.getValueString();
       if (reportConfigName.equals(reportConfigNameFromDb)) {
        return attributeAssign;
-      }
-      
-    }
-    
-    return null;
-  }
-  
-  private static AttributeAssign findAttributeAssignForAttributeAssignmentMarkerId(Set<AttributeAssign> attributeAssigns, String attributeAssignmentMarkerId) {
-    
-    for (AttributeAssign attributeAssign: attributeAssigns) {
-      
-      if (attributeAssign.getId().equals(attributeAssignmentMarkerId)) {
-        return attributeAssign;
       }
       
     }

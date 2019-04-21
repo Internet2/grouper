@@ -41,7 +41,7 @@
                           value="${textContainer.text['reportAddConfigButtonSave'] }"
                           onclick="ajax('../app/UiV2GrouperReport.reportOnFolderAddEditSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'addReportConfigFormId'}); return false;">
                           &nbsp; <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2GrouperReport.viewReportOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                           >${textContainer.text['reportAddConfigButtonCancel'] }</a>
                         </td>
                       </tr>
