@@ -4,7 +4,31 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
+/**
+ * 
+ */
 public abstract class GrouperTemplateLogicBase {
+
+  /**
+   * 
+   */
+  private StemTemplateContainer stemTemplateContainer;
+  
+  
+  /**
+   * @return the stemTemplateContainer
+   */
+  public StemTemplateContainer getStemTemplateContainer() {
+    return this.stemTemplateContainer;
+  }
+
+  
+  /**
+   * @param stemTemplateContainer1 the templateContainer to set
+   */
+  public void setStemTemplateContainer(StemTemplateContainer stemTemplateContainer1) {
+    this.stemTemplateContainer = stemTemplateContainer1;
+  }
 
   /**
    * stem id user is working on

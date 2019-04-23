@@ -371,12 +371,10 @@ public class UiV2Template {
     }
     
     try {
-      String implementationClass = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.template."+templateType+".logicClass");
       
-      Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
-      
-      GrouperTemplateLogicBase templateLogic = GrouperUtil.newInstance(templateLogicSubClass);
-      
+      GrouperTemplateLogicBase templateLogic = getTemplateLogic(templateType, 
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer());
+
       return templateLogic;
     } catch(Exception e) {
       LOG.error("Could not load the logic implementation class.");
@@ -386,6 +384,23 @@ public class UiV2Template {
       return null;
     }
     
+  }
+
+  /**
+   * @param templateType 
+   * @param stemTemplateContainer 
+   * @return the instance
+   */
+  public static GrouperTemplateLogicBase getTemplateLogic(String templateType, StemTemplateContainer stemTemplateContainer) {
+    
+    String implementationClass = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.template."+templateType+".logicClass");
+    
+    Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
+    
+    GrouperTemplateLogicBase templateLogic = GrouperUtil.newInstance(templateLogicSubClass);
+    
+    templateLogic.setStemTemplateContainer(stemTemplateContainer);
+    return templateLogic;
   }
   
   /**

@@ -300,10 +300,36 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * use static request container for gsh
+   */
+  private static boolean useStaticRequestContainer = false;
+  
+  /**
+   * use static request container for gsh or testing
+   * @param theUseStaticRequestContainer1
+   */
+  public static void assignUseStaticRequestContainer(boolean theUseStaticRequestContainer1) {
+    useStaticRequestContainer = theUseStaticRequestContainer1;
+  }
+  
+  /**
+   * grouper request container
+   */
+  private static GrouperRequestContainer staticGrouperRequestContainer;
+  
+  /**
    * retrieveFromSession, cannot be null
    * @return the app state in request scope
    */
   public static GrouperRequestContainer retrieveFromRequestOrCreate() {
+    
+    if (useStaticRequestContainer) {
+      if (staticGrouperRequestContainer == null) {
+        staticGrouperRequestContainer = new GrouperRequestContainer();
+      }
+      return staticGrouperRequestContainer;
+    }
+    
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     String attributeName = "grouperRequestContainer";
     GrouperRequestContainer grouperRequestContainer = 

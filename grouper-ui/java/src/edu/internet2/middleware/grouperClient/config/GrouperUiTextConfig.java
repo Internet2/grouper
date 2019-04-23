@@ -166,22 +166,23 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     
     //cache this in the request
-    GrouperUiTextConfig grouperUiTextConfig = (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+    GrouperUiTextConfig grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
     
     if (grouperUiTextConfig == null) {
-      
-      synchronized(httpServletRequest) {
+      Object synchronizedOnThis = httpServletRequest == null ? GrouperUiTextConfig.class : httpServletRequest;
+      synchronized(synchronizedOnThis) {
         
-        grouperUiTextConfig = (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+        grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
         
         if (grouperUiTextConfig == null) {
           
-          Locale locale = httpServletRequest.getLocale();
+          Locale locale = httpServletRequest == null ? null : httpServletRequest.getLocale();
           
           grouperUiTextConfig = retrieveText(locale);
           
-          httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
-        
+          if (httpServletRequest != null) {
+            httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
+          }
         }        
       }
       

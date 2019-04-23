@@ -49,15 +49,16 @@ public class TextContainer {
   public static TextContainer retrieveFromRequest() {
     
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
-
     
-    TextContainer textContainer = 
+    TextContainer textContainer = httpServletRequest == null ? null : 
         (TextContainer)httpServletRequest.getAttribute("textContainer");
     
     if (textContainer == null) {
       textContainer = new TextContainer();
-      httpServletRequest.setAttribute(
-          "textContainer", textContainer);
+      if (httpServletRequest != null) {
+        httpServletRequest.setAttribute(
+            "textContainer", textContainer);
+      }
     }
     
     return textContainer;
@@ -102,16 +103,20 @@ public class TextContainer {
       LOG.error("Cant find text for variable: '" + key + "'");
       return "$$not found: " + StringEscapeUtils.escapeHtml(key) + "$$";
     }
-    
-    //if there might be a scriptlet
-    if (value.contains("${")) {
-      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-      substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
-      substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
-      substituteMap.put("textContainer", TextContainer.retrieveFromRequest());
-      value = GrouperUtil.substituteExpressionLanguage(value, substituteMap, true, false, true);
+    try {
+      //if there might be a scriptlet
+      if (value.contains("${")) {
+        Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+        substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
+        substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
+        substituteMap.put("textContainer", TextContainer.retrieveFromRequest());
+        value = GrouperUtil.substituteExpressionLanguage(value, substituteMap, true, false, true);
+      }
+      return value;
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Problem with key: '" + key + "', value: '" + value + "'");
+      throw re;
     }
-    return value;
   }
   
   /**

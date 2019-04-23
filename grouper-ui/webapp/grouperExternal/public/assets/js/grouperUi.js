@@ -78,6 +78,8 @@ $(document).ready(function(){
  */
 function guiV2link(url, options) {
 
+  $('.messaging').hide().empty();
+
   if (typeof options == 'undefined') {
     options = {};
   }
@@ -125,8 +127,9 @@ function guiV2link(url, options) {
  */
 function guiProcessUrlForAjax(url) {
 
-  //clear the error div...
+  //clear the error div(2)...
   $('#messaging').hide().empty();
+  $('.messaging').hide().empty();
   
   var poundIndex = url.indexOf("?");
   if (poundIndex == -1) {
@@ -619,7 +622,6 @@ function dojoInitMenu(autoSelectNode) {
       } else if (item.theType == 'attributeDefName') {
     	  guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id); 
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
-
       } else {
         alert('ERROR: cant find theType on object with id: ' + item.id);
       }
