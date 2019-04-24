@@ -89,7 +89,7 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
               SSLContext c = SSLContext.getInstance(tlsVersion);
               c.init(null, tmf.getTrustManagers(), null);
               
-              factory.useSslProtocol();
+              factory.useSslProtocol(c);
               
             }
             
