@@ -1,4 +1,4 @@
-From tier/grouper:2.4.0-a3-u1-w0-p0-181001
+From tier/grouper:latest
 
 RUN yum makecache
 

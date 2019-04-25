@@ -61,7 +61,7 @@ public class ChangelogHandlingConfig {
 
 
     ///////////////////////
-    // How to find groups in changelog entries
+    // How to find group names in changelog entries
 
     public static final Map<ChangeLogTypeBuiltin, ChangeLogLabel> changelogType2groupLookupFields
         = new HashMap<>();
@@ -76,6 +76,16 @@ public class ChangelogHandlingConfig {
         changelogType2groupLookupFields.put(ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN, ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName);
     }
 
+    ///////////////////////
+    // How to find group idIndex's in changelog entries
+
+    public static final Map<ChangeLogTypeBuiltin, ChangeLogLabel> changelogType2groupIdIndexFields
+            = new HashMap<>();
+
+    static {
+        changelogType2groupLookupFields.put(ChangeLogTypeBuiltin.GROUP_ADD, ChangeLogLabels.GROUP_ADD.idIndex);
+        changelogType2groupLookupFields.put(ChangeLogTypeBuiltin.GROUP_DELETE, ChangeLogLabels.GROUP_DELETE.idIndex);
+    }
 
     //////////////////////////////////
     // How to find subjects in changelog entries

@@ -26,6 +26,8 @@ public class GrouperGroupInfo {
   private final PITGroup pitGroup;
 
   public final String name;
+  public Long idIndex;
+
   Map<String, Object> groupAttributes;
   Map<String, Object> stemAttributes;
 
@@ -36,6 +38,7 @@ public class GrouperGroupInfo {
       name = "null group";
     
     this.group = g;
+    this.idIndex = g.getIdIndex();
     this.pitGroup = null;
   }
 
@@ -111,7 +114,7 @@ public class GrouperGroupInfo {
       result.put("description", group.getDescription());
 
       if ( group.getIdIndex() != null )
-        result.put("idIndex", group.getIdIndex());
+        result.put("idIndex", idIndex);
       
       Map<String, Object> stemAttributes = PspUtils.getStemAttributes(group);
       result.put("stemAttributes", stemAttributes);
@@ -122,6 +125,8 @@ public class GrouperGroupInfo {
     else if ( pitGroup != null ) {
       result.put("pitGroup", pitGroup);
       result.put("name", pitGroup.getName());
+
+      result.put("idIndex", idIndex);
 
       result.put("extension", GrouperUtil.extensionFromName(pitGroup.getName()));
 

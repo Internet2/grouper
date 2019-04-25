@@ -24,7 +24,7 @@ if [ $COMMAND = ldapsearch ]; then
   tempfile_into_T
 
   # always unldif ldapsearch output
-  if ! ldapsearch -LLL -x -H ldap://${LDAP_HOST}:${LDAP_PORT} -D "${LDAP_ADMIN_USER}" -w "${LDAP_ADMIN_PASS}" "$@" 2>$T | unldif
+  if ! ldapsearch -LLL -x -H ldap://${LDAP_HOST}:${LDAP_PORT} -D "${LDAP_ADMIN_USER}" -w "${LDAP_ADMIN_PASS}" "$@" 2>$T | sed '/^#/d' | unldif
   then
     # if there was stderr output, then return an error, otherwise this was likely a
     # false alarm caused by ldapsearch returning an error when there is no data

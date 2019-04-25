@@ -424,7 +424,7 @@ public class FullSyncProvisioner  {
 
 
         queueItem.startStep("ReadGroupFromGrouper");
-        GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfo(queueItem.groupName);
+        GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfoOfExistingGroup(queueItem.groupName);
         if ( grouperGroupInfo==null ) {
           LOG.error("{}: Group not found for full-sync: '{}'", getConfigName(), queueItem.groupName);
           queueItem.processingCompletedUnsuccessfully(false, "Group not found");
@@ -692,7 +692,7 @@ public class FullSyncProvisioner  {
       provisioner.uncacheGroup(_grouperGroupInfo, null);
       provisioner.targetSystemGroupCache.clear();
 
-      GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfo(_grouperGroupInfo.getName());
+      GrouperGroupInfo grouperGroupInfo = provisioner.getGroupInfoOfExistingGroup(_grouperGroupInfo.getName());
 
       ProvisioningWorkItem workItem = ProvisioningWorkItem.createForFullSync(grouperGroupInfo, fullSyncQueueItem.asofDate);
       final List<ProvisioningWorkItem> workItems = Arrays.asList(workItem);

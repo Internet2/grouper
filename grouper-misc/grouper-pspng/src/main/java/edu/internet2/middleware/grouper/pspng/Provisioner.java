@@ -1510,7 +1510,7 @@ public abstract class Provisioner
       return subject;
   }
 
-  protected GrouperGroupInfo getGroupInfo(Group group) {
+  protected GrouperGroupInfo getGroupInfoOfExistingGroup(Group group) {
     String groupName = group.getName();
     GrouperGroupInfo result = grouperGroupInfoCache.get(groupName);
     if ( result == null ) {
@@ -1521,37 +1521,52 @@ public abstract class Provisioner
   }
   
   
-  protected GrouperGroupInfo getGroupInfo(String groupName) {
+  protected GrouperGroupInfo getGroupInfoOfExistingGroup(String groupName) {
     GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
-    
+
     // Return group if it was cached
-    if ( grouperGroupInfo != null )
+    if (grouperGroupInfo != null)
       return grouperGroupInfo;
-    
+
     try {
       // Look for an existing grouper group
-	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
-	    
-	    if ( group != null ) {
-	      return getGroupInfo(group);
-	    }
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
+
+      if (group != null) {
+        return getGroupInfoOfExistingGroup(group);
+      }
+    } catch (GroupNotFoundException e) {
+      LOG.warn("Unable to find existing group '{}'", groupName);
     }
-    catch (GroupNotFoundException e) {
-      LOG.error("Unable to find existing group '{}'", groupName);
+    return null;
+  }
+
+  protected GrouperGroupInfo getGroupInfo(ProvisioningWorkItem workItem) {
+    String groupName = workItem.groupName;
+
+    if ( groupName == null ) {
+      return null;
     }
-    
+
+    GrouperGroupInfo result = getGroupInfoOfExistingGroup(groupName);
+    if ( result != null ) {
+      return result;
+    }
+
     try {
       // If an existing grouper group wasn't found, look for a PITGroup
         PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
   	    
   	    if ( pitGroup != null ) {
-  	    	grouperGroupInfo = new GrouperGroupInfo(pitGroup);
-  	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
-  	    	return grouperGroupInfo;
+  	    	result = new GrouperGroupInfo(pitGroup);
+  	    	result.idIndex = workItem.getGroupIdIndex();
+
+  	    	grouperGroupInfoCache.put(groupName, result);
+  	    	return result;
   	    }
     }
     catch (GroupNotFoundException e) {
-      LOG.error("Unable to find PIT group '{}'", groupName);
+      LOG.warn("Unable to find PIT group '{}'", groupName);
     }
     
     return null;

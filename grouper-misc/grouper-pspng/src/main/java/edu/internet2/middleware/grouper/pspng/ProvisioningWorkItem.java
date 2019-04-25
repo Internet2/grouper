@@ -19,15 +19,12 @@ package edu.internet2.middleware.grouper.pspng;
 import java.util.*;
 import java.util.logging.Level;
 
+import edu.internet2.middleware.grouper.changeLog.*;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -198,8 +195,19 @@ public class ProvisioningWorkItem {
 	  String groupName = getGroupName();
 	  if ( groupName == null )
 		  return null;
-	  
-	  return provisioner.getGroupInfo(groupName);
+	  return provisioner.getGroupInfo(this);
+  }
+
+  /**
+   * Return the idIndex from the changelog entry
+   * @return
+   */
+  public Long getGroupIdIndex() {
+    ChangeLogLabel idIndexKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2groupIdIndexFields);
+    if ( idIndexKey != null )
+      return Long.parseLong(getChangelogEntry().retrieveValueForLabel(idIndexKey));
+    else
+      return null;
   }
 
   public String getAttributeName() {
