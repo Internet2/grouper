@@ -23,15 +23,15 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 @DisallowConcurrentExecution
-public class GrouperReportsClearJob extends OtherJobBase {
+public class GrouperReportClearJob extends OtherJobBase {
   
   /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GrouperReportsClearJob.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperReportClearJob.class);
 
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    int instancesDeleted = clearReports();
+    int instancesDeleted = clearOldReports();
     
     otherJobInput.getHib3GrouperLoaderLog().store();
     otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Deleted "+instancesDeleted+" of grouper reports");
@@ -67,14 +67,14 @@ public class GrouperReportsClearJob extends OtherJobBase {
     otherJobInput.setJobName(jobName);
     otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     otherJobInput.setGrouperSession(grouperSession);
-    new GrouperReportsClearJob().run(otherJobInput);
+    new GrouperReportClearJob().run(otherJobInput);
   }
   
   /**
    * delete report instances that are old
    * @return number of deleted report instances
    */
-  private static int clearReports() {
+  protected static int clearOldReports() {
     
     if (!GrouperReportSettings.grouperReportsEnabled()) {
       LOG.info("grouper reports are not enabled. not going to run the grouper reports clear job");

@@ -4,9 +4,12 @@ import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAt
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportSettings.reportConfigStemName;
 import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
+import java.util.List;
+
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -153,24 +156,66 @@ public class GrouperReportConfigServiceTest extends GrouperTest {
     
   }
   
+  public void testGetGrouperReportConfigs() {
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperReporting.enable", "true");
+
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    
+    saveReportConfigAttributeMetadata(stem0, "test config");
+    saveReportConfigAttributeMetadata(stem0, "another test config");
+    
+    //When
+    List<GrouperReportConfigurationBean> configBeans = GrouperReportConfigService.getGrouperReportConfigs(stem0);
+    
+    //Then
+    assertEquals(2, configBeans.size());
+    
+  }
+  
+  public void testDeleteGrouperReportConfig() throws SchedulerException {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperReporting.enable", "true");
+
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    
+    saveReportConfigAttributeMetadata(stem0, "test config");
+    GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(stem0, "test config");
+    
+    //When
+    GrouperReportConfigService.deleteGrouperReportConfig(stem0, configBean);
+    
+    //Then
+    configBean = GrouperReportConfigService.getGrouperReportConfigBean(stem0, "test config");
+    assertNull(configBean);
+    
+  }
+  
   private static GrouperReportConfigurationBean buildReportConfigBeanForTest() {
     
-    GrouperReportConfigurationBean toBeSaved = new GrouperReportConfigurationBean();
-    toBeSaved.setReportConfigDescription("test description");
-    toBeSaved.setReportConfigEmailBody("email body");
-    toBeSaved.setReportConfigEmailSubject("email subject");
-    toBeSaved.setReportConfigEnabled(true);
-    toBeSaved.setReportConfigFilename("test_file.csv");
-    toBeSaved.setReportConfigFormat(ReportConfigFormat.CSV);
-    toBeSaved.setReportConfigName("test report config");
-    toBeSaved.setReportConfigQuartzCron("0 */5 * ? * *");
-    toBeSaved.setReportConfigQuery("select col from tbl");
-    toBeSaved.setReportConfigSendEmail(true);
-    toBeSaved.setReportConfigSendEmailToViewers(true);
-    toBeSaved.setReportConfigType(ReportConfigType.SQL);
-    toBeSaved.setReportConfigViewersGroupId("abcdefg");
+    GrouperReportConfigurationBean configBean = new GrouperReportConfigurationBean();
+    configBean.setReportConfigDescription("test description");
+    configBean.setReportConfigEmailBody("email body");
+    configBean.setReportConfigEmailSubject("email subject");
+    configBean.setReportConfigEnabled(true);
+    configBean.setReportConfigFilename("test_file.csv");
+    configBean.setReportConfigFormat(ReportConfigFormat.CSV);
+    configBean.setReportConfigName("test report config");
+    configBean.setReportConfigQuartzCron("0 */5 * ? * *");
+    configBean.setReportConfigQuery("select col from tbl");
+    configBean.setReportConfigSendEmail(true);
+    configBean.setReportConfigSendEmailToViewers(true);
+    configBean.setReportConfigType(ReportConfigType.SQL);
+    configBean.setReportConfigViewersGroupId("abcdefg");
     
-    return toBeSaved;
+    return configBean;
     
   }
   

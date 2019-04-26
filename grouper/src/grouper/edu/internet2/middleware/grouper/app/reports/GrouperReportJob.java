@@ -34,7 +34,6 @@ public class GrouperReportJob implements Job {
   
   private static final Log LOG = GrouperUtil.getLog(GrouperReportJob.class);
   
-  
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
     
