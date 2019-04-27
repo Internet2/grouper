@@ -612,7 +612,47 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /** 
    * update attestation for stem
    */
-  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName"));
+  STEM_ATTESTATION_UPDATE(new AuditType("stemAttestation", "updateStemAttestation", null, "stemId", "stemName")),
+  
+  /**
+   * add report config for stem
+   */
+  STEM_REPORT_CONFIG_ADD(new AuditType("stemReportConfig", "addStemReportConfig", null, "stemId", "stemName", "reportConfigId")),
+  
+  /**
+   * update report config for stem
+   */
+  STEM_REPORT_CONFIG_UPDATE(new AuditType("stemReportConfig", "updateStemReportConfig", null, "stemId", "stemName", "reportConfigId")),
+  
+  /**
+   * delete report config for stem
+   */
+  STEM_REPORT_CONFIG_DELETE(new AuditType("stemReportConfig", "deleteStemReportConfig", null, "stemId", "stemName", "reportConfigId")),
+  
+  /**
+   * download report for stem
+   */
+  STEM_REPORT_DOWNLONAD(new AuditType("stemReportConfig", "downloadStemReport", null, "stemId", "stemName", "reportInstanceId")),
+  
+  /**
+   * add report config for group
+   */
+  GROUP_REPORT_CONFIG_ADD(new AuditType("groupReportConfig", "addGroupReportConfig", null, "groupId", "groupName", "reportConfigId")),
+  
+  /**
+   * update report config for group
+   */
+  GROUP_REPORT_CONFIG_UPDATE(new AuditType("groupReportConfig", "updateGroupReportConfig", null, "groupId", "groupName", "reportConfigId")),
+  
+  /**
+   * delete report config for group
+   */
+  GROUP_REPORT_CONFIG_DELETE(new AuditType("groupReportConfig", "deleteGroupReportConfig", null, "groupId", "groupName", "reportConfigId")),
+  
+  /**
+   * download report for group
+   */
+  GROUP_REPORT_DOWNLONAD(new AuditType("groupReportConfig", "downloadGroupReport", null, "groupId", "groupName", "reportInstanceId"));
   
   /**
    * defaults for audit type, though doesnt hold the id

@@ -30,6 +30,8 @@ import edu.internet2.middleware.grouper.app.reports.GrouperReportLogic;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigFormat;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigType;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -40,6 +42,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiReportConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiReportInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -497,6 +505,19 @@ public class UiV2GrouperReport {
             if (savedBean.isReportConfigEnabled()) {
               GrouperReportConfigService.scheduleJob(savedBean, STEM);
             }
+            
+            if (isAdd) {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_REPORT_CONFIG_ADD, "stemId", 
+                  STEM.getId(), "stemName", STEM.getName(), "reportConfigId", savedBean.getAttributeAssignmentMarkerId());
+              auditEntry.setDescription("Addded report config on : " + STEM.getName() + " with id " + savedBean.getAttributeAssignmentMarkerId());
+              reportSaveAudit(auditEntry);
+            } else {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_REPORT_CONFIG_UPDATE, "stemId", 
+                  STEM.getId(), "stemName", STEM.getName(), "reportConfigId", savedBean.getAttributeAssignmentMarkerId());
+              auditEntry.setDescription("Updated report config on : " + STEM.getName() + " with id " + savedBean.getAttributeAssignmentMarkerId());
+              reportSaveAudit(auditEntry);
+            }
+            
           } catch (SchedulerException e) {
             return false;
           }
@@ -585,6 +606,19 @@ public class UiV2GrouperReport {
             if (savedBean.isReportConfigEnabled()) {
               GrouperReportConfigService.scheduleJob(savedBean, GROUP);
             }
+            
+            if (isAdd) {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_REPORT_CONFIG_ADD, "groupId", 
+                  GROUP.getId(), "groupName", GROUP.getName(), "reportConfigId", savedBean.getAttributeAssignmentMarkerId());
+              auditEntry.setDescription("Addded report config on : " + GROUP.getName() + " with id " + savedBean.getAttributeAssignmentMarkerId());
+              reportSaveAudit(auditEntry);
+            } else {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_REPORT_CONFIG_UPDATE, "groupId", 
+                  GROUP.getId(), "groupName", GROUP.getName(), "reportConfigId", savedBean.getAttributeAssignmentMarkerId());
+              auditEntry.setDescription("Updated report config on : " + GROUP.getName() + " with id " + savedBean.getAttributeAssignmentMarkerId());
+              reportSaveAudit(auditEntry);
+            }
+            
           } catch (SchedulerException e) {
             return false;
           }
@@ -988,6 +1022,11 @@ public class UiV2GrouperReport {
           
           GrouperReportConfigService.saveOrUpdateReportConfigAttributes(configBean, STEM);
           
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_REPORT_CONFIG_UPDATE, "stemId", 
+              STEM.getId(), "stemName", STEM.getName(), "reportConfigId", configBean.getAttributeAssignmentMarkerId());
+          auditEntry.setDescription("Changed status for report config on : " + STEM.getName() + " with id " + configBean.getAttributeAssignmentMarkerId());
+          reportSaveAudit(auditEntry);
+          
           return true;
         }
         
@@ -1076,6 +1115,11 @@ public class UiV2GrouperReport {
           
           GrouperReportConfigService.saveOrUpdateReportConfigAttributes(configBean, GROUP);
           
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_REPORT_CONFIG_UPDATE, "groupId",
+              GROUP.getId(), "groupName", GROUP.getName(), "reportConfigId", configBean.getAttributeAssignmentMarkerId());
+          auditEntry.setDescription("Changed status for report config on : " + GROUP.getName() + " with id " + configBean.getAttributeAssignmentMarkerId());
+          reportSaveAudit(auditEntry);
+          
           return true;
         }
         
@@ -1154,6 +1198,8 @@ public class UiV2GrouperReport {
         throw new RuntimeException();
       }
       
+      final Stem STEM = stem;
+      
       try {
         
         String reportContent = GrouperReportLogic.getReportContent(reportInstance);
@@ -1167,6 +1213,11 @@ public class UiV2GrouperReport {
         
         reportInstance.setReportInstanceDownloadCount(reportInstance.getReportInstanceDownloadCount() + 1);
         GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, stem);
+        
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_REPORT_DOWNLONAD, "stemId", STEM.getId(),
+            "stemName", STEM.getName(), "reportInstanceId", reportInstance.getAttributeAssignId());
+        auditEntry.setDescription("Downloaded report " + reportInstance.getReportInstanceFileName()+" for " + STEM.getName());
+        reportSaveAudit(auditEntry);
         
       } catch (IOException e) {
         throw new RuntimeException("Error occured while downloading the report");
@@ -1235,6 +1286,8 @@ public class UiV2GrouperReport {
         throw new RuntimeException();
       }
       
+      final Group GROUP = group;
+      
       try {
         
         String reportContent = GrouperReportLogic.getReportContent(reportInstance);
@@ -1248,6 +1301,11 @@ public class UiV2GrouperReport {
         
         reportInstance.setReportInstanceDownloadCount(reportInstance.getReportInstanceDownloadCount() + 1);
         GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, group);
+        
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_REPORT_DOWNLONAD, "groupId", GROUP.getId(),
+            "groupName", GROUP.getName(), "reportInstanceId", reportInstance.getAttributeAssignId());
+        auditEntry.setDescription("Downloaded report " + reportInstance.getReportInstanceFileName()+" for " + GROUP.getName());
+        reportSaveAudit(auditEntry);
         
       } catch (IOException e) {
         throw new RuntimeException("Error occured while downloading the report");
@@ -1309,6 +1367,8 @@ public class UiV2GrouperReport {
         throw new RuntimeException();
       }
       
+      final Stem STEM = stem;
+      
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
@@ -1322,6 +1382,11 @@ public class UiV2GrouperReport {
           } catch(SchedulerException e) {
             LOG.error("Error deleting quartz job for config: "+configBean.getReportConfigName());
           }
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_REPORT_CONFIG_DELETE, "stemId", 
+              STEM.getId(), "stemName", STEM.getName(), "reportConfigId", configBean.getAttributeAssignmentMarkerId());
+          auditEntry.setDescription("Deleted report config on : " + STEM.getName() + " with id " + configBean.getAttributeAssignmentMarkerId());
+          reportSaveAudit(auditEntry);
           
           return null;
         }
@@ -1386,6 +1451,8 @@ public class UiV2GrouperReport {
         throw new RuntimeException();
       }
       
+      final Group GROUP = group;
+      
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
@@ -1400,6 +1467,11 @@ public class UiV2GrouperReport {
           catch(SchedulerException e) {
             LOG.error("Error deleting quartz job for config: "+configBean.getReportConfigName());
           }
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_REPORT_CONFIG_DELETE, "groupId", 
+              GROUP.getId(), "groupName", GROUP.getName(), "reportConfigId", configBean.getAttributeAssignmentMarkerId());
+          auditEntry.setDescription("Deleted report config on : " + GROUP.getName() + " with id " + configBean.getAttributeAssignmentMarkerId());
+          reportSaveAudit(auditEntry);
           
           return null;
         }
@@ -1705,4 +1777,21 @@ public class UiV2GrouperReport {
     return guiReportConfigs;
   }
 
+  
+  /**
+   * 
+   * @param auditEntry
+   */
+  private static void reportSaveAudit(final AuditEntry auditEntry) {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                auditEntry.saveOrUpdate(true);
+                return null;
+              }
+        });
+
+  }
 }
