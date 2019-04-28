@@ -1,0 +1,6 @@
+GROUPER_VERSION=testpatched docker-compose/build-images
+GROUPER_VERSION='testpatched' CONFIG_EGREP='^ldap-attributes$' ./RUN_TESTS
+GROUPER_VERSION='testpatched' CONFIG_EGREP='^posix-groups$' ./RUN_TESTS
+GROUPER_VERSION='testpatched' CONFIG_EGREP='^posix-groups-bushy$' ./RUN_TESTS
+GROUPER_VERSION='testpatched' CONFIG_EGREP='^posix-groups-bushy-dnsearch$' ./RUN_TESTS
+GROUPER_VERSION='testpatched' CONFIG_EGREP='^goun-groups$' ./RUN_TESTS

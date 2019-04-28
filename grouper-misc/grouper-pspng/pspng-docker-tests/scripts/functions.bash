@@ -5,7 +5,20 @@ export GSH=gsh_
 # Note, that this assumes printf-style arguments
 log_always() {
   local fmt="$1"; shift
-  printf "$(date "+%F %H:%M:%S") [%d] $fmt\\n" $$ "$@" 1>&2
+  local -a args
+
+  #escape percent signs in arguments
+  #stupid way bash needs to build an array
+  if [ $# -gt 0 ]; then
+    args=( "$1" ); shift
+    for arg in "$@"; do
+      args=( $args "$(sed 's/%/%%/g' <<<"$arg")" )
+    done
+  else
+    args=("")
+  fi
+
+  printf "$(date "+%F %H:%M:%S") [%d] $fmt\\n" $$ "${args[@]}" 1>&2
 }
 
 # convert the log level to upper-case

@@ -66,7 +66,7 @@ function log_progress {
 }
 
 log_progress "RUN_TESTS has started"
-add_cleanup_command log_progress "RUN_TESTS has stopped"
+add_cleanup_command log_progress "RUN_TESTS has stopped. Logs in $TT"
 
 if [ "$(uname)" = Darwin ]; then
   #Build a script to run in a separate window

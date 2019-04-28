@@ -33,11 +33,11 @@ log_always "Waiting for $qid to be completed"
 START=$(date +%s)
 GIVE_UP=$((START + $FLAGS_time_limit_secs))
 while [ $(date +%s) -lt $GIVE_UP ]; do
-  completed=$(egrep_ -i "$qid.*Work item handled.*done=true,successful=true" $API/logs/grouper_error.log)
+  completed=$(egrep_ -i "$qid.*Work item handled.*done=true,successful=true|$qid.*FullSync Item done .Successful" $API/logs/grouper_error.log)
   last_qid_log=$(fgrep_ -iw "$qid" $API/logs/grouper_error.log | tail -1)
 
   if [ -n "$completed" ]; then
-    log_always "$qid has completed: $completed"
+    log_always "$qid has completed: %s" "$completed"
     exit 0
   else
     log_always "$qid has not completed. Last log line: $last_qid_log"
