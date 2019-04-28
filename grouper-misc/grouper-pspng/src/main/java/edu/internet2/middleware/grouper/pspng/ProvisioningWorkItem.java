@@ -150,6 +150,10 @@ public class ProvisioningWorkItem {
 
   public void markAsSkipped(String statusMessageFormat, Object... statusMessageArgs)
   {
+    if ( success != null ) {
+      return;
+    }
+
     success = true;
     setStatus(Level.FINE, "done", statusMessageFormat, statusMessageArgs);
   }
@@ -182,20 +186,22 @@ public class ProvisioningWorkItem {
     else if ( getChangelogEntry() == null )
       return null;
     
-    ChangeLogLabel groupNameKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2groupLookupFields);
+    groupName = ChangelogHandlingConfig.getGroupName(getChangelogEntry());
 
-    if ( groupNameKey == null ) {
-      return null;
-    }
-    groupName = getChangelogEntry().retrieveValueForLabel(groupNameKey);
     return groupName;
   }
   
   public GrouperGroupInfo getGroupInfo(Provisioner provisioner) {
 	  String groupName = getGroupName();
-	  if ( groupName == null )
-		  return null;
-	  return provisioner.getGroupInfo(this);
+	  if ( groupName == null ) {
+	    LOG.debug("Group name not found in work item: {}", this);
+            return null;
+          }
+
+	  GrouperGroupInfo result = provisioner.getGroupInfo(this);
+
+	  LOG.debug("WorkItem {} is related to Group: {}", this, result);
+	  return result;
   }
 
   /**
@@ -203,51 +209,20 @@ public class ProvisioningWorkItem {
    * @return
    */
   public Long getGroupIdIndex() {
-    ChangeLogLabel idIndexKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2groupIdIndexFields);
-    if ( idIndexKey != null )
-      return Long.parseLong(getChangelogEntry().retrieveValueForLabel(idIndexKey));
-    else
-      return null;
+    return  ChangelogHandlingConfig.getGroupId(getChangelogEntry());
   }
 
   public String getAttributeName() {
-    ChangeLogLabel attributeNameKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2attributeNameLabel);
-
-    if ( attributeNameKey == null ) {
-      return null;
-    }
-
-    return getChangelogEntry().retrieveValueForLabel(attributeNameKey);
+    return ChangelogHandlingConfig.getAttributeName(getChangelogEntry());
   }
 
   
   private String getSubjectId() {
-    if ( getChangelogEntry() == null )
-      return null;
-    
-    final ChangeLogLabel subjectIdKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2subjectIdLookupFields);
-
-    if ( subjectIdKey == null ) {
-      return null;
-    }
-
-    final String subjectId = getChangelogEntry().retrieveValueForLabel(subjectIdKey);
-    return subjectId;
+    return ChangelogHandlingConfig.getSubjectId(getChangelogEntry());
   }
 
   private String getSubjectSourceId() {
-    if ( getChangelogEntry() == null )
-      return null;
-    
-    final ChangeLogLabel subjectSourceIdKey = getChangelogLabel(ChangelogHandlingConfig.changelogType2subjectSourceLookupFields);
-
-    if ( subjectSourceIdKey == null ) {
-      return null;
-    }
-    
-    final String sourceId = getChangelogEntry().retrieveValueForLabel(subjectSourceIdKey);
-
-    return sourceId;
+    return ChangelogHandlingConfig.getSubjectSource(getChangelogEntry());
   }
   
   public Subject getSubject(Provisioner provisioner) {
@@ -363,9 +338,5 @@ public class ProvisioningWorkItem {
    */
   public boolean matchesChangelogType(Collection<ChangeLogTypeBuiltin> types) {
     return ChangelogHandlingConfig.containsChangelogEntryType(types, getChangelogEntry());
-  }
-
-  public ChangeLogLabel getChangelogLabel(Map<ChangeLogTypeBuiltin, ChangeLogLabel> changeLogLabelMap) {
-    return ChangelogHandlingConfig.getFromChangelogTypesMap(changeLogLabelMap, getChangelogEntry());
   }
 }

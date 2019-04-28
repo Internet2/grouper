@@ -842,6 +842,10 @@ public class LdapSystem {
       if ( correctAttribute == null ) {
         if ( existingAttribute != null ) {
           changed = true;
+          LOG.debug("{}: Attribute {} is incorrect: Current values: {}, Correct values: none",
+                  correctEntry.getDn(), attributeName,
+                  existingAttribute.getStringValues());
+
           AttributeModification mod = new AttributeModification(AttributeModificationType.REMOVE, existingAttribute);
           ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
           performLdapModify(modRequest);
@@ -850,6 +854,9 @@ public class LdapSystem {
       else if ( !correctAttribute.equals(existingAttribute) ) {
         // Attribute is different. Update existing one
         changed = true;
+        LOG.debug("{}: Attribute {} is incorrect: Current values: {}, Correct values: {}",
+                correctEntry.getDn(), attributeName,
+                existingAttribute.getStringValues(), correctAttribute.getStringValues());
 
         AttributeModification mod = new AttributeModification(AttributeModificationType.REPLACE, correctAttribute);
         ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
@@ -877,6 +884,7 @@ public class LdapSystem {
     // TODO: This should do case-sensitive comparisons of the first RDN and case-insensitive comparisons of the rest
     if ( !correctDn.equalsIgnoreCase(existingDn) ) {
       // The DNs do not match. Existing object needs to be moved
+      LOG.debug("{}: DN needs to change to {}", existingDn, correctDn);
 
       // Now modify the DN
       ModifyDnRequest moddn = new ModifyDnRequest(existingDn, correctDn);

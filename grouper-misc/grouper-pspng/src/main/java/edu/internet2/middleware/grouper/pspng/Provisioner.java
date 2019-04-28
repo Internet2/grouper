@@ -455,7 +455,7 @@ public abstract class Provisioner
 
       // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
       if ( group != null && !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
-          workItem.markAsSkipped("Ignoring work item because group should not be provisioned");
+          workItem.markAsSkipped("Ignoring work item because (existing) group should not be provisioned");
           continue;
       }
 
@@ -463,7 +463,7 @@ public abstract class Provisioner
         result.add(workItem);
       } else {
         // Not going to process this item, so mark it as a success and don't add it to result
-        workItem.markAsSkipped("Ignoring work item because its ChangeLog type is not provisioning relevant: %s", workItem.getChangelogEntry());
+          workItem.markAsSkipped("Ignoring work item");
       }
     }
     
@@ -484,8 +484,10 @@ public abstract class Provisioner
     // (default is that we do ignore such changes)
     if ( getConfig().areChangesToInternalGrouperSubjectsIgnored() ) {
       Subject subject = workItem.getSubject(this);
-      if ( subject != null && subject.getSourceId().equalsIgnoreCase("g:gsa") )
+      if ( subject != null && subject.getSourceId().equalsIgnoreCase("g:gsa") ) {
+        workItem.markAsSkipped("Ignoring event about a g:gsa subject");
         return false;
+      }
     }
 
     // Only group-deletions are processed for groups that have been deleted
@@ -494,10 +496,16 @@ public abstract class Provisioner
     if ( workItem.getGroupInfo(this) != null &&
          workItem.getGroupInfo(this).hasGroupBeenDeleted() &&
          !workItem.matchesChangelogType(ChangeLogTypeBuiltin.GROUP_DELETE) ) {
+      workItem.markAsSkipped("Group has been deleted within Grouper. Skipping event because it is not the actual GROUP_DELETE event");
       return false;
     }
 
-    return workItem.matchesChangelogType(ChangelogHandlingConfig.allRelevantChangelogTypes );
+    if ( !workItem.matchesChangelogType(ChangelogHandlingConfig.allRelevantChangelogTypes) ) {
+      workItem.markAsSkipped("Changelog type is not relevant to PSPNG provisioning (see ChangelogHandlingConfig.allRelevantChangelogTypes)");
+      return false;
+    } else {
+      return true;
+    }
   }
 
 
@@ -578,7 +586,7 @@ public abstract class Provisioner
       }
     }
 
-    LOG.info("Information cached after {} will be ignored", newestAsOfDate);
+    LOG.info("Information cached before {} will be ignored", newestAsOfDate);
 
     Set<Subject> subjects = new HashSet<Subject>();
 
@@ -1563,7 +1571,10 @@ public abstract class Provisioner
 
   	    	grouperGroupInfoCache.put(groupName, result);
   	    	return result;
-  	    }
+  	    } else {
+  	      LOG.warn("Could not find PIT group: {}", groupName);
+  	      return null;
+            }
     }
     catch (GroupNotFoundException e) {
       LOG.warn("Unable to find PIT group '{}'", groupName);

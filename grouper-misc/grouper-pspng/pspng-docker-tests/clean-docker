@@ -20,6 +20,14 @@ else
   echo No stale images to delete
 fi
 
+X=$(docker images | egrep "^test.*-daemon")
+if [ -n "$X" ]; then
+  echo Removing old test images:
+  docker rmi --force $(awk '{print $3}' <<<"$X" | sort -u)
+else
+  echo No old test images to delete
+fi
+
 X=$(docker volume ls -q | egrep -v -e '-template$')
 if [ -n "$X" ]; then
   echo Removing old volumes
