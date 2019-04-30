@@ -612,21 +612,34 @@ public abstract class Provisioner
   }
 
   protected void warnAboutCacheSizeConcerns() {
-    warnAboutCacheSizeConcerns(grouperGroupInfoCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouperGroupCacheSize");
-    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouperGroupCacheSize");
-    warnAboutCacheSizeConcerns(grouperSubjectCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouperSubjectCacheSize");
-    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouperSubjectCacheSize");
+    warnAboutCacheSizeConcerns(grouperGroupInfoCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouper groups", "grouperGroupCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "provisioned groups", "grouperGroupCacheSize");
+    warnAboutCacheSizeConcerns(grouperSubjectCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouper subjects", "grouperSubjectCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "provisioned subjects", "grouperSubjectCacheSize");
   }
 
-  private void warnAboutCacheSizeConcerns(long cacheObjectCount, int configuredSize, String configurationProperty) {
+  private void warnAboutCacheSizeConcerns(long cacheObjectCount, int configuredSize, String objectType, String configurationProperty) {
     if ( !config.areCacheSizeWarningsEnabled() )
       return;
 
-    double cacheFullness_percentage = 100.0*cacheObjectCount/configuredSize;
+    double cacheWarningThreshold_percentage = config.getCacheFullnessWarningThreshold_percentage();
+    long cacheWarningTreshold_count = Math.round(cacheWarningThreshold_percentage*configuredSize);
 
-    if ( cacheFullness_percentage > config.getCacheFullnessWarningThreshold_percentage() )
-      LOG.warn("Cache is very full (%.0f%%). Performance is much higher if {} is large enough to hold the number provisioned groups or subjects",
-              cacheFullness_percentage, configurationProperty);
+    long cacheFullness_percentage = Math.round(100.0*cacheObjectCount/configuredSize);
+
+    if ( cacheFullness_percentage >= cacheWarningThreshold_percentage ) {
+      LOG.warn("Cache of {} is very full ({}%). Provisioning performance is much better if {} is big enough to hold all {}. " +
+                      "({} is currently set to {}, and this warning occurs when cache is {}% full)",
+              objectType,
+              cacheFullness_percentage,
+              configurationProperty,
+              objectType,
+              configurationProperty, configuredSize,
+              cacheFullness_percentage);
+    } else {
+      LOG.debug("Cache of {} is sufficiently sized ({}% full) (property {}={})",
+              objectType, cacheFullness_percentage, configurationProperty, configuredSize);
+    }
 
   }
 

@@ -90,7 +90,7 @@ public class ProvisionerConfiguration {
     protected boolean areCacheSizeWarningsEnabled_defaultValue = true;
 
     protected int cacheFullnessWarningThreshold_percentage;
-    protected int cacheFullnessWarningThreshold_percentage_defaultValue = 95; // Never log
+    protected int cacheFullnessWarningThreshold_percentage_defaultValue = 95;
 
     /**
      * This expression says that the provisionerName has to be in a group or stem provision_to attribute
