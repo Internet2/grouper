@@ -25,10 +25,10 @@ import java.util.Properties;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -183,54 +183,99 @@ public class GrouperEmail {
       
       String subjectPrefix = StringUtils.defaultString(GrouperConfig.retrieveConfig().propertyValueString("mail.subject.prefix"));
       
-      final String SMTP_USER = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.user"); 
-      
-      String smtpPass = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.pass"); 
-      
-      final String SMTP_PASS = StringUtils.isBlank(smtpPass) ? null : Morph.decryptIfFile(smtpPass);
-      
       Properties properties = new Properties();
       
       properties.put("mail.host", smtpServer);
-      properties.put("mail.transport.protocol", "smtp");
       
+      String mailTransportProtocol = GrouperConfig.retrieveConfig().propertyValueString("mail.transport.protocol", "smtp");
+      properties.put("mail.transport.protocol", mailTransportProtocol);
+
+      boolean mailUseProtocolInPropertyNames = GrouperConfig.retrieveConfig().propertyValueBoolean("mail.use.protocol.in.property.names", true);
+      String propertyProtocol = mailUseProtocolInPropertyNames ? mailTransportProtocol : "smtp";
       Authenticator authenticator = null;
-  
-      //this has never been tested... :)
-      if (!StringUtils.isBlank(SMTP_USER)) {
-        properties.setProperty("mail.smtp.submitter", SMTP_USER);
-        properties.setProperty("mail.smtp.auth", "true");
+      
+      {
+        final String SMTP_USER = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.user"); 
         
-        authenticator = new Authenticator() {
-          protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(SMTP_USER, SMTP_PASS);
-          }
-        };
+        String smtpPass = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.pass"); 
+        
+        final String SMTP_PASS = StringUtils.isBlank(smtpPass) ? null : Morph.decryptIfFile(smtpPass);
+        
+        if (!StringUtils.isBlank(SMTP_USER)) {
+          properties.setProperty("mail." + propertyProtocol + ".submitter", SMTP_USER);
+          properties.setProperty("mail." + propertyProtocol + ".auth", "true");
+          
+          authenticator = new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+              return new PasswordAuthentication(SMTP_USER, SMTP_PASS);
+            }
+          };
+        }
       }
       
       boolean useSsl = GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.ssl", false);
       if (useSsl) {
         
-        properties.put("mail.smtp.starttls.enable","true");
-        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        properties.put("mail.smtp.socketFactory.fallback", "false");
+        properties.put("mail." + propertyProtocol + ".starttls.enable","true");
+        properties.put("mail." + propertyProtocol + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        properties.put("mail." + propertyProtocol + ".socketFactory.fallback", "false");
         
       }
-
-      if (LOG.isDebugEnabled()) {
-        properties.put("mail.smtp.debug", "true");
+        
+      {
+        String mailSmtpSslProtocols = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.ssl.protocols");
+        if (!StringUtils.isBlank(mailSmtpSslProtocols)) {
+          properties.put("mail." + propertyProtocol + ".ssl.protocols", mailSmtpSslProtocols);
+        }
+      }
+      
+      {
+        String mailSmtpSocketFactoryClass = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.socketFactory.class");
+        if (!StringUtils.isBlank(mailSmtpSocketFactoryClass)) {
+          properties.put("mail." + propertyProtocol + ".socketFactory.class", mailSmtpSocketFactoryClass);
+        }
+      }
+      
+      {
+        Boolean mailSmtpSocketFactoryFallback = GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.socketFactory.fallback");
+        if (mailSmtpSocketFactoryFallback != null) {
+          properties.put("mail." + propertyProtocol + ".socketFactory.fallback", mailSmtpSocketFactoryFallback ? "true" : "false");
+        }
+      }
+      
+      {
+        Boolean mailSmtpStartTlsEnable = GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.starttls.enable");
+        if (mailSmtpStartTlsEnable != null) {
+          properties.put("mail." + propertyProtocol + ".starttls.enable", mailSmtpStartTlsEnable ? "true" : "false");
+        }
+      }
+      
+      {
+        String mailSmtpSslTrust = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.ssl.trust");
+        if (!StringUtils.isBlank(mailSmtpSslTrust)) {
+          properties.put("mail." + propertyProtocol + ".ssl.trust", mailSmtpSslTrust);
+        }
+      }
+      
+      
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("mail.debug", false) || LOG.isDebugEnabled()) {
+        properties.put("mail." + propertyProtocol + ".debug", "true");
+        properties.put("mail.debug", "true");
       }
       
       //leave blank for default (probably 25), if ssl is true, default is 465, else specify
-      String port = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.port");
-      if (!StringUtils.isBlank(port)) {
-        properties.put("mail.smtp.socketFactory.port", port);
-      } else {
-        if (useSsl) {
-          properties.put("mail.smtp.socketFactory.port", "465");
+      {
+        Integer port = GrouperConfig.retrieveConfig().propertyValueInt("mail." + propertyProtocol + ".port");
+        if (port != null) {
+          properties.put("mail." + propertyProtocol + ".socketFactory.port", port);
+          properties.put("mail." + propertyProtocol + ".port", port);
+        } else {
+          if (useSsl) {
+            properties.put("mail." + propertyProtocol + ".socketFactory.port", "465");
+            properties.put("mail." + propertyProtocol + ".port", "465");
+          }
         }
       }
-
       
       Session session = Session.getInstance(properties, authenticator);
       Message message = new MimeMessage(session);
@@ -265,7 +310,7 @@ public class GrouperEmail {
       message.setSubject(theSubject);
       
       //GRP-912: mail body is badly quoted-printable encoded => accents issues
-      String emailContentType = GrouperConfig.getProperty("grouperEmailContentType");
+      String emailContentType = GrouperConfig.retrieveConfig().propertyValueString("grouperEmailContentType");
       emailContentType = StringUtils.isBlank(emailContentType) ? "text/plain; charset=utf-8" : emailContentType;
       message.setContent(this.body, emailContentType);
       
