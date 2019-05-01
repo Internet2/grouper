@@ -842,9 +842,9 @@ public class LdapSystem {
       if ( correctAttribute == null ) {
         if ( existingAttribute != null ) {
           changed = true;
-          LOG.debug("{}: Attribute {} is incorrect: Current values: {}, Correct values: none",
+          LOG.info("{}: Attribute {} is incorrect: Current values: {}, Correct values: none",
                   correctEntry.getDn(), attributeName,
-                  existingAttribute.getStringValues());
+                  (existingAttribute != null ? existingAttribute.getStringValues() : "<none>"));
 
           AttributeModification mod = new AttributeModification(AttributeModificationType.REMOVE, existingAttribute);
           ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
@@ -854,9 +854,11 @@ public class LdapSystem {
       else if ( !correctAttribute.equals(existingAttribute) ) {
         // Attribute is different. Update existing one
         changed = true;
-        LOG.debug("{}: Attribute {} is incorrect: Current values: {}, Correct values: {}",
-                correctEntry.getDn(), attributeName,
-                existingAttribute.getStringValues(), correctAttribute.getStringValues());
+        LOG.info("{}: Attribute {} is incorrect: Current values: {}, Correct values: {}",
+                correctEntry.getDn(),
+                attributeName,
+                (existingAttribute != null ? existingAttribute.getStringValues() : "<none>"),
+                (correctAttribute  != null ? correctAttribute.getStringValues() : "<none>" ));
 
         AttributeModification mod = new AttributeModification(AttributeModificationType.REPLACE, correctAttribute);
         ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
