@@ -16,9 +16,15 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -114,6 +120,75 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
     }
     
     return pitMember;
+  }
+  
+  public Set<PITMember> findBySourceIdsActive(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Set<PITMember> results = new HashSet<PITMember>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+   
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive");
+
+      StringBuilder sql = new StringBuilder("select pitMember from PITMember as pitMember where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+
+      sql.append(" pitMember.sourceId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") and activeDb = 'T'");
+   
+      Set<PITMember> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITMember.class);
+      results.addAll(localResult);
+    }
+
+    return results;
+  }
+  
+
+  public Set<PITMember> findByIds(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Set<PITMember> results = new HashSet<PITMember>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+   
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindById");
+
+      StringBuilder sql = new StringBuilder("select pitMember from PITMember as pitMember where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+
+      sql.append(" pitMember.id in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(")");
+   
+      Set<PITMember> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITMember.class);
+      results.addAll(localResult);
+    }
+
+    return results;
   }
   
   /**

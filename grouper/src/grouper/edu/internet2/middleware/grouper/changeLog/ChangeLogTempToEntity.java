@@ -15,12 +15,17 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -32,9 +37,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -67,6 +72,8 @@ public class ChangeLogTempToEntity {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ChangeLogTempToEntity.class);
   
+  private static final int TEMP_CHANGE_LOG_PAGE_SIZE = 1000;
+    
   /**
    * convert the temps to regulars, assign id's
    * hib3GrouperLoaderLog is the log object to post updates, can be null
@@ -85,151 +92,227 @@ public class ChangeLogTempToEntity {
     
     final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedMemberships", false);
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
+    final int tooManyChangeLogUpdatesSize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.tooManyChangeLogUpdatesSize");
     
     ChangeLogEntry.clearNextSequenceNumberCache();
-    
-    int count = 0;
-    
+        
     //first select the temp records
-    List<ChangeLogEntry> changeLogEntryList = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryTemp order by createdOnDb")
-      .options(new QueryOptions().paging(1000, 1, false)).list(ChangeLogEntry.class);
+    final List<ChangeLogEntry> tempChangeLogEntryList = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryTemp order by createdOnDb")
+      .options(new QueryOptions().paging(TEMP_CHANGE_LOG_PAGE_SIZE, 1, false)).list(ChangeLogEntry.class);
     
-    //note: this is not in a transaction, though the inner one is
-    for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
-      
-      final ChangeLogEntry CHANGE_LOG_ENTRY = changeLogEntry;
-      
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+    int tempChangeLogEntryListOrigSize = tempChangeLogEntryList.size();
+        
+    int totalCountActuallyProcessed = 0;
+    while (true) {
+      int currentCountActuallyProcessed = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
           AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
+  
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
+                  
+              List<ChangeLogEntry> tempChangeLogEntryListProcessed = new ArrayList<ChangeLogEntry>();
               
-              if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)
-                  || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
-                ChangeLogTempToEntity.processGroupAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)
-                  || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
-                ChangeLogTempToEntity.processGroupUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)
-                  || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
-                ChangeLogTempToEntity.processGroupDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_ADD)) {
-                ChangeLogTempToEntity.processStemAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_UPDATE)) {
-                ChangeLogTempToEntity.processStemUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_DELETE)) {
-                ChangeLogTempToEntity.processStemDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD)) {
-                ChangeLogTempToEntity.processAttributeDefAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE)) {
-                ChangeLogTempToEntity.processAttributeDefUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE)) {
-                ChangeLogTempToEntity.processAttributeDefDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_ADD)) {
-                ChangeLogTempToEntity.processFieldAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE)) {
-                ChangeLogTempToEntity.processFieldUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE)) {
-                ChangeLogTempToEntity.processFieldDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN)) {
-                ChangeLogTempToEntity.processGroupTypeAssign(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN)) {
-                ChangeLogTempToEntity.processGroupTypeUnassign(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD)) {
-                ChangeLogTempToEntity.processMemberAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_UPDATE)) {
-                ChangeLogTempToEntity.processMemberUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
-                ChangeLogTempToEntity.processMemberDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
-                ChangeLogTempToEntity.processMembershipAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
-                ChangeLogTempToEntity.processMembershipDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
-                ChangeLogTempToEntity.processPrivilegeAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
-                ChangeLogTempToEntity.processPrivilegeDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD)) {
-                ChangeLogTempToEntity.processAttributeAssignAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE)) {
-                ChangeLogTempToEntity.processAttributeAssignDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD)) {
-                ChangeLogTempToEntity.processAttributeDefNameAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE)) {
-                ChangeLogTempToEntity.processAttributeDefNameUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE)) {
-                ChangeLogTempToEntity.processAttributeDefNameDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD)) {
-                ChangeLogTempToEntity.processAttributeAssignActionAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE)) {
-                ChangeLogTempToEntity.processAttributeAssignActionUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE)) {
-                ChangeLogTempToEntity.processAttributeAssignActionDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD)) {
-                ChangeLogTempToEntity.processAttributeAssignActionSetAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE)) {
-                ChangeLogTempToEntity.processAttributeAssignActionSetDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD)) {
-                ChangeLogTempToEntity.processAttributeDefNameSetAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE)) {
-                ChangeLogTempToEntity.processAttributeDefNameSetDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_ADD)) {
-                ChangeLogTempToEntity.processRoleSetAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_DELETE)) {
-                ChangeLogTempToEntity.processRoleSetDelete(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD)) {
-                ChangeLogTempToEntity.processAttributeAssignValueAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
-                ChangeLogTempToEntity.processAttributeAssignValueDelete(CHANGE_LOG_ENTRY);
-              }
-              
-              if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ||
-                  CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+              List<ChangeLogEntry> changeLogEntriesToSave = new ArrayList<ChangeLogEntry>();
+  
+              for (int i = 0; i < tempChangeLogEntryList.size(); i++) {
                 
-                if (includeNonFlattenedMemberships) {
-                  //insert into the non temp table
-                  CHANGE_LOG_ENTRY.setTempObject(false);
-                  CHANGE_LOG_ENTRY.save();
+                ChangeLogEntry CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(i);
+                List<ChangeLogEntry> currentTempChangeLogEntriesBatch = new ArrayList<ChangeLogEntry>();
+                currentTempChangeLogEntriesBatch.add(CHANGE_LOG_ENTRY);
+                
+                if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
+                  
+                  for (int j = i + 1; j < tempChangeLogEntryList.size(); j++) {
+                    ChangeLogEntry NEXT_CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(j);
+                    if (NEXT_CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
+                      currentTempChangeLogEntriesBatch.add(NEXT_CHANGE_LOG_ENTRY);
+                      i++;
+                    } else {
+                      break;
+                    }
+                  }
+                  
+                  int numberProcessed = ChangeLogTempToEntity.processMembershipAdd(currentTempChangeLogEntriesBatch, changeLogEntriesToSave);
+                  currentTempChangeLogEntriesBatch.subList(numberProcessed, currentTempChangeLogEntriesBatch.size()).clear();
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+  
+                  for (int j = i + 1; j < tempChangeLogEntryList.size(); j++) {
+                    ChangeLogEntry NEXT_CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(j);
+                    if (NEXT_CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+                      currentTempChangeLogEntriesBatch.add(NEXT_CHANGE_LOG_ENTRY);
+                      i++;
+                    } else {
+                      break;
+                    }
+                  }
+                  
+                  int numberProcessed = ChangeLogTempToEntity.processMembershipDelete(currentTempChangeLogEntriesBatch, changeLogEntriesToSave);
+                  currentTempChangeLogEntriesBatch.subList(numberProcessed, currentTempChangeLogEntriesBatch.size()).clear();
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)
+                    || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
+                  ChangeLogTempToEntity.processGroupAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)
+                    || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
+                  ChangeLogTempToEntity.processGroupUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)
+                    || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
+                  ChangeLogTempToEntity.processGroupDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_ADD)) {
+                  ChangeLogTempToEntity.processStemAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_UPDATE)) {
+                  ChangeLogTempToEntity.processStemUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_DELETE)) {
+                  ChangeLogTempToEntity.processStemDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD)) {
+                  ChangeLogTempToEntity.processAttributeDefAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE)) {
+                  ChangeLogTempToEntity.processAttributeDefUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeDefDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_ADD)) {
+                  ChangeLogTempToEntity.processFieldAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE)) {
+                  ChangeLogTempToEntity.processFieldUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE)) {
+                  ChangeLogTempToEntity.processFieldDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN)) {
+                  ChangeLogTempToEntity.processGroupTypeAssign(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN)) {
+                  ChangeLogTempToEntity.processGroupTypeUnassign(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD)) {
+                  ChangeLogTempToEntity.processMemberAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_UPDATE)) {
+                  ChangeLogTempToEntity.processMemberUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
+                  ChangeLogTempToEntity.processMemberDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
+                  ChangeLogTempToEntity.processPrivilegeAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
+                  ChangeLogTempToEntity.processPrivilegeDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD)) {
+                  ChangeLogTempToEntity.processAttributeAssignAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeAssignDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD)) {
+                  ChangeLogTempToEntity.processAttributeDefNameAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE)) {
+                  ChangeLogTempToEntity.processAttributeDefNameUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeDefNameDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD)) {
+                  ChangeLogTempToEntity.processAttributeAssignActionAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE)) {
+                  ChangeLogTempToEntity.processAttributeAssignActionUpdate(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeAssignActionDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD)) {
+                  ChangeLogTempToEntity.processAttributeAssignActionSetAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeAssignActionSetDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD)) {
+                  ChangeLogTempToEntity.processAttributeDefNameSetAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeDefNameSetDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_ADD)) {
+                  ChangeLogTempToEntity.processRoleSetAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_DELETE)) {
+                  ChangeLogTempToEntity.processRoleSetDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD)) {
+                  ChangeLogTempToEntity.processAttributeAssignValueAdd(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
+                  ChangeLogTempToEntity.processAttributeAssignValueDelete(CHANGE_LOG_ENTRY);
                 }
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD) ||
-                  CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
                 
-                if (includeNonFlattenedPrivileges) {
-                  //insert into the non temp table
-                  CHANGE_LOG_ENTRY.setTempObject(false);
-                  CHANGE_LOG_ENTRY.save();
+                for (ChangeLogEntry currentChangeLogEntry : currentTempChangeLogEntriesBatch) {
+                  if (currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ||
+                      currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+                    
+                    if (includeNonFlattenedMemberships) {
+                      //insert into the non temp table
+                      currentChangeLogEntry.setTempObject(false);
+                      changeLogEntriesToSave.add(currentChangeLogEntry);
+                    }
+                  } else if (currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD) ||
+                      currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
+                    
+                    if (includeNonFlattenedPrivileges) {
+                      //insert into the non temp table
+                      currentChangeLogEntry.setTempObject(false);
+                      changeLogEntriesToSave.add(currentChangeLogEntry);
+                    }
+                  } else {
+                    
+                    //insert into the non temp table
+                    currentChangeLogEntry.setTempObject(false);
+                    changeLogEntriesToSave.add(currentChangeLogEntry);
+                  }
                 }
-              } else {
                 
-                //insert into the non temp table
-                CHANGE_LOG_ENTRY.setTempObject(false);
-                CHANGE_LOG_ENTRY.save();
+                tempChangeLogEntryListProcessed.addAll(currentTempChangeLogEntriesBatch);
+                
+                if (changeLogEntriesToSave.size() > tooManyChangeLogUpdatesSize) {
+                  break;
+                }
               }
               
-              //delete from the temp
-              //using sql since hibernate would try to otherwise batch this delete (since the table is not versioned I think),
-              //in which case some database (like Oracle) do not return the number of affected rows.
-              int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id = ?", 
-                  HibUtils.listObject(CHANGE_LOG_ENTRY.getId()), HibUtils.listType(StringType.INSTANCE));
-              if (count != 1) {
-                throw new RuntimeException("Bad count of " + count + " when deleting temp change log entry: " + CHANGE_LOG_ENTRY.toStringDeep());
+              if (changeLogEntriesToSave.size() > 0) {
+                // save to real change log
+                int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+                if (batchSize <= 0) {
+                  batchSize = 1;
+                }
+                
+                int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(changeLogEntriesToSave), batchSize);
+                for (int i = 0; i < numberOfBatches; i++) {
+                  List<ChangeLogEntry> currentBatch = GrouperUtil.batchList(changeLogEntriesToSave, batchSize, i);
+                  GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(new LinkedHashSet<ChangeLogEntry>(currentBatch), false);
+                }
               }
               
-              return null;
+              // up to 1000 bind vars seem to be ok for oracle, mysql, and postgres
+              if (tempChangeLogEntryListProcessed.size() > 0) {
+                //delete from the temp
+                List<Object> idsToDelete = new ArrayList<Object>();
+                List<Type> types = new ArrayList<Type>();
+                StringBuilder queryInClause = new StringBuilder();
+                for (int i = 0; i < tempChangeLogEntryListProcessed.size(); i++) {
+                  ChangeLogEntry changeLogEntry = tempChangeLogEntryListProcessed.get(i);
+                  idsToDelete.add(changeLogEntry.getId());
+                  types.add(StringType.INSTANCE);
+                  queryInClause.append("?");
+    
+                  if (i < tempChangeLogEntryListProcessed.size() - 1) {
+                    queryInClause.append(", ");
+                  }
+                }
+    
+                int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id in (" + queryInClause.toString() + ")", idsToDelete, types);
+                if (count != tempChangeLogEntryListProcessed.size()) {
+                  throw new RuntimeException("Bad count of " + count + " when deleting temp change log entries, expected " + tempChangeLogEntryListProcessed.size() + ".");
+                }  
+              }
+          
+              return tempChangeLogEntryListProcessed.size();
             }
-        
       });
+      
+      totalCountActuallyProcessed += currentCountActuallyProcessed;
+      
+      if (totalCountActuallyProcessed == tempChangeLogEntryListOrigSize) {
+        break;
+      }
+      
+      tempChangeLogEntryList.subList(0, currentCountActuallyProcessed).clear();
     }
     
-    count += changeLogEntryList.size();
+    int count = tempChangeLogEntryListOrigSize;
 
     if (count > 0 && hib3GrouperLoaderLog != null) {
       hib3GrouperLoaderLog.addTotalCount(count);
       hib3GrouperLoaderLog.store();
     }
     
-    if (changeLogEntryList.size() == 1000) {
+    if (tempChangeLogEntryListOrigSize == TEMP_CHANGE_LOG_PAGE_SIZE) {
       count += convertRecords(hib3GrouperLoaderLog);
     }
     
@@ -678,6 +761,7 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
 
+    @SuppressWarnings("deprecation")
     GroupType groupType = GroupTypeFinder.findByUuid(typeId, false);
     if (groupType == null) {
       return;
@@ -823,89 +907,205 @@ public class ChangeLogTempToEntity {
    * If a membership gets added, then the membership needs to
    * get added to the PIT table.
    * @param changeLogEntry
+   * @param changeLogEntriesToSave
+   * @return number processed
    */
-  private static void processMembershipAdd(ChangeLogEntry changeLogEntry) {
+  private static int processMembershipAdd(List<ChangeLogEntry> changeLogEntries, List<ChangeLogEntry> changeLogEntriesToSave) {
     
-    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
-    
-    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.id.name());
-    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.groupId.name());
-    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name());
-    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.memberId.name());
+    final int tooManyChangeLogUpdatesSize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.tooManyChangeLogUpdatesSize");
 
-    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.id);
-    String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId);
-    String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldId);
-    String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId);
-    Long time = changeLogEntry.getCreatedOnDb();
-    
-    PITMembership existing = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(id, false);
-    if (existing != null) {
-      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
-      return;
+    Set<String> ids = new LinkedHashSet<String>();
+    Set<String> groupIds = new LinkedHashSet<String>();
+    Set<String> fieldIds = new LinkedHashSet<String>();
+    Set<String> memberIds = new LinkedHashSet<String>();
+
+    for (ChangeLogEntry changeLogEntry : changeLogEntries) {
+      LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+      
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.groupId.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.memberId.name());
+      
+      ids.add(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.id));
+      groupIds.add(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
+      fieldIds.add(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldId));
+      memberIds.add(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId));
     }
     
-    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true, true);
-    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
-    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, true);
-    
-    PITMembership pitMembership = new PITMembership();
-    pitMembership.setId(GrouperUuid.getUuid());
-    pitMembership.setSourceId(id);
-    pitMembership.setOwnerGroupId(pitGroup.getId());
-    pitMembership.setMemberId(pitMember.getId());
-    pitMembership.setFieldId(pitField.getId());
-    pitMembership.setActiveDb("T");
-    pitMembership.setStartTimeDb(time);
-    
-    if (!GrouperUtil.isEmpty(changeLogEntry.getContextId())) {
-      pitMembership.setContextId(changeLogEntry.getContextId());
+    Map<String, PITMembership> pitMembershipsActiveMap = new LinkedHashMap<String, PITMembership>();
+    Map<String, Set<PITMembership>> pitMembershipsAllMap = new LinkedHashMap<String, Set<PITMembership>>();
+
+    Set<PITMembership> pitMembershipsAll = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIds(ids);
+    for (PITMembership pitMembership : pitMembershipsAll) {
+      String currSourceId = pitMembership.getSourceId();
+      if (!pitMembershipsAllMap.containsKey(currSourceId)) {
+        pitMembershipsAllMap.put(currSourceId, new LinkedHashSet<PITMembership>());
+      }
+      pitMembershipsAllMap.get(currSourceId).add(pitMembership);
+      
+      if (pitMembership.isActive()) {
+        pitMembershipsActiveMap.put(currSourceId, pitMembership);
+      }
     }
     
-    boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
-    boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
-    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
-    pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-    pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-    pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+    Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdsActive(groupIds);
+    Map<String, PITGroup> pitGroupsMap = new LinkedHashMap<String, PITGroup>();
+    for (PITGroup pitGroup : pitGroups) {
+      pitGroupsMap.put(pitGroup.getSourceId(), pitGroup);
+    }
     
-    pitMembership.save();
+    Set<PITField> pitFields = GrouperDAOFactory.getFactory().getPITField().findBySourceIdsActive(fieldIds);
+    Map<String, PITField> pitFieldsMap = new LinkedHashMap<String, PITField>();
+    for (PITField pitField : pitFields) {
+      pitFieldsMap.put(pitField.getSourceId(), pitField);
+    }
+    
+    Set<PITMember> pitMembers = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdsActive(memberIds);
+    Map<String, PITMember> pitMembersMap = new LinkedHashMap<String, PITMember>();
+    for (PITMember pitMember : pitMembers) {
+      pitMembersMap.put(pitMember.getSourceId(), pitMember);
+    }
+
+    int count = 0;
+    for (ChangeLogEntry changeLogEntry : changeLogEntries) {
+      count++;
+      
+      String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.id);
+      String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId);
+      String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldId);
+      String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId);
+      Long time = changeLogEntry.getCreatedOnDb();
+      
+      PITMembership existing = pitMembershipsActiveMap.get(id);
+      if (existing != null) {
+        LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+        continue;
+      }
+      
+      PITGroup pitGroup = pitGroupsMap.get(groupId);
+      if (pitGroup == null) {
+        // out of order in change log?
+        pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true, true);
+      }
+      
+      PITField pitField = pitFieldsMap.get(fieldId);
+      if (pitField == null) {
+        throw new RuntimeException("Could not find pit field: " + fieldId);
+      }
+      
+      PITMember pitMember = pitMembersMap.get(memberId);
+      if (pitMember == null) {
+        // out of order in change log?
+        pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, true);
+      }
+            
+      PITMembership pitMembership = new PITMembership();
+      pitMembership.setId(GrouperUuid.getUuid());
+      pitMembership.setSourceId(id);
+      pitMembership.setOwnerGroupId(pitGroup.getId());
+      pitMembership.setMemberId(pitMember.getId());
+      pitMembership.setMember(pitMember);
+      pitMembership.setFieldId(pitField.getId());
+      pitMembership.setActiveDb("T");
+      pitMembership.setStartTimeDb(time);
+      
+      if (!GrouperUtil.isEmpty(changeLogEntry.getContextId())) {
+        pitMembership.setContextId(changeLogEntry.getContextId());
+      }
+      
+      boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
+      boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
+      boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
+      pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+      pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+      pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+      
+      pitMembership.setSaveChangeLogUpdates(false);
+      pitMembership.save(pitMembershipsAllMap.get(id));
+      changeLogEntriesToSave.addAll(pitMembership.getChangeLogUpdates());
+      pitMembership.clearChangeLogUpdates();
+      
+      if (changeLogEntriesToSave.size() > tooManyChangeLogUpdatesSize) {
+        return count;
+      }
+    }
+    
+    return count;
   }
   
   /**
    * If a membership gets deleted, then the membership needs to
    * get deleted from the PIT table.
    * @param changeLogEntry
+   * @return number processed
    */
-  private static void processMembershipDelete(ChangeLogEntry changeLogEntry) {
+  private static int processMembershipDelete(List<ChangeLogEntry> changeLogEntries, List<ChangeLogEntry> changeLogEntriesToSave) {
     
-    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
-    
-    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_DELETE.id.name());
+    final int tooManyChangeLogUpdatesSize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.tooManyChangeLogUpdatesSize");
 
-    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.id);
-    Long time = changeLogEntry.getCreatedOnDb();
+    Set<String> ids = new LinkedHashSet<String>();
+    Set<String> pitMemberIds = new LinkedHashSet<String>();
 
-    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(id, false);
-    if (pitMembership == null) {
-      return;
+    for (ChangeLogEntry changeLogEntry : changeLogEntries) {
+      LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_DELETE.id.name());      
+      ids.add(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.id));
+    }
+
+    Map<String, PITMembership> pitMembershipsActiveMap = new LinkedHashMap<String, PITMembership>();
+    Set<PITMembership> pitMembershipsActive = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdsActive(ids);
+    for (PITMembership pitMembership : pitMembershipsActive) {
+      String currSourceId = pitMembership.getSourceId();
+      pitMembershipsActiveMap.put(currSourceId, pitMembership);
+      
+      pitMemberIds.add(pitMembership.getMemberId());
     }
     
-    pitMembership.setEndTimeDb(time);
-    pitMembership.setActiveDb("F");
-
-    if (!GrouperUtil.isEmpty(changeLogEntry.getContextId())) {
-      pitMembership.setContextId(changeLogEntry.getContextId());
+    Set<PITMember> pitMembers = GrouperDAOFactory.getFactory().getPITMember().findByIds(pitMemberIds);
+    Map<String, PITMember> pitMembersMap = new LinkedHashMap<String, PITMember>();
+    for (PITMember pitMember : pitMembers) {
+      pitMembersMap.put(pitMember.getId(), pitMember);
     }
     
-    boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
-    boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
-    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
-    pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-    pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-    pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+    int count = 0;
+    for (ChangeLogEntry changeLogEntry : changeLogEntries) {
+      count++;
+      
+      String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.id);
+      Long time = changeLogEntry.getCreatedOnDb();
+  
+      PITMembership pitMembership = pitMembershipsActiveMap.get(id);
+      if (pitMembership == null) {
+        continue;
+      }
+      
+      pitMembership.setEndTimeDb(time);
+      pitMembership.setActiveDb("F");
+      pitMembership.setMember(pitMembersMap.get(pitMembership.getMemberId()));
+  
+      if (!GrouperUtil.isEmpty(changeLogEntry.getContextId())) {
+        pitMembership.setContextId(changeLogEntry.getContextId());
+      }
+      
+      boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
+      boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
+      boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
+      pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
+      pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+      pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+      
+      pitMembership.setSaveChangeLogUpdates(false);
+      pitMembership.update();
+      changeLogEntriesToSave.addAll(pitMembership.getChangeLogUpdates());
+      pitMembership.clearChangeLogUpdates();
+      
+      if (changeLogEntriesToSave.size() > tooManyChangeLogUpdatesSize) {
+        return count;
+      }
+    }
     
-    pitMembership.update();
+    return count;
   }
   
   /**

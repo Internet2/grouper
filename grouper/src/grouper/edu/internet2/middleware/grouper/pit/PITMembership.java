@@ -15,8 +15,12 @@
  */
 package edu.internet2.middleware.grouper.pit;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -153,6 +157,32 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   /** sourceId */
   private String sourceId;
   
+  private boolean saveChangeLogUpdates = true;
+    
+  /**
+   * @param saveChangeLogUpdates the saveChangeLogUpdates to set
+   */
+  public void setSaveChangeLogUpdates(boolean saveChangeLogUpdates) {
+    this.saveChangeLogUpdates = saveChangeLogUpdates;
+  }
+  
+  private List<ChangeLogEntry> changeLogUpdates = new ArrayList<ChangeLogEntry>();
+  
+  /**
+   * @return changelog entries
+   */
+  public List<ChangeLogEntry> getChangeLogUpdates() {
+    return changeLogUpdates;
+  }
+  
+  
+  /**
+   * 
+   */
+  public void clearChangeLogUpdates() {
+    changeLogUpdates.clear();
+  }
+  
   /**
    * @return source id
    */
@@ -257,19 +287,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     this.id = id;
   }
 
-  /**
-   * save this object
-   */
-  public void save() {
-
-    // may need to create new child objects if this object is being re-enabled..
-    Set<PITMembership> existingAll = GrouperDAOFactory.getFactory().getPITMembership().findBySourceId(this.getSourceId(), false);
-    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(this);
-    if (!this.isActive()) {
+  private void processExistingMembershipsOnSave(Set<PITMembership> existingPITMemberships) {
+    if (existingPITMemberships == null) {
       return;
     }
     
-    for (PITMembership existing : existingAll) {
+    for (PITMembership existing : existingPITMemberships) {
 
       // add new assignments and end dates to existing ones.
       Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerPITMembershipId(existing.getId());
@@ -289,6 +312,35 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         assignmentCopy.save();
       }
     }
+  }
+  
+  /**
+   * save this object
+   */
+  public void save() {
+
+    // may need to create new child objects if this object is being re-enabled..
+    Set<PITMembership> existingAll = GrouperDAOFactory.getFactory().getPITMembership().findBySourceId(this.getSourceId(), false);
+    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(this);
+    if (!this.isActive()) {
+      return;
+    }
+    
+    processExistingMembershipsOnSave(existingAll);
+  }
+  
+  /**
+   * save this object
+   * @param existingPITMemberships 
+   */
+  public void save(Set<PITMembership> existingPITMemberships) {
+
+    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(this);
+    if (!this.isActive()) {
+      return;
+    }
+    
+    processExistingMembershipsOnSave(existingPITMemberships);
   }
   
   /**
@@ -424,10 +476,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    Map<String, PITField> pitFieldCache = new HashMap<String, PITField>();
+    
     // add change log entry for flat memberships
     if (this.isActive() && (this.getFlatMembershipNotificationsOnSaveOrUpdate() || this.getFlatPrivilegeNotificationsOnSaveOrUpdate())) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
       if (batchSize <= 0) {
         batchSize = 1;
       }
@@ -436,7 +490,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       Iterator<PITGroupSet> iter = pitGroupSets.iterator();
       while (iter.hasNext()) {
         PITGroupSet pitGroupSet = iter.next();
-        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), true);
+        PITField pitField = pitFieldCache.get(pitGroupSet.getFieldId());
+        if (pitField == null) {
+          pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), true);
+          pitFieldCache.put(pitField.getId(), pitField);
+        }
+        
         String ownerId = null;
         String ownerName = null;
         String privilegeName = null;
@@ -504,10 +563,15 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         if (changeLogEntry != null) {
           changeLogEntry.setContextId(this.getContextId());
           changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-          changeLogEntryBatch.add(changeLogEntry);
-          if (changeLogEntryBatch.size() % batchSize == 0) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-            changeLogEntryBatch.clear();
+          
+          if (saveChangeLogUpdates) {
+            changeLogEntryBatch.add(changeLogEntry);
+            if (changeLogEntryBatch.size() % batchSize == 0) {
+              GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+              changeLogEntryBatch.clear();
+            }
+          } else {
+            changeLogUpdates.add(changeLogEntry);
           }
         }
       }
@@ -527,10 +591,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    Map<String, PITField> pitFieldCache = new HashMap<String, PITField>();
+    
     // add change log entry for permissions
     if (!this.isActive() && this.dbVersion().isActive() && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
       if (batchSize <= 0) {
         batchSize = 1;
       }
@@ -544,10 +610,15 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
             
         changeLogEntry.setContextId(this.getContextId());
         changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-        changeLogEntryBatch.add(changeLogEntry);
-        if (changeLogEntryBatch.size() % batchSize == 0) {
-          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-          changeLogEntryBatch.clear();
+        
+        if (saveChangeLogUpdates) {
+          changeLogEntryBatch.add(changeLogEntry);
+          if (changeLogEntryBatch.size() % batchSize == 0) {
+            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+            changeLogEntryBatch.clear();
+          }
+        } else {
+          changeLogUpdates.add(changeLogEntry);
         }
       }
       
@@ -561,7 +632,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     // add change log entry for flat memberships
     if (!this.isActive() && this.dbVersion().isActive() && (this.getFlatMembershipNotificationsOnSaveOrUpdate() || this.getFlatPrivilegeNotificationsOnSaveOrUpdate())) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
       if (batchSize <= 0) {
         batchSize = 1;
       }
@@ -581,7 +652,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       Iterator<PITGroupSet> iter = pitGroupSets.iterator();
       while (iter.hasNext()) {
         PITGroupSet pitGroupSet = iter.next();
-        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), true);
+        
+        PITField pitField = pitFieldCache.get(pitGroupSet.getFieldId());
+        if (pitField == null) {
+          pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), true);
+          pitFieldCache.put(pitField.getId(), pitField);
+        }
         String ownerId = null;
         String ownerName = null;
         String privilegeName = null;
@@ -651,11 +727,16 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         if (changeLogEntry != null) {
           changeLogEntry.setContextId(this.getContextId());
           changeLogEntry.setCreatedOnDb(this.getEndTimeDb());
-          changeLogEntryBatch.add(changeLogEntry);
           
-          if (changeLogEntryBatch.size() % batchSize == 0) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-            changeLogEntryBatch.clear();
+          if (saveChangeLogUpdates) {
+            changeLogEntryBatch.add(changeLogEntry);
+            
+            if (changeLogEntryBatch.size() % batchSize == 0) {
+              GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+              changeLogEntryBatch.clear();
+            }
+          } else {
+            changeLogUpdates.add(changeLogEntry);
           }
         }
       }
@@ -674,10 +755,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
 
+    Map<String, PITField> pitFieldCache = new HashMap<String, PITField>();
+
     // add change log entry for permissions
     if (this.isActive() && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
       if (batchSize <= 0) {
         batchSize = 1;
       }
@@ -691,10 +774,15 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
             
         changeLogEntry.setContextId(this.getContextId());
         changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-        changeLogEntryBatch.add(changeLogEntry);
-        if (changeLogEntryBatch.size() % batchSize == 0) {
-          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-          changeLogEntryBatch.clear();
+        
+        if (saveChangeLogUpdates) {
+          changeLogEntryBatch.add(changeLogEntry);
+          if (changeLogEntryBatch.size() % batchSize == 0) {
+            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+            changeLogEntryBatch.clear();
+          }
+        } else {
+          changeLogUpdates.add(changeLogEntry);
         }
       }
       
@@ -707,7 +795,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     
     // if the member is a group, add the PIT immediate group set.
     if (this.isActive() && this.getMember().getSubjectTypeId().equals("group")) {
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId(), true);
+      PITField pitField = pitFieldCache.get(this.getFieldId());
+      
+      if (pitField == null) {
+        pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId(), true);
+        pitFieldCache.put(pitField.getId(), pitField);
+      }
       Field field = FieldFinder.findById(pitField.getSourceId(), false);
       if (field == null) {
         // if the field was deleted, then there's nothing to do
@@ -748,7 +841,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         super.onPostSave(hibernateSession);
         return;
       }
-      
+            
       PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(immediateGroupSet.getMemberFieldId(), true);
       PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(immediateGroupSet.getParentId(), true);
       

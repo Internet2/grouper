@@ -279,7 +279,7 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
     // add change log entry for permissions
     if (!this.isActive() && this.dbVersion().isActive() && this.getDepth() == 1 && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
       if (batchSize <= 0) {
         batchSize = 1;
       }
@@ -317,7 +317,7 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
     // add change log entry for permissions
     if (this.isActive() && this.getDepth() == 1 && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
       if (batchSize <= 0) {
         batchSize = 1;
       }

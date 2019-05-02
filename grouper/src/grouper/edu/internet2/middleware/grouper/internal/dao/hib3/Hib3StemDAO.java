@@ -270,7 +270,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     List<StemSet> allStemSets = new LinkedList<StemSet>();
 
     // batch to help performance
-    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
     if (batchSize <= 0) {
       batchSize = 1;
     }
@@ -355,7 +355,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     List<StemSet> allStemSetsForCurrentNode = createNonSelfStemSetsForStem(new LinkedList<StemSet>(ifHasStemSetsOfParentStem), currentStemId, firstParentStemSet);
     
     // batch to help performance
-    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
     if (batchSize <= 0) {
       batchSize = 1;
     }

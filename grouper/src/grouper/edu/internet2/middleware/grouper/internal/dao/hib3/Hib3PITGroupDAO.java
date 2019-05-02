@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,6 +29,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -137,6 +140,40 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     }
     
     return pitGroup;
+  }
+  
+  public Set<PITGroup> findBySourceIdsActive(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Set<PITGroup> results = new HashSet<PITGroup>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+   
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive");
+
+      StringBuilder sql = new StringBuilder("select pitGroup from PITGroup as pitGroup where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+
+      sql.append(" pitGroup.sourceId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") and activeDb = 'T'");
+   
+      Set<PITGroup> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITGroup.class);
+      results.addAll(localResult);
+    }
+
+    return results;
   }
   
   /**

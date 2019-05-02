@@ -1883,7 +1883,7 @@ public class SyncPITTables {
   }
 
   private int getBatchSize() {
-    int size = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    int size = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
     if (size <= 0) {
       size = 1;
     }

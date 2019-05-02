@@ -16,12 +16,19 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -79,6 +86,80 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     }
     
     return pitMembership;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceIdsActive(java.util.Collection)
+   */
+  public Set<PITMembership> findBySourceIdsActive(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Set<PITMembership> results = new HashSet<PITMembership>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+   
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive");
+
+      StringBuilder sql = new StringBuilder("select pitMembership from PITMembership as pitMembership where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+
+      sql.append(" pitMembership.sourceId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") and activeDb = 'T'");
+   
+      Set<PITMembership> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITMembership.class);
+      results.addAll(localResult);
+    }
+
+    return results;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceIds(java.util.Collection)
+   */
+  public Set<PITMembership> findBySourceIds(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Set<PITMembership> results = new HashSet<PITMembership>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+   
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindBySourceId");
+
+      StringBuilder sql = new StringBuilder("select pitMembership from PITMembership as pitMembership where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+
+      sql.append(" pitMembership.sourceId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(")");
+   
+      Set<PITMembership> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITMembership.class);
+      results.addAll(localResult);
+    }
+
+    return results;
   }
   
   /**

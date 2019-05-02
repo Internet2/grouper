@@ -16,12 +16,19 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
 import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -79,6 +86,40 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     }
     
     return pitField;
+  }
+  
+  public Set<PITField> findBySourceIdsActive(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Set<PITField> results = new HashSet<PITField>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+   
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive");
+
+      StringBuilder sql = new StringBuilder("select pitField from PITField as pitField where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+
+      sql.append(" pitField.sourceId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") and activeDb = 'T'");
+   
+      Set<PITField> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITField.class);
+      results.addAll(localResult);
+    }
+
+    return results;
   }
   
   /**

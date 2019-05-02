@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Membership;
@@ -54,6 +55,12 @@ public interface PITMembershipDAO extends GrouperDAO {
    * @return PITMembership
    */
   public PITMembership findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param ids
+   * @return PITMembership
+   */
+  public Set<PITMembership> findBySourceIdsActive(Collection<String> ids);
 
   /**
    * @param id
@@ -68,6 +75,12 @@ public interface PITMembershipDAO extends GrouperDAO {
    * @return set of PITMembership
    */
   public Set<PITMembership> findBySourceId(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param ids
+   * @return set of PITMembership
+   */
+  public Set<PITMembership> findBySourceIds(Collection<String> ids);
   
   /**
    * @param id
