@@ -708,10 +708,10 @@ return groupSets;
     String sql = "select distinct gs from GroupSet gs " +
         "where gs.fieldId = :fieldId " +
         "and gs.depth = '0' " +
-        "and ((gs.type <> 'composite' " +
-        "     and exists (select 1 from Composite c where c.factorOwnerUuid = gs.ownerId)) " +
+        "and ((NOT gs.type = 'composite' " +
+        "     and 1 in (select 1 from Composite c where c.factorOwnerUuid = gs.ownerId)) " +
         "or (gs.type = 'composite' " + 
-        "    and not exists (select 1 from Composite c where c.factorOwnerUuid = gs.ownerId))) ";
+        "    and not 1 in (select 1 from Composite c where c.factorOwnerUuid = gs.ownerId))) ";
 
     Set<GroupSet> results = HibernateSession.byHqlStatic()
       .createQuery(sql)
@@ -798,11 +798,11 @@ return groupSets;
   public Set<Object[]> findMissingEffectiveGroupSets() {
     String sql = "select gs1, gs2 from GroupSet gs1, GroupSet gs2 " +
         "where gs1.memberId = gs2.ownerId " +
-        "and gs1.id <> gs2.id " +
+        "and NOT gs1.id = gs2.id " +
         "and gs1.depth > '0' and gs2.depth = '1' " +
         "and gs2.fieldId = :fieldId " +
-        "and (gs1.ownerId <> gs2.memberId or gs1.fieldId <> :fieldId) " +
-        "and not exists (select 1 from GroupSet gs3 " +
+        "and (NOT gs1.ownerId = gs2.memberId or NOT gs1.fieldId = :fieldId) " +
+        "and not 1 in (select 1 from GroupSet gs3 " +
             "where gs3.ownerId = gs1.ownerId " +
             "and gs3.memberId = gs2.memberId " +
             "and gs3.fieldId = gs1.fieldId " +
