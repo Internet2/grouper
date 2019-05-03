@@ -11,8 +11,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
-import java.util.List;
-
 
 /**
  *
@@ -30,7 +28,8 @@ public class VisualizationContainer {
   private boolean drawShowStems;
   private boolean drawShowLoaders;
   private boolean drawShowProvisioners;
-  private boolean drawShowMemberCounts;
+  private boolean drawShowAllMemberCounts;
+  private boolean drawShowDirectMemberCounts;
   private boolean drawIncludeGroupsInMemberCounts;
   private GrouperObject grouperObject;
 
@@ -244,17 +243,35 @@ public class VisualizationContainer {
    *
    * @return true if should include member counts for groups
    */
-  public boolean isDrawShowMemberCounts() {
-    return drawShowMemberCounts;
+  public boolean isDrawShowAllMemberCounts() {
+    return drawShowAllMemberCounts;
   }
 
   /**
-   * true if graph should include member counts for groups
+   * true if graph should include direct member counts for groups
    *
-   * @param drawShowMemberCounts true if should include member counts for groups
+   * @return true if graph should include direct member counts
    */
-  public void setDrawShowMemberCounts(boolean drawShowMemberCounts) {
-    this.drawShowMemberCounts = drawShowMemberCounts;
+  public boolean isDrawShowDirectMemberCounts() {
+    return drawShowDirectMemberCounts;
+  }
+
+  /**
+   * true if graph should include total member counts for groups
+   *
+   * @param drawShowAllMemberCounts true if should include total member counts for groups
+   */
+  public void setDrawShowAllMemberCounts(boolean drawShowAllMemberCounts) {
+    this.drawShowAllMemberCounts = drawShowAllMemberCounts;
+  }
+
+  /**
+   * true if graph should include direct member counts for groups
+   *
+   * @param drawShowDirectMemberCounts true if should include direct member counts
+   */
+  public void setDrawShowDirectMemberCounts(boolean drawShowDirectMemberCounts) {
+    this.drawShowDirectMemberCounts = drawShowDirectMemberCounts;
   }
 
   /**

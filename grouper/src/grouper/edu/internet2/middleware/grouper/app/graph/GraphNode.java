@@ -43,7 +43,8 @@ import java.util.Set;
  */
 public class GraphNode {
   private GrouperObject grouperObject;
-  private long memberCount;
+  private long allMemberCount;
+  private long directMemberCount;
 
   private boolean stem;
   private boolean group;
@@ -221,21 +222,39 @@ public class GraphNode {
   }
 
   /**
-   * The member count as set by the caller.
+   * The total member count as set by the caller.
    *
    * @return
    */
-  public long getMemberCount() {
-    return memberCount;
+  public long getAllMemberCount() {
+    return allMemberCount;
   }
 
   /**
-   * Sets the member count for this node.
+   * The direct member count as set by the caller.
    *
-   * @param memberCount member count
+   * @return
    */
-  public void setMemberCount(long memberCount) {
-    this.memberCount = memberCount;
+  public long getDirectMemberCount() {
+    return directMemberCount;
+  }
+
+  /**
+   * Sets the total member count for this node.
+   *
+   * @param allMemberCount member count
+   */
+  public void setAllMemberCount(long allMemberCount) {
+    this.allMemberCount = allMemberCount;
+  }
+
+  /**
+   * Sets the direct member count for this node.
+   *
+   * @param directMemberCount member count
+   */
+  public void setDirectMemberCount(long directMemberCount) {
+    this.directMemberCount = directMemberCount;
   }
 
   /**

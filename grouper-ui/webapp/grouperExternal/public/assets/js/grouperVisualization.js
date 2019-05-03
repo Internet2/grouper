@@ -1,16 +1,21 @@
 var visualizationObject = {}; // returned from UiV2Visualization.buildGraph
 var visualizationDotOutput = "";
 
+function visIsShowingMemberCounts() {
+  return document.getElementById("vis-settings-show-all-member-counts").checked || document.getElementById("vis-settings-show-direct-member-counts").checked;
+}
+
 $(document).ready(function() {
     $("#vis-settings-parents-levels").prop("disabled", document.getElementById("vis-settings-parents-all").checked);
     $("#vis-settings-children-levels").prop("disabled", document.getElementById("vis-settings-children-all").checked);
     $("#vis-settings-siblings").prop("disabled", document.getElementById("vis-settings-siblings-all").checked);
-    $("#vis-settings-include-group-member-counts").prop("disabled", !document.getElementById("vis-settings-show-member-counts").checked);
+    $("#vis-settings-include-group-member-counts").prop("disabled", !visIsShowingMemberCounts());
 
     $("#vis-settings-parents-all").change(function(){ $("#vis-settings-parents-levels").prop("disabled", this.checked); });
     $("#vis-settings-children-all").change(function(){ $("#vis-settings-children-levels").prop("disabled", this.checked); });
     $("#vis-settings-siblings-all").change(function(){ $("#vis-settings-siblings").prop("disabled", this.checked); });
-    $("#vis-settings-show-member-counts").change(function(){ $("#vis-settings-include-group-member-counts").prop("disabled", !this.checked); });
+    $("#vis-settings-show-all-member-counts").change(function(){ $("#vis-settings-include-group-member-counts").prop("disabled", !visIsShowingMemberCounts()); });
+    $("#vis-settings-show-direct-member-counts").change(function(){ $("#vis-settings-include-group-member-counts").prop("disabled", !visIsShowingMemberCounts()); });
 });
 
 // Visualization fullscreen lightbox
@@ -109,9 +114,14 @@ function drawGraphModuleText() {
       contents += "Description: " + escapeHTML(node.description) + "<br/>";
     }
 
-    // Member count
-    if (graph.settings.showMemberCounts && node.baseType === "group") {
-      contents += "Member count: " + node.memberCount + "<br/>";
+    // All member count
+    if (graph.settings.showAllMemberCounts && node.baseType === "group") {
+      contents += "Total member count: " + node.allMemberCount + "<br/>";
+    }
+
+    // Direct member count
+    if (graph.settings.showDirectMemberCounts && node.baseType === "group") {
+      contents += "Direct member count: " + node.directMemberCount + "<br/>";
     }
 
     // contains (for stem), direct membership in a group (group, subject)
@@ -231,11 +241,15 @@ function followObject(objectType, objectId) {
 function drawGraphModuleD3() {
   const graph = visualizationObject; //shorter name
 
+  // whether to include counts in calculated label; determine once here instead of every loop
+  var showCountLabel = (graph.settings.showAllMemberCounts || graph.settings.showDirectMemberCounts);
+
   var dot;
 
   try {
     var statString = "Graph Edges: " + graph.statistics.numEdges + "\n";
-    statString += "Memberships: " + graph.statistics.numMemberships + "\n";
+    statString += "Total memberships: " + graph.statistics.totalMemberCount + "\n";
+    statString += "Direct memberships: " + graph.statistics.directMemberCount + "\n";
     statString += "Nodes: " + graph.statistics.numNodes + "\n";
     statString += "Loader Jobs: " + graph.statistics.numLoaderJobs + "\n";
     statString += "Loaded Groups: " + graph.statistics.numGroupsFromLoaders + "\n";
@@ -256,13 +270,30 @@ function drawGraphModuleD3() {
             props.push("URL=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\"");
         }
 
-        if (graph.settings.showMemberCounts
-            && (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group"
-                || node.type === "simple_loader_group" || node.type === "start_simple_loader_group")) {
-          props.push("label=<" + escapeHTML(getObjectNameUsingPrefs(node)) + "<br/>" + (node.memberCount||0) + ">");
+        var theLabel;
+        if (showCountLabel) {
+          var labelCounts = [];
+
+          if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group"
+               || node.type === "simple_loader_group" || node.type === "start_simple_loader_group") {
+            if (graph.settings.showAllMemberCounts) {
+              labelCounts.push((node.allMemberCount||0)+ " member" + (node.allMemberCount === 1 ? "" : "s"));
+            }
+            if (graph.settings.showDirectMemberCounts) {
+              labelCounts.push((node.directMemberCount||0)+ " direct member" + (node.directMemberCount === 1 ? "" : "s"));
+            }
+          }
+
+          if (labelCounts.length == 0) {
+            theLabel = 'label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"';
+          } else {
+            theLabel = "label=<" + escapeHTML(getObjectNameUsingPrefs(node)) + "<br/>" + labelCounts.join(", ") + ">";
+          }
         } else {
-          props.push('label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"');
+          theLabel = 'label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"';
         }
+
+        props.push(theLabel);
 
         //when the label is path/extension, use the opposite for the tooltip
         var tooltip = (drawObjectNameType === "path") ? escapeHTML(node.displayExtension) : escapeHTML(node.name);

@@ -40,9 +40,11 @@ RelationGraph graph = new RelationGraph().assignStartObject(inObject)
 
 graph.assignParentLevels(-1)
 graph.assignChildLevels(-1)
-graph.assignShowMemberCounts(true)
+graph.assignShowAllMemberCounts(true)
 graph.assignShowStems(true)
 graph.assignShowLoaderJobs(true)
+graph.assignShowAllMemberCounts(true)
+graph.assignShowDirectMemberCounts(true)
 graph.assignIncludeGroupsInMemberCounts(false)
 //graph.assignMaxSiblings(4)
 
@@ -130,7 +132,7 @@ graph.nodes.each { n ->
 
     String memberCtRow = ""
     if (n.group && ! n.loaderGroup) {
-        memberCtRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.memberCount}</FONT></TD></TR>"
+        memberCtRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.allMemberCount} member${n.allMemberCount == 1 ? "" : "s"}, ${n.directMemberCount} direct member${n.directMemberCount == 1 ? "" : "s"}</FONT></TD></TR>"
     }
 
     dotFile.write "{ \"${n.grouperObject.id}\""
@@ -140,7 +142,8 @@ graph.nodes.each { n ->
 statString = """${graph.startNode.grouperObject.name?:"(Root)"}
 at ${tstamp}
 Graph Edges: ${graph.edges.size()}
-Memberships: ${graph.showMemberCounts ? "${graph.numMembers}" : "(not included)"}
+Total memberships: ${graph.showAllMemberCounts ? "${graph.totalMemberCount}" : "(not included)"}
+Direct memberships: ${graph.showDirectMemberCounts ? "${graph.directMemberCount}" : "(not included)"}
 Nodes: ${graph.nodes.size()}
 Loader Jobs: ${graph.numLoaders}
 Provisioner Targets: ${graph.numProvisioners}

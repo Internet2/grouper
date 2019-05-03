@@ -16,16 +16,12 @@
 
 package edu.internet2.middleware.grouper.app.graph;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import org.apache.commons.logging.Log;
 
@@ -61,6 +57,8 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 /**
  * Class to build a directed graph from Grouper relationships. The graph is
@@ -85,6 +83,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class RelationGraph {
 
+  private static final String KLASS = RelationGraph.class.getName();
+
   private static final Log LOG = GrouperUtil.getLog(RelationGraph.class);
   public static final int RECURSIVE_LEVEL_LIMIT = 100;
 
@@ -101,7 +101,8 @@ public class RelationGraph {
   private GrouperObject startObject;
   private long parentLevels = -1;
   private long childLevels = -1;
-  private boolean showMemberCounts = true;
+  private boolean showAllMemberCounts = true;
+  private boolean showDirectMemberCounts = true;
   private boolean showLoaderJobs = true;
   private boolean showProvisionTargets = true;
   private boolean showStems = true;
@@ -125,7 +126,8 @@ public class RelationGraph {
   private long numGroupsToProvisioners;
   private long maxParentDistance;
   private long maxChildDistance;
-  private long numMembers;
+  private long totalMemberCount;
+  private long directMemberCount;
   private Set<GraphNode> leafParentNodes;
   private Set<GraphNode> leafChildNodes;
 
@@ -188,13 +190,24 @@ public class RelationGraph {
   }
 
   /**
-   * flags whether to count memberships for groups
+   * flags whether to count memberships (direct and indirect) for groups
    *
-   * @param theShowMemberCounts whether to count memberships for groups
+   * @param theShowAllMemberCounts whether to count memberships for groups
    * @return
    */
-  public RelationGraph assignShowMemberCounts(boolean theShowMemberCounts) {
-    this.showMemberCounts = theShowMemberCounts;
+  public RelationGraph assignShowAllMemberCounts(boolean theShowAllMemberCounts) {
+    this.showAllMemberCounts = theShowAllMemberCounts;
+    return this;
+  }
+
+  /**
+   * flags whether to count direct memberships for groups
+   *
+   * @param theShowDirectMemberCounts whether to count direct memberships for groups
+   * @return
+   */
+  public RelationGraph assignShowDirectMemberCounts(boolean theShowDirectMemberCounts) {
+    this.showDirectMemberCounts = theShowDirectMemberCounts;
     return this;
   }
 
@@ -303,11 +316,21 @@ public class RelationGraph {
   /**
    * returns whether memberships are counted for Group nodes
    *
-   * @see #assignShowMemberCounts(boolean)
+   * @see #assignShowAllMemberCounts(boolean)
    * @return if memberships are counted for groups
    */
-  public boolean isShowMemberCounts() {
-    return showMemberCounts;
+  public boolean isShowAllMemberCounts() {
+    return showAllMemberCounts;
+  }
+
+  /**
+   * returns whether direct memberships are counted for Group nodes
+   *
+   * @see #assignShowDirectMemberCounts(boolean)
+   * @return if direct memberships are counted for groups
+   */
+  public boolean isShowDirectMemberCounts() {
+    return showDirectMemberCounts;
   }
 
   /**
@@ -461,8 +484,17 @@ public class RelationGraph {
    *
    * @return the total of all group memberships
    */
-  public long getNumMembers() {
-    return numMembers;
+  public long getTotalMemberCount() {
+    return totalMemberCount;
+  }
+
+  /**
+   * after building, the total of all direct memberships in all groups
+   *
+   * @return the total of direct group memberships
+   */
+  public long getDirectMemberCount() {
+    return directMemberCount;
   }
 
   /**
@@ -539,11 +571,6 @@ public class RelationGraph {
         ++numProvisioners;
       }
 
-      if (isShowMemberCounts() && node.isGroup() && !node.isLoaderGroup()) {
-        long count = fetchGroupCount((Group) node.getGrouperObject());
-        node.setMemberCount(count);
-        numMembers += count;
-      }
     }
 
     return node;
@@ -662,6 +689,7 @@ public class RelationGraph {
   }
 
   // returns the number of members in this group
+  @Deprecated
   private long fetchGroupCount(Group g) {
     QueryOptions q = new QueryOptions().retrieveResults(false).retrieveCount(true);
     if (includeGroupsInMemberCounts) {
@@ -1073,7 +1101,8 @@ public class RelationGraph {
     numLoaders = 0;
     numGroupsFromLoaders = 0;
     numProvisioners = 0;
-    numMembers = 0;
+    totalMemberCount = 0;
+    directMemberCount = 0;
     maxParentDistance = 0;
     maxChildDistance = 0;
     leafParentNodes = new HashSet<GraphNode>();
@@ -1086,7 +1115,9 @@ public class RelationGraph {
       + "show stems=" + isShowStems() + ", "
       + "show loader jobs=" + isShowLoaderJobs() + ", "
       + "show PSPNG provisioners=" + isShowProvisionTargets() + ", "
-      + "show member counts=" + isShowMemberCounts() + ", "
+      + "show member counts=" + isShowAllMemberCounts() + ", "
+      + "show direct member counts=" + isShowDirectMemberCounts() + ", "
+      + "include groups in member counts=" + isIncludeGroupsInMemberCounts() + ", "
       + "folder pattern filters=" + GrouperUtil.join(skipFolderNamePatterns.toArray(), "; "));
 
     startNode = fetchOrCreateNode(startObject);
@@ -1110,6 +1141,92 @@ public class RelationGraph {
     for (GraphEdge e : edges) {
       e.getFromNode().addChildNode(e.getToNode());
       e.getToNode().addParentNode(e.getFromNode());
+    }
+
+    // do all the group counts in batches
+    queryGroupMemberCounts();
+  }
+
+  // once the graph is built, query counts for group objects depending on the settings
+  private void queryGroupMemberCounts() {
+    if (!showAllMemberCounts && !showDirectMemberCounts) {
+      return;
+    }
+
+    //collect all eligible group nodes
+    Map<String, GraphNode> groupNodesByUuid = new HashMap<String, GraphNode>();
+    for (GraphNode node: getNodes()) {
+      if (node.isGroup() && (!node.isLoaderGroup() || node.isSimpleLoaderGroup())) {
+        groupNodesByUuid.put(node.getGrouperObjectId(), node);
+      }
+    }
+
+    // no groups to count, don't need to continue
+    if (groupNodesByUuid.size() == 0) {
+      return;
+    }
+
+    List<String> groupUuids = GrouperUtil.listFromCollection(groupNodesByUuid.keySet());
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupUuids.size(), 100);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatch = GrouperUtil.batchList(groupUuids, 100, i);
+      if (currentBatch.size() == 0) {
+        continue;
+      }
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      String sqlQuery =
+        "select gg.id," +
+          "  (" +
+          "    select count (distinct gmlv.member_id)" +
+          "      from grouper_memberships_lw_v gmlv" +
+          "     where gmlv.group_id = gg.id" +
+          "       and gmlv.list_name = 'members'" +
+          (includeGroupsInMemberCounts ? "" :
+          "       and gmlv.subject_source != 'g:gsa'") +
+          "  ) as total_membership_count," +
+          "  (" +
+          "    select count (distinct gms.member_id)" +
+          "      from grouper_memberships_all_v gms, grouper_members gm, grouper_fields gfl" +
+          "     where gms.owner_group_id = gg.id" +
+          "       and gms.field_id = gfl.id" +
+          "       and gms.member_id = gm.id" +
+          "       and gms.immediate_mship_enabled = 'T'" +
+          "       and gfl.name = 'members'" +
+          (includeGroupsInMemberCounts ? "" :
+          "       and gm.subject_source != 'g:gsa'") +
+          "       and gms.mship_type = 'immediate'" +
+          "   ) as direct_membership_count" +
+          " from grouper_groups gg " +
+          "where gg.id in (" +
+          HibUtils.convertToInClauseForSqlStatic(currentBatch) +
+          ")";
+
+      List<Type> types = new ArrayList<Type>();
+      for (int j=0;j<GrouperUtil.length(currentBatch);j++) {
+        types.add(StringType.INSTANCE);
+      }
+
+      // returns [group_id, total_membership_count, direct_membership_count]
+      List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sqlQuery,
+        GrouperUtil.toListObject(currentBatch.toArray()), types);
+
+      for (String[] values : results) {
+        String groupId = values[0];
+        if (groupNodesByUuid.containsKey(groupId)) {
+          // not sure why this wouldn't be found
+          GraphNode node = groupNodesByUuid.get(groupId);
+
+          long allCountForGroup = GrouperUtil.longValue(values[1]);
+          long directCountForGroup = GrouperUtil.longValue(values[2]);
+          node.setAllMemberCount(allCountForGroup);
+          this.totalMemberCount += allCountForGroup;
+          node.setDirectMemberCount(directCountForGroup);
+          this.directMemberCount += directCountForGroup;
+        }
+      }
     }
   }
 

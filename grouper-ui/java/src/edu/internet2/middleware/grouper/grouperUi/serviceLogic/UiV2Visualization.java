@@ -166,12 +166,13 @@ public class UiV2Visualization {
     private String type;
     private String baseType;
     private String linkType;
-    private long memberCount = 0;
+    private long allMemberCount = 0;
+    private long directMemberCount = 0;
     private String compositeLeftFactorId;
     private String compositeRightFactorId;
 
     private Node(String id, String name, String displayExtension, String description, String type,
-                 String baseType, String linkType, long memberCount) {
+                 String baseType, String linkType, long allMemberCount, long directMemberCount) {
       this.id = id;
       this.name = name;
       this.displayExtension = displayExtension;
@@ -179,7 +180,8 @@ public class UiV2Visualization {
       this.type = type;
       this.baseType = baseType;
       this.linkType = linkType;
-      this.memberCount = memberCount;
+      this.allMemberCount = allMemberCount;
+      this.directMemberCount = directMemberCount;
     }
 
     public String getId() {
@@ -210,8 +212,12 @@ public class UiV2Visualization {
       return linkType;
     }
 
-    public long getMemberCount() {
-      return memberCount;
+    public long getAllMemberCount() {
+      return allMemberCount;
+    }
+
+    public long getDirectMemberCount() {
+      return directMemberCount;
     }
 
     public String getCompositeLeftFactorId() {
@@ -242,8 +248,8 @@ public class UiV2Visualization {
     private List<String> childNodeIds;
 
     private TextNode(String id, String name, String displayExtension, String description, String type,
-                     String baseType, String linkType, long memberCount, long indent) {
-      super(id, name, displayExtension, description, type, baseType, linkType, memberCount);
+                     String baseType, String linkType, long allMemberCount, long directMemberCount, long indent) {
+      super(id, name, displayExtension, description, type, baseType, linkType, allMemberCount, directMemberCount);
       this.indent = indent;
       parentNodeIds = new LinkedList<String>();
       childNodeIds = new LinkedList<String>();
@@ -431,7 +437,8 @@ public class UiV2Visualization {
       .assignShowStems(visualizationContainer.isDrawShowStems())
       .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
       .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
-      .assignShowMemberCounts(visualizationContainer.isDrawShowMemberCounts())
+      .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
+      .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
       .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
       .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
 
@@ -462,7 +469,8 @@ public class UiV2Visualization {
     }
 
     graph.addStatistic("numEdges", String.valueOf(relationGraph.getEdges().size()));
-    graph.addStatistic("numMemberships", relationGraph.isShowMemberCounts() ? String.valueOf(relationGraph.getNumMembers()) : "(not included)");
+    graph.addStatistic("totalMemberCount", relationGraph.isShowAllMemberCounts() ? String.valueOf(relationGraph.getTotalMemberCount()) : "(not included)");
+    graph.addStatistic("directMemberCount", relationGraph.isShowDirectMemberCounts() ? String.valueOf(relationGraph.getDirectMemberCount()) : "(not included)");
     graph.addStatistic("numNodes", String.valueOf(relationGraph.getNodes().size()));
     graph.addStatistic("numLoaderJobs", String.valueOf(relationGraph.getNumLoaders()));
     graph.addStatistic("numGroupsFromLoaders", String.valueOf(relationGraph.getNumGroupsFromLoaders()));
@@ -472,7 +480,8 @@ public class UiV2Visualization {
     graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
 
     graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
-    graph.addSetting("showMemberCounts", relationGraph.isShowMemberCounts());
+    graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
+    graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
     //graph.addSetting("objectNameField", visualizationHelper;);
     //what is this in the d3 drawing?? graph.addSetting("text", -1);
 
@@ -515,7 +524,8 @@ public class UiV2Visualization {
         graphNode.getStyleObjectType().getName(),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", ""),
-        graphNode.getMemberCount()
+        graphNode.getAllMemberCount(),
+        graphNode.getDirectMemberCount()
       );
 
       if (compositeLeftFactors.containsKey(graphNode)) {
@@ -586,7 +596,8 @@ public class UiV2Visualization {
         graphNode.getStyleObjectType().getName(),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()) /* getNodeBaseType(graphNode) */,
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", "") /*getNodeLinkType(graphNode)*/,
-        graphNode.getMemberCount(),
+        graphNode.getAllMemberCount(),
+        graphNode.getDirectMemberCount(),
         indent);
 
       styleTypes.add(graphNode.getStyleObjectType());
@@ -793,16 +804,28 @@ public class UiV2Visualization {
     visualizationContainer.setDrawShowProvisioners(prefsFromAttribute.isDrawShowProvisioners());
   }
 
-    /* show member counts */
+    /* show all member counts */
     if (fromSubmission) {
-      visualizationContainer.setDrawShowMemberCounts(
-        GrouperUtil.booleanValue(request.getParameter("drawShowMemberCounts"), false));
-      if (visualizationContainer.isDrawShowMemberCounts() != prefsFromAttribute.isDrawShowMemberCounts()) {
-        prefsFromAttribute.setDrawShowMemberCounts(visualizationContainer.isDrawShowMemberCounts());
+      visualizationContainer.setDrawShowAllMemberCounts(
+        GrouperUtil.booleanValue(request.getParameter("drawShowAllMemberCounts"), false));
+      if (visualizationContainer.isDrawShowAllMemberCounts() != prefsFromAttribute.isDrawShowAllMemberCounts()) {
+        prefsFromAttribute.setDrawShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts());
         prefsHaveChanged = true;
       }
     } else {
-      visualizationContainer.setDrawShowMemberCounts(prefsFromAttribute.isDrawShowMemberCounts());
+      visualizationContainer.setDrawShowAllMemberCounts(prefsFromAttribute.isDrawShowAllMemberCounts());
+    }
+
+    /* show direct member counts */
+    if (fromSubmission) {
+      visualizationContainer.setDrawShowDirectMemberCounts(
+        GrouperUtil.booleanValue(request.getParameter("drawShowDirectMemberCounts"), false));
+      if (visualizationContainer.isDrawShowDirectMemberCounts() != prefsFromAttribute.isDrawShowDirectMemberCounts()) {
+        prefsFromAttribute.setDrawShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawShowDirectMemberCounts(prefsFromAttribute.isDrawShowDirectMemberCounts());
     }
 
     /* include groups in member counts */

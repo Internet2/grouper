@@ -119,15 +119,26 @@
             <span class="description">${textContainer.text['visualization.form.showProvisioners.description']}</span>
           </td>
         </tr>
-        <!-- show member counts -->
+        <!-- show all member counts -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-show-member-counts">${textContainer.text['visualization.form.showMemberCounts']}</label>:</strong>
+            <strong><label for="vis-settings-show-all-member-counts">${textContainer.text['visualization.form.showAllMemberCounts']}</label>:</strong>
           </td>
           <td>
-            <input type="checkbox" name="drawShowMemberCounts" id="vis-settings-show-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawShowMemberCounts ? "checked": ""}/>
+            <input type="checkbox" name="drawShowAllMemberCounts" id="vis-settings-show-all-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawShowAllMemberCounts ? "checked": ""}/>
             <br/>
-            <span class="description">${textContainer.text['visualization.form.showMemberCounts.description']}</span>
+            <span class="description">${textContainer.text['visualization.form.showAllMemberCounts.description']}</span>
+          </td>
+        </tr>
+        <!-- show direct member counts -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-show-direct-member-counts">${textContainer.text['visualization.form.showDirectMemberCounts']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawShowDirectMemberCounts" id="vis-settings-show-direct-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawShowDirectMemberCounts ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.showDirectMemberCounts.description']}</span>
           </td>
         </tr>
         <!-- include groups in member counts -->
