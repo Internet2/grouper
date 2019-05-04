@@ -21,7 +21,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
@@ -278,7 +277,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
         throw new IllegalArgumentException("messagingSystemName is required.");
       }
       Connection connection = messagingSystemNameConnection.get(messagingSystemName);
-      synchronized(ActiveMQConnectionFactory.class) {
+      synchronized(ActiveMQClientConnectionFactory.class) {
         if (connection != null) {
           connection.stop();
           connection = null;         
