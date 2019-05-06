@@ -160,7 +160,7 @@ public class GrouperEmail {
    * @param args
    */
   public static void main(String[] args) {
-    new GrouperEmail().setBody("hey").setSubject("subject").setTo("a@b.c,d@e.f").send();
+    new GrouperEmail().setBody("hey there").setSubject("my subject").setTo("mchyzer@isc.upenn.edu").send();
   }
   
   /**
@@ -265,7 +265,7 @@ public class GrouperEmail {
       
       //leave blank for default (probably 25), if ssl is true, default is 465, else specify
       {
-        Integer port = GrouperConfig.retrieveConfig().propertyValueInt("mail." + propertyProtocol + ".port");
+        Integer port = GrouperConfig.retrieveConfig().propertyValueInt("mail.smtp.port");
         if (port != null) {
           properties.put("mail." + propertyProtocol + ".socketFactory.port", port);
           properties.put("mail." + propertyProtocol + ".port", port);
