@@ -20,6 +20,7 @@ import java.util.Map;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
 
@@ -1649,13 +1650,18 @@ public class GcDbAccess {
     String url = null;
     
     try {
-      String defaultName = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc.defaultName");
-      String driver = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + defaultName + ".driver");
+      String driver = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".driver");
+
+      url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".url");
+
+      if (StringUtils.isBlank(driver)) {
+        driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(url, driver);
+      }
+        
       Class.forName(driver);
   
-      url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + defaultName + ".url");
-      String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + defaultName + ".user");
-      String pass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + defaultName + ".pass");
+      String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".user");
+      String pass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + connectionName + ".pass");
       
       connection = DriverManager.getConnection(url, user, pass);
 

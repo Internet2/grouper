@@ -70,6 +70,23 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
   private static boolean configuredLogs = false;
 
   /**
+   * append a certain number of question marks to a query
+   * @param query
+   * @param numberOfMarks
+   */
+  public static void appendQuestions(StringBuilder query, int numberOfMarks) {
+    //loop through the columns, do the prepared statement part
+    for (int i = 0; i < numberOfMarks; i++) {
+      query.append("?");
+  
+      //if not the last one give a comma
+      if (i < numberOfMarks - 1) {
+        query.append(", ");
+      }
+    }
+  }
+
+  /**
    * @param theClass
    * @return the log
    */
