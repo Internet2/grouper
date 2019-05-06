@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.app.deprovisioning.AllDeprovisioningTest
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
 import edu.internet2.middleware.grouper.app.messaging.MessageConsumerDaemonTest;
+import edu.internet2.middleware.grouper.app.tableSync.AllTableSyncTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
@@ -40,13 +41,16 @@ public class AllAppTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(MessageConsumerDaemonTest.class);
     //$JUnit-END$
-    if (GrouperConfig.getPropertyBoolean("junit.test.gsh", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.gsh", false)) {
       suite.addTest(AllGshTests.suite());
     }
     
-    if (GrouperConfig.getPropertyBoolean("junit.test.loader", true)) {
-
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.loader", true)) {
       suite.addTest(AllLoaderTests.suite());
+    }
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tableSync", true)) {
+      suite.addTest(AllTableSyncTests.suite());
     }
     
     suite.addTest(AllAttestationTests.suite());

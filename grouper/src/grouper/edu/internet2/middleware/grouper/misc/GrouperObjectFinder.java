@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
@@ -635,6 +636,7 @@ public class GrouperObjectFinder {
   
         if (findGroups) {
           long nanoStart = System.nanoTime();
+          groupFinder.assignTypeOfGroups(GrouperUtil.toSet(TypeOfGroup.values()));
           groupFinder.findGroups();
           debugMap.put("groupSearch", ((System.nanoTime() - nanoStart) / 1000000L ) + "ms");
           

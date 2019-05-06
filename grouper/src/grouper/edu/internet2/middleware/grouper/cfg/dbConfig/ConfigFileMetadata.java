@@ -316,7 +316,7 @@ public class ConfigFileMetadata {
             } else {
               if (comment == null) {
                 localConfigValid = false;
-                throw new RuntimeException("Cant have whitespae between comments without a property");
+                throw new RuntimeException("Cant have whitespace between comments without a property");
               }
               if (comment.length() > 0) {
                 comment.append(" ");

@@ -277,7 +277,7 @@ public class ByObjectStatic extends ByQueryBase {
       throw e;
     } catch (RuntimeException e) {
       
-      String errorString = "Exception in update: " + theClass + ", " + this;
+      String errorString = "Exception in load: " + theClass + ", " + this;
       
       if (!GrouperUtil.injectInException(e, errorString)) {
         LOG.error(errorString, e);

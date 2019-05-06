@@ -192,15 +192,46 @@ public abstract class Hib3DAO {
       CFG.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)
+      Class<?> hibernatableClass = null;
       try {
-        Class<?> hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
         addClass(CFG, hibernatableClass);
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      try {
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
         addClass(CFG, hibernatableClass);
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      try {
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperIncrementalLoader");
         addClass(CFG, hibernatableClass);
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      try {
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.subj.TestgrouperSubjAttr");
+        addClass(CFG, hibernatableClass);
+        
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      
+      try {
+        
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncSubjectFrom");
+        addClass(CFG, hibernatableClass);
+        
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      
+      try {
+        
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.tableSync.TestgrouperSyncSubjectTo");
         addClass(CFG, hibernatableClass);
         
       } catch (ClassNotFoundException cnfe) {
