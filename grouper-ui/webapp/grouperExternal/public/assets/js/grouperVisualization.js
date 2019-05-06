@@ -392,5 +392,8 @@ function setCopyWindowDot() {
 }
 
 function setCopyWindowSVG() {
-  $("#vis-copy-dot-output-txt").val($("#vis-graph-svg-pane").html());
+  var xmlNode = $("#vis-graph-svg-pane svg")[0];
+  if (typeof xmlNode !== 'undefined') {
+    $("#vis-copy-dot-output-txt").val((new XMLSerializer).serializeToString(xmlNode));
+  }
 }
