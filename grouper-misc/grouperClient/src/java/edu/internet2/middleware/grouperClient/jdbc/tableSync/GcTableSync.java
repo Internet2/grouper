@@ -254,7 +254,7 @@ public class GcTableSync {
         String sql = "select " + this.tableMetadata.getRealTimeLastUpdatedColumnMetadata().getColumnName() + " from " + this.tableMetadata.getSchemaFrom() + "." + this.getRealTimeTable() + " where " 
             + realTimeLastUpdatedColumnMetadata.getColumnName() + " > ?";
   
-        int total = new GcDbAccess().connectionName(this.databaseFrom).sql(sql).callbackResultSet(new GcResultSetCallback() {
+        int total = (Integer)new GcDbAccess().connectionName(this.databaseFrom).sql(sql).callbackResultSet(new GcResultSetCallback() {
   
           @Override
           public Object callback(ResultSet resultSet) throws Exception {
