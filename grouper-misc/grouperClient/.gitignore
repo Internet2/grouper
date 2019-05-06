@@ -9,3 +9,6 @@ misc/README.txt
 javadoc
 /grouperClientFailoverState.bin
 /target
+/temp/
+.classpath
+.project
