@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -111,18 +110,6 @@ public class UiV2GrouperObjectTypes {
             
           List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(GROUP);
           
-          List<String> typesNotConfigured = new ArrayList<String>(GrouperObjectTypesSettings.getObjectTypeNames());
-          
-          for (GrouperObjectTypesAttributeValue attributeValue: attributeValuesForGroup) {
-            typesNotConfigured.remove(attributeValue.getObjectTypeName());
-          }
-          
-          for (String typeNotConfigured: typesNotConfigured) {
-            GrouperObjectTypesAttributeValue notConfiguredAttributeValue = new GrouperObjectTypesAttributeValue();
-            notConfiguredAttributeValue.setObjectTypeName(typeNotConfigured);
-            attributeValuesForGroup.add(notConfiguredAttributeValue);
-          }
-          
           objectTypeContainer.setGuiGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
           
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -178,18 +165,6 @@ public class UiV2GrouperObjectTypes {
           }
             
           List<GrouperObjectTypesAttributeValue> attributeValuesForStem = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(STEM);
-          
-          List<String> typesNotConfigured = new ArrayList<String>(GrouperObjectTypesSettings.getObjectTypeNames());
-          
-          for (GrouperObjectTypesAttributeValue attributeValue: attributeValuesForStem) {
-            typesNotConfigured.remove(attributeValue.getObjectTypeName());
-          }
-          
-          for (String typeNotConfigured: typesNotConfigured) {
-            GrouperObjectTypesAttributeValue notConfiguredAttributeValue = new GrouperObjectTypesAttributeValue();
-            notConfiguredAttributeValue.setObjectTypeName(typeNotConfigured);
-            attributeValuesForStem.add(notConfiguredAttributeValue);
-          }
           
           // convert from raw to gui
           objectTypeContainer.setGuiGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForStem));
