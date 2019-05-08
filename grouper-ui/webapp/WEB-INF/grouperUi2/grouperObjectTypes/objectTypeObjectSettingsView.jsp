@@ -1,3 +1,4 @@
+<%@ include file="../assetsJsp/commonTaglib.jsp"%>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.objectTypeContainer.hasObjectTypeOnThisObjectOrParent}">
                     <c:forEach items="${grouperRequestContainer.objectTypeContainer.guiGrouperObjectTypesAttributeValues}" var="guiGrouperObjectTypesAttributeValue" >
@@ -5,7 +6,31 @@
 	                    <c:set var="grouperObjectTypesAttributeValue" 
 	                        value="${guiGrouperObjectTypesAttributeValue.grouperObjectTypesAttributeValue}" />
                       
-                      <h4>${textContainer.text['objectTypeHasTypeLabel'] }: ${grouperObjectTypesAttributeValue.objectTypeName }</h4>
+                      <h4>
+                        ${textContainer.text['objectTypeHasTypeLabel'] }: ${grouperObjectTypesAttributeValue.objectTypeName }
+                        
+                        <c:if test="${grouperObjectTypesAttributeValue.directAssignment}">
+	                        <c:choose>
+	                          <c:when test="${ObjectType == 'Folder'}">
+	                            
+	                            <a title="${textContainer.text['objectTypeTitleRemoveThisObjectType'] }" href="#" 
+	                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['objectTypeConfirmObjectTypeRemoval']}')) { return guiV2link('operation=UiV2GrouperObjectTypes.removeObjectTypeFromFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&grouperObjectTypeName=${grouperObjectTypesAttributeValue.objectTypeName}'); } return false;"
+	                                  >
+	                                  <span style="font-size: 14px; font-weight: normal;">${textContainer.text['objectTypeTextRemoveThisObjectType'] }</span>
+	                            </a>
+	                          </c:when>
+	                          <c:otherwise>
+	                          
+	                          <a title="${textContainer.text['objectTypeTitleRemoveThisObjectType'] }" href="#" 
+	                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['objectTypeConfirmObjectTypeRemoval']}')) { return guiV2link('operation=UiV2GrouperObjectTypes.removeObjectTypeFromGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&grouperObjectTypeName=${grouperObjectTypesAttributeValue.objectTypeName}'); } return false;"
+	                                  >
+	                                  <span style="font-size: 14px; font-weight: normal;">${textContainer.text['objectTypeTextRemoveThisObjectType'] }</span>
+	                          </a>
+	                          </c:otherwise>
+	                        </c:choose>
+                        </c:if>
+                        
+                      </h4>
                       <table class="table table-condensed table-striped">
                         <tbody>
                          

@@ -20,8 +20,7 @@
                     <%@ include file="grouperObjectTypesFolderMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
-                <c:set var="ObjectType" 
-                    value="Folder" />
+                <c:set var="ObjectType" value="Folder" />
                 <%@ include file="objectTypeObjectSettingsView.jsp"%>
 
               </div>

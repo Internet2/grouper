@@ -24,6 +24,7 @@
         <%@ include file="grouperObjectTypesGroupMoreActionsButtonContents.jsp"%>
       </div>
     </div>
+     <c:set var="ObjectType" value="Group" />
     <%@ include file="objectTypeObjectSettingsView.jsp"%>
     
   </div>
