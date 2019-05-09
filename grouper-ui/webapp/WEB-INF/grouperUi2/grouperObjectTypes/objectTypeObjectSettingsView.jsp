@@ -31,6 +31,10 @@
                         </c:if>
                         
                       </h4>
+                      <h5>
+	                      ${textContainer.text['objectTypeViewTypeDescriptionLabel'] }:
+	                        <span style="font-size: 12px; font-weight: normal;">${textContainer.text[guiGrouperObjectTypesAttributeValue.objectTypeDescriptionKey]}</span>
+                      </h5>
                       <table class="table table-condensed table-striped">
                         <tbody>
                          

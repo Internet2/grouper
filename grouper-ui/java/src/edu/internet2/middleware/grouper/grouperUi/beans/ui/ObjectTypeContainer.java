@@ -171,9 +171,13 @@ public class ObjectTypeContainer {
     for (GuiGrouperObjectTypesAttributeValue guiGrouperObjectTypesAttributeValue: guiConfiguredGrouperObjectTypesAttributeValues) {
       
       final GrouperObjectTypesAttributeValue typesAttributeValue = guiGrouperObjectTypesAttributeValue.getGrouperObjectTypesAttributeValue();
-      types.add(typesAttributeValue.getObjectTypeName());
+      // types.add(typesAttributeValue.getObjectTypeName());
       
-      if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeDataOwner())) {        
+      String title = TextContainer.retrieveFromRequest().getText()
+          .get(guiGrouperObjectTypesAttributeValue.getObjectTypeDescriptionKey());
+      types.add("<span rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\""+title+"\">"+typesAttributeValue.getObjectTypeName()+"</span>");
+      
+      if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeDataOwner())) {    
         dataOwners.add(typesAttributeValue.getObjectTypeDataOwner());
       }
       
