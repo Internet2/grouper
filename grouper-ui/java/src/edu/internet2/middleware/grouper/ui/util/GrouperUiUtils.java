@@ -764,24 +764,25 @@ public class GrouperUiUtils {
       int i=0;
       Iterator<Member> firstIterator = first.iterator();
       while (firstIterator.hasNext()) {
-        Member next = firstIterator.next();
-        MultiKey hash = (MultiKey)firstHashes.get(i);
-        if (secondHashes.contains(hash)) {
+        Member nextFirst = firstIterator.next();
+        MultiKey firstHash = (MultiKey)firstHashes.get(i);
+        if (secondHashes.contains(firstHash)) {
           firstIterator.remove();
-          overlaps.add(next);
+          overlaps.add(nextFirst);
           
           //lets add the subject to the Member if not already there, so we dont have to look it up again
-          Subject memberSubject = (Subject)GrouperUtil.fieldValue(next, "subj");
-          if (memberSubject == null ) {
-            int subjectIndex = secondHashes.indexOf(hash);
-            Subject realSubject = second.get(subjectIndex);
-            //a little sanity here
-            if (!StringUtils.equals(realSubject.getId(), next.getSubjectId()) 
-                || !StringUtils.equals(realSubject.getSource().getId(), next.getSubjectSourceId())) {
-              throw new RuntimeException("These should be equal!!!");
-            }
-            GrouperUtil.assignField(next, "subj", realSubject);
-          }
+          // dont do this anymore since member doesnt have subj in it!  :)
+          //Subject memberSubjectFirst = (Subject)GrouperUtil.fieldValue(nextFirst, "subj");
+          //if (memberSubjectFirst == null ) {
+          //  int subjectIndex = secondHashes.indexOf(firstHash);
+          //  Subject realSubject = second.get(subjectIndex);
+          //  //a little sanity here
+          //  if (!StringUtils.equals(realSubject.getId(), nextFirst.getSubjectId()) 
+          //      || !StringUtils.equals(realSubject.getSource().getId(), nextFirst.getSubjectSourceId())) {
+          //    throw new RuntimeException("These should be equal!!!");
+          //  }
+          //  GrouperUtil.assignField(nextFirst, "subj", realSubject);
+          //}
         }
         i++;
       }
