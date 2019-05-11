@@ -31,7 +31,7 @@ public class GrouperObjectTypesSettings {
    * @return
    */
   public static List<String> getObjectTypeNames() {
-    return Collections.unmodifiableList(Arrays.asList("ref", "basis", "policy", "etc", "bundle", "org", "test", "service", "app", "readOnly", "grouperSecurity"));
+    return Collections.unmodifiableList(Arrays.asList("basis", "ref", "bundle", "policy", "etc", "grouperSecurity", "org", "app", "service", "readOnly", "test"));
   }
 
   
