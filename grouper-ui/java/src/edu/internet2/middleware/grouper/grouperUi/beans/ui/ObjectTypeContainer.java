@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiStemObjectType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -55,6 +56,11 @@ public class ObjectTypeContainer {
    * list of service stems
    */
   private List<Stem> serviceStems = new ArrayList<Stem>();
+  
+  /**
+   * gui stem object types to show on auto assign screen
+   */
+  private List<GuiStemObjectType> guiStemObjectTypes = new ArrayList<GuiStemObjectType>();
   
   /**
    * object type name user is currently working on
@@ -280,6 +286,23 @@ public class ObjectTypeContainer {
    */
   public void setServiceStems(List<Stem> serviceStems) {
     this.serviceStems = serviceStems;
+  }
+  
+  
+  /**
+   * gui stem object types to show on auto assign screen
+   * @return
+   */
+  public List<GuiStemObjectType> getGuiStemObjectTypes() {
+    return guiStemObjectTypes;
+  }
+
+  /**
+   * gui stem object types to show on auto assign screen
+   * @param guiStemObjectTypes
+   */
+  public void setGuiStemObjectTypes(List<GuiStemObjectType> guiStemObjectTypes) {
+    this.guiStemObjectTypes = guiStemObjectTypes;
   }
 
   /**

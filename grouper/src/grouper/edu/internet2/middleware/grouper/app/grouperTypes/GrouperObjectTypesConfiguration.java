@@ -229,6 +229,29 @@ public class GrouperObjectTypesConfiguration {
     return stems;
   }
   
+  /**
+   * search all the children of the given stem and return stems with object types
+   *  that are candidates for auto assigning types
+   * @param stem
+   * @return
+   */
+  public static List<StemObjectType> getAutoAssignTypeStemCandidates(Stem stem) {
+    
+    List<StemObjectType> result = new ArrayList<StemObjectType>();
+    
+    Set<Stem> children = stem.getChildStems(Scope.SUB);
+    
+    Set<String> typeNames = new HashSet<>(GrouperObjectTypesSettings.getObjectTypeNames());
+    
+    for (Stem child: children) {
+      if (typeNames.contains(child.getExtension().toLowerCase())) {
+        result.add(new StemObjectType(child, child.getExtension().toLowerCase()));;
+      }
+    }
+    
+    return result;
+  }
+  
   private static void deleteAttributesOnAllChildrenWithIndirectConfig(Stem stem, String objectType) {
     
     Set<GrouperObject> children = new HashSet<GrouperObject>(stem.getChildGroups(Scope.SUB));

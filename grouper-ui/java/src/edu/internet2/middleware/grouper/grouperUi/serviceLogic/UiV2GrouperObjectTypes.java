@@ -17,9 +17,11 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttri
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesJob;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.app.grouperTypes.StemObjectType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiStemObjectType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -768,6 +770,165 @@ public class UiV2GrouperObjectTypes {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * retrieve folders that are candidates for auto assigning types
+   * @param request
+   * @param response
+   */
+  public void findAutoAssignTypes(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+        
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      final ObjectTypeContainer objectTypeContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkObjectTypes()) {
+            return false;
+          }
+          
+          if (!objectTypeContainer.isCanWriteObjectType()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperObjectTypeNotAllowedToWriteStem")));
+            return false;
+          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+      
+      
+      List<StemObjectType> stemObjectTypes = GrouperObjectTypesConfiguration.getAutoAssignTypeStemCandidates(stem);
+      List<GuiStemObjectType> guiStemObjectTypes = GuiStemObjectType.convertFromStemObjectType(stemObjectTypes);
+      objectTypeContainer.setGuiStemObjectTypes(guiStemObjectTypes);
+      
+      List<Stem> serviceStems = GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
+      objectTypeContainer.setServiceStems(serviceStems);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/grouperObjectTypes/grouperObjectTypesFolderAutoAssign.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * assign bulk object types to selected folders 
+   */
+  public void objectTypeAutoAssignFolderSave(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      final ObjectTypeContainer objectTypeContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkObjectTypes()) {
+            return false;
+          }
+          
+          if (!objectTypeContainer.isCanWriteObjectType()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperObjectTypeNotAllowedToWriteStem")));
+            return false;
+          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+      
+      final String stemObjectTypes = request.getParameter("stemObjectType[]");
+      
+//      final Stem STEM = stem;
+//      final boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
+//      
+//      if (StringUtils.isBlank(objectTypeName)) {
+//        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperObjectTypeNameId",
+//            TextContainer.retrieveFromRequest().getText().get("objectTypeTypeNameRequired")));
+//        return;
+//      }
+//       
+//      final GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+//      attributeValue.setDirectAssignment(isDirect);
+//      attributeValue.setObjectTypeDataOwner(objectTypeDataOwner);
+//      attributeValue.setObjectTypeMemberDescription(objectTypeMemberDescription);
+//      attributeValue.setObjectTypeName(objectTypeName);
+//      attributeValue.setObjectTypeServiceName(objectTypeServiceName);
+//      
+//      //switch over to admin so attributes work
+//      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+//        
+//        @Override
+//        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+//          
+//          if (isDirect) {        
+//            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, STEM);
+//          } else {
+//            GrouperObjectTypesConfiguration.copyConfigFromParent(STEM, objectTypeName);
+//          }
+//          
+//          return null;
+//        }
+//      });
+//      
+//      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
+//      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+//          TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
   
   /**

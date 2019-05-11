@@ -19,7 +19,12 @@
 	                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.editObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
 	                            >${textContainer.text['objectTypeMoreActionsEditSettings'] }</a></li>
                         </c:if>
-
+                        
+                        <c:if test="${grouperRequestContainer.objectTypeContainer.canWriteObjectType}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.findAutoAssignTypes&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >${textContainer.text['objectTypeMoreActionsAutoAssignTypes'] }</a></li>
+                        </c:if>
+                        
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canRunDaemon}" >
                           <li><a href="#" onclick="ajax('../app/UiV2GrouperObjectTypes.runDaemon'); return false;"
                               >${textContainer.text['groupObjectTypeMoreActionsRunDaemon'] }</a></li>
