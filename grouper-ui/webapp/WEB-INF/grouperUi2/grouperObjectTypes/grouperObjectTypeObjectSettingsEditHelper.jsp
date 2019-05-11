@@ -9,9 +9,10 @@
                             onchange="ajax('../app/UiV2GrouperObjectTypes.editObjectTypesOn${ObjectType}', {formIds: 'editGrouperObjectTypeFormId'}); return false;">
                               <option value=""></option>
                               <c:forEach items="${grouperRequestContainer.objectTypeContainer.objectTypeNames}" var="objectTypeName">
+                                <c:set var="objectTypeNameKey" value="objectTypeOption_${objectTypeName}" />
                                 <option value="${objectTypeName}"
                                     ${grouperRequestContainer.objectTypeContainer.objectTypeName == objectTypeName ? 'selected="selected"' : '' }
-                                    >${objectTypeName}</option>
+                                    >${textContainer.text[objectTypeNameKey]}</option>
                               </c:forEach>
                             </select>
                             <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 

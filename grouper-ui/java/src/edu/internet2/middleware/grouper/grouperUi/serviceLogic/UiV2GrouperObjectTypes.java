@@ -247,7 +247,7 @@ public class UiV2GrouperObjectTypes {
           if (StringUtils.isNotBlank(objectTypeName)) {
             objectTypeContainer.setObjectTypeName(objectTypeName);
             
-            List<String> dataOwnerRequiringTypeNames = Arrays.asList("ref", "basis", "policy", "bundle", "org");
+            List<String> dataOwnerRequiringTypeNames = Arrays.asList("basis", "ref", "bundle", "policy", "org");
             if (dataOwnerRequiringTypeNames.contains(objectTypeName)) {     
               objectTypeContainer.setShowDataOwnerMemberDescription(true);
             }
@@ -360,7 +360,7 @@ public class UiV2GrouperObjectTypes {
           if (StringUtils.isNotBlank(objectTypeName)) {
             objectTypeContainer.setObjectTypeName(objectTypeName);
             
-            List<String> dataOwnerRequiringTypeNames = Arrays.asList("ref", "basis", "policy", "bundle", "org");
+            List<String> dataOwnerRequiringTypeNames = Arrays.asList("basis", "ref", "bundle", "policy", "org");
             if (dataOwnerRequiringTypeNames.contains(objectTypeName)) {     
               objectTypeContainer.setShowDataOwnerMemberDescription(true);
             }
