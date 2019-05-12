@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,20 +12,20 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 public class GuiGrouperObjectTypesAttributeValue {
   
-  private static final Map<String, String> objectTypesToDescriptions = new HashMap<String, String>();
+  private static final Map<String, String> objectTypesToDescriptions = new LinkedHashMap<String, String>();
   
   static {
-    objectTypesToDescriptions.put("ref", "objectTypeRefFolderDescription");
     objectTypesToDescriptions.put("basis", "objectTypeBasisFolderDescription");
+    objectTypesToDescriptions.put("ref", "objectTypeRefFolderDescription");
+    objectTypesToDescriptions.put("bundle", "objectTypeBundleFolderDescription");
     objectTypesToDescriptions.put("policy", "objectTypePolicyFolderDescription");
     objectTypesToDescriptions.put("etc", "objectTypeEtcFolderDescription");
-    objectTypesToDescriptions.put("bundle", "objectTypeBundleFolderDescription");
-    objectTypesToDescriptions.put("org", "objectTypeOrgFolderDescription");
-    objectTypesToDescriptions.put("test", "objectTypeTestFolderDescription");
-    objectTypesToDescriptions.put("service", "objectTypeServiceFolderDescription");
-    objectTypesToDescriptions.put("app", "objectTypeAppFolderDescription");
-    objectTypesToDescriptions.put("readOnly", "objectTypeReadOnlyFolderDescription");
     objectTypesToDescriptions.put("grouperSecurity", "objectTypeGrouperSecurityFolderDescription");
+    objectTypesToDescriptions.put("org", "objectTypeOrgFolderDescription");
+    objectTypesToDescriptions.put("app", "objectTypeAppFolderDescription");
+    objectTypesToDescriptions.put("service", "objectTypeServiceFolderDescription");
+    objectTypesToDescriptions.put("readOnly", "objectTypeReadOnlyFolderDescription");
+    objectTypesToDescriptions.put("test", "objectTypeTestFolderDescription");
   }
   
   private GuiGrouperObjectTypesAttributeValue(GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue) {

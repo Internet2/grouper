@@ -178,7 +178,7 @@ public class ObjectTypeContainer {
       
       final GrouperObjectTypesAttributeValue typesAttributeValue = guiGrouperObjectTypesAttributeValue.getGrouperObjectTypesAttributeValue();
       
-      String title = TextContainer.retrieveFromRequest().getText()
+      String title = TextContainer.retrieveFromRequest().getTextEscapeXml()
           .get(guiGrouperObjectTypesAttributeValue.getObjectTypeDescriptionKey());
       types.add("<span rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" style=\"border-bottom: 1px dotted black;\" data-placement=\"right\" title=\""+title+"\">"+typesAttributeValue.getObjectTypeName()+"</span>");
       
