@@ -1,7 +1,12 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.Arrays;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.getDataOwnerMemberDescriptionRequiringObjectTypeNames;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.getServiceRequiringObjectTypeNames;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +17,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
@@ -249,15 +255,16 @@ public class UiV2GrouperObjectTypes {
           if (StringUtils.isNotBlank(objectTypeName)) {
             objectTypeContainer.setObjectTypeName(objectTypeName);
             
-            List<String> dataOwnerRequiringTypeNames = Arrays.asList("basis", "ref", "bundle", "policy", "org");
-            if (dataOwnerRequiringTypeNames.contains(objectTypeName)) {     
+            if (getDataOwnerMemberDescriptionRequiringObjectTypeNames().contains(objectTypeName)) {     
               objectTypeContainer.setShowDataOwnerMemberDescription(true);
             }
-            if (objectTypeName.equals("app")) {
-              List<Stem> serviceStems = GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
+            
+            if (getServiceRequiringObjectTypeNames().contains(objectTypeName)) {
+              List<Stem> serviceStems = findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
               objectTypeContainer.setServiceStems(serviceStems);
               objectTypeContainer.setShowServiceName(true);
             }
+            
             return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(GROUP, objectTypeName);
           }
           
@@ -362,12 +369,12 @@ public class UiV2GrouperObjectTypes {
           if (StringUtils.isNotBlank(objectTypeName)) {
             objectTypeContainer.setObjectTypeName(objectTypeName);
             
-            List<String> dataOwnerRequiringTypeNames = Arrays.asList("basis", "ref", "bundle", "policy", "org");
-            if (dataOwnerRequiringTypeNames.contains(objectTypeName)) {     
+            if (getDataOwnerMemberDescriptionRequiringObjectTypeNames().contains(objectTypeName)) {     
               objectTypeContainer.setShowDataOwnerMemberDescription(true);
             }
-            if (objectTypeName.equals("app")) {
-              List<Stem> serviceStems = GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
+            
+            if (getServiceRequiringObjectTypeNames().contains(objectTypeName)) {
+              List<Stem> serviceStems = findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
               objectTypeContainer.setServiceStems(serviceStems);
               objectTypeContainer.setShowServiceName(true);
             }
@@ -886,43 +893,66 @@ public class UiV2GrouperObjectTypes {
         return;
       }
       
-      final String stemObjectTypes = request.getParameter("stemObjectType[]");
+      final String[] stemObjectTypes = request.getParameterValues("stemObjectType[]");
       
-//      final Stem STEM = stem;
-//      final boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
-//      
-//      if (StringUtils.isBlank(objectTypeName)) {
-//        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperObjectTypeNameId",
-//            TextContainer.retrieveFromRequest().getText().get("objectTypeTypeNameRequired")));
-//        return;
-//      }
-//       
-//      final GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
-//      attributeValue.setDirectAssignment(isDirect);
-//      attributeValue.setObjectTypeDataOwner(objectTypeDataOwner);
-//      attributeValue.setObjectTypeMemberDescription(objectTypeMemberDescription);
-//      attributeValue.setObjectTypeName(objectTypeName);
-//      attributeValue.setObjectTypeServiceName(objectTypeServiceName);
-//      
-//      //switch over to admin so attributes work
-//      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-//        
-//        @Override
-//        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-//          
-//          if (isDirect) {        
-//            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, STEM);
-//          } else {
-//            GrouperObjectTypesConfiguration.copyConfigFromParent(STEM, objectTypeName);
-//          }
-//          
-//          return null;
-//        }
-//      });
-//      
-//      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
-//      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-//          TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
+      final Map<Stem, GrouperObjectTypesAttributeValue> attributeValues = new HashMap<Stem, GrouperObjectTypesAttributeValue>();
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          for (String stemObjectType: stemObjectTypes) {
+            
+            String[] stemObjectTypeArray = stemObjectType.split("_");
+            String stemId = stemObjectTypeArray[0];
+            
+            Stem stemToAssignType = StemFinder.findByUuid(theGrouperSession, stemId, true);
+            
+            String objectType = stemObjectTypeArray[1];
+            
+            if (!GrouperObjectTypesSettings.getObjectTypeNames().contains(objectType)) {
+              throw new RuntimeException("Invalid type: "+objectType);
+            }
+            
+            String dataOwner = request.getParameter(stemObjectType+"_dataOwner");
+            String memberDescription = request.getParameter(stemObjectType+"_memberDescription");
+            String service = request.getParameter(stemObjectType+"_service");
+            
+            GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+            attributeValue.setDirectAssignment(true);
+            attributeValue.setObjectTypeDataOwner(dataOwner);
+            attributeValue.setObjectTypeMemberDescription(memberDescription);
+            attributeValue.setObjectTypeName(objectType);
+            attributeValue.setObjectTypeServiceName(service);
+            
+            attributeValues.put(stemToAssignType, attributeValue);
+            
+          }
+          
+          return null;
+        }
+    });
+
+     
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          for (Stem stem: attributeValues.keySet()) {
+            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValues.get(stem), stem);
+          }
+          
+          return null;
+          
+        }
+        
+      });
+      
+    guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
       
       
     } finally {

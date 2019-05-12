@@ -24,9 +24,9 @@
                 <c:choose>
 	                <c:when test="${fn:length(grouperRequestContainer.objectTypeContainer.guiStemObjectTypes) > 0}">
 	                  <form class="form-inline form-small form-filter" id="grouperObjectTypeAutoAssignFormId">
-	                  <table class="table table-condensed table-striped">
+	                  
 		                  <c:forEach var="guiStemObjectType" items="${grouperRequestContainer.objectTypeContainer.guiStemObjectTypes}">
-		                    
+		                    <table class="table table-condensed table-striped">
 		                    <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeNameLabel']}</label></strong></td>
                           <td>
@@ -55,14 +55,14 @@
 	                        <tr>
 	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableDataOwnerLabel']}</label></strong></td>
 	                          <td>
-	                            <input type="text" name="dataOwner"/>
+	                            <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_dataOwner"/>
 	                          </td>
 	                        </tr>
 	                        
 	                        <tr>
 	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableMemberDescriptionLabel']}</label></strong></td>
 	                          <td>
-	                            <input type="text" name="memberDescription"/>
+	                            <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_memberDescription"/>
 	                          </td>
 	                        </tr>
                         </c:if>
@@ -72,29 +72,32 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableServiceLabel']}</label></strong></td>
                             <td>
-                              <input type="text" name="service"/>
+                              <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_service"/>
                             </td>
                           </tr>
                         
                         </c:if>
                         
                         </br>
-		                   
+                        </br>
+                        </br>
+		                   </table>
 		                  </c:forEach>
-		                  <tr>
-                        <td></td>
-                        <td
-                          style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
-                          <input type="submit" class="btn btn-primary"
-                          aria-controls="objectTypeSubmitId" id="submitId"
-                          value="${textContainer.text['objectTypeAutoAssignSubmitButton'] }"
-                          onclick="ajax('../app/UiV2GrouperObjectTypes.objectTypeAutoAssignFolderSave?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'grouperObjectTypeAutoAssignFormId'}); return false;">
-                          &nbsp; <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                          >${textContainer.text['objectTypeEditButtonCancel'] }</a>
-                        </td>
-                      </tr>
-	                  </table>
+		                  <table>
+			                  <tr>
+	                        <td></td>
+	                        <td
+	                          style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
+	                          <input type="submit" class="btn btn-primary"
+	                          aria-controls="objectTypeSubmitId" id="submitId"
+	                          value="${textContainer.text['objectTypeAutoAssignSubmitButton'] }"
+	                          onclick="ajax('../app/UiV2GrouperObjectTypes.objectTypeAutoAssignFolderSave?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'grouperObjectTypeAutoAssignFormId'}); return false;">
+	                          &nbsp; <a class="btn btn-cancel" role="button"
+	                          onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+	                          >${textContainer.text['objectTypeEditButtonCancel'] }</a>
+	                        </td>
+	                      </tr>
+	                   </table>
 	                  </form>
 	                </c:when>
 	                <c:otherwise>
