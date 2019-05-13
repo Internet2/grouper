@@ -63,6 +63,17 @@ import edu.internet2.middleware.subject.Subject;
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
   /**
+   * 
+   * @return font awesome icon css class e.g. fa-group
+   */
+  public String getIcon() {
+    if (this.group.getTypeOfGroup() == TypeOfGroup.entity) {
+      return "fa-cloud-download";
+    }
+    return "fa-group";
+  }
+  
+  /**
    * if the logged in user can invite external users to this group
    * @return true if the logged in user can invite external users for this group
    */

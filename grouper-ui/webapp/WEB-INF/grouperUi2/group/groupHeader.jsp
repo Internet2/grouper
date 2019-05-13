@@ -244,7 +244,6 @@
                               <td><strong>${textContainer.text['groupCreateCannotAddSelfLabel']}</strong></td>
                               <td>${grouperRequestContainer.groupContainer.cannotAddSelfAssignedToGroup ? textContainer.textEscapeXml['groupCreateCannotAddSelfTrue'] : textContainer.textEscapeXml['groupCreateCannotAddSelfFalse'] }</td>
                             </tr>
-                            </div>
                           </c:if>
 
                         </tbody>

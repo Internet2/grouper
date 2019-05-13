@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -312,7 +313,9 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Group childGroup : childrenGroups) {
           
           childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childGroup.getDisplayExtension(), childGroup.getUuid(), DojoTreeItemType.group, null);
+              childGroup.getDisplayExtension(), childGroup.getUuid(), 
+              childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group, 
+                  null);
         }
 
         for (AttributeDef childAttributeDef : childrenAttributeDefs) {

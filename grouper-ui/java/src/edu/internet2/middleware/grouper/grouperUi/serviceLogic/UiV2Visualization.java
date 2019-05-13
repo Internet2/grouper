@@ -390,8 +390,14 @@ public class UiV2Visualization {
 
     visualizationHelper(loggedInSubject, request, visualizationContainer, false);
 
+    Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+    
+    if (subject == null) {
+      return;
+    }
+    
     GrouperObjectSubjectWrapper subjectWrapped = (GrouperObjectSubjectWrapper) visualizationContainer.getGrouperObject();
-    Subject subject = subjectWrapped.getSubject();
+    subject = subjectWrapped.getSubject();
     SubjectContainer subjectContainer = grouperRequestContainer.getSubjectContainer();
     subjectContainer.setGuiSubject(new GuiSubject(subject));
 

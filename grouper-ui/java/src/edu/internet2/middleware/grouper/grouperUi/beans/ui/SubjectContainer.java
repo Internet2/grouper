@@ -46,6 +46,27 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class SubjectContainer {
 
   /**
+   * if should show the button for entity privilege
+   */
+  private boolean showEntityPrivilege = false;
+  
+  /**
+   * if should show the button for entity privilege
+   * @return the showEntityPrivilege
+   */
+  public boolean isShowEntityPrivilege() {
+    return this.showEntityPrivilege;
+  }
+  
+  /**
+   * if should show the button for entity privilege
+   * @param showEntityPrivilege1 the showEntityPrivilege to set
+   */
+  public void setShowEntityPrivilege(boolean showEntityPrivilege1) {
+    this.showEntityPrivilege = showEntityPrivilege1;
+  }
+
+  /**
    * gui paging for search results when looking for a group to add the subject to
    */
   private GuiPaging guiPagingSearchGroupResults;

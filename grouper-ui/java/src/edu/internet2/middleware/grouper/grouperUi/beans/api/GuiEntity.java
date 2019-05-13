@@ -20,10 +20,10 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.entity.Entity;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -40,7 +40,7 @@ public class GuiEntity extends GuiObjectBase implements Serializable {
    */
   public String getShortLink() {
     
-    return shortLinkHelper(false, false);
+    return this.getGuiSubject().getShortLink();
   }
   
   /**
@@ -48,9 +48,10 @@ public class GuiEntity extends GuiObjectBase implements Serializable {
    * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
    * @return short link
    */
+  @Override
   public String getShortLinkWithIcon() {
     
-    return shortLinkHelper(true, false);
+    return this.getGuiSubject().getShortLinkWithIcon();
   }
 
   /**
@@ -60,40 +61,8 @@ public class GuiEntity extends GuiObjectBase implements Serializable {
    */
   public String getShortLinkWithIconAndPath() {
     
-    return shortLinkHelper(true, true);
+    return this.getGuiSubject().getShortLinkWithIcon();
   }
-
-  /**
-   * 
-   * @param showIcon
-   * @return the link
-   */
-  private String shortLinkHelper(boolean showIcon, boolean showPath) {
-    
-    if (this.entity == null) {
-      //TODO put icon here?
-      return TextContainer.retrieveFromRequest().getText().get("guiObjectUnknown");
-    }
-    
-    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiEntity(this);
-    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(showIcon);
-    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(showPath);
-    
-    try {
-      
-      String result = TextContainer.retrieveFromRequest().getText().get("guiEntityShortLink");
-      return result;
-      
-    } finally {
-
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiEntity(null);
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(false);
-
-    }
-
-  }
-
   
   /** entity */
   private Entity entity;
@@ -127,6 +96,26 @@ public class GuiEntity extends GuiObjectBase implements Serializable {
   @Override
   public GrouperObject getGrouperObject() {
     return this.entity;
+  }
+  
+  /**
+   * gui subject
+   */
+  private GuiSubject guiSubject = null;
+  
+  /**
+   * 
+   * @return gui subject
+   */
+  public GuiSubject getGuiSubject() {
+    if (this.guiSubject == null) {
+      if (this.entity != null) {
+        
+        Subject subject = SubjectFinder.findByIdAndSource(this.entity.getId(), "grouperEntities", false);
+        this.guiSubject = new GuiSubject(subject);
+      }
+    }
+    return this.guiSubject;
   }
   
 }

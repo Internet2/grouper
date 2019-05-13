@@ -70,7 +70,10 @@ public enum TypeOfGroup {
     @Override
     public boolean supportsField(Field field) {
       //only access privileges, admins or viewers
-      return field.getType() == FieldType.ACCESS && (StringUtils.equals(Field.FIELD_NAME_ADMINS, field.getName()) || StringUtils.equals(Field.FIELD_NAME_VIEWERS, field.getName()));
+      return field.getType() == FieldType.ACCESS && (StringUtils.equals(Field.FIELD_NAME_ADMINS, field.getName()) 
+          || StringUtils.equals(Field.FIELD_NAME_VIEWERS, field.getName())
+          || StringUtils.equals(Field.FIELD_NAME_GROUP_ATTR_READERS, field.getName())
+          || StringUtils.equals(Field.FIELD_NAME_GROUP_ATTR_UPDATERS, field.getName()));
     }
   };
 
@@ -82,6 +85,9 @@ public enum TypeOfGroup {
     return this.name();
   }
   
+  /** set with group or role */
+  public final static Set<TypeOfGroup> ALL = Collections.unmodifiableSet(GrouperUtil.toSet(group, role, entity));
+
   /** set with group or role */
   public final static Set<TypeOfGroup> GROUP_OR_ROLE_SET = Collections.unmodifiableSet(GrouperUtil.toSet(group, role));
   

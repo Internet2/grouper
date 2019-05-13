@@ -29,6 +29,9 @@ public class DojoTreeItemChild {
     /** if group */
     group,
     
+    /** if entity */
+    entity,
+    
     /** if attributeDef */
     attributeDef,
     

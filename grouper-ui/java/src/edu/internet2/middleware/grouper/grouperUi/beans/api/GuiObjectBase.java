@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
@@ -352,6 +353,21 @@ public abstract class GuiObjectBase {
       .append(TextContainer.retrieveFromRequest().getText().get("guiBreadcrumbsHomeLabel"))
       .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
 
+    //show local entity
+    if (this instanceof GuiSubject) {
+      GuiSubject guiSubject = (GuiSubject)this;
+      final Subject subject = guiSubject.getSubject();
+      if (subject != null) {
+        if (StringUtils.equals("grouperEntities", subject.getSourceId())) {
+          //show full path
+          GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+          if (guiGroup != null && guiGroup.getGroup() != null) {
+            return guiGroup.getBreadcrumbBullets();
+          }
+        }
+      }
+    }
+    
     if (this instanceof GuiSubject) {
       GuiSubject guiSubject = (GuiSubject)this;
       if (guiSubject.getSubject() != null) {

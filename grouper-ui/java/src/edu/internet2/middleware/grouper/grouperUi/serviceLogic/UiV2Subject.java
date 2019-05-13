@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttributeDefContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
@@ -439,7 +441,22 @@ public class UiV2Subject {
     String memberId = request.getParameter("memberId");
     
     boolean addedError = false;
-    
+   
+    if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectIdentifier)
+        && StringUtils.isBlank(subjectIdOrIdentifier) && StringUtils.isBlank(memberId)) {
+      
+      GuiGroup guiGroup = grouperRequestContainer.getGroupContainer().getGuiGroup();
+      if (guiGroup != null) {
+        Group group = guiGroup.getGroup();
+        if (group != null) {
+          if (group.getTypeOfGroup() == TypeOfGroup.entity) {
+            subjectId = group.getId();
+            sourceId = "grouperEntities";
+          }
+        }
+      }
+      
+    }
     if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectIdentifier)
         && StringUtils.isBlank(subjectIdOrIdentifier) && StringUtils.isBlank(memberId)) {
       if (!displayErrorIfProblem) {
@@ -454,7 +471,7 @@ public class UiV2Subject {
         .assignSubjectId(subjectId).assignSubjectIdentifier(subjectIdentifier)
         .assignSubjectIdOrIdentifier(subjectIdOrIdentifier).assignMemberId(memberId);
 
-    subject = subjectFinder.findSubject();
+    subject = subjectFinder == null ? null : subjectFinder.findSubject();
     
     if (subject != null) {
       subjectContainer.setGuiSubject(new GuiSubject(subject));      
@@ -479,7 +496,23 @@ public class UiV2Subject {
             "/WEB-INF/grouperUi2/index/indexMain.jsp"));
       }
     }
-
+    // if this is a local entity, set the group so we can check privs
+    if (subject != null && StringUtils.equals(subject.getSourceId(), "grouperEntities")) {
+      final GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      final String SUBJECT_ID = subject.getId();
+      if (groupContainer.getGuiGroup() == null) {
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            
+            Group group = GroupFinder.findByUuid(grouperSession, SUBJECT_ID, false);
+            groupContainer.setGuiGroup(new GuiGroup(group));
+            return null;
+          }
+        });
+      }
+    }
+    
     return subject;
   }
 

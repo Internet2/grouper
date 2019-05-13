@@ -601,6 +601,10 @@ function dojoInitMenu(autoSelectNode) {
         //font-awesome icons...
         return "fa fa-group";
       }
+      if (item.theType == 'entity') {
+        //font-awesome icons...
+        return "fa fa-cloud-download";
+      }
       if (item.theType == 'attributeDef') {
         //font-awesome icons...
         return "fa fa-cog";
@@ -614,16 +618,18 @@ function dojoInitMenu(autoSelectNode) {
       // Get the URL from the item, and navigate to it
       if (item.theType == 'stem') {
         guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);                          
+      } else if (item.theType == 'entity') {
+        guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);                          
       } else if (item.theType == 'group') {
         guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);                          
       } else if (item.theType == 'attributeDef') {
         guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);                          
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeUpdate.createEdit&attributeDefId=' + item.id;
       } else if (item.theType == 'attributeDefName') {
-    	  guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id); 
+        guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id); 
         //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
       } else {
-        alert('ERROR: cant find theType on object with id: ' + item.id);
+        alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
       }
     }
   }, "folderTree"); // make sure you have a target HTML element with this id
@@ -643,6 +649,9 @@ function dojoInitMenu(autoSelectNode) {
       } else if (data.operation === "UiV2Group.viewGroup") {
         itemId = (data.groupName != undefined) ? data.groupName : data.groupId;
         itemType = (data.groupName != undefined) ? "groupName" : "group";
+      } else if (data.operation === "UiV2Subject.viewSubject" && data.sourceId === "grouperEntities") {
+        itemId = data.subjectId;
+        itemType = "group";
       } else if (data.operation === "UiV2Visualization.groupView") {
         itemId = data.objectId;
         itemType = "group";
@@ -2317,16 +2326,16 @@ function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId,
  * Also add attributes for accessibility
  * */
 function showHideMemberAddBlock() {
-	
+  
   $('#add-block-container').toggle('slow');
   if ($("#add-member-control-group").attr("aria-expanded") === 'true') {
-	  $("#add-member-control-group").attr("aria-expanded","false");
-	  $("#add-member-control-group").removeAttr("role");
+    $("#add-member-control-group").attr("aria-expanded","false");
+    $("#add-member-control-group").removeAttr("role");
   } else {
-	  $("#add-member-control-group").attr("aria-expanded","true");
-	  $("#add-member-control-group").attr("role", "alert");
-	  $("#groupAddMemberComboId").focus();
-  }	
+    $("#add-member-control-group").attr("aria-expanded","true");
+    $("#add-member-control-group").attr("role", "alert");
+    $("#groupAddMemberComboId").focus();
+  } 
 }
 
 /**
@@ -2334,16 +2343,16 @@ function showHideMemberAddBlock() {
  * Also add attributes for accessibility
  * */
 function showHideAssignPermissionBlock() {
-	
+  
   $('#assign-permission-block-container').toggle('slow');
   if ($("#assign-permission-block-container").attr("aria-expanded") === 'true') {
-	  $("#assign-permission-block-container").attr("aria-expanded","false");
-	  $("#assign-permission-block-container").removeAttr("role");
-  } else {	  
-	  $("#assign-permission-block-container").attr("aria-expanded","true");
-	  $("assign-permission-block-container").attr("role", "alert");
-	  $("#permissionDefComboId").focus();
-  }	
+    $("#assign-permission-block-container").attr("aria-expanded","false");
+    $("#assign-permission-block-container").removeAttr("role");
+  } else {    
+    $("#assign-permission-block-container").attr("aria-expanded","true");
+    $("assign-permission-block-container").attr("role", "alert");
+    $("#permissionDefComboId").focus();
+  } 
 }
 
 /**
@@ -2351,16 +2360,16 @@ function showHideAssignPermissionBlock() {
  * Also add attributes for accessibility
  * */
 function showHideStemAssignAttributeBlock() {
-	
+  
   $('#assign-stem-attribute-block-container').toggle('slow');
   if ($("#assign-stem-attribute-block-container").attr("aria-expanded") === 'true') {
-	  $("#assign-stem-attribute-block-container").attr("aria-expanded","false");
-	  $("#assign-stem-attribute-block-container").removeAttr("role");
-  } else {	  
-	  $("#assign-stem-attribute-block-container").attr("aria-expanded","true");
-	  $("assign-stem-attribute-block-container").attr("role", "alert");
-	  $("#parentFolderComboId").focus();
-  }	
+    $("#assign-stem-attribute-block-container").attr("aria-expanded","false");
+    $("#assign-stem-attribute-block-container").removeAttr("role");
+  } else {    
+    $("#assign-stem-attribute-block-container").attr("aria-expanded","true");
+    $("assign-stem-attribute-block-container").attr("role", "alert");
+    $("#parentFolderComboId").focus();
+  } 
 }
 
 /**
@@ -2368,16 +2377,16 @@ function showHideStemAssignAttributeBlock() {
  * Also add attributes for accessibility
  * */
 function showHideGroupAssignAttributeBlock() {
-	
+  
   $('#assign-group-attribute-block-container').toggle('slow');
   if ($("#assign-group-attribute-block-container").attr("aria-expanded") === 'true') {
-	  $("#assign-group-attribute-block-container").attr("aria-expanded","false");
-	  $("#assign-group-attribute-block-container").removeAttr("role");
-  } else {	  
-	  $("#assign-group-attribute-block-container").attr("aria-expanded","true");
-	  $("assign-group-attribute-block-container").attr("role", "alert");
-	  $("#parentFolderComboId").focus();
-  }	
+    $("#assign-group-attribute-block-container").attr("aria-expanded","false");
+    $("#assign-group-attribute-block-container").removeAttr("role");
+  } else {    
+    $("#assign-group-attribute-block-container").attr("aria-expanded","true");
+    $("assign-group-attribute-block-container").attr("role", "alert");
+    $("#parentFolderComboId").focus();
+  } 
 }
 
 /**
@@ -2385,16 +2394,16 @@ function showHideGroupAssignAttributeBlock() {
  * Also add attributes for accessibility
  * */
 function showHideAttributeDefAssignAttributeBlock() {
-	
-	$('#assign-attribute-def-attribute-block-container').toggle('slow');
-	if ($("#assign-attribute-def-attribute-block-container").attr("aria-expanded") === 'true') {
-		$("#assign-attribute-def-attribute-block-container").attr("aria-expanded","false");
-		$("#assign-attribute-def-attribute-block-container").removeAttr("role");
-	} else {	  
-		$("#assign-attribute-def-attribute-block-container").attr("aria-expanded","true");
-		$("assign-attribute-def-attribute-block-container").attr("role", "alert");
-		$("#parentFolderComboId").focus();
-	}	
+  
+  $('#assign-attribute-def-attribute-block-container').toggle('slow');
+  if ($("#assign-attribute-def-attribute-block-container").attr("aria-expanded") === 'true') {
+    $("#assign-attribute-def-attribute-block-container").attr("aria-expanded","false");
+    $("#assign-attribute-def-attribute-block-container").removeAttr("role");
+  } else {    
+    $("#assign-attribute-def-attribute-block-container").attr("aria-expanded","true");
+    $("assign-attribute-def-attribute-block-container").attr("role", "alert");
+    $("#parentFolderComboId").focus();
+  } 
 }
 
 /**
@@ -2402,16 +2411,16 @@ function showHideAttributeDefAssignAttributeBlock() {
  * Also add attributes for accessibility
  * */
 function showHideSubjectAssignAttributeBlock() {
-	
-	$('#assign-subject-attribute-block-container').toggle('slow');
-	if ($("#assign-subject-attribute-block-container").attr("aria-expanded") === 'true') {
-		$("#assign-subject-attribute-block-container").attr("aria-expanded","false");
-		$("#assign-subject-attribute-block-container").removeAttr("role");
-	} else {	  
-		$("#assign-subject-attribute-block-container").attr("aria-expanded","true");
-		$("assign-subject-attribute-block-container").attr("role", "alert");
-		$("#parentFolderComboId").focus();
-	}	
+  
+  $('#assign-subject-attribute-block-container').toggle('slow');
+  if ($("#assign-subject-attribute-block-container").attr("aria-expanded") === 'true') {
+    $("#assign-subject-attribute-block-container").attr("aria-expanded","false");
+    $("#assign-subject-attribute-block-container").removeAttr("role");
+  } else {    
+    $("#assign-subject-attribute-block-container").attr("aria-expanded","true");
+    $("assign-subject-attribute-block-container").attr("role", "alert");
+    $("#parentFolderComboId").focus();
+  } 
 }
 
 /**
@@ -2419,16 +2428,16 @@ function showHideSubjectAssignAttributeBlock() {
  * Also add attributes for accessibility
  * */
 function showHideMembershipAssignAttributeBlock() {
-	
-	$('#assign-membership-attribute-block-container').toggle('slow');
-	if ($("#assign-membership-attribute-block-container").attr("aria-expanded") === 'true') {
-		$("#assign-membership-attribute-block-container").attr("aria-expanded","false");
-		$("#assign-membership-attribute-block-container").removeAttr("role");
-	} else {	  
-		$("#assign-membership-attribute-block-container").attr("aria-expanded","true");
-		$("assign-membership-attribute-block-container").attr("role", "alert");
-		$("#parentFolderComboId").focus();
-	}	
+  
+  $('#assign-membership-attribute-block-container').toggle('slow');
+  if ($("#assign-membership-attribute-block-container").attr("aria-expanded") === 'true') {
+    $("#assign-membership-attribute-block-container").attr("aria-expanded","false");
+    $("#assign-membership-attribute-block-container").removeAttr("role");
+  } else {    
+    $("#assign-membership-attribute-block-container").attr("aria-expanded","true");
+    $("assign-membership-attribute-block-container").attr("role", "alert");
+    $("#parentFolderComboId").focus();
+  } 
 }
 
 
@@ -2437,7 +2446,7 @@ function showHideMembershipAssignAttributeBlock() {
  * Also add attributes for accessibility
  * */
 function showCustomPrivilege(elementId) {
-	
+  
   $('#'+elementId).show('slow');
   $('#'+elementId).attr("aria-expanded","true");
   $('#'+elementId).attr("role", "alert");
@@ -2453,11 +2462,11 @@ function showCustomPrivilege(elementId) {
  * Also add attributes for accessibility
  * */
 function hideCustomPrivilege(elementId) {
-	
+  
   $('#'+elementId).hide('slow');
   $('#'+elementId).attr("aria-expanded","false");
   $('#'+elementId).removeAttr("role");
-	
+  
   //$("#add-members-privileges").hide('slow');
   //$("#add-members-privileges").attr("aria-expanded","false");
   //$("#add-members-privileges").removeAttr("role");

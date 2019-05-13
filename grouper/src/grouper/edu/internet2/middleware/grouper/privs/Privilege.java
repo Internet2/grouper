@@ -222,6 +222,8 @@ public class Privilege implements Serializable {
   /** */
   private static final Set<Privilege>         ACCESS  = new LinkedHashSet<Privilege>();
   /** */
+  private static final Set<Privilege>         ENTITY  = new LinkedHashSet<Privilege>();
+  /** */
   private static final Privilege              CREATE  = new Privilege("create");
   /** */
   private static final Privilege              STEM    = new Privilege("stem"  );  
@@ -472,6 +474,7 @@ public class Privilege implements Serializable {
   static {
     PRIVS.put(  ADMIN.toString().toLowerCase()  , ADMIN   );
     ACCESS.add( ADMIN                       );
+    ENTITY.add( ADMIN                       );
     PRIVS.put(  CREATE.toString().toLowerCase() , CREATE  );
     NAMING.add( CREATE                      );
     PRIVS.put(  OPTIN.toString().toLowerCase()  , OPTIN   );
@@ -489,10 +492,13 @@ public class Privilege implements Serializable {
     ACCESS.add( UPDATE                      );
     PRIVS.put(  VIEW.toString().toLowerCase()   , VIEW    );
     ACCESS.add( VIEW                        );
+    ENTITY.add( VIEW                        );
     PRIVS.put(GROUP_ATTR_READ.toString().toLowerCase(), GROUP_ATTR_READ);
     ACCESS.add(GROUP_ATTR_READ);
+    ENTITY.add(GROUP_ATTR_READ);
     PRIVS.put(GROUP_ATTR_UPDATE.toString().toLowerCase(), GROUP_ATTR_UPDATE);
     ACCESS.add(GROUP_ATTR_UPDATE);
+    ENTITY.add(GROUP_ATTR_UPDATE);
     PRIVS.put(STEM_ATTR_READ.toString().toLowerCase(), STEM_ATTR_READ);
     NAMING.add(STEM_ATTR_READ);
     PRIVS.put(STEM_ATTR_UPDATE.toString().toLowerCase(), STEM_ATTR_UPDATE);
@@ -565,6 +571,14 @@ public class Privilege implements Serializable {
   public static Set<Privilege> getAccessPrivs() {
     return ACCESS;
   } // public static Set getAccessPrivs()
+
+  /**
+   * 
+   * @return entity access (group) privs
+   */
+  public static Set<Privilege> getEntityPrivs() {
+    return ENTITY;
+  } // public static Set getEntityPrivs()
 
   /**
    * 
@@ -655,6 +669,18 @@ public class Privilege implements Serializable {
    */
   public static boolean isAccess(Privilege p) {
     if (ACCESS.contains(p)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param p
+   * @return if entity
+   */
+  public static boolean isEntity(Privilege p) {
+    if (ENTITY.contains(p)) {
       return true;
     }
     return false;

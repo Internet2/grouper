@@ -276,8 +276,13 @@ public class UiV2Group {
       if (group == null) {
         return;
       }
-  
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (group.getTypeOfGroup() == TypeOfGroup.entity) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=" + group.getId() + "')"));
+        return;
+      }
       
       if (retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup() != null) {
         UiV2Attestation.setupAttestation(group);            
@@ -1261,12 +1266,20 @@ public class UiV2Group {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("groupSuccessAddedToMyFavorites")));
+      if (group.getTypeOfGroup() == TypeOfGroup.entity) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("localEntitySuccessAddedToMyFavorites")));
+        //redisplay so the button will change
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+            "/WEB-INF/grouperUi2/localEntity/localEntityMoreActionsButtonContents.jsp"));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupSuccessAddedToMyFavorites")));
+        //redisplay so the button will change
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+            "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+      }
 
-      //redisplay so the button will change
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
-          "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
 
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
@@ -1306,13 +1319,21 @@ public class UiV2Group {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("groupSuccessRemovedFromMyFavorites")));
+      if (group.getTypeOfGroup() == TypeOfGroup.entity) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("localEntitySuccessRemovedFromMyFavorites")));
+        //redisplay so the button will change
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+            "/WEB-INF/grouperUi2/localEntity/localEntityMoreActionsButtonContents.jsp"));
+      } else {
 
-      //redisplay so the button will change
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
-          "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
-
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupSuccessRemovedFromMyFavorites")));
+  
+        //redisplay so the button will change
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+            "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+      }
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -1962,7 +1983,7 @@ public class UiV2Group {
    * @param guiResponseJs
    * @param gve
    */
-  private void handleGrouperValidationException(GuiResponseJs guiResponseJs,
+  public static void handleGrouperValidationException(GuiResponseJs guiResponseJs,
       GrouperValidationException gve) {
     //  groupValidation_groupDescriptionTooLong = Error, group description is too long
     //  groupValidation_groupDisplayExtensionTooLong = Error, group name is too long
@@ -5030,6 +5051,9 @@ public class UiV2Group {
     
   }
 
+
+}
+
 //  /**
 //   * this subjects privileges inherited from folders
 //   * @param request
@@ -5068,4 +5092,4 @@ public class UiV2Group {
 //      GrouperSession.stopQuietly(grouperSession);
 //    }
 //  }
-}
+

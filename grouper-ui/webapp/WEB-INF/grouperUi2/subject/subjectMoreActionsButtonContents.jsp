@@ -11,6 +11,12 @@
      <a id="show-add-block" href="#" onclick="$('#add-block-attributeDef-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
        ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToAttributeDef'] }</a>
    </c:when>
+   <c:when test="${grouperRequestContainer.subjectContainer.showEntityPrivilege}">
+     <a id="show-add-block" href="javascript:void(0);" onclick="showHideMemberAddBlock()" 
+       class="btn btn-medium btn-primary btn-block" role="button">
+         <i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
+     </a>
+   </c:when>
    <c:otherwise>
      <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-block btn-primary"
          style="white-space: nowrap;">
@@ -67,6 +73,15 @@
            >${textContainer.text['subjectViewPrivilegeAuditButton'] }</a></li>
            
      </c:if>
+
+     <li class="divider"></li>
+      <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.groupContainer.canAdmin }">
+        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+          >${textContainer.text['localEntityViewEditLocalEntityButton'] }</a></li>
+        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+          >${textContainer.text['localEntityViewDeleteLocalEntityButton'] }</a></li>
+          
+      </c:if>
 
      <li class="divider"></li>
      <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.subjectView&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"

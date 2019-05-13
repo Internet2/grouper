@@ -610,7 +610,7 @@ public class GrouperUserDataApi {
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
   
-              return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.GROUP_OR_ROLE_SET);
+              return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.ALL);
   
             }
           });

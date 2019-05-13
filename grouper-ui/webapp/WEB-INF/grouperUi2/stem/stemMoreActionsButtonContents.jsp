@@ -59,6 +59,12 @@
                             onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
 
                         </c:if>
+                        <c:if test="${grouperRequestContainer.stemContainer.canCreateGroups }">
+
+                          <li><a href="#"
+                            onclick="return guiV2link('operation=UiV2LocalEntity.newLocalEntity', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewLocalEntityMenuButton'] }</a></li>
+
+                        </c:if>
                         
                         <c:if test="${grouperRequestContainer.stemContainer.canReadAttributes || grouperRequestContainer.stemContainer.canCreateStems}">
                           <li class="divider"></li>
