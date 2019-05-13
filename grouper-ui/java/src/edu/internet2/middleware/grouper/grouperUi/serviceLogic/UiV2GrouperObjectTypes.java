@@ -829,13 +829,22 @@ public class UiV2GrouperObjectTypes {
         return;
       }
       
+      final Stem STEM = stem;
       
-      List<StemObjectType> stemObjectTypes = GrouperObjectTypesConfiguration.getAutoAssignTypeStemCandidates(stem);
-      List<GuiStemObjectType> guiStemObjectTypes = GuiStemObjectType.convertFromStemObjectType(stemObjectTypes);
-      objectTypeContainer.setGuiStemObjectTypes(guiStemObjectTypes);
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          List<StemObjectType> stemObjectTypes = GrouperObjectTypesConfiguration.getAutoAssignTypeStemCandidates(STEM);
+          List<GuiStemObjectType> guiStemObjectTypes = GuiStemObjectType.convertFromStemObjectType(stemObjectTypes);
+          objectTypeContainer.setGuiStemObjectTypes(guiStemObjectTypes);          
+          
+          return null;
+        }
+      });
       
-      List<Stem> serviceStems = GrouperObjectTypesConfiguration.findStemsWhereCurrentUserIsAdminOfService(loggedInSubject);
-      objectTypeContainer.setServiceStems(serviceStems);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/grouperObjectTypes/grouperObjectTypesFolderAutoAssign.jsp"));

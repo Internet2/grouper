@@ -26,23 +26,24 @@
 	                  <form class="form-inline form-small form-filter" id="grouperObjectTypeAutoAssignFormId">
 	                  
 		                  <c:forEach var="guiStemObjectType" items="${grouperRequestContainer.objectTypeContainer.guiStemObjectTypes}">
-		                    <table class="table table-condensed table-striped">
+		                    <table class="table table-condensed" 
+		                      style="background-color: #ffffff; border:1px #d5d0d0 solid;">
 		                    <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeNameLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeNameLabel']}</label></strong></td>
                           <td>
                             ${guiStemObjectType.stemObjectType.objectType}
                           </td>
                         </tr>
                         
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableFolderLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableFolderLabel']}</label></strong></td>
                           <td>
-                           ${guiStemObjectType.guiStem.shortLinkWithIcon}
+                           ${guiStemObjectType.guiStem.linkWithIcon}
                           </td>
                         </tr>
                         
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableSelectLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableSelectLabel']}</label></strong></td>
                           <td>
                            <label class="checkbox">
                               <input type="checkbox" name="stemObjectType" value="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}"
@@ -53,14 +54,14 @@
                         
                         <c:if test="${guiStemObjectType.showDataOwnerMemberDescription}">
 	                        <tr>
-	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableDataOwnerLabel']}</label></strong></td>
+	                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableDataOwnerLabel']}</label></strong></td>
 	                          <td>
 	                            <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_dataOwner"/>
 	                          </td>
 	                        </tr>
 	                        
 	                        <tr>
-	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableMemberDescriptionLabel']}</label></strong></td>
+	                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableMemberDescriptionLabel']}</label></strong></td>
 	                          <td>
 	                            <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_memberDescription"/>
 	                          </td>
@@ -70,7 +71,7 @@
                         <c:if test="${guiStemObjectType.showServiceName}">
                         
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['objectTypeAutoAssignTableServiceLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableServiceLabel']}</label></strong></td>
                             <td>
                               <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_service"/>
                             </td>
@@ -78,8 +79,6 @@
                         
                         </c:if>
                         
-                        </br>
-                        </br>
                         </br>
 		                   </table>
 		                  </c:forEach>

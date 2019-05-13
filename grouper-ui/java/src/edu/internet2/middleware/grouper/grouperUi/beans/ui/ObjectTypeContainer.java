@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.APP;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.SERVICE;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiStemO
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class ObjectTypeContainer {
@@ -180,7 +184,11 @@ public class ObjectTypeContainer {
       
       String title = TextContainer.retrieveFromRequest().getTextEscapeXml()
           .get(guiGrouperObjectTypesAttributeValue.getObjectTypeDescriptionKey());
-      types.add("<span rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" style=\"border-bottom: 1px dotted black;\" data-placement=\"right\" title=\""+title+"\">"+typesAttributeValue.getObjectTypeName()+"</span>");
+      
+      String escapedTooltipText = StringUtils.replace(title, "'", "&#39;");
+      escapedTooltipText = GrouperUiUtils.escapeHtml(escapedTooltipText, true, true);
+      
+      types.add("<span class=\"grouperTooltip\" onmouseover=\"grouperTooltip('"+escapedTooltipText+"')\" onmouseout=\"UnTip()\" >"+typesAttributeValue.getObjectTypeName()+"</span>");
       
       if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeDataOwner())) {    
         dataOwners.add(typesAttributeValue.getObjectTypeDataOwner());
@@ -190,7 +198,7 @@ public class ObjectTypeContainer {
         memberDescriptions.add(typesAttributeValue.getObjectTypeMemberDescription());
       }
       
-      if (typesAttributeValue.getObjectTypeName().equals("app") && !typesAttributeValue.isDirectAssignment()) {
+      if (typesAttributeValue.getObjectTypeName().equals(APP) && !typesAttributeValue.isDirectAssignment()) {
         
          GrouperSession.callbackGrouperSession(
             GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
@@ -211,7 +219,7 @@ public class ObjectTypeContainer {
         
       }
       
-      if (typesAttributeValue.getObjectTypeName().equals("service") && !typesAttributeValue.isDirectAssignment()) {
+      if (typesAttributeValue.getObjectTypeName().equals(SERVICE) && !typesAttributeValue.isDirectAssignment()) {
         
         GrouperSession.callbackGrouperSession(
           GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
