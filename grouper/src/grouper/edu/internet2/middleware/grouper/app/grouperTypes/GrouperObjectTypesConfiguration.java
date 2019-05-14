@@ -248,7 +248,7 @@ public class GrouperObjectTypesConfiguration {
         
         List<GrouperObjectTypesAttributeValue> objectTypesAttributeValues = getGrouperObjectTypesAttributeValues(child);
         if (objectTypesAttributeValues.size() == 0) {
-          result.add(new StemObjectType(child, child.getExtension().toLowerCase()));;          
+          result.add(new StemObjectType(child, child.getExtension().toLowerCase()));       
         }
       }
     }
