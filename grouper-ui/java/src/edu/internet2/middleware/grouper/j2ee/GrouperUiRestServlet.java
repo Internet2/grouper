@@ -100,7 +100,48 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
+
       MiscMenu.class.getSimpleName() + ".miscMenuStructure",
+      
+      // ##############
+      // we need the Lite UI things in here in case someone installs it.  We can remove at some point
+      "InviteExternalSubjects.groupToAssignFilter",
+      "SimpleMembershipUpdateFilter.filterUsers", 
+      "SimpleMembershipUpdateFilter.filterGroups",
+      "SimpleMembershipUpdateMenu.advancedMenuStructure", 
+      "SimpleMembershipUpdateImportExport.exportSubjectIdsCsv",
+      "SimpleMembershipUpdateImportExport.exportAllCsv", 
+      "SimpleMembershipUpdateMenu.memberMenuStructure",
+      "SimpleMembershipUpdateFilter.filterMembers", 
+      "SimpleAttributeUpdateFilter.filterAttributeDefs",
+      "SimpleAttributeUpdateFilter.filterCreatableNamespace", 
+      "SimpleAttributeUpdateFilter.filterPrivilegeUsers",
+      "SimpleAttributeNameUpdateFilter.filterAttributeDefs",
+      "SimpleGroupUpdateFilter.filterGroups",
+      "SimpleAttributeNameUpdateFilter.filterAttributeDefNames",
+      "SimpleAttributeNameUpdateFilter.filterCreatableNamespace",
+      "SimpleGroupUpdateFilter.filterCreatableNamespace",
+      "SimpleGroupUpdateFilter.filterPrivilegeUsers",
+      "SimpleGroupUpdateFilter.filterRoles",
+      "SimpleAttributeUpdateFilter.filterAttributeDefsByOwnerType",
+      "SimpleAttributeUpdateFilter.filterAttributeNamesByOwnerType",
+      "SimpleAttributeUpdateFilter.filterGroups",
+      "SimpleAttributeUpdateFilter.filterGroupsForMembershipAssignment",
+      "SimpleAttributeUpdateFilter.filterStems",
+      "SimpleAttributeUpdateFilter.filterSubjects",
+      "SimpleAttributeUpdateMenu.assignmentMenuStructure",
+      "SimplePermissionUpdateFilter.filterPermissionAttributeDefs",
+      "SimplePermissionUpdateFilter.filterPermissionResources",
+      "SimplePermissionUpdateFilter.filterRoles",
+      "SimplePermissionUpdateFilter.filterSubjects",
+      "SimplePermissionUpdateFilter.filterActions",
+      "SimplePermissionUpdateMenu.assignmentMenuStructure",
+      "SimplePermissionUpdateFilter.filterLimitDefinitions",
+      "SimplePermissionUpdateFilter.filterLimitNames",
+      "SimplePermissionUpdateMenu.limitMenuStructure",
+      "SimpleGroupUpdateFilter.filterGroupsRolesEntities",
+      // #################
+      
       UiV2SubjectPermission.class.getSimpleName() + ".assignmentMenuStructure",
       UiV2SubjectPermission.class.getSimpleName() + ".limitMenuStructure",
       UiV2SubjectPermission.class.getSimpleName() + ".limitValueMenuStructure",
