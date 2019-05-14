@@ -28,11 +28,14 @@ public enum ServiceActionType {
       
       if (stem == null) {
         
-        new StemSave(session)
+        stem = new StemSave(session)
         .assignName(serviceAction.getArgMap().get("stemName"))
         .assignDisplayName(serviceAction.getArgMap().get("stemDisplayName"))
         .assignDescription(serviceAction.getArgMap().get("stemDescription"))
         .save();
+        
+        serviceAction.getService().assignTypeToStem(stem);
+        
       }
      
     }

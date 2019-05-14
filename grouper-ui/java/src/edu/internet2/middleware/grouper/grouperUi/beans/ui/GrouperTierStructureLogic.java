@@ -10,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 
 public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
   
@@ -399,5 +402,23 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
   public String getSelectLabelKey() {
     return "stemTemplateTypeTierStructureLabel";
   }
+
+  @Override
+  public void assignTypeToStem(Stem stem) {
+    
+    GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    
+    if (stem.getExtension().equals(GrouperObjectTypesSettings.ETC)) {
+      attributeValue.setObjectTypeName(GrouperObjectTypesSettings.ETC);
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
+    } else if (stem.getExtension().equals("security")) {
+      attributeValue.setObjectTypeName(GrouperObjectTypesSettings.GROUPER_SECURITY);
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
+    }
+    
+  }
+  
+  
 
 }

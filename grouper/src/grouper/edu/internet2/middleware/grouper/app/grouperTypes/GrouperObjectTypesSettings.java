@@ -1,11 +1,5 @@
 package edu.internet2.middleware.grouper.app.grouperTypes;
 
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.BASIS;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.BUNDLE;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.ORG;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.POLICY;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.REF;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

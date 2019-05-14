@@ -3,7 +3,13 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.APP;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.GROUPER_SECURITY;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.POLICY;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.REF;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 
 /**
  * @author vsachdeva
@@ -293,7 +301,24 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
   public String getSelectLabelKey() {
     return "stemTemplateTypeServiceLabel";
   }
-  
-  
+
+
+  @Override
+  public void assignTypeToStem(Stem stem) {
+    
+    GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    
+    List<String> autoCreateTypes = Arrays.asList(APP, POLICY, REF);
+    
+    if (autoCreateTypes.contains(stem.getExtension())) {
+      attributeValue.setObjectTypeName(stem.getExtension());
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
+    } else if (stem.getExtension().equals("security")) {
+      attributeValue.setObjectTypeName(GROUPER_SECURITY);
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
+    }
+    
+  }  
 
 }
