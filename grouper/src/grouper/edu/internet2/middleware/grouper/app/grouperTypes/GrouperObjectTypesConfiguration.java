@@ -243,16 +243,18 @@ public class GrouperObjectTypesConfiguration {
     
     Set<Stem> children = stem.getChildStems(Scope.SUB);
     
-    Set<String> typeNames = new HashSet<>(GrouperObjectTypesSettings.getObjectTypeNames());
-    
     for (Stem child: children) {
-      if (typeNames.contains(child.getExtension().toLowerCase())) {
-        
+      
+      String folderExtension = child.getExtension().toLowerCase();
+      String objecType = GrouperObjectTypesSettings.getFolderExtensionToTypeSuggestion().get(folderExtension);
+      if (StringUtils.isNotBlank(objecType)) {
+        // if folder already has types assigned, no need to suggest anything
         List<GrouperObjectTypesAttributeValue> objectTypesAttributeValues = getGrouperObjectTypesAttributeValues(child);
         if (objectTypesAttributeValues.size() == 0) {
-          result.add(new StemObjectType(child, child.getExtension().toLowerCase()));       
+          result.add(new StemObjectType(child, objecType));
         }
       }
+      
     }
     
     return result;
