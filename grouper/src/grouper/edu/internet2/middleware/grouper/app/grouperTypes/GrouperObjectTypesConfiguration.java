@@ -93,8 +93,10 @@ public class GrouperObjectTypesConfiguration {
     if (attributeAssign == null) {
       if (grouperObject instanceof Group) {
         attributeAssign = ((Group)grouperObject).getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
-      } else {
+      } else if (grouperObject instanceof Stem) {
         attributeAssign = ((Stem)grouperObject).getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+      } else {
+        throw new RuntimeException("Only Groups and Folders can have types");
       }
     }
     
@@ -328,12 +330,12 @@ public class GrouperObjectTypesConfiguration {
   
   private static AttributeAssign getAttributeAssign(GrouperObject grouperObject, String objectType) {
     
-    Set<AttributeAssign> attributeAssigns = null;
+    Set<AttributeAssign> attributeAssigns = new HashSet<AttributeAssign>();
     
     if (grouperObject instanceof Group) {
       Group group = (Group)grouperObject;
       attributeAssigns = group.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
-    } else {
+    } else if (grouperObject instanceof Stem) {
       Stem stem = (Stem)grouperObject;
       attributeAssigns = stem.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
     }

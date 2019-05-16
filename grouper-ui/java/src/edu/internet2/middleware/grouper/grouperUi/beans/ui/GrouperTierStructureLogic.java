@@ -73,7 +73,6 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       
         Do you want a "org:Engineering School:basis" folder created? 
         Do you want a "org:Engineering School:ref" folder created?
-        Do you want a "org:Engineering School:bundle" folder created?
         Do you want a "org:Engineering School:app" folder created?
         Do you want a "org:Engineering School:org?
         Do you want a "org:Engineering School:test" folder created?
@@ -139,11 +138,11 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Two);
       }
       
-      //Do you want a "org:Engineering School:bundle" folder created?
+      //Do you want a "org:Engineering School:app" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"bundle"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"bundle"));
-      args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierBundleFolderDescription")));
+      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"app"));
+      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"app"));
+      args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierAppFolderDescription")));
       ServiceAction levelOneServiceAction_Three = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
       serviceActionsForStem.add(levelOneServiceAction_Three);
@@ -151,28 +150,16 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Three);
       }
       
-      //Do you want a "org:Engineering School:app" folder created?
-      args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"app"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"app"));
-      args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierAppFolderDescription")));
-      ServiceAction levelOneServiceAction_Four = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation",
-          ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
-      serviceActionsForStem.add(levelOneServiceAction_Four);
-      if (addFirstNode) {        
-        rootServiceAction.addChildServiceAction(levelOneServiceAction_Four);
-      }
-      
       //Do you want a "org:Engineering School:org?
       args = new ArrayList<ServiceActionArgument>();
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"org"));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"org"));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierOrgFolderDescription")));
-      ServiceAction levelOneServiceAction_Five = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
+      ServiceAction levelOneServiceAction_Four = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
-      serviceActionsForStem.add(levelOneServiceAction_Five);
+      serviceActionsForStem.add(levelOneServiceAction_Four);
       if (addFirstNode) {        
-        rootServiceAction.addChildServiceAction(levelOneServiceAction_Five);
+        rootServiceAction.addChildServiceAction(levelOneServiceAction_Four);
       }
       
       //Do you want a "org:Engineering School:test" folder created?
@@ -180,11 +167,11 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"test"));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"test"));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierTestFolderDescription")));
-      ServiceAction levelOneServiceAction_Six = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
+      ServiceAction levelOneServiceAction_Five = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
-      serviceActionsForStem.add(levelOneServiceAction_Six);
+      serviceActionsForStem.add(levelOneServiceAction_Five);
       if (addFirstNode) {        
-        rootServiceAction.addChildServiceAction(levelOneServiceAction_Six);
+        rootServiceAction.addChildServiceAction(levelOneServiceAction_Five);
       }
       
       //Do you want a "org:Engineering School:etc" folder created?
@@ -192,11 +179,11 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"etc"));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"etc"));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierEtcFolderDescription")));
-      ServiceAction levelOneServiceAction_Seven = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
+      ServiceAction levelOneServiceAction_Six = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
-      serviceActionsForStem.add(levelOneServiceAction_Seven);
+      serviceActionsForStem.add(levelOneServiceAction_Six);
       if (addFirstNode) {        
-        rootServiceAction.addChildServiceAction(levelOneServiceAction_Seven);
+        rootServiceAction.addChildServiceAction(levelOneServiceAction_Six);
       }
       
       
@@ -208,7 +195,7 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       ServiceAction levelTwoServiceAction_One = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
       serviceActionsForStem.add(levelTwoServiceAction_One);
-      levelOneServiceAction_Seven.addChildServiceAction(levelTwoServiceAction_One);
+      levelOneServiceAction_Six.addChildServiceAction(levelTwoServiceAction_One);
       
       //Do you want a "org:Engineering School:etc:security:Engineering School Admins" group created? (ID is "engineeringSchoolAdmins", name is "Engineering School Admins")
       args = new ArrayList<ServiceActionArgument>();

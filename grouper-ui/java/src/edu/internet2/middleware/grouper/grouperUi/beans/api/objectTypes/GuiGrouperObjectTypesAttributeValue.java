@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes;
 
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.APP;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.BASIS;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.BUNDLE;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.ETC;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.GROUPER_SECURITY;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.ORG;
@@ -29,7 +28,6 @@ public class GuiGrouperObjectTypesAttributeValue {
   static {
     objectTypesToDescriptions.put(BASIS, "objectTypeBasisFolderDescription");
     objectTypesToDescriptions.put(REF, "objectTypeRefFolderDescription");
-    objectTypesToDescriptions.put(BUNDLE, "objectTypeBundleFolderDescription");
     objectTypesToDescriptions.put(POLICY, "objectTypePolicyFolderDescription");
     objectTypesToDescriptions.put(ETC, "objectTypeEtcFolderDescription");
     objectTypesToDescriptions.put(GROUPER_SECURITY, "objectTypeGrouperSecurityFolderDescription");
