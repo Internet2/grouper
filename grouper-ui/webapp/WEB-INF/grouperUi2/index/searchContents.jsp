@@ -23,7 +23,7 @@
                     <c:forEach items="${grouperRequestContainer.indexContainer.searchGuiObjectsResults}" var="guiObjectBase">
                       <tr>
                         <td>${guiObjectBase.pathColonSpaceSeparated }</td>
-                        <td>${guiObjectBase.shortLinkWithIcon } ${guiObjectBase.userFriendlyTypesNames}</td>
+                        <td>${guiObjectBase.shortLinkWithIcon }</td>
                       </tr>
                     </c:forEach>
                   </tbody>
