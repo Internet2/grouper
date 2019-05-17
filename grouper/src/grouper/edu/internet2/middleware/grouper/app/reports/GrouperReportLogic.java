@@ -113,6 +113,7 @@ public class GrouperReportLogic {
       reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
       
     } catch(Exception e) {
+      LOG.error("Error occurred generating report for config name "+reportConfigBean.getReportConfigName(), e);
       reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_ERROR);
     } finally {
       File tmpReportsPath = new File(GrouperUtil.tmpDir() + "reports");
