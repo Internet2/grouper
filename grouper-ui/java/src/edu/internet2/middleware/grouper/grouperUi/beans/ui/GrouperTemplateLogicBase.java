@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
@@ -126,6 +127,11 @@ public abstract class GrouperTemplateLogicBase {
    * @return
    */
   public abstract String getSelectLabelKey();
+  
+  /**
+   * assign type to stem
+   */
+  public abstract void assignTypeToStem(Stem stem);
   
   
 }

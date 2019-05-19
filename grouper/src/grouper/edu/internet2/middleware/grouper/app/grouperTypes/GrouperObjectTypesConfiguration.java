@@ -93,8 +93,10 @@ public class GrouperObjectTypesConfiguration {
     if (attributeAssign == null) {
       if (grouperObject instanceof Group) {
         attributeAssign = ((Group)grouperObject).getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
-      } else {
+      } else if (grouperObject instanceof Stem) {
         attributeAssign = ((Stem)grouperObject).getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+      } else {
+        throw new RuntimeException("Only Groups and Folders can have types");
       }
     }
     
@@ -229,6 +231,34 @@ public class GrouperObjectTypesConfiguration {
     return stems;
   }
   
+  /**
+   * search all the children of the given stem and return stems with object types
+   *  that are candidates for auto assigning types
+   * @param stem
+   * @param children
+   * @return
+   */
+  public static List<StemObjectType> getAutoAssignTypeStemCandidates(Stem stem, Set<Stem> children) {
+    
+    List<StemObjectType> result = new ArrayList<StemObjectType>();
+    
+    for (Stem child: children) {
+      
+      String folderExtension = child.getExtension().toLowerCase();
+      String objecType = GrouperObjectTypesSettings.getFolderExtensionToTypeSuggestion().get(folderExtension);
+      if (StringUtils.isNotBlank(objecType)) {
+        // if folder already has types assigned, no need to suggest anything
+        List<GrouperObjectTypesAttributeValue> objectTypesAttributeValues = getGrouperObjectTypesAttributeValues(child);
+        if (objectTypesAttributeValues.size() == 0) {
+          result.add(new StemObjectType(child, objecType));
+        }
+      }
+      
+    }
+    
+    return result;
+  }
+  
   private static void deleteAttributesOnAllChildrenWithIndirectConfig(Stem stem, String objectType) {
     
     Set<GrouperObject> children = new HashSet<GrouperObject>(stem.getChildGroups(Scope.SUB));
@@ -301,12 +331,12 @@ public class GrouperObjectTypesConfiguration {
   
   private static AttributeAssign getAttributeAssign(GrouperObject grouperObject, String objectType) {
     
-    Set<AttributeAssign> attributeAssigns = null;
+    Set<AttributeAssign> attributeAssigns = new HashSet<AttributeAssign>();
     
     if (grouperObject instanceof Group) {
       Group group = (Group)grouperObject;
       attributeAssigns = group.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
-    } else {
+    } else if (grouperObject instanceof Stem) {
       Stem stem = (Stem)grouperObject;
       attributeAssigns = stem.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
     }

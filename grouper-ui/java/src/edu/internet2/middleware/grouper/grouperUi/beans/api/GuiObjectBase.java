@@ -16,23 +16,28 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -481,6 +486,36 @@ public abstract class GuiObjectBase {
     
     String resultString = result.toString();
     return resultString;
+  }
+  
+  /**
+   * 
+   * @return comma separated list of types with tooltips this grouper object (stem/group) is assigned to
+   */
+  public String getUserFriendlyTypesNames() {
+    StringBuilder output = new StringBuilder();
+    List<String> types = new ArrayList<String>();
+    
+    List<GrouperObjectTypesAttributeValue> attributeValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(getGrouperObject());
+    List<GuiGrouperObjectTypesAttributeValue> guiAttributeValues = GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValues);
+    
+    if (attributeValues.size() > 0) {
+      output.append("(");
+      for (GuiGrouperObjectTypesAttributeValue guiAttributeValue: guiAttributeValues) {
+        String title = TextContainer.retrieveFromRequest().getTextEscapeXml()
+            .get(guiAttributeValue.getObjectTypeDescriptionKey());
+        
+        String escapedTooltipText = StringUtils.replace(title, "'", "&#39;");
+        escapedTooltipText = GrouperUiUtils.escapeHtml(escapedTooltipText, true, true);
+        
+        types.add("<span class=\"grouperTooltip\" onmouseover=\"grouperTooltip('"+escapedTooltipText+"')\" onmouseout=\"UnTip()\" >"
+            +guiAttributeValue.getGrouperObjectTypesAttributeValue().getObjectTypeName()+"</span>");
+      }
+      output.append(StringUtils.join(types, ", "));
+      output.append(")");
+    }
+    
+    return output.toString();
   }
 
   
