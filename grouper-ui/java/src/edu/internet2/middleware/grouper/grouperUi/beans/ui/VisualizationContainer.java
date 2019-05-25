@@ -30,6 +30,7 @@ public class VisualizationContainer {
   private boolean drawShowProvisioners;
   private boolean drawShowAllMemberCounts;
   private boolean drawShowDirectMemberCounts;
+  private boolean drawShowObjectTypes;
   private boolean drawIncludeGroupsInMemberCounts;
   private GrouperObject grouperObject;
 
@@ -248,15 +249,6 @@ public class VisualizationContainer {
   }
 
   /**
-   * true if graph should include direct member counts for groups
-   *
-   * @return true if graph should include direct member counts
-   */
-  public boolean isDrawShowDirectMemberCounts() {
-    return drawShowDirectMemberCounts;
-  }
-
-  /**
    * true if graph should include total member counts for groups
    *
    * @param drawShowAllMemberCounts true if should include total member counts for groups
@@ -268,10 +260,37 @@ public class VisualizationContainer {
   /**
    * true if graph should include direct member counts for groups
    *
+   * @return true if graph should include direct member counts
+   */
+  public boolean isDrawShowDirectMemberCounts() {
+    return drawShowDirectMemberCounts;
+  }
+
+  /**
+   * true if graph should include direct member counts for groups
+   *
    * @param drawShowDirectMemberCounts true if should include direct member counts
    */
   public void setDrawShowDirectMemberCounts(boolean drawShowDirectMemberCounts) {
     this.drawShowDirectMemberCounts = drawShowDirectMemberCounts;
+  }
+
+  /**
+   * true if graph should include Grouper object types
+   *
+   * @return
+   */
+  public boolean isDrawShowObjectTypes() {
+    return drawShowObjectTypes;
+  }
+
+  /**
+   * true if graph should include Grouper object types
+   *
+   * @param drawShowObjectTypes
+   */
+  public void setDrawShowObjectTypes(boolean drawShowObjectTypes) {
+    this.drawShowObjectTypes = drawShowObjectTypes;
   }
 
   /**

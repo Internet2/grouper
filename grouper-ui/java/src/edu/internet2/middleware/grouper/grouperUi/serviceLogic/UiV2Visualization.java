@@ -168,11 +168,12 @@ public class UiV2Visualization {
     private String linkType;
     private long allMemberCount = 0;
     private long directMemberCount = 0;
+    private List<String> objectTypes;
     private String compositeLeftFactorId;
     private String compositeRightFactorId;
 
     private Node(String id, String name, String displayExtension, String description, String type,
-                 String baseType, String linkType, long allMemberCount, long directMemberCount) {
+                 String baseType, String linkType, long allMemberCount, long directMemberCount, List<String> objectTypes) {
       this.id = id;
       this.name = name;
       this.displayExtension = displayExtension;
@@ -182,6 +183,7 @@ public class UiV2Visualization {
       this.linkType = linkType;
       this.allMemberCount = allMemberCount;
       this.directMemberCount = directMemberCount;
+      this.objectTypes = objectTypes;
     }
 
     public String getId() {
@@ -216,6 +218,19 @@ public class UiV2Visualization {
       return allMemberCount;
     }
 
+    public List<String> getObjectTypes() {
+      return objectTypes;
+    }
+
+    // helper method to add a custom object type with initialization; GraphNode objectTypes are null until set
+    protected void addObjectTypeName(String name) {
+      if (objectTypes == null) {
+        objectTypes = new LinkedList<String>();
+      }
+      objectTypes.add(name);
+    }
+
+
     public long getDirectMemberCount() {
       return directMemberCount;
     }
@@ -248,8 +263,9 @@ public class UiV2Visualization {
     private List<String> childNodeIds;
 
     private TextNode(String id, String name, String displayExtension, String description, String type,
-                     String baseType, String linkType, long allMemberCount, long directMemberCount, long indent) {
-      super(id, name, displayExtension, description, type, baseType, linkType, allMemberCount, directMemberCount);
+                     String baseType, String linkType, long allMemberCount, long directMemberCount,
+                     List<String> objectTypes, long indent) {
+      super(id, name, displayExtension, description, type, baseType, linkType, allMemberCount, directMemberCount, objectTypes);
       this.indent = indent;
       parentNodeIds = new LinkedList<String>();
       childNodeIds = new LinkedList<String>();
@@ -440,6 +456,7 @@ public class UiV2Visualization {
       .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
       .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
       .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
+      .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
       .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
 
     // filters on stems and groups (e.g., skip etc and the root folder by default).
@@ -482,6 +499,7 @@ public class UiV2Visualization {
     graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
     graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
     graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
+    graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
     //graph.addSetting("objectNameField", visualizationHelper;);
     //what is this in the d3 drawing?? graph.addSetting("text", -1);
 
@@ -525,8 +543,11 @@ public class UiV2Visualization {
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", ""),
         graphNode.getAllMemberCount(),
-        graphNode.getDirectMemberCount()
+        graphNode.getDirectMemberCount(),
+        graphNode.getObjectTypeNames()
       );
+
+      addCustomTypeTags(node, graphNode);
 
       if (compositeLeftFactors.containsKey(graphNode)) {
         node.setCompositeLeftFactorId(compositeLeftFactors.get(graphNode));
@@ -598,7 +619,10 @@ public class UiV2Visualization {
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", "") /*getNodeLinkType(graphNode)*/,
         graphNode.getAllMemberCount(),
         graphNode.getDirectMemberCount(),
+        graphNode.getObjectTypeNames(),
         indent);
+
+      addCustomTypeTags(node, graphNode);
 
       styleTypes.add(graphNode.getStyleObjectType());
 
@@ -633,6 +657,19 @@ public class UiV2Visualization {
 
 
     return graph;
+  }
+
+  // In addition to the normal object types (ref, basis, etc.), add loader, intersection, complement based on node
+  private void addCustomTypeTags(Node node, GraphNode graphNode) {
+    if (graphNode.isLoaderGroup()) {
+      node.addObjectTypeName("loader");
+    }
+    if (graphNode.isComplementGroup()) {
+      node.addObjectTypeName("complement");
+    }
+    if (graphNode.isIntersectGroup()) {
+      node.addObjectTypeName("intersection");
+    }
   }
 
   // loads lookup maps from a node to left/right factors, based on the edges that are composite types
@@ -827,6 +864,19 @@ public class UiV2Visualization {
     } else {
       visualizationContainer.setDrawShowDirectMemberCounts(prefsFromAttribute.isDrawShowDirectMemberCounts());
     }
+
+    /* show grouper object types */
+    if (fromSubmission) {
+      visualizationContainer.setDrawShowObjectTypes(
+        GrouperUtil.booleanValue(request.getParameter("drawShowObjectTypes"), false));
+      if (visualizationContainer.isDrawShowObjectTypes() != prefsFromAttribute.isDrawShowObjectTypes()) {
+        prefsFromAttribute.setDrawShowObjectTypes(visualizationContainer.isDrawShowObjectTypes());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawShowObjectTypes(prefsFromAttribute.isDrawShowObjectTypes());
+    }
+
 
     /* include groups in member counts */
     if (fromSubmission) {

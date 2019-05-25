@@ -152,6 +152,17 @@
             <span class="description">${textContainer.text['visualization.form.includeGroupsInMemberCounts.description']}</span>
           </td>
         </tr>
+        <!-- show Grouper object types -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-show-object-types">${textContainer.text['visualization.form.showObjectTypes']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawShowObjectTypes" id="vis-settings-show-object-types" value="true" ${grouperRequestContainer.visualizationContainer.drawShowObjectTypes ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.showObjectTypes.description']}</span>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

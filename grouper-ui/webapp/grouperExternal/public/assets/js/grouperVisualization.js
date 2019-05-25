@@ -114,6 +114,13 @@ function drawGraphModuleText() {
       contents += "Description: " + escapeHTML(node.description) + "<br/>";
     }
 
+    // object types
+    if (graph.settings.showObjectTypes) {
+      if (node.objectTypes && node.objectTypes.length > 0) {
+        contents += "Object types: " + escapeHTML(node.objectTypes.join(", ")) + "<br/>";
+      }
+    }
+
     // All member count
     if (graph.settings.showAllMemberCounts && node.baseType === "group") {
       contents += "Total member count: " + node.allMemberCount + "<br/>";
@@ -241,6 +248,9 @@ function followObject(objectType, objectId) {
 function drawGraphModuleD3() {
   const graph = visualizationObject; //shorter name
 
+  // whether to include object type names in calculated label; determine once here instead of every loop
+  var showObjectTypesLabel = (graph.settings.showObjectTypes);
+
   // whether to include counts in calculated label; determine once here instead of every loop
   var showCountLabel = (graph.settings.showAllMemberCounts || graph.settings.showDirectMemberCounts);
 
@@ -270,7 +280,16 @@ function drawGraphModuleD3() {
             props.push("URL=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\"");
         }
 
-        var theLabel;
+        // a stem or group can have multiple rows in the label, depending on whether showing object types or counts
+        var labelRows = [];
+        labelRows.push(escapeHTML(getObjectNameUsingPrefs(node)));
+
+        if (showObjectTypesLabel) {
+          if (node.objectTypes && node.objectTypes.length > 0) {
+            labelRows.push(escapeHTML(node.objectTypes.join(", ")));
+          }
+        }
+
         if (showCountLabel) {
           var labelCounts = [];
 
@@ -284,16 +303,16 @@ function drawGraphModuleD3() {
             }
           }
 
-          if (labelCounts.length == 0) {
-            theLabel = 'label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"';
-          } else {
-            theLabel = "label=<" + escapeHTML(getObjectNameUsingPrefs(node)) + "<br/>" + labelCounts.join(", ") + ">";
+          if (labelCounts.length > 0) {
+            labelRows.push(labelCounts.join(", "));
           }
-        } else {
-          theLabel = 'label="' + escapeHTML(getObjectNameUsingPrefs(node)) + '"';
         }
 
-        props.push(theLabel);
+        if (labelRows.length <= 1) {
+          props.push('label="' + labelRows[0] + '"');
+        } else {
+          props.push("label=<" + labelRows.join("<br/>") + ">");
+        }
 
         //when the label is path/extension, use the opposite for the tooltip
         var tooltip = (drawObjectNameType === "path") ? escapeHTML(node.displayExtension) : escapeHTML(node.name);

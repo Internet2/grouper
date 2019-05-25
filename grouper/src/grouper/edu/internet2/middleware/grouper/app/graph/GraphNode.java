@@ -30,6 +30,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,6 +47,7 @@ public class GraphNode {
   private GrouperObject grouperObject;
   private long allMemberCount;
   private long directMemberCount;
+  private List<String> objectTypeNames;
 
   private boolean stem;
   private boolean group;
@@ -213,7 +216,7 @@ public class GraphNode {
   }
 
   /**
-   * Returns the underlying GrouperObject value
+   * returns the underlying GrouperObject value
    *
    * @return the internal GrouperObject value
    */
@@ -231,7 +234,16 @@ public class GraphNode {
   }
 
   /**
-   * The direct member count as set by the caller.
+   * the grouper object types for a group or stem, as set by the creator of this node
+   *
+   * @return the object type names
+   */
+  public List<String> getObjectTypeNames() {
+    return objectTypeNames;
+  }
+
+  /**
+   * the direct member count as set by the caller
    *
    * @return
    */
@@ -240,7 +252,7 @@ public class GraphNode {
   }
 
   /**
-   * Sets the total member count for this node.
+   * sets the total member count for this node
    *
    * @param allMemberCount member count
    */
@@ -249,7 +261,7 @@ public class GraphNode {
   }
 
   /**
-   * Sets the direct member count for this node.
+   * sets the direct member count for this node.
    *
    * @param directMemberCount member count
    */
@@ -258,7 +270,28 @@ public class GraphNode {
   }
 
   /**
-   * Virtual method that returns true if both parents and children have been visited.
+   * sets the list of grouper object type names
+   *
+   * @param objectTypeNames
+   */
+  public void setObjectTypeNames(List<String> objectTypeNames) {
+    this.objectTypeNames = objectTypeNames;
+  }
+
+  /**
+   * Adds one object type name to the node's current list.
+   *
+   * @param objectTypeName
+   */
+  public void addObjectTypeName(String objectTypeName) {
+    if (this.objectTypeNames == null) {
+      this.objectTypeNames = new LinkedList<String>();
+    }
+    this.objectTypeNames.add(objectTypeName);
+  }
+
+  /**
+   * virtual method that returns true if both parents and children have been visited
    *
    * @return
    */
@@ -267,7 +300,8 @@ public class GraphNode {
   }
 
   /**
-   * Returns whether the parent nodes have been visited. Set by the caller
+   * returns whether the parent nodes have been visited. Set by the caller
+   *
    * @return true if parent nodes have been visited
    */
   public boolean isVisitedParents() {
@@ -275,7 +309,7 @@ public class GraphNode {
   }
 
   /**
-   * Marks this node as having visited all its parent nodes
+   * marks this node as having visited all its parent nodes
    *
    * @param visitedParents
    */
@@ -285,6 +319,7 @@ public class GraphNode {
 
   /**
    * Returns whether the child nodes have been visited. Set by the caller
+   *
    * @return true if child nodes have been visited
    */
   public boolean isVisitedChildren() {
@@ -292,7 +327,7 @@ public class GraphNode {
   }
 
   /**
-   * Marks this node as having visited all its child nodes
+   * marks this node as having visited all its child nodes
    *
    * @param visitedChildren
    */
@@ -310,7 +345,7 @@ public class GraphNode {
   }
 
   /**
-   * Adds a parent node to the collection
+   * adds a parent node to the collection
    *
    * @param parentNode parent node to add
    */

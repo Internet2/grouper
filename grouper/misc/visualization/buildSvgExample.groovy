@@ -46,6 +46,7 @@ graph.assignShowLoaderJobs(true)
 graph.assignShowAllMemberCounts(true)
 graph.assignShowDirectMemberCounts(true)
 graph.assignIncludeGroupsInMemberCounts(false)
+graph.assignShowObjectTypes(true)
 //graph.assignMaxSiblings(4)
 
 graph.build()
@@ -130,13 +131,18 @@ graph.nodes.each { n ->
     if (n.stem) linkParam = "operation=UiV2Stem.viewStem%26stemId=${n.grouperObject.id}"
     else if (n.group) linkParam = "operation=UiV2Group.viewGroup%26groupId=${n.grouperObject.id}"
 
+    String objectTypesRow = ""
+    if (n.objectTypeNames != null) {
+        objectTypesRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.objectTypeNames.join(", ")}</FONT></TD></TR>"
+    }
+
     String memberCtRow = ""
     if (n.group && ! n.loaderGroup) {
         memberCtRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.allMemberCount} member${n.allMemberCount == 1 ? "" : "s"}, ${n.directMemberCount} direct member${n.directMemberCount == 1 ? "" : "s"}</FONT></TD></TR>"
     }
 
     dotFile.write "{ \"${n.grouperObject.id}\""
-    dotFile.write " [${objStyles.join("; ")}${objStyles.size>0 ? ";":""} label=<<FONT><TABLE BORDER=\"1\" ALIGN=\"CENTER\" CELLBORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"0\" ${labelStyles}><TR><TD ALIGN=\"CENTER\" BORDER=\"1\" WIDTH=\"${8 * n.grouperObject.name.length()}\" TITLE=\"${n.grouperObject.name?:"(Root)"}\" HREF=\"https://localhost/grouper/grouperUi/app/UiV2Main.index?${linkParam}\" ><FONT ${labelFontStyle}>${n.grouperObject.name?:"(Root)"}<BR/></FONT></TD></TR>${memberCtRow}</TABLE></FONT>>] ; }\n"
+    dotFile.write " [${objStyles.join("; ")}${objStyles.size>0 ? ";":""} label=<<FONT><TABLE BORDER=\"1\" ALIGN=\"CENTER\" CELLBORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"0\" ${labelStyles}>${objectTypesRow}<TR><TD ALIGN=\"CENTER\" BORDER=\"1\" WIDTH=\"${8 * n.grouperObject.name.length()}\" TITLE=\"${n.grouperObject.name?:"(Root)"}\" HREF=\"https://localhost/grouper/grouperUi/app/UiV2Main.index?${linkParam}\" ><FONT ${labelFontStyle}>${n.grouperObject.name?:"(Root)"}<BR/></FONT></TD></TR>${memberCtRow}</TABLE></FONT>>] ; }\n"
 }
 
 statString = """${graph.startNode.grouperObject.name?:"(Root)"}

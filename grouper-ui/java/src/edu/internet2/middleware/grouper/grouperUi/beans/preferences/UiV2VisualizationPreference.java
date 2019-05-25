@@ -23,6 +23,7 @@ public class UiV2VisualizationPreference {
   private boolean drawShowProvisioners = true;
   private boolean drawShowAllMemberCounts = true;
   private boolean drawShowDirectMemberCounts = true;
+  private boolean drawShowObjectTypes = false;
   private boolean drawIncludeGroupsInMemberCounts = false;
 
   public UiV2VisualizationPreference() {
@@ -106,6 +107,14 @@ public class UiV2VisualizationPreference {
 
   public void setDrawShowDirectMemberCounts(boolean drawShowDirectMemberCounts) {
     this.drawShowDirectMemberCounts = drawShowDirectMemberCounts;
+  }
+
+  public boolean isDrawShowObjectTypes() {
+    return drawShowObjectTypes;
+  }
+
+  public void setDrawShowObjectTypes(boolean drawShowObjectTypes) {
+    this.drawShowObjectTypes = drawShowObjectTypes;
   }
 
   public boolean isDrawIncludeGroupsInMemberCounts() {

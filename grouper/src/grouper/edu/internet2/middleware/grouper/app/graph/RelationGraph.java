@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.app.graph;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -95,6 +97,8 @@ public class RelationGraph {
   private static String loaderGroupIdAttrDefNameId;
   private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
   private static Set<Source> nonGroupSourcesCache = null;
+  private static String objectTypeAttributeId = null;
+  private static String objectTypeAttributeValueId = null;
   private static boolean attemptedInitLookupFields = false;
 
   /* assignX settings for graph construction */
@@ -103,6 +107,7 @@ public class RelationGraph {
   private long childLevels = -1;
   private boolean showAllMemberCounts = true;
   private boolean showDirectMemberCounts = true;
+  private boolean showObjectTypes = false;
   private boolean showLoaderJobs = true;
   private boolean showProvisionTargets = true;
   private boolean showStems = true;
@@ -208,6 +213,17 @@ public class RelationGraph {
    */
   public RelationGraph assignShowDirectMemberCounts(boolean theShowDirectMemberCounts) {
     this.showDirectMemberCounts = theShowDirectMemberCounts;
+    return this;
+  }
+
+  /**
+   * flags whether to show the object type strings (e.g. ref, basis ...) for stems and groups
+   *
+   * @param theShowObjectTypes whether to count direct memberships for groups
+   * @return
+   */
+  public RelationGraph assignShowObjectTypes(boolean theShowObjectTypes) {
+    this.showObjectTypes = theShowObjectTypes;
     return this;
   }
 
@@ -331,6 +347,16 @@ public class RelationGraph {
    */
   public boolean isShowDirectMemberCounts() {
     return showDirectMemberCounts;
+  }
+
+  /**
+   * returns whether to show object types for stems and groups
+   *
+   * @see #assignShowObjectTypes(boolean)
+   * @return if showing object types
+   */
+  public boolean isShowObjectTypes() {
+    return showObjectTypes;
   }
 
   /**
@@ -1117,6 +1143,7 @@ public class RelationGraph {
       + "show PSPNG provisioners=" + isShowProvisionTargets() + ", "
       + "show member counts=" + isShowAllMemberCounts() + ", "
       + "show direct member counts=" + isShowDirectMemberCounts() + ", "
+      + "show object types=" + isShowObjectTypes() + ", "
       + "include groups in member counts=" + isIncludeGroupsInMemberCounts() + ", "
       + "folder pattern filters=" + GrouperUtil.join(skipFolderNamePatterns.toArray(), "; "));
 
@@ -1145,6 +1172,10 @@ public class RelationGraph {
 
     // do all the group counts in batches
     queryGroupMemberCounts();
+
+    // do all the building of object type strings in batches
+    queryObjectTypeNames();
+
   }
 
   // once the graph is built, query counts for group objects depending on the settings
@@ -1230,6 +1261,88 @@ public class RelationGraph {
     }
   }
 
+  // once the graph is built, query counts for group objects depending on the settings
+  private void queryObjectTypeNames() {
+    if (!showObjectTypes) {
+      return;
+    }
+
+    if (objectTypeAttributeId == null || objectTypeAttributeValueId == null) {
+      LOG.info("Graph build requested to show object types, but the attributes could not be found -- skipping object types");
+      return;
+    }
+
+    //collect all eligible group and stem nodes
+    Map<String, GraphNode> nodesByUuid = new HashMap<String, GraphNode>();
+    for (GraphNode node: getNodes()) {
+      if (node.isGroup() || node.isStem()) {
+        nodesByUuid.put(node.getGrouperObjectId(), node);
+      }
+    }
+
+    // no groups or stems to count, don't need to continue
+    if (nodesByUuid.size() == 0) {
+      return;
+    }
+
+    List<String> uidList = GrouperUtil.listFromCollection(nodesByUuid.keySet());
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(uidList.size(), 98);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatch = GrouperUtil.batchList(uidList, 98, i);
+      if (currentBatch.size() == 0) {
+        continue;
+      }
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      String sqlQuery =
+        "SELECT DISTINCT" +
+          "  COALESCE(aa.owner_group_id, aa.owner_stem_id) AS object_id," +
+          "  value_string" +
+          " FROM grouper_attribute_assign aa" +
+          "  JOIN grouper_attribute_assign aa2" +
+          "    ON aa.enabled = 'T'" +
+          "   AND aa.attribute_assign_type IN ('group', 'stem')" +
+          "       " +
+          "   AND aa2.enabled = 'T'" +
+          "   AND aa2.attribute_assign_type IN ('group_asgn', 'stem_asgn') " +
+          "   AND aa2.owner_attribute_assign_id = aa.id" +
+          "  JOIN grouper_attribute_assign_value aav ON aav.attribute_assign_id = aa2.id" +
+          " WHERE aa.attribute_def_name_id = ?" +
+          " AND   aa2.attribute_def_name_id = ?" +
+          " AND COALESCE(aa.owner_group_id, aa.owner_stem_id) in (" +
+          HibUtils.convertToInClauseForSqlStatic(currentBatch) +
+          ")";
+
+      List<Type> types = new ArrayList<Type>();
+      types.add(StringType.INSTANCE); /* attributeAssign */
+      types.add(StringType.INSTANCE); /* attributeAssignment */
+      for (int j=0;j<GrouperUtil.length(currentBatch);j++) {
+        types.add(StringType.INSTANCE);
+      }
+
+      List<Object> params = new ArrayList<Object>();
+      params.add(objectTypeAttributeId);
+      params.add(objectTypeAttributeValueId);
+      params.addAll(currentBatch);
+
+      // returns [object_id, value_string]
+      List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sqlQuery,
+        params, types);
+
+      for (String[] values : results) {
+        String objectId = values[0];
+        if (nodesByUuid.containsKey(objectId)) {
+          // not sure why this wouldn't be found
+          GraphNode node = nodesByUuid.get(objectId);
+
+          node.addObjectTypeName(values[1]);
+        }
+      }
+    }
+  }
+
   // If first time called, init the static attributeDef fields, and other class properties. Find these as root user
   private static void initLookupFields() {
     if (attemptedInitLookupFields) {
@@ -1272,6 +1385,23 @@ public class RelationGraph {
       sqlLoaderAttributeDefName = GroupTypeFinder.find("grouperLoader").getAttributeDefName();
     } catch (Exception e) {
       LOG.warn("Unable to retrieve attribute for sql loader jobs; groups might not be detected as loader jobs", e);
+    }
+
+    try {
+      // get the attribute IDs
+      // note, there is a helper function for the marker but not the metadata
+      AttributeDefName typeMarkerAttributeDefName = GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase();
+      if (typeMarkerAttributeDefName != null) {
+        objectTypeAttributeId = typeMarkerAttributeDefName.getId();
+      }
+      AttributeDefName typeAttributeValueDefName = AttributeDefNameFinder.findByName(
+        GrouperObjectTypesSettings.objectTypesStemName() + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME,
+        false);
+      if (typeAttributeValueDefName != null) {
+        objectTypeAttributeValueId = typeAttributeValueDefName.getId();
+      }
+    } catch (Exception e) {
+      LOG.warn("Unable to retrieve attribute for Grouper object types", e);
     }
 
     attemptedInitLookupFields = true;
