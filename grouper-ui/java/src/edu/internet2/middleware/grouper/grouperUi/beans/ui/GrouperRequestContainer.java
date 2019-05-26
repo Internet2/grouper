@@ -557,6 +557,11 @@ public class GrouperRequestContainer {
    */
   private ObjectTypeContainer objectTypeContainer;
   
+  /**
+   * container for groups workflow
+   */
+  private WorkflowContainer workflowContainer;
+  
   
   /**
    * container for deprovisioning screen
@@ -600,6 +605,17 @@ public class GrouperRequestContainer {
       this.objectTypeContainer = new ObjectTypeContainer();
     }
     return this.objectTypeContainer;
+  }
+  
+  /**
+   * lazy load the workflow container
+   * @return the workflow container
+   */
+  public WorkflowContainer getWorkflowContainer() {
+    if (this.workflowContainer == null) {
+      this.workflowContainer = new WorkflowContainer();
+    }
+    return this.workflowContainer;
   }
 
   /**
