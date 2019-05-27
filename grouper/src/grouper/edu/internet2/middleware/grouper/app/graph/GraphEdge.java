@@ -41,7 +41,9 @@ public class GraphEdge {
     this.fromNode = fromNode;
     this.toNode = toNode;
 
-    if (fromNode.isLoaderGroup()) {
+    if ((fromNode.isLoaderGroup() && !fromNode.isSimpleLoaderGroup())
+      || (fromNode.isSimpleLoaderGroup() && fromNode.equals(toNode))) {
+      // group list loaders, plus simple loaders only for the self-link, not any membership link
       styleObjectType = StyleObjectType.EDGE_FROM_LOADER;
     } else if (toNode.isProvisionerTarget()) {
       styleObjectType = StyleObjectType.EDGE_TO_PROVISIONER;
