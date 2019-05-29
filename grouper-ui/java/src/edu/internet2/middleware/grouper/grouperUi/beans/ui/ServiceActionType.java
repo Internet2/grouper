@@ -91,7 +91,12 @@ public enum ServiceActionType {
       
       final GrouperSession session = GrouperSession.staticGrouperSession();
       
-      final Stem stem = StemFinder.findByName(session, parentStemName, true);
+      final Stem stem = StemFinder.findByName(session, parentStemName, false);
+      
+      // maybe the parent stem checkbox was unchecked by the user
+      if (stem == null) {
+        return;
+      }
       
       Group group = GroupFinder.findByName(session, groupName, true);
       
