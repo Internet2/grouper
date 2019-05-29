@@ -11,6 +11,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleApi;
@@ -34,7 +36,8 @@ public enum ServiceActionType {
         .assignDescription(serviceAction.getArgMap().get("stemDescription"))
         .save();
         
-        serviceAction.getService().assignTypeToStem(stem);
+        // CH put these on screen
+        // serviceAction.getService().assignTypeToStem(stem);
         
       }
      
@@ -51,6 +54,27 @@ public enum ServiceActionType {
       .assignDescription(serviceAction.getArgMap().get("groupDescription"))
       .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .save();
+      
+    }
+    
+  },
+  
+  grouperType {
+    
+    public void createTemplateItem(ServiceAction serviceAction) {
+
+      String stemName = serviceAction.getArgMap().get("stemName");
+      String type = serviceAction.getArgMap().get("type");
+      
+      final GrouperSession session = GrouperSession.staticGrouperSession();
+      
+      final Stem stem = StemFinder.findByName(session, stemName, true);
+
+      GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      
+      attributeValue.setObjectTypeName(type);
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
       
     }
     

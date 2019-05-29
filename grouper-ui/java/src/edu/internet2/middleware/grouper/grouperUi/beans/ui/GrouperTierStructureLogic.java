@@ -10,8 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 
 public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
@@ -34,7 +32,7 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
     if (StringUtils.isBlank(baseStemFriendlyName)) {
       baseStemFriendlyName = baseStem;
     }
-    
+
     String baseStemDescription = StringUtils.isBlank(templateContainer.getTemplateDescription()) ?
         TextContainer.retrieveFromRequest().getText().get("stemTierBaseFolderDescription"): templateContainer.getTemplateDescription();
     
@@ -91,7 +89,6 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
             Do you want a "org:Engineering School:etc:security:Engineering School Updaters" group created? (ID is "engineeringSchoolUpdaters", name is "Engineering School Updaters")
               Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:basis" folder?
               Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:reference" folder?
-              Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:bundle" folder?
               Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:application" folder?
               Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:organization" folder?
               Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:test" folder?
@@ -116,8 +113,10 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       
       //Do you want a "org:Engineering School:basis" folder created? 
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"basis"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"basis"));
+      final String stemNameBasis = stemPrefix+baseStem+optionalColon+"basis";
+      args.add(new ServiceActionArgument("stemName", stemNameBasis));
+      final String stemDisplayNameBasis = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"basis";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameBasis));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierBasisFolderDescription")));
       ServiceAction levelOneServiceAction_One = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args,
           addFirstNode? rootServiceAction: null);
@@ -125,11 +124,27 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       if (addFirstNode) {        
         rootServiceAction.addChildServiceAction(levelOneServiceAction_One);
       }
+
+      {
+        //Assign the "basis" type to the "org:Engineering School:basis" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameBasis));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameBasis));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.BASIS));
+        ServiceAction basisTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(basisTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(basisTypeAction);
+        }
+      }
       
       //Do you want a "org:Engineering School:ref" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"ref"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"ref"));
+      final String stemNameRef = stemPrefix+baseStem+optionalColon+"ref";
+      args.add(new ServiceActionArgument("stemName", stemNameRef));
+      final String stemDisplayNameRef = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"ref";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameRef));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierRefFolderDescription")));
       ServiceAction levelOneServiceAction_Two = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, 
           addFirstNode? rootServiceAction: null);
@@ -137,11 +152,27 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       if (addFirstNode) {
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Two);
       }
-      
+
+      {
+        //Assign the "ref" type to the "org:Engineering School:ref" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameRef));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameRef));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.REF));
+        ServiceAction refTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(refTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(refTypeAction);
+        }
+      }
+
       //Do you want a "org:Engineering School:app" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"app"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"app"));
+      final String stemNameApp = stemPrefix+baseStem+optionalColon+"app";
+      args.add(new ServiceActionArgument("stemName", stemNameApp));
+      final String stemDisplayNameApp = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"app";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameApp));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierAppFolderDescription")));
       ServiceAction levelOneServiceAction_Three = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
@@ -149,11 +180,28 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       if (addFirstNode) {        
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Three);
       }
-      
+
+      {
+        //Assign the "app" type to the "org:Engineering School:app" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameApp));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameApp));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.APP));
+        ServiceAction appTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(appTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(appTypeAction);
+        }
+      }
+
+
       //Do you want a "org:Engineering School:org?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"org"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"org"));
+      final String stemNameOrg = stemPrefix+baseStem+optionalColon+"org";
+      args.add(new ServiceActionArgument("stemName", stemNameOrg));
+      final String stemDisplayNameOrg = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"org";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameOrg));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierOrgFolderDescription")));
       ServiceAction levelOneServiceAction_Four = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
@@ -161,11 +209,27 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       if (addFirstNode) {        
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Four);
       }
-      
+
+      {
+        //Assign the "org" type to the "org:Engineering School:org" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameOrg));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameOrg));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.ORG));
+        ServiceAction orgTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(orgTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(orgTypeAction);
+        }
+      }
+
       //Do you want a "org:Engineering School:test" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"test"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"test"));
+      final String stemNameTest = stemPrefix+baseStem+optionalColon+"test";
+      args.add(new ServiceActionArgument("stemName", stemNameTest));
+      final String stemDisplayNameTest = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"test";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameTest));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierTestFolderDescription")));
       ServiceAction levelOneServiceAction_Five = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
@@ -173,11 +237,27 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       if (addFirstNode) {        
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Five);
       }
-      
+
+      {
+        //Assign the "test" type to the "org:Engineering School:test" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameTest));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameTest));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.TEST));
+        ServiceAction testTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(testTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(testTypeAction);
+        }
+      }
+
       //Do you want a "org:Engineering School:etc" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"etc"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"etc"));
+      final String stemNameEtc = stemPrefix+baseStem+optionalColon+"etc";
+      args.add(new ServiceActionArgument("stemName", stemNameEtc));
+      final String stemDisplayNameEtc = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"etc";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameEtc));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierEtcFolderDescription")));
       ServiceAction levelOneServiceAction_Six = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
@@ -185,17 +265,46 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
       if (addFirstNode) {        
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Six);
       }
-      
+
+      {
+        //Assign the "etc" type to the "org:Engineering School:etc" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameEtc));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameEtc));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.ETC));
+        ServiceAction etcTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(etcTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(etcTypeAction);
+        }
+      }
       
       //Do you want a "org:Engineering School:etc:security" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"etc:security"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"etc:security"));
+      final String stemNameSecurity = stemPrefix+baseStem+optionalColon+"etc:security";
+      args.add(new ServiceActionArgument("stemName", stemNameSecurity));
+      final String stemDisplayNameSecurity = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"etc:security";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameSecurity));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemTierSecurityFolderDescription")));
       ServiceAction levelTwoServiceAction_One = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
       serviceActionsForStem.add(levelTwoServiceAction_One);
       levelOneServiceAction_Six.addChildServiceAction(levelTwoServiceAction_One);
+
+      {
+        //Assign the "security" type to the "org:Engineering School:security" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameSecurity));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameSecurity));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.GROUPER_SECURITY));
+        ServiceAction securityTypeAction = createNewServiceAction(true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(securityTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(securityTypeAction);
+        }
+      }
       
       //Do you want a "org:Engineering School:etc:security:Engineering School Admins" group created? (ID is "engineeringSchoolAdmins", name is "Engineering School Admins")
       args = new ArrayList<ServiceActionArgument>();
@@ -310,21 +419,7 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
           ServiceActionType.inheritedPrivilege, args, levelThreeServiceAction_Three);
       serviceActionsForStem.add(levelFourServiceAction_Six);
       levelThreeServiceAction_Three.addChildServiceAction(levelFourServiceAction_Six);
-      
-      //Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:bundle" folder?
-      args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+optionalColon+"etc:security:"+baseStem+"Updaters"));
-      args.add(new ServiceActionArgument("groupDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"etc:security:"+baseStemFriendlyName+(StringUtils.equals(baseStem, baseStemFriendlyName) ? "" : " ")+"Updaters"));
-      args.add(new ServiceActionArgument("parentStemName", stemPrefix+baseStem+optionalColon+"bundle"));
-      args.add(new ServiceActionArgument("parentStemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"bundle"));
-      args.add(new ServiceActionArgument("privilegeType", "UPDATE"));
-      args.add(new ServiceActionArgument("internalPrivilegeName", "update"));
-      args.add(new ServiceActionArgument("templateItemType", "Groups"));
-      ServiceAction levelFourServiceAction_Seven = createNewServiceAction(true, 4, "stemServiceBasePrivilegeCreationConfirmation", 
-          ServiceActionType.inheritedPrivilege, args, levelThreeServiceAction_Three);
-      serviceActionsForStem.add(levelFourServiceAction_Seven);
-      levelThreeServiceAction_Three.addChildServiceAction(levelFourServiceAction_Seven);
-      
+            
       //Do you want "org:Engineering School:etc:security:Engineering School Updaters" to have inherited UPDATE privileges on Groups on the "org:Engineering School:application" folder?
       args = new ArrayList<ServiceActionArgument>();
       args.add(new ServiceActionArgument("groupName", stemPrefix+baseStem+optionalColon+"etc:security:"+baseStem+"Updaters"));
@@ -389,23 +484,5 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
   public String getSelectLabelKey() {
     return "stemTemplateTypeTierStructureLabel";
   }
-
-  @Override
-  public void assignTypeToStem(Stem stem) {
-    
-    GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
-    attributeValue.setDirectAssignment(true);
-    
-    if (stem.getExtension().equals(GrouperObjectTypesSettings.ETC)) {
-      attributeValue.setObjectTypeName(GrouperObjectTypesSettings.ETC);
-      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
-    } else if (stem.getExtension().equals("security")) {
-      attributeValue.setObjectTypeName(GrouperObjectTypesSettings.GROUPER_SECURITY);
-      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
-    }
-    
-  }
-  
-  
 
 }
