@@ -62,7 +62,7 @@ public class GrouperWorkflowConfigService {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigDescription());
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_ENABLED, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(grouperWorkflowConfig.isWorkflowConfigEnabled()));
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigEnabled());
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_FORM, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigForm());
@@ -99,9 +99,7 @@ public class GrouperWorkflowConfigService {
     result.setWorkflowConfigDescription(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
     
     attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_ENABLED);
-    String workflowConfigEnabledStr = attributeAssignValue != null ? attributeAssignValue.getValueString(): null;
-    boolean workflowConfigEnabled = BooleanUtils.toBoolean(workflowConfigEnabledStr);
-    result.setWorkflowConfigEnabled(workflowConfigEnabled);
+    result.setWorkflowConfigEnabled(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
     
     attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_FORM);
     result.setWorkflowConfigForm(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);

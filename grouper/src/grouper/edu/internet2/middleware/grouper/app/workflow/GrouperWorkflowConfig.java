@@ -21,7 +21,7 @@ public class GrouperWorkflowConfig {
   
   private boolean workflowConfigSendEmail;
   
-  private boolean workflowConfigEnabled;
+  private String workflowConfigEnabled = "true";
   
   
   public String getWorkflowConfigType() {
@@ -114,11 +114,11 @@ public class GrouperWorkflowConfig {
   }
 
   
-  public boolean isWorkflowConfigEnabled() {
+  public String getWorkflowConfigEnabled() {
     return workflowConfigEnabled;
   }
 
-  public void setWorkflowConfigEnabled(boolean workflowConfigEnabled) {
+  public void setWorkflowConfigEnabled(String workflowConfigEnabled) {
     this.workflowConfigEnabled = workflowConfigEnabled;
   }
 

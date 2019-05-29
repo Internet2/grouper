@@ -5,6 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
@@ -173,11 +175,98 @@ public class UiV2GrouperWorkflow {
   }
   
   /**
+   * add form submit
+   * @param request
+   * @param response
+   */
+  public void formAddSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      final Group GROUP = group;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+            
+      final WorkflowContainer workflowContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getWorkflowContainer();
+      
+      if (!workflowContainer.isCanWrite()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperWorkflowNotAllowedToAdd")));
+        return;
+      }
+      
+      final GrouperWorkflowConfig workflowConfig = populateGrouperWorkflowConfig(request, response);
+      
+      //TODO validate workflow config
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkWorkflow()) {
+            return null;
+          }
+            
+          GrouperWorkflowConfigService.saveOrUpdateGrouperWorkflowConfig(workflowConfig, GROUP);
+          
+          return null;
+        }
+      });
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperWorkflow.viewForms&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("grouperWorkflowConfigSaveSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
    * 
    */
-  private void populateGrouperWorkflowConfig(final HttpServletRequest request, final HttpServletResponse response) {
+  private GrouperWorkflowConfig populateGrouperWorkflowConfig(final HttpServletRequest request, final HttpServletResponse response) {
     
-    request.getParameter("");
+    String configType = request.getParameter("grouperWorkflowConfigType");
+    String configName = request.getParameter("grouperWorkflowConfigName");
+    String configId = request.getParameter("grouperWorkflowConfigId");
+    String configDescription = request.getParameter("grouperWorkflowConfigDescription");
+    String configApprovals = request.getParameter("grouperWorkflowConfigApprovals");
+    String configParams = request.getParameter("grouperWorkflowConfigParams");
+    String configForm = request.getParameter("grouperWorkflowConfigForm");
+    String viewersGroupId = request.getParameter("grouperWorkflowConfigViewersGroupComboName");
+    String sendEmail = request.getParameter("grouperWorkflowConfigSendEmail");
+    String workflowEnabled = request.getParameter("grouperWorkflowConfigEnabled");
+    
+    GrouperWorkflowConfig workflowConfig = new GrouperWorkflowConfig();
+    workflowConfig.setWorkflowConfigApprovals(configApprovals);
+    workflowConfig.setWorkflowConfigId(configId);
+    workflowConfig.setWorkflowConfigDescription(configDescription);
+    workflowConfig.setWorkflowConfigEnabled(workflowEnabled);
+    workflowConfig.setWorkflowConfigForm(configForm);
+    workflowConfig.setWorkflowConfigName(configName);
+    workflowConfig.setWorkflowConfigParams(configParams);
+    workflowConfig.setWorkflowConfigType(configType);
+    workflowConfig.setWorkflowConfigViewersGroupId(viewersGroupId);
+    workflowConfig.setWorkflowConfigSendEmail(BooleanUtils.toBoolean(sendEmail));
+    
+    return workflowConfig;
     
   }
 
