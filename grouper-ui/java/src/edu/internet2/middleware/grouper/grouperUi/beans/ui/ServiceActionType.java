@@ -68,8 +68,12 @@ public enum ServiceActionType {
       
       final GrouperSession session = GrouperSession.staticGrouperSession();
       
-      final Stem stem = StemFinder.findByName(session, stemName, true);
+      final Stem stem = StemFinder.findByName(session, stemName, false);
 
+      if (stem == null) {
+        return;
+      }
+      
       GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
       attributeValue.setDirectAssignment(true);
       
@@ -98,7 +102,11 @@ public enum ServiceActionType {
         return;
       }
       
-      Group group = GroupFinder.findByName(session, groupName, true);
+      Group group = GroupFinder.findByName(session, groupName, false);
+      
+      if (group == null) {
+        return;
+      }
       
       Subject sub = group.toSubject();
       
@@ -126,9 +134,13 @@ public enum ServiceActionType {
       String groupName = serviceAction.getArgMap().get("groupNameMembership");
       String memberOf = serviceAction.getArgMap().get("groupNameMembershipOf");
       
-      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+      Group groupMemberOf = GroupFinder.findByName(GrouperSession.staticGrouperSession(), memberOf, false);
+
+      if (group == null || groupMemberOf == null) {
+        return;
+      }
       
-      Group groupMemberOf = GroupFinder.findByName(GrouperSession.staticGrouperSession(), memberOf, true);
       Subject sub = group.toSubject();
       groupMemberOf.addMember(sub, false);
       
