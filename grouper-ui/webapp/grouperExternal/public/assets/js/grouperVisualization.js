@@ -260,6 +260,7 @@ function drawGraphModuleD3() {
   var dot;
 
   try {
+    /*
     var statString = "Graph Edges: " + graph.statistics.numEdges + "\n";
     statString += "Total memberships: " + graph.statistics.totalMemberCount + "\n";
     statString += "Direct memberships: " + graph.statistics.directMemberCount + "\n";
@@ -270,10 +271,12 @@ function drawGraphModuleD3() {
     statString += "Provisioned Groups: " + graph.statistics.numGroupsToProvisioners + "\n";
     statString += "Skipped Folders: " + graph.statistics.numSkippedFolders + "\n";
     statString += "Skipped Groups: " + graph.statistics.numSkippedGroups + "\n";
+    */
 
     var drawObjectNameType = $("#vis-settings-form input[name='drawObjectNameType']:checked").val();
 
-    dot = 'digraph "Grouper Graph of: ' + escapeText(getObjectNameUsingPrefs(graph.nodes[graph.settings.startNode])) + "\n\n" + statString + '"' + " {\n";
+    //dot = 'digraph "Grouper Graph of: ' + escapeText(getObjectNameUsingPrefs(graph.nodes[graph.settings.startNode])) + "\n\n" + statString + '"' + " {\n";
+    dot = "digraph \"\" {\n";
     dot += "node [" + graph.styles.graph.nodestyle + " ];\n";
     dot += "graph [" + graph.styles.graph.style + " ];\n";
     Object.values(graph.nodes).forEach(
