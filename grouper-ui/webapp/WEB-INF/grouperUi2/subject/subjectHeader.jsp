@@ -45,6 +45,7 @@
                         <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['groupSearchCloseButton']}</button>
                       </div>
                     </div>
+                    <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.groupContainer.canAdmin}">
                     <div id="add-block-container" class="well hide">
                       <div id="add-members">
                         <form id="add-members-form" target="#" class="form-horizontal form-highlight">
@@ -101,7 +102,7 @@
                       </div>
                       
                     </div>
-
+                    </c:if>
 
                     <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
