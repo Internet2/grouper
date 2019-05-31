@@ -49,11 +49,11 @@ public class GraphEdge {
       styleObjectType = StyleObjectType.EDGE_TO_PROVISIONER;
     } else if (fromNode.isStem()) {
       styleObjectType = StyleObjectType.EDGE_FROM_STEM;
-    } else if (toNode.isComplementGroup()) {
-      throw new RuntimeException("Exception creating a graph edge to a complement group -- should call overloaded method setting left and right group");
-    } else if (toNode.isIntersectGroup()) {
-      throw new RuntimeException("Exception creating a graph edge to an intersect group -- should call overloaded method setting left and right group");
-    } else if (fromNode.isGroup()) {
+    } else if (fromNode.isComplementGroup()) {
+      throw new RuntimeException("Exception creating a graph edge from a complement group -- should call overloaded method setting left and right group");
+    } else if (fromNode.isIntersectGroup()) {
+      throw new RuntimeException("Exception creating a graph edge from an intersect group -- should call overloaded method setting left and right group");
+    } else if (toNode.isGroup()) {
       styleObjectType = StyleObjectType.EDGE_MEMBERSHIP;
     } else {
       styleObjectType = StyleObjectType.EDGE;

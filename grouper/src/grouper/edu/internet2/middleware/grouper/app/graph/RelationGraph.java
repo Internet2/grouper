@@ -796,34 +796,22 @@ public class RelationGraph {
       }
     }
 
-    // for a group, get immediate g:gsa members as parents
     if (toNode.isGroup()) {
       Group theGroup = (Group) (toNode.getGrouperObject());
-      long numMembersAdded = 0;
-      for (final Member m : fetchImmediateGsaMembers(theGroup)) {
-        Group parentGroup = null;
-        try {
-          // use this version if the graph should exclude groups that can't be viewed
-          parentGroup = m.toGroup();
-          // use this version to see all the groups.
-//        // parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
-//        //    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-//        //    return m.toGroup();
-//        //  }
-//        // });
-        } catch (GroupNotFoundException e) {
-          //user does not have permission to view group
-          LOG.trace("Session " + GrouperSession.staticGrouperSession().getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
-            + "-- this group and any connected to it will be skipped");
+
+      // for groups, find groups having this as a direct member
+      long numMembershipsAdded = 0;
+      for (MembershipSubjectContainer msc : fetchImmediateMemberships(toNode)) {
+        Group fromGroup = msc.getGroupOwner();
+        if (fromGroup == null) {
           continue;
         }
-
-        if (getMaxSiblings() > 0 && numMembersAdded >= getMaxSiblings()) {
-          skippedGroups.add(parentGroup);
-        } else if (!matchesFilter(parentGroup)) {
-          GraphNode parentNode = fetchOrCreateNode(parentGroup);
-          nodesToVisit.add(parentNode);
-          ++numMembersAdded;
+        if (getMaxSiblings() > 0 && numMembershipsAdded >= getMaxSiblings()) {
+          skippedGroups.add(fromGroup);
+        } else if (!matchesFilter(fromGroup)) {
+          GraphNode fromNode = fetchOrCreateNode(fromGroup);
+          nodesToVisit.add(fromNode);
+          ++numMembershipsAdded;
         }
       }
 
@@ -842,44 +830,46 @@ public class RelationGraph {
         }
       }
 
-      // Show composite factors.
-      if (theGroup.hasComposite()) {
-        Composite composite = theGroup.getComposite(true);
-
-        Group left;
-        try {
-          left = composite.getLeftGroup();
-          if (!matchesFilter(left)) {
-            GraphNode nodeLeft = fetchOrCreateNode(left);
-            nodesToVisit.add(nodeLeft);
-            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
-              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_COMPLEMENT_LEFT);
-            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
-              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_INTERSECT_LEFT);
+      // get groups where this is a composite factor
+      for (Composite composite : CompositeFinder.findAsFactor(theGroup)) {
+        // findAsFactor doesn't distinguish left/right, so need to compare current group with both
+        Group ownerGroup = composite.getOwnerGroup();
+        if (!matchesFilter(ownerGroup)) {
+          GraphNode fromNode = fetchOrCreateNode(ownerGroup);
+          nodesToVisit.add(fromNode);
+          if (composite.getType() == CompositeType.COMPLEMENT) {
+            if (theGroup.equals(composite.getLeftGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_COMPLEMENT_LEFT);
+            } else if (theGroup.equals(composite.getRightGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
+            }
+          } else if (composite.getType() == CompositeType.INTERSECTION) {
+            if (theGroup.equals(composite.getLeftGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_INTERSECT_LEFT);
+            } else if (theGroup.equals(composite.getRightGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_INTERSECT_RIGHT);
             }
           }
-        } catch (GroupNotFoundException e) {
-          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
-        }
-        Group right;
-        try {
-          right = composite.getRightGroup();
-          if (!matchesFilter(right)) {
-            GraphNode nodeRight = fetchOrCreateNode(right);
-            nodesToVisit.add(nodeRight);
-            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
-              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
-            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
-              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_INTERSECT_RIGHT);
-            }
-          }
-        } catch (GroupNotFoundException e) {
-          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
       }
+    } else if (toNode.isSubject()) {
+    Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(toNode);
+    long numSubjectMembershipsAdded = 0;
+    for (MembershipSubjectContainer msc : memberships) {
+      Group fromGroup = msc.getGroupOwner();
+      if (fromGroup == null) {
+        continue;
+      }
+      if (getMaxSiblings() > 0 && numSubjectMembershipsAdded >= getMaxSiblings()) {
+        skippedGroups.add(fromGroup);
+      } else if (!matchesFilter(fromGroup)) {
+        GraphNode fromNode = fetchOrCreateNode(fromGroup);
+        nodesToVisit.add(fromNode);
+      }
     }
+  }
 
-    boolean didAddEdges = false;
+  boolean didAddEdges = false;
     for (GraphNode n : nodesToVisit) {
       GraphEdge edgeCandidate = null;
       if (compositeStyleTypes.containsKey(n)) {
@@ -955,22 +945,35 @@ public class RelationGraph {
     } else if (fromNode.isGroup()) {
       Group theGroup = (Group) (fromNode.getGrouperObject());
 
-      // for groups, find groups having this as a direct member
-      Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
-      long numMembershipsAdded = 0;
-      for (MembershipSubjectContainer msc : memberships) {
-        Group toGroup = msc.getGroupOwner();
-        if (toGroup == null) {
+      // for a group, get immediate g:gsa members as parents
+      long numMembersAdded = 0;
+      for (final Member m : fetchImmediateGsaMembers(theGroup)) {
+        Group childGroup = null;
+        try {
+          // use this version if the graph should exclude groups that can't be viewed
+          childGroup = m.toGroup();
+          // use this version to see all the groups.
+//        // parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+//        //    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+//        //    return m.toGroup();
+//        //  }
+//        // });
+        } catch (GroupNotFoundException e) {
+          //user does not have permission to view group
+          LOG.trace("Session " + GrouperSession.staticGrouperSession().getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
+            + "-- this group and any connected to it will be skipped");
           continue;
         }
-        if (getMaxSiblings() > 0 && numMembershipsAdded >= getMaxSiblings()) {
-          skippedGroups.add(toGroup);
-        } else if (!matchesFilter(toGroup)) {
-          GraphNode toNode = fetchOrCreateNode(toGroup);
-          nodesToVisit.add(toNode);
-          ++numMembershipsAdded;
+
+        if (getMaxSiblings() > 0 && numMembersAdded >= getMaxSiblings()) {
+          skippedGroups.add(childGroup);
+        } else if (!matchesFilter(childGroup)) {
+          GraphNode childNode = fetchOrCreateNode(childGroup);
+          nodesToVisit.add(childNode);
+          ++numMembersAdded;
         }
       }
+
 
       // get provisioners
       if (showProvisionTargets) {
@@ -1001,41 +1004,39 @@ public class RelationGraph {
         }
       }
 
-      // get groups where this is a composite factor
-      for (Composite composite : CompositeFinder.findAsFactor(theGroup)) {
-        // findAsFactor doesn't distinguish left/right, so need to compare current group with both
-        Group ownerGroup = composite.getOwnerGroup();
-        if (!matchesFilter(ownerGroup)) {
-          GraphNode toNode = fetchOrCreateNode(ownerGroup);
-          nodesToVisit.add(toNode);
-          if (composite.getType() == CompositeType.COMPLEMENT) {
-            if (theGroup.equals(composite.getLeftGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_COMPLEMENT_LEFT);
-            } else if (theGroup.equals(composite.getRightGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
-            }
-          } else if (composite.getType() == CompositeType.INTERSECTION) {
-            if (theGroup.equals(composite.getLeftGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_INTERSECT_LEFT);
-            } else if (theGroup.equals(composite.getRightGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_INTERSECT_RIGHT);
+      // Show composite factors.
+      if (theGroup.hasComposite()) {
+        Composite composite = theGroup.getComposite(true);
+
+        Group left;
+        try {
+          left = composite.getLeftGroup();
+          if (!matchesFilter(left)) {
+            GraphNode nodeLeft = fetchOrCreateNode(left);
+            nodesToVisit.add(nodeLeft);
+            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
+              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_COMPLEMENT_LEFT);
+            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
+              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_INTERSECT_LEFT);
             }
           }
+        } catch (GroupNotFoundException e) {
+          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
-      }
-    } else if (fromNode.isSubject()) {
-      Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
-      long numSubjectMembershipsAdded = 0;
-      for (MembershipSubjectContainer msc : memberships) {
-        Group toGroup = msc.getGroupOwner();
-        if (toGroup == null) {
-          continue;
-        }
-        if (getMaxSiblings() > 0 && numSubjectMembershipsAdded >= getMaxSiblings()) {
-          skippedGroups.add(toGroup);
-        } else if (!matchesFilter(toGroup)) {
-          GraphNode toNode = fetchOrCreateNode(toGroup);
-          nodesToVisit.add(toNode);
+        Group right;
+        try {
+          right = composite.getRightGroup();
+          if (!matchesFilter(right)) {
+            GraphNode nodeRight = fetchOrCreateNode(right);
+            nodesToVisit.add(nodeRight);
+            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
+              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
+            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
+              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_INTERSECT_RIGHT);
+            }
+          }
+        } catch (GroupNotFoundException e) {
+          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
       }
     }
@@ -1073,8 +1074,8 @@ public class RelationGraph {
     }
 
     if (node.isSubject()) {
-      //subjects don't have parents, so mark as skip it right away
-      node.setVisitedParents(true);
+      //subjects don't have child members, so mark as skip it right away
+      node.setVisitedChildren(true);
     }
 
     if (includeParents && !node.isVisitedParents()) {

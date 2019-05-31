@@ -677,10 +677,10 @@ public class UiV2Visualization {
     for (GraphEdge graphEdge : relationGraph.getEdges()) {
       if (graphEdge.getStyleObjectType() == StyleObjectType.EDGE_COMPLEMENT_LEFT
               || graphEdge.getStyleObjectType() == StyleObjectType.EDGE_INTERSECT_LEFT) {
-        compositeLeftFactors.put(graphEdge.getToNode(), graphEdge.getFromNode().getGrouperObjectId());
+        compositeLeftFactors.put(graphEdge.getFromNode(), graphEdge.getToNode().getGrouperObjectId());
       } else if (graphEdge.getStyleObjectType() == StyleObjectType.EDGE_COMPLEMENT_RIGHT
               || graphEdge.getStyleObjectType() == StyleObjectType.EDGE_INTERSECT_RIGHT) {
-        compositeRightFactors.put(graphEdge.getToNode(), graphEdge.getFromNode().getGrouperObjectId());
+        compositeRightFactors.put(graphEdge.getFromNode(), graphEdge.getToNode().getGrouperObjectId());
       }
     }
   }

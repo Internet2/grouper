@@ -131,28 +131,27 @@ function drawGraphModuleText() {
       contents += "Direct member count: " + node.directMemberCount + "<br/>";
     }
 
-    // contains (for stem), direct membership in a group (group, subject)
-    if (node.linkType === "group" || node.baseType === "stem" || node.baseType === "subject") {
-      contents += (node.linkType === "stem" ? "Contains: " : "Direct membership in these groups: ");
-      if (node.childNodeIds.length > 0) {
-        contents += "<ul>";
-        node.childNodeIds.forEach(function(id) {
+    // contains (for stem), group direct members (group)
+    if (node.linkType === "group" || node.baseType === "stem") {
+      contents += (node.linkType === "stem" ? "Contains: " : "Direct group members: ");
+      var childContents = [];
+      node.childNodeIds.forEach(function(id) {
           var obj = graph.nodes[id];
-          contents += "<li>" + (graph.styles[obj.type].displayTag||"unknown object") + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) + "</li>";
-        });
-        contents += "</ul>";
+
+        // don't print composite factors and provisioners, because they are output elsewhere
+        if (node.compositeLeftFactorId === id || node.compositeRightFactorId === id || obj.baseType === "provisioner") {
+          return;
+        } else {
+          childContents.push( (graph.styles[obj.type].displayTag||"unknown object") + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) );
+        }
+      });
+
+      if (childContents.length > 0) {
+        contents += "<ul><li>" + childContents.join("</li><li>") + "</li></ul>";
       } else {
         contents += "none<br/>";
       }
     }
-
-    // provision to
-    node.childNodeIds.forEach(function(id) {
-      var obj = graph.nodes[id];
-      if (obj.baseType === "provisioner") {
-        contents += "Provision to: " + getObjectNameUsingPrefs(obj) + "<br/>";
-      }
-    });
 
     // composite owner
     if (node.compositeLeftFactorId !== "" && node.compositeRightFactorId !== "") {
@@ -174,17 +173,12 @@ function drawGraphModuleText() {
       contents += getObjectLink(rightNode, getObjectNameUsingPrefs(rightNode)) + "<br/>";
     }
 
-    //group direct members
-    if (node.linkType === "group") {
-      contents += "Direct group members: ";
+    // direct membership in a group
+    if (node.linkType === "group" || node.baseType === "subject") {
+      contents += "Direct membership in these groups: ";
       var isDirectMember = false;
       node.parentNodeIds.forEach(function(id) {
         var obj = graph.nodes[id];
-
-        // don't print composite factors, because they were already output
-        if (node.compositeLeftFactorId === obj.id || node.compositeRightFactorId === obj.id) {
-        return;
-        }
 
         if (obj.baseType === "group") {
           if (!isDirectMember) {
@@ -210,6 +204,15 @@ function drawGraphModuleText() {
         contents += "Loaded by job: " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) + "<br/>";
       }
     });
+
+    // provision to
+    node.childNodeIds.forEach(function(id) {
+      var obj = graph.nodes[id];
+      if (obj.baseType === "provisioner") {
+        contents += "Provision to: " + getObjectNameUsingPrefs(obj) + "<br/>";
+      }
+    });
+
 
     contents += "</div>";
   }
@@ -336,21 +339,21 @@ function drawGraphModuleD3() {
           props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " is a loader job for group " + getObjectNameUsingPrefs(target) + '"');
         } else if (source.baseType === "stem") {
           props.push('edgetooltip="folder ' + getObjectNameUsingPrefs(source) + " contains " + graph.styles[target.type].displayTag +  " "  + getObjectNameUsingPrefs(target) + '"');
-        } else if (source.baseType === "subject") {
-          props.push('edgetooltip="subject ' + getObjectNameUsingPrefs(source) + " is a direct member of " + getObjectNameUsingPrefs(target) + '"');
-        } else if (target.baseType === "intersect_group" || target.baseType === "complement_group") {
+        } else if (target.baseType === "subject") {
+          props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " has subject " + getObjectNameUsingPrefs(target) + ' as a direct member"');
+        } else if (source.baseType === "intersect_group" || source.baseType === "complement_group") {
           var factorType = "";
-          if (target.compositeLeftFactorId === source.id) {
+          if (source.compositeLeftFactorId === target.id) {
             factorType = "left";
-          } else if (target.compositeRightFactorId === source.id) {
+          } else if (source.compositeRightFactorId === target.id) {
             factorType = "right";
           }
-          props.push('edgetooltip="group ' + getObjectNameUsingPrefs(graph.nodes[link.source]) + " is a " + factorType + " factor in " + graph.styles[target.type].displayTag + " " + getObjectNameUsingPrefs(graph.nodes[link.target]) + '"');
+          props.push('edgetooltip="' + graph.styles[source.type].displayTag + " " + getObjectNameUsingPrefs(graph.nodes[link.source]) + ' has group '+ getObjectNameUsingPrefs(graph.nodes[link.target]) + " as a " + factorType + ' factor"');
         } else if (source.baseType === "group") {
           if (target.baseType === "provisioner") {
             props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " provisions to " + getObjectNameUsingPrefs(target) + '"');
           } else if (target.baseType === "group") {
-            props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " is a direct member of " + getObjectNameUsingPrefs(target) + '"');
+            props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " has direct member " + getObjectNameUsingPrefs(target) + '"');
           }
         }
 
