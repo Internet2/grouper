@@ -55,6 +55,8 @@ public class GraphEdge {
       throw new RuntimeException("Exception creating a graph edge from an intersect group -- should call overloaded method setting left and right group");
     } else if (toNode.isGroup()) {
       styleObjectType = StyleObjectType.EDGE_MEMBERSHIP;
+    } else if (toNode.isSubject()) {
+      styleObjectType = StyleObjectType.EDGE_MEMBERSHIP;
     } else {
       styleObjectType = StyleObjectType.EDGE;
     }
