@@ -479,7 +479,7 @@ public class UiV2Visualization {
       graph = buildToJsonText(relationGraph);
       jsDrawFunctionName = "drawGraphModuleText()";
     } else if ("d3".equals(visualizationContainer.getDrawModule())) {
-      graph = buildToJsonD3(relationGraph);
+      graph = buildToJsonD3(relationGraph, visualizationContainer);
       jsDrawFunctionName = "drawGraphModuleD3()";
     } else {
       throw new RuntimeException("Invalid visualization module: '" + visualizationContainer.getDrawModule() + "'");
@@ -500,8 +500,6 @@ public class UiV2Visualization {
     graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
     graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
     graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
-    //graph.addSetting("objectNameField", visualizationHelper;);
-    //what is this in the d3 drawing?? graph.addSetting("text", -1);
 
     JSONObject jsonObject = JSONObject.fromObject(graph);
 
@@ -520,7 +518,7 @@ public class UiV2Visualization {
     return displayExtension;
   }
 
-  private D3Graph buildToJsonD3(RelationGraph relationGraph) {
+  private D3Graph buildToJsonD3(RelationGraph relationGraph, VisualizationContainer visualizationContainer) {
     VisualSettings settings = new VisualSettings();
     VisualStyleSet styleSet = settings.getStyleSet("dot");
 
@@ -583,6 +581,12 @@ public class UiV2Visualization {
       }
     }
 
+    graph.addSetting("showLegend", visualizationContainer.isDrawShowLegend());
+    graph.addSetting("showObjectTypes", visualizationContainer.isDrawShowLegend());
+
+    if (visualizationContainer.isDrawShowLegend() && visualizationContainer.isDrawShowObjectTypes()) {
+      graph.addSetting("objectTypesLegend", TextContainer.retrieveFromRequest().getText().get("visualization.form.legend.objectTypeLegend"));
+    }
     return graph;
   }
 
@@ -888,6 +892,18 @@ public class UiV2Visualization {
       }
     } else {
       visualizationContainer.setDrawIncludeGroupsInMemberCounts(prefsFromAttribute.isDrawIncludeGroupsInMemberCounts());
+    }
+
+    /* show legend */
+    if (fromSubmission) {
+      visualizationContainer.setDrawShowLegend(
+        GrouperUtil.booleanValue(request.getParameter("drawShowLegend"), false));
+      if (visualizationContainer.isDrawShowLegend() != prefsFromAttribute.isDrawShowLegend()) {
+        prefsFromAttribute.setDrawShowLegend(visualizationContainer.isDrawShowLegend());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawShowLegend(prefsFromAttribute.isDrawShowLegend());
     }
 
     // force a find of the lazy-loaded based on the id and type

@@ -236,6 +236,37 @@ function getStyleArray(graph, styleNames, obj) {
 }
 
 
+/**
+ * for a base object type, return a "style=value ..." string; add in any hardcoded strings at the end
+ */
+function getStyleStringForType(graph, styleNames, objType, extraProperties) {
+  var styles = [];
+  var fallbackStyles = {
+    "group" : "",
+    "edge_complement_left" : "color=green3 style=solid",
+    "edge_complement_right" : "color=salmon style=solid",
+    "edge_intersect_left" : "color=blue style=solid",
+    "edge_intersect_right" : "color=blue style=solid",
+    "simple_loader_group" : "color=forestgreen fontcolor=white style=filled",
+    "loader_group" : "color=forestgreen style=filled fontcolor=white",
+    "edge_loader" : "color=forestgreen style=dashed"
+  };
+
+  if (graph.styles.hasOwnProperty(objType)) {
+    styleNames.forEach(function(styleName) {
+      if ((graph.styles[objType][styleName]||"") !== "") {
+        styles.push(styleName + "=" + graph.styles[objType][styleName]);
+      }
+    });
+  } else if (fallbackStyles.hasOwnProperty(objType)) {
+    styles.push(fallbackStyles[objType]);
+  }
+
+  styles.push(extraProperties);
+
+  return styles.join(" ");
+}
+
 // invoked from clicking a href of an object in the D3 graph
 function followObject(objectType, objectId) {
   var operationMap = { group: "UiV2Visualization.groupView", stem: "UiV2Visualization.stemView", subject: "UiV2Visualization.subjectView"};
@@ -247,6 +278,112 @@ function followObject(objectType, objectId) {
     //ajax('../app/UiV2Visualization.buildGraph', {formIds: 'vis-settings-form', });
   }
 }
+
+/**
+ * Output representative nodes and edges in a subgraph that gets drawn as a boxed legend.
+ * Use the actual styles from grouper.properties when available, but fall back in a few cases
+ * to some hardcoded guesses -- e.g. if there is a start group but no normal group, we still want
+ * to draw a group to showcase the specific edge style related to it. For the hardcoded fallbacks,
+ * see function getStyleStringForType().
+ */
+function getGraphModuleD3Legend(graph) {
+  var theLegend = "";
+
+  var nodeStyles = ['shape', 'color', 'style', 'border', 'fontcolor'];
+  var edgeStyles = ["arrowtail", "dir", "color", "style"];
+  theLegend += 'subgraph cluster1 {\n';
+  theLegend += '  label = "Legend" ;\n';
+  theLegend += '  shape=rectangle ;\n';
+  theLegend += '  color = black ;\n';
+  theLegend += '  fontsize = 20;\n';
+  theLegend += '\n';
+
+  // start stem
+  if (graph.styles.hasOwnProperty("start_stem")) {
+    theLegend += '  start_folder [' + getStyleStringForType(graph, nodeStyles, 'start_stem', ['label="start folder"']) + '] ;\n';
+  }
+  // start group
+  if (graph.styles.hasOwnProperty("start_group")) {
+    theLegend += '  start_group [' + getStyleStringForType(graph, nodeStyles, 'start_group', ['label="start group"']) + '] ;\n';
+  }
+  // folder -- contains --> folder or group
+  if (graph.styles.hasOwnProperty("stem")) {
+    theLegend += '  folder [' + getStyleStringForType(graph, nodeStyles, 'stem', null) + '] ;\n';
+    if (graph.styles.hasOwnProperty("group")) {
+      theLegend += '  folder_or_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="folder or group"']) + '] ;\n';
+    } else {
+      theLegend += '  folder_or_group [label="folder or group"];\n';
+    }
+
+    theLegend += '  folder -> folder_or_group [label="contains"] ;\n';
+  }
+  // group1 -- has member --> group2
+  if (graph.styles.hasOwnProperty("group") && graph.styles.hasOwnProperty("edge_membership")) {
+    theLegend += '  group1 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 1"']) + '];\n';
+    theLegend += '  group2 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
+    theLegend += '  group1 -> group2 [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="has member"']) + '] ;\n';
+  }
+  // group -- has member --> subject
+  if (graph.styles.hasOwnProperty("start_subject") /* && graph.styles.hasOwnProperty("group") */ && graph.styles.hasOwnProperty("edge_membership")) {
+    theLegend += '  subject_member_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group"']) + '];\n';
+    theLegend += '  subject [' + getStyleStringForType(graph, nodeStyles, 'start_subject', ['label="start subject"']) + '];\n';
+    theLegend += '  subject_member_group -> subject [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="has member"']) + '] ;\n';
+  }
+  // loader group -- loads group --> group loaded
+  if ((graph.styles.hasOwnProperty("loader_group") || graph.styles.hasOwnProperty("start_loader_group")) /* && graph.styles.hasOwnProperty("group") */ /* && graph.styles.hasOwnProperty("edge_loader") */) {
+    theLegend += '  loader_group [' + getStyleStringForType(graph, nodeStyles, 'loader_group', ['label="loader group"']) + '];\n';
+    theLegend += '  group_loaded [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group loaded"']) + '];\n';
+    theLegend += '  loader_group -> group_loaded [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', ['label="loads group"']) + '] ;\n';
+  }
+  // simple loader group (self link)
+  if ((graph.styles.hasOwnProperty("simple_loader_group") || graph.styles.hasOwnProperty("start_simple_loader_group")) && graph.styles.hasOwnProperty("edge_loader")) {
+    theLegend += '  simple_loader_group [' + getStyleStringForType(graph, nodeStyles, 'simple_loader_group', ['label="simple loader group"']) + '];\n';
+    theLegend += '  simple_loader_group -> simple_loader_group [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', null) + '] ;\n';
+  }
+
+  // complement group -- in first but not second --<= first factor/second factor
+  if (graph.styles.hasOwnProperty("complement_group") /* && graph.styles.hasOwnProperty("group")*/ ) {
+    theLegend += '  complement_group [' + getStyleStringForType(graph, nodeStyles, 'complement_group', ['label="complement group"']) + '];\n';
+    theLegend += '  complement_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="left factor"']) + '];\n';
+    theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="right factor"']) + '];\n';
+
+    // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
+    theLegend += '  complement_group -> complement_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_left', ['label="in left factor but not right"']) + '];\n';
+    theLegend += '  complement_group -> complement_right_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_right', null) + '];\n';
+  }
+
+  // intersect group -- in first and in second --<= first factor/second factor
+  if (graph.styles.hasOwnProperty("intersect_group") /* && graph.styles.hasOwnProperty("group")*/) {
+    theLegend += '  intersect_group [' + getStyleStringForType(graph, nodeStyles, 'intersect_group', ['label="intersect group"']) + '];\n';
+    theLegend += '  intersect_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="left factor"']) + '];\n';
+    theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="right factor"']) + '];\n';
+
+    // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
+    theLegend += '  intersect_group -> intersect_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_left', ['label="in left factor and in right"']) + '];\n';
+    theLegend += '  intersect_group -> intersect_right_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_right', null) + '];\n';
+
+  }
+
+  // provisioned group -- provisions to --> pspng provisioner target
+  if (graph.styles.hasOwnProperty("provisioner") /* && graph.styles.hasOwnProperty("group") */ && graph.styles.hasOwnProperty("edge_provisioner")) {
+    theLegend += '  provisioner_source [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="provisioned group"']) + '];\n';
+    theLegend += '  provisioner [' + getStyleStringForType(graph, nodeStyles, 'provisioner', ['label="pspng provisioner target"']) + '];\n';
+
+    theLegend += '  provisioner_source -> provisioner [' + getStyleStringForType(graph, edgeStyles, 'edge_provisioner', ['label="provisions to"']) + '];\n';
+  }
+
+  // if using object types, display what they mean; use invisible nodes to force it to the right
+  if (graph.settings.showObjectTypes && graph.settings.hasOwnProperty("objectTypesLegend")) {
+    theLegend += '  x [label="\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l" style=invis];\n';
+    theLegend += '  object_types [ label="' + graph.settings.objectTypesLegend + '" ];\n';
+    theLegend += '  x -> object_types [style=invis];\n';
+
+  }
+  theLegend += '}\n';
+
+  return theLegend;
+}
+
 
 function drawGraphModuleD3() {
   const graph = visualizationObject; //shorter name
@@ -279,9 +416,14 @@ function drawGraphModuleD3() {
     dot = "digraph \"\" {\n";
     dot += "node [" + graph.styles.graph.nodestyle + " ];\n";
     dot += "graph [" + graph.styles.graph.style + " ];\n";
+
+    if (graph.settings.showLegend) {
+      dot += getGraphModuleD3Legend(graph);
+    }
+
     Object.values(graph.nodes).forEach(
       function(node) {
-        var props = getStyleArray(graph, ["shape", "style", "color", "fontcolor"], node);
+        var props = getStyleArray(graph, ["shape", "style", "color", "fontcolor", "border"], node);
         if (node.linkType) {
             props.push("URL=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\"");
         }

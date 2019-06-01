@@ -32,6 +32,7 @@ public class VisualizationContainer {
   private boolean drawShowDirectMemberCounts;
   private boolean drawShowObjectTypes;
   private boolean drawIncludeGroupsInMemberCounts;
+  private boolean drawShowLegend;
   private GrouperObject grouperObject;
 
 
@@ -310,6 +311,24 @@ public class VisualizationContainer {
    */
   public void setDrawIncludeGroupsInMemberCounts(boolean drawIncludeGroupsInMemberCounts) {
     this.drawIncludeGroupsInMemberCounts = drawIncludeGroupsInMemberCounts;
+  }
+
+  /**
+   * returns whether the D3 graph should include a legend as an inset
+   *
+   * @return
+   */
+  public boolean isDrawShowLegend() {
+    return drawShowLegend;
+  }
+
+  /**
+   * sets whether the D3 graph should include a legend as an inset
+   *
+   * @param drawShowLegend
+   */
+  public void setDrawShowLegend(boolean drawShowLegend) {
+    this.drawShowLegend = drawShowLegend;
   }
 
   /**

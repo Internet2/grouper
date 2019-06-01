@@ -1,5 +1,4 @@
 
-
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190216" type="text/javascript"></script>
@@ -161,6 +160,17 @@
             <input type="checkbox" name="drawShowObjectTypes" id="vis-settings-show-object-types" value="true" ${grouperRequestContainer.visualizationContainer.drawShowObjectTypes ? "checked": ""}/>
             <br/>
             <span class="description">${textContainer.text['visualization.form.showObjectTypes.description']}</span>
+          </td>
+        </tr>
+        <!-- show legend -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-show-legend">${textContainer.text['visualization.form.showLegend']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawShowLegend" id="vis-settings-show-legend" value="true" ${grouperRequestContainer.visualizationContainer.drawShowLegend ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.showLegend.description']}</span>
           </td>
         </tr>
       </tbody>

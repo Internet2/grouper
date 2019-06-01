@@ -25,6 +25,7 @@ public class UiV2VisualizationPreference {
   private boolean drawShowDirectMemberCounts = true;
   private boolean drawShowObjectTypes = false;
   private boolean drawIncludeGroupsInMemberCounts = false;
+  private boolean drawShowLegend = true;
 
   public UiV2VisualizationPreference() {
   }
@@ -123,6 +124,14 @@ public class UiV2VisualizationPreference {
 
   public void setDrawIncludeGroupsInMemberCounts(boolean drawIncludeGroupsInMemberCounts) {
     this.drawIncludeGroupsInMemberCounts = drawIncludeGroupsInMemberCounts;
+  }
+
+  public boolean isDrawShowLegend() {
+    return drawShowLegend;
+  }
+
+  public void setDrawShowLegend(boolean drawShowLegend) {
+    this.drawShowLegend = drawShowLegend;
   }
 
   /**
