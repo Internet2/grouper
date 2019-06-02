@@ -1212,7 +1212,7 @@ public class RelationGraph {
       String sqlQuery =
         "select gg.id," +
           "  (" +
-          "    select count (distinct gmlv.member_id)" +
+          "    select count(distinct gmlv.member_id)" +
           "      from grouper_memberships_lw_v gmlv" +
           "     where gmlv.group_id = gg.id" +
           "       and gmlv.list_name = 'members'" +
@@ -1220,7 +1220,7 @@ public class RelationGraph {
           "       and gmlv.subject_source != 'g:gsa'") +
           "  ) as total_membership_count," +
           "  (" +
-          "    select count (distinct gms.member_id)" +
+          "    select count(distinct gms.member_id)" +
           "      from grouper_memberships_all_v gms, grouper_members gm, grouper_fields gfl" +
           "     where gms.owner_group_id = gg.id" +
           "       and gms.field_id = gfl.id" +
