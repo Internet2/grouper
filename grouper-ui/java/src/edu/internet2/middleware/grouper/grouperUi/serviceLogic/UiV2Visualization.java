@@ -16,12 +16,30 @@
 
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.graph.GraphEdge;
 import edu.internet2.middleware.grouper.app.graph.GraphNode;
 import edu.internet2.middleware.grouper.app.graph.RelationGraph;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.app.visualization.VisualSettings;
 import edu.internet2.middleware.grouper.app.visualization.VisualStyleSet;
@@ -32,7 +50,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2VisualizationPreference;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.*;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.VisualizationContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -40,12 +63,6 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
 
 /**
  * Operations to display a graph of object relationships
@@ -584,8 +601,23 @@ public class UiV2Visualization {
     graph.addSetting("showLegend", visualizationContainer.isDrawShowLegend());
     graph.addSetting("showObjectTypes", visualizationContainer.isDrawShowLegend());
 
-    if (visualizationContainer.isDrawShowLegend() && visualizationContainer.isDrawShowObjectTypes()) {
-      graph.addSetting("objectTypesLegend", TextContainer.retrieveFromRequest().getText().get("visualization.form.legend.objectTypeLegend"));
+    if (visualizationContainer.isDrawShowLegend() && visualizationContainer.isDrawShowObjectTypes() && relationGraph.getObjectTypesUsed().size() > 0) {
+      
+      StringBuilder objectTypesLegend = new StringBuilder();
+      
+      objectTypesLegend.append(TextContainer.retrieveFromRequest().getText().get("visualization.form.legend.objectTypeLegend"));
+      
+      // get which types were used in the right order
+      for (String objectTypeName : GrouperObjectTypesSettings.getObjectTypeNames()) {
+        if (relationGraph.getObjectTypesUsed().contains(objectTypeName)) {
+          objectTypesLegend.append(TextContainer.retrieveFromRequest().getText().get("visualization.form.legend.objectTypeLegend." + objectTypeName));
+        }
+      }
+      
+      // add space to end
+      objectTypesLegend.append("\\l");
+      
+      graph.addSetting("objectTypesLegend", objectTypesLegend.toString());
     }
     return graph;
   }

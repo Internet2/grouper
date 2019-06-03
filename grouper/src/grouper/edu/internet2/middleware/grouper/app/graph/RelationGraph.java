@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -59,6 +60,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
@@ -1264,6 +1266,10 @@ public class RelationGraph {
 
   // once the graph is built, query counts for group objects depending on the settings
   private void queryObjectTypeNames() {
+    
+    // not sure why it wouldnt be empty, but empty it anyhow
+    this.getObjectTypesUsed().clear();
+    
     if (!showObjectTypes) {
       return;
     }
@@ -1338,10 +1344,26 @@ public class RelationGraph {
           // not sure why this wouldn't be found
           GraphNode node = nodesByUuid.get(objectId);
 
-          node.addObjectTypeName(values[1]);
+          final String objectTypeName = values[1];
+          node.addObjectTypeName(objectTypeName);
+          
+          this.objectTypesUsed.add(objectTypeName);
         }
       }
     }
+  }
+
+  /**
+   * keep track of which types are used for legend
+   */
+  private Set<String> objectTypesUsed = new HashSet<String>();
+  
+  /**
+   * keep track of which types are used for legend
+   * @return the objectTypesUsed
+   */
+  public Set<String> getObjectTypesUsed() {
+    return this.objectTypesUsed;
   }
 
   // If first time called, init the static attributeDef fields, and other class properties. Find these as root user
