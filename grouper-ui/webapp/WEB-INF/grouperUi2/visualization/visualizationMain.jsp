@@ -1,7 +1,7 @@
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190216" type="text/javascript"></script>
+<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190603" type="text/javascript"></script>
 
 
 <div class="lead">${textContainer.text['visualization.title']}
