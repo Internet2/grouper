@@ -77,11 +77,13 @@ public class UiV2Visualization {
     private Map<String, Object> settings;
     private Map<String, String> statistics;
     private Map<String, Map<String, String>> styles;
+    private Map<String, Map<String, String>> fallbackStyles;
 
     public VisualizationGraph() {
       settings = new HashMap<String, Object>();
       statistics = new HashMap<String, String>();
       styles = new HashMap<String, Map<String, String>>();
+      fallbackStyles = new HashMap<String, Map<String, String>>();
     }
 
     protected void addSetting(String name, Object value) {
@@ -99,6 +101,13 @@ public class UiV2Visualization {
       styles.get(styleName).put(propertyName, propertyValue);
     }
 
+    protected void addFallbackStyleProperty(String styleName, String propertyName, String propertyValue) {
+      if (!fallbackStyles.containsKey(styleName)) {
+        fallbackStyles.put(styleName, new HashMap<String, String>());
+      }
+      fallbackStyles.get(styleName).put(propertyName, propertyValue);
+    }
+
     public Map<String, Object> getSettings() {
       return settings;
     }
@@ -109,6 +118,10 @@ public class UiV2Visualization {
 
     public Map<String, Map<String, String>> getStyles() {
       return styles;
+    }
+
+    public Map<String, Map<String, String>> getFallbackStyles() {
+      return fallbackStyles;
     }
   }
 
@@ -594,6 +607,19 @@ public class UiV2Visualization {
         String propertyValue = styleSet.getStyleProperty(styleType.getName(), propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addStyleProperty(styleType.getName(), propertyName, propertyValue);
+        }
+      }
+    }
+
+    // For a minimal set of objects, define styles even if not being used, so they can be used in the legend.
+    // Keep them in a separate "fallbackStyles" property, so that the regular "styles" property can be used
+    // to detect which ones are actually being used
+    for (String styleName: new String[]{"group", "edge_complement_left", "edge_complement_right", "edge_intersect_left",
+            "edge_intersect_right", "simple_loader_group", "loader_group", "edge_loader"}) {
+      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail", "dir"}) {
+        String propertyValue = styleSet.getStyleProperty(styleName, propertyName, "");
+        if (!"".equals(propertyValue)) {
+          graph.addFallbackStyleProperty(styleName, propertyName, propertyValue);
         }
       }
     }

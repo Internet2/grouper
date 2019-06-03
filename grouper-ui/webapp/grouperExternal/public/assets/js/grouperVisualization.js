@@ -241,16 +241,6 @@ function getStyleArray(graph, styleNames, obj) {
  */
 function getStyleStringForType(graph, styleNames, objType, extraProperties) {
   var styles = [];
-  var fallbackStyles = {
-    "group" : "",
-    "edge_complement_left" : "color=green3 style=solid",
-    "edge_complement_right" : "color=salmon style=solid",
-    "edge_intersect_left" : "color=blue style=solid",
-    "edge_intersect_right" : "color=blue style=solid",
-    "simple_loader_group" : "color=forestgreen fontcolor=white style=filled",
-    "loader_group" : "color=forestgreen style=filled fontcolor=white",
-    "edge_loader" : "color=forestgreen style=dashed"
-  };
 
   if (graph.styles.hasOwnProperty(objType)) {
     styleNames.forEach(function(styleName) {
@@ -258,8 +248,15 @@ function getStyleStringForType(graph, styleNames, objType, extraProperties) {
         styles.push(styleName + "=" + graph.styles[objType][styleName]);
       }
     });
-  } else if (fallbackStyles.hasOwnProperty(objType)) {
-    styles.push(fallbackStyles[objType]);
+  } else if (graph.hasOwnProperty("fallbackStyles") && graph.fallbackStyles.hasOwnProperty(objType)) {
+    // fallback styles are like styles, but they are always guaranteed to be there, even when the particular
+    // object type isn't in use. They are kept separate from styles so the latter can detect when an object is
+    // actually being used, and can optionally be excluded from the legend if not
+    styleNames.forEach(function(styleName) {
+      if ((graph.fallbackStyles[objType][styleName]||"") !== "") {
+        styles.push(styleName + "=" + graph.fallbackStyles[objType][styleName]);
+      }
+    });
   }
 
   styles.push(extraProperties);
@@ -374,9 +371,11 @@ function getGraphModuleD3Legend(graph) {
 
   // if using object types, display what they mean; use invisible nodes to force it to the right
   if (graph.settings.showObjectTypes && graph.settings.hasOwnProperty("objectTypesLegend")) {
-    theLegend += '  x [label="\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l\\l" style=invis];\n';
+    // create an invisible node with the same number of rows as the text node, so the nodes above it don't get shifted downward
+    var numRowsInText = (graph.settings.objectTypesLegend.match(/,/g) || []).length;
+    theLegend += '  invis_node [label="' + "\\l".repeat(numRowsInText) + '" style=invis];\n';
     theLegend += '  object_types [ label="' + graph.settings.objectTypesLegend + '" ];\n';
-    theLegend += '  x -> object_types [style=invis];\n';
+    theLegend += '  invis_node -> object_types [style=invis];\n';
 
   }
   theLegend += '}\n';
