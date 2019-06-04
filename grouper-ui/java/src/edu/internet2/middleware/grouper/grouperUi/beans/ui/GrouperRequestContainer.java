@@ -461,6 +461,22 @@ public class GrouperRequestContainer {
   }
   
   /**
+   * container for configuration
+   */
+  private ConfigurationContainer configurationContainer;
+
+  /**
+   * lazy load config container
+   * @return config container
+   */
+  public ConfigurationContainer getConfigurationContainer() {
+    if (this.configurationContainer == null) {
+      this.configurationContainer = new ConfigurationContainer();
+    }
+    return this.configurationContainer;
+  }
+
+  /**
    * container for group screens
    */
   private GroupContainer groupContainer;

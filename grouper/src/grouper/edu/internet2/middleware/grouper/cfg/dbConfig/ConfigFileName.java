@@ -27,11 +27,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum ConfigFileName {
 
-  /**
-   * grouper.properties
-   */
-  GROUPER_PROPERTIES("grouper.properties", "grouper.base.properties"), 
-
 //  lets hold off on this one since it will be a circular dependency when running the config overlay
 //  the other properties files need to read this one to get to the database, but if this one has
 //  to get to the database to get its own config...   hmm...
@@ -41,20 +36,25 @@ public enum ConfigFileName {
 //  GROUPER_HIBERNATE_PROPERTIES("grouper.hibernate.properties"), 
 //  
   /**
-   * grouper-loader.properties
-   */
-  GROUPER_LOADER_PROPERTIES("grouper-loader.properties", "grouper-loader.base.properties"), 
-  
-  /**
    * grouper.cache.properties
    */
   GROUPER_CACHE_PROPERTIES("grouper.cache.properties", "grouper.cache.base.properties"),
   
   /**
-   * subject.properties
+   * grouper.client.properties
    */
-  SUBJECT_PROPERTIES("subject.properties", "subject.base.properties"),
+  GROUPER_CLIENT_PROPERTIES("grouper.client.properties", "grouper.client.base.properties"),
   
+  /**
+   * grouper-loader.properties
+   */
+  GROUPER_LOADER_PROPERTIES("grouper-loader.properties", "grouper-loader.base.properties"), 
+  
+  /**
+   * grouper.properties
+   */
+  GROUPER_PROPERTIES("grouper.properties", "grouper.base.properties"), 
+
   /**
    * grouper-ui.properties
    */
@@ -66,9 +66,9 @@ public enum ConfigFileName {
   GROUPER_WS_PROPERTIES("grouper-ws.properties", "grouper-ws.base.properties"),
   
   /**
-   * grouper.client.properties
+   * subject.properties
    */
-  GROUPER_CLIENT_PROPERTIES("grouper.client.properties", "grouper.client.base.properties");
+  SUBJECT_PROPERTIES("subject.properties", "subject.base.properties");
   
   /**
    * 

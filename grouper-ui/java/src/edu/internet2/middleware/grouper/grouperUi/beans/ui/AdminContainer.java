@@ -43,6 +43,18 @@ public class AdminContainer {
    */
   private GuiPaging daemonJobsGuiPaging = null;
 
+  /**
+   * if show configure link
+   * @return the configure link
+   */
+  public boolean isConfigureShow() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    return false;
+  }
   
   /**
    * if import from group

@@ -15,8 +15,12 @@
               <div class="span12">
                 <div class="row-fluid">
                   <div class="span1">
+                    <c:if test="${grouperRequestContainer.adminContainer.configureShow}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.configure');" style="white-space: nowrap;"
+                      >${textContainer.text['adminConfigureLink'] }</a>
+                    </c:if>
                     <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
-                      <a href="#" onclick="return guiV2link('operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
                       >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
                     </c:if>
                     <c:if test="${grouperRequestContainer.adminContainer.subjectApiDiagnosticsShow}">
