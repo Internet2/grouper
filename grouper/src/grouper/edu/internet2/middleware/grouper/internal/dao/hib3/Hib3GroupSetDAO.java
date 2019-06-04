@@ -484,7 +484,7 @@ return groupSets;
     String sql = "select g, f from Field as f, Group as g " +
         "where (f.name = 'members' or f.typeString = 'access') " +
         //for entities, dont put in group sets for members, optins, optouts, updaters, readers
-        "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
+        "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers' or f.name = 'groupAttrReaders' or f.name = 'groupAttrUpdaters')) " +
         "and not exists " +
         "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     

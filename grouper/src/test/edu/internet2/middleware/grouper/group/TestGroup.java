@@ -800,13 +800,13 @@ public class TestGroup extends GrouperTest {
     
     int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     
-    assertEquals(originalGroupSetCount + 2, newGroupSetCount);
+    assertEquals(originalGroupSetCount + 4, newGroupSetCount);
         
     //fix group sets, should still be same
     new AddMissingGroupSets().showResults(true).addAllMissingGroupSets();
     newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     
-    assertEquals(originalGroupSetCount + 2, newGroupSetCount);
+    assertEquals(originalGroupSetCount + 4, newGroupSetCount);
     
     Group entityGroup = (Group)entity;
     
@@ -837,6 +837,11 @@ public class TestGroup extends GrouperTest {
     entity.revokePriv(SubjectFinder.findRootSubject(), AccessPrivilege.VIEW, false);
     entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.ADMIN, false);
     entity.revokePriv(SubjectFinder.findRootSubject(), AccessPrivilege.ADMIN, false);
+    entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+    entity.revokePriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+    entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+    entity.revokePriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+
     try {
       entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.READ, false);
       fail("shouldnt get here");
@@ -857,18 +862,6 @@ public class TestGroup extends GrouperTest {
     }
     try {
       entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.OPTOUT, false);
-      fail("shouldnt get here");
-    } catch (Exception e) {
-      //good
-    }
-    try {
-      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
-      fail("shouldnt get here");
-    } catch (Exception e) {
-      //good
-    }
-    try {
-      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
