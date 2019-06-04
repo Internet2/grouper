@@ -43,6 +43,14 @@ function fetchGraph() {
 // https://stackoverflow.com/a/28458409
 // escape bad characters in javascript strings
 function escapeHTML(unsafe) {
+	
+  if (typeof unsafe == 'undefined') {
+    return 'undefined';
+  } 
+  if (unsafe == null) {
+    return 'null';
+  }
+
   // CH need to escape more chars for some reason...
   return unsafe.replace(/[<>&"']/g, function(m) {
     switch (m) {
@@ -81,6 +89,14 @@ function getObjectLink(node, text) {
 
 
 function escapeText(unsafe) {
+  
+  if (typeof unsafe == 'undefined') {
+    return 'undefined';
+  } 
+  if (unsafe == null) {
+    return 'null';
+  }
+
   return unsafe.replace('"', '\\"');
 }
 

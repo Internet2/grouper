@@ -18,14 +18,18 @@ package edu.internet2.middleware.grouper.app.graph;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -141,30 +145,38 @@ public class GraphNode {
     this.provisionerTarget = false;
 
     if (grouperObject instanceof Group) {
-      Group theGroup = (Group)grouperObject;
+      final Group theGroup = (Group)grouperObject;
       this.group = true;
 
-      // is it a sql loader job?
-      if (RelationGraph.getSqlLoaderAttributeDefName() != null
-          && theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getSqlLoaderAttributeDefName(), false, false)!=null) {
-        this.loaderGroup = true;
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          // is it a sql loader job?
+          if (RelationGraph.getSqlLoaderAttributeDefName() != null
+              && theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getSqlLoaderAttributeDefName(), false, false)!=null) {
+            GraphNode.this.loaderGroup = true;
 
-        if ("SQL_SIMPLE".equals(theGroup.getAttribute(GrouperLoader.GROUPER_LOADER_TYPE))) {
-          this.simpleLoaderGroup = true;
-        }
-      }
-      // is an ldap loader job?
-      else {
-        AttributeAssign ldapAttributeAssign = theGroup.getAttributeDelegate().retrieveAssignment(null, LoaderLdapUtils.grouperLoaderLdapAttributeDefName(), false, false);
-        if (ldapAttributeAssign != null) {
-          this.loaderGroup = true;
+            if ("SQL_SIMPLE".equals(theGroup.getAttribute(GrouperLoader.GROUPER_LOADER_TYPE))) {
+              GraphNode.this.simpleLoaderGroup = true;
+            }
+          }
+          // is an ldap loader job?
+          else {
+            AttributeAssign ldapAttributeAssign = theGroup.getAttributeDelegate().retrieveAssignment(null, LoaderLdapUtils.grouperLoaderLdapAttributeDefName(), false, false);
+            if (ldapAttributeAssign != null) {
+              GraphNode.this.loaderGroup = true;
 
-          if ("LDAP_SIMPLE".equals(ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName()))) {
-            this.simpleLoaderGroup = true;
+              if ("LDAP_SIMPLE".equals(ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName()))) {
+                GraphNode.this.simpleLoaderGroup = true;
+              }
+
+            }
           }
 
+          return null;
         }
-      }
+      });
 
       // is it an intersect/complement group?
       if (theGroup.hasComposite()) {
