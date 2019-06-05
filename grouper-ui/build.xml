@@ -497,14 +497,12 @@
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/grouper">
 				<include name="**/*.jar"/>
-				<exclude name="javax.servlet-api-*.jar"/>
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/custom">
 				<include name="**/*.jar"/>
 			</fileset>
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
-				<exclude name="servlet.jar"/>
         <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 		</copy>

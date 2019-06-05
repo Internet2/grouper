@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.GrouperUiTextConfig;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 
 
 /**
@@ -23,7 +23,7 @@ public class GrouperNavResourceBundle extends ResourceBundle {
   /**
    * 
    */
-  private GrouperUiTextConfig grouperUiTextConfig = null;
+  private GrouperUiApiTextConfig grouperUiTextConfig = null;
   
   /**
    * @param locale 
@@ -35,7 +35,7 @@ public class GrouperNavResourceBundle extends ResourceBundle {
     if (httpServletRequest != null) {
       locale = GrouperUtil.defaultIfNull(httpServletRequest.getLocale(), locale);
     }
-    this.grouperUiTextConfig = GrouperUiTextConfig.retrieveText(locale); 
+    this.grouperUiTextConfig = GrouperUiApiTextConfig.retrieveText(locale); 
   }
 
   /**

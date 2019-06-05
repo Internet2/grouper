@@ -31,8 +31,10 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +43,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.emory.mathcs.backport.java.util.Collections;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.text.TextBundleBean;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -605,6 +607,26 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    * cache deprovisioning affiliations
    */
   private Set<String> deprovisioningAffiliations = null;
+
+  /**
+   * default bundle
+   */
+  private TextBundleBean textBundleDefault = null;
+
+  /**
+   * country to text bundle
+   */
+  private Map<String, TextBundleBean> textBundleFromCountry  = null;
+
+  /**
+   * language to text bundle
+   */
+  private Map<String, TextBundleBean> textBundleFromLanguage  = null;
+
+  /**
+   * language_country to text bundle
+   */
+  private Map<String, TextBundleBean> textBundleFromLanguageAndCountry  = null;
   
   /**
    * pattern compile alphanumeric and underscore
@@ -643,6 +665,125 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
     }
     return result;
 
+  }
+
+  /**
+   * default bundle
+   * @return the textBundleDefault
+   */
+  public TextBundleBean textBundleDefault() {
+    if (this.textBundleDefault == null) {
+      this.textBundleFromCountry();
+    }
+    return this.textBundleDefault;
+  }
+
+  /**
+   * country to text bundle
+   * @return the map
+   */
+  public Map<String, TextBundleBean> textBundleFromCountry() {
+    if (this.textBundleFromCountry == null) {
+      
+      synchronized (this) {
+        
+        if (this.textBundleFromCountry == null) {
+          
+          Map<String, TextBundleBean> tempBundleFromCountry = new HashMap<String, TextBundleBean>();
+          Map<String, TextBundleBean> tempBundleFromLanguage = new HashMap<String, TextBundleBean>();
+          Map<String, TextBundleBean> tempBundleFromLanguageAndCountry = new HashMap<String, TextBundleBean>();
+          
+          Pattern pattern = Pattern.compile("^grouper\\.text\\.bundle\\.(.*)\\.fileNamePrefix$");
+          
+          boolean foundDefault = false;
+          
+          for (Object keyObject : this.properties().keySet()) {
+            String key = (String)keyObject;
+            Matcher matcher = pattern.matcher(key);
+            if (matcher.matches()) {
+              
+              String bundleKey = matcher.group(1);
+  
+              String fileNamePrefix = this.propertyValueString(key);
+              String language = StringUtils.defaultString(this.propertyValueString("grouper.text.bundle." + bundleKey + ".language")).toLowerCase();
+              String country = StringUtils.defaultString(this.propertyValueString("grouper.text.bundle." + bundleKey + ".country")).toLowerCase();
+              
+              TextBundleBean textBundleBean = new TextBundleBean();
+              
+              textBundleBean.setCountry(country);
+              textBundleBean.setLanguage(language);
+              textBundleBean.setFileNamePrefix(fileNamePrefix);
+  
+              if (StringUtils.equals(bundleKey, propertyValueStringRequired("grouper.text.defaultBundleIndex"))) {
+                foundDefault = true;
+                this.textBundleDefault = textBundleBean;
+              }
+              
+              //first in wins
+              if (!tempBundleFromCountry.containsKey(country)) {
+                tempBundleFromCountry.put(country, textBundleBean);
+              }
+              if (!tempBundleFromLanguage.containsKey(language)) {
+                tempBundleFromLanguage.put(language, textBundleBean);
+              }
+              String languageAndCountry = language + "_" + country;
+              if (tempBundleFromLanguageAndCountry.containsKey(languageAndCountry)) {
+                LOG.error("Language and country already defined! " + languageAndCountry);
+              }
+              tempBundleFromLanguageAndCountry.put(languageAndCountry, textBundleBean);
+            }
+          }
+          
+          if (!foundDefault) {
+            throw new RuntimeException("Cant find default bundle index: '" 
+                + propertyValueStringRequired("grouper.text.defaultBundleIndex") + "', should have a key: grouper.text.bundle."
+                + propertyValueStringRequired("grouper.text.defaultBundleIndex") + ".fileNamePrefix");
+          }
+          
+          this.textBundleFromCountry = Collections.unmodifiableMap(tempBundleFromCountry);
+          this.textBundleFromLanguage = Collections.unmodifiableMap(tempBundleFromLanguage);
+          this.textBundleFromLanguageAndCountry = Collections.unmodifiableMap(tempBundleFromLanguageAndCountry);
+          
+        }
+      }
+    }
+    return this.textBundleFromCountry;
+  }
+
+  /**
+   * country to text bundle
+   * @return the map
+   */
+  public Map<String, TextBundleBean> textBundleFromLanguage() {
+    //init
+    Map<String, TextBundleBean> theTextBundleFromLanguage = this.textBundleFromLanguage;
+    if (theTextBundleFromLanguage == null) {
+      //init here
+      this.textBundleFromCountry();
+      theTextBundleFromLanguage = this.textBundleFromLanguage;
+    }
+    if (theTextBundleFromLanguage == null) {
+      throw new RuntimeException("Why is textBundleFromLanguage map null????");
+    }
+    return theTextBundleFromLanguage;
+  }
+
+  /**
+   * country to text bundle
+   * @return the map
+   */
+  public Map<String, TextBundleBean> textBundleFromLanguageAndCountry() {
+    //init
+    Map<String, TextBundleBean> theTextBundleFromLanguageAndCountry = this.textBundleFromLanguageAndCountry;
+    if (theTextBundleFromLanguageAndCountry == null) {
+      //init here
+      this.textBundleFromCountry();
+      theTextBundleFromLanguageAndCountry = this.textBundleFromLanguageAndCountry;
+    }
+    if (theTextBundleFromLanguageAndCountry == null) {
+      throw new RuntimeException("Why is textBundleFromLanguage map null????");
+    }
+    return theTextBundleFromLanguageAndCountry;
   }
   
 

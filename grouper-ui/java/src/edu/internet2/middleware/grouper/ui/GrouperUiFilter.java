@@ -79,12 +79,14 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ContextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -106,6 +108,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperThreadLocalState;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -1034,6 +1037,11 @@ public class GrouperUiFilter implements Filter {
    * put this in a request finally block
    */
   public static void finallyRequest() {
+    
+    GrouperTextContainer.servletRequestThreadLocalClear();
+    GrouperTextContainer.grouperRequestContainerThreadLocalClear();
+    GrouperUiApiTextConfig.servletRequestThreadLocalClear();
+
     threadLocalRequest.remove();
     threadLocalResponse.remove();
     threadLocalRequestStartMillis.remove();
@@ -1119,6 +1127,10 @@ public class GrouperUiFilter implements Filter {
       Subject subjectLoggedIn = retrieveSubjectLoggedIn(true, httpServletResponse);
       UiSection uiSection = uiSectionForRequest();
       ensureUserAllowedInSection(uiSection, subjectLoggedIn, httpServletResponse);
+
+      GrouperUiApiTextConfig.servletRequestThreadLocalAssign(httpServletRequest);
+      GrouperTextContainer.servletRequestThreadLocalAssign(httpServletRequest);
+      GrouperTextContainer.grouperRequestContainerThreadLocalAssign(GrouperRequestContainer.retrieveFromRequestOrCreate());
 
       TextContainer.retrieveFromRequest();
 
