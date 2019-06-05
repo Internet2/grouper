@@ -109,8 +109,7 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
       
       //# put groups in here which go to duo, the name in duo will be the extension here
       //grouperDuo.folder.name.withDuoGroups = duo
-      String grouperDuoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.folder.name.withDuoGroups");
-      Stem grouperDuoFolder = StemFinder.findByName(grouperSession, grouperDuoFolderName, true);
+      Stem grouperDuoFolder = GrouperDuoUtils.duoStem(debugMap);
 
       Set<Group> grouperGroups = grouperDuoFolder.getChildGroups(Scope.ONE);
       

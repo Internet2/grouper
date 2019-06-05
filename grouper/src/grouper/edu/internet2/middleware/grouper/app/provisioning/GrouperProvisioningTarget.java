@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 
 /**
  * provisioning target and it's attributes 
@@ -63,7 +63,7 @@ public class GrouperProvisioningTarget {
    */
   public String getExternalizedName() {
 
-    String externalizedName = TextContainer.textOrNull("provisioningUiLabelForKey_" + this.key);
+    String externalizedName = GrouperTextContainer.textOrNull("provisioningUiLabelForKey_" + this.key);
     externalizedName = StringUtils.defaultIfEmpty(externalizedName, this.key);
     return externalizedName;
   }

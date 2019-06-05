@@ -6638,6 +6638,54 @@ public class GrouperUtil {
   }
 
   /**
+   * remove stems that are children of the top level stem
+   * @param stems
+   */
+  public static void stemRemoveChildStemsOfTopStem(List<Stem> stems) {
+    
+    if (stems == null) {
+      return;
+    }
+    
+    int stemSize = stems.size();
+
+    //go through from smallest to largest
+
+    // root is 0, first level is 1, second level is 2
+    int numberOfStems = -1;
+    int indexOfHighestStem = -1;
+    
+    for (int i=0;i<stemSize;i++) {
+      
+      Stem currentStem = stems.get(i);
+      
+      int currentNumberOfStems = currentStem.isRootStem() ? 0 : (StringUtils.countMatches(currentStem.getName(), ":") + 1);
+      
+      if (numberOfStems == -1 || currentNumberOfStems < numberOfStems) {
+        numberOfStems = currentNumberOfStems;
+        indexOfHighestStem = i;
+      }
+    }
+    
+    Stem highestStem = stems.get(indexOfHighestStem);
+
+    String highestStemPrefix = highestStem.isRootStem() ? ":" : (highestStem.getName() + ":");
+    
+    Iterator<Stem> iterator = stems.iterator();
+    while (iterator.hasNext()) {
+      Stem currentStem = iterator.next();
+      
+      if (currentStem.equals(highestStem)) {
+        continue;
+      }
+      
+      if (highestStem.isRootStem() || currentStem.getName().startsWith(highestStemPrefix)) {
+        iterator.remove();
+      }
+    }
+  }
+  
+  /**
    * get the int value of an object, do not throw an exception if there is an
    * error
    *
