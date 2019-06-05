@@ -111,6 +111,12 @@ public interface GroupSetDAO extends GrouperDAO {
    * @return all the group sets where this group is a member and where depth > 0.
    */
   public Set<GroupSet> findAllByMemberGroup(String groupId);
+  
+  /**
+   * @param id
+   * @return all the group sets with this parent id
+   */
+  public Set<GroupSet> findAllByParentId(String id);
 
   /**
    * @param groupSetId
@@ -294,6 +300,12 @@ public interface GroupSetDAO extends GrouperDAO {
    * is the immediate groupSet.
    */
   public Set<Object[]> findMissingEffectiveGroupSets();
+  
+  /**
+   * Find bad effective group sets.
+   * @return group sets
+   */
+  public Set<GroupSet> findBadEffectiveGroupSets();
   
   /**
    * @param ownerId 

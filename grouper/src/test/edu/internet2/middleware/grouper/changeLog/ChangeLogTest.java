@@ -96,7 +96,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeAssignValue"));
+    TestRunner.run(new ChangeLogTest("testEntities"));
     //TestRunner.run(ChangeLogTest.class);
   }
   

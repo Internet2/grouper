@@ -63,7 +63,12 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
@@ -114,13 +119,143 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testDuplicates"));
+    TestRunner.run(new TestFindBadMemberships("testBadEffectiveGroupSets"));
   }
   
   protected void setUp () {
     super.setUp();
     FindBadMemberships.clearResults();
     FindBadMemberships.printErrorsToSTOUT(false);
+  }
+  
+  /**
+   * @throws InterruptedException 
+   * 
+   */
+  public void testBadEffectiveGroupSets() throws InterruptedException {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    final Group test1 = top.addChildGroup("test1", "test1");
+    final Group test2 = top.addChildGroup("test2", "test2");
+    final Group test3 = top.addChildGroup("test3", "test3");
+    final Group test4 = top.addChildGroup("test4", "test4");
+    final Group test5 = top.addChildGroup("test5", "test5");
+    
+    test1.addMember(test2.toSubject());
+    test2.addMember(test3.toSubject());
+    test4.addMember(test5.toSubject());
+    
+    int correctSize = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_group_set");
+    
+    // now mess up the group sets
+    test3.addMember(test4.toSubject());
+    test2.deleteMember(test3.toSubject());
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    final String[] state = new String[1];
+    state[0] = "1";
+
+    // perform these operations in parallel so it messes up the group sets
+    Thread thread1 = new Thread(new Runnable() {
+
+      public void run() {
+        HibernateSession.callbackHibernateSession(
+            GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            GrouperSession.startRootSession();
+            test2.addMember(test3.toSubject());
+            
+            state[0] = "2";
+            
+            while (true) {
+              if (state[0].equals("2")) {
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  // ignore
+                }
+              } else {
+                break;
+              }
+            }
+            return null;
+          }
+        });
+      }
+    });
+    
+    thread1.start();
+    
+    Thread thread2 = new Thread(new Runnable() {
+
+      public void run() {
+        HibernateSession.callbackHibernateSession(
+            GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            GrouperSession.startRootSession();
+            
+            while (true) {
+              if (state[0].equals("1")) {
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  // ignore
+                }
+              } else {
+                break;
+              }
+            }
+            
+            test3.deleteMember(test4.toSubject());
+            state[0] = "3";
+
+            return null;
+          }
+        });
+      }
+    });
+    
+    thread2.start();
+
+    thread1.join();
+    thread2.join();
+    
+    int newSize = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_group_set");
+    
+    // we should have 4 bad group sets
+    assertEquals(correctSize, newSize - 4);
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    // now check and fix it
+    assertEquals(4, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time, there may be changes there to fix pit group sets
+    ChangeLogTempToEntity.convertRecords();
+    new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables();
+    
+    newSize = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_group_set");
+    
+    assertEquals(correctSize, newSize);
+    
+    int pitSize = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_pit_group_set where active='T'");
+    
+    assertEquals(correctSize, pitSize);
   }
   
   /**

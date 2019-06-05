@@ -376,7 +376,9 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   public boolean isEntityListField() {
     return StringUtils.equals("access", this.type)
       && (StringUtils.equals(Field.FIELD_NAME_ADMINS, this.name)
-          || StringUtils.equals(Field.FIELD_NAME_VIEWERS, this.name));
+          || StringUtils.equals(Field.FIELD_NAME_VIEWERS, this.name)
+          || StringUtils.equals(Field.FIELD_NAME_GROUP_ATTR_READERS, this.name)
+          || StringUtils.equals(Field.FIELD_NAME_GROUP_ATTR_UPDATERS, this.name));
   }
   
   /**
