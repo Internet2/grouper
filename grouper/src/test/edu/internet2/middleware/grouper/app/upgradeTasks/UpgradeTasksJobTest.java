@@ -55,24 +55,28 @@ public class UpgradeTasksJobTest extends GrouperTest {
     
     try {
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity1.getId(), FieldFinder.find("groupAttrReaders", true).getId());
+      fail("didn't throw exception");
     } catch (GroupSetNotFoundException e) {
       // good
     }
 
     try {
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity1.getId(), FieldFinder.find("groupAttrUpdaters", true).getId());
+      fail("didn't throw exception");
     } catch (GroupSetNotFoundException e) {
       // good
     }
     
     try {
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity2.getId(), FieldFinder.find("groupAttrReaders", true).getId());
+      fail("didn't throw exception");
     } catch (GroupSetNotFoundException e) {
       // good
     }
     
     try {
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity2.getId(), FieldFinder.find("groupAttrUpdaters", true).getId());
+      fail("didn't throw exception");
     } catch (GroupSetNotFoundException e) {
       // good
     }
