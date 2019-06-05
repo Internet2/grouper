@@ -22,6 +22,81 @@ public class GrouperDuoUtils {
   public GrouperDuoUtils() {
   }
 
+//  /**
+//   * cache the folder for duo
+//   */
+//  private static ExpirableCache<Boolean, Stem> duoStemCache = new ExpirableCache<Boolean, Stem>(5);
+//
+//  /**
+//   * get duo stem from expirable cache or from database
+//   * duo stem
+//   * @param debugMap
+//   * @return the stem
+//   */
+//  public static Stem duoStem(Map<String, Object> debugMap) {
+//    
+//    Stem duoStem  = duoStemCache.get(Boolean.TRUE);
+//    if (debugMap != null) {
+//      debugMap.put("duoStemInExpirableCache", duoStem != null);
+//    }
+//
+//    if (duoStem == null) {
+//      duoStem = duoStemHelper(debugMap);
+//      duoStemCache.put(Boolean.TRUE, duoStem);
+//    }
+//    return duoStem;
+//  }
+//  
+//  /**
+//   * duo stem
+//   * @param debugMap
+//   * @return the stem
+//   */
+//  public static Stem duoStemHelper(Map<String, Object> debugMap) {
+//
+//    //# put groups in here which go to duo, the name in duo will be the extension here
+//    //grouperDuo.folder.name.withDuoGroups = duo
+//    String grouperDuoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouperDuo.folder.name.withDuoGroups");
+//    boolean useUiProvisioningConfiguration = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperDuo.use.ui.provisioning.configuration", true);
+//    
+//    if (useUiProvisioningConfiguration && !StringUtils.isBlank(grouperDuoFolderName)) {
+//      throw new RuntimeException("If you are using ui provisioning configuration, you cant configure a folder in the grouper-loader.properties 'grouperDuo.folder.name.withDuoGroups'!!!!");
+//    }
+//    
+//    Stem grouperDuoFolder = null;
+//    
+//    if (useUiProvisioningConfiguration) {
+//      
+//      String uiProvisioningTargetName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.ui.provisioning.targetName");
+//      
+//      if (debugMap != null) {
+//        debugMap.put("uiProvisioningTargetName", uiProvisioningTargetName);
+//      }
+//      
+//      List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+//          .assignNameOfAttributeDefName(provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)
+//          .addAttributeValuesOnAssignment(uiProvisioningTargetName)
+//          .assignNameOfAttributeDefName2(provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)
+//          .addAttributeValuesOnAssignment2("true")
+//          .findStems());
+//
+//      if (debugMap != null) {
+//        debugMap.put("folderCount", GrouperUtil.length(stems));
+//      }
+//      
+//      if (GrouperUtil.length(stems) > 1) {
+//        throw new RuntimeException("Folder count can only be 0 or 1!!! " + GrouperUtil.length(stems));
+//      }
+//      if (GrouperUtil.length(stems) == 1) {
+//        grouperDuoFolder = stems.iterator().next();
+//      }
+//    } else {
+//    
+//      grouperDuoFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), grouperDuoFolderName, true);
+//    }
+//    return grouperDuoFolder;
+//  }
+  
   /**
    * folder for duo groups
    * @return the config folder for duo groups

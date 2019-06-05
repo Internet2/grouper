@@ -65,6 +65,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -1083,6 +1085,80 @@ public class GrouperCheckConfig {
         
         checkAttribute(grouperTypesStemName, grouperObjectTypeAttrType, GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID, 
             "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment and not inherited", wasInCheckConfig);
+
+      }
+      
+      // add attribute defs for provisioning 
+      // (https://spaces.at.internet2.edu/display/Grouper/Grouper+provisioning+in+UI)
+      {
+        String grouperProvisioningUiRootStemName = GrouperProvisioningSettings.provisioningConfigStemName();
+        
+        Stem grouperProvisioningStemName = StemFinder.findByName(grouperSession, grouperProvisioningUiRootStemName, false);
+        if (grouperProvisioningStemName == null) {
+          grouperProvisioningStemName = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder to store attribute defs and names for provisioning in ui").assignName(grouperProvisioningUiRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String provisioningDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_DEF;
+        AttributeDef provisioningDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            provisioningDefName, false, new QueryOptions().secondLevelCache(false));
+        if (provisioningDef == null) {
+          provisioningDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_DEF, AttributeDefType.type);
+          //assign once for each target
+          provisioningDef.setMultiAssignable(true);
+          provisioningDef.setAssignToGroup(true);
+          provisioningDef.setAssignToStem(true);
+          provisioningDef.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(grouperProvisioningStemName, provisioningDef, GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME, "has provisioning attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String provisioningValueAttrDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF;
+        AttributeDef provisioningAttrValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            provisioningValueAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (provisioningAttrValueDef == null) {
+          provisioningAttrValueDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF, AttributeDefType.attr);
+          provisioningAttrValueDef.setAssignToGroupAssn(true);
+          provisioningAttrValueDef.setAssignToStemAssn(true);
+          provisioningAttrValueDef.setAssignToAttributeDefAssn(true);
+          provisioningAttrValueDef.setValueType(AttributeDefValueType.string);
+          provisioningAttrValueDef.store();
+        }
+
+        //the attributes can only be assigned to the value def
+        // try an attribute def dependent on an attribute def name
+        provisioningAttrValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_TARGET,
+            "pspngLdap|box1|etc", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT, 
+            "If this is directly assigned or inherited from a parent folder", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE, 
+            "If folder provisioning applies to only this folder or this folder and subfolders", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID, 
+            "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION, 
+            "If you should provision (default to true)", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_MILLIS_SINCE_1970, 
+            "Millis since 1970 that this was last full provisioned", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970, 
+            "Millis since 1970 that this was last incremental provisioned. Even if the incremental did not change the target", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_SUMMARY, 
+            "Summary of last full run", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_SUMMARY, 
+            "Summary of last incremental run", wasInCheckConfig);
 
       }
       
