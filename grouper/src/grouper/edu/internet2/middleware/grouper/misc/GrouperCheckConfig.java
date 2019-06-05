@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -3095,6 +3096,48 @@ public class GrouperCheckConfig {
         }
       }
       
+      {
+        String upgradeTasksRootStemName = UpgradeTasksJob.grouperUpgradeTasksStemName();
+        
+        Stem upgradeTasksRootStem = StemFinder.findByName(grouperSession, upgradeTasksRootStemName, false, new QueryOptions().secondLevelCache(false));
+        if (upgradeTasksRootStem == null) {
+          upgradeTasksRootStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for upgrade tasks objects").assignName(upgradeTasksRootStemName)
+            .save();
+        }
+
+        // check attribute def
+        String upgradeTasksDefName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_DEF;
+        AttributeDef upgradeTasksDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            upgradeTasksDefName, false, new QueryOptions().secondLevelCache(false));
+        if (upgradeTasksDef == null) {
+          upgradeTasksDef = upgradeTasksRootStem.addChildAttributeDef(UpgradeTasksJob.UPGRADE_TASKS_DEF, AttributeDefType.attr);
+          upgradeTasksDef.setAssignToGroup(true);
+          upgradeTasksDef.setValueType(AttributeDefValueType.string);
+          upgradeTasksDef.store();
+        }
+        
+        String upgradeTasksVersionName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+        
+        AttributeDefName upgradeTasksVersion = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            upgradeTasksVersionName, false, new QueryOptions().secondLevelCache(false));
+        
+        if (upgradeTasksVersion == null) {
+          upgradeTasksVersion = upgradeTasksRootStem.addChildAttributeDefName(upgradeTasksDef, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR);
+        }
+        
+        String groupName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+            groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+        if (group == null) {
+          group = upgradeTasksRootStem.addChildGroup(UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP, UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP);
+        }
+        
+        if (group.getAttributeValueDelegate().retrieveValueString(upgradeTasksVersionName) == null) {
+          group.getAttributeValueDelegate().assignValue(upgradeTasksVersionName, "0");
+        }
+      }
+            
       {
         String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
         
