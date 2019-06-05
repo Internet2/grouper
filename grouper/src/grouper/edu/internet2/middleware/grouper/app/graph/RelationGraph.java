@@ -16,15 +16,15 @@
 
 package edu.internet2.middleware.grouper.app.graph;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
+
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 
 import org.apache.commons.logging.Log;
 
@@ -41,7 +41,6 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -61,6 +60,9 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 /**
  * Class to build a directed graph from Grouper relationships. The graph is
@@ -85,6 +87,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class RelationGraph {
 
+  private static final String KLASS = RelationGraph.class.getName();
+
   private static final Log LOG = GrouperUtil.getLog(RelationGraph.class);
   public static final int RECURSIVE_LEVEL_LIMIT = 100;
 
@@ -94,17 +98,22 @@ public class RelationGraph {
   private static AttributeDefName provisionToAttributeDefName;
   private static String loaderGroupIdAttrDefNameId;
   private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
-  private static AttributeDefName ldapLoaderAttributeDefName; // used by graph nodes to determine if loader job
-  private static boolean attemptedInitAttributeDefs = false;
+  private static Set<Source> nonGroupSourcesCache = null;
+  private static String objectTypeAttributeId = null;
+  private static String objectTypeAttributeValueId = null;
+  private static boolean attemptedInitLookupFields = false;
 
   /* assignX settings for graph construction */
   private GrouperObject startObject;
   private long parentLevels = -1;
   private long childLevels = -1;
-  private boolean showMemberCounts = true;
+  private boolean showAllMemberCounts = true;
+  private boolean showDirectMemberCounts = true;
+  private boolean showObjectTypes = false;
   private boolean showLoaderJobs = true;
   private boolean showProvisionTargets = true;
   private boolean showStems = true;
+  private boolean includeGroupsInMemberCounts = false;
   private Set<String> skipFolderNamePatterns = new HashSet<String>();  // Arrays.asList("^etc:.*", "^$") -> default to skip etc:* and root object
   private Set<String> skipGroupNamePatterns = new HashSet<String>();  // don't skip etc:* groups since they may be loader jobs
   private List<Pattern> skipFolderPatterns;
@@ -124,7 +133,8 @@ public class RelationGraph {
   private long numGroupsToProvisioners;
   private long maxParentDistance;
   private long maxChildDistance;
-  private long numMembers;
+  private long totalMemberCount;
+  private long directMemberCount;
   private Set<GraphNode> leafParentNodes;
   private Set<GraphNode> leafChildNodes;
 
@@ -156,7 +166,7 @@ public class RelationGraph {
   /**
    * sets the start object from a subject, by converting to a {@link GrouperObjectSubjectWrapper}
    *
-   * @param theStartsubject to start the tree from
+   * @param theStartSubject subject to start the tree from
    * @return
    */
   public RelationGraph assignStartObject(Subject theStartSubject) {
@@ -187,13 +197,35 @@ public class RelationGraph {
   }
 
   /**
-   * flags whether to count memberships for groups
+   * flags whether to count memberships (direct and indirect) for groups
    *
-   * @param theShowMemberCounts whether to count memberships for groups
+   * @param theShowAllMemberCounts whether to count memberships for groups
    * @return
    */
-  public RelationGraph assignShowMemberCounts(boolean theShowMemberCounts) {
-    this.showMemberCounts = theShowMemberCounts;
+  public RelationGraph assignShowAllMemberCounts(boolean theShowAllMemberCounts) {
+    this.showAllMemberCounts = theShowAllMemberCounts;
+    return this;
+  }
+
+  /**
+   * flags whether to count direct memberships for groups
+   *
+   * @param theShowDirectMemberCounts whether to count direct memberships for groups
+   * @return
+   */
+  public RelationGraph assignShowDirectMemberCounts(boolean theShowDirectMemberCounts) {
+    this.showDirectMemberCounts = theShowDirectMemberCounts;
+    return this;
+  }
+
+  /**
+   * flags whether to show the object type strings (e.g. ref, basis ...) for stems and groups
+   *
+   * @param theShowObjectTypes whether to count direct memberships for groups
+   * @return
+   */
+  public RelationGraph assignShowObjectTypes(boolean theShowObjectTypes) {
+    this.showObjectTypes = theShowObjectTypes;
     return this;
   }
 
@@ -228,6 +260,17 @@ public class RelationGraph {
    */
   public RelationGraph assignShowStems(boolean theShowStems) {
     this.showStems = theShowStems;
+    return this;
+  }
+
+  /**
+   * flags whether to include groups in the count of group members
+   *
+   * @param includeGroupsInMemberCounts whether to consider groups when counting members
+   * @return
+   */
+  public RelationGraph assignIncludeGroupsInMemberCounts(boolean includeGroupsInMemberCounts) {
+    this.includeGroupsInMemberCounts = includeGroupsInMemberCounts;
     return this;
   }
 
@@ -291,11 +334,31 @@ public class RelationGraph {
   /**
    * returns whether memberships are counted for Group nodes
    *
-   * @see #assignShowMemberCounts(boolean)
+   * @see #assignShowAllMemberCounts(boolean)
    * @return if memberships are counted for groups
    */
-  public boolean isShowMemberCounts() {
-    return showMemberCounts;
+  public boolean isShowAllMemberCounts() {
+    return showAllMemberCounts;
+  }
+
+  /**
+   * returns whether direct memberships are counted for Group nodes
+   *
+   * @see #assignShowDirectMemberCounts(boolean)
+   * @return if direct memberships are counted for groups
+   */
+  public boolean isShowDirectMemberCounts() {
+    return showDirectMemberCounts;
+  }
+
+  /**
+   * returns whether to show object types for stems and groups
+   *
+   * @see #assignShowObjectTypes(boolean)
+   * @return if showing object types
+   */
+  public boolean isShowObjectTypes() {
+    return showObjectTypes;
   }
 
   /**
@@ -326,6 +389,16 @@ public class RelationGraph {
    */
   public boolean isShowStems() {
     return showStems;
+  }
+
+  /**
+   * returns whether to include groups in the count of group members
+   *
+   * @see #assignIncludeGroupsInMemberCounts(boolean)
+   * @return if groups are considered in the count of group members
+   */
+  public boolean isIncludeGroupsInMemberCounts() {
+    return includeGroupsInMemberCounts;
   }
 
   /**
@@ -439,8 +512,17 @@ public class RelationGraph {
    *
    * @return the total of all group memberships
    */
-  public long getNumMembers() {
-    return numMembers;
+  public long getTotalMemberCount() {
+    return totalMemberCount;
+  }
+
+  /**
+   * after building, the total of all direct memberships in all groups
+   *
+   * @return the total of direct group memberships
+   */
+  public long getDirectMemberCount() {
+    return directMemberCount;
   }
 
   /**
@@ -517,11 +599,6 @@ public class RelationGraph {
         ++numProvisioners;
       }
 
-      if (isShowMemberCounts() && node.isGroup() && !node.isLoaderGroup()) {
-        long count = fetchGroupCount((Group) node.getGrouperObject());
-        node.setMemberCount(count);
-        numMembers += count;
-      }
     }
 
     return node;
@@ -529,14 +606,6 @@ public class RelationGraph {
 
   // return the immediate groups that are members for this group
   private Set<Member> fetchImmediateGsaMembers(Group g) {
-    // init the g:gsa source if not set
-    if (grouperGSASources == null) {
-      grouperGSASources = Collections.singleton(SubjectFinder.internal_getGSA());
-    }
-    if (grouperMemberField == null) {
-      grouperMemberField = FieldFinder.find("members", true);
-    }
-
     //currently just memberships, not privileges
     return g.getImmediateMembers(grouperMemberField, grouperGSASources, null);
   }
@@ -648,9 +717,14 @@ public class RelationGraph {
   }
 
   // returns the number of members in this group
+  @Deprecated
   private long fetchGroupCount(Group g) {
     QueryOptions q = new QueryOptions().retrieveResults(false).retrieveCount(true);
-    new MembershipFinder().addGroup(g).assignField(grouperMemberField).assignQueryOptionsForMember(q).findMembershipsMembers();
+    if (includeGroupsInMemberCounts) {
+      MembershipFinder.findMembers(g, grouperMemberField, q);
+    } else {
+      MembershipFinder.findMembers(g, grouperMemberField, nonGroupSourcesCache, q);
+    }
     return q.getCount();
   }
 
@@ -724,34 +798,22 @@ public class RelationGraph {
       }
     }
 
-    // for a group, get immediate g:gsa members as parents
     if (toNode.isGroup()) {
       Group theGroup = (Group) (toNode.getGrouperObject());
-      long numMembersAdded = 0;
-      for (final Member m : fetchImmediateGsaMembers(theGroup)) {
-        Group parentGroup = null;
-        try {
-          // use this version if the graph should exclude groups that can't be viewed
-          parentGroup = m.toGroup();
-          // use this version to see all the groups.
-//        // parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
-//        //    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-//        //    return m.toGroup();
-//        //  }
-//        // });
-        } catch (GroupNotFoundException e) {
-          //user does not have permission to view group
-          LOG.trace("Session " + GrouperSession.staticGrouperSession().getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
-            + "-- this group and any connected to it will be skipped");
+
+      // for groups, find groups having this as a direct member
+      long numMembershipsAdded = 0;
+      for (MembershipSubjectContainer msc : fetchImmediateMemberships(toNode)) {
+        Group fromGroup = msc.getGroupOwner();
+        if (fromGroup == null) {
           continue;
         }
-
-        if (getMaxSiblings() > 0 && numMembersAdded >= getMaxSiblings()) {
-          skippedGroups.add(parentGroup);
-        } else if (!matchesFilter(parentGroup)) {
-          GraphNode parentNode = fetchOrCreateNode(parentGroup);
-          nodesToVisit.add(parentNode);
-          ++numMembersAdded;
+        if (getMaxSiblings() > 0 && numMembershipsAdded >= getMaxSiblings()) {
+          skippedGroups.add(fromGroup);
+        } else if (!matchesFilter(fromGroup)) {
+          GraphNode fromNode = fetchOrCreateNode(fromGroup);
+          nodesToVisit.add(fromNode);
+          ++numMembershipsAdded;
         }
       }
 
@@ -760,63 +822,78 @@ public class RelationGraph {
         for (Group jobGroup : jobGroups) {
           if (!matchesFilter(jobGroup)) {
             GraphNode jobNode = fetchOrCreateNode(jobGroup);
-            //addEdge(jobNode, toNode);
-            nodesToVisit.add(jobNode);
+            if (jobNode.equals(toNode)) {
+              // this is a simple loader self link; add the edge to self but don't visit it to avoid infinite recursion
+              addEdge(jobNode, toNode);
+            } else {
+              nodesToVisit.add(jobNode);
+            }
           }
         }
       }
 
-      // Show composite factors.
-      if (theGroup.hasComposite()) {
-        Composite composite = theGroup.getComposite(true);
+      // get groups where this is a composite factor
+      for (Composite composite : CompositeFinder.findAsFactor(theGroup)) {
+        // findAsFactor doesn't distinguish left/right, so need to compare current group with both
+        Group ownerGroup = composite.getOwnerGroup();
+        if (!matchesFilter(ownerGroup)) {
+          GraphNode fromNode = fetchOrCreateNode(ownerGroup);
+          nodesToVisit.add(fromNode);
+          if (composite.getType() == CompositeType.COMPLEMENT) {
+            if (theGroup.equals(composite.getLeftGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_COMPLEMENT_LEFT);
+            } else if (theGroup.equals(composite.getRightGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
+            }
+          } else if (composite.getType() == CompositeType.INTERSECTION) {
+            if (theGroup.equals(composite.getLeftGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_INTERSECT_LEFT);
+            } else if (theGroup.equals(composite.getRightGroup())) {
+              compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_INTERSECT_RIGHT);
+            }
+          }
+        }
+      }
+    } else if (toNode.isSubject()) {
+    Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(toNode);
+    long numSubjectMembershipsAdded = 0;
+    for (MembershipSubjectContainer msc : memberships) {
+      Group fromGroup = msc.getGroupOwner();
+      if (fromGroup == null) {
+        continue;
+      }
+      if (getMaxSiblings() > 0 && numSubjectMembershipsAdded >= getMaxSiblings()) {
+        skippedGroups.add(fromGroup);
+      } else if (!matchesFilter(fromGroup)) {
+        GraphNode fromNode = fetchOrCreateNode(fromGroup);
+        nodesToVisit.add(fromNode);
+      }
+    }
+  }
 
-        Group left;
-        try {
-          left = composite.getLeftGroup();
-          if (!matchesFilter(left)) {
-            GraphNode nodeLeft = fetchOrCreateNode(left);
-            nodesToVisit.add(nodeLeft);
-            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
-              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_COMPLEMENT_LEFT);
-            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
-              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_INTERSECT_LEFT);
-            }
-          }
-        } catch (GroupNotFoundException e) {
-          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
-        }
-        Group right;
-        try {
-          right = composite.getRightGroup();
-          if (!matchesFilter(right)) {
-            GraphNode nodeRight = fetchOrCreateNode(right);
-            nodesToVisit.add(nodeRight);
-            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
-              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
-            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
-              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_INTERSECT_RIGHT);
-            }
-          }
-        } catch (GroupNotFoundException e) {
-          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
-        }
+  boolean didAddEdges = false;
+    for (GraphNode n : nodesToVisit) {
+      GraphEdge edgeCandidate = null;
+      if (compositeStyleTypes.containsKey(n)) {
+        edgeCandidate = new GraphEdge(n, toNode, compositeStyleTypes.get(n));
+      } else {
+        edgeCandidate = new GraphEdge(n, toNode);
+      }
+      if (!edges.contains(edgeCandidate)) {
+        edges.add(edgeCandidate);
+        didAddEdges = true;
+        n.setDistanceFromStartNode(-1 * level);
+        visitNode(n, level, true, false);
+      } else {
+        LOG.debug("Loop detected; object " + n.getGrouperObjectName() + " has been seen a second time as a parent (second link was from " + toNode.getGrouperObjectName() + ")");
       }
     }
 
-    if (nodesToVisit.size() == 0) {
-      leafParentNodes.add(toNode);
+    if (!didAddEdges) {
+      leafChildNodes.add(toNode);
     } else {
       if (level > maxParentDistance) {
         maxParentDistance = level;
-      }
-      for (GraphNode n : nodesToVisit) {
-        if (compositeStyleTypes.containsKey(n)) {
-          addEdge(n, toNode, compositeStyleTypes.get(n));
-        } else {
-          addEdge(n, toNode);
-        }
-        n.setDistanceFromStartNode(-1 * level);
-        visitNode(n, level, true, false);
       }
     }
   }
@@ -867,31 +944,43 @@ public class RelationGraph {
           }
         }
       }
-    }
-    else if (fromNode.isGroup()) {
-      Group theGroup = (Group)(fromNode.getGrouperObject());
+    } else if (fromNode.isGroup()) {
+      Group theGroup = (Group) (fromNode.getGrouperObject());
 
-      // for groups, find groups having this as a direct member
-      Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
-      long numMembershipsAdded = 0;
-      for (MembershipSubjectContainer msc: memberships) {
-        Group toGroup = msc.getGroupOwner();
-        if (toGroup == null) {
+      // for a group, get immediate g:gsa members as parents
+      long numMembersAdded = 0;
+      for (final Member m : fetchImmediateGsaMembers(theGroup)) {
+        Group childGroup = null;
+        try {
+          // use this version if the graph should exclude groups that can't be viewed
+          childGroup = m.toGroup();
+          // use this version to see all the groups.
+//        // parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+//        //    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+//        //    return m.toGroup();
+//        //  }
+//        // });
+        } catch (GroupNotFoundException e) {
+          //user does not have permission to view group
+          LOG.trace("Session " + GrouperSession.staticGrouperSession().getSubject().toString() + " failed to convert memberId " + m.getId() + " to a group (user does not have permission?) "
+            + "-- this group and any connected to it will be skipped");
           continue;
         }
-        if (getMaxSiblings() > 0 && numMembershipsAdded >= getMaxSiblings()) {
-          skippedGroups.add(toGroup);
-        } else if (!matchesFilter(toGroup)) {
-          GraphNode toNode = fetchOrCreateNode(toGroup);
-          nodesToVisit.add(toNode);
-          ++numMembershipsAdded;
+
+        if (getMaxSiblings() > 0 && numMembersAdded >= getMaxSiblings()) {
+          skippedGroups.add(childGroup);
+        } else if (!matchesFilter(childGroup)) {
+          GraphNode childNode = fetchOrCreateNode(childGroup);
+          nodesToVisit.add(childNode);
+          ++numMembersAdded;
         }
       }
+
 
       // get provisioners
       if (showProvisionTargets) {
         List<GrouperObjectProvisionerWrapper> provTargets = fetchProvisioners(theGroup);
-        for (GrouperObjectProvisionerWrapper p: provTargets) {
+        for (GrouperObjectProvisionerWrapper p : provTargets) {
           if (!matchesFilter(p)) {
             GraphNode provNode = fetchOrCreateNode(p);
             nodesToVisit.add(provNode);
@@ -907,67 +996,76 @@ public class RelationGraph {
           skippedGroups.add(childGroup);
         } else if (!matchesFilter(childGroup)) {
           GraphNode childNode = fetchOrCreateNode(childGroup);
-          nodesToVisit.add(childNode);
-          ++numLoadedGroupsByJob;
-        }
-      }
-
-      // get groups where this is a composite factor
-      for (Composite composite : CompositeFinder.findAsFactor(theGroup)) {
-        // findAsFactor doesn't distinguish left/right, so need to compare current group with both
-        Group ownerGroup = composite.getOwnerGroup();
-        if (!matchesFilter(ownerGroup)) {
-          GraphNode toNode = fetchOrCreateNode(ownerGroup);
-          nodesToVisit.add(toNode);
-          if (composite.getType() == CompositeType.COMPLEMENT) {
-            if (theGroup.equals(composite.getLeftGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_COMPLEMENT_LEFT);
-            } else if (theGroup.equals(composite.getRightGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
-            }
-          } else if (composite.getType() == CompositeType.INTERSECTION) {
-            if (theGroup.equals(composite.getLeftGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_INTERSECT_LEFT);
-            } else if (theGroup.equals(composite.getRightGroup())) {
-              compositeStyleTypes.put(toNode, StyleObjectType.EDGE_INTERSECT_RIGHT);
-            }
+          if (childNode.equals(fromNode)) {
+            // this is a simple loader self link; add the edge to self but don't visit it to avoid infinite recursion
+            addEdge(fromNode, childNode);
+          } else {
+            nodesToVisit.add(childNode);
+            ++numLoadedGroupsByJob;
           }
         }
       }
-    } else if (fromNode.isSubject()) {
-      Set<MembershipSubjectContainer> memberships = fetchImmediateMemberships(fromNode);
-      long numSubjectMembershipsAdded = 0;
-      for (MembershipSubjectContainer msc: memberships) {
-        Group toGroup = msc.getGroupOwner();
-        if (toGroup == null) {
-          continue;
+
+      // Show composite factors.
+      if (theGroup.hasComposite()) {
+        Composite composite = theGroup.getComposite(true);
+
+        Group left;
+        try {
+          left = composite.getLeftGroup();
+          if (!matchesFilter(left)) {
+            GraphNode nodeLeft = fetchOrCreateNode(left);
+            nodesToVisit.add(nodeLeft);
+            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
+              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_COMPLEMENT_LEFT);
+            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
+              compositeStyleTypes.put(nodeLeft, StyleObjectType.EDGE_INTERSECT_LEFT);
+            }
+          }
+        } catch (GroupNotFoundException e) {
+          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
-        if (getMaxSiblings() > 0 && numSubjectMembershipsAdded >= getMaxSiblings()) {
-          skippedGroups.add(toGroup);
-        } else if (!matchesFilter(toGroup)) {
-          GraphNode toNode = fetchOrCreateNode(toGroup);
-          nodesToVisit.add(toNode);
+        Group right;
+        try {
+          right = composite.getRightGroup();
+          if (!matchesFilter(right)) {
+            GraphNode nodeRight = fetchOrCreateNode(right);
+            nodesToVisit.add(nodeRight);
+            if (composite.getType().equals(CompositeType.COMPLEMENT)) {
+              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
+            } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
+              compositeStyleTypes.put(nodeRight, StyleObjectType.EDGE_INTERSECT_RIGHT);
+            }
+          }
+        } catch (GroupNotFoundException e) {
+          LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
       }
     }
 
-    if (nodesToVisit.size() == 0) {
+    boolean didAddEdges = false;
+    for (GraphNode n : nodesToVisit) {
+      GraphEdge edgeCandidate = null;
+      if (compositeStyleTypes.containsKey(n)) {
+        edgeCandidate = new GraphEdge(fromNode, n, compositeStyleTypes.get(n));
+      } else {
+        edgeCandidate = new GraphEdge(fromNode, n);
+      }
+      if (!edges.contains(edgeCandidate)) {
+        edges.add(edgeCandidate);
+        didAddEdges = true;
+        n.setDistanceFromStartNode(level);
+        visitNode(n, level, false, true);
+      } else {
+        LOG.debug("Loop detected; object " + n.getGrouperObjectName() + " has been seen a second time as a child (second link was from " + fromNode.getGrouperObjectName() + ")");
+      }
+    }
+
+    if (!didAddEdges) {
       leafChildNodes.add(fromNode);
     } else {
       if (level > maxChildDistance) {
         maxChildDistance = level;
-      }
-
-      for (GraphNode n : nodesToVisit) {
-        n.setDistanceFromStartNode(level);
-
-        if (compositeStyleTypes.containsKey(n)) {
-          addEdge(fromNode, n, compositeStyleTypes.get(n));
-        } else {
-          addEdge(fromNode, n);
-        }
-
-        visitNode(n, level, false, true);
       }
     }
   }
@@ -978,8 +1076,8 @@ public class RelationGraph {
     }
 
     if (node.isSubject()) {
-      //subjects don't have parents, so mark as skip it right away
-      node.setVisitedParents(true);
+      //subjects don't have child members, so mark as skip it right away
+      node.setVisitedChildren(true);
     }
 
     if (includeParents && !node.isVisitedParents()) {
@@ -1007,7 +1105,7 @@ public class RelationGraph {
     }
 
     // this may be the first time through; attribute to look up the attribute definitions
-    initAttributeDefs();
+    initLookupFields();
 
     skippedFolders = new HashSet<Stem>();
     skipFolderPatterns = new LinkedList<Pattern>();
@@ -1032,7 +1130,8 @@ public class RelationGraph {
     numLoaders = 0;
     numGroupsFromLoaders = 0;
     numProvisioners = 0;
-    numMembers = 0;
+    totalMemberCount = 0;
+    directMemberCount = 0;
     maxParentDistance = 0;
     maxChildDistance = 0;
     leafParentNodes = new HashSet<GraphNode>();
@@ -1045,7 +1144,10 @@ public class RelationGraph {
       + "show stems=" + isShowStems() + ", "
       + "show loader jobs=" + isShowLoaderJobs() + ", "
       + "show PSPNG provisioners=" + isShowProvisionTargets() + ", "
-      + "show member counts=" + isShowMemberCounts() + ", "
+      + "show member counts=" + isShowAllMemberCounts() + ", "
+      + "show direct member counts=" + isShowDirectMemberCounts() + ", "
+      + "show object types=" + isShowObjectTypes() + ", "
+      + "include groups in member counts=" + isIncludeGroupsInMemberCounts() + ", "
       + "folder pattern filters=" + GrouperUtil.join(skipFolderNamePatterns.toArray(), "; "));
 
     startNode = fetchOrCreateNode(startObject);
@@ -1070,12 +1172,219 @@ public class RelationGraph {
       e.getFromNode().addChildNode(e.getToNode());
       e.getToNode().addParentNode(e.getFromNode());
     }
+
+    // do all the group counts in batches
+    queryGroupMemberCounts();
+
+    // do all the building of object type strings in batches
+    queryObjectTypeNames();
+
   }
 
-  // If first time called, init the static attributeDef fields. Find these as root user
-  private static void initAttributeDefs() {
-    if (attemptedInitAttributeDefs) {
+  // once the graph is built, query counts for group objects depending on the settings
+  private void queryGroupMemberCounts() {
+    if (!showAllMemberCounts && !showDirectMemberCounts) {
       return;
+    }
+
+    //collect all eligible group nodes
+    Map<String, GraphNode> groupNodesByUuid = new HashMap<String, GraphNode>();
+    for (GraphNode node: getNodes()) {
+      if (node.isGroup() && (!node.isLoaderGroup() || node.isSimpleLoaderGroup())) {
+        groupNodesByUuid.put(node.getGrouperObjectId(), node);
+      }
+    }
+
+    // no groups to count, don't need to continue
+    if (groupNodesByUuid.size() == 0) {
+      return;
+    }
+
+    List<String> groupUuids = GrouperUtil.listFromCollection(groupNodesByUuid.keySet());
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupUuids.size(), 100);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatch = GrouperUtil.batchList(groupUuids, 100, i);
+      if (currentBatch.size() == 0) {
+        continue;
+      }
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      String sqlQuery =
+        "select gg.id," +
+          "  (" +
+          "    select count(distinct gmlv.member_id)" +
+          "      from grouper_memberships_lw_v gmlv" +
+          "     where gmlv.group_id = gg.id" +
+          "       and gmlv.list_name = 'members'" +
+          (includeGroupsInMemberCounts ? "" :
+          "       and gmlv.subject_source != 'g:gsa'") +
+          "  ) as total_membership_count," +
+          "  (" +
+          "    select count(distinct gms.member_id)" +
+          "      from grouper_memberships_all_v gms, grouper_members gm, grouper_fields gfl" +
+          "     where gms.owner_group_id = gg.id" +
+          "       and gms.field_id = gfl.id" +
+          "       and gms.member_id = gm.id" +
+          "       and gms.immediate_mship_enabled = 'T'" +
+          "       and gfl.name = 'members'" +
+          (includeGroupsInMemberCounts ? "" :
+          "       and gm.subject_source != 'g:gsa'") +
+          "       and gms.mship_type = 'immediate'" +
+          "   ) as direct_membership_count" +
+          " from grouper_groups gg " +
+          "where gg.id in (" +
+          HibUtils.convertToInClauseForSqlStatic(currentBatch) +
+          ")";
+
+      List<Type> types = new ArrayList<Type>();
+      for (int j=0;j<GrouperUtil.length(currentBatch);j++) {
+        types.add(StringType.INSTANCE);
+      }
+
+      // returns [group_id, total_membership_count, direct_membership_count]
+      List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sqlQuery,
+        GrouperUtil.toListObject(currentBatch.toArray()), types);
+
+      for (String[] values : results) {
+        String groupId = values[0];
+        if (groupNodesByUuid.containsKey(groupId)) {
+          // not sure why this wouldn't be found
+          GraphNode node = groupNodesByUuid.get(groupId);
+
+          long allCountForGroup = GrouperUtil.longValue(values[1]);
+          long directCountForGroup = GrouperUtil.longValue(values[2]);
+          node.setAllMemberCount(allCountForGroup);
+          this.totalMemberCount += allCountForGroup;
+          node.setDirectMemberCount(directCountForGroup);
+          this.directMemberCount += directCountForGroup;
+        }
+      }
+    }
+  }
+
+  // once the graph is built, query counts for group objects depending on the settings
+  private void queryObjectTypeNames() {
+    
+    // not sure why it wouldnt be empty, but empty it anyhow
+    this.getObjectTypesUsed().clear();
+    
+    if (!showObjectTypes) {
+      return;
+    }
+
+    if (objectTypeAttributeId == null || objectTypeAttributeValueId == null) {
+      LOG.info("Graph build requested to show object types, but the attributes could not be found -- skipping object types");
+      return;
+    }
+
+    //collect all eligible group and stem nodes
+    Map<String, GraphNode> nodesByUuid = new HashMap<String, GraphNode>();
+    for (GraphNode node: getNodes()) {
+      if (node.isGroup() || node.isStem()) {
+        nodesByUuid.put(node.getGrouperObjectId(), node);
+      }
+    }
+
+    // no groups or stems to count, don't need to continue
+    if (nodesByUuid.size() == 0) {
+      return;
+    }
+
+    List<String> uidList = GrouperUtil.listFromCollection(nodesByUuid.keySet());
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(uidList.size(), 98);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatch = GrouperUtil.batchList(uidList, 98, i);
+      if (currentBatch.size() == 0) {
+        continue;
+      }
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      String sqlQuery =
+        "SELECT DISTINCT" +
+          "  COALESCE(aa.owner_group_id, aa.owner_stem_id) AS object_id," +
+          "  value_string" +
+          " FROM grouper_attribute_assign aa" +
+          "  JOIN grouper_attribute_assign aa2" +
+          "    ON aa.enabled = 'T'" +
+          "   AND aa.attribute_assign_type IN ('group', 'stem')" +
+          "       " +
+          "   AND aa2.enabled = 'T'" +
+          "   AND aa2.attribute_assign_type IN ('group_asgn', 'stem_asgn') " +
+          "   AND aa2.owner_attribute_assign_id = aa.id" +
+          "  JOIN grouper_attribute_assign_value aav ON aav.attribute_assign_id = aa2.id" +
+          " WHERE aa.attribute_def_name_id = ?" +
+          " AND   aa2.attribute_def_name_id = ?" +
+          " AND COALESCE(aa.owner_group_id, aa.owner_stem_id) in (" +
+          HibUtils.convertToInClauseForSqlStatic(currentBatch) +
+          ")";
+
+      List<Type> types = new ArrayList<Type>();
+      types.add(StringType.INSTANCE); /* attributeAssign */
+      types.add(StringType.INSTANCE); /* attributeAssignment */
+      for (int j=0;j<GrouperUtil.length(currentBatch);j++) {
+        types.add(StringType.INSTANCE);
+      }
+
+      List<Object> params = new ArrayList<Object>();
+      params.add(objectTypeAttributeId);
+      params.add(objectTypeAttributeValueId);
+      params.addAll(currentBatch);
+
+      // returns [object_id, value_string]
+      List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sqlQuery,
+        params, types);
+
+      for (String[] values : results) {
+        String objectId = values[0];
+        if (nodesByUuid.containsKey(objectId)) {
+          // not sure why this wouldn't be found
+          GraphNode node = nodesByUuid.get(objectId);
+
+          final String objectTypeName = values[1];
+          node.addObjectTypeName(objectTypeName);
+          
+          this.objectTypesUsed.add(objectTypeName);
+        }
+      }
+    }
+  }
+
+  /**
+   * keep track of which types are used for legend
+   */
+  private Set<String> objectTypesUsed = new HashSet<String>();
+  
+  /**
+   * keep track of which types are used for legend
+   * @return the objectTypesUsed
+   */
+  public Set<String> getObjectTypesUsed() {
+    return this.objectTypesUsed;
+  }
+
+  // If first time called, init the static attributeDef fields, and other class properties. Find these as root user
+  private static void initLookupFields() {
+    if (attemptedInitLookupFields) {
+      return;
+    }
+
+    if (grouperMemberField == null) {
+      grouperMemberField = FieldFinder.find("members", true);
+    }
+
+    // init the g:gsa source if not set
+    if (grouperGSASources == null) {
+      grouperGSASources = Collections.singleton(SubjectFinder.internal_getGSA());
+    }
+
+    // SubjectHelper has a method to get non-group subject sources, but doesn't cache it.
+    // Fetch and save it in this class so it doesn't need to be recalculated for every group.
+    if (nonGroupSourcesCache == null) {
+      nonGroupSourcesCache = SubjectHelper.nonGroupSources();
     }
 
     String loaderMetadataGroupIdName = GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID;
@@ -1102,14 +1411,23 @@ public class RelationGraph {
     }
 
     try {
-      if (ldapLoaderAttributeDefName == null) {
-        ldapLoaderAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(LoaderLdapUtils.grouperLoaderLdapName(), true);
+      // get the attribute IDs
+      // note, there is a helper function for the marker but not the metadata
+      AttributeDefName typeMarkerAttributeDefName = GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase();
+      if (typeMarkerAttributeDefName != null) {
+        objectTypeAttributeId = typeMarkerAttributeDefName.getId();
       }
-    } catch (AttributeDefNameNotFoundException e) {
-      LOG.warn("Unable to retrieve attribute " + LoaderLdapUtils.grouperLoaderLdapName() + "; groups might not be detected as loader jobs", e);
+      AttributeDefName typeAttributeValueDefName = AttributeDefNameFinder.findByName(
+        GrouperObjectTypesSettings.objectTypesStemName() + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME,
+        false);
+      if (typeAttributeValueDefName != null) {
+        objectTypeAttributeValueId = typeAttributeValueDefName.getId();
+      }
+    } catch (Exception e) {
+      LOG.warn("Unable to retrieve attribute for Grouper object types", e);
     }
 
-    attemptedInitAttributeDefs = true;
+    attemptedInitLookupFields = true;
   }
 
   /**
@@ -1119,22 +1437,10 @@ public class RelationGraph {
    * @return
    */
   public static AttributeDefName getSqlLoaderAttributeDefName() {
-    if (!attemptedInitAttributeDefs) {
-      initAttributeDefs();
+    if (!attemptedInitLookupFields) {
+      initLookupFields();
     }
     return sqlLoaderAttributeDefName;
   }
 
-  /**
-   * should be only useful for {@link GraphNode} nodes needing the ldap loader attribute within the
-   * context of the user session
-   *
-   * @return
-   */
-  public static AttributeDefName getLdapLoaderAttributeDefName() {
-    if (!attemptedInitAttributeDefs) {
-      initAttributeDefs();
-    }
-    return ldapLoaderAttributeDefName;
-  }
 }

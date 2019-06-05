@@ -11985,4 +11985,54 @@ public class GrouperUtil {
     return result;
   }
   
+  /** array for converting HTML to string */
+  public static final String[] HTML_REPLACE = new String[]{"&amp;","&lt;","&gt;","&#39;","&quot;"};
+
+  /** array for converting HTML to string */
+  public static final String[] HTML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+
+  /** array for converting HTML to string */
+  private static final String[] HTML_SEARCH = new String[]{"&","<",">","'","\""};
+
+  /** array for converting HTML to string */
+  public static final String[] HTML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String escapeHtml(String input, boolean isEscape) {
+    return escapeHtml(input, isEscape, true);
+  }
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * @param escapeSingleQuotes true to escape single quotes too
+   * 
+   * @return the HTML converted string
+   */
+  public static String escapeHtml(String input, boolean isEscape, boolean escapeSingleQuotes) {
+    if (escapeSingleQuotes) {
+      if (isEscape) {
+        return GrouperUtil.replace(input, HTML_SEARCH, HTML_REPLACE);
+      }
+      return GrouperUtil.replace(input, HTML_REPLACE, HTML_SEARCH);
+    }
+    if (isEscape) {
+      return GrouperUtil.replace(input, HTML_SEARCH_NO_SINGLE, HTML_REPLACE_NO_SINGLE);
+    }
+    return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
+    
+  }
+  
+
 }

@@ -21,7 +21,11 @@ public class UiV2VisualizationPreference {
   private boolean drawShowStems = true;
   private boolean drawShowLoaders = true;
   private boolean drawShowProvisioners = true;
-  private boolean drawShowMemberCounts = true;
+  private boolean drawShowAllMemberCounts = true;
+  private boolean drawShowDirectMemberCounts = true;
+  private boolean drawShowObjectTypes = false;
+  private boolean drawIncludeGroupsInMemberCounts = false;
+  private boolean drawShowLegend = true;
 
   public UiV2VisualizationPreference() {
   }
@@ -90,12 +94,44 @@ public class UiV2VisualizationPreference {
     this.drawShowProvisioners = drawShowProvisioners;
   }
 
-  public boolean isDrawShowMemberCounts() {
-    return drawShowMemberCounts;
+  public boolean isDrawShowAllMemberCounts() {
+    return drawShowAllMemberCounts;
   }
 
-  public void setDrawShowMemberCounts(boolean drawShowMemberCounts) {
-    this.drawShowMemberCounts = drawShowMemberCounts;
+  public void setDrawShowAllMemberCounts(boolean drawShowAllMemberCounts) {
+    this.drawShowAllMemberCounts = drawShowAllMemberCounts;
+  }
+
+  public boolean isDrawShowDirectMemberCounts() {
+    return drawShowDirectMemberCounts;
+  }
+
+  public void setDrawShowDirectMemberCounts(boolean drawShowDirectMemberCounts) {
+    this.drawShowDirectMemberCounts = drawShowDirectMemberCounts;
+  }
+
+  public boolean isDrawShowObjectTypes() {
+    return drawShowObjectTypes;
+  }
+
+  public void setDrawShowObjectTypes(boolean drawShowObjectTypes) {
+    this.drawShowObjectTypes = drawShowObjectTypes;
+  }
+
+  public boolean isDrawIncludeGroupsInMemberCounts() {
+    return drawIncludeGroupsInMemberCounts;
+  }
+
+  public void setDrawIncludeGroupsInMemberCounts(boolean drawIncludeGroupsInMemberCounts) {
+    this.drawIncludeGroupsInMemberCounts = drawIncludeGroupsInMemberCounts;
+  }
+
+  public boolean isDrawShowLegend() {
+    return drawShowLegend;
+  }
+
+  public void setDrawShowLegend(boolean drawShowLegend) {
+    this.drawShowLegend = drawShowLegend;
   }
 
   /**

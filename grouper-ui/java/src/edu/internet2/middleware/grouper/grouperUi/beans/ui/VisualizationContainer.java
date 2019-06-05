@@ -11,8 +11,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
-import java.util.List;
-
 
 /**
  *
@@ -30,7 +28,11 @@ public class VisualizationContainer {
   private boolean drawShowStems;
   private boolean drawShowLoaders;
   private boolean drawShowProvisioners;
-  private boolean drawShowMemberCounts;
+  private boolean drawShowAllMemberCounts;
+  private boolean drawShowDirectMemberCounts;
+  private boolean drawShowObjectTypes;
+  private boolean drawIncludeGroupsInMemberCounts;
+  private boolean drawShowLegend;
   private GrouperObject grouperObject;
 
 
@@ -243,18 +245,90 @@ public class VisualizationContainer {
    *
    * @return true if should include member counts for groups
    */
-  public boolean isDrawShowMemberCounts() {
-    return drawShowMemberCounts;
+  public boolean isDrawShowAllMemberCounts() {
+    return drawShowAllMemberCounts;
   }
 
   /**
-   * true if graph should include member counts for groups
+   * true if graph should include total member counts for groups
    *
-   * @param drawShowMemberCounts true if should include member counts for groups
+   * @param drawShowAllMemberCounts true if should include total member counts for groups
    */
-  public void setDrawShowMemberCounts(boolean drawShowMemberCounts) {
-    this.drawShowMemberCounts = drawShowMemberCounts;
+  public void setDrawShowAllMemberCounts(boolean drawShowAllMemberCounts) {
+    this.drawShowAllMemberCounts = drawShowAllMemberCounts;
+  }
 
+  /**
+   * true if graph should include direct member counts for groups
+   *
+   * @return true if graph should include direct member counts
+   */
+  public boolean isDrawShowDirectMemberCounts() {
+    return drawShowDirectMemberCounts;
+  }
+
+  /**
+   * true if graph should include direct member counts for groups
+   *
+   * @param drawShowDirectMemberCounts true if should include direct member counts
+   */
+  public void setDrawShowDirectMemberCounts(boolean drawShowDirectMemberCounts) {
+    this.drawShowDirectMemberCounts = drawShowDirectMemberCounts;
+  }
+
+  /**
+   * true if graph should include Grouper object types
+   *
+   * @return
+   */
+  public boolean isDrawShowObjectTypes() {
+    return drawShowObjectTypes;
+  }
+
+  /**
+   * true if graph should include Grouper object types
+   *
+   * @param drawShowObjectTypes
+   */
+  public void setDrawShowObjectTypes(boolean drawShowObjectTypes) {
+    this.drawShowObjectTypes = drawShowObjectTypes;
+  }
+
+  /**
+   * returns whether to include groups in the count of group members
+   *
+   * @return if groups are considered in the count of group members
+   */
+  public boolean isDrawIncludeGroupsInMemberCounts() {
+    return drawIncludeGroupsInMemberCounts;
+  }
+
+  /**
+   * flags whether to include groups in the count of group members
+   *
+   * @param drawIncludeGroupsInMemberCounts whether to consider groups when counting members
+   * @return
+   */
+  public void setDrawIncludeGroupsInMemberCounts(boolean drawIncludeGroupsInMemberCounts) {
+    this.drawIncludeGroupsInMemberCounts = drawIncludeGroupsInMemberCounts;
+  }
+
+  /**
+   * returns whether the D3 graph should include a legend as an inset
+   *
+   * @return
+   */
+  public boolean isDrawShowLegend() {
+    return drawShowLegend;
+  }
+
+  /**
+   * sets whether the D3 graph should include a legend as an inset
+   *
+   * @param drawShowLegend
+   */
+  public void setDrawShowLegend(boolean drawShowLegend) {
+    this.drawShowLegend = drawShowLegend;
   }
 
   /**

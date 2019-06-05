@@ -1,5 +1,18 @@
-import edu.internet2.middleware.grouper.*
 
+/**
+ * Sample script to generate a GraphViz .dot file and convert to svg
+ *
+ * From gsh, bind two parameters, inFilename and inObject, and then call the script; e.g.:
+ *
+ * gs = GrouperSession.startRootSession();
+ * def binding = new Binding()
+ * binding.inFilename = "C:/Temp/x.dot"
+ * binding.inObject = GroupFinder.findByName(gs, 'basis:org:110100:contractor')
+ * def ret = new GroovyShell(binding).evaluate(new File('../misc/visualization/buildSvgExample.groovy'))
+ *
+ */
+
+import edu.internet2.middleware.grouper.*
 
 import java.text.SimpleDateFormat
 import edu.internet2.middleware.grouper.app.graph.RelationGraph
@@ -23,8 +36,19 @@ if (inFilename == null) {
 }
 //Group obj = GroupFinder.findByName(gs, 'basis:org:110100:staff')
 
-RelationGraph graph = new RelationGraph().assignStartObject(inObject).assignParentLevels(-1).assignChildLevels(-1).assignShowMemberCounts(true).assignShowStems(true)
-graph.assignMaxSiblings(20)
+RelationGraph graph = new RelationGraph().assignStartObject(inObject)
+
+graph.assignParentLevels(-1)
+graph.assignChildLevels(-1)
+graph.assignShowAllMemberCounts(true)
+graph.assignShowStems(true)
+graph.assignShowLoaderJobs(true)
+graph.assignShowAllMemberCounts(true)
+graph.assignShowDirectMemberCounts(true)
+graph.assignIncludeGroupsInMemberCounts(false)
+graph.assignShowObjectTypes(true)
+//graph.assignMaxSiblings(4)
+
 graph.build()
 
 
@@ -43,7 +67,7 @@ at ${tstamp}" {
 \tgraph\t[ 
 \t\tcenter=true; splines=spline; ratio=auto;
 \t\tranksep = ".5"; nodesep = ".25 equally"; rankdir=LR;
-\t\tfontname="${ss.getStyle("graph").getProperty("font","")}"; ${ss.getStyle("graph").getProperty("style")};
+\t\tfontname="${ss.getStyle("graph").getProperty("font","")}"; ${ss.getStyle("graph").getProperty("style")}
 \t\t];
 
 """
@@ -107,19 +131,25 @@ graph.nodes.each { n ->
     if (n.stem) linkParam = "operation=UiV2Stem.viewStem%26stemId=${n.grouperObject.id}"
     else if (n.group) linkParam = "operation=UiV2Group.viewGroup%26groupId=${n.grouperObject.id}"
 
+    String objectTypesRow = ""
+    if (n.objectTypeNames != null) {
+        objectTypesRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.objectTypeNames.join(", ")}</FONT></TD></TR>"
+    }
+
     String memberCtRow = ""
     if (n.group && ! n.loaderGroup) {
-        memberCtRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.memberCount}</FONT></TD></TR>"
+        memberCtRow = "<TR><TD ALIGN=\"CENTER\" BORDER=\"1\"><FONT>${n.allMemberCount} member${n.allMemberCount == 1 ? "" : "s"}, ${n.directMemberCount} direct member${n.directMemberCount == 1 ? "" : "s"}</FONT></TD></TR>"
     }
 
     dotFile.write "{ \"${n.grouperObject.id}\""
-    dotFile.write " [${objStyles.join("; ")}${objStyles.size>0 ? ";":""} label=<<FONT><TABLE BORDER=\"1\" ALIGN=\"CENTER\" CELLBORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"0\" ${labelStyles}><TR><TD ALIGN=\"CENTER\" BORDER=\"1\" WIDTH=\"${8 * n.grouperObject.name.length()}\" TITLE=\"${n.grouperObject.name?:"(Root)"}\" HREF=\"https://localhost/grouper/grouperUi/app/UiV2Main.index?${linkParam}\" ><FONT ${labelFontStyle}>${n.grouperObject.name?:"(Root)"}<BR/></FONT></TD></TR>${memberCtRow}</TABLE></FONT>>] ; }\n"
+    dotFile.write " [${objStyles.join("; ")}${objStyles.size>0 ? ";":""} label=<<FONT><TABLE BORDER=\"1\" ALIGN=\"CENTER\" CELLBORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"0\" ${labelStyles}>${objectTypesRow}<TR><TD ALIGN=\"CENTER\" BORDER=\"1\" WIDTH=\"${8 * n.grouperObject.name.length()}\" TITLE=\"${n.grouperObject.name?:"(Root)"}\" HREF=\"https://localhost/grouper/grouperUi/app/UiV2Main.index?${linkParam}\" ><FONT ${labelFontStyle}>${n.grouperObject.name?:"(Root)"}<BR/></FONT></TD></TR>${memberCtRow}</TABLE></FONT>>] ; }\n"
 }
 
 statString = """${graph.startNode.grouperObject.name?:"(Root)"}
 at ${tstamp}
 Graph Edges: ${graph.edges.size()}
-Memberships: ${graph.showMemberCounts ? "${graph.numMembers}" : "(not included)"}
+Total memberships: ${graph.showAllMemberCounts ? "${graph.totalMemberCount}" : "(not included)"}
+Direct memberships: ${graph.showDirectMemberCounts ? "${graph.directMemberCount}" : "(not included)"}
 Nodes: ${graph.nodes.size()}
 Loader Jobs: ${graph.numLoaders}
 Provisioner Targets: ${graph.numProvisioners}

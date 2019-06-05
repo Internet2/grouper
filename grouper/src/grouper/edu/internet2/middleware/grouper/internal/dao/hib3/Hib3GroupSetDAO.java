@@ -484,7 +484,7 @@ return groupSets;
     String sql = "select g, f from Field as f, Group as g " +
         "where (f.name = 'members' or f.typeString = 'access') " +
         //for entities, dont put in group sets for members, optins, optouts, updaters, readers
-        "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
+        "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers' or f.name = 'groupAttrReaders' or f.name = 'groupAttrUpdaters')) " +
         "and not exists " +
         "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     
@@ -642,6 +642,20 @@ return groupSets;
       .listSet(String.class);
     
     return ownerGroupSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByParentId(java.lang.String)
+   */
+  public Set<GroupSet> findAllByParentId(String id) {
+    Set<GroupSet> groupSets = HibernateSession
+        .byHqlStatic()
+        .createQuery("select gs from GroupSet as gs where gs.parentId = :id")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllByParentId")
+        .setString("id", id)
+        .listSet(GroupSet.class);
+
+    return groupSets;
   }
 
   /**
@@ -814,6 +828,33 @@ return groupSets;
       .setCacheable(false)
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(Object[].class);
+    
+    return results;  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findBadEffectiveGroupSets()
+   */
+  public Set<GroupSet> findBadEffectiveGroupSets() {
+    String sql = "select gs3 from GroupSet gs1, GroupSet gs3 " +
+        "where gs3.parentId = gs1.id " +
+        "and gs3.type = 'effective' " +
+        "and gs3.fieldId = gs1.fieldId " +
+        "and gs3.ownerId = gs1.ownerId " +
+        "and gs1.depth > '0' " +   
+        "and not 1 in (select 1 from GroupSet gs2 " +
+            "where gs1.memberId = gs2.ownerId " +
+            "and gs2.depth = '1' " +
+            "and NOT gs1.id = gs2.id " +
+            "and gs2.fieldId = :fieldId " +
+            "and (NOT gs1.ownerId = gs2.memberId or NOT gs1.fieldId = :fieldId) " +
+            "and gs3.memberId = gs2.memberId)";
+    
+    Set<GroupSet> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(GroupSet.class);
     
     return results;  
   }

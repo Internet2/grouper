@@ -1,8 +1,8 @@
 
-
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190216" type="text/javascript"></script>
+<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190603" type="text/javascript"></script>
+
 
 <div class="lead">${textContainer.text['visualization.title']}
   <a href="#" aria-label="Set visualization options" id="visualization-settings-button" class="btn btn-medium" aria-expanded="false" onclick="$('#visualization-settings').toggle()">
@@ -118,15 +118,59 @@
             <span class="description">${textContainer.text['visualization.form.showProvisioners.description']}</span>
           </td>
         </tr>
-        <!-- show member counts -->
+        <!-- show all member counts -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-show-member-counts">${textContainer.text['visualization.form.showMemberCounts']}</label>:</strong>
+            <strong><label for="vis-settings-show-all-member-counts">${textContainer.text['visualization.form.showAllMemberCounts']}</label>:</strong>
           </td>
           <td>
-            <input type="checkbox" name="drawShowMemberCounts" id="vis-settings-show-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawShowMemberCounts ? "checked": ""}/>
+            <input type="checkbox" name="drawShowAllMemberCounts" id="vis-settings-show-all-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawShowAllMemberCounts ? "checked": ""}/>
             <br/>
-            <span class="description">${textContainer.text['visualization.form.showMemberCounts.description']}</span>
+            <span class="description">${textContainer.text['visualization.form.showAllMemberCounts.description']}</span>
+          </td>
+        </tr>
+        <!-- show direct member counts -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-show-direct-member-counts">${textContainer.text['visualization.form.showDirectMemberCounts']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawShowDirectMemberCounts" id="vis-settings-show-direct-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawShowDirectMemberCounts ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.showDirectMemberCounts.description']}</span>
+          </td>
+        </tr>
+        <!-- include groups in member counts -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-include-group-member-counts">${textContainer.text['visualization.form.includeGroupsInMemberCounts']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawIncludeGroupsInMemberCounts" id="vis-settings-include-group-member-counts" value="true" ${grouperRequestContainer.visualizationContainer.drawIncludeGroupsInMemberCounts ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.includeGroupsInMemberCounts.description']}</span>
+          </td>
+        </tr>
+        <!-- show Grouper object types -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-show-object-types">${textContainer.text['visualization.form.showObjectTypes']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawShowObjectTypes" id="vis-settings-show-object-types" value="true" ${grouperRequestContainer.visualizationContainer.drawShowObjectTypes ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.showObjectTypes.description']}</span>
+          </td>
+        </tr>
+        <!-- show legend -->
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="vis-settings-show-legend">${textContainer.text['visualization.form.showLegend']}</label>:</strong>
+          </td>
+          <td>
+            <input type="checkbox" name="drawShowLegend" id="vis-settings-show-legend" value="true" ${grouperRequestContainer.visualizationContainer.drawShowLegend ? "checked": ""}/>
+            <br/>
+            <span class="description">${textContainer.text['visualization.form.showLegend.description']}</span>
           </td>
         </tr>
       </tbody>
@@ -144,13 +188,20 @@
     ${textContainer.text['visualization.graph.copySVG']}
     <span class="caret"></span>
   </a>
+  <span class="vis-fullscreen-open"><a href="javascript:openVisualizationModal()">${textContainer.text['visualization.graph.expand']}&nbsp;<i class="fa fa-expand"></i></a></span>
 
   <div id="vis-copy-dot-output" style="display: none">
     <textarea id="vis-copy-dot-output-txt" cols="80" rows="20" style="width: 99%"></textarea>
   </div>
 </div>
-<!--<div id="vis-graph-svg-outer" style="display: none; position: fixed; left: 0; background: white; border: white 12px solid">-->
-<div id="vis-graph-svg-outer" style="display: none; background: white; border: 1px solid gray; height: 500px; width: 100%">
+<div id="vis-graph-svg-outer">
   <div id="vis-graph-svg-pane"></div>
 </div>
 <div id="vis-graph-text" style="display: none"></div>
+
+<!-- The Modal/Lightbox -->
+<div id="visualization-fullscreen" class="vis-graph-modal">
+  <span class="vis-fullscreen-close" onclick="closeVisualizationModal()">&times;</span>
+  <div id="visualization-fullscreen-content" class="vis-graph-modal-content">
+  </div>
+</div>

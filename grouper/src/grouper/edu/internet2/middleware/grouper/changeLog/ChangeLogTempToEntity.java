@@ -89,6 +89,20 @@ public class ChangeLogTempToEntity {
    * @return the number of records converted
    */
   public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    int totalCount = 0;
+    while (true) {
+      int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog);
+      totalCount += currentCount;
+      
+      if (currentCount != TEMP_CHANGE_LOG_PAGE_SIZE) {
+        break;
+      }
+    }
+    
+    return totalCount;
+  }
+  
+  private static int convertRecordsOnePage(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedMemberships", false);
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
@@ -310,10 +324,6 @@ public class ChangeLogTempToEntity {
     if (count > 0 && hib3GrouperLoaderLog != null) {
       hib3GrouperLoaderLog.addTotalCount(count);
       hib3GrouperLoaderLog.store();
-    }
-    
-    if (tempChangeLogEntryListOrigSize == TEMP_CHANGE_LOG_PAGE_SIZE) {
-      count += convertRecords(hib3GrouperLoaderLog);
     }
     
     return count;

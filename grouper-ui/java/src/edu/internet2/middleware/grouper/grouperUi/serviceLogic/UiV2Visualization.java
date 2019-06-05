@@ -16,12 +16,30 @@
 
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.graph.GraphEdge;
 import edu.internet2.middleware.grouper.app.graph.GraphNode;
 import edu.internet2.middleware.grouper.app.graph.RelationGraph;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.app.visualization.VisualSettings;
 import edu.internet2.middleware.grouper.app.visualization.VisualStyleSet;
@@ -32,7 +50,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2VisualizationPreference;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.*;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.VisualizationContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -40,12 +63,6 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
 
 /**
  * Operations to display a graph of object relationships
@@ -60,11 +77,13 @@ public class UiV2Visualization {
     private Map<String, Object> settings;
     private Map<String, String> statistics;
     private Map<String, Map<String, String>> styles;
+    private Map<String, Map<String, String>> fallbackStyles;
 
     public VisualizationGraph() {
       settings = new HashMap<String, Object>();
       statistics = new HashMap<String, String>();
       styles = new HashMap<String, Map<String, String>>();
+      fallbackStyles = new HashMap<String, Map<String, String>>();
     }
 
     protected void addSetting(String name, Object value) {
@@ -82,6 +101,13 @@ public class UiV2Visualization {
       styles.get(styleName).put(propertyName, propertyValue);
     }
 
+    protected void addFallbackStyleProperty(String styleName, String propertyName, String propertyValue) {
+      if (!fallbackStyles.containsKey(styleName)) {
+        fallbackStyles.put(styleName, new HashMap<String, String>());
+      }
+      fallbackStyles.get(styleName).put(propertyName, propertyValue);
+    }
+
     public Map<String, Object> getSettings() {
       return settings;
     }
@@ -92,6 +118,10 @@ public class UiV2Visualization {
 
     public Map<String, Map<String, String>> getStyles() {
       return styles;
+    }
+
+    public Map<String, Map<String, String>> getFallbackStyles() {
+      return fallbackStyles;
     }
   }
 
@@ -166,12 +196,14 @@ public class UiV2Visualization {
     private String type;
     private String baseType;
     private String linkType;
-    private long memberCount = 0;
+    private long allMemberCount = 0;
+    private long directMemberCount = 0;
+    private List<String> objectTypes;
     private String compositeLeftFactorId;
     private String compositeRightFactorId;
 
     private Node(String id, String name, String displayExtension, String description, String type,
-                 String baseType, String linkType, long memberCount) {
+                 String baseType, String linkType, long allMemberCount, long directMemberCount, List<String> objectTypes) {
       this.id = id;
       this.name = name;
       this.displayExtension = displayExtension;
@@ -179,7 +211,9 @@ public class UiV2Visualization {
       this.type = type;
       this.baseType = baseType;
       this.linkType = linkType;
-      this.memberCount = memberCount;
+      this.allMemberCount = allMemberCount;
+      this.directMemberCount = directMemberCount;
+      this.objectTypes = objectTypes;
     }
 
     public String getId() {
@@ -210,8 +244,25 @@ public class UiV2Visualization {
       return linkType;
     }
 
-    public long getMemberCount() {
-      return memberCount;
+    public long getAllMemberCount() {
+      return allMemberCount;
+    }
+
+    public List<String> getObjectTypes() {
+      return objectTypes;
+    }
+
+    // helper method to add a custom object type with initialization; GraphNode objectTypes are null until set
+    protected void addObjectTypeName(String name) {
+      if (objectTypes == null) {
+        objectTypes = new LinkedList<String>();
+      }
+      objectTypes.add(name);
+    }
+
+
+    public long getDirectMemberCount() {
+      return directMemberCount;
     }
 
     public String getCompositeLeftFactorId() {
@@ -242,8 +293,9 @@ public class UiV2Visualization {
     private List<String> childNodeIds;
 
     private TextNode(String id, String name, String displayExtension, String description, String type,
-                     String baseType, String linkType, long memberCount, long indent) {
-      super(id, name, displayExtension, description, type, baseType, linkType, memberCount);
+                     String baseType, String linkType, long allMemberCount, long directMemberCount,
+                     List<String> objectTypes, long indent) {
+      super(id, name, displayExtension, description, type, baseType, linkType, allMemberCount, directMemberCount, objectTypes);
       this.indent = indent;
       parentNodeIds = new LinkedList<String>();
       childNodeIds = new LinkedList<String>();
@@ -431,8 +483,11 @@ public class UiV2Visualization {
       .assignShowStems(visualizationContainer.isDrawShowStems())
       .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
       .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
-      .assignShowMemberCounts(visualizationContainer.isDrawShowMemberCounts())
-      .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings());
+      .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
+      .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
+      .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
+      .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
+      .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
 
     // filters on stems and groups (e.g., skip etc and the root folder by default).
     // future enhancement to make this configurable?
@@ -454,14 +509,15 @@ public class UiV2Visualization {
       graph = buildToJsonText(relationGraph);
       jsDrawFunctionName = "drawGraphModuleText()";
     } else if ("d3".equals(visualizationContainer.getDrawModule())) {
-      graph = buildToJsonD3(relationGraph);
+      graph = buildToJsonD3(relationGraph, visualizationContainer);
       jsDrawFunctionName = "drawGraphModuleD3()";
     } else {
       throw new RuntimeException("Invalid visualization module: '" + visualizationContainer.getDrawModule() + "'");
     }
 
     graph.addStatistic("numEdges", String.valueOf(relationGraph.getEdges().size()));
-    graph.addStatistic("numMemberships", relationGraph.isShowMemberCounts() ? String.valueOf(relationGraph.getNumMembers()) : "(not included)");
+    graph.addStatistic("totalMemberCount", relationGraph.isShowAllMemberCounts() ? String.valueOf(relationGraph.getTotalMemberCount()) : "(not included)");
+    graph.addStatistic("directMemberCount", relationGraph.isShowDirectMemberCounts() ? String.valueOf(relationGraph.getDirectMemberCount()) : "(not included)");
     graph.addStatistic("numNodes", String.valueOf(relationGraph.getNodes().size()));
     graph.addStatistic("numLoaderJobs", String.valueOf(relationGraph.getNumLoaders()));
     graph.addStatistic("numGroupsFromLoaders", String.valueOf(relationGraph.getNumGroupsFromLoaders()));
@@ -471,9 +527,9 @@ public class UiV2Visualization {
     graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
 
     graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
-    graph.addSetting("showMemberCounts", relationGraph.isShowMemberCounts());
-    //graph.addSetting("objectNameField", visualizationHelper;);
-    //what is this in the d3 drawing?? graph.addSetting("text", -1);
+    graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
+    graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
+    graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
 
     JSONObject jsonObject = JSONObject.fromObject(graph);
 
@@ -492,7 +548,7 @@ public class UiV2Visualization {
     return displayExtension;
   }
 
-  private D3Graph buildToJsonD3(RelationGraph relationGraph) {
+  private D3Graph buildToJsonD3(RelationGraph relationGraph, VisualizationContainer visualizationContainer) {
     VisualSettings settings = new VisualSettings();
     VisualStyleSet styleSet = settings.getStyleSet("dot");
 
@@ -514,8 +570,12 @@ public class UiV2Visualization {
         graphNode.getStyleObjectType().getName(),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", ""),
-        graphNode.getMemberCount()
+        graphNode.getAllMemberCount(),
+        graphNode.getDirectMemberCount(),
+        graphNode.getObjectTypeNames()
       );
+
+      addCustomTypeTags(node, graphNode);
 
       if (compositeLeftFactors.containsKey(graphNode)) {
         node.setCompositeLeftFactorId(compositeLeftFactors.get(graphNode));
@@ -551,6 +611,40 @@ public class UiV2Visualization {
       }
     }
 
+    // For a minimal set of objects, define styles even if not being used, so they can be used in the legend.
+    // Keep them in a separate "fallbackStyles" property, so that the regular "styles" property can be used
+    // to detect which ones are actually being used
+    for (String styleName: new String[]{"group", "edge_complement_left", "edge_complement_right", "edge_intersect_left",
+            "edge_intersect_right", "simple_loader_group", "loader_group", "edge_loader"}) {
+      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail", "dir"}) {
+        String propertyValue = styleSet.getStyleProperty(styleName, propertyName, "");
+        if (!"".equals(propertyValue)) {
+          graph.addFallbackStyleProperty(styleName, propertyName, propertyValue);
+        }
+      }
+    }
+
+    graph.addSetting("showLegend", visualizationContainer.isDrawShowLegend());
+    graph.addSetting("showObjectTypes", visualizationContainer.isDrawShowLegend());
+
+    if (visualizationContainer.isDrawShowLegend() && visualizationContainer.isDrawShowObjectTypes() && relationGraph.getObjectTypesUsed().size() > 0) {
+      
+      StringBuilder objectTypesLegend = new StringBuilder();
+      
+      objectTypesLegend.append(TextContainer.retrieveFromRequest().getText().get("visualization.form.legend.objectTypeLegend"));
+      
+      // get which types were used in the right order
+      for (String objectTypeName : GrouperObjectTypesSettings.getObjectTypeNames()) {
+        if (relationGraph.getObjectTypesUsed().contains(objectTypeName)) {
+          objectTypesLegend.append(TextContainer.retrieveFromRequest().getText().get("visualization.form.legend.objectTypeLegend." + objectTypeName));
+        }
+      }
+      
+      // add space to end
+      objectTypesLegend.append("\\l");
+      
+      graph.addSetting("objectTypesLegend", objectTypesLegend.toString());
+    }
     return graph;
   }
 
@@ -585,8 +679,12 @@ public class UiV2Visualization {
         graphNode.getStyleObjectType().getName(),
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "baseType", graphNode.getStyleObjectType().getName()) /* getNodeBaseType(graphNode) */,
         styleSet.getStyleProperty(graphNode.getStyleObjectType().getName(), "linkType", "") /*getNodeLinkType(graphNode)*/,
-        graphNode.getMemberCount(),
+        graphNode.getAllMemberCount(),
+        graphNode.getDirectMemberCount(),
+        graphNode.getObjectTypeNames(),
         indent);
+
+      addCustomTypeTags(node, graphNode);
 
       styleTypes.add(graphNode.getStyleObjectType());
 
@@ -623,15 +721,28 @@ public class UiV2Visualization {
     return graph;
   }
 
+  // In addition to the normal object types (ref, basis, etc.), add loader, intersection, complement based on node
+  private void addCustomTypeTags(Node node, GraphNode graphNode) {
+    if (graphNode.isLoaderGroup()) {
+      node.addObjectTypeName("loader");
+    }
+    if (graphNode.isComplementGroup()) {
+      node.addObjectTypeName("complement");
+    }
+    if (graphNode.isIntersectGroup()) {
+      node.addObjectTypeName("intersection");
+    }
+  }
+
   // loads lookup maps from a node to left/right factors, based on the edges that are composite types
   private void loadLeftRightFactorMaps(RelationGraph relationGraph, Map<GraphNode, String> compositeLeftFactors, Map<GraphNode, String> compositeRightFactors) {
     for (GraphEdge graphEdge : relationGraph.getEdges()) {
       if (graphEdge.getStyleObjectType() == StyleObjectType.EDGE_COMPLEMENT_LEFT
               || graphEdge.getStyleObjectType() == StyleObjectType.EDGE_INTERSECT_LEFT) {
-        compositeLeftFactors.put(graphEdge.getToNode(), graphEdge.getFromNode().getGrouperObjectId());
+        compositeLeftFactors.put(graphEdge.getFromNode(), graphEdge.getToNode().getGrouperObjectId());
       } else if (graphEdge.getStyleObjectType() == StyleObjectType.EDGE_COMPLEMENT_RIGHT
               || graphEdge.getStyleObjectType() == StyleObjectType.EDGE_INTERSECT_RIGHT) {
-        compositeRightFactors.put(graphEdge.getToNode(), graphEdge.getFromNode().getGrouperObjectId());
+        compositeRightFactors.put(graphEdge.getFromNode(), graphEdge.getToNode().getGrouperObjectId());
       }
     }
   }
@@ -792,16 +903,65 @@ public class UiV2Visualization {
     visualizationContainer.setDrawShowProvisioners(prefsFromAttribute.isDrawShowProvisioners());
   }
 
-    /* show member counts */
+    /* show all member counts */
     if (fromSubmission) {
-      visualizationContainer.setDrawShowMemberCounts(
-        GrouperUtil.booleanValue(request.getParameter("drawShowMemberCounts"), false));
-      if (visualizationContainer.isDrawShowMemberCounts() != prefsFromAttribute.isDrawShowMemberCounts()) {
-        prefsFromAttribute.setDrawShowMemberCounts(visualizationContainer.isDrawShowMemberCounts());
+      visualizationContainer.setDrawShowAllMemberCounts(
+        GrouperUtil.booleanValue(request.getParameter("drawShowAllMemberCounts"), false));
+      if (visualizationContainer.isDrawShowAllMemberCounts() != prefsFromAttribute.isDrawShowAllMemberCounts()) {
+        prefsFromAttribute.setDrawShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts());
         prefsHaveChanged = true;
       }
     } else {
-      visualizationContainer.setDrawShowMemberCounts(prefsFromAttribute.isDrawShowMemberCounts());
+      visualizationContainer.setDrawShowAllMemberCounts(prefsFromAttribute.isDrawShowAllMemberCounts());
+    }
+
+    /* show direct member counts */
+    if (fromSubmission) {
+      visualizationContainer.setDrawShowDirectMemberCounts(
+        GrouperUtil.booleanValue(request.getParameter("drawShowDirectMemberCounts"), false));
+      if (visualizationContainer.isDrawShowDirectMemberCounts() != prefsFromAttribute.isDrawShowDirectMemberCounts()) {
+        prefsFromAttribute.setDrawShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawShowDirectMemberCounts(prefsFromAttribute.isDrawShowDirectMemberCounts());
+    }
+
+    /* show grouper object types */
+    if (fromSubmission) {
+      visualizationContainer.setDrawShowObjectTypes(
+        GrouperUtil.booleanValue(request.getParameter("drawShowObjectTypes"), false));
+      if (visualizationContainer.isDrawShowObjectTypes() != prefsFromAttribute.isDrawShowObjectTypes()) {
+        prefsFromAttribute.setDrawShowObjectTypes(visualizationContainer.isDrawShowObjectTypes());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawShowObjectTypes(prefsFromAttribute.isDrawShowObjectTypes());
+    }
+
+
+    /* include groups in member counts */
+    if (fromSubmission) {
+      visualizationContainer.setDrawIncludeGroupsInMemberCounts(
+        GrouperUtil.booleanValue(request.getParameter("drawIncludeGroupsInMemberCounts"), false));
+      if (visualizationContainer.isDrawIncludeGroupsInMemberCounts() != prefsFromAttribute.isDrawIncludeGroupsInMemberCounts()) {
+        prefsFromAttribute.setDrawIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawIncludeGroupsInMemberCounts(prefsFromAttribute.isDrawIncludeGroupsInMemberCounts());
+    }
+
+    /* show legend */
+    if (fromSubmission) {
+      visualizationContainer.setDrawShowLegend(
+        GrouperUtil.booleanValue(request.getParameter("drawShowLegend"), false));
+      if (visualizationContainer.isDrawShowLegend() != prefsFromAttribute.isDrawShowLegend()) {
+        prefsFromAttribute.setDrawShowLegend(visualizationContainer.isDrawShowLegend());
+        prefsHaveChanged = true;
+      }
+    } else {
+      visualizationContainer.setDrawShowLegend(prefsFromAttribute.isDrawShowLegend());
     }
 
     // force a find of the lazy-loaded based on the id and type

@@ -20,17 +20,16 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag;
-import edu.internet2.middleware.grouper.ui.text.TextBundleBean;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.cfg.text.TextBundleBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -39,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * save the text bundle for the session.  Determine it based on 
  * the language and locale of the browser
  */
-public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
+public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
 
   /**
    * 
@@ -56,7 +55,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     // grouper.text.bundle.1.fileNamePrefix = grouperText/grouper.text.fr.fr
     
     Locale locale = new Locale("fr", "FR");
-    GrouperUiTextConfig grouperUiTextConfig = GrouperUiTextConfig.retrieveText(locale); 
+    GrouperUiApiTextConfig grouperUiTextConfig = GrouperUiApiTextConfig.retrieveText(locale); 
     System.out.println("1: " + grouperUiTextConfig.propertyValueString("institutionName"));
     
     Properties properties = GrouperUtil.propertiesFromResourceName("grouperText/grouper.text.fr.fr.properties"); 
@@ -111,6 +110,11 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
   /** tooltip values in order of keys */
   private List<String> tooltipValues = null;
 
+  /**
+   * keep servlet request in threadlocal during request from filter
+   */
+  private static ThreadLocal<ServletRequest> servletRequestThreadLocal = new InheritableThreadLocal<ServletRequest>();
+
   /** in the text file, terms must start with this prefix.  multiple terms can exist for one tooltip */
   public static final String TERM_PREFIX = "term.";
 
@@ -136,7 +140,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
   public static final String TOOLTIP_TARGETTED_REF_PREFIX = "tooltipTargettedRef.";
 
   /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GrouperUiTextConfig.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperUiApiTextConfig.class);
   
   /**
    * constructor with the correct files
@@ -144,7 +148,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
    * @param theMainExampleConfigClasspath 
    * @param theLanguageCountry e.g. en_us
    */
-  private GrouperUiTextConfig(String theMainConfigClasspath, String theMainExampleConfigClasspath,  String theLanguageCountry) {
+  private GrouperUiApiTextConfig(String theMainConfigClasspath, String theMainExampleConfigClasspath,  String theLanguageCountry) {
     this.mainConfigClasspath = theMainConfigClasspath;
     this.mainExampleConfigClasspath = theMainExampleConfigClasspath;
     this.languageCountry = theLanguageCountry;
@@ -153,7 +157,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
   /**
    * 
    */
-  public GrouperUiTextConfig() {
+  public GrouperUiApiTextConfig() {
     
   }
   
@@ -161,18 +165,18 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
    * text config for this user's locale
    * @return the config for this user's locale
    */
-  public static GrouperUiTextConfig retrieveTextConfig() {
+  public static GrouperUiApiTextConfig retrieveTextConfig() {
     
-    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequestThreadLocal.get(); 
     
     //cache this in the request
-    GrouperUiTextConfig grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+    GrouperUiApiTextConfig grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
     
     if (grouperUiTextConfig == null) {
-      Object synchronizedOnThis = httpServletRequest == null ? GrouperUiTextConfig.class : httpServletRequest;
+      Object synchronizedOnThis = httpServletRequest == null ? GrouperUiApiTextConfig.class : httpServletRequest;
       synchronized(synchronizedOnThis) {
         
-        grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+        grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
         
         if (grouperUiTextConfig == null) {
           
@@ -197,13 +201,18 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
    * @param locale
    * @return the config for this user's locale
    */
-  public static GrouperUiTextConfig retrieveText(Locale locale) {
+  public static GrouperUiApiTextConfig retrieveText(Locale locale) {
 
     TextBundleBean textBundleBean = retrieveTextBundleBean(locale);
     
-    GrouperUiTextConfig grouperTextConfig = new GrouperUiTextConfig(textBundleBean.getFileNamePrefix() + ".properties",
-          textBundleBean.getFileNamePrefix() + ".base.properties", textBundleBean.getLanguage() + "_" + textBundleBean.getCountry());
-    grouperTextConfig = (GrouperUiTextConfig)grouperTextConfig.retrieveFromConfigFileOrCache();
+    final String theMainConfigClasspath = textBundleBean.getFileNamePrefix() + ".properties";
+    
+    // replace to textNg to accomodate moving config to API
+    final String theMainExampleConfigClasspath = StringUtils.replace(textBundleBean.getFileNamePrefix(), "text.", "textNg.") + ".base.properties";
+    
+    GrouperUiApiTextConfig grouperTextConfig = new GrouperUiApiTextConfig(theMainConfigClasspath,
+          theMainExampleConfigClasspath, textBundleBean.getLanguage() + "_" + textBundleBean.getCountry());
+    grouperTextConfig = (GrouperUiApiTextConfig)grouperTextConfig.retrieveFromConfigFileOrCache();
 
     return grouperTextConfig;
     
@@ -218,7 +227,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     
     if (locale == null) {
       //return the default
-      return GrouperUiConfig.retrieveConfig().textBundleDefault();
+      return GrouperConfig.retrieveConfig().textBundleDefault();
 
     }
     
@@ -226,7 +235,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     String country = StringUtils.defaultString(locale.getCountry()).toLowerCase();
     
     //see if there is a match by language and country
-    TextBundleBean textBundleBean = GrouperUiConfig.retrieveConfig()
+    TextBundleBean textBundleBean = GrouperConfig.retrieveConfig()
       .textBundleFromLanguageAndCountry().get(language + "_" + country);
     
     if (textBundleBean != null) {
@@ -234,7 +243,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     }
     
     //see if there is a match by language
-    textBundleBean = GrouperUiConfig.retrieveConfig()
+    textBundleBean = GrouperConfig.retrieveConfig()
       .textBundleFromLanguage().get(language);
   
     if (textBundleBean != null) {
@@ -242,7 +251,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     }
     
     //see if there is a match by country
-    textBundleBean = GrouperUiConfig.retrieveConfig()
+    textBundleBean = GrouperConfig.retrieveConfig()
       .textBundleFromCountry().get(country);
   
     if (textBundleBean != null) {
@@ -250,7 +259,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     }
     
     //do the default
-    return GrouperUiConfig.retrieveConfig().textBundleDefault();
+    return GrouperConfig.retrieveConfig().textBundleDefault();
 
   }
   
@@ -387,11 +396,11 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
             termId = termId.substring(0,lastDot);
           }
           
-          String tooltipKey = GrouperMessageTag.TOOLTIP_PREFIX + termId;
+          String tooltipKey = "tooltip." + termId;
           String tooltip = propertiesFromConfig.getProperty(tooltipKey);
           
           //tooltipKeys.add(term);
-          tooltip = TextContainer.convertTooltipTextToHtml(tooltip, term, false);
+          tooltip = GrouperTextContainer.convertTooltipTextToHtml(tooltip, term, false);
 
           //tooltipValues.add(tooltip);
           propertiesMap.put(term, tooltip);
@@ -460,6 +469,21 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     //init everything
     tooltipKeys();
     return this.tooltipValues;
+  }
+
+  /**
+   * assign thread local from filter
+   * @param servletRequest
+   */
+  public static void servletRequestThreadLocalAssign(ServletRequest servletRequest) {
+    servletRequestThreadLocal.set(servletRequest);
+  }
+
+  /**
+   * clea thread local
+   */
+  public static void servletRequestThreadLocalClear() {
+    servletRequestThreadLocal.remove();
   }
 
   

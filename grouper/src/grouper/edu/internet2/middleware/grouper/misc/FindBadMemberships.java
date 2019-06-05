@@ -37,7 +37,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -302,6 +304,16 @@ public class FindBadMemberships {
       logGshScript("addMember(\"" + ownerGroup.getName() + "\", \"" + memberGroup.getId() + "\");\n");      
     }
     
+    List<GroupSet> badEffectiveGroupSets = getBadEffectiveGroupSets(new ArrayList<GroupSet>(GrouperDAOFactory.getFactory().getGroupSet().findBadEffectiveGroupSets()));
+    for (GroupSet gs : badEffectiveGroupSets) {
+
+      if (printErrorsToSTOUT) {
+        out.println("Bad effective group set: group set id=" + gs.getId() + ", depth=" + gs.getDepth() + ", owner id=" + gs.getOwnerId() + ", member id = " + gs.getMemberId() + ".");
+      }
+
+      logGshScript("sqlRun(\"delete from grouper_group_set where id='" + gs.getId() + "'\");\n");
+    }
+    
     // note this doesn't handle if in a set of duplicates, multiple group sets have foreign keys - that seems unlikely.
     // this also doesn't fix PIT if needed.  should run pit sync after this.
     Set<GroupSet> duplicates = GrouperDAOFactory.getFactory().getGroupSet().findDuplicateSelfGroupSets();
@@ -319,7 +331,7 @@ public class FindBadMemberships {
       logGshScript("sqlRun(\"delete from grouper_group_set where id='" + gs.getId() + "'\");\n");
     }
     
-    return duplicates.size() + badType.size() + badCompositeGroupSets.size() + immediateGroupSetsWithMissingEffective.size();
+    return duplicates.size() + badType.size() + badCompositeGroupSets.size() + immediateGroupSetsWithMissingEffective.size() + badEffectiveGroupSets.size();
   }
   
   /**
@@ -521,6 +533,19 @@ public class FindBadMemberships {
         // do nothing
       }
     }
+  }
+  
+  private static List<GroupSet> getBadEffectiveGroupSets(List<GroupSet> groupSets) {
+    List<GroupSet> groupSetsToReturn = new ArrayList<GroupSet>();
+    for (GroupSet groupSet : groupSets) {
+      // get children
+      List<GroupSet> childGroupSets = new ArrayList<GroupSet>(GrouperDAOFactory.getFactory().getGroupSet().findAllByParentId(groupSet.getId()));
+      
+      groupSetsToReturn.addAll(getBadEffectiveGroupSets(childGroupSets));
+      groupSetsToReturn.add(groupSet);
+    }
+    
+    return groupSetsToReturn;
   }
 }
 
