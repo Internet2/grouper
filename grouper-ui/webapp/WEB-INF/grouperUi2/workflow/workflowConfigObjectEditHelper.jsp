@@ -1,6 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                      
-  <<c:set  value="${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig}" var="guiWorkflowConfig"/>
+  <c:set  value="${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig}" var="guiWorkflowConfig"/>
+  
+  <input type="hidden" name="grouperWorkflowConfigId" value="${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}" />
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigHasTypeId">${textContainer.text['grouperWorkflowConfigTypeLabel']}</label></strong></td>
     <td>
@@ -35,12 +37,7 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigIdId">${textContainer.text['grouperWorkflowConfigIdLabel']}</label></strong></td>
     <td>
-      <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}"
-         name="grouperWorkflowConfigId" id="grouperWorkflowConfigIdId" />
-      <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-        data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
-      <br />
-      <span class="description">${textContainer.text['grouperWorkflowConfigIdHint']}</span>
+      ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}
     </td>
   </tr>
   

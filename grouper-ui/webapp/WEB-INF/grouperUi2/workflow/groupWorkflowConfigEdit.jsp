@@ -25,21 +25,21 @@
 						      </div>
 						    </div>
                 
-                <form class="form-inline form-small form-filter" id="addWorkflowConfigFormId">
+                <form class="form-inline form-small form-filter" id="editWorkflowConfigFormId">
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
                   <table class="table table-condensed table-striped">
                     <tbody>
-                      <%@ include file="workflowConfigObjectAddHelper.jsp" %>
+                      <%@ include file="workflowConfigObjectEditHelper.jsp" %>
                       <tr>
                         <td>
-                          <input type="hidden" name="mode" value="add">
+                          <input type="hidden" name="mode" value="edit">
                         </td>
                         <td
                           style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
                           <input type="submit" class="btn btn-primary"
                           aria-controls="workflowConfigSubmitId" id="submitId"
                           value="${textContainer.text['workflowAddConfigButtonSave'] }"
-                          onclick="ajax('../app/UiV2GrouperWorkflow.workflowConfigAddSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addWorkflowConfigFormId'}); return false;">
+                          onclick="ajax('../app/UiV2GrouperWorkflow.workflowConfigEditSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'editWorkflowConfigFormId'}); return false;">
                           &nbsp; <a class="btn btn-cancel" role="button"
                           onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                           >${textContainer.text['workflowConfigButtonCancel'] }</a>

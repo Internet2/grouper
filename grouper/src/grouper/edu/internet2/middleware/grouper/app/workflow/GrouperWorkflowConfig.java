@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
+import org.apache.commons.lang3.StringUtils;
 
 public class GrouperWorkflowConfig {
   
@@ -19,9 +20,11 @@ public class GrouperWorkflowConfig {
   
   private String workflowConfigViewersGroupId;
   
-  private boolean workflowConfigSendEmail;
+  private boolean workflowConfigSendEmail = true;
   
   private String workflowConfigEnabled = "true";
+  
+  private String attributeAssignmentMarkerId;
   
   
   public String getWorkflowConfigType() {
@@ -122,4 +125,21 @@ public class GrouperWorkflowConfig {
     this.workflowConfigEnabled = workflowConfigEnabled;
   }
 
+  public String getAttributeAssignmentMarkerId() {
+    return attributeAssignmentMarkerId;
+  }
+
+
+  public void setAttributeAssignmentMarkerId(String attributeAssignmentMarkerId) {
+    this.attributeAssignmentMarkerId = attributeAssignmentMarkerId;
+  }
+  
+  public void validate() {
+    
+    if (StringUtils.isBlank(workflowConfigType)) {
+      
+    }
+    
+  }
+  
 }

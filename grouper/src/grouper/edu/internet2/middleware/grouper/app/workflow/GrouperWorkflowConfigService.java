@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
 
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ENABLED;
@@ -54,6 +55,9 @@ public class GrouperWorkflowConfigService {
   public static void saveOrUpdateGrouperWorkflowConfig(GrouperWorkflowConfig grouperWorkflowConfig, Group group) {
     
     AttributeAssign attributeAssign = getAttributeAssign(group, grouperWorkflowConfig.getWorkflowConfigId());
+    if (attributeAssign == null) {   
+      attributeAssign = group.getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigApprovals());
@@ -69,6 +73,9 @@ public class GrouperWorkflowConfigService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_NAME, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigName());
+    
+    attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_ID, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigId());
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_PARAMS, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigParams());
@@ -91,6 +98,8 @@ public class GrouperWorkflowConfigService {
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
     
     GrouperWorkflowConfig result = new GrouperWorkflowConfig();
+    
+    result.setAttributeAssignmentMarkerId(attributeAssign.getId());
     
     AttributeAssignValue attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS);
     result.setWorkflowConfigApprovals(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);

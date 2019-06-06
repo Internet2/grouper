@@ -2510,6 +2510,7 @@ public class GrouperCheckConfig {
             workflowTypeDefName, false, new QueryOptions().secondLevelCache(false));
         if (workflowType == null) {
           workflowType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_DEF, AttributeDefType.type);
+          workflowType.setMultiAssignable(true);
           workflowType.setAssignToGroup(true);
           workflowType.store();
         }
