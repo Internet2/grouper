@@ -108,7 +108,10 @@ public class GrouperServiceJ2ee implements Filter {
       HttpServletRequest httpServletRequest, String key) {
     //if no servlet (probably just testing), get from map
     if (httpServletRequest == null) {
-      return paramMap == null ? null : paramMap.get(key)[0];
+      if (paramMap == null || paramMap.isEmpty() || !paramMap.containsKey(key)) {
+        return null;
+      }
+      return paramMap.get(key)[0];
     }
     String[] values = httpServletRequest.getParameterValues(key);
     if (values == null || values.length == 0) {
