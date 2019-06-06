@@ -145,7 +145,7 @@ public class ProvisionerCoordinator {
                     }
                 }
             }
-            LOG.warn("{}: Giving up on coordination efforts between full and incremental provisioning");
+            LOG.warn("Giving up on coordination efforts between full and incremental provisioning");
             lastIncrementalProvisioningStart = new Date();
             isBeingIncrementallyProvisioned = true;
         }
