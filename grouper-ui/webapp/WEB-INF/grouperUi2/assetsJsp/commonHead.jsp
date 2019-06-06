@@ -8,7 +8,7 @@
 <link href="../../grouperExternal/public/assets/css/bootstrap.css?updated=02132013_2" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/responsive.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
-<link href="../../grouperExternal/public/assets/css/grouperUi2.css" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=04062019" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/bootstrap-datepicker.min.css" rel="stylesheet">
 
 <link href="../../grouperExternal/public/assets/css/c3.min.css" rel="stylesheet" type="text/css">

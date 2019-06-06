@@ -32,10 +32,6 @@
     <then><copy file="misc/grouper-ui.example.properties" 
       tofile="conf/grouper-ui.properties" /></then>
   </if> 
-  <if><not><available file="conf/grouperText/grouper.text.en.us.properties" /></not>
-    <then><copy file="misc/grouper.text.en.us.example.properties" 
-      tofile="conf/grouperText/grouper.text.en.us.properties" /></then>
-  </if> 
 
 	<filter filtersfile="build.properties"/>
 	<property file=".lastbuild.properties"/>
@@ -331,12 +327,6 @@
     <copy file="${ui.folder}/conf/Owasp.CsrfGuard.overlay.properties" todir="${webapp.class.folder}" overwrite="true"/>
     <copy file="${ui.folder}/conf/Owasp.CsrfGuard.properties" todir="${webapp.class.folder}" overwrite="true"/>
 
-		<copy todir="${webapp.class.folder}">
-      <fileset dir="${ui.folder}/conf">
-        <include name="grouperText/*"/>
-      </fileset>
-    </copy>
-
 		<!-- If configured call a site specific build script -->
 		<antcall target="-additional-build">
 			<param name="target" value="resources"/>
@@ -497,14 +487,12 @@
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/grouper">
 				<include name="**/*.jar"/>
-				<exclude name="javax.servlet-api-*.jar"/>
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/custom">
 				<include name="**/*.jar"/>
 			</fileset>
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
-				<exclude name="servlet.jar"/>
         <exclude name="javax.servlet.jsp-api*.jar"/>
 			</fileset>
 		</copy>

@@ -91,6 +91,10 @@
     <then><copy file="misc/subject.example.properties" 
       tofile="${conf.dir}/subject.properties" /></then>
   </if> 
+  <if><not><available file="conf/grouperText/grouper.text.en.us.properties" /></not>
+    <then><copy file="misc/grouper.text.en.us.example.properties" 
+      tofile="conf/grouperText/grouper.text.en.us.properties" /></then>
+  </if> 
   <if><not><available file="${conf.dir}/spy.properties" /></not>
     <then><copy file="${conf.dir}/spy.example.properties" 
       tofile="${conf.dir}/spy.properties" /></then>

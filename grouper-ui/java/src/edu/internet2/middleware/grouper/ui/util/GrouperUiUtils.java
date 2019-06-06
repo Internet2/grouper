@@ -523,18 +523,6 @@ public class GrouperUiUtils {
   /** class file dir cached */
   public static File classFileDir = null;
 
-  /** array for converting HTML to string */
-  public static final String[] HTML_REPLACE = new String[]{"&amp;","&lt;","&gt;","&#39;","&quot;"};
-
-  /** array for converting HTML to string */
-  public static final String[] HTML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
-
-  /** array for converting HTML to string */
-  private static final String[] HTML_SEARCH = new String[]{"&","<",">","'","\""};
-
-  /** array for converting HTML to string */
-  public static final String[] HTML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
-
   /** array for converting javascript to string */
   private static final String[] JAVASCRIPT_REPLACE = new String[]{"&amp;","&lt;","&gt;","\\'","&quot;"};
 
@@ -1890,17 +1878,7 @@ public class GrouperUiUtils {
    * @return the HTML converted string
    */
   public static String escapeHtml(String input, boolean isEscape, boolean escapeSingleQuotes) {
-    if (escapeSingleQuotes) {
-      if (isEscape) {
-        return GrouperUtil.replace(input, HTML_SEARCH, HTML_REPLACE);
-      }
-      return GrouperUtil.replace(input, HTML_REPLACE, HTML_SEARCH);
-    }
-    if (isEscape) {
-      return GrouperUtil.replace(input, HTML_SEARCH_NO_SINGLE, HTML_REPLACE_NO_SINGLE);
-    }
-    return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
-    
+    return GrouperUtil.escapeHtml(input, isEscape, escapeSingleQuotes);
   }
 
   /**

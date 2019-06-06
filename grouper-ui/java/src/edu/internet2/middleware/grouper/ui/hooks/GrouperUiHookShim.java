@@ -43,7 +43,7 @@ public class GrouperUiHookShim {
     
     addScript("$('#messaging').before('<div class=\"messaging row-fluid\""
         + " style=\"display: block;\"><div role=\"alert\" class=\"alert alert-" + bootstrapAlertType + "\"><button type=\"button\""
-        + " class=\"close\" data-dismiss=\"alert\">×</button>"
+        + " class=\"close\" data-dismiss=\"alert\">x</button>"
         + GrouperUtil.escapeSingleQuotes(escapedMessage) + "</div></div>');");
      
   }

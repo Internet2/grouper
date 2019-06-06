@@ -11,6 +11,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleApi;
@@ -34,7 +36,8 @@ public enum ServiceActionType {
         .assignDescription(serviceAction.getArgMap().get("stemDescription"))
         .save();
         
-        serviceAction.getService().assignTypeToStem(stem);
+        // CH put these on screen
+        // serviceAction.getService().assignTypeToStem(stem);
         
       }
      
@@ -56,6 +59,31 @@ public enum ServiceActionType {
     
   },
   
+  grouperType {
+    
+    public void createTemplateItem(ServiceAction serviceAction) {
+
+      String stemName = serviceAction.getArgMap().get("stemName");
+      String type = serviceAction.getArgMap().get("type");
+      
+      final GrouperSession session = GrouperSession.staticGrouperSession();
+      
+      final Stem stem = StemFinder.findByName(session, stemName, false);
+
+      if (stem == null) {
+        return;
+      }
+      
+      GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      
+      attributeValue.setObjectTypeName(type);
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
+      
+    }
+    
+  },
+  
   inheritedPrivilege {
     
     public void createTemplateItem(ServiceAction serviceAction) {
@@ -67,9 +95,18 @@ public enum ServiceActionType {
       
       final GrouperSession session = GrouperSession.staticGrouperSession();
       
-      final Stem stem = StemFinder.findByName(session, parentStemName, true);
+      final Stem stem = StemFinder.findByName(session, parentStemName, false);
       
-      Group group = GroupFinder.findByName(session, groupName, true);
+      // maybe the parent stem checkbox was unchecked by the user
+      if (stem == null) {
+        return;
+      }
+      
+      Group group = GroupFinder.findByName(session, groupName, false);
+      
+      if (group == null) {
+        return;
+      }
       
       Subject sub = group.toSubject();
       
@@ -97,9 +134,13 @@ public enum ServiceActionType {
       String groupName = serviceAction.getArgMap().get("groupNameMembership");
       String memberOf = serviceAction.getArgMap().get("groupNameMembershipOf");
       
-      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+      Group groupMemberOf = GroupFinder.findByName(GrouperSession.staticGrouperSession(), memberOf, false);
+
+      if (group == null || groupMemberOf == null) {
+        return;
+      }
       
-      Group groupMemberOf = GroupFinder.findByName(GrouperSession.staticGrouperSession(), memberOf, true);
       Subject sub = group.toSubject();
       groupMemberOf.addMember(sub, false);
       

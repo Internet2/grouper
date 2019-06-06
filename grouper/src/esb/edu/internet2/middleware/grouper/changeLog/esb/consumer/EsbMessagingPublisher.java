@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 /**
  *
@@ -52,7 +53,17 @@ public class EsbMessagingPublisher extends EsbListenerBase {
  
     String messagingSystemName = GrouperLoaderConfig.retrieveConfig()
         .propertyValueString("changeLog.consumer."
-            + consumerName + ".publisher.messagingSystemName", "grouperBuiltinMessaging");
+            + consumerName + ".publisher.messagingSystemName");
+    if (StringUtils.isBlank(messagingSystemName)) {
+      messagingSystemName = GrouperClientConfig.retrieveConfig()
+          .propertyValueString("grouper.messaging.default.name.of.messaging.system");
+    }
+    
+    if (StringUtils.isBlank(messagingSystemName)) {
+      throw new RuntimeException("Set changeLog.consumer." + consumerName + 
+          ".publisher.messagingSystemName or " +
+          "grouper.messaging.default.name.of.messaging.system in grouper client properties");
+    }
     String queueOrTopicName = GrouperLoaderConfig.retrieveConfig().propertyValueString(
         "changeLog.consumer."
             + consumerName + ".publisher.queueOrTopicName");

@@ -80,6 +80,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -1037,6 +1040,80 @@ public class GrouperCheckConfig {
       }
       
       
+      
+      // add attribute defs for provisioning 
+      // (https://spaces.at.internet2.edu/display/Grouper/Grouper+provisioning+in+UI)
+      {
+        String grouperProvisioningUiRootStemName = GrouperProvisioningSettings.provisioningConfigStemName();
+        
+        Stem grouperProvisioningStemName = StemFinder.findByName(grouperSession, grouperProvisioningUiRootStemName, false);
+        if (grouperProvisioningStemName == null) {
+          grouperProvisioningStemName = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder to store attribute defs and names for provisioning in ui").assignName(grouperProvisioningUiRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String provisioningDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_DEF;
+        AttributeDef provisioningDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            provisioningDefName, false, new QueryOptions().secondLevelCache(false));
+        if (provisioningDef == null) {
+          provisioningDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_DEF, AttributeDefType.type);
+          //assign once for each target
+          provisioningDef.setMultiAssignable(true);
+          provisioningDef.setAssignToGroup(true);
+          provisioningDef.setAssignToStem(true);
+          provisioningDef.store();
+        }
+        
+        //add a name
+        AttributeDefName attribute = checkAttribute(grouperProvisioningStemName, provisioningDef, GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME, "has provisioning attributes", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String provisioningValueAttrDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF;
+        AttributeDef provisioningAttrValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            provisioningValueAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (provisioningAttrValueDef == null) {
+          provisioningAttrValueDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF, AttributeDefType.attr);
+          provisioningAttrValueDef.setAssignToGroupAssn(true);
+          provisioningAttrValueDef.setAssignToStemAssn(true);
+          provisioningAttrValueDef.setAssignToAttributeDefAssn(true);
+          provisioningAttrValueDef.setValueType(AttributeDefValueType.string);
+          provisioningAttrValueDef.store();
+        }
+
+        //the attributes can only be assigned to the value def
+        // try an attribute def dependent on an attribute def name
+        provisioningAttrValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_TARGET,
+            "pspngLdap|box1|etc", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT, 
+            "If this is directly assigned or inherited from a parent folder", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE, 
+            "If folder provisioning applies to only this folder or this folder and subfolders", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID, 
+            "Stem ID of the folder where the configuration is inherited from.  This is blank if this is a direct assignment", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION, 
+            "If you should provision (default to true)", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_MILLIS_SINCE_1970, 
+            "Millis since 1970 that this was last full provisioned", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970, 
+            "Millis since 1970 that this was last incremental provisioned. Even if the incremental did not change the target", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_SUMMARY, 
+            "Summary of last full run", wasInCheckConfig);
+        
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_SUMMARY, 
+            "Summary of last incremental run", wasInCheckConfig);
+
+      }
       
       
     } catch (SessionException se) {
@@ -3103,6 +3180,48 @@ public class GrouperCheckConfig {
         }
       }
       
+      {
+        String upgradeTasksRootStemName = UpgradeTasksJob.grouperUpgradeTasksStemName();
+        
+        Stem upgradeTasksRootStem = StemFinder.findByName(grouperSession, upgradeTasksRootStemName, false, new QueryOptions().secondLevelCache(false));
+        if (upgradeTasksRootStem == null) {
+          upgradeTasksRootStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for upgrade tasks objects").assignName(upgradeTasksRootStemName)
+            .save();
+        }
+
+        // check attribute def
+        String upgradeTasksDefName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_DEF;
+        AttributeDef upgradeTasksDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            upgradeTasksDefName, false, new QueryOptions().secondLevelCache(false));
+        if (upgradeTasksDef == null) {
+          upgradeTasksDef = upgradeTasksRootStem.addChildAttributeDef(UpgradeTasksJob.UPGRADE_TASKS_DEF, AttributeDefType.attr);
+          upgradeTasksDef.setAssignToGroup(true);
+          upgradeTasksDef.setValueType(AttributeDefValueType.string);
+          upgradeTasksDef.store();
+        }
+        
+        String upgradeTasksVersionName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+        
+        AttributeDefName upgradeTasksVersion = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            upgradeTasksVersionName, false, new QueryOptions().secondLevelCache(false));
+        
+        if (upgradeTasksVersion == null) {
+          upgradeTasksVersion = upgradeTasksRootStem.addChildAttributeDefName(upgradeTasksDef, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR);
+        }
+        
+        String groupName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+            groupName, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+        if (group == null) {
+          group = upgradeTasksRootStem.addChildGroup(UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP, UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP);
+        }
+        
+        if (group.getAttributeValueDelegate().retrieveValueString(upgradeTasksVersionName) == null) {
+          group.getAttributeValueDelegate().assignValue(upgradeTasksVersionName, "0");
+        }
+      }
+            
       {
         String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
         

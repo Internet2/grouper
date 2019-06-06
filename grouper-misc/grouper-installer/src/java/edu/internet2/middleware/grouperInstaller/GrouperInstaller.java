@@ -1991,7 +1991,13 @@ public class GrouperInstaller {
       //other packages, e.g. messaging
       this.buildMessagingRabbitmq(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
       this.buildMessagingRabbitmq(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"));
-      
+
+      this.buildMessagingActivemq(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"));
+      this.buildMessagingActivemq(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"));
+
+      this.buildMessagingAws(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
+      this.buildMessagingAws(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"));
+
       this.buildDuo(new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-duo"));
       this.buildDuo(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-duo"));
       
@@ -2624,7 +2630,51 @@ public class GrouperInstaller {
                 + File.separator + "dist" + File.separator + "bin"),
             PatchFileType.clazz);
 
-        // rabbitmq
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-rabbitmq"
+                + File.separator + "lib"),
+            PatchFileType.lib);
+
+        //active mq
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq" 
+                + File.separator + "src" + File.separator + "main" + File.separator + "java"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq" 
+                + File.separator + "dist" + File.separator + "bin"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-activemq"
+                + File.separator + "lib"),
+            PatchFileType.lib);
+
+        //aws
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws" 
+                + File.separator + "src" + File.separator + "main" + File.separator + "java"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws" 
+                + File.separator + "dist" + File.separator + "bin"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-messaging-aws"
+                + File.separator + "lib"),
+            PatchFileType.lib);
+
+        // duo
         this.patchCreateProcessFiles(theIndexOfFiles, 
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-duo"),
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-duo" 
@@ -13772,6 +13822,96 @@ public class GrouperInstaller {
       System.out.print("Press <enter> to continue: ");
       readFromStdIn("grouperInstaller.autorun.convertSourcesXmlToPropertiesHadPropertiesInFile");
     }
+  }
+
+  /**
+   * build client API
+   * @param messagingActiveMqDir
+   */
+  private void buildMessagingActivemq(File messagingActiveMqDir) {
+    if (!messagingActiveMqDir.exists() || messagingActiveMqDir.isFile()) {
+      throw new RuntimeException("Cant find messaging activemq: " + messagingActiveMqDir.getAbsolutePath());
+    }
+    
+    File messagingActivemqBuildToDir = new File(messagingActiveMqDir.getAbsoluteFile() + File.separator + "dist" + File.separator + "bin");
+    
+    boolean rebuildMessagingActivemq = true;
+    
+    if (messagingActivemqBuildToDir.exists()) {
+      System.out.print("Grouper messaging activemq has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildMessagingActivemq = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildMessagingActivemqAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildMessagingActivemq) {
+      return;
+    }
+  
+    List<String> commands = new ArrayList<String>();
+    
+    addAntCommands(commands);
+    
+    System.out.println("\n##################################");
+    System.out.println("Building messaging activemq with command:\n" + messagingActiveMqDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, messagingActiveMqDir, null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+  
+    System.out.println("\nEnd building messaging activemq");
+    System.out.println("##################################\n");
+    
+  }
+
+  /**
+   * build client API
+   * @param messagingAwsDir
+   */
+  private void buildMessagingAws(File messagingAwsDir) {
+    if (!messagingAwsDir.exists() || messagingAwsDir.isFile()) {
+      throw new RuntimeException("Cant find messaging aws: " + messagingAwsDir.getAbsolutePath());
+    }
+    
+    File messagingAwsBuildToDir = new File(messagingAwsDir.getAbsoluteFile() + File.separator + "dist" + File.separator + "bin");
+    
+    boolean rebuildMessagingAws = true;
+    
+    if (messagingAwsBuildToDir.exists()) {
+      System.out.print("Grouper messaging aws has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildMessagingAws = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildMessagingAwsAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildMessagingAws) {
+      return;
+    }
+  
+    List<String> commands = new ArrayList<String>();
+    
+    addAntCommands(commands);
+    
+    System.out.println("\n##################################");
+    System.out.println("Building messaging aws with command:\n" + messagingAwsDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, messagingAwsDir, null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+  
+    System.out.println("\nEnd building aws rabbitmq");
+    System.out.println("##################################\n");
+    
   }
 
   /**

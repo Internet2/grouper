@@ -6638,6 +6638,54 @@ public class GrouperUtil {
   }
 
   /**
+   * remove stems that are children of the top level stem
+   * @param stems
+   */
+  public static void stemRemoveChildStemsOfTopStem(List<Stem> stems) {
+    
+    if (stems == null) {
+      return;
+    }
+    
+    int stemSize = stems.size();
+
+    //go through from smallest to largest
+
+    // root is 0, first level is 1, second level is 2
+    int numberOfStems = -1;
+    int indexOfHighestStem = -1;
+    
+    for (int i=0;i<stemSize;i++) {
+      
+      Stem currentStem = stems.get(i);
+      
+      int currentNumberOfStems = currentStem.isRootStem() ? 0 : (StringUtils.countMatches(currentStem.getName(), ":") + 1);
+      
+      if (numberOfStems == -1 || currentNumberOfStems < numberOfStems) {
+        numberOfStems = currentNumberOfStems;
+        indexOfHighestStem = i;
+      }
+    }
+    
+    Stem highestStem = stems.get(indexOfHighestStem);
+
+    String highestStemPrefix = highestStem.isRootStem() ? ":" : (highestStem.getName() + ":");
+    
+    Iterator<Stem> iterator = stems.iterator();
+    while (iterator.hasNext()) {
+      Stem currentStem = iterator.next();
+      
+      if (currentStem.equals(highestStem)) {
+        continue;
+      }
+      
+      if (highestStem.isRootStem() || currentStem.getName().startsWith(highestStemPrefix)) {
+        iterator.remove();
+      }
+    }
+  }
+  
+  /**
    * get the int value of an object, do not throw an exception if there is an
    * error
    *
@@ -11985,4 +12033,54 @@ public class GrouperUtil {
     return result;
   }
   
+  /** array for converting HTML to string */
+  public static final String[] HTML_REPLACE = new String[]{"&amp;","&lt;","&gt;","&#39;","&quot;"};
+
+  /** array for converting HTML to string */
+  public static final String[] HTML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+
+  /** array for converting HTML to string */
+  private static final String[] HTML_SEARCH = new String[]{"&","<",">","'","\""};
+
+  /** array for converting HTML to string */
+  public static final String[] HTML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String escapeHtml(String input, boolean isEscape) {
+    return escapeHtml(input, isEscape, true);
+  }
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * @param escapeSingleQuotes true to escape single quotes too
+   * 
+   * @return the HTML converted string
+   */
+  public static String escapeHtml(String input, boolean isEscape, boolean escapeSingleQuotes) {
+    if (escapeSingleQuotes) {
+      if (isEscape) {
+        return GrouperUtil.replace(input, HTML_SEARCH, HTML_REPLACE);
+      }
+      return GrouperUtil.replace(input, HTML_REPLACE, HTML_SEARCH);
+    }
+    if (isEscape) {
+      return GrouperUtil.replace(input, HTML_SEARCH_NO_SINGLE, HTML_REPLACE_NO_SINGLE);
+    }
+    return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
+    
+  }
+  
+
 }

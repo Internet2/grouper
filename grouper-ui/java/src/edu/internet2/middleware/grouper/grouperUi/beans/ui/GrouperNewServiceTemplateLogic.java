@@ -3,13 +3,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.APP;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.GROUPER_SECURITY;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.POLICY;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.REF;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 
 /**
  * @author vsachdeva
@@ -35,13 +28,17 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
   
   /**
   Do you want a "app:Wiki" folder created? (ID is "wiki", name is "Wiki")
+    Assign "app" type to the "app:Wiki" folder?
   
     Do you want a "app:Wiki:service" folder created?
       Do you want a "app:Wiki:service:policy" folder created?
+        Do you want the policy folder assigned the "policy group" type?
       Do you want a "app:Wiki:service:reference" folder created? (ID is "ref", name is "reference")
+        Do you want the ref folder assigned the "ref" type?
       Do you want a "app:Wiki:service:attribute" folder created?
   
     Do you want a "app:Wiki:security" folder created?
+      Do you want the security folder assigned the "grouperSecurity" type?
       Do you want a "app:Wiki:security:Wiki Admins" group created? (ID is "wikiAdmins", name is "Wiki Admins")
         Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Groups on the "app:Wiki" folder?
         Do you want "app:Wiki:security:Wiki Admins" to have inherited ADMIN privileges on Folders on the "app:Wiki" folder?
@@ -130,22 +127,54 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       
       //Do you want a "app:Wiki:service:policy" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"service:policy"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:policy"));
+      final String stemNamePolicy = stemPrefix+baseStem+optionalColon+"service:policy";
+      args.add(new ServiceActionArgument("stemName", stemNamePolicy));
+      final String stemDisplayNamePolicy = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:policy";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNamePolicy));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServicePolicyFolderDescription")));
       ServiceAction levelTwoServiceAction_One = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_One);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_One);
+
+      {
+        //Assign the "policy" type to the "app:Wiki:service:policy" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNamePolicy));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNamePolicy));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.POLICY));
+        ServiceAction policyTypeAction = createNewServiceAction(true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(policyTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(policyTypeAction);
+        }
+      }
       
       //Do you want a "apps:wiki:service:reference" folder created? (id is "ref", name is "reference")
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"service:ref"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:ref"));
+      final String stemNameRef = stemPrefix+baseStem+optionalColon+"service:ref";
+      args.add(new ServiceActionArgument("stemName", stemNameRef));
+      final String stemDisplayNameRef = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:ref";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameRef));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceRefFolderDescription")));
       ServiceAction levelTwoServiceAction_Two = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_Two);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_Two);
+
+      {
+        //Assign the "ref" type to the "app:Wiki:service:ref" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameRef));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameRef));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.REF));
+        ServiceAction refTypeAction = createNewServiceAction(true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(refTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(refTypeAction);
+        }
+      }
       
       //Do you want a "app:Wiki:service:attribute" folder created?
       args = new ArrayList<ServiceActionArgument>();
@@ -159,14 +188,30 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       
       //Do you want a "app:Wiki:security" folder created?
       args = new ArrayList<ServiceActionArgument>();
-      args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"security"));
-      args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"security"));
+      final String stemNameSecurity = stemPrefix+baseStem+optionalColon+"security";
+      args.add(new ServiceActionArgument("stemName", stemNameSecurity));
+      final String stemDisplayNameSecurity = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"security";
+      args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameSecurity));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceSecurityFolderDescription")));
       ServiceAction levelOneServiceAction_Two = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
       serviceActionsForStem.add(levelOneServiceAction_Two);
       if (addFirstNode) {        
         rootServiceAction.addChildServiceAction(levelOneServiceAction_Two);
+      }
+
+      {
+        //Assign the "grouperSecurity" type to the "app:Wiki:security" folder?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("stemName", stemNameSecurity));
+        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameSecurity));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.GROUPER_SECURITY));
+        ServiceAction securityTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(securityTypeAction);
+        if (addFirstNode) {        
+          rootServiceAction.addChildServiceAction(securityTypeAction);
+        }
       }
       
       //Do you want a "app:Wiki:security:Wiki Admins" group created? (ID is "wikiAdmins", name is "Wiki Admins")
@@ -301,24 +346,5 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
   public String getSelectLabelKey() {
     return "stemTemplateTypeServiceLabel";
   }
-
-
-  @Override
-  public void assignTypeToStem(Stem stem) {
-    
-    GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
-    attributeValue.setDirectAssignment(true);
-    
-    List<String> autoCreateTypes = Arrays.asList(APP, POLICY, REF);
-    
-    if (autoCreateTypes.contains(stem.getExtension())) {
-      attributeValue.setObjectTypeName(stem.getExtension());
-      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
-    } else if (stem.getExtension().equals("security")) {
-      attributeValue.setObjectTypeName(GROUPER_SECURITY);
-      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
-    }
-    
-  }  
 
 }

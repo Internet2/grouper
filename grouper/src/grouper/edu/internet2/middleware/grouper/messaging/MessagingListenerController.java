@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
@@ -77,6 +78,10 @@ public class MessagingListenerController {
 
       String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".messagingSystemName");
       String queueName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queueName");
+      String messageQueueType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".messageQueueType");
+      GrouperMessageQueueType grouperMessageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(messageQueueType, true);
+      
+      // routing key and exchange type are valid only for rabbitmq
       String routingKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".routingKey");
       String exchangeType = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".exchangeType");
       
@@ -120,6 +125,7 @@ public class MessagingListenerController {
                 .assignAutocreateObjects(autocreateObjects)
                 .assignGrouperMessageSystemName(messagingSystemName)
                 .assignQueueName(queueName)
+                .assignQueueType(grouperMessageQueueType)
                 .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce)
                 .assignRoutingKey(routingKey)
                 .assignExchangeType(exchangeType));

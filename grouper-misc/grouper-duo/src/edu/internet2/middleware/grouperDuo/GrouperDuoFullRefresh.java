@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -107,11 +105,12 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
     
     try {
       
+      // Stem grouperDuoFolder = GrouperDuoUtils.duoStem(debugMap);
+      
       //# put groups in here which go to duo, the name in duo will be the extension here
       //grouperDuo.folder.name.withDuoGroups = duo
-      String grouperDuoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.folder.name.withDuoGroups");
-      Stem grouperDuoFolder = StemFinder.findByName(grouperSession, grouperDuoFolderName, true);
-      
+      Stem grouperDuoFolder = GrouperDuoUtils.duoStem(debugMap);
+
       Set<Group> grouperGroups = grouperDuoFolder.getChildGroups(Scope.ONE);
       
       //take out include/exclude etc
@@ -127,13 +126,17 @@ public class GrouperDuoFullRefresh extends OtherJobBase {
             invalidGroupNameCount++;
           }
         }
-  
-        debugMap.put("grouperGroupNameCount", grouperGroups.size());
+
+        if (debugMap != null) {
+          debugMap.put("grouperGroupNameCount", grouperGroups.size());
+        }
         if (invalidGroupNameCount > 0) {
-          debugMap.put("invalidGrouperGroupNameCount", invalidGroupNameCount);
+          if (debugMap != null) {
+            debugMap.put("invalidGrouperGroupNameCount", invalidGroupNameCount);
+          }
         }
       }
-      
+            
       //make a map from group extension
       Map<String, Group> grouperGroupExtensionToGroupMap = new HashMap<String, Group>();
       

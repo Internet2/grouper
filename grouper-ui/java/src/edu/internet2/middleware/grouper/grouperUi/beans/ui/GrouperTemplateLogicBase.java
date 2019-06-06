@@ -128,10 +128,4 @@ public abstract class GrouperTemplateLogicBase {
    */
   public abstract String getSelectLabelKey();
   
-  /**
-   * assign type to stem
-   */
-  public abstract void assignTypeToStem(Stem stem);
-  
-  
 }
