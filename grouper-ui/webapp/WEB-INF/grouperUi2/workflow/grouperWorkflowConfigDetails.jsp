@@ -60,7 +60,7 @@
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperWorkflowConfigFormLabel']}</label></strong></td>
-          <td>${workflowConfig.workflowConfigForm}</td>
+          <td>${grouper:escapeHtml(workflowConfig.workflowConfigForm)}</td>
         </tr>
                 
         <tr>

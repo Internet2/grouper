@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +60,8 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfi
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -91,6 +95,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -1176,21 +1181,67 @@ public class UiV2Group {
       if (group == null) {
         return;
       }
+      
+      final Group GROUP = group;
 
-      group.addMember(loggedInSubject, false);
-
+      List<GrouperWorkflowConfig> workflowConfigs = (List<GrouperWorkflowConfig>) GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          List<GrouperWorkflowConfig> workflowConfigs = GrouperWorkflowConfigService.getWorkflowConfigs(GROUP);
+          
+          return workflowConfigs;
+        }
+      });
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("groupJoinSuccess")));
+      boolean goThroughWorkflow = true;
+      
+      if (workflowConfigs.size() > 0) {
+        
+        Collections.sort(workflowConfigs, new Comparator<GrouperWorkflowConfig>() {
+          @Override
+          public int compare(GrouperWorkflowConfig o1, GrouperWorkflowConfig o2) {
+            return o1.getWorkflowConfigName().compareTo(o2.getWorkflowConfigName());
+          }
+        });
+        
+        for (GrouperWorkflowConfig workflowConfig: workflowConfigs) {
+          if (workflowConfig.isSubjectInAllowedGroup(loggedInSubject)) {
+            goThroughWorkflow = false;
+            break;
+          }
+          
+        }
+        
+      } 
+      
+      if ( true /** goThroughWorkflow*/) {
+        
+        GrouperWorkflowConfig configToGoThrough = workflowConfigs.get(0);
+        
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getWorkflowContainer()
+        .setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(configToGoThrough));
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+            "/WEB-INF/grouperUi2/group/groupJoinInitiateWorkflow.jsp"));
+          return;
+      } else {
+        
+        group.addMember(loggedInSubject, false);
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupJoinSuccess")));
 
-      //redisplay so the button will change, note, this will not change the memberships
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
-          "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+        //redisplay so the button will change, note, this will not change the memberships
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+            "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
 
-      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-          loggedInSubject, group);
-
+        GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            loggedInSubject, group);
+      }
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

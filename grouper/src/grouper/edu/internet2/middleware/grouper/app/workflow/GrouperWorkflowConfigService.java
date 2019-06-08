@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
 
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ENABLED;
@@ -12,6 +11,7 @@ import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfi
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_SEND_EMAIL;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_TYPE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings.workflowStemName;
 import static edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -38,6 +39,16 @@ public class GrouperWorkflowConfigService {
     }
     
     return buildGrouperWorkflowConfig(attributeAssign);
+  }
+  
+  public static boolean workflowIdExists(final String workflowId) {
+    
+    Set<Group> groups = new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
+    .assignNameOfAttributeDefName(GrouperWorkflowSettings.workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_ID)
+    .addAttributeValuesOnAssignment(workflowId)
+    .findGroups();
+    
+    return groups.size() > 0;
   }
      
   public static List<GrouperWorkflowConfig> getWorkflowConfigs(final Group group) {

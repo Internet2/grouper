@@ -58,7 +58,7 @@
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigApprovalsId">${textContainer.text['grouperWorkflowConfigApprovalsLabel']}</label></strong></td>
     <td>
       <textarea id="grouperWorkflowConfigApprovalsId" name="grouperWorkflowConfigApprovals" rows="10" cols="60" class="input-block-level">
-        ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigApprovals)}</textarea>
+        ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigApprovals}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -71,7 +71,7 @@
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigParamsId">${textContainer.text['grouperWorkflowConfigParamsLabel']}</label></strong></td>
     <td>
       <textarea id="grouperWorkflowConfigParamsId" name="grouperWorkflowConfigParams" rows="10" cols="60" class="input-block-level">
-        ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigParams)}</textarea>
+        ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigParams}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
