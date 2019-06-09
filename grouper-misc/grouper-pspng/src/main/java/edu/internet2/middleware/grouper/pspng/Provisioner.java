@@ -1390,7 +1390,7 @@ public abstract class Provisioner
 	    doFullSync_cleanupExtraGroups(stats);
 	  }
 	  catch (PspException e) {
-		  LOG.error("Problem while looking for and removing extra groups: {}", e);
+		  LOG.error("Problem while looking for and removing extra groups", e);
 		  throw e;
 	  }
 	  finally {
