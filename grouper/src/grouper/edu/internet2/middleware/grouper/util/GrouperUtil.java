@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.util;
 
 import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7918,6 +7919,39 @@ public class GrouperUtil {
    */
   public static int stringLength(String string) {
     return string == null ? 0 : string.length();
+  }
+
+  /**
+   * close a writer quietly
+   * @param closeable
+   */
+  public static void closeQuietly(Closeable closeable) {
+    if (closeable != null) {
+      try {
+        closeable.close();
+      } catch (IOException e) {
+        //swallow, its ok
+      }
+    }
+  }
+
+  /**
+   * create a new file
+   * @param file
+   * @return if created
+   */
+  public static boolean fileCreateNewFile(File file) {
+    if (file.exists() && file.isFile()) {
+      return false;
+    }
+    
+    try {
+      file.createNewFile();
+    } catch (IOException ioe) {
+      throw new RuntimeException("Cant create file: " + file.getAbsolutePath());
+    }
+    
+    return true;
   }
 
   /**

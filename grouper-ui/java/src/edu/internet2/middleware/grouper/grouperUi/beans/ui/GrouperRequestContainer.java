@@ -559,6 +559,12 @@ public class GrouperRequestContainer {
   
   
   /**
+   * container for grouper reports
+   */
+  private GrouperReportContainer grouperReportContainer; 
+  
+  
+  /**
    * container for deprovisioning screen
    * @return the container
    */
@@ -600,6 +606,17 @@ public class GrouperRequestContainer {
       this.objectTypeContainer = new ObjectTypeContainer();
     }
     return this.objectTypeContainer;
+  }
+  
+  /**
+   * lazy load the grouper report container
+   * @return the grouper report container
+   */
+  public GrouperReportContainer getGrouperReportContainer() {
+    if (this.grouperReportContainer == null) {
+      this.grouperReportContainer = new GrouperReportContainer();
+    }
+    return this.grouperReportContainer;
   }
 
   /**

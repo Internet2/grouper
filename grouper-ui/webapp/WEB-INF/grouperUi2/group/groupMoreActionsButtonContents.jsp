@@ -136,6 +136,12 @@
                         <li class="divider"></li>
                         <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.groupView&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                           >${textContainer.text['visualization.title'] }</a></li>
+                          
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.reportingEnabled}">
+	                        <li class="divider"></li>
+	                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+	                          >${textContainer.text['groupViewReportButton'] }</a></li>
+                        </c:if>
 
                       </ul>
                     </div>

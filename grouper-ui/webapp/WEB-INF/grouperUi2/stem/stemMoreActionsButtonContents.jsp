@@ -130,7 +130,12 @@
                         <li class="divider"></li>
                         <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.stemView&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                           >${textContainer.text['visualization.title'] }</a></li>
-
+                          
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.reportingEnabled}">
+	                        <li class="divider"></li>
+	                        <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+	                          >${textContainer.text['stemViewReportButton'] }</a></li>
+                        </c:if>
                       </ul>
                     </div>
 
