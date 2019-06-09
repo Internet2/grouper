@@ -160,6 +160,7 @@
         <aws.java.sdk.kms>1.11.533</aws.java.sdk.kms>
         <aws.java.sdk.s3>1.11.529</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.11.567</aws.java.sdk.sqs>
+        <aws.java.sdk.sns>1.11.567</aws.java.sdk.sns>
         <httpclient>4.5.8</httpclient>
         <httpcore>4.4.11</httpcore>
         <jackson.annotations>2.9.8</jackson.annotations>
@@ -282,6 +283,11 @@
               <groupId>com.amazonaws</groupId>
               <artifactId>aws-java-sdk-sqs</artifactId>
               <version>${aws.java.sdk.sqs}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.amazonaws</groupId>
+              <artifactId>aws-java-sdk-sns</artifactId>
+              <version>${aws.java.sdk.sns}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

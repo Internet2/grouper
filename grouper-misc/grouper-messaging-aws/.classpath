@@ -22,15 +22,18 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-log4j12.jar"/>
 	<classpathentry kind="lib" path="libTest/junit.jar"/>
+	<classpathentry kind="lib" path="lib/aws-java-sdk-1.11.529.jar"/>
+	<classpathentry kind="lib" path="lib/aws-java-sdk-core-1.11.529.jar"/>
+	<classpathentry kind="lib" path="lib/aws-java-sdk-kms-1.11.533.jar"/>
+	<classpathentry kind="lib" path="lib/aws-java-sdk-sqs-1.11.567.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.25.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/aws-java-sdk-bundle-1.11.155.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
