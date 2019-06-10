@@ -53,7 +53,9 @@ public enum ReportConfigFormat {
         
       } catch (Exception e) {
 
-        throw new RuntimeException("Error in CsvFileWriter !!! " + grouperReportInstance.getReportFileUnencrypted().getAbsolutePath(), e);
+        throw new RuntimeException("Error in CsvFileWriter !!! " 
+            + ((grouperReportInstance != null && grouperReportInstance.getReportFileUnencrypted() != null) 
+                ? grouperReportInstance.getReportFileUnencrypted().getAbsolutePath() : "no file yet"), e);
       
       } finally {
 
