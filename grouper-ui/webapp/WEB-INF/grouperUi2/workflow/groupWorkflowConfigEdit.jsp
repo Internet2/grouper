@@ -24,6 +24,13 @@
 						        <%@ include file="grouperWorkflowGroupMoreActionsButtonContents.jsp"%>
 						      </div>
 						    </div>
+						    
+						    <div class="workflowConfigErrors">
+                 <c:forEach var="error" items="${grouperRequestContainer.workflowContainer.errors}">
+                  <span>${error}</span>
+                  <br>
+                 </c:forEach>
+                </div>
                 
                 <form class="form-inline form-small form-filter" id="editWorkflowConfigFormId">
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />

@@ -214,7 +214,17 @@ public class UiV2GrouperWorkflow {
       
       final GrouperWorkflowConfig workflowConfig = populateGrouperWorkflowConfig(request, response);
       
-      //TODO validate workflow config
+      workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
+      
+      List<String> errors = workflowConfig.validate(GROUP, true);
+      
+      if (errors.size() > 0) {
+        workflowContainer.setErrors(errors);
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperWorkflow.formAdd&groupId=" + group.getId() + "')"));
+//        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+//            "/WEB-INF/grouperUi2/workflow/groupWorkflowConfigAdd.jsp"));
+        return;
+      }
       
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -225,7 +235,7 @@ public class UiV2GrouperWorkflow {
           if (!checkWorkflow()) {
             return null;
           }
-            
+          
           GrouperWorkflowConfigService.saveOrUpdateGrouperWorkflowConfig(workflowConfig, GROUP);
           
           return null;
@@ -393,7 +403,16 @@ public class UiV2GrouperWorkflow {
       
       final GrouperWorkflowConfig workflowConfig = populateGrouperWorkflowConfig(request, response);
       
-      //TODO validate workflow config
+      workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
+      
+      List<String> errors = workflowConfig.validate(GROUP, false);
+      if (errors.size() > 0) {
+        workflowContainer.setErrors(errors);
+        // guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId="+workflowConfigId+"&groupId=" + group.getId() + "')"));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/workflow/groupWorkflowConfigEdit.jsp"));
+        return;
+      }
       
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -443,13 +462,13 @@ public class UiV2GrouperWorkflow {
     String workflowEnabled = request.getParameter("grouperWorkflowConfigEnabled");
     
     GrouperWorkflowConfig workflowConfig = new GrouperWorkflowConfig();
-    workflowConfig.setWorkflowConfigApprovals(configApprovals);
+    workflowConfig.setWorkflowConfigApprovals(configApprovals != null ? configApprovals.trim(): null);
     workflowConfig.setWorkflowConfigId(configId);
-    workflowConfig.setWorkflowConfigDescription(configDescription);
+    workflowConfig.setWorkflowConfigDescription(configDescription != null ? configDescription.trim(): null);
     workflowConfig.setWorkflowConfigEnabled(workflowEnabled);
-    workflowConfig.setWorkflowConfigForm(configForm);
+    workflowConfig.setWorkflowConfigForm(configForm != null ? configForm.trim(): null);
     workflowConfig.setWorkflowConfigName(configName);
-    workflowConfig.setWorkflowConfigParams(configParams);
+    workflowConfig.setWorkflowConfigParams(configParams != null ? configParams.trim(): null);
     workflowConfig.setWorkflowConfigType(configType);
     workflowConfig.setWorkflowConfigViewersGroupId(viewersGroupId);
     workflowConfig.setWorkflowConfigSendEmail(BooleanUtils.toBoolean(sendEmail));

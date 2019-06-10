@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -194,165 +196,194 @@ public class GrouperWorkflowConfig {
     this.attributeAssignmentMarkerId = attributeAssignmentMarkerId;
   }
   
-  public void validate(Group group) {
+  public List<String> validate(Group group, boolean checkForDuplicateConfig) {
+    
+    List<String> errors = new ArrayList<String>();
     
     if (StringUtils.isBlank(workflowConfigType)) {
-      // error
-      GrouperTextContainer.retrieveFromRequest().getText().get("error key");
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowTypeRequiredError"));
     }
     
+    //TODO if workflow type is not one of the workflow types we know of, error
+    
     if (StringUtils.isBlank(workflowConfigApprovals)) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowApprovalsRequiredError"));
     }
     
     boolean isInitiateStateAvailable = false;
     boolean isCompleteStateAvailable = false;
+    boolean workflowApprovalsValidJson = true;
     
     try { 
       JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(workflowConfigApprovals);
-      JSONArray jsonArray = jsonObject.getJSONArray("states");
-      for (int i=0; i<jsonArray.size(); i++) {
-        JSONObject jsonObject2 = jsonArray.getJSONObject(i);
-        String stateName = jsonObject2.getString("stateName");
-        //TODO validate allowed group id
-        if (StringUtils.isNotBlank(stateName) && stateName.equals("initiate")) {
-          isInitiateStateAvailable = true;
-        }
-        if (StringUtils.isNotBlank(stateName) && stateName.equals("complete")) {
-          isCompleteStateAvailable = true;
+      if (!jsonObject.containsKey("states")) {
+        errors.add(GrouperTextContainer.retrieveFromRequest()
+            .getText().get("workflowApprovalsStatesRequiredError"));
+      } else {
+        JSONArray jsonArray = jsonObject.getJSONArray("states");
+        for (int i=0; i<jsonArray.size(); i++) {
+          JSONObject jsonObject2 = jsonArray.getJSONObject(i);
+          String stateName = jsonObject2.getString("stateName");
+          //TODO validate allowed group id
+          if (StringUtils.isNotBlank(stateName) && stateName.equals("initiate")) {
+            isInitiateStateAvailable = true;
+          }
+          if (StringUtils.isNotBlank(stateName) && stateName.equals("complete")) {
+            isCompleteStateAvailable = true;
+          }
+          
+          //TODO validate group ids
         }
       }
     } catch (Exception e) {
-      // have well formatted json
+      workflowApprovalsValidJson = false;
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowApprovalsInvalidJsonError"));
     }
     
-    if (!isInitiateStateAvailable) {
-      // error
+    if (workflowApprovalsValidJson && !isInitiateStateAvailable) {
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowApprovalsInitiateStateRequiredError"));
     }
     
-    if (!isCompleteStateAvailable) {
-      // error
+    if (workflowApprovalsValidJson && !isCompleteStateAvailable) {
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowApprovalsCompleteStateRequiredError"));
     }
     
     
     if (StringUtils.isBlank(workflowConfigName)) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigNameRequiredError"));
     }
     
-    List<GrouperWorkflowConfig> configs = GrouperWorkflowConfigService.getWorkflowConfigs(group);
-    
-    for (GrouperWorkflowConfig config: configs) {
-      if (config.getWorkflowConfigName().equals(workflowConfigName)) {
-        // error - break
+    if (checkForDuplicateConfig) {
+      List<GrouperWorkflowConfig> configs = GrouperWorkflowConfigService.getWorkflowConfigs(group);
+      
+      for (GrouperWorkflowConfig config: configs) {
+        if (config.getWorkflowConfigName().equals(workflowConfigName)) {
+          errors.add(GrouperTextContainer.retrieveFromRequest()
+              .getText().get("workflowConfigNameAlreadyInUseError"));
+          break;
+        }
       }
     }
     
     if (StringUtils.isBlank(workflowConfigId)) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigIdRequiredError"));
     }
     
-    if (GrouperWorkflowConfigService.workflowIdExists(workflowConfigId)) {
-      // error
+    String configIdRegex = "^[a-zA-Z0-9_-]*$";
+    
+    if (!workflowConfigId.matches(configIdRegex)) {
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigIdNotValidError"));
+    }
+    
+    if (checkForDuplicateConfig && GrouperWorkflowConfigService.workflowIdExists(workflowConfigId)) {
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigIdAlreadyInUseError"));
     }
     
     if (StringUtils.isBlank(workflowConfigDescription)) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigDescriptionRequiredError"));
     }
     
     if (workflowConfigDescription.length() > 4000) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigDescriptionLengthExceedsMaxLengthError"));
     }
     
     if (StringUtils.isBlank(workflowConfigParams)) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigParamsRequiredError"));
     }
     
-    try {   
+    try {
       JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(workflowConfigParams);
-      JSONArray jsonArray = jsonObject.getJSONArray("params");
-      int totalParams = 0;
-      for (int i=0; i<jsonArray.size(); i++) {
-        totalParams++;
-        JSONObject jsonObject2 = jsonArray.getJSONObject(i);
-        String paramName = jsonObject2.getString("paramName");
-        String type = jsonObject2.getString("type");
-        String editableInStates = jsonObject2.getString("editableInStates");
-        if (StringUtils.isBlank(paramName) || StringUtils.isBlank(type) || StringUtils.isBlank(editableInStates)) {
-          // error
-        }
-        
-        String required = jsonObject2.getString("required");
-        if (type.equals("checkbox")) {
-          if (StringUtils.isNotBlank(required) && (!required.equals("true") || !required.equals("false"))) {
-            // error
+      if (!jsonObject.containsKey("params")) {
+        errors.add(GrouperTextContainer.retrieveFromRequest()
+            .getText().get("workflowParamsParamsRequiredError"));
+      } else {
+        JSONArray jsonArray = jsonObject.getJSONArray("params");
+        int totalParams = 0;
+        for (int i=0; i<jsonArray.size(); i++) {
+          totalParams++;
+          JSONObject jsonObject2 = jsonArray.getJSONObject(i);
+          
+          String paramName = jsonObject2.containsKey("paramName") ? jsonObject2.getString("paramName"): null;
+          String type = jsonObject2.containsKey("type") ? jsonObject2.getString("type"): null;
+          String editableInStates = jsonObject2.containsKey("editableInStates") ? jsonObject2.getString("editableInStates"): null;
+          
+          if (StringUtils.isBlank(paramName)) {
+            String error = GrouperTextContainer.retrieveFromRequest().getText().get("workflowParamsParamNameMissingError");
+            error.replace("$$index$$", String.valueOf(i));
+            errors.add(error);
           }
+          
+          if (StringUtils.isBlank(type)) {
+            String error = GrouperTextContainer.retrieveFromRequest().getText().get("workflowParamsTypeMissingError");
+            error.replace("$$index$$", String.valueOf(i));
+            errors.add(error);
+          }
+          
+          if (StringUtils.isBlank(editableInStates)) {
+            String error = GrouperTextContainer.retrieveFromRequest().getText().get("workflowParamsEditableInStatesMissingError");
+            error.replace("$$index$$", String.valueOf(i));
+            errors.add(error);
+          }
+          
+          String required = jsonObject2.containsKey("required") ? jsonObject2.getString("required"): null;
+          if (type.equals("checkbox")) {
+            if (StringUtils.isNotBlank(required) && (!required.equals("true") || !required.equals("false"))) {
+              errors.add(GrouperTextContainer.retrieveFromRequest()
+                  .getText().get("workflowParamsInvalidCheckboxValueError"));
+            }
+          }
+          
         }
         
+        if (totalParams > 10) {
+          errors.add(GrouperTextContainer.retrieveFromRequest()
+              .getText().get("workflowParamsExceedsMaxSizeError"));
+        }
       }
-      
-      if (totalParams > 10) {
-        // error
-      }
-      
     } catch (Exception e) {
-      // have well formatted json
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowParamsInvalidJsonError"));
     }
     
     if (StringUtils.isNotBlank(workflowConfigViewersGroupId)) {
       Group viewersGroupId = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), workflowConfigViewersGroupId, false);
       if (viewersGroupId == null) {
-        // error
+        errors.add(GrouperTextContainer.retrieveFromRequest()
+            .getText().get("workflowViewerGroupIdNotFoundError"));
       }
     }
     
     
     if (StringUtils.isBlank(workflowConfigEnabled)) {
-      // error
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigEnabledRequiredError"));
     }
     
-    if (!workflowConfigEnabled.equals("true") || !workflowConfigEnabled.equals("false")
-        || !workflowConfigEnabled.equals("noNewSubmissions")) {
-      // error
+    List<String> validEnabledValues = Arrays.asList("true", "false", "noNewSubmissions");
+    
+    if (!validEnabledValues.contains(workflowConfigEnabled)) {
+      errors.add(GrouperTextContainer.retrieveFromRequest()
+          .getText().get("workflowConfigEnabledInvalidValueError"));
     }
     
-    if (StringUtils.isNotBlank(workflowConfigForm)) {
-      
-      
-      
-      
+    if (StringUtils.isBlank(workflowConfigForm)) {
+      //TODO confirm from Chris
     }
     
+    return errors;
     
-  }
-  
-  public static void main(String[] args) {
-    
-    String approvals = "{\n" + 
-        "  states: [\n" + 
-        "    {\n" + 
-        "      stateName: \"initiate\",\n" + 
-        "    },\n" + 
-        "    {\n" + 
-        "      stateName: \"groupManager\",\n" + 
-        "      approverManagersOfGroupId: \"sdgf76gdf87\" \n" + 
-        "    },\n" + 
-        "    {\n" + 
-        "      stateName: \"complete\",\n" + 
-        "      actions: [\n" + 
-        "           {\n" + 
-        "              actionName: \"assignToGroup\",\n" + 
-        "              actionArg0: \"sgk234kh234\"  \n" + 
-        "            }\n" + 
-        "        ]\n" + 
-        "    }\n" + 
-        "  ]\n" + 
-        "}";
-    
-    try {
-      JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(approvals);
-    } catch (Exception e) {
-      System.out.println("e is "+e);
-    }
   }
   
   public boolean isSubjectInAllowedGroup(Subject subject) {

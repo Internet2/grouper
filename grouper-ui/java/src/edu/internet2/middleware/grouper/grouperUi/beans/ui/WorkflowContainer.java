@@ -15,6 +15,8 @@ public class WorkflowContainer {
   //TODO move the logic to core and read from grouper.properties file
   private List<String> allConfigTypes = Arrays.asList("grouper");
   
+  private List<String> errors = new ArrayList<String>();
+  
   public boolean isCanWrite() {
     return true;
   }
@@ -41,6 +43,14 @@ public class WorkflowContainer {
 
   public void setAllConfigTypes(List<String> allConfigTypes) {
     this.allConfigTypes = allConfigTypes;
+  }
+
+  public List<String> getErrors() {
+    return errors;
+  }
+
+  public void setErrors(List<String> errors) {
+    this.errors = errors;
   }
   
 }

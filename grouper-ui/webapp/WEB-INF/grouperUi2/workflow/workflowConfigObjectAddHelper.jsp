@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                      
-  <<c:set  value="${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig}" var="guiWorkflowConfig"/>
+  <c:set  value="${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig}" var="guiWorkflowConfig"/>
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigHasTypeId">${textContainer.text['grouperWorkflowConfigTypeLabel']}</label></strong></td>
     <td>
