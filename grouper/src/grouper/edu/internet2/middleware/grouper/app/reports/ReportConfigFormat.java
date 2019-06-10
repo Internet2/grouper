@@ -60,8 +60,9 @@ public enum ReportConfigFormat {
         GrouperUtil.closeQuietly(fileWriter);
         GrouperUtil.closeQuietly(csvFilePrinter);
         
+      }
+      if (grouperReportInstance != null && grouperReportInstance.getReportFileUnencrypted() != null) {
         grouperReportInstance.setReportInstanceSizeBytes(grouperReportInstance.getReportFileUnencrypted().length());
-        
       }
     }
 
