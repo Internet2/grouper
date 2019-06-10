@@ -70,7 +70,7 @@ public class GrouperReportLogic {
       GrouperReportInstance reportInstance, GrouperObject owner) {
     
     long startTime = System.currentTimeMillis();
-    
+    File fileToDelete = null;
     try {
       // get report data
       GrouperReportData grouperReportData = reportConfigBean.getReportConfigType().retrieveReportDataByConfig(reportConfigBean);
@@ -87,7 +87,9 @@ public class GrouperReportLogic {
       String randomEncryptionKey = RandomStringUtils.random(16, true, true);
       
       reportInstance.setReportInstanceEncryptionKey(Morph.encrypt(randomEncryptionKey));
-        
+
+      fileToDelete = reportInstance.getReportFileUnencrypted();
+      
       String reportDestination = GrouperConfig.retrieveConfig().propertyValueString("reporting.storage.option");
       if (StringUtils.isBlank(reportDestination)) {
         throw new RuntimeException("reporting.storage.option cannot be blank. Valid values are S3 and fileSystem");
@@ -108,7 +110,7 @@ public class GrouperReportLogic {
         String filePath = saveFileToFileSystem(reportInstance.getReportFileUnencrypted(), randomEncryptionKey, reportOutputDirectory);
         reportInstance.setReportInstanceFilePointer(filePath);
       }
-        
+      
       reportInstance.setReportInstanceFileName(reportInstance.getReportFileUnencrypted().getName());
       reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
       
@@ -116,9 +118,8 @@ public class GrouperReportLogic {
       LOG.error("Error occurred generating report for config name "+reportConfigBean.getReportConfigName(), e);
       reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_ERROR);
     } finally {
-      File tmpReportsPath = new File(GrouperUtil.tmpDir() + "reports");
-      if (tmpReportsPath.exists()) {        
-        FileUtils.deleteQuietly(tmpReportsPath);
+      if (fileToDelete != null && fileToDelete.exists()) {        
+        FileUtils.deleteQuietly(fileToDelete);
       }
     }
     

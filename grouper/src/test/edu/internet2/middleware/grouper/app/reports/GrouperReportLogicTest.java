@@ -31,7 +31,7 @@ public class GrouperReportLogicTest extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperReporting.enable", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("reporting.storage.option", "fileSystem");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("reporting.file.system.path", GrouperUtil.tmpDir() + "reports");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("reporting.file.system.path", GrouperUtil.tmpDir(true) + "grouperReports");
 
     Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
     

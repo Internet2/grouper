@@ -11820,6 +11820,15 @@ public class GrouperUtil {
    * @return the temp dir
    */
   public static String tmpDir() {
+    return tmpDir(false);
+  }
+
+  /**
+   * return the temp dir, either what is in the java env var, or something in the grouper conf
+   * @param appendSlashIfNotThere add a slash to end if not there already
+   * @return the temp dir
+   */
+  public static String tmpDir(boolean appendSlashIfNotThere) {
 
     String tmpDir = null;
 
@@ -11836,6 +11845,12 @@ public class GrouperUtil {
       if (!loggedTempDir) {
         loggedTempDir = true;
         LOG.info("Tmp dir is set to: '" + tmpDir + "'");
+      }
+      if (appendSlashIfNotThere) {
+        tmpDir = StringUtils.trimToEmpty(tmpDir);
+        if (!tmpDir.endsWith("\\") && !tmpDir.endsWith("/")) {
+          tmpDir += File.separator;
+        }
       }
     }
     return tmpDir;

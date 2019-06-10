@@ -385,7 +385,7 @@ public class GrouperReportInstance {
     Calendar calendar = new GregorianCalendar();
     calendar.setTimeInMillis(System.currentTimeMillis());
     
-    String tempFileParentDirPath = GrouperUtil.tmpDir() + "reports" + File.separator + calendar.get(Calendar.YEAR) + File.separator 
+    String tempFileParentDirPath = GrouperUtil.tmpDir(true) + "grouperReports" + File.separator + calendar.get(Calendar.YEAR) + File.separator 
         + StringUtils.leftPad(""+(calendar.get(Calendar.MONTH)+1), 2, '0') + File.separator + StringUtils.leftPad(""+calendar.get(Calendar.DAY_OF_MONTH), 2, '0')
         + File.separator + GrouperUtil.uniqueId();
 
