@@ -208,6 +208,50 @@ public class AttestationContainer {
   }
   
   /**
+   * if should show textarea for type
+   */
+  private boolean editAttestationShowType;
+
+  /**
+   * if should show textarea for type
+   * @return should show type
+   */
+  public boolean isEditAttestationShowType() {
+    return this.editAttestationShowType;
+  }
+
+  /**
+   * 
+   * @param editAttestationShowType1
+   */
+  public void setEditAttestationShowType(
+      boolean editAttestationShowType1) {
+    this.editAttestationShowType = editAttestationShowType1;
+  }
+
+  /**
+   * custom type
+   */
+  private String editAttestationType;
+
+  /**
+   * custom type
+   * @return custom type
+   */
+  public String getEditAttestationType() {
+    this.attributeAssignableHelper();
+    return this.editAttestationType;
+  }
+
+  /**
+   * custom type
+   * @param editAttestationType1
+   */
+  public void setEditAttestationType(String editAttestationType1) {
+    this.editAttestationType = editAttestationType1;
+  }
+  
+  /**
    * default recertify days
    * @return default configured recertify days
    */
@@ -280,6 +324,47 @@ public class AttestationContainer {
             GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
     return attestationEmailAddresses;
   }
+  
+
+  /**
+   * type
+   * @return type
+   */
+  public String getType() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationType = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameType().getName());
+    return attestationType;
+  }
+  
+  
+  /**
+   * @return true if scope is sub
+   */
+  public Boolean getStemScopeSub() {
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return true;
+    }
+
+    String attestationStemScope = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+
+    return attestationStemScope == null 
+        || StringUtils.equalsIgnoreCase(attestationStemScope, Scope.SUB.toString());
+  }
+
 
   /**
    * get recertify days
@@ -741,27 +826,19 @@ public class AttestationContainer {
         this.hasAttestationConfigured = true;
       }
       if (parentStem == null) {
-        parentStem = stem.getParentStemOrNull();
+        parentStem = stem;
       }
     }
 
     if (parentStem != null) {
-
-      Stem ancestorStem = (Stem)parentStem.getAttributeDelegate().getAttributeOrAncestorAttribute(
-          GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName(), false);
-      if (ancestorStem != null) {
-        AttributeAssign ancestorAssign = ancestorStem.getAttributeDelegate().retrieveAssignment(null, 
-            GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
-        String attestationStemScope = ancestorAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
+      
+      AttributeAssign ancestorAttributeAssign = GrouperAttestationJob.findParentFolderAssign(parentStem);
+      if (ancestorAttributeAssign != null) {
+        Stem ancestorStem = ancestorAttributeAssign.getOwnerStem();
         
-        //if we are blank (default to sub) or sub or the parent is same as ancestor (then ONE)
-        if (StringUtils.isBlank(attestationStemScope) || Scope.SUB == Scope.valueOfIgnoreCase(attestationStemScope, true)
-            || ancestorStem.equals(parentStem)) {
-          
-          this.parentStemWithAttestation = ancestorStem;
-          this.stemInheritedAttributeAssignable = ancestorAssign;
-          hasAttestationConfigured = true;
-        }
+        this.parentStemWithAttestation = ancestorStem;
+        this.stemInheritedAttributeAssignable = ancestorAttributeAssign;
+        hasAttestationConfigured = true;
       }
     }
   }

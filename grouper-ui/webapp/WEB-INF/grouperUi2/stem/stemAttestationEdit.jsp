@@ -35,6 +35,23 @@
         </tr>
       </c:if>
       <c:if
+        test="${grouperRequestContainer.attestationContainer.editAttestationShowType}">
+
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label
+              for="grouperAttestationTypeId">${textContainer.text['attestationTypeLabel']}</label></strong></td>
+          <td><select name="grouperAttestationTypeName"
+            id="grouperAttestationTypeId" style="width: 25em"
+            onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
+              <option value="group"
+                ${grouperRequestContainer.attestationContainer.editAttestationType == 'group' ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperAttestationTypeGroupLabel']}</option>
+              <option value="report"
+                ${grouperRequestContainer.attestationContainer.editAttestationType == 'report' ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperAttestationTypeReportLabel']}</option>
+          </select> <br /> <span class="description">${textContainer.text['grouperAttestationTypeDescription']}</span>
+          </td>
+        </tr>
+      </c:if>
+      <c:if
         test="${grouperRequestContainer.attestationContainer.editAttestationShowSendEmail}">
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label

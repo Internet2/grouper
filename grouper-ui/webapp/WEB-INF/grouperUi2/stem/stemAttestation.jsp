@@ -80,6 +80,21 @@
                               <span class="description">${textContainer.text['grouperAttestationSendEmailDescription']}</span>
                             </td>
                           </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationTypeLabel']}</strong></td>
+                            <td>
+                              <c:choose>
+                                <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == null || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'group'}">
+                                  ${textContainer.textEscapeXml['grouperAttestationTypeGroupLabel']}
+                                </c:when>
+                                <c:otherwise>
+                                  ${textContainer.textEscapeXml['grouperAttestationTypeReportLabel']}
+                                </c:otherwise>
+                              </c:choose>
+                              <br />
+                              <span class="description">${textContainer.text['grouperAttestationTypeDescription']}</span>
+                            </td>
+                          </tr>
                           <c:if
                             test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
                             <tr>

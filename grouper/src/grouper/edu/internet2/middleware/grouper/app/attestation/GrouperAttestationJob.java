@@ -147,6 +147,27 @@ public class GrouperAttestationJob extends OtherJobBase {
     return attributeDefName;
 
   }
+  
+  /**
+   * attestationType
+   */
+  public static final String ATTESTATION_TYPE = "attestationType";
+
+  /**
+   * type of attestation (group or report)
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameType() {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_TYPE, true);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation type attribute def name be found?");
+    }
+    return attributeDefName;
+
+  }
 
   /**
    * attestationHasAttestation
@@ -361,6 +382,64 @@ public class GrouperAttestationJob extends OtherJobBase {
   public static void updateObjectAttributesToPatch81(Group group, AttributeAssign groupAttributeAssign) {
     updateObjectAttributesToPatch81(group, groupAttributeAssign, true);
   }
+  
+  /**
+   * @param stem
+   * @return attribute assign
+   */
+  public static AttributeAssign findParentFolderAssign(Stem stem) {
+    AttributeAssign parentFolderAssign = null;
+    Stem currentGrouperObject = stem;
+    while (true) {
+      parentFolderAssign = null;
+
+      if (currentGrouperObject.isRootStem()) {
+        break;
+      }
+      
+      AttributeAssignable attributeAssignable = currentGrouperObject.getAttributeDelegate()
+          .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+      parentFolderAssign = attributeAssignable == null ? null : attributeAssignable.getAttributeDelegate().retrieveAssignment(
+          null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+      
+      if (parentFolderAssign == null) {
+        break;
+      }
+      // we have a folder assignment
+      // see if has assignment
+      String folderStemScopeAttributeValue = parentFolderAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
+      Stem.Scope scope = StringUtils.isBlank(folderStemScopeAttributeValue) ? Scope.SUB : Stem.Scope.valueOfIgnoreCase(folderStemScopeAttributeValue, true);
+
+      // if scope is one and we are too far up the chain then we're done
+      boolean selfAssignment = stem.getUuid().equals(((Stem)attributeAssignable).getUuid());
+      if (scope == Scope.ONE && !selfAssignment) {
+        parentFolderAssign = null;
+        break;
+      }
+      
+      String folderTypeAttributeValue = parentFolderAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameType().getName());
+      if ("report".equals(folderTypeAttributeValue)) {
+        // not what we're looking for
+        parentFolderAssign = null;
+        currentGrouperObject = ((Stem)attributeAssignable).getParentStem();
+        continue;
+      }
+      
+      String folderHasAttestationAttributeValue = parentFolderAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+      boolean folderHasAttestationAttributeValueBoolean = GrouperUtil.booleanValue(folderHasAttestationAttributeValue, false);
+
+      // if the folder doesnt have attestation, then we're done
+      if (!folderHasAttestationAttributeValueBoolean) {
+        parentFolderAssign = null;
+        break;
+      }
+      
+      //we good
+      break;
+    }
+    
+    return parentFolderAssign;
+  }
 
   /**
    * @param group
@@ -377,11 +456,8 @@ public class GrouperAttestationJob extends OtherJobBase {
       return;
     }
     
-    AttributeAssignBaseDelegate attributeAssignBaseDelegate = null;
+    AttributeAssignBaseDelegate attributeAssignBaseDelegate = group.getAttributeDelegate();
     
-    if (group instanceof Group) {
-      attributeAssignBaseDelegate = group.getAttributeDelegate();
-    }
     AttributeAssign attributeAssign = attributeAssignBaseDelegate.retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
 
     //if has attestation then fine
@@ -397,56 +473,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     }
 
     //get the ancestor folder assignment if exists
-    AttributeAssign parentFolderAssign = null;
-    GrouperObject currentGrouperObject = group;
-    boolean directParent = false;
-    while (true) {
-      directParent = false;
-      parentFolderAssign = null;
-      AttributeAssignable attributeAssignable = null;
-      if (currentGrouperObject instanceof Group) {
-        attributeAssignable = ((Group)currentGrouperObject).getParentStem().getAttributeDelegate()
-            .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
-        parentFolderAssign = attributeAssignable == null ? null : attributeAssignable.getAttributeDelegate().retrieveAssignment(
-            null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
-        directParent = true;
-      } else if (currentGrouperObject instanceof Stem) {
-        if (((Stem)currentGrouperObject).isRootStem()) {
-          break;
-        }
-        attributeAssignable = ((Stem)currentGrouperObject).getParentStem().getAttributeDelegate()
-            .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
-        parentFolderAssign = attributeAssignable == null ? null : attributeAssignable.getAttributeDelegate().retrieveAssignment(
-            null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
-      } else {
-        throw new RuntimeException("Not expecting object of type: " + currentGrouperObject.getClass());
-      }
-      if (parentFolderAssign == null) {
-        break;
-      }
-      // we have a folder assignment
-      // see if has assignment
-      String folderStemScopeAttributeValue = parentFolderAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
-      Stem.Scope scope = StringUtils.isBlank(folderStemScopeAttributeValue) ? Scope.SUB : Stem.Scope.valueOfIgnoreCase(folderStemScopeAttributeValue, true);
-
-      // if scope is one and we are too far up the chain then keep looking
-      if (scope == Scope.ONE && !directParent) {
-        currentGrouperObject = (Stem)attributeAssignable;
-        continue;
-      }
-      
-      String folderHasAttestationAttributeValue = parentFolderAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
-      boolean folderHasAttestationAttributeValueBoolean = GrouperUtil.booleanValue(folderHasAttestationAttributeValue, false);
-
-      // if the folder doesnt have atteststion then keep looking
-      if (!folderHasAttestationAttributeValueBoolean) {
-        currentGrouperObject = (Stem)attributeAssignable;
-        continue;
-      }
-      
-      //we good
-      break;
-    }
+    AttributeAssign parentFolderAssign = findParentFolderAssign(group.getParentStem());
     
     // there is not a parent folder
     if (parentFolderAssign == null) {
@@ -565,6 +592,7 @@ public class GrouperAttestationJob extends OtherJobBase {
           groupAttributeAssign.getAttributeValueDelegate().assignValueString(
               GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
           
+          // TODO I dont think this is correct but I can't call findParentFolderAssign since the parent may still need to be upgraded too???
           Stem configStem = (Stem)group.getParentStem().getAttributeDelegate()
               .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
   
@@ -938,6 +966,14 @@ public class GrouperAttestationJob extends OtherJobBase {
     
     while (iterator.hasNext()) {
       AttributeAssign attributeAssign = iterator.next();
+      
+      // make sure type is assigned - it was added in a patch so may not be there
+      String typeString = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameType().getName());
+      if (StringUtils.isEmpty(typeString)) {
+        typeString = "group";
+        attributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameType().getName(), typeString);
+      }
+      
       String directAssignmentString = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDirectAssignment().getName());
 
       // group has inherited attestation, don't process as group, this will be processed as stem descendent
@@ -951,6 +987,11 @@ public class GrouperAttestationJob extends OtherJobBase {
         if (group != null) {
           removeDirectGroupAttestation(group);
         }
+        continue;
+      }
+      
+      if (typeString.equals("report")) {
+        iterator.remove();
         continue;
       }
     }
@@ -993,7 +1034,6 @@ public class GrouperAttestationJob extends OtherJobBase {
     return null;
     
   }
-  
 
   /**
    * build email body/subject and send email.
@@ -1124,6 +1164,17 @@ public class GrouperAttestationJob extends OtherJobBase {
     
     for (AttributeAssign attributeAssign: attributeAssigns) {
       
+      // make sure type is assigned - it was added in a patch so may not be there
+      String typeString = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameType().getName());
+      if (StringUtils.isEmpty(typeString)) {
+        typeString = "group";
+        attributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameType().getName(), typeString);
+      }
+      
+      if (typeString.equals("report")) {
+        continue;
+      }
+      
       String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameSendEmail().getName());
       
       Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign.getOwnerStem(), attributeAssign);
@@ -1170,54 +1221,51 @@ public class GrouperAttestationJob extends OtherJobBase {
         stemAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "true");
         stemHasAttestationString = "true";
       }
-
     }
-
-    String attestationStemScope = stemAttributeAssign == null ? Scope.SUB.name() : stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameStemScope().getName());
-    
-    // go through each group and check if they have their own attestation attribute and use them if they are present.
-    // if not, then use the stem attributes.
-    Scope scope = GrouperUtil.defaultIfNull(Scope.valueOfIgnoreCase(attestationStemScope, false), Scope.SUB);
-    
         
-    Set<Group> childGroups = stem.getChildGroups(scope);
+    Set<Group> childGroups = stem.getChildGroups(Scope.SUB);
     
     for (Group group: childGroups) {
       
       AttributeAssign groupAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, retrieveAttributeDefNameValueDef(), false, false);
+      String directAssignmentString = null;
+      
+      if (groupAttributeAssign != null) {
+        directAssignmentString = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDirectAssignment().getName());
+
+        // group has direct attestation, don't use stem attributes at all.  This will be in group assignment calculations
+        if (GrouperUtil.booleanValue(directAssignmentString, false)) { 
+          continue;
+        }
+      }
+      
+      AttributeAssign parentFolderAssign = findParentFolderAssign(group.getParentStem());
+      
+      //make sure its the right stem that has the assignment
+      if (parentFolderAssign != null && !StringUtils.equals(parentFolderAssign.getOwnerStemId(), stem.getUuid())) {
+        continue;
+      }
               
+      //there is no direct assignment and no stem with attestation
+      if (parentFolderAssign == null) {
+        
+        if (groupAttributeAssign != null) {
+          groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "false");
+          groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameDirectAssignment().getName(), "false");
+          groupAttributeAssign.getAttributeDelegate().removeAttribute(retrieveAttributeDefNameCalculatedDaysLeft());
+        }
+        
+        continue;
+      }
+      
       if (groupAttributeAssign == null) {
         groupAttributeAssign = group.getAttributeDelegate().assignAttribute(retrieveAttributeDefNameValueDef()).getAttributeAssign();
       }
       
-      String directAssignmentString = groupAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDirectAssignment().getName());
       
       if (StringUtils.isBlank(directAssignmentString)) {
         groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameDirectAssignment().getName(), "false");
         directAssignmentString = "false";
-      }
-
-      // group has direct attestation, don't use stem attributes at all.  This will be in group assignment calculations
-      if (GrouperUtil.booleanValue(directAssignmentString, false)) { 
-        continue;
-      }
-
-      //start at stem and look for assignment
-      AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
-        .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
-
-      //there is no direct assignment and no stem with attestation
-      if (attributeAssignable == null) {
-        
-        groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameHasAttestation().getName(), "false");
-        groupAttributeAssign.getAttributeDelegate().removeAttribute(retrieveAttributeDefNameCalculatedDaysLeft());
-        continue;
-        
-      }
-      
-      //make sure its the right stem that has the assignment
-      if (!StringUtils.equals(((Stem)attributeAssignable).getName(), stem.getName())) {
-        continue;
       }
 
       //make sure group is in sync with stem
@@ -1263,11 +1311,13 @@ public class GrouperAttestationJob extends OtherJobBase {
   public static void removeDirectGroupAttestation(Group group) {
     //if doesnt have a parent thats configured, remove this one
     //start at stem and look for assignment
-    AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
-      .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+    // AttributeAssignable attributeAssignable = group.getParentStem().getAttributeDelegate()
+    //  .getAttributeOrAncestorAttribute(retrieveAttributeDefNameValueDef().getName(), false);
+    
+    AttributeAssign attributeAssign = GrouperAttestationJob.findParentFolderAssign(group.getParentStem());
   
     //if no parent has it, then remove most attributes
-    if (attributeAssignable == null) {
+    if (attributeAssign == null) {
       removeDirectGroupAttestation(group, false);
     } else {
       removeDirectGroupAttestation(group, true);
@@ -1317,6 +1367,7 @@ public class GrouperAttestationJob extends OtherJobBase {
         if (LOG.isDebugEnabled()) {
           debugMap.put("directAssignment", false);
         }
+        attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName(), "true");
         attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "false");
       } else {
         //has no more attestation

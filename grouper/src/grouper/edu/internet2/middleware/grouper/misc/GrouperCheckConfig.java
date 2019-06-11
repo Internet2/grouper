@@ -2556,6 +2556,8 @@ public class GrouperCheckConfig {
             "one or sub for if attestation settings inherit to just this folder or also to subfolders (folder only)", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_HAS_ATTESTATION,
             "If this folder has attestation directly assigned or if this group has attestation either directly or indirectly assigned", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_TYPE,
+            "Type of attestation.  Either based on groups or a report.", wasInCheckConfig);
       }
       
       // add attribute defs for grouper types
