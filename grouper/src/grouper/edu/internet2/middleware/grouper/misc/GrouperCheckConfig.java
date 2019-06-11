@@ -79,10 +79,13 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -1762,6 +1765,7 @@ public class GrouperCheckConfig {
     checkJar("commons-cli-1.4.jar", 53820, "org.apache.commons.cli.GnuParser", "1.4");
     checkJar("commons-codec-1.11.jar", 335042, "org.apache.commons.codec.binary.Base32OutputStream", "1.11");
     checkJar("commons-collections-3.2.2.jar", 588337, "org.apache.commons.collections.keyvalue.AbstractKeyValue", "3.2.2");
+    checkJar("commons-csv-1.6.jar", 42400, "org.apache.commons.csv.QuoteMode", "1.6");
     checkJar("commons-digester-2.1.jar", 196768, "org.apache.commons.digester.AbstractObjectCreationFactory", "2.1");
     checkJar("commons-digester3-3.2.jar", 241614, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
     checkJar("commons-httpclient-3.1.jar", 305001, "org.apache.commons.httpclient.ChunkedInputStream", "3.1");
@@ -2579,63 +2583,218 @@ public class GrouperCheckConfig {
           workflowStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
             .assignDescription("folder for built in Grouper workflow attributes").assignName(workflowRootStemName)
             .save();
+            //see if attributeDef is there
+
+            String workflowTypeDefName = workflowRootStemName + ":" + GROUPER_WORKFLOW_CONFIG_DEF;
+            AttributeDef workflowType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+                workflowTypeDefName, false, new QueryOptions().secondLevelCache(false));
+            if (workflowType == null) {
+              workflowType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_DEF, AttributeDefType.type);
+              workflowType.setMultiAssignable(true);
+              workflowType.setAssignToGroup(true);
+              workflowType.store();
+            }
+            
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(workflowType);
+            
+
+            //add a name
+            AttributeDefName attribute = checkAttribute(workflowStem, workflowType, GROUPER_WORKFLOW_CONFIG_ATTRIBUTE_NAME, "has workflow approval attributes", wasInCheckConfig);
+            
+            //add attributes
+            String workflowAttrDefName = workflowRootStemName + ":" + GROUPER_WORKFLOW_CONFIG_VALUE_DEF;
+            AttributeDef workflowAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+                workflowAttrDefName, false, new QueryOptions().secondLevelCache(false));
+            if (workflowAttrType == null) {
+              workflowAttrType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_VALUE_DEF, AttributeDefType.attr);
+              workflowAttrType.setAssignToGroupAssn(true);
+              workflowAttrType.setValueType(AttributeDefValueType.string);
+              workflowAttrType.store();
+            }
+
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(workflowAttrType);
+
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            workflowAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+
+            //add some names
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_TYPE, 
+                "workflow implementation type. default is grouper", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_APPROVALS,
+                "JSON config of the workflow approvals", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_NAME,
+                "Name of workflow.", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_ID,
+                "Camel-case alphanumeric id of workflow", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_DESCRIPTION,
+                "workflow config description", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_PARAMS,
+                "workflow config params", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_FORM,
+                "workflow form with html, javascript", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID,
+                "GroupId of people who can view this workflow and instances of this workflow.", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_SEND_EMAIL,
+                "true/false if email should be sent", wasInCheckConfig);
+            checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_ENABLED,
+                "Could by true, false, or noNewSubmissions", wasInCheckConfig);
+            
+        }
+      }
+
+      {
+        // add attribute defs for grouper report config and grouper report instance
+        String reportConfigStemName = GrouperReportSettings.reportConfigStemName();
+        
+        Stem reportConfigStem = StemFinder.findByName(grouperSession, reportConfigStemName, false);
+        if (reportConfigStem == null) {
+          reportConfigStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for Grouper report config").assignName(reportConfigStemName)
+            .save();
         }
 
-        //see if attributeDef is there
-        String workflowTypeDefName = workflowRootStemName + ":" + GROUPER_WORKFLOW_CONFIG_DEF;
-        AttributeDef workflowType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-            workflowTypeDefName, false, new QueryOptions().secondLevelCache(false));
-        if (workflowType == null) {
-          workflowType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_DEF, AttributeDefType.type);
-          workflowType.setMultiAssignable(true);
-          workflowType.setAssignToGroup(true);
-          workflowType.store();
+        String grouperReportConfigDefName = reportConfigStemName + ":" + GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DEF;
+        AttributeDef grouperReportConfig = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            grouperReportConfigDefName, false, new QueryOptions().secondLevelCache(false));
+        if (grouperReportConfig == null) {
+          grouperReportConfig = reportConfigStem.addChildAttributeDef(GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DEF, AttributeDefType.type);
+          //assign once for each affiliation
+          grouperReportConfig.setMultiAssignable(true);
+          grouperReportConfig.setAssignToGroup(true);
+          grouperReportConfig.setAssignToStem(true);
+          grouperReportConfig.store();
         }
         
-        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(workflowType);
-        
-
         //add a name
-        AttributeDefName attribute = checkAttribute(workflowStem, workflowType, GROUPER_WORKFLOW_CONFIG_ATTRIBUTE_NAME, "has workflow approval attributes", wasInCheckConfig);
+        AttributeDefName attribute = checkAttribute(reportConfigStem, grouperReportConfig, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME, "has grouper report config attributes", wasInCheckConfig);
         
-        //add attributes
-        String workflowAttrDefName = workflowRootStemName + ":" + GROUPER_WORKFLOW_CONFIG_VALUE_DEF;
-        AttributeDef workflowAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
-            workflowAttrDefName, false, new QueryOptions().secondLevelCache(false));
-        if (workflowAttrType == null) {
-          workflowAttrType = workflowStem.addChildAttributeDef(GROUPER_WORKFLOW_CONFIG_VALUE_DEF, AttributeDefType.attr);
-          workflowAttrType.setAssignToGroupAssn(true);
-          workflowAttrType.setValueType(AttributeDefValueType.string);
-          workflowAttrType.store();
+        //lets add some attributes names
+        String grouperReportConfigAttrDefName = reportConfigStemName + ":" + GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VALUE_DEF;
+        AttributeDef grouperReportConfigAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            grouperReportConfigAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (grouperReportConfigAttrType == null) {
+          grouperReportConfigAttrType = reportConfigStem.addChildAttributeDef(GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VALUE_DEF, AttributeDefType.attr);
+          grouperReportConfigAttrType.setAssignToGroupAssn(true);
+          grouperReportConfigAttrType.setAssignToStemAssn(true);
+          grouperReportConfigAttrType.setValueType(AttributeDefValueType.string);
+          grouperReportConfigAttrType.store();
         }
-
-        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(workflowAttrType);
 
         //the attributes can only be assigned to the type def
         // try an attribute def dependent on an attribute def name
-        workflowAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
-
-        //add some names
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_TYPE, 
-            "workflow implementation type. default is grouper", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_APPROVALS,
-            "JSON config of the workflow approvals", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_NAME,
-            "Name of workflow.", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_ID,
-            "Camel-case alphanumeric id of workflow", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_DESCRIPTION,
-            "workflow config description", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_PARAMS,
-            "workflow config params", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_FORM,
-            "workflow form with html, javascript", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID,
-            "GroupId of people who can view this workflow and instances of this workflow.", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_SEND_EMAIL,
+        grouperReportConfigAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attribute.getName());
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_TYPE,
+            "report config type. Currently only SQL is available", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_FORMAT, 
+            "report config format. Currently only CSV is available", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_NAME, 
+            "Name of report. No two reports in the same owner should have the same name", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_FILE_NAME, 
+            "file name in which report contents will be saved", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DESCRIPTION, 
+            "Textarea which describes the information in the report. Must be less than 4k", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, 
+            "GroupId of people who can view this report. Grouper admins can view any report", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUARTZ_CRON, 
+            "Quartz cron-like schedule", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL, 
             "true/false if email should be sent", wasInCheckConfig);
-        checkAttribute(workflowStem, workflowAttrType, GROUPER_WORKFLOW_CONFIG_ENABLED,
-            "Could by true, false, or noNewSubmissions", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_EMAIL_SUBJECT, 
+            "subject for email (optional, will be generated from report name if blank)", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_EMAIL_BODY, 
+            "email body", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_TO_VIEWERS, 
+            "true/false if report viewers should get email (if reportSendEmail is true)", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_TO_GROUP_ID, 
+            "this is the groupId where members are retrieved from, and the subject email attribute, if not null then send", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUERY, 
+            "SQL for the report. The columns must be named in the SQL (e.g. not select *) and generally this comes from a view", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ENABLED, 
+            "logic from loader enabled, either enable or disabled this job", wasInCheckConfig);
+        
+
+        //see if attributeDef is there
+        String grouperReportInstanceDefName = reportConfigStemName + ":" + GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_DEF;
+        AttributeDef grouperReportInstance = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            grouperReportInstanceDefName, false, new QueryOptions().secondLevelCache(false));
+        if (grouperReportInstance == null) {
+          grouperReportInstance = reportConfigStem.addChildAttributeDef(GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_DEF, AttributeDefType.type);
+          //assign once for each affiliation
+          grouperReportInstance.setMultiAssignable(true);
+          grouperReportInstance.setAssignToGroup(true);
+          grouperReportInstance.setAssignToStem(true);
+          grouperReportInstance.store();
+        }
+        
+        //add a name
+        AttributeDefName instanceAttribute = checkAttribute(reportConfigStem, grouperReportInstance, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_ATTRIBUTE_NAME, "has grouper report instance attributes", wasInCheckConfig);
+        
+        //lets add some attributes names
+        String grouperReportInstanceAttrDefName = reportConfigStemName + ":" + GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_VALUE_DEF;
+        AttributeDef grouperReportInstanceAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            grouperReportInstanceAttrDefName, false, new QueryOptions().secondLevelCache(false));
+        if (grouperReportInstanceAttrType == null) {
+          grouperReportInstanceAttrType = reportConfigStem.addChildAttributeDef(GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_VALUE_DEF, AttributeDefType.attr);
+          grouperReportInstanceAttrType.setAssignToGroupAssn(true);
+          grouperReportInstanceAttrType.setAssignToStemAssn(true);
+          grouperReportInstanceAttrType.setValueType(AttributeDefValueType.string);
+          grouperReportInstanceAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        grouperReportInstanceAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(instanceAttribute.getName());
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_STATUS,
+            "SUCCESS means link to the report from screen, ERROR means didnt execute successfully", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_MILLIS_ELAPSED, 
+            "number of millis it took to generate this report", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_CONFIG_MARKER_ASSIGNMENT_ID, 
+            "Attribute assign ID of the marker attribute of the config (same owner as this attribute, but there could be many reports configured on one owner)", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_MILLIS_SINCE_1970, 
+            "millis since 1970 that this report was run. This must match the timestamp in the report name and storage", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_SIZE_BYTES, 
+            "number of bytes of the unencrypted report", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_FILE_NAME, 
+            "filename of report", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_FILE_POINTER, 
+            "depending on storage type, this is a pointer to the report in storage, e.g. the S3 address. note the S3 address is .csv suffix, but change to __metadata.json for instance metadata", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_DOWNLOAD_COUNT, 
+            "number of times this report was downloaded (note update this in try/catch and a for loop so concurrency doesnt cause problems)", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_ENCRYPTION_KEY, 
+            "randomly generated 16 char alphanumeric encryption key (never allow display or edit of this)", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_ROWS, 
+            "number of rows returned in report", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_EMAIL_TO_SUBJECTS, 
+            "source::::subjectId1, source2::::subjectId2 list for subjects who were were emailed successfully (cant be more than 4k chars)", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportInstanceAttrType, GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_EMAIL_TO_SUBJECTS_ERROR, 
+            "source::::subjectId1, source2::::subjectId2 list for subjects who were were NOT emailed successfully, dont include g:gsa groups (cant be more than 4k chars)", wasInCheckConfig);
       }
       
       {

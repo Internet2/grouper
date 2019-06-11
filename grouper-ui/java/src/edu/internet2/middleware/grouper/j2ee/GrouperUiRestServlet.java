@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupPermission;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GrouperReport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2MembershipAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Public;
@@ -177,7 +178,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2AttributeDef.class.getSimpleName() + ".addMemberFilter",
       UiV2Stem.class.getSimpleName() + ".createAttributeDefParentFolderFilter",
       UiV2Admin.class.getSimpleName() + ".subjectApiDiagnosticsActAsCombo",
-      UiV2Deprovisioning.class.getSimpleName() + ".addMemberFilter"
+      UiV2Deprovisioning.class.getSimpleName() + ".addMemberFilter",
+      UiV2GrouperReport.class.getSimpleName() + ".downloadReportForFolder",
+      UiV2GrouperReport.class.getSimpleName() + ".downloadReportForGroup"
   );
 
   /**

@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.util;
 
 import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7921,6 +7922,39 @@ public class GrouperUtil {
   }
 
   /**
+   * close a writer quietly
+   * @param closeable
+   */
+  public static void closeQuietly(Closeable closeable) {
+    if (closeable != null) {
+      try {
+        closeable.close();
+      } catch (IOException e) {
+        //swallow, its ok
+      }
+    }
+  }
+
+  /**
+   * create a new file
+   * @param file
+   * @return if created
+   */
+  public static boolean fileCreateNewFile(File file) {
+    if (file.exists() && file.isFile()) {
+      return false;
+    }
+    
+    try {
+      file.createNewFile();
+    } catch (IOException ioe) {
+      throw new RuntimeException("Cant create file: " + file.getAbsolutePath());
+    }
+    
+    return true;
+  }
+
+  /**
    * non ascii char length
    */
   private static int nonAsciiCharLength = -1;
@@ -11786,6 +11820,15 @@ public class GrouperUtil {
    * @return the temp dir
    */
   public static String tmpDir() {
+    return tmpDir(false);
+  }
+
+  /**
+   * return the temp dir, either what is in the java env var, or something in the grouper conf
+   * @param appendSlashIfNotThere add a slash to end if not there already
+   * @return the temp dir
+   */
+  public static String tmpDir(boolean appendSlashIfNotThere) {
 
     String tmpDir = null;
 
@@ -11802,6 +11845,12 @@ public class GrouperUtil {
       if (!loggedTempDir) {
         loggedTempDir = true;
         LOG.info("Tmp dir is set to: '" + tmpDir + "'");
+      }
+      if (appendSlashIfNotThere) {
+        tmpDir = StringUtils.trimToEmpty(tmpDir);
+        if (!tmpDir.endsWith("\\") && !tmpDir.endsWith("/")) {
+          tmpDir += File.separator;
+        }
       }
     }
     return tmpDir;
