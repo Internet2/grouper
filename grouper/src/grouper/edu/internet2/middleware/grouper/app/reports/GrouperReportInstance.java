@@ -405,7 +405,7 @@ public class GrouperReportInstance {
   }
   
   public boolean isReportStoredInS3() {
-    return this.getReportInstanceFilePointer().startsWith("https://s3");
+    return this.getReportInstanceFilePointer().startsWith("https://");
   }
   
 }
