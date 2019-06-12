@@ -23,17 +23,18 @@
         </select> <br /> <span class="description">${textContainer.text['stemTemplateTypeDescription']}</span>
         </td>
       </tr>
-      <tr>
-        <td style="vertical-align: top; white-space: nowrap;">
-          <strong><label for="createSubfolder">${textContainer.text['stemCreateTemplateInThisFolder']}</label></strong>
-        </td>
-        <td>
-        <input type="checkbox" id="createSubfolder" name="createSubfolder"
-               onchange="$('.stem-template-key').toggle('slow'); $('.stem-template-friendlyName').toggle('slow'); $('.stem-template-description').toggle('slow'); return false;"
-               ${grouperRequestContainer.stemTemplateContainer.createNoSubfolder == true ? 'checked="checked"' : '' } />
-        </td>
-      </tr>
-      
+      <c:if test="${grouperRequestContainer.stemTemplateContainer.showInThisFolderCheckbox}">
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;">
+            <strong><label for="createSubfolder">${textContainer.text['stemCreateTemplateInThisFolder']}</label></strong>
+          </td>
+          <td>
+          <input type="checkbox" id="createSubfolder" name="createSubfolder"
+                 onchange="$('.stem-template-key').toggle('slow'); $('.stem-template-friendlyName').toggle('slow'); $('.stem-template-description').toggle('slow'); return false;"
+                 ${grouperRequestContainer.stemTemplateContainer.createNoSubfolder == true ? 'checked="checked"' : '' } />
+          </td>
+        </tr>
+      </c:if>      
       <c:if test="${!grouperRequestContainer.stemTemplateContainer.createNoSubfolder}">
 	      <tr class="stem-template-key">
 	        <td style="vertical-align: top; white-space: nowrap;"><strong><label

@@ -1,10 +1,12 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,6 +77,7 @@ public class UiV2Template {
 	      templateContainer.setTemplateLogic(templateLogic);
 	      templateContainer.setTemplateType(templateType);
 	      
+	      templateLogic.initScreen();
 	    }
 	    
 	    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -117,6 +120,8 @@ public class UiV2Template {
         return;
       }
       
+      templateLogic.initScreen();
+
       setTemplateOptions();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -136,6 +141,16 @@ public class UiV2Template {
       }
 
       List<ServiceAction> serviceActions = templateLogic.getServiceActions();
+      
+      // make sure unique id
+      Set<String> idsUsed = new HashSet<String>();
+      for (ServiceAction serviceAction : GrouperUtil.nonNull(serviceActions)) {
+        if (idsUsed.contains(serviceAction.getId())) {
+          throw new RuntimeException("id must be unique for service actions in a template! " + serviceAction.getId());
+        }
+        idsUsed.add(serviceAction.getId());
+      }
+      
       templateContainer.setServiceActions(serviceActions);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
@@ -175,7 +190,13 @@ public class UiV2Template {
       if (templateLogic == null) {
         return;
       }
-      
+
+      final StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+
+      templateContainer.setTemplateLogic(templateLogic);
+
+      templateLogic.initScreen();
+
       templateLogic.setStemId(stem.getUuid());
       
       boolean isSuccess = populateServiceInfo(request, templateLogic);
@@ -200,7 +221,6 @@ public class UiV2Template {
         }
       }
       
-      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       boolean allGood = templateLogic.validate(selectedServiceActions);
@@ -214,12 +234,20 @@ public class UiV2Template {
       for (ServiceAction serviceAction: selectedServiceActions) {
         serviceAction.getServiceActionType().createTemplateItem(serviceAction);
       }
+
+      String errorKey = templateLogic.postCreateSelectedActions(selectedServiceActions);
+
+      if (!StringUtils.isBlank(errorKey)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get(errorKey)));
+        return;
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
 
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("stemServiceCreateSuccess")));
+          TextContainer.retrieveFromRequest().getText().get("stemTemplateCreateSuccess")));
       
       
     } finally {

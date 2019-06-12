@@ -185,6 +185,27 @@ public class StemTemplateContainer {
   }
 
   /**
+   * if the show in this folder checkbox should show
+   */
+  private boolean showInThisFolderCheckbox = true;
+
+  /**
+   * if the show in this folder checkbox should show
+   * @return the showInThisFolderCheckbox
+   */
+  public boolean isShowInThisFolderCheckbox() {
+    return this.showInThisFolderCheckbox;
+  }
+  
+  /**
+   * if the show in this folder checkbox should show
+   * @param showInThisFolderCheckbox1 the showInThisFolderCheckbox to set
+   */
+  public void setShowInThisFolderCheckbox(boolean showInThisFolderCheckbox1) {
+    this.showInThisFolderCheckbox = showInThisFolderCheckbox1;
+  }
+
+  /**
    * @return
    */
   public boolean isCreateNoSubfolder() {

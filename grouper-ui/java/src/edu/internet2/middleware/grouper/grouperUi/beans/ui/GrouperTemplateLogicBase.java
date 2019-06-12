@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
@@ -11,10 +10,16 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 public abstract class GrouperTemplateLogicBase {
 
   /**
+   * logic to init the screen
+   */
+  public void initScreen() {
+    
+  }
+  
+  /**
    * 
    */
   private StemTemplateContainer stemTemplateContainer;
-  
   
   /**
    * @return the stemTemplateContainer
@@ -22,7 +27,6 @@ public abstract class GrouperTemplateLogicBase {
   public StemTemplateContainer getStemTemplateContainer() {
     return this.stemTemplateContainer;
   }
-
   
   /**
    * @param stemTemplateContainer1 the templateContainer to set
@@ -97,9 +101,9 @@ public abstract class GrouperTemplateLogicBase {
    * @param type
    * @param args
    * @param parentServiceAction
-   * @return
+   * @return action
    */
-  protected final ServiceAction createNewServiceAction(boolean defaulChecked, int indentLevel, 
+  protected final ServiceAction createNewServiceAction(String id, boolean defaulChecked, int indentLevel, 
       String externalizedKey, ServiceActionType type, List<ServiceActionArgument> args,
       ServiceAction parentServiceAction) {
   
@@ -111,21 +115,30 @@ public abstract class GrouperTemplateLogicBase {
     serviceAction.setServiceActionType(type);
     serviceAction.getArgs().addAll(args);
     serviceAction.setParentServiceAction(parentServiceAction);
-    serviceAction.setId(GrouperUuid.getUuid());
+    serviceAction.setId(id);
     
     return serviceAction;
   }
   
   /**
    * list of service actions to show on the UI
-   * @return
+   * @return list of service actions
    */
   public abstract List<ServiceAction> getServiceActions();
   
   /**
    * label to show
-   * @return
+   * @return select label
    */
   public abstract String getSelectLabelKey();
+  
+  /**
+   * override this method if there is extra logic to run in the template
+   * @param selectedServiceActions
+   * @return the text lookup key for error or null if none
+   */
+  public String postCreateSelectedActions(List<ServiceAction> selectedServiceActions) {
+    return null;
+  }
   
 }

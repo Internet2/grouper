@@ -4,9 +4,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,11 +18,6 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
  *
  */
 public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
-  
-  /**
-   * cache for service actions per stem
-   */
-  private static final Map<String, List<ServiceAction>> serviceActions = new LinkedHashMap<String, List<ServiceAction>>();
   
   /**
   Do you want a "app:Wiki" folder created? (ID is "wiki", name is "Wiki")
@@ -97,8 +90,6 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
     }
 
     
-    if (!serviceActions.containsKey(stemPrefix+baseStem+baseStemFriendlyName)) {
-      
       List<ServiceAction> serviceActionsForStem = new ArrayList<ServiceAction>();
       
       List<ServiceActionArgument> args = new ArrayList<ServiceActionArgument>();
@@ -107,7 +98,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName));
       args.add(new ServiceActionArgument("stemDescription", baseStemDescription));
-      ServiceAction rootServiceAction = createNewServiceAction(true, 0, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, null);
+      ServiceAction rootServiceAction = createNewServiceAction("newAppStem", true, 0, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, null);
       
       if (addFirstNode) {
         serviceActionsForStem.add(rootServiceAction);
@@ -118,7 +109,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"service"));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service"));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceServiceFolderDescription")));
-      ServiceAction levelOneServiceAction_One = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, 
+      ServiceAction levelOneServiceAction_One = createNewServiceAction("newAppServiceFolder", true, 1, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, 
           addFirstNode ? rootServiceAction: null);
       serviceActionsForStem.add(levelOneServiceAction_One);
       if (addFirstNode) {        
@@ -132,7 +123,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       final String stemDisplayNamePolicy = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:policy";
       args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNamePolicy));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServicePolicyFolderDescription")));
-      ServiceAction levelTwoServiceAction_One = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, levelOneServiceAction_One);
+      ServiceAction levelTwoServiceAction_One = createNewServiceAction("newAppPolicyFolder", true, 2, "stemServiceBaseFolderCreationConfirmation", ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_One);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_One);
 
@@ -142,7 +133,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
         args.add(new ServiceActionArgument("stemName", stemNamePolicy));
         args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNamePolicy));
         args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.POLICY));
-        ServiceAction policyTypeAction = createNewServiceAction(true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        ServiceAction policyTypeAction = createNewServiceAction("newAppPolicyType", true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
         
         serviceActionsForStem.add(policyTypeAction);
         if (addFirstNode) {        
@@ -157,7 +148,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       final String stemDisplayNameRef = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:ref";
       args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameRef));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceRefFolderDescription")));
-      ServiceAction levelTwoServiceAction_Two = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation",
+      ServiceAction levelTwoServiceAction_Two = createNewServiceAction("newAppRefFolder", true, 2, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_Two);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_Two);
@@ -168,7 +159,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
         args.add(new ServiceActionArgument("stemName", stemNameRef));
         args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameRef));
         args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.REF));
-        ServiceAction refTypeAction = createNewServiceAction(true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        ServiceAction refTypeAction = createNewServiceAction("newAppRefType", true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
         
         serviceActionsForStem.add(refTypeAction);
         if (addFirstNode) {        
@@ -181,7 +172,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"service:attribute"));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:attribute"));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceAttributeFolderDescription")));
-      ServiceAction levelTwoServiceAction_Three = createNewServiceAction(true, 2, "stemServiceBaseFolderCreationConfirmation",
+      ServiceAction levelTwoServiceAction_Three = createNewServiceAction("newAppAttributeFolder", true, 2, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_Three);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_Three);
@@ -193,7 +184,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       final String stemDisplayNameSecurity = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"security";
       args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameSecurity));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceSecurityFolderDescription")));
-      ServiceAction levelOneServiceAction_Two = createNewServiceAction(true, 1, "stemServiceBaseFolderCreationConfirmation", 
+      ServiceAction levelOneServiceAction_Two = createNewServiceAction("newAppSecurityFolder", true, 1, "stemServiceBaseFolderCreationConfirmation", 
           ServiceActionType.stem, args, addFirstNode? rootServiceAction: null);
       serviceActionsForStem.add(levelOneServiceAction_Two);
       if (addFirstNode) {        
@@ -206,7 +197,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
         args.add(new ServiceActionArgument("stemName", stemNameSecurity));
         args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNameSecurity));
         args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.GROUPER_SECURITY));
-        ServiceAction securityTypeAction = createNewServiceAction(true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+        ServiceAction securityTypeAction = createNewServiceAction("newAppSecurityType", true, 2, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
         
         serviceActionsForStem.add(securityTypeAction);
         if (addFirstNode) {        
@@ -221,7 +212,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       String securityAdminsDisplayName =  stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"security:"+baseStemFriendlyName+(StringUtils.equals(baseStem, baseStemFriendlyName) ? "" : " ") + "Admins";
       args.add(new ServiceActionArgument("groupDisplayName", securityAdminsDisplayName));
       args.add(new ServiceActionArgument("groupDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceSecurityAdminsGroupDescription")));
-      ServiceAction levelTwoServiceAction_Four = createNewServiceAction(true, 2, "stemServiceBaseGroupCreationConfirmation", 
+      ServiceAction levelTwoServiceAction_Four = createNewServiceAction("newAppAdminsGroup", true, 2, "stemServiceBaseGroupCreationConfirmation", 
           ServiceActionType.group, args, levelOneServiceAction_Two);
       serviceActionsForStem.add(levelTwoServiceAction_Four);
       levelOneServiceAction_Two.addChildServiceAction(levelTwoServiceAction_Four);
@@ -235,7 +226,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "admin"));
       args.add(new ServiceActionArgument("templateItemType", "Groups"));
-      ServiceAction levelThreeServiceAction_One = createNewServiceAction(true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
+      ServiceAction levelThreeServiceAction_One = createNewServiceAction("newAppAdminPrivilege", true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
           ServiceActionType.inheritedPrivilege, args, levelTwoServiceAction_Four);
       serviceActionsForStem.add(levelThreeServiceAction_One);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_One);
@@ -249,7 +240,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "stemAdmin"));
       args.add(new ServiceActionArgument("templateItemType", "Folders"));
-      ServiceAction levelThreeServiceAction_Two = createNewServiceAction(true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
+      ServiceAction levelThreeServiceAction_Two = createNewServiceAction("newAppAdminPrivilege2", true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
           ServiceActionType.inheritedPrivilege, args, levelTwoServiceAction_Four);
       serviceActionsForStem.add(levelThreeServiceAction_Two);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_Two);
@@ -263,7 +254,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "attrAdmin"));
       args.add(new ServiceActionArgument("templateItemType", "Attributes"));
-      ServiceAction levelThreeServiceAction_Three = createNewServiceAction(true, 3, "stemServiceBasePrivilegeCreationConfirmation",
+      ServiceAction levelThreeServiceAction_Three = createNewServiceAction("newAppAdminPrivilege2", true, 3, "stemServiceBasePrivilegeCreationConfirmation",
           ServiceActionType.inheritedPrivilege, args, levelTwoServiceAction_Four);
       serviceActionsForStem.add(levelThreeServiceAction_Three);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_Three);
@@ -275,7 +266,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       String securityReadersDisplayName = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"security:"+baseStemFriendlyName+(StringUtils.equals(baseStem, baseStemFriendlyName) ? "" : " ") +"Readers";
       args.add(new ServiceActionArgument("groupDisplayName", securityReadersDisplayName));
       args.add(new ServiceActionArgument("groupDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceSecurityReadersGroupDescription")));
-      ServiceAction levelTwoServiceAction_Five = createNewServiceAction(true, 2, "stemServiceBaseGroupCreationConfirmation",
+      ServiceAction levelTwoServiceAction_Five = createNewServiceAction("newAppReadersGroup", true, 2, "stemServiceBaseGroupCreationConfirmation",
           ServiceActionType.group, args, levelOneServiceAction_Two);
       serviceActionsForStem.add(levelTwoServiceAction_Five);
       levelOneServiceAction_Two.addChildServiceAction(levelTwoServiceAction_Five);
@@ -289,7 +280,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("privilegeType", "READ"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "read"));
       args.add(new ServiceActionArgument("templateItemType", "Groups"));
-      ServiceAction levelThreeServiceAction_Four = createNewServiceAction(true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
+      ServiceAction levelThreeServiceAction_Four = createNewServiceAction("newAppReadersPrivilege", true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
           ServiceActionType.inheritedPrivilege, args, levelTwoServiceAction_Five);
       serviceActionsForStem.add(levelThreeServiceAction_Four);
       levelTwoServiceAction_Five.addChildServiceAction(levelThreeServiceAction_Four);
@@ -301,7 +292,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       String securityUpdatersDisplayName = stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"security:"+baseStemFriendlyName+(StringUtils.equals(baseStem, baseStemFriendlyName) ? "" : " ")+"Updaters";
       args.add(new ServiceActionArgument("groupDisplayName", securityUpdatersDisplayName));      
       args.add(new ServiceActionArgument("groupDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceSecurityUpdatersGroupDescription")));
-      ServiceAction levelTwoServiceAction_Six = createNewServiceAction(true, 2, "stemServiceBaseGroupCreationConfirmation", 
+      ServiceAction levelTwoServiceAction_Six = createNewServiceAction("newAppUpdatersPrivilege", true, 2, "stemServiceBaseGroupCreationConfirmation", 
           ServiceActionType.group, args, levelOneServiceAction_Two);
       serviceActionsForStem.add(levelTwoServiceAction_Six);
       levelOneServiceAction_Two.addChildServiceAction(levelTwoServiceAction_Six);
@@ -315,7 +306,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("privilegeType", "UPDATE"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "update"));
       args.add(new ServiceActionArgument("templateItemType", "Groups"));
-      ServiceAction levelThreeServiceAction_Five = createNewServiceAction(true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
+      ServiceAction levelThreeServiceAction_Five = createNewServiceAction("newAppUpdatersPrivilege2", true, 3, "stemServiceBasePrivilegeCreationConfirmation", 
           ServiceActionType.inheritedPrivilege, args, levelTwoServiceAction_Five);
       serviceActionsForStem.add(levelThreeServiceAction_Five);
       levelTwoServiceAction_Six.addChildServiceAction(levelThreeServiceAction_Five);
@@ -326,19 +317,14 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("groupNameMembershipDisplayName", securityUpdatersDisplayName));
       args.add(new ServiceActionArgument("groupNameMembershipOf", securityReadersName));
       args.add(new ServiceActionArgument("groupNameMembershipOfDisplayName", securityReadersDisplayName));
-      ServiceAction levelThreeServiceAction_Six = createNewServiceAction(true, 3, "stemServiceBaseMemberAdditionConfirmation", 
+      ServiceAction levelThreeServiceAction_Six = createNewServiceAction("newAppReadersGroupMemberOfUpdaters", true, 3, "stemServiceBaseMemberAdditionConfirmation", 
           ServiceActionType.membership, args, levelTwoServiceAction_Five);
       serviceActionsForStem.add(levelThreeServiceAction_Six);
       levelTwoServiceAction_Six.addChildServiceAction(levelThreeServiceAction_Six);
       
-      serviceActions.put(stemPrefix+baseStem+baseStemFriendlyName, serviceActionsForStem);
-      
-    }
-    
-    return serviceActions.get(stemPrefix+baseStem+baseStemFriendlyName);
+    return serviceActionsForStem;
     
   }
-  
   
   /**
    * external text property

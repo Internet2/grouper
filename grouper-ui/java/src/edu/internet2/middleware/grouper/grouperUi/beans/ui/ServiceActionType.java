@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfi
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleApi;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public enum ServiceActionType {
@@ -64,13 +66,15 @@ public enum ServiceActionType {
     public void createTemplateItem(ServiceAction serviceAction) {
 
       String stemName = serviceAction.getArgMap().get("stemName");
+      String groupName = serviceAction.getArgMap().get("groupName");
       String type = serviceAction.getArgMap().get("type");
       
       final GrouperSession session = GrouperSession.staticGrouperSession();
       
-      final Stem stem = StemFinder.findByName(session, stemName, false);
+      final Stem stem = StringUtils.isBlank(stemName) ? null : StemFinder.findByName(session, stemName, false);
+      final Group group = StringUtils.isBlank(groupName) ? null : GroupFinder.findByName(session, groupName, false);
 
-      if (stem == null) {
+      if (stem == null && group == null) {
         return;
       }
       
@@ -78,12 +82,18 @@ public enum ServiceActionType {
       attributeValue.setDirectAssignment(true);
       
       attributeValue.setObjectTypeName(type);
-      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
       
+      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, GrouperUtil.defaultIfNull(stem, group));
     }
     
   },
-  
+
+  noAction {
+    
+    public void createTemplateItem(ServiceAction serviceAction) {
+    }
+  },
+
   inheritedPrivilege {
     
     public void createTemplateItem(ServiceAction serviceAction) {
