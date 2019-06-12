@@ -16,6 +16,8 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.io.Serializable;
+
 /**
  * Provisioner subclasses often need User and/or Group information from their
  * target systems. The top-level Provisioner class, of course, does not know about
@@ -29,8 +31,19 @@ package edu.internet2.middleware.grouper.pspng;
  * @author bert
  *
  */
-public interface TargetSystemGroup {
+public interface TargetSystemGroup extends Serializable {
 
   Object getJexlMap();
+
+  /**
+   * Approximately how many bytes did target system provide to create this object?
+   * For instance, for an ldap server, this would be how much LDIF information is
+   * behind this group.
+   *
+   * This is used for measuring memory efficiency of caches and is optional.
+   * @return How many bytes the target system provided to create this object.
+   * -1: if you don't want the memory efficiency of pspng's caches to be calculated.
+   */
+  int getNativeMemorySize_bytes() throws  PspException;
 
 }

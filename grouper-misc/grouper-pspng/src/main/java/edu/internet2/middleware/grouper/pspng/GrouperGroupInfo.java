@@ -52,6 +52,16 @@ public class GrouperGroupInfo {
     this.group = null;
   }
 
+  // Create a barebones group info when neither Group nor PITGroup can be found
+  public GrouperGroupInfo(String name, Long idIndex) {
+    this.pitGroup = null;
+    this.group = null;
+
+    this.name = name;
+    this.idIndex = idIndex;
+  }
+
+
   public String getName() {
     return name;
   }
@@ -59,9 +69,11 @@ public class GrouperGroupInfo {
   @Override
   public String toString() {
     if (pitGroup != null)
-      return String.format("%s(PIT)", getName());
+      return String.format("%s/#%d(PIT)", getName(), idIndex);
+    else if ( group != null )
+      return String.format("%s/#%d(Existing)", getName(), idIndex);
     else
-      return getName();
+      return String.format("%s/#%d(Raw)", getName(), idIndex);
   }
 
   @Override
@@ -135,9 +147,6 @@ public class GrouperGroupInfo {
       result.put("displayExtension", result.get("extension"));
 
 
-      // TODO: populate idIndex, but pitGroup does not have getIdIndex()
-      //result.put("idIndex", pitGroup.getIdIndex());
-      
       Map<String, Object> groupAttributes = PspUtils.getGroupAttributes(pitGroup);
       if ( groupAttributes != null )
         result.put("groupAttributes", groupAttributes);
@@ -147,6 +156,14 @@ public class GrouperGroupInfo {
       // Old stem attributes probably don't matter since group has been deleted
       result.put("stemAttributes", Collections.EMPTY_MAP);
       
+    }
+    else if ( name != null ) {
+      result.put("name", name);
+      result.put("extension",GrouperUtil.extensionFromName(name) );
+
+      // Make display properties the same... since that is all we have
+      result.put("displayName", result.get("name"));
+      result.put("displayExtension", result.get("extension"));
     }
     return result;
   }

@@ -234,7 +234,7 @@ function check_progress_timer()
     echo ""
     echo "$(date) Timeout error: $message"
     echo "grouper_error lines:"
-    tail -n +$GROUPER_ERROR_LINE_NUMBER $API/logs/grouper_error.log | sed "s/^/Grouper logs lines while $message timed out/"
+    tail -n +$GROUPER_ERROR_LINE_NUMBER $API/logs/grouper_error.log | sed "s/^/Grouper logs lines while $message timed out: /"
     exit 1
   fi
 }

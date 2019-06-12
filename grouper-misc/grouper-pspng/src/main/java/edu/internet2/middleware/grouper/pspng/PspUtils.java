@@ -19,13 +19,7 @@ package edu.internet2.middleware.grouper.pspng;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,6 +67,30 @@ public class PspUtils {
 
     return threadId.get();
   }
+
+  private static final char[] idCharacters = {
+          'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+          'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+  };
+
+  public static String getIdString(final long n) {
+    int idCharacterCount = idCharacters.length;
+    StringBuilder resultInReverseOrder = new StringBuilder();
+
+    long curVal = n;
+
+    while ( curVal > 0 ) {
+      resultInReverseOrder.append(idCharacters[(int)(curVal % idCharacterCount)]);
+      curVal /= idCharacterCount;
+    }
+
+    return resultInReverseOrder.reverse().toString();
+  }
+
+
 
   /**
    * A method that does PSPNG's standard thread setup. Presently, this is assigning a short
@@ -320,9 +338,16 @@ public class PspUtils {
       return formatElapsedTime(period.toDurationFrom(periodStart));
     }
 
-    static String formatElapsedTime(Duration duration) {
-      return formatElapsedTime(duration.getMillis());
+    static String formatElapsedTime(Date start, Date end) {
+      if (end==null) {
+        end = new Date();
+      }
+      return formatElapsedTime(end.getTime() - start.getTime());
     }
+
+    static String formatElapsedTime(Duration duration) {
+    return formatElapsedTime(duration.getMillis());
+  }
 
     static String formatElapsedTime(final long milliseconds) {
       StringBuilder result = new StringBuilder();
@@ -397,4 +422,74 @@ public class PspUtils {
         return DateTimeFormat.mediumDateTime().print(asofDate);
 
   }
+
+
+  /**
+   * Get a string set that is case-insensitive or case-sensitive
+   */
+  public static Set<String> getStringSet(boolean caseSensitive) {
+    if ( caseSensitive )
+      return new HashSet<String>();
+    else
+      return new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+  }
+
+  /**
+   * Get a string set that is case-insensitive or case-sensitive,
+   *
+   * The returned set will contain the values provided
+   */
+  public static Set<String> getStringSet(boolean caseSensitive, Collection<String> values ) {
+    Set<String> result = getStringSet(caseSensitive);
+    if ( values != null ) {
+      result.addAll(values);
+    }
+
+    return result;
+  }
+
+
+  /**
+   * Returns a new set that is c1 - c2
+   * @param caseSensitiveValues
+   * @param c1
+   * @param c2
+   * @return
+   */
+  public static  Set<String> subtractStringCollections(boolean caseSensitiveValues, Collection<String> c1, Collection<String> c2) {
+    Set<String> set1 = getStringSet(caseSensitiveValues, c1);
+
+    // We wish we didn't have to make this Set, but a jvm bug makes set1.removeAll(c2) sometimes
+    // use set1's contains() semantics and sometimes use c2's. Therefore, we need to make sure
+    // both possibilities use consistent rules
+    // See: https://bugs.openjdk.java.net/browse/JDK-6394757
+    // See: https://bugs.openjdk.java.net/browse/JDK-8180409
+    Set<String> set2 = getStringSet(caseSensitiveValues, c2);
+
+    set1.removeAll(set2);
+    return set1;
+  }
+
+  /**
+   * Returns a new set that is c1 INTERSECT c2
+   * @param caseSensitiveValues
+   * @param c1
+   * @param c2
+   * @return
+   */
+  public static  Set<String> intersectStringCollections(boolean caseSensitiveValues, Collection<String> c1, Collection<String> c2) {
+    Set<String> set1 = getStringSet(caseSensitiveValues, c1);
+
+    // We wish we didn't have to make this Set, but a jvm bug makes set1.retainAll(c2) sometimes
+    // use set1's contains() semantics and sometimes use c2's. Therefore, we need to make sure
+    // both possibilities use consistent rules
+    // See: https://bugs.openjdk.java.net/browse/JDK-6394757
+    // See: https://bugs.openjdk.java.net/browse/JDK-8180409
+    Set<String> set2 = getStringSet(caseSensitiveValues, c2);
+
+    set1.retainAll(set2);
+    return set1;
+  }
+
+
 }

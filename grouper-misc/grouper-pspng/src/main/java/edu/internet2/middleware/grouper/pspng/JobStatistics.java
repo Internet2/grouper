@@ -9,13 +9,21 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by bert on 5/17/17.
  */
 public class JobStatistics {
-    Date processingStartTime = new Date();
+    Date processingStartTime;
     Date processingCompletedTime = null;
 
     AtomicInteger insertCount = new AtomicInteger(0),
             deleteCount = new AtomicInteger(0),
             updateCount = new AtomicInteger(0),
             totalCount = new AtomicInteger(0);
+
+    public JobStatistics() {
+        this(new Date());
+    }
+
+    public JobStatistics(Date processingStartTime) {
+        this.processingStartTime = processingStartTime;
+    }
 
     public void add(JobStatistics stats) {
         this.insertCount.addAndGet(stats.insertCount.get());

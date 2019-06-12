@@ -236,9 +236,28 @@ public class ProvisioningWorkItem {
       return null;
     
     Subject subject = provisioner.getSubject(subjectId, sourceId);
+
     return subject;
   }
-  
+
+  public boolean isSubjectUnresolvable(Provisioner provisioner) {
+    if ( getSubjectId()==null || getSubjectSourceId()==null ) {
+      // This work item does not contain a subject reference at all
+      return false;
+    }
+
+    // We know that this work item is supposed to reference a subject.
+    // Can we find it??
+    if ( getSubject(provisioner)==null ) {
+      LOG.warn("Subject not found: {}@{}", getSubjectId(), getSubjectSourceId());
+      return true;
+    }
+
+    // The subject was found. All is good.
+    return false;
+  }
+
+
   public void putProvisioningData(String key, Object value)
   {
     provisioningData.put(key, value);

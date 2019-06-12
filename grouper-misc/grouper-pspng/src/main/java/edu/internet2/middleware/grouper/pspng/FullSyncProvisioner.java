@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.pspng;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
@@ -212,7 +213,8 @@ public class FullSyncProvisioner  {
    */
   protected void thread_manageFullSyncProcessing() {
     MDC.put("who", getName()+"/");
-    
+    Provisioner.activeProvisioner.set(this.provisioner);
+
     GrouperSession grouperSession = null;
     GrouperContext grouperContext = null;
     
@@ -226,26 +228,22 @@ public class FullSyncProvisioner  {
       // Start with a new session and context each time
       if ( grouperSession != null ) {
           GrouperSession.stopQuietly(grouperSession);
-          grouperSession = null;
       }
 
       if ( grouperContext != null ) {
           GrouperContext.deleteDefaultContext();
-          grouperContext = null;
       }
 
-      // We'll create the Session & Context after we're done waiting for work to do
-      // (This is okay because there is no database aspect to the (in-memory) queues
-  	  FullSyncQueueItem queueItem = getNextFullSyncRequest();
+      grouperSession = GrouperSession.startRootSession();
+      grouperContext = GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
+      FullSyncQueueItem queueItem = getNextFullSyncRequest();
 
       // We might have blocked for a long time on getNextFullSyncRequest(), so let's
       // double-check that we're still enabled, and skip back to top of loop if we are not
       if ( !provisioner.config.isEnabled() ) {
         continue;
       }
-
-      grouperSession = GrouperSession.startRootSession();
-      grouperContext = GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
 
       LOG.info("Starting to process full-sync queue item: {}", queueItem);
 
@@ -282,8 +280,8 @@ public class FullSyncProvisioner  {
    * quite limited so that these Reader threads block and leave most messages in the
    * upstream queues... so other daemons can fetch and process them.
    *
-   * Note: each full-sync provisioner runs several of these, one for the different
-   * of the different messaging queues
+   * Note: each full-sync provisioner runs several of these, one for each of the different
+   * messaging queues
    */
   protected void thread_fullSyncMessageQueueReader(QUEUE_TYPE queueType) {
       MDC.put("why", String.format("full-sync-message-reader:%s/", queueType.queueName_short));
@@ -430,7 +428,50 @@ public class FullSyncProvisioner  {
           queueItem.processingCompletedUnsuccessfully(false, "Group not found");
           return;
         }
-        fullSyncGroup(grouperGroupInfo, queueItem);
+
+        if ( provisioner.shouldGroupBeProvisioned(grouperGroupInfo) ) {
+          boolean changesWereMade=false;
+
+          for(int i=0; i<provisioner.getConfig().getMaxNumberOfTimesToRepeatedlyFullSyncGroup(); i++) {
+            // If we're repeatedly full-syncing, we want to make sure we're using most recent information
+            // (essentially disable caching)
+            if (i>0) {
+              LOG.info("{}: FullSync #{} of {}: Disabling group caching to ensure most recent information is used",
+                      getConfigName(), i+1, grouperGroupInfo);
+              provisioner.uncacheGroup(grouperGroupInfo, null);
+            }
+
+            // Log a nice message about repeated full syncs, where level and message varies according to
+            // which fullsync retry we're doing
+            if (i==1) {
+              LOG.info("{}: Repeating full sync of {} to make sure changes made in first full sync did not clobber incremental changes", getConfigName(), grouperGroupInfo);
+            } else if (i>1) {
+              LOG.warn("{}: Full sync of {} continues to make changes ({} times so far). The group is probably changing frequently, either within grouper or directly on target system",
+                      getConfigName(), grouperGroupInfo, i);
+
+              // Make sure we don't loop too aggressively
+              GrouperUtil.sleep(provisioner.getConfig().getTimeToSleepBetweenRepeatedFullSyncs_ms());
+            }
+
+            changesWereMade = fullSyncGroup(grouperGroupInfo, queueItem);
+
+            if (!changesWereMade) {
+              // No changes were necessary, so break out of the full-sync-repeating loop
+              break;
+            }
+          }
+
+          // Did our last full sync need changes?
+          if ( changesWereMade ) {
+            LOG.warn("{}: FullSync of {} was done {} times looking for stability, but the final one still required changes. There is a small possibility that realtime changes have been provisioned incorrectly and will be addressed during a future full sync.",
+                    getConfigName(), grouperGroupInfo,
+                    provisioner.getConfig().getMaxNumberOfTimesToRepeatedlyFullSyncGroup());
+            // TODO: Requeue the group for some time in the future, but track the total number of times this group is requeued
+            // to prevent requeuing forever
+          }
+        } else {
+          queueItem.processingCompletedUnsuccessfully(false, "Group is not selected for provisioning");
+        }
         break;
       case CLEANUP:
         // Time to look for extra groups
@@ -438,7 +479,7 @@ public class FullSyncProvisioner  {
         break;
       case FULL_SYNC_ALL_GROUPS:
         List<FullSyncQueueItem> scheduledItems = queueAllGroupsForFullSync(queueItem.sourceQueue, queueItem.externalReference, "Requested by message: %s", queueItem);
-        for ( FullSyncQueueItem scheduledItem : scheduledItems ) {
+        for (FullSyncQueueItem scheduledItem : scheduledItems) {
           LOG.info("{} message reader: Group is queued for full sync: {}", getName(), scheduledItem);
         }
         queueItem.processingCompletedSuccessfully("Scheduled %d groups for full sync", scheduledItems.size());
@@ -474,7 +515,6 @@ public class FullSyncProvisioner  {
           LOG.trace("Found fullSyncQueueItem that wasn't ready. Requeuing and sleeping: {} isn't ready until {}",
                   result.id, result.wakeTimeDate);
 
-          result.acknowledgeMessage();
           requeue(result, false);
           result = null;
           Thread.sleep(5000);
@@ -491,8 +531,8 @@ public class FullSyncProvisioner  {
   }
 
 
-  public JobStatistics startFullSyncOfAllGroupsAndWaitForCompletion() throws PspException {
-      JobStatistics overallStats = new JobStatistics();
+  public JobStatistics startFullSyncOfAllGroupsAndWaitForCompletion(Hib3GrouperLoaderLog hib3GrouploaderLog) throws PspException {
+      Date startDate = new Date();
 
       List<FullSyncQueueItem> queuedGroupSyncs
               = queueAllGroupsForFullSync(QUEUE_TYPE.SCHEDULED_LOCAL, null,"Scheduled full sync");
@@ -503,10 +543,13 @@ public class FullSyncProvisioner  {
       // Monitor the progress of our full-sync task items
       int doneCount=0;
       while ( !everythingHasBeenCompleted ) {
+          JobStatistics statisticsSoFar = new JobStatistics(startDate);
+
           doneCount = 0;
           everythingHasBeenCompleted=true;
           for (FullSyncQueueItem item : queuedGroupSyncs) {
               if ( item.hasBeenProcessed() ) {
+                  statisticsSoFar.add(item.stats);
                   doneCount++;
               }
               else {
@@ -515,27 +558,31 @@ public class FullSyncProvisioner  {
           }
 
           // log the progress every FULL_SYNC_PROGRESS_INTERVAL_SECS
-          if ( statusLastLoggedDate==null ||
+          if ( everythingHasBeenCompleted ||
+                  statusLastLoggedDate==null ||
                   (System.currentTimeMillis()-statusLastLoggedDate.getTime())/1000L > FULL_SYNC_PROGRESS_INTERVAL_SECS ) {
-              LOG.info("{}: Full Sync of all groups: {} steps are done out of {} ({}%)",
-                      new Object[]{getName(),
-                              doneCount, queuedGroupSyncs.size(),
-                              100.0 * doneCount / queuedGroupSyncs.size()});
+              String status = String.format("%d groups of %d (%d%%)",
+                        doneCount, queuedGroupSyncs.size(),
+                        (int)(100.0 * doneCount / queuedGroupSyncs.size()));
+
+              LOG.info("{}: Full Sync of all groups progress: {}: {}", getName(), status, statisticsSoFar);
+
+              statisticsSoFar.updateLoaderLog(hib3GrouploaderLog);
+              hib3GrouploaderLog.setJobMessage(status);
+              hib3GrouploaderLog.store();
+
               statusLastLoggedDate = new Date();
           }
 
-          // Sleep for a bit to let the full-syncs progress
+        // Sleep for a bit to let the full-syncs progress
           if ( !everythingHasBeenCompleted ) {
               GrouperUtil.sleep(250);
           }
       }
 
-      LOG.info("{}: Full Sync of all groups: {} steps are done out of {} ({}%)",
-              new Object[]{getName(),
-                      doneCount, queuedGroupSyncs.size(),
-                      100.0 * doneCount / queuedGroupSyncs.size()});
+    JobStatistics overallStats = new JobStatistics();
 
-      for (FullSyncQueueItem item : queuedGroupSyncs) {
+    for (FullSyncQueueItem item : queuedGroupSyncs) {
           overallStats.add(item.stats);
       }
       overallStats.done();
@@ -682,11 +729,9 @@ public class FullSyncProvisioner  {
    * Workhorse method that handles the FullSync of a specific group.
    * @param _grouperGroupInfo Group on which to do a Full Sync. The grouper group will be reread from database to make sure information is fresh.
    * @param fullSyncQueueItem What is driving this sync
-   * @return true if successful
+   * @return true if changes to target system were made
    */
   protected boolean fullSyncGroup(GrouperGroupInfo _grouperGroupInfo, FullSyncQueueItem fullSyncQueueItem) {
-      Provisioner.activeProvisioner.set(provisioner);
-
       fullSyncQueueItem.startStep("ClearingGroupCache");
       // Uncache the group we're processing
       provisioner.uncacheGroup(_grouperGroupInfo, null);
@@ -714,7 +759,7 @@ public class FullSyncProvisioner  {
           provisioner.setCurrentWorkItem(workItem);
 
           fullSyncQueueItem.startStep("doFullSync");
-          provisioner.doFullSync(grouperGroupInfo, fullSyncQueueItem.asofDate, fullSyncQueueItem.stats);
+          boolean changesWereNecessary = provisioner.doFullSync(grouperGroupInfo, fullSyncQueueItem.asofDate, fullSyncQueueItem.stats);
 
           MDC.put("step", "finsh/");
           fullSyncQueueItem.startStep("FinishProvisioning");
@@ -725,7 +770,7 @@ public class FullSyncProvisioner  {
 
           lastSuccessfulFullSyncDate.put(fullSyncQueueItem.groupName, DateTime.now());
           fullSyncQueueItem.processingCompletedSuccessfully("Success");
-          return true;
+          return changesWereNecessary;
       } catch (PspException e) {
           LOG.error("{}: Problem doing full sync. Requeuing group {}",
               new Object[]{ getName(), grouperGroupInfo, e} );

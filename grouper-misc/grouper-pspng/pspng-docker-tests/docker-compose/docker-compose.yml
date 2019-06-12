@@ -57,7 +57,7 @@ services:
        - ldap-data:/var/lib/ldap
        - ldap-config:/etc/ldap
        - ../scripts:/scripts:ro
-       - ./ldap-seed-data:/etc/ldap.dist/prepopulate:ro
+       - ./ldap-seed-data:/etc/ldap/prepopulate:ro
     environment:
       - SLAPD_PASSWORD=secret
       - SLAPD_CONFIG_PASSWORD=secret

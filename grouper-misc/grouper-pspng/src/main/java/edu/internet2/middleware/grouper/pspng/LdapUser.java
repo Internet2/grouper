@@ -54,6 +54,11 @@ public class LdapUser implements TargetSystemUser {
   }
 
   @Override
+  public int getNativeMemorySize_bytes() throws PspException {
+    return ldapObject.getLdifString().length();
+  }
+
+  @Override
   public String toString() {
     ToStringBuilder result = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
     result.append("ldap", ldapObject);

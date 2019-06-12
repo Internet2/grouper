@@ -56,7 +56,7 @@ public class ProvisionerConfiguration {
     private int sleepTimeAfterError_ms;
     protected int sleepTimeAfterError_ms_defaultValue = 1000;
     
-    private int dataCacheTime_secs;
+    protected int dataCacheTime_secs;
     protected int dataCacheTime_secs_defaultValue = 12*3600;
     
     private int grouperGroupCacheSize, grouperSubjectCacheSize;
@@ -91,6 +91,14 @@ public class ProvisionerConfiguration {
 
     protected int cacheFullnessWarningThreshold_percentage;
     protected int cacheFullnessWarningThreshold_percentage_defaultValue = 95;
+
+    // How many times to retry full sync when each full sync is finding the group out of date
+    protected int maxNumberOfTimesToRepeatedlyFullSyncGroup;
+    protected int maxNumberOfTimesToRepeatedlyFullSyncGroup_defaultValue = 3;
+
+    // How long to sleep when full syncs need to be retried
+    protected int timeToSleepBetweenRepeatedFullSyncs_ms;
+    protected int timeToSleepBetweenRepeatedFullSyncs_ms_defaultValue = 1000;
 
     /**
      * This expression says that the provisionerName has to be in a group or stem provision_to attribute
@@ -127,6 +135,8 @@ public class ProvisionerConfiguration {
     // can all the changes be implemented with Subject attributes from Grouper?
     private boolean needsTargetSystemUsers;
     protected boolean needsTargetSystemUsers_defaultValue = false;
+    protected int targetSystemUserCacheSize;
+    protected int targetSystemUserCacheSize_defaultValue = 10000;
 
     private int userSearch_batchSize;
     protected int userSearch_batchSize_defaultValue = 50;
@@ -138,7 +148,10 @@ public class ProvisionerConfiguration {
     // can all the changes be implemented with Group attributes from Grouper?
     private boolean needsTargetSystemGroups;
     protected boolean needsTargetSystemGroups_defaultValue = false;
-    
+    private int targetSystemGroupCacheSize;
+    protected int targetSystemGroupCacheSize_defaultValue = 10000;
+
+
     private boolean supportsEmptyGroups;
     protected boolean supportsEmptyGroups_defaultValue = true;
 
@@ -195,7 +208,15 @@ public class ProvisionerConfiguration {
         grouperSubjectCacheSize =
             GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "grouperSubjectCacheSize", grouperSubjectCacheSize_defaultValue);
         LOG.debug("Provisioner {} - Setting grouperSubjectCacheSize to {}", provisionerName, grouperSubjectCacheSize);
-        
+
+        targetSystemGroupCacheSize =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "targetSystemGroupCacheSize", targetSystemGroupCacheSize_defaultValue);
+        LOG.debug("Provisioner {} - Setting targetSystemGroupCacheSize to {}", provisionerName, targetSystemGroupCacheSize);
+
+        targetSystemUserCacheSize =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "targetSystemUserCacheSize", targetSystemUserCacheSize_defaultValue);
+        LOG.debug("Provisioner {} - Setting targetSystemUserCacheSize to {}", provisionerName, targetSystemUserCacheSize);
+
         createMissingUsers =
             GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "createMissingUsers", createMissingUsers_defaultValue);
         LOG.debug("Provisioner {} - Setting createMissingUsers to {}", provisionerName, createMissingUsers);
@@ -279,6 +300,18 @@ public class ProvisionerConfiguration {
         cacheFullnessWarningThreshold_percentage =
                 GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "cacheFullnessWarningThreshold_percentage", cacheFullnessWarningThreshold_percentage_defaultValue);
         LOG.debug("Provisioner {} - Setting cacheFullnessWarningThreshold_percentage to {}", provisionerName, cacheFullnessWarningThreshold_percentage);
+
+        maxNumberOfTimesToRepeatedlyFullSyncGroup =
+            GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "maxNumberOfTimesToRepeatedlyFullSyncGroup", maxNumberOfTimesToRepeatedlyFullSyncGroup_defaultValue);
+        LOG.debug("Provisioner {} - Setting maxNumberOfTimesToRepeatedlyFullSyncGroup to {}", provisionerName, maxNumberOfTimesToRepeatedlyFullSyncGroup);
+        if ( maxNumberOfTimesToRepeatedlyFullSyncGroup<1 ) {
+            LOG.warn("Provisioner {} - maxNumberOfTimesToRepeatedlyFullSyncGroup must be at least 1", provisionerName);
+            maxNumberOfTimesToRepeatedlyFullSyncGroup = 1;
+        }
+
+        timeToSleepBetweenRepeatedFullSyncs_ms =
+                GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "timeToSleepBetweenRepeatedFullSyncs_ms", timeToSleepBetweenRepeatedFullSyncs_ms_defaultValue);
+        LOG.debug("Provisioner {} - Setting timeToSleepBetweenRepeatedFullSyncs_ms to {}", provisionerName, timeToSleepBetweenRepeatedFullSyncs_ms);
     }
 
 
@@ -289,7 +322,24 @@ public class ProvisionerConfiguration {
     public int getGrouperGroupCacheSize() { return grouperGroupCacheSize; }
 
     public int getGrouperSubjectCacheSize() { return grouperSubjectCacheSize; }
-    
+
+    public int getTargetSystemUserCacheSize() {
+        if (needsTargetSystemUsers) {
+            return targetSystemUserCacheSize;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    public int getTargetSystemGroupCacheSize() {
+        if (needsTargetSystemGroups) {
+            return targetSystemGroupCacheSize;
+        } else {
+            return 0;
+        }
+    }
+
     /**
      * The groupSelectionExpression is an arbitrary jexl expression. As such, it's hard
      * to know exactly what it is doing with Group and Folder attributes. This method
@@ -341,4 +391,8 @@ public class ProvisionerConfiguration {
     public double getCacheFullnessWarningThreshold_percentage() { return cacheFullnessWarningThreshold_percentage; }
 
     public boolean areCacheSizeWarningsEnabled() { return areCacheSizeWarningsEnabled; }
+
+    public int getMaxNumberOfTimesToRepeatedlyFullSyncGroup() { return maxNumberOfTimesToRepeatedlyFullSyncGroup; }
+
+    public int getTimeToSleepBetweenRepeatedFullSyncs_ms() { return timeToSleepBetweenRepeatedFullSyncs_ms;}
 }

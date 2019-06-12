@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import static edu.internet2.middleware.grouper.pspng.PspUtils.*;
 
 /**
  * This class encapsulates an LDAP system configured by a collection of
@@ -55,7 +56,7 @@ public class LdapSystem {
   protected boolean searchResultPagingEnabled_defaultValue = true;
   protected int searchResultPagingSize_default_value = 100;
 
-  
+
   public static boolean attributeHasNoValues(final LdapAttribute attribute) {
     if ( attribute == null ) {
       return true;
@@ -176,6 +177,51 @@ public class LdapSystem {
     return result;
   }
 
+  public void log(LdapEntry ldapEntry, String ldapEntryDescriptionFormat, Object... ldapEntryDescriptionArgs)  {
+    String ldapEntryDescription;
+    if (LOG.isInfoEnabled() || LOG.isDebugEnabled()) {
+      ldapEntryDescription = String.format(ldapEntryDescriptionFormat, ldapEntryDescriptionArgs);
+    } else {
+      return;
+    }
+
+    // INFO log is a count of each attribute's values
+    if ( LOG.isInfoEnabled() ) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(String.format("dn=%s|", ldapEntry.getDn()));
+
+      for (LdapAttribute attribute : ldapEntry.getAttributes()) {
+        sb.append(String.format("%d %s values|", attribute.size(), attribute.getName()));
+      }
+      LOG.info("{}: {} Entry Summary: {}", ldapSystemName, ldapEntryDescription, sb.toString());
+    }
+
+    LOG.debug("{}: {} Entry Details: {}", ldapSystemName, ldapEntryDescription, ldapEntry);
+  }
+
+  public void log( ModifyRequest modifyRequest, String descriptionFormat, Object... descriptionArgs)  {
+    String ldapEntryDescription;
+    if (LOG.isInfoEnabled() || LOG.isDebugEnabled()) {
+      ldapEntryDescription = String.format(descriptionFormat, descriptionArgs);
+    } else {
+      return;
+    }
+
+    // INFO log is a count of each attribute's values
+    if ( LOG.isInfoEnabled() ) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(String.format("dn=%s|", modifyRequest.getDn()));
+
+      for (AttributeModification mod : modifyRequest.getAttributeModifications()) {
+        sb.append(String.format("%s %d %s values|",
+                mod.getAttributeModificationType(), mod.getAttribute().size(), mod.getAttribute().getName()));
+      }
+      LOG.info("{}: {} Mod Summary: {}", ldapSystemName, ldapEntryDescription, sb.toString());
+    }
+
+    LOG.debug("{}: {} Mod Details: {}", ldapSystemName, ldapEntryDescription, modifyRequest);
+  }
+
 
   protected void performTestLdapRead(Connection conn) throws PspException {
     LOG.info("{}: Performing test read of directory root", ldapSystemName);
@@ -198,7 +244,7 @@ public class LdapSystem {
       SearchResult searchResult = response.getResult();
     
       LdapEntry searchResultEntry = searchResult.getEntry();
-      LOG.info("Search success: " + searchResultEntry.getAttributes());
+      log(searchResultEntry, "Ldap test success");
     }
     catch (LdapException e) {
       LOG.error("Ldap problem",e);
@@ -329,9 +375,8 @@ public class LdapSystem {
   
   
   protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
-    LOG.info("{}: Creating LDAP object DN: {}", ldapSystemName, entryToAdd.getDn());
-    LOG.info("{}: Creating LDAP Object details: {}", ldapSystemName, entryToAdd);
-  
+    log(entryToAdd, "Creating LDAP object");
+
     Connection conn = getLdapConnection();
     try {
       // Actually ADD the object
@@ -373,8 +418,8 @@ public class LdapSystem {
   
   }
 
-  public void performLdapModify(ModifyRequest mod) throws PspException {
-    performLdapModify(mod, true);
+  public void performLdapModify(ModifyRequest mod, boolean valuesAreCaseSensitive) throws PspException {
+    performLdapModify(mod, valuesAreCaseSensitive,true);
   }
 
   /**
@@ -386,8 +431,8 @@ public class LdapSystem {
    *                     make the retry as safe as possible
    * @throws PspException
    */
-  public void performLdapModify(ModifyRequest mod, boolean retryIfFails) throws PspException {
-    LOG.info("{}: Performing Ldap modification: {}", ldapSystemName, mod);
+  public void performLdapModify(ModifyRequest mod, boolean valuesAreCaseSensitive, boolean retryIfFails) throws PspException {
+    log(mod, "Performing ldap mod (%s retry)", retryIfFails ? "with" : "without");
 
     Connection conn = getLdapConnection();
     try {
@@ -397,13 +442,13 @@ public class LdapSystem {
 
       // Abort with Exception if retries are disabled
       if ( !retryIfFails ) {
-        throw new PspException("%s: (probably repeated) LDAP problem modifying ldap object: %s %s",
+        throw new PspException("%s: Unrecoverable problem modifying ldap object: %s %s",
                 ldapSystemName, mod, e.getMessage());
       }
 
 
       LOG.warn("{}: Problem while modifying ldap system based on grouper expectations. Starting to perform adaptive modifications based on data already on server: {}: {}",
-              new Object[]{ldapSystemName, mod, e.getResultCode()});
+              new Object[]{ldapSystemName, mod.getDn(), e.getResultCode()});
 
       // First case: a single attribute being modified with a single value
       //   Perform a quick ldap comparison and check to see if the object
@@ -426,7 +471,12 @@ public class LdapSystem {
           return;
         }
         else {
-          LOG.error("{}: Ldap modification failed", ldapSystemName, e);
+          LOG.error("{}: Single-attribute-value Ldap mod-{} failed when Ldap server {} already have {}={}. Mod that failed: {}",
+                  ldapSystemName, modification.getAttributeModificationType().toString().toLowerCase(),
+                  attributeMatches ? "does" : "does not",
+                  modification.getAttribute().getName(), modification.getAttribute().getStringValue(),
+                  mod,
+                  e);
           throw new PspException("LDAP Modification Failed");
         }
       }
@@ -446,33 +496,50 @@ public class LdapSystem {
         ldapSystemName, mod.getDn());
 
       LdapObject currentLdapObject = performLdapRead(mod.getDn(), attributeNames);
+      log(currentLdapObject.ldapEntry, "Data already on ldap server");
 
       // Go back through the requested mods and see if they are redundant
       for ( AttributeModification attributeMod : mod.getAttributeModifications()) {
-        LOG.info("{}: Comparing modification to what is already in LDAP: {}", ldapSystemName, attributeMod);
-
         String attributeName = attributeMod.getAttribute().getName();
+
+        LOG.info("{}: Summary: Comparing modification of {} to what is already in LDAP: {}/{} Values",
+                ldapSystemName,
+                attributeName,
+                attributeMod.getAttributeModificationType(),
+                attributeMod.getAttribute().size());
+        LOG.debug("{}: Details: Comparing modification of {} to what is already in LDAP: {}/{}",
+                ldapSystemName,
+                attributeName,
+                attributeMod.getAttributeModificationType(),
+                attributeMod.getAttribute());
 
         Collection<String> currentValues = currentLdapObject.getStringValues(attributeName);
         Collection<String> modifyValues  = attributeMod.getAttribute().getStringValues();
+
+        LOG.info("{}: Comparing Attribute {}. #Values on server already {}. #Values in mod/{}: {}",
+          ldapSystemName, attributeName, currentValues.size(), attributeMod.getAttributeModificationType(), modifyValues.size());
 
         switch (attributeMod.getAttributeModificationType()) {
           case ADD:
             // See if any modifyValues are missing from currentValues
             //
             // Subtract currentValues from modifyValues (case-insensitively)
-            Set<String> valuesNotAlreadyOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            valuesNotAlreadyOnServer.addAll(modifyValues);
-            valuesNotAlreadyOnServer.removeAll(currentValues);
+            Set<String> valuesNotAlreadyOnServer =
+                    subtractStringCollections(valuesAreCaseSensitive, modifyValues, currentValues);
 
-            LOG.info("{}: {} {} values still need to be ADDed",
-                    new Object[] {ldapSystemName, valuesNotAlreadyOnServer.size(), attributeName});
+            LOG.debug("{}: {}: Values on server: {}",
+                    ldapSystemName, attributeName, currentValues);
+            LOG.debug("{}: {}: Modify/Add values: {}",
+                    ldapSystemName, attributeName, modifyValues);
+
+            LOG.info("{}: {}: Need to add {} values",
+                    ldapSystemName, attributeName, valuesNotAlreadyOnServer.size());
 
             for ( String valueToChange : valuesNotAlreadyOnServer ) {
               performLdapModify( new ModifyRequest( mod.getDn(),
                       new AttributeModification(AttributeModificationType.ADD,
                               new LdapAttribute(attributeName, valueToChange))),
-                      false);
+                      valuesAreCaseSensitive,false);
             }
             break;
 
@@ -485,47 +552,56 @@ public class LdapSystem {
             // See if any modifyValues are still in currentValues
             //
             // Intersect modifyValues and currentValues
-            Set<String> valuesStillOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            valuesStillOnServer.addAll(modifyValues);
-            valuesStillOnServer.retainAll(currentValues);
-            LOG.info("{}: {} {} values still need to be REMOVEd",
-                    new Object[] {ldapSystemName, valuesStillOnServer.size(), attributeName});
+            Set<String> valuesStillOnServer
+                    = intersectStringCollections(valuesAreCaseSensitive, modifyValues, currentValues);
+            LOG.debug("{}: {}: Values on server: {}",
+                    ldapSystemName, attributeName, currentValues);
+            LOG.debug("{}: {}: Modify/Delete values: {}",
+                    ldapSystemName, attributeName, modifyValues);
+
+            LOG.info("{}: {}: {} values need to be REMOVEd",
+                    ldapSystemName, attributeName, valuesStillOnServer.size());
 
             for (String valueToChange : valuesStillOnServer) {
               performLdapModify(new ModifyRequest(mod.getDn(),
                               new AttributeModification(AttributeModificationType.REMOVE,
                                       new LdapAttribute(attributeName, valueToChange))),
-                      false);
+                      valuesAreCaseSensitive,false);
             }
             break;
 
           case REPLACE:
             // See if any differences between modifyValues and currentValues
             // (Subtract in both directions)
-            Set<String> extraValuesOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            extraValuesOnServer.addAll(currentValues);
-            extraValuesOnServer.retainAll(modifyValues);
-            LOG.info("{}: REPLACE: {} {} values still need to be REMOVEd",
-                    new Object[] {ldapSystemName, extraValuesOnServer.size(), attributeName});
+
+            LOG.debug("{}: {}: Values on server: {}",
+                    ldapSystemName, attributeName, currentValues);
+            LOG.debug("{}: {}: Modify/Replace values: {}",
+                    ldapSystemName, attributeName, modifyValues);
+
+            Set<String> extraValuesOnServer =
+                    subtractStringCollections(valuesAreCaseSensitive, currentValues, modifyValues);
+            LOG.info("{}: REPLACE: {}: {} values still need to be REMOVEd",
+                    ldapSystemName, attributeNames, extraValuesOnServer.size());
 
             for (String valueToChange : extraValuesOnServer) {
               performLdapModify(new ModifyRequest(mod.getDn(),
                               new AttributeModification(AttributeModificationType.REMOVE,
                                       new LdapAttribute(attributeName, valueToChange))),
-                      false);
+                      valuesAreCaseSensitive,false);
             }
 
-            Set<String> missingValuesOnServer = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            missingValuesOnServer.addAll(modifyValues);
-            missingValuesOnServer.retainAll(currentValues);
-            LOG.info("{}: REPLACE: {} {} values still need to be ADDed",
-                    new Object[] {ldapSystemName, missingValuesOnServer.size(), attributeName});
+            Set<String> missingValuesOnServer =
+                    subtractStringCollections(valuesAreCaseSensitive, modifyValues, currentValues);
+
+            LOG.info("{}: REPLACE: {}: {} values need to be ADDed",
+                    ldapSystemName, attributeName, missingValuesOnServer.size());
 
             for ( String valueToChange : missingValuesOnServer ) {
               performLdapModify( new ModifyRequest( mod.getDn(),
                               new AttributeModification(AttributeModificationType.ADD,
                                       new LdapAttribute(attributeName, valueToChange))),
-                      false);
+                      valuesAreCaseSensitive, false);
             }
         }
       }
@@ -608,9 +684,11 @@ public class LdapSystem {
       read.setReturnAttributes(attributes);
       
       // Turn on attribute-value paging if this is an active directory target
-      if ( isActiveDirectory() )
+      if ( isActiveDirectory() ) {
+        LOG.info("Active Directory: Searching with Ldap RangeEntryHandler");
         read.setSearchEntryHandlers(new RangeEntryHandler());
-  
+      }
+
       SearchOperation searchOp = new SearchOperation(conn);
       
       Response<SearchResult> response = searchOp.execute(read);
@@ -805,15 +883,27 @@ public class LdapSystem {
 
 
   public boolean makeLdapObjectCorrect(LdapEntry correctEntry,
-                                         LdapEntry existingEntry)
+                                         LdapEntry existingEntry,
+                                       boolean valuesAreCaseSensitive)
           throws PspException
   {
-    boolean changed = false;
+    boolean changedDn = false, changedAttributes = false;
 
-    changed = makeLdapDnCorrect(correctEntry, existingEntry);
-    changed = makeLdapDataCorrect(correctEntry, existingEntry) || changed;
+    changedDn = makeLdapDnCorrect(correctEntry, existingEntry);
+    if ( changedDn ) {
+      LOG.info("{}: Rereading entry after changing DN", ldapSystemName, correctEntry.getDn());
 
-    return changed;
+      LdapObject rereadLdapObject = performLdapRead(correctEntry.getDn(), getAttributeNames(existingEntry));
+
+      // this should always be found, but checking just in case
+      if ( rereadLdapObject!= null ) {
+        existingEntry = rereadLdapObject.ldapEntry;
+      }
+    }
+
+    changedAttributes = makeLdapDataCorrect(correctEntry, existingEntry, valuesAreCaseSensitive);
+
+    return changedDn || changedAttributes;
 
 /*
     if ( changed ) {
@@ -825,8 +915,46 @@ public class LdapSystem {
 */
   }
 
+
+  /**
+   * Read a fresh copy of an ldapEntry, using the dn and attribute list from the provided
+   * entry.
+   *
+   * @param ldapEntry Source of DN and attributes that should be read.
+   * @return
+   * @throws PspException
+   */
+
+  public LdapEntry rereadEntry(LdapEntry ldapEntry) throws PspException {
+    Collection<String> attributeNames = getAttributeNames(ldapEntry);
+
+    try {
+      LOG.debug("{}: Rereading entry {}", ldapSystemName, ldapEntry.getDn());
+      LdapObject result = performLdapRead(ldapEntry.getDn(), attributeNames);
+      return result.ldapEntry;
+    } catch (PspException e) {
+      LOG.error("{} Unable to reread ldap object {}", ldapSystemName, ldapEntry.getDn(), e);
+      throw e;
+    }
+  }
+
+  /**
+   * Get the names of the attributes present in a given LdapEntry
+   * @param ldapEntry
+   * @return
+   */
+  private Collection<String> getAttributeNames(LdapEntry ldapEntry) {
+    Collection<String> attributeNames = new HashSet<>();
+
+    for (LdapAttribute attribute : ldapEntry.getAttributes() ) {
+      attributeNames.add(attribute.getName());
+    }
+    return attributeNames;
+  }
+
   protected boolean makeLdapDataCorrect(LdapEntry correctEntry,
-                                        LdapEntry existingEntry)
+                                        LdapEntry existingEntry,
+                                        boolean valuesAreCaseSensitive)
         throws PspException
   {
     boolean changed = false ;
@@ -842,27 +970,27 @@ public class LdapSystem {
       if ( correctAttribute == null ) {
         if ( existingAttribute != null ) {
           changed = true;
-          LOG.info("{}: Attribute {} is incorrect: Current values: {}, Correct values: none",
+          LOG.info("{}: Attribute {} is incorrect: {} current values, Correct values: none",
                   correctEntry.getDn(), attributeName,
-                  (existingAttribute != null ? existingAttribute.getStringValues() : "<none>"));
+                  (existingAttribute != null ? existingAttribute.size() : "<none>"));
 
           AttributeModification mod = new AttributeModification(AttributeModificationType.REMOVE, existingAttribute);
           ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
-          performLdapModify(modRequest);
+          performLdapModify(modRequest, valuesAreCaseSensitive);
         }
       }
       else if ( !correctAttribute.equals(existingAttribute) ) {
         // Attribute is different. Update existing one
         changed = true;
-        LOG.info("{}: Attribute {} is incorrect: Current values: {}, Correct values: {}",
+        LOG.info("{}: Attribute {} is incorrect: {} Current values, {} Correct values",
                 correctEntry.getDn(),
                 attributeName,
-                (existingAttribute != null ? existingAttribute.getStringValues() : "<none>"),
-                (correctAttribute  != null ? correctAttribute.getStringValues() : "<none>" ));
+                (existingAttribute != null ? existingAttribute.size() : "<none>"),
+                (correctAttribute  != null ? correctAttribute.size() : "<none>" ));
 
         AttributeModification mod = new AttributeModification(AttributeModificationType.REPLACE, correctAttribute);
         ModifyRequest modRequest = new ModifyRequest(correctEntry.getDn(), mod);
-        performLdapModify(modRequest);
+        performLdapModify(modRequest, valuesAreCaseSensitive);
       }
     }
     return changed;

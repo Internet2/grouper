@@ -175,47 +175,49 @@ public abstract class Provisioner
   Provisioner(String provisionerConfigName, ConfigurationClass config, boolean fullSyncMode) {
     this.provisionerConfigName = provisionerConfigName;
 
-    if ( fullSyncMode ) {
-          this.provisionerDisplayName = provisionerConfigName + "-full";
+    if (fullSyncMode) {
+      this.provisionerDisplayName = provisionerConfigName + "-full";
     } else {
-          this.provisionerDisplayName = provisionerConfigName;
+      this.provisionerDisplayName = provisionerConfigName;
     }
     this.fullSyncMode = fullSyncMode;
-    LOG = LoggerFactory.getLogger(String.format("%s.%s",getClass().getName(), provisionerDisplayName));
-    
+    LOG = LoggerFactory.getLogger(String.format("%s.%s", getClass().getName(), provisionerDisplayName));
+
     this.config = config;
 
     checkAttributeDefinitions();
 
-    // These caches are set up with DisplayName to keep the caches of the FullSync and Incremental
-    // instances separate
-    grouperGroupInfoCache 
-      = new GrouperCache<String, GrouperGroupInfo>(String.format("PSP-%s-GrouperGroupInfoCache", getDisplayName()),
-          config.getGrouperGroupCacheSize(),
-          false,
-          config.getDataCacheTime_secs(),
-          config.getDataCacheTime_secs(),
-          false);
-    
-    grouperSubjectCache 
-      = new GrouperCache<String, Subject>(String.format("PSP-%s-GrouperSubjectCache", getDisplayName()),
-          config.getGrouperSubjectCacheSize(),
-          false,
-          config.getDataCacheTime_secs(),
-          config.getDataCacheTime_secs(),
-          false);
+    // NOTE: PSPNG has different size=0 semantics... In PSPNG, size=0 means zero caching, but in
+    // GrouperCache/EhCache size=0 means unlimited caching. Therefore, we map size=0 to size=1.
+    grouperGroupInfoCache
+            = new GrouperCache<String, GrouperGroupInfo>(String.format("PSP-%s-GrouperGroupInfoCache", getConfigName()),
+            config.getGrouperGroupCacheSize() > 1 ? config.getGrouperGroupCacheSize() : 1,
+            false,
+            config.getDataCacheTime_secs(),
+            config.getDataCacheTime_secs(),
+            false);
 
-    targetSystemUserCache 
-      = new PspDatedCache<Subject, TSUserClass>(String.format("PSP-%s-TargetSystemUserCache", getDisplayName()),
-          config.getGrouperSubjectCacheSize(),
-          false,
-          config.getDataCacheTime_secs(),
-          config.getDataCacheTime_secs(),
-          false);
-    
-    targetSystemGroupCache 
+    grouperSubjectCache
+              = new GrouperCache<String, Subject>(String.format("PSP-%s-GrouperSubjectCache", getConfigName()),
+              config.getGrouperSubjectCacheSize() > 1 ? config.getGrouperSubjectCacheSize() : 1,
+              false,
+              config.getDataCacheTime_secs(),
+              config.getDataCacheTime_secs(),
+              false);
+
+    targetSystemUserCache
+              = new PspDatedCache<Subject, TSUserClass>(String.format("PSP-%s-TargetSystemUserCache", getConfigName()),
+              config.getTargetSystemUserCacheSize() > 1 ? config.getTargetSystemUserCacheSize() : 1,
+              false,
+              config.getDataCacheTime_secs(),
+              config.getDataCacheTime_secs(),
+              false);
+
+    // This cache is set up with DisplayName of provisioner
+    // to keep the caches of the FullSync and Incremental instances separate
+    targetSystemGroupCache
       = new GrouperCache<GrouperGroupInfo, TSGroupClass>(String.format("PSP-%s-TargetSystemGroupCache", getDisplayName()),
-          config.getGrouperGroupCacheSize(),
+          config.getTargetSystemGroupCacheSize() > 1 ? config.getTargetSystemGroupCacheSize() : 1,
           false,
           config.getDataCacheTime_secs(),
           config.getDataCacheTime_secs(),
@@ -372,8 +374,9 @@ public abstract class Provisioner
    * @param correctTSUsers A list of the TSUsers that correspond to correctSubjects. This might be a subset
    * of the TSUsers in the tsUserMap.
    * @param stats A holder of the number of changes the fullSync performs
+   * @return True when changes were made to target system
    */
-  protected abstract void doFullSync(
+  protected abstract boolean doFullSync(
       GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup, 
       Set<Subject> correctSubjects, Map<Subject, TSUserClass> tsUserMap, Set<TSUserClass> correctTSUsers,
       JobStatistics stats)
@@ -476,10 +479,22 @@ public abstract class Provisioner
    * changes into a provisioner, then it would probably be useful to look for those
    * additional types of changes and then call the super version of this.
    *
+   * Note: In addition to returning a boolean about skipping the work item, it is helpful
+   * if this method actually calls markAsSkipped(reason) so that a more detailed
+   * reason can be noted for skipping it. In other words, this method has the
+   * (optional) side effect of actually marking the item as skipped. Finally, if this
+   * method does _not_ mark the item as skipped, it will be marked as skipped
+   * with a generic message.
+   *
    * @param workItem
    * @return
    */
   protected boolean shouldWorkItemBeProcessed(ProvisioningWorkItem workItem) {
+    if ( workItem.isSubjectUnresolvable(this) ) {
+      workItem.markAsSkippedAndWarn("Subject is unresolvable");
+      return false;
+    }
+
     // Check if we're configured to ignore changes to internal (g:gsa) subjects
     // (default is that we do ignore such changes)
     if ( getConfig().areChangesToInternalGrouperSubjectsIgnored() ) {
@@ -494,18 +509,21 @@ public abstract class Provisioner
     // This skips all the membership-removal changelog entries that precede the
     // DElETE changelog entry
     if ( workItem.getGroupInfo(this) != null &&
-         workItem.getGroupInfo(this).hasGroupBeenDeleted() &&
-         !workItem.matchesChangelogType(ChangeLogTypeBuiltin.GROUP_DELETE) ) {
-      workItem.markAsSkipped("Group has been deleted within Grouper. Skipping event because it is not the actual GROUP_DELETE event");
-      return false;
+         workItem.getGroupInfo(this).hasGroupBeenDeleted() ) {
+      if (workItem.matchesChangelogType(ChangeLogTypeBuiltin.GROUP_DELETE) ) {
+        LOG.debug("{}: Group has been deleted within grouper, so we're processing group-deletion event: {}", getDisplayName(), workItem);
+      } else {
+        workItem.markAsSkipped("Group has been deleted within Grouper. Skipping event because it is not the actual GROUP_DELETE event");
+        return false;
+      }
     }
 
     if ( !workItem.matchesChangelogType(ChangelogHandlingConfig.allRelevantChangelogTypes) ) {
       workItem.markAsSkipped("Changelog type is not relevant to PSPNG provisioning (see ChangelogHandlingConfig.allRelevantChangelogTypes)");
       return false;
-    } else {
-      return true;
     }
+
+    return true;
   }
 
 
@@ -613,14 +631,19 @@ public abstract class Provisioner
 
   protected void warnAboutCacheSizeConcerns() {
     warnAboutCacheSizeConcerns(grouperGroupInfoCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouper groups", "grouperGroupCacheSize");
-    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "provisioned groups", "grouperGroupCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getObjectCount(), config.getTargetSystemGroupCacheSize(), "provisioned groups", "targetSystemGroupCacheSize");
     warnAboutCacheSizeConcerns(grouperSubjectCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouper subjects", "grouperSubjectCacheSize");
-    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "provisioned subjects", "grouperSubjectCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getObjectCount(), config.getTargetSystemUserCacheSize(), "provisioned subjects", "targetSystemUserCacheSize");
   }
 
   private void warnAboutCacheSizeConcerns(long cacheObjectCount, int configuredSize, String objectType, String configurationProperty) {
     if ( !config.areCacheSizeWarningsEnabled() )
       return;
+
+    // If caching is disabled, then don't warn about it!!
+    if ( configuredSize <= 1 ) {
+      return;
+    }
 
     double cacheWarningThreshold_percentage = config.getCacheFullnessWarningThreshold_percentage();
     long cacheWarningTreshold_count = Math.round(cacheWarningThreshold_percentage*configuredSize);
@@ -628,8 +651,9 @@ public abstract class Provisioner
     long cacheFullness_percentage = Math.round(100.0*cacheObjectCount/configuredSize);
 
     if ( cacheFullness_percentage >= cacheWarningThreshold_percentage ) {
-      LOG.warn("Cache of {} is very full ({}%). Provisioning performance is much better if {} is big enough to hold all {}. " +
+      LOG.warn("{}: Cache of {} is very full ({}%). Provisioning performance is much better if {} is big enough to hold all {}. " +
                       "({} is currently set to {}, and this warning occurs when cache is {}% full)",
+              getConfigName(),
               objectType,
               cacheFullness_percentage,
               configurationProperty,
@@ -637,8 +661,8 @@ public abstract class Provisioner
               configurationProperty, configuredSize,
               cacheFullness_percentage);
     } else {
-      LOG.debug("Cache of {} is sufficiently sized ({}% full) (property {}={})",
-              objectType, cacheFullness_percentage, configurationProperty, configuredSize);
+      LOG.debug("{}: Cache of {} is sufficiently sized ({}% full) (property {}={})",
+              getConfigName(), objectType, cacheFullness_percentage, configurationProperty, configuredSize);
     }
 
   }
@@ -1088,7 +1112,7 @@ public abstract class Provisioner
   
   
   /**
-   * The specified Gro uper or TargetSystem group has changed, remove
+   * The specified Grouper or TargetSystem group has changed, remove
    * them from various caches, including hibernate L2 cache.
    *
    * Only one parameter is needed
@@ -1374,7 +1398,6 @@ public abstract class Provisioner
    * @throws PspException
    */
   final void prepareAndRunGroupCleanup(JobStatistics stats) throws PspException {
-      activeProvisioner.set(this);
       // Make sure this is only used within Provisioners set up for full-sync mode
       GrouperUtil.assertion(isFullSyncMode(), "FullSync operations should only be used with provisioners initialized for full-sync");
 
@@ -1395,7 +1418,6 @@ public abstract class Provisioner
 	  }
 	  finally {
 		  MDC.remove("step");
-		  activeProvisioner.remove();
 	  }
   }
   
@@ -1412,11 +1434,11 @@ public abstract class Provisioner
    * @param grouperGroupInfo
  * @param oldestCacheTimeAllowed only use cached information fresher than this date
  * @param stats
+ * @return True when changes were made to target system
  @throws PspException
    */
-  final void doFullSync(GrouperGroupInfo grouperGroupInfo, DateTime oldestCacheTimeAllowed, JobStatistics stats)
+  final boolean doFullSync(GrouperGroupInfo grouperGroupInfo, DateTime oldestCacheTimeAllowed, JobStatistics stats)
         throws PspException {
-    activeProvisioner.set(this);
     // Make sure this is only used within Provisioners set up for full-sync mode
     GrouperUtil.assertion(isFullSyncMode(),
             "FullSync operations should only be used with provisioners initialized for full-sync");
@@ -1431,7 +1453,7 @@ public abstract class Provisioner
                 new Object[]{getDisplayName(), grouperGroupInfo, tsGroup});
 
         deleteGroup(grouperGroupInfo, tsGroup);
-        return;
+        return true;
       }
 
       if (!shouldGroupBeProvisioned(grouperGroupInfo)) {
@@ -1439,7 +1461,7 @@ public abstract class Provisioner
                 new Object[]{getDisplayName(), grouperGroupInfo, tsGroup});
 
         deleteGroup(grouperGroupInfo, tsGroup);
-        return;
+        return true;
       }
     }
 
@@ -1485,11 +1507,10 @@ public abstract class Provisioner
 
     try {
       MDC.put("step", "prov/");
-      doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers, stats);
+      return doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers, stats);
     }
     finally {
       MDC.remove("step");
-      activeProvisioner.remove();
     }
   }
 
@@ -1571,6 +1592,7 @@ public abstract class Provisioner
 
     GrouperGroupInfo result = getGroupInfoOfExistingGroup(groupName);
     if ( result != null ) {
+      LOG.debug("{}: Found existing group {}", getDisplayName(), result);
       return result;
     }
 
@@ -1578,16 +1600,21 @@ public abstract class Provisioner
       // If an existing grouper group wasn't found, look for a PITGroup
         PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
   	    
-  	    if ( pitGroup != null ) {
-  	    	result = new GrouperGroupInfo(pitGroup);
-  	    	result.idIndex = workItem.getGroupIdIndex();
+        if ( pitGroup != null ) {
+            result = new GrouperGroupInfo(pitGroup);
+            result.idIndex = workItem.getGroupIdIndex();
 
-  	    	grouperGroupInfoCache.put(groupName, result);
-  	    	return result;
-  	    } else {
-  	      LOG.warn("Could not find PIT group: {}", groupName);
-  	      return null;
-            }
+            // Avoiding caching pitGroup-based items because they are workItem dependent
+            //grouperGroupInfoCache.put(groupName, result);
+            LOG.debug("{}: Found PIT group {}", getDisplayName(), result);
+
+            return result;
+        } else {
+          LOG.warn("Could not find PIT group: {}", groupName);
+          result = new GrouperGroupInfo(groupName, workItem.getGroupIdIndex());
+          LOG.debug("{}: Using barebones group info {}", getDisplayName(), result);
+          return result;
+        }
     }
     catch (GroupNotFoundException e) {
       LOG.warn("Unable to find PIT group '{}'", groupName);

@@ -1,4 +1,7 @@
 package edu.internet2.middleware.grouper.pspng;
+
+import java.io.Serializable;
+
 /*******************************************************************************
  * Copyright 2015 Internet2
  * 
@@ -16,8 +19,19 @@ package edu.internet2.middleware.grouper.pspng;
  ******************************************************************************/
 
 
-public interface TargetSystemUser {
+public interface TargetSystemUser extends Serializable {
 
   Object getJexlMap();
+
+  /**
+   * Approximately how many bytes did target system provide to create this object?
+   * For instance, for an ldap server, this would be how much LDIF information is
+   * behind this user.
+   *
+   * This is used for measuring memory efficiency of caches and is optional.
+   * @return How many bytes the target system provided to create this object.
+   * -1: if you don't want the memory efficiency of pspng's caches to be calculated.
+   */
+  int getNativeMemorySize_bytes() throws PspException;
 
 }

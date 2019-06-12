@@ -16,6 +16,8 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,10 +35,8 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.ldaptive.LdapAttribute;
-import org.ldaptive.LdapEntry;
-import org.ldaptive.ModifyRequest;
-import org.ldaptive.SearchFilter;
+import org.ldaptive.*;
+import org.ldaptive.io.LdifWriter;
 import org.ldaptive.provider.unboundid.UnboundIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class LdapObject {
   private final StackTraceElement[] creationStackTrace = new Throwable().getStackTrace();
 
   // Who fetched this object
-  public final Provisioner provisioner = Provisioner.activeProvisioner.get();
+  public final Provisioner provisioner;
 
   // More debugging to be able to look back in debug logs and see when LdapObjects were fetched
   private static AtomicLong ldapObjectCounter = new AtomicLong();
@@ -89,10 +89,13 @@ public class LdapObject {
   
   
   public LdapObject(LdapEntry ldapEntry, String attributesRequested[]) {
-    LOG.debug("Creating LdapObject #{}: {}", id, ldapEntry);
+    LOG.trace("Allocating java LdapObject #{}: {}", id, ldapEntry);
 
-    if ( provisioner==null )
-      throw new IllegalStateException("The active provisioner should be defined when creating LdapObjects");
+    provisioner = Provisioner.activeProvisioner.get();
+    if ( provisioner==null ) {
+      Throwable t = new Throwable("(Warning) Stack trace for tracking LdapObject creation");
+      LOG.info("The active provisioner was not defined when constructing a java LdapObject", t);
+    }
 
     this.ldapEntry = ldapEntry;
     if ( attributesRequested == null || attributesRequested.length == 0 )
@@ -154,7 +157,7 @@ public class LdapObject {
             new Object[]{id, attributeName, attributesRequested});
     LOG.error("Stack trace that fetched this ldap object without the necessary attributes: {}",
             Arrays.toString(creationStackTrace));
-    LOG.error("Incomplete ldap object was created by: {}", provisioner);
+    LOG.error("Incomplete ldap object was created by provisioner: {}", provisioner);
 
     throw new IllegalStateException(String.format("Attribute '%s' was not requested from ldap server", attributeName));
   }
@@ -319,9 +322,24 @@ public class LdapObject {
 
     if ( provisioner!=null ) {
       result.append("provisioner", provisioner.toString());
+    } else {
+      result.append("provisioner", "unknown");
     }
     //result.append("attributesRequested", attributesRequested.toString());
 
     return result.toString();
+  }
+
+  public String getLdifString() throws PspException {
+    try {
+      StringWriter sWriter = new StringWriter();
+      LdifWriter ldifWriter = new LdifWriter(sWriter);
+      ldifWriter.write(new SearchResult(ldapEntry));
+
+      return sWriter.toString();
+    } catch (IOException e) {
+      LOG.error("Unable to get ldif of {}", this, e);
+      throw new PspException("Unable to get ldif", e);
+    }
   }
 }

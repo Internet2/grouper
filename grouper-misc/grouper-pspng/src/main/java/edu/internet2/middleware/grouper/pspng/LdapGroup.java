@@ -52,7 +52,13 @@ public class LdapGroup implements TargetSystemGroup {
   public Object getJexlMap() {
     return ldapObject.getMap();
   }
-  
+
+  @Override
+  public int getNativeMemorySize_bytes() throws PspException {
+    return ldapObject.getLdifString().length();
+  }
+
+
   @Override
   public String toString() {
     ToStringBuilder result = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);

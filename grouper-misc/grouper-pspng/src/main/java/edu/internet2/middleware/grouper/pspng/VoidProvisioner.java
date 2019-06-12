@@ -52,7 +52,7 @@ public class VoidProvisioner extends Provisioner<ProvisionerConfiguration, Targe
     }
 
     @Override
-    protected void doFullSync(GrouperGroupInfo grouperGroupInfo, TargetSystemGroup tsGroup, Set correctSubjects, Map tsUserMap, Set correctTSUsers, JobStatistics stats) throws PspException {
-
+    protected boolean doFullSync(GrouperGroupInfo grouperGroupInfo, TargetSystemGroup tsGroup, Set correctSubjects, Map tsUserMap, Set correctTSUsers, JobStatistics stats) throws PspException {
+        return false;
     }
 }

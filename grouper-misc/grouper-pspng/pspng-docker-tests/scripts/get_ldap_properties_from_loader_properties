@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ -d /opt/grouper/grouper.apiBinary ]; then
+  LOADER_PROPERTIES=/opt/grouper/grouper.apiBinary/conf/grouper-loader.properties
+elif [ -n "$GROUPER_CONFIG_DIR" -a -d "$GROUPER_CONFIG_DIR" ]; then
+  LOADER_PROPERTIES=$GROUPER_CONFIG_DIR/grouper-loader.properties
+else
+  fail "Could not find /opt/grouper/grouper.apiBinary nor GROUPER_ONFIG_DIR"
+fi
+
+[ ! -r "$LOADER_PROPERTIES" ] && fail "Cannot find $LOADER_PROPERTIES"
+
+export LDAP_POOL_NAME=$(sed 's/#.*//' "$LOADER_PROPERTIES" | grep -w changeLog.consumer.pspng1.ldapPoolName | sed 's/^[^=]*= *//' | trim)
+[ -z "$LDAP_POOL_NAME" ] && fail "Could not find loader property: changeLog.consumer.pspng1.ldapPoolName"
+
+export LDAP_HOST=$(sed 's/#.*//' $LOADER_PROPERTIES | grep -w ldap.$LDAP_POOL_NAME.url | sed -E 's@^.*ldaps?://@@' | trim)
+export LDAP_ADMIN_USER=$(sed 's/#.*//' $LOADER_PROPERTIES | grep -w ldap.$LDAP_POOL_NAME.bindDn | sed 's/^[^=]*= *//' | trim)
+export LDAP_ADMIN_PASS=$(sed 's/#.*//' $LOADER_PROPERTIES | grep -w ldap.$LDAP_POOL_NAME.bindCredential | sed 's/^[^=]*= *//' | trim)
+export LDAP_GROUP_BASE_DN=$(sed 's/#.*//' $LOADER_PROPERTIES | grep -w changeLog.consumer.pspng1.groupSearchBaseDn | sed 's/^[^=]*= *//' | trim)
+export LDAP_USER_BASE_DN=$(sed 's/#.*//' $LOADER_PROPERTIES | grep -w changeLog.consumer.pspng1.userSearchBaseDn | sed 's/^[^=]*= *//' | trim)

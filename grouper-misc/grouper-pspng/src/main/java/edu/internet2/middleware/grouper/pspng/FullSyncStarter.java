@@ -17,10 +17,7 @@ package edu.internet2.middleware.grouper.pspng;
  ******************************************************************************/
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -65,7 +62,7 @@ public class FullSyncStarter
    */
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
-    long startTime = System.currentTimeMillis();
+    Date startTime = new Date();
 
     GrouperSession grouperSession = null;
 
@@ -99,7 +96,7 @@ public class FullSyncStarter
 
       hib3GrouploaderLog.setJobName(jobName);
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));
+      hib3GrouploaderLog.setStartedTime(new Timestamp(startTime.getTime()));
       hib3GrouploaderLog.setJobType("OTHER_JOB");
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouploaderLog.store();
@@ -110,16 +107,16 @@ public class FullSyncStarter
         throw new Exception("No provisioner found for job: " + otherJobConfigName);
       }
 
-      JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion();
+      JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
 
       LOG.info("Finished running full-sync job: {}", jobName);
-      hib3GrouploaderLog.appendJobMessage("Finished running full-sync job.");
+      hib3GrouploaderLog.setJobMessage("Finished running full-sync job.");
 
       stats.updateLoaderLog(hib3GrouploaderLog);
 
 
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-      storeLogInDb(hib3GrouploaderLog, true, startTime);
+      storeLogInDb(hib3GrouploaderLog, true, startTime.getTime());
     } catch (Exception e) {
       LOG.error("Error running full-sync job", e);
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
@@ -129,7 +126,7 @@ public class FullSyncStarter
         e = new JobExecutionException(e);
       }
       JobExecutionException jobExecutionException = (JobExecutionException)e;
-      storeLogInDb(hib3GrouploaderLog, false, startTime);
+      storeLogInDb(hib3GrouploaderLog, false, startTime.getTime());
       throw jobExecutionException;
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -70,6 +70,8 @@ create_grouper_daemon_config()
     tweak_grouper_config "$GROUPER_CONFIG_DIR"
   fi
 
+  . get_ldap_properties_from_loader_properties
+
   export GROUPER_DAEMON_CONFIG_HASH=$(hash_directory_contents "$GROUPER_CONFIG_DIR")
   echo "Grouper config has hash: $GROUPER_DAEMON_CONFIG_HASH"
 }
@@ -240,9 +242,9 @@ function test_start()
   export TEST_HISTORY_DIR=${TEST_HISTORY_DIR:-$T/test_history.d}
   [ ! -d "$TEST_HISTORY_DIR" ] && mkdir -p "$TEST_HISTORY_DIR"
 
-  echo ====================================================================
-  echo ====================================================================
-  echo ====================================================================
+  echo ==================================================================== 1>&2
+  echo ==================================================================== 1>&2
+  echo ==================================================================== 1>&2
   log_always "TEST STARTING: $TEST_NAME/$TEST_DESCRIPTION"
 
   test_step "Starting"
@@ -274,7 +276,7 @@ function test_step()
 
   TEST_STEP="${1:?test_step <step description>}"
   TEST_STEP_START_EPOCH=$(date +%s)
-  echo ==================================================================================
+  echo ================================================================================== 1>&2
   log_always "===== STEP STARTING: $TEST_STEP"
 
   [ -z "${TEST_DIR:-}" ] || echo "$(date) STEP STARTING: $TEST_STEP" >> $TEST_DIR/test_steps
@@ -338,6 +340,37 @@ function assert_equals()
     test_failure "$message. Expected: '$expected' Actual: '$actual'"
   else
     log_always "***SUCCESSFUL CHECK: $message"
+  fi
+}
+
+# assert_equal_lists <expected> <actual> <message>
+# Utility function to compare two comma-separated lists of values (ignoring whitespace differences)
+#  If the values are different, test_failure is called with a detailed message
+#  If the values are the same, <message> is logged as successful
+function assert_equal_lists()
+{
+  local usage="USAGE: assert_equal_lists <expected-list> <actual-list> <message>"
+  [ $# -eq 3 ] || fail "$usage"
+
+  local expected_list=${1}
+  local actual_list=${2}
+  local message=${3}
+
+  # Trim values
+  echo "$expected_list" | tr , \\n | sed -e 's/^ *//' -e 's/ *$//' | sort > $T.expected
+  echo "$actual_list" | tr , \\n | sed -e 's/^ *//' -e 's/ *$//' | sort > $T.actual
+
+  local extra=$(comm -23 $T.actual $T.expected)
+  local missing=$(comm -13 $T.actual $T.expected)
+
+  local problems=""
+  [ -n "$extra" ] && problems="$problems|$(wc -l <<<"$extra") extra values: $(tr \\n , <<<"$extra")"
+  [ -n "$missing" ] && problems="$problems|$(wc -l <<<"$missing") missing values: $(tr \\n , <<<"$missing")"
+
+  if [ -n "$problems" ]; then
+    test_failure "$message. $problems"
+  else
+    log_always "***SUCCESSFUL CHECK: $message (count=$(wc -l <<<"$expected_list"))"
   fi
 }
 

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.pspng;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import net.sf.json.JSONObject;
@@ -312,6 +313,7 @@ class FullSyncQueueItem {
         processingResultMessage = "Successful";
 
       wasSuccessful = true;
+
       processingCompleted();
   }
 

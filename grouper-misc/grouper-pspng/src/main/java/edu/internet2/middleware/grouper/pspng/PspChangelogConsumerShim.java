@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.pspng;
  ******************************************************************************/
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -45,6 +46,8 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
       ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+    Date batchStartTime = new Date();
+
     try {
       String consumerName = changeLogProcessorMetadata.getConsumerName();
       MDC.put("why", "CLog/");
@@ -96,8 +99,8 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       }
       
       StringBuilder summary = new StringBuilder();
-      if ( firstErrorMessage != null ) 
-        summary.append(String.format("Summary: %d successes/%d failures.  ", numSuccessfulWorkItems, numFailedWorkItems));
+      summary.append(String.format("%d successes/%d failures. Duration=%s ",
+              numSuccessfulWorkItems, numFailedWorkItems, PspUtils.formatElapsedTime(batchStartTime, null)));
       
       if ( numSuccessfulWorkItems_thatWillBeRetried > 0 )
         summary.append(String.format("(%d successful entries will be retried because they follow a failure in the queue.) ",
@@ -108,9 +111,9 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       
       if ( numFailedWorkItems > 0 )
-        LOG.warn("Provisioning summary: {}", summary);
+        LOG.warn("Provisioning batch summary: {}", summary);
       else
-        LOG.info("Provisioning summary: {}", summary);
+        LOG.info("Provisioning batch summary: {}", summary);
       
       changeLogProcessorMetadata.getHib3GrouperLoaderLog().appendJobMessage(summary.toString());
       return lastSuccessfulChangelogEntry;

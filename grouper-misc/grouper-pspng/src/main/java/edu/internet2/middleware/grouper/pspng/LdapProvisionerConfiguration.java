@@ -89,10 +89,6 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     private String userSearchAttributes[];
     protected String userSearchAttributes_defaultValue = "cn,uid,uidNumber,mail,samAccountName,objectclass";
     
-    private int ldapUserCacheTime_secs;
-    protected int ldapUserCacheTime_secs_defaultValue = 600;
-    
-    private int ldapUserCacheSize;
     protected int ldapUserCacheSize_defaultValue = 10000;
 
     private boolean isActiveDirectory;
@@ -160,14 +156,30 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       ouCreationLdifTemplate =
           GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "ouCreationLdifTemplate" , ouCreationLdifTemplate_defaultValue);
       LOG.debug("Ldap Attribute Provisioner {} - Setting ouCreationLdifTemplate to {}", provisionerName, ouCreationLdifTemplate);
-      
-      ldapUserCacheTime_secs =
-          GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapUserCacheTime_secs", ldapUserCacheTime_secs_defaultValue);
-      LOG.debug("Ldap Provisioner {} - Setting ldapUserCacheTime_secs to {}", provisionerName, ldapUserCacheTime_secs);
-  
-      ldapUserCacheSize =
-          GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapUserCacheSize", ldapUserCacheSize_defaultValue);
-      LOG.debug("Ldap Provisioner {} - Setting ldapUserCacheSize to {}", provisionerName, ldapUserCacheSize);
+
+      if (GrouperLoaderConfig.retrieveConfig().containsKey(qualifiedParameterNamespace + "ldapUserCacheTime_secs") ) {
+        LOG.warn("Provisioner {}: The ldapUserCacheTime_secs property has been deprecated. Use the more general dataCacheTime_secs.", provisionerName);
+
+        // If the general data-cache time is the default, set it to the ldap-user cache time
+        if (getDataCacheTime_secs() == dataCacheTime_secs_defaultValue) {
+          int ldapUserCacheTime_secs =
+                  GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapUserCacheTime_secs");
+          LOG.warn("Ldap Provisioner {} - Setting dataCacheTime_secs from ldapUserCacheTime_secs: {}", provisionerName, ldapUserCacheTime_secs);
+          dataCacheTime_secs = ldapUserCacheTime_secs;
+        }
+      }
+
+      if (GrouperLoaderConfig.retrieveConfig().containsKey(qualifiedParameterNamespace + "ldapUserCacheSize") ) {
+        LOG.warn("Provisioner {}: The ldapUserCacheSize property has been deprecated. Use the more general targetSystemUserCacheSize.", provisionerName);
+
+        // If the general targetUserCacheSize is the default, set it to the ldap-user cache skze
+        if (getTargetSystemUserCacheSize() == targetSystemUserCacheSize_defaultValue) {
+          int ldapUserCacheSize =
+                  GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapUserCacheSize");
+          LOG.warn("Ldap Provisioner {} - Setting targetSystemUserCacheSize from ldapUserCacheCacheSize: {}", provisionerName, ldapUserCacheSize);
+          targetSystemUserCacheSize = ldapUserCacheSize;
+        }
+      }
 
       String attributesNeededingDnEscapingString =
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "attributesNeededingDnEscaping" , attributesNeededingDnEscaping_defaultValue);
@@ -210,14 +222,6 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     
     public String[] getUserSearchAttributes() {
       return userSearchAttributes;
-    }
-
-    public int getLdapUserCacheTime_secs() {
-      return ldapUserCacheTime_secs;
-    }
-
-    public int getLdapUserCacheSize() {
-      return ldapUserCacheSize;
     }
 
 

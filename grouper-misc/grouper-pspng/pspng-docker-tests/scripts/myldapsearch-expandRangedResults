@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#set -o pipefail
+#set -o nounset
+#set -o pipefail
+
+D="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+. "$D/functions.bash"
+PROG=$(basename "$0")
+
+# Assume ldapsearch command is ldapsearch.... -b <base> <filter> <attributes>
+# in other words, everything up to the -b will be used for subsequent queries
+# and the rest will be thrown away
+#
+# This will have problems with spaces in the ldapsearch arguments
+SEARCH_BEFORE_BASE=$(sed 's/-b.*//' <<<"$0 $*")
+
+myldapsearch "$@" \
+        | awk -f $D/expandPagedADResults.awk --assign ldap_query_cmd="$SEARCH_BEFORE_BASE" \
+        | sed 's/^\([^ ]*\);range=[^ ]*: /\1: /'
+
+if [ ${PIPESTATUS[0]} -ne 0 -o ${PIPESTATUS[1]} -ne 0 ]
+then
+  exit 1
+fi

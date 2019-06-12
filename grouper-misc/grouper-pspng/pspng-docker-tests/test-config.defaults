@@ -1,6 +1,10 @@
 _D=$(absolute_dir $(dirname "${BASH_SOURCE[0]}"))
 TEST_CONF=$_D/test-config-files
 
+
+export ALL_USER_FILTER="objectclass=eduPerson"
+export USERNAME_ATTRIBUTE=uid
+
 #
 # This function is to output (to stdout) what log4j.properties should be
 # installed in the api/conf directory
@@ -17,12 +21,37 @@ function output_log4j_properties()
 # This function runs at the beginning of the test
 function test_is_starting() 
 {
+  # Run pre_test which tests can easily override since it's usually empty
+  pre_test
+
   test_step "Dumping ldap data: BEFORE"
-  $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.before
+  . get_ldap_properties_from_loader_properties
+
+  if [ ${SNAPSHOT_LDAP:-yes} = yes ]; then
+    $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b "$LDAP_USER_BASE_DN" objectclass=* | unldif" > $T/ldap.before
+    $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b "$LDAP_GROUP_BASE_DN" objectclass=* | unldif" >> $T/ldap.before
+  fi
 
   if [ -n "${GSH_RAW_OUTPUT:-}" ]; then
     run_in_grouper_daemon touch /gsh-raw-output
   fi
+
+}
+
+# This function is where tests should define anything they want to happen before the test starts
+function pre_test()
+{
+  # just something so function is not empty
+  local x
+}
+
+# This function is where tests should define anything they want to happen after the test starts
+# NOTE: This gets run even when the test is unsuccessful and should not change anything that
+# is useful for diagnosis of the failure
+function post_test()
+{
+  # just something so function is not empty
+  local x
 }
 
 
@@ -39,7 +68,8 @@ function test_is_ending()
 {
   if [ -r $T/ldap.before ]; then
     test_step "Dumping ldap data: AFTER"
-    $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b dc=example,dc=edu objectclass=* | unldif" > $T/ldap.after
+    $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b "$LDAP_USER_BASE_DN" objectclass=* | unldif" > $T/ldap.after
+    $DOCKER_COMPOSE_CMD exec -T grouper-daemon bash -c "myldapsearch -b "$LDAP_GROUP_BASE_DN" objectclass=* | unldif" >> $T/ldap.after
 
     test_step "Comparing ldap data"
     ls -l $T/ldap.before $T/ldap.after
@@ -49,6 +79,8 @@ function test_is_ending()
   else
     echo "Ldap data not saved at beginning of test"
   fi
+
+  post_test
 }
 
 function add_full_sync_starter() {

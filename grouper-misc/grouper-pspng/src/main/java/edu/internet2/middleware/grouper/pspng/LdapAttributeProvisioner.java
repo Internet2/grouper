@@ -106,7 +106,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   }
 
   @Override
-  protected void doFullSync(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
+  protected boolean doFullSync(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
       Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap, Set<LdapUser> correctTSUsers,
       JobStatistics stats)
       throws PspException {
@@ -144,8 +144,15 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     LOG.info("{}: There are {} users that need the attribute removed", getDisplayName(), extraMatches_dnList.size());
     stats.deleteCount.set(extraMatches_dnList.size());
     
-    for (String extraMatch_dn : extraMatches_dnList)
-      scheduleUserModification(new LdapUser(extraMatch_dn), AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
+    for (String extraMatch_dn : extraMatches_dnList) {
+      getLdapSystem().performLdapModify(
+              new ModifyRequest(
+                      extraMatch_dn,
+                      new AttributeModification(
+                              AttributeModificationType.REMOVE,
+                              new LdapAttribute(config.getProvisionedAttributeName(), attributeValue))),
+              true);
+    }
 
     LOG.info("{}: Finding users that need attribute added", getDisplayName());
     // MISSING MATCHES = CORRECT_MATCHES - CURRENT_MATCHES
@@ -155,12 +162,22 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     LOG.info("{}: There are {} users that need the attribute added", getDisplayName(), missingMatches_dnList.size());
     stats.insertCount.set(missingMatches_dnList.size());
 
-    for (String missingMatch_dn : missingMatches_dnList)
-      scheduleUserModification(new LdapUser(missingMatch_dn), AttributeModificationType.ADD, Arrays.asList(attributeValue));
+    for (String missingMatch_dn : missingMatches_dnList) {
+      getLdapSystem().performLdapModify(
+              new ModifyRequest(
+                      missingMatch_dn,
+                      new AttributeModification(
+                              AttributeModificationType.ADD,
+                              new LdapAttribute(config.getProvisionedAttributeName(), attributeValue))),
+              true);
+
+    }
 
     LOG.info("{}: Brief full-sync summary: Correct={}, Current={}, Extra={}, Missing={}", 
         new Object[] {getDisplayName(), correctSubjects.size(), currentMatches_dnList.size(),
         extraMatches_dnList.size(), missingMatches_dnList.size()});
+
+    return extraMatches_dnList.size()>0 || missingMatches_dnList.size()>0;
   }
 
 

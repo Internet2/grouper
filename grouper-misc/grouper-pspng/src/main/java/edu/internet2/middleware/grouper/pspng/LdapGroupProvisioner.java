@@ -28,6 +28,7 @@ import org.ldaptive.*;
 import org.ldaptive.io.LdifReader;
 
 import edu.internet2.middleware.subject.Subject;
+import static edu.internet2.middleware.grouper.pspng.PspUtils.*;
 
 
 
@@ -127,34 +128,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
   }
 
-  /**
-   * Get a string set that is case-insensitive or case-sensitive
-   * depending on the provisioner's configuration.isMemberAttributeCaseSensitive
-   */
-  protected Set<String> getStringSet() {
-    if ( config.isMemberAttributeCaseSensitive() )
-      return new HashSet<String>();
-    else
-      return new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-  }
-
-  /**
-   * Get a string set that is case-insensitive or case-sensitive,
-   * depending on the provisioner's configuration.isMemberAttributeCaseSensitive.
-   *
-   * The returned set will contain the values provided
-   */
-  protected Set<String> getStringSet(Collection<String> values ) {
-    Set<String> result = getStringSet();
-    if ( values != null ) {
-      result.addAll(values);
-    }
-
-    return result;
-  }
-
   @Override
-  protected void doFullSync(
+  protected boolean doFullSync(
       GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup ,
       Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap,
       Set<LdapUser> correctTSUsers,
@@ -174,7 +149,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       if ( config.areEmptyGroupsSupported() ) {
         if ( correctSubjects.size() == 0 ) {
           LOG.info("{}: Nothing to do because empty group already not present in ldap system", getDisplayName() );
-          return;
+          return false;
         }
       }
 
@@ -185,7 +160,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       if ( ldapGroup != null ) {
         cacheGroup(grouperGroupInfo, ldapGroup);
       }
-      return;
+      return true;
     } else {
         // The LDAP group exists, let's make sure the non-membership attributes are still accurate
         ldapGroup = updateGroupFromTemplate(grouperGroupInfo, ldapGroup);
@@ -200,9 +175,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       // Update stats with the number of values removed by group deletion
       Collection<String> membershipValues = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
       stats.deleteCount.set(membershipValues.size());
+
+      return true;
     }
 
-    Set<String> correctMembershipValues = getStringSet();
+    Set<String> correctMembershipValues = getStringSet(config.isMemberAttributeCaseSensitive());
 
     for ( Subject correctSubject: correctSubjects ) {
       String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), correctSubject, tsUserMap.get(correctSubject), grouperGroupInfo, ldapGroup);
@@ -212,7 +189,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
     }
 
-    Collection<String> currentMembershipValues = getStringSet(ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
+    Collection<String> currentMembershipValues = getStringSet(config.isMemberAttributeCaseSensitive(), ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
 
     LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
             new Object[] {getDisplayName(), grouperGroupInfo, correctMembershipValues.size(), currentMembershipValues.size()});
@@ -221,30 +198,45 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     LOG.debug("{}: Full-sync comparison: Actual: {}", getDisplayName(), currentMembershipValues);
 
     // EXTRA = CURRENT - CORRECT
-    {
-      Collection<String> extraValues = getStringSet(currentMembershipValues);
-      extraValues.removeAll(correctMembershipValues);
+      Collection<String> extraValues = subtractStringCollections(
+              config.isMemberAttributeCaseSensitive(), currentMembershipValues, correctMembershipValues);
 
       stats.deleteCount.set(extraValues.size());
 
       LOG.info("{}: Group {} has {} extra values",
           new Object[] {getDisplayName(), grouperGroupInfo, extraValues.size()});
-      if ( extraValues.size() > 0 )
-        scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, extraValues);
-    }
+      if ( extraValues.size() > 0 ) {
+        getLdapSystem().performLdapModify(
+                new ModifyRequest(
+                        ldapGroup.dn,
+                        new AttributeModification(
+                                AttributeModificationType.REMOVE,
+                                new LdapAttribute(config.getMemberAttributeName(),extraValues.toArray(new String[0])))),
+                config.isMemberAttributeCaseSensitive(),
+                true);
+      }
 
     // MISSING = CORRECT - CURRENT
-    {
-      Collection<String> missingValues = getStringSet(correctMembershipValues);
-      missingValues.removeAll(currentMembershipValues);
+      Collection<String> missingValues = subtractStringCollections(
+              config.isMemberAttributeCaseSensitive(), correctMembershipValues, currentMembershipValues);
 
       stats.insertCount.set(missingValues.size());
 
       LOG.info("{}: Group {} has {} missing values",
           new Object[]{getDisplayName(), grouperGroupInfo, missingValues.size()});
-      if ( missingValues.size() > 0 )
-        scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, missingValues);
+      if ( missingValues.size() > 0 ) {
+        getLdapSystem().performLdapModify(
+                new ModifyRequest(
+                        ldapGroup.dn,
+                        new AttributeModification(
+                                AttributeModificationType.ADD,
+                                new LdapAttribute(config.getMemberAttributeName(),missingValues.toArray(new String[0])))),
+                config.isMemberAttributeCaseSensitive(),
+                true);
+
     }
+
+    return extraValues.size()>0 || missingValues.size()>0;
   }
 
   /**
@@ -262,7 +254,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       LdapEntry ldapEntryFromTemplate = getLdapEntryFromLdif(ldifFromTemplate);
 
       ensureLdapOusExist(ldapEntryFromTemplate.getDn(), false);
-      if ( getLdapSystem().makeLdapObjectCorrect(ldapEntryFromTemplate, existingLdapGroup.ldapObject.ldapEntry) ) {
+      if ( getLdapSystem().makeLdapObjectCorrect(ldapEntryFromTemplate, existingLdapGroup.ldapObject.ldapEntry, config.isMemberAttributeCaseSensitive()) ) {
         LdapGroup result = fetchTargetSystemGroup(grouperGroupInfo);
         return result;
       }

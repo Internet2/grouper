@@ -58,8 +58,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   private final Set<String> dnEscapedStrings = new HashSet<>();
   private final Set<String> ldapFilterEscapedStrings = new HashSet<>();
 
-  final GrouperCache<Subject, LdapObject> userCache_subject2User;
-
   private Set<DN> existingOUs = new HashSet<DN>();
   protected LdapSystem ldapSystem;
   
@@ -80,15 +78,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     super(provisionerName, config, fullSyncMode);
     
     LOG.debug("Constructing LdapProvisioner: {}", provisionerName);
-
-    // These use getDisplayName instead of
-    userCache_subject2User 
-      = new GrouperCache<Subject, LdapObject>(String.format("PSP-%s-LdapUserCache", getDisplayName()),
-          config.getLdapUserCacheSize(),
-          false,
-          config.getLdapUserCacheTime_secs(),
-          config.getLdapUserCacheTime_secs(),
-          false);
 
     // Make sure we can connect
     try {
@@ -233,7 +222,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       LOG.debug("Read {} user objects from directory", searchResult.size());
 
       if (shouldLogAboutMissingSubjects(subjectsToFetch, searchResult)) {
-        LOG.warn("Several subjects were not found: {} subjects found with filter {}", searchResult.size(), combinedLdapFilter);
+        LOG.warn("Several subjects were not found: only {} subjects found with filter {}", searchResult.size(), combinedLdapFilter);
       }
     }
     catch (PspException e) {
@@ -446,7 +435,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         workItem.markAsSuccess("Modification complete");
       
     } catch (PspException e1) {
-      LOG.warn("(THIS WILL BE RETRIED) Optimized, coalesced ldap provisioning failed: {}", e1.getMessage());
       LOG.warn("RETRYING: Performing slower, unoptimized ldap provisioning after optimized provisioning failed");
       
         for ( ProvisioningWorkItem workItem : workItems ) {
@@ -648,7 +636,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             LOG.info("Performing LDAP modification: {}", getLoggingSummary(mod) );
             conn.getProviderConnection().modify(mod);
           } catch (LdapException e) {
-            LOG.warn("(THIS WILL BE RETRIED) Problem doing coalesced ldap modification: {} / {}: {}",
+            LOG.info("(THIS WILL BE RETRIED) Problem doing coalesced ldap modification: {} / {}: {}",
                 new Object[]{dn, mod, e.getMessage()});
             throw new PspException("Coalesced LDAP Modification failed: %s",e.getMessage());
           } 
@@ -710,7 +698,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LOG.debug("{}: Implementing changes for work item {}", getDisplayName(), workItem);
     for ( ModifyRequest mod : mods ) {
       try {
-        getLdapSystem().performLdapModify(mod);
+        getLdapSystem().performLdapModify(mod, false);
       } catch (PspException e) {
         LOG.error("{}: Ldap provisioning failed for {} / {}", new Object[]{getDisplayName(), workItem, mod, e});
 

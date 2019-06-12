@@ -1,14 +1,12 @@
 #!/bin/bash
 #
-# description: test03a - using morphString to encrypt credentials
-# configs: ldap-attributes
+# description: test14b - no caching
+# configs: ldap-attributes, posix-groups
 #
-# This test does some basic provisioning (like test02*), but with a 
-# morphString-protected ldap password
+# This test makes sure that pspng works when caching is completely disabled
 #
-
-# Does not work as myldapsearch reads password from grouper-loader.conf
-exit 0
+# (this is essentially a copy of test02a-basic-provisioning)
+#
 
 set -o errexit
 set -o pipefail
@@ -29,36 +27,25 @@ ME=$(basename "$0")
 #   Hooks: test_is_starting, test_is_ending
 #   Provisioning verification: validate_provisioning <group> <correct members (comma-separated, alphabetical)>
 # Defines: $flavor
-read_test_config_files "${1:-ldap-attributes}"
+read_test_config_files "${1:-posix-groups}"
 
 
-# Note that the test is starting, saves start-time, etc
-test_start "$ME" "Pspng ($flavor): morphString password encryption"
-
-# This switches ldap properties to use morphString
-#
 tweak_grouper_config() {
   local DIR="${1:?USAGE: tweak_grouper_config <directory>}"
 
-  cat <<EOF > $DIR/morphString.properties
-
-encrypt.key = abc123456789
-encrypt.disableExternalFileLookup=false
-EOF
-
-  # This came from using the above morphString.properties and 
-  # /opt/java/bin/java -jar /opt/grouper/grouper.apiBinary/lib/grouper/morphString.jar
-  echo 'WodH8pSuV9MqORn/BZ9qpw==' > $DIR/password.morph
-
-  sed -i.bak 's:secret:/opt/grouper/grouper.apiBinary/conf/password.morph:' $DIR/grouper-loader.properties  
+  echo "changeLog.consumer.pspng1.grouperSubjectCacheSize=0" >> $DIR/grouper-loader.properties
+  echo "changeLog.consumer.pspng1.grouperGroupCacheSize=0" >> $DIR/grouper-loader.properties
+  echo "changeLog.consumer.pspng1.targetSystemUserCacheSize=0" >> $DIR/grouper-loader.properties
+  echo "changeLog.consumer.pspng1.targetSystemGroupCacheSize=0" >> $DIR/grouper-loader.properties
 }
 
+# Note that the test is starting, saves start-time, etc
+test_start "$ME" "Pspng ($flavor): provisioning without caching"
 
 
 ################
 ## CONFIGURE GROUPER
-## This will populate and define GROUPER_CONFIG_DIR, and will use tweak_grouper_config 
-## defined above
+## This will populate and define GROUPER_CONFIG_DIR
 
 create_grouper_daemon_config
 
@@ -88,7 +75,7 @@ validate_provisioning "$GROUP2_NAME" "agasper,banderson,bbrown705"
 
 #make sure extra groups were not provisioned
 validate_deprovisioning "$UNPROVISIONED_GROUP_NAME"
+
 wrap_up
 assert_empty "$ERRORS" "Check for exceptions in grouper_error.log"
 test_success
-

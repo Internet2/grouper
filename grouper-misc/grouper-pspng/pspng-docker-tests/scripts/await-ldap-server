@@ -5,7 +5,9 @@ PATH=/container-files/bin:$PATH
 . functions.bash
 tempfile_into_T
 
-if myldapsearch -b dc=example,dc=edu -s base dn >$T 2>&1; then
+. get_ldap_properties_from_loader_properties
+
+if myldapsearch -b "$LDAP_ADMIN_DN" -s base dn >$T 2>&1; then
   echo "Ldap server is ready"
   exit 0
 fi
@@ -14,7 +16,7 @@ ERROR_INTERVAL=10
 LAST_ERROR_EPOCH=$(( $(date +%s) - ERROR_INTERVAL ))
 
 echo -n Waiting for ldap server...
-while ! myldapsearch -b dc=example,dc=edu -s base dn >$T 2>&1;
+while ! myldapsearch -b "$LDAP_ADMIN_DN" -s base dn >$T 2>&1;
 do
   NOW=$(date +%s)
   if [ $(( NOW - LAST_ERROR_EPOCH )) -ge $ERROR_INTERVAL ]; then
