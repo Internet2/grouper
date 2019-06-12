@@ -254,7 +254,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("privilegeType", "ADMIN"));
       args.add(new ServiceActionArgument("internalPrivilegeName", "attrAdmin"));
       args.add(new ServiceActionArgument("templateItemType", "Attributes"));
-      ServiceAction levelThreeServiceAction_Three = createNewServiceAction("newAppAdminPrivilege2", true, 3, "stemServiceBasePrivilegeCreationConfirmation",
+      ServiceAction levelThreeServiceAction_Three = createNewServiceAction("newAppAdminPrivilege3", true, 3, "stemServiceBasePrivilegeCreationConfirmation",
           ServiceActionType.inheritedPrivilege, args, levelTwoServiceAction_Four);
       serviceActionsForStem.add(levelThreeServiceAction_Three);
       levelTwoServiceAction_Four.addChildServiceAction(levelThreeServiceAction_Three);
