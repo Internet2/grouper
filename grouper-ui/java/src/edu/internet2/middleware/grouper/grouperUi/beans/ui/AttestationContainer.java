@@ -4,15 +4,20 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -252,6 +257,90 @@ public class AttestationContainer {
   }
   
   /**
+   * if should show report
+   */
+  private boolean editAttestationShowReportConfiguration;
+
+  /**
+   * if should show report
+   * @return should show report
+   */
+  public boolean isEditAttestationShowReportConfiguration() {
+    return this.editAttestationShowReportConfiguration;
+  }
+
+  /**
+   * 
+   * @param editAttestationShowReportConfiguration1
+   */
+  public void setEditAttestationShowReportConfiguration(
+      boolean editAttestationShowReportConfiguration1) {
+    this.editAttestationShowReportConfiguration = editAttestationShowReportConfiguration1;
+  }
+
+  /**
+   * 
+   */
+  private GrouperReportConfigurationBean editAttestationReportConfiguration;
+
+  /**
+   * @return report
+   */
+  public GrouperReportConfigurationBean getEditAttestationReportConfiguration() {
+    this.attributeAssignableHelper();
+    return this.editAttestationReportConfiguration;
+  }
+
+  /**
+   * @param editAttestationReportConfiguration1
+   */
+  public void setEditAttestationReportConfiguration(GrouperReportConfigurationBean editAttestationReportConfiguration1) {
+    this.editAttestationReportConfiguration = editAttestationReportConfiguration1;
+  }
+  
+  /**
+   * if should show authorized group
+   */
+  private boolean editAttestationShowAuthorizedGroup;
+
+  /**
+   * if should show authorized group
+   * @return should show authorized group
+   */
+  public boolean isEditAttestationShowAuthorizedGroup() {
+    return this.editAttestationShowAuthorizedGroup;
+  }
+
+  /**
+   * 
+   * @param editAttestationShowAuthorizedGroup1
+   */
+  public void setEditAttestationShowAuthorizedGroup(
+      boolean editAttestationShowAuthorizedGroup1) {
+    this.editAttestationShowAuthorizedGroup = editAttestationShowAuthorizedGroup1;
+  }
+
+  /**
+   * 
+   */
+  private Group editAttestationAuthorizedGroup;
+
+  /**
+   * @return authorized group
+   */
+  public Group getEditAttestationAuthorizedGroup() {
+    this.attributeAssignableHelper();
+    return this.editAttestationAuthorizedGroup;
+  }
+
+  /**
+   * @param editAttestationAuthorizedGroup1
+   */
+  public void setEditAttestationAuthorizedGroup(Group editAttestationAuthorizedGroup1) {
+    this.editAttestationAuthorizedGroup = editAttestationAuthorizedGroup1;
+  }
+  
+  /**
    * default recertify days
    * @return default configured recertify days
    */
@@ -345,6 +434,57 @@ public class AttestationContainer {
     return attestationType;
   }
   
+
+  /**
+   * report configuration
+   * @return report
+   */
+  public GrouperReportConfigurationBean getReportConfiguration() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationReportConfigurationId = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
+    
+    if (attestationReportConfigurationId == null) {
+      return null;
+    }
+    
+    GrouperReportConfigurationBean reportConfiguration = GrouperReportConfigService.getGrouperReportConfigBean(attestationReportConfigurationId);
+    return reportConfiguration;
+  }
+  
+  /**
+   * authorized group
+   * @return authorized group
+   */
+  public Group getAuthorizedGroup() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+    
+    if (attestationAuthorizedGroupId == null) {
+      return null;
+    }
+    
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, false);
+    
+    return group;
+  }
   
   /**
    * @return true if scope is sub
@@ -905,4 +1045,37 @@ public class AttestationContainer {
     return this.hasAttestationConfigured;
   }
   
+  /**
+   * report configurations on folder
+   * @return reports
+   */
+  public List<GrouperReportConfigurationBean> getAllReportConfigurationsOnFolder() {
+    final GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    if (!GrouperReportSettings.grouperReportsEnabled()) {
+      return new ArrayList<GrouperReportConfigurationBean>();
+    }
+    
+    @SuppressWarnings("unchecked")
+    List<GrouperReportConfigurationBean> grouperReportConfigsSecure = (List<GrouperReportConfigurationBean>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        List<GrouperReportConfigurationBean> grouperReportConfigsAll = GrouperReportConfigService.getGrouperReportConfigs(guiStem.getStem());
+        List<GrouperReportConfigurationBean> grouperReportConfigsSecure = new ArrayList<GrouperReportConfigurationBean>();
+        
+        for (GrouperReportConfigurationBean configBean : grouperReportConfigsAll) {
+          if (configBean.isCanRead(loggedInSubject)) {              
+            grouperReportConfigsSecure.add(configBean);
+          }
+        }
+        
+        return grouperReportConfigsSecure;
+      }
+      
+    });
+    
+    return grouperReportConfigsSecure;
+  }
 }

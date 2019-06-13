@@ -152,7 +152,18 @@ public class GrouperAttestationJob extends OtherJobBase {
    * attestationType
    */
   public static final String ATTESTATION_TYPE = "attestationType";
-
+  
+  /**
+   * attestationReportId
+   */
+  public static final String ATTESTATION_REPORT_CONFIGURATION_ID = "attestationReportConfigurationId";
+  
+  /**
+   * attestationAuthorizedGroupId
+   */
+  public static final String ATTESTATION_AUTHORIZED_GROUP_ID = "attestationAuthorizedGroupId";
+  
+  
   /**
    * type of attestation (group or report)
    * @return the attribute def name
@@ -169,6 +180,38 @@ public class GrouperAttestationJob extends OtherJobBase {
 
   }
 
+  /**
+   * report id
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameReportConfigurationId() {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_REPORT_CONFIGURATION_ID, true);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation report configuration id attribute def name be found?");
+    }
+    return attributeDefName;
+
+  }
+  
+  /**
+   * authorized group id
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameAuthorizedGroupId() {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_AUTHORIZED_GROUP_ID, true);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation authorized group id attribute def name be found?");
+    }
+    return attributeDefName;
+
+  }
+  
   /**
    * attestationHasAttestation
    */

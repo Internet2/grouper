@@ -65,6 +65,28 @@
                           </tr>
                         </c:if>
                         <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.hasAttestation}">
+                          <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report'}">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationReportConfigurationLabel']}</strong></td>
+                              <td>
+                                <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration != null}">
+                                  <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.getReportConfigName())}</a>
+                                </c:if>
+                                <br />
+                                <span class="description">${textContainer.text['grouperAttestationReportConfigurationDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationAuthorizedGroupLabel']}</strong></td>
+                              <td>
+                                <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationAuthorizedGroup != null}">
+                                  ${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationAuthorizedGuiGroup.shortLinkWithIcon}
+                                </c:if>
+                                <br />
+                                <span class="description">${textContainer.text['grouperAttestationAuthorizedGroupDescription']}</span>
+                              </td>
+                            </tr>
+                          </c:if>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationSendEmailLabel']}</strong></td>
                             <td>

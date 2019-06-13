@@ -19,10 +19,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
@@ -30,7 +33,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -49,6 +51,11 @@ public class GuiAttestation {
   private String grouperAttestationDaysUntilRecertify;
   
   private String grouperAttestationType;
+  
+  private Group grouperAttestationAuthorizedGroup;
+  
+  private GrouperReportConfigurationBean grouperAttestationReportConfiguration;
+  
   
   /** days before attestation needed */
   private Integer grouperAttestationDaysLeftUntilRecertify;
@@ -149,6 +156,8 @@ public class GuiAttestation {
    * @param grouperAttestationDirectAssignment
    * @param daysLeftUntilRecertify
    * @param grouperAttestationType 
+   * @param grouperAttestationReportConfiguration
+   * @param grouperAttestationAuthorizedGroup
    */
   public GuiAttestation(AttributeAssignable attributeAssignable, Boolean grouperAttestationSendEmail,
       Boolean grouperAttestationHasAttestation,
@@ -157,7 +166,7 @@ public class GuiAttestation {
       String grouperAttestationLastEmailedDate,
       String grouperAttestationDaysBeforeToRemind, String grouperAttestationStemScope,
       String grouperAttestationDateCertified, Boolean grouperAttestationDirectAssignment, Integer daysLeftUntilRecertify,
-      String grouperAttestationType) {
+      String grouperAttestationType, GrouperReportConfigurationBean grouperAttestationReportConfiguration, Group grouperAttestationAuthorizedGroup) {
     
     super();
     this.mode = Mode.EDIT;
@@ -173,6 +182,8 @@ public class GuiAttestation {
     this.grouperAttestationDirectAssignment = grouperAttestationDirectAssignment;
     this.grouperAttestationDaysLeftUntilRecertify = daysLeftUntilRecertify;
     this.grouperAttestationType = grouperAttestationType;
+    this.grouperAttestationAuthorizedGroup = grouperAttestationAuthorizedGroup;
+    this.grouperAttestationReportConfiguration = grouperAttestationReportConfiguration;
   }
 
   /** logger */
@@ -434,6 +445,20 @@ public class GuiAttestation {
                 GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
             String attestationType = attributes.get(
                 GrouperAttestationJob.retrieveAttributeDefNameType().getName());
+            String attestationAuthorizedGroupId = attributes.get(
+                GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+            String attestationReportConfigurationId = attributes.get(
+                GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
+            
+            Group attestationAuthorizedGroup = null;
+            if (attestationAuthorizedGroupId != null) {
+              attestationAuthorizedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, false);
+            }
+            
+            GrouperReportConfigurationBean attestationReportConfiguration = null;
+            if (attestationReportConfigurationId != null) {
+              attestationReportConfiguration = GrouperReportConfigService.getGrouperReportConfigBean(attestationReportConfigurationId);
+            }
         
             String daysLeftBeforeAttestation = attributes.get(
                 GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
@@ -477,7 +502,8 @@ public class GuiAttestation {
                 GrouperUtil.booleanObjectValue(attestationHasAssignment),
                 attestationEmailAddresses, attestationDaysUntilRecertify,
                 attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
-                GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft, attestationType);
+                GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft, attestationType, attestationReportConfiguration,
+                attestationAuthorizedGroup);
         
             guiAttestations.add(guiAttestation);
             
@@ -524,12 +550,27 @@ public class GuiAttestation {
           GrouperAttestationJob.retrieveAttributeDefNameStemScope().getName());
       String attestationType = attributes.get(
           GrouperAttestationJob.retrieveAttributeDefNameType().getName());
+      String attestationAuthorizedGroupId = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+      String attestationReportConfigurationId = attributes.get(
+          GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
+      
+      Group attestationAuthorizedGroup = null;
+      if (attestationAuthorizedGroupId != null) {
+        attestationAuthorizedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, false);
+      }
+      
+      GrouperReportConfigurationBean attestationReportConfiguration = null;
+      if (attestationReportConfigurationId != null) {
+        attestationReportConfiguration = GrouperReportConfigService.getGrouperReportConfigBean(attestationReportConfigurationId);
+      }
+  
  
       GuiAttestation guiAttestation = new GuiAttestation(stem, GrouperUtil.booleanObjectValue(attestationSendEmail), 
           GrouperUtil.booleanObjectValue(attestationHasAssignment),
           attestationEmailAddresses, attestationDaysUntilRecertify,
           null, attestationDaysBeforeToRemind, attestationStemScope, null, 
-          null, null, attestationType);
+          null, null, attestationType, attestationReportConfiguration, attestationAuthorizedGroup);
  
       guiAttestations.add(guiAttestation);
       
@@ -546,4 +587,24 @@ public class GuiAttestation {
     return grouperAttestationType;
   }
   
+  /**
+   * @return the grouperAttestationReportConfiguration
+   */
+  public GrouperReportConfigurationBean getGrouperAttestationReportConfiguration() {
+    return grouperAttestationReportConfiguration;
+  }
+  
+  /**
+   * @return the grouperAttestationAuthorizedGroup
+   */
+  public Group getGrouperAttestationAuthorizedGroup() {
+    return grouperAttestationAuthorizedGroup;
+  }
+  
+  /**
+   * @return the gui group
+   */
+  public GuiGroup getGrouperAttestationAuthorizedGuiGroup() {
+    return new GuiGroup(grouperAttestationAuthorizedGroup);
+  }
 }

@@ -52,6 +52,35 @@
         </tr>
       </c:if>
       <c:if
+        test="${grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration}">
+
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label
+              for="grouperAttestationReportConfigurationId">${textContainer.text['attestationReportConfigurationLabel']}</label></strong></td>
+          <td><select name="grouperAttestationReportConfigurationName" id="grouperAttestationReportConfigurationId" style="width: 25em">
+            <c:forEach items="${grouperRequestContainer.attestationContainer.allReportConfigurationsOnFolder}" var="reportConfiguration">
+              <option value="${reportConfiguration.getAttributeAssignmentMarkerId()}" ${grouperRequestContainer.attestationContainer.editAttestationReportConfiguration != null && grouperRequestContainer.attestationContainer.editAttestationReportConfiguration.getAttributeAssignmentMarkerId() == reportConfiguration.getAttributeAssignmentMarkerId() ? 'selected="selected"' : ''}>${grouper:escapeHtml(reportConfiguration.getReportConfigName())}</option>
+            </c:forEach>
+          </select> <br /> <span class="description">${textContainer.text['grouperAttestationReportConfigurationDescription']}</span>
+          </td>
+        </tr>
+      </c:if>
+      <c:if
+        test="${grouperRequestContainer.attestationContainer.editAttestationShowAuthorizedGroup}">
+
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label
+              for="grouperAttestationAuthorizedGroupId">${textContainer.text['attestationAuthorizedGroupLabel']}</label></strong></td>
+          <td id="grouperAttestationAuthorizedGroupComboTd">
+            <style>#grouperAttestationAuthorizedGroupComboTd td {padding: 0; border: 0}</style>
+            <grouper:combobox2 idBase="grouperAttestationAuthorizedGroupCombo" style="width: 30em"
+              value="${grouperRequestContainer.attestationContainer.editAttestationAuthorizedGroup == null ? null : grouperRequestContainer.attestationContainer.editAttestationAuthorizedGroup.id}"
+              filterOperation="../app/UiV2Group.groupUpdateFilter" />
+            <span class="description">${textContainer.text['grouperAttestationAuthorizedGroupDescription']}</span>
+          </td>
+        </tr>
+      </c:if>
+      <c:if
         test="${grouperRequestContainer.attestationContainer.editAttestationShowSendEmail}">
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label
