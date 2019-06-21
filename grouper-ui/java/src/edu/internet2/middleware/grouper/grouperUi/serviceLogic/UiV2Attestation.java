@@ -373,6 +373,22 @@ public class UiV2Attestation {
           TextContainer.retrieveFromRequest().getText().get("grouperAttestationEmailAddressesRequired")));
       hasError = true;
     }
+    
+    if (!hasError && !isForGroup && "report".equals(attestationContainer.getEditAttestationType())
+        && attestationContainer.getEditAttestationAuthorizedGroup() == null) {
+      
+      guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperAttestationAuthorizedGroupId", 
+          TextContainer.retrieveFromRequest().getText().get("grouperAttestationAuthorizedGroupRequired")));
+      hasError = true;
+    }
+    
+    if (!hasError && "report".equals(attestationContainer.getEditAttestationType())
+        && attestationContainer.getEditAttestationReportConfiguration() == null) {
+      
+      guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperAttestationReportConfigurationId", 
+          TextContainer.retrieveFromRequest().getText().get("grouperAttestationReportNameRequired")));
+      hasError = true;
+    }
     return hasError;
 
   }
@@ -633,6 +649,7 @@ public class UiV2Attestation {
     if (attestationContainer.isEditAttestationIsAssigned() && attestationContainer.isEditAttestationHasAttestation()) {
       attestationContainer.setEditAttestationShowType(true);
       attestationContainer.setEditAttestationShowSendEmail(true);
+      attestationContainer.setEditAttestationShowFolderScope(true);
     }
     
     {
@@ -646,6 +663,7 @@ public class UiV2Attestation {
     if (attestationContainer.isEditAttestationShowType() && "report".equals(attestationContainer.getEditAttestationType())) {
       attestationContainer.setEditAttestationShowReportConfiguration(true);
       attestationContainer.setEditAttestationShowAuthorizedGroup(true);
+      attestationContainer.setEditAttestationShowFolderScope(false);
     }
     
     {
@@ -1625,7 +1643,7 @@ public class UiV2Attestation {
       
           List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
     
-          boolean hasError = editAttestationSaveHelper(request, response, true, guiScreenActions);
+          boolean hasError = editAttestationSaveHelper(request, response, false, guiScreenActions);
           
           if (!hasError) {
             //if it was removed
@@ -1672,15 +1690,16 @@ public class UiV2Attestation {
                 }
               }
               
-              if (attestationContainer.getEditAttestationType().equals("report") && attestationReportConfigurationId == null) {
-                throw new RuntimeException("Report is required");
+              Stem.Scope scope = null;
+              if (!"report".equals(attestationContainer.getEditAttestationType())) {
+                scope = (attestationContainer.getEditAttestationStemScopeSub() == null || attestationContainer.getEditAttestationStemScopeSub()) ? Stem.Scope.SUB : Stem.Scope.ONE; 
               }
-              
+
               updateStemAttestationAttributes(STEM, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), 
                   attestationContainer.isEditAttestationSendEmail(), attestationContainer.isEditAttestationHasAttestation(),
                   attestationContainer.getEditAttestationEmailAddresses(), GrouperUtil.stringValue(attestationContainer.getEditAttestationCustomRecertifyDays()), 
                   null, attestationContainer.isEditAttestationResetCertifiedToToday(), 
-                  (attestationContainer.getEditAttestationStemScopeSub() == null || attestationContainer.getEditAttestationStemScopeSub()) ? Stem.Scope.SUB : Stem.Scope.ONE,
+                  scope,
                   attestationContainer.getEditAttestationType(), attestationReportConfigurationId, attestationAuthorizedGroupId);
               guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + STEM.getId() + "')"));
     

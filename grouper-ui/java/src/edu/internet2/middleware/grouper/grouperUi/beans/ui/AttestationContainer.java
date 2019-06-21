@@ -319,6 +319,29 @@ public class AttestationContainer {
       boolean editAttestationShowAuthorizedGroup1) {
     this.editAttestationShowAuthorizedGroup = editAttestationShowAuthorizedGroup1;
   }
+  
+  /**
+   * if should show folder scope
+   */
+  private boolean editAttestationShowFolderScope;
+  
+  /**
+   * if should show folder scope
+   * @return the editAttestationShowFolderScope
+   */
+  public boolean isEditAttestationShowFolderScope() {
+    return editAttestationShowFolderScope;
+  }
+
+  
+  /**
+   * if should show folder scope
+   * @param editAttestationShowFolderScope the editAttestationShowFolderScope to set
+   */
+  public void setEditAttestationShowFolderScope(boolean editAttestationShowFolderScope) {
+    this.editAttestationShowFolderScope = editAttestationShowFolderScope;
+  }
+  
 
   /**
    * 

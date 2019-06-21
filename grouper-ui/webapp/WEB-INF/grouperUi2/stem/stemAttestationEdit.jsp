@@ -72,10 +72,14 @@
           <td style="vertical-align: top; white-space: nowrap;"><strong><label
               for="grouperAttestationAuthorizedGroupId">${textContainer.text['attestationAuthorizedGroupLabel']}</label></strong></td>
           <td id="grouperAttestationAuthorizedGroupComboTd">
-            <style>#grouperAttestationAuthorizedGroupComboTd td {padding: 0; border: 0}</style>
-            <grouper:combobox2 idBase="grouperAttestationAuthorizedGroupCombo" style="width: 30em"
-              value="${grouperRequestContainer.attestationContainer.editAttestationAuthorizedGroup == null ? null : grouperRequestContainer.attestationContainer.editAttestationAuthorizedGroup.id}"
-              filterOperation="../app/UiV2Group.groupUpdateFilter" />
+            <span style="white-space: nowrap">
+              <style>#grouperAttestationAuthorizedGroupComboTd td {padding: 0; border: 0}</style>
+              <grouper:combobox2 idBase="grouperAttestationAuthorizedGroupCombo" style="width: 30em"
+                value="${grouperRequestContainer.attestationContainer.editAttestationAuthorizedGroup == null ? null : grouperRequestContainer.attestationContainer.editAttestationAuthorizedGroup.id}"
+                filterOperation="../app/UiV2Group.groupUpdateFilter" />
+              <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right"
+                data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+            </span>
             <span class="description">${textContainer.text['grouperAttestationAuthorizedGroupDescription']}</span>
           </td>
         </tr>
@@ -99,17 +103,17 @@
           test="${grouperRequestContainer.attestationContainer.editAttestationShowEmailSettings}">
           <tr>
             <td style="vertical-align: top; white-space: nowrap;"><strong><label
-                for="grouperAttestationEmailGroupManagersId">${textContainer.text['attestationEmailManagersLabel']}</label></strong></td>
+                for="grouperAttestationEmailGroupManagersId">${textContainer.text[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'attestationReportEmailManagersLabel' : 'attestationEmailManagersLabel']}</label></strong></td>
             <td><select
               name="grouperAttestationEmailGroupManagersName"
               id="grouperAttestationEmailGroupManagersId"
               style="width: 25em"
               onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
                 <option value="true"
-                  ${grouperRequestContainer.attestationContainer.editAttestationEmailGroupManagers ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationEmailManagersLabel']}</option>
+                  ${grouperRequestContainer.attestationContainer.editAttestationEmailGroupManagers ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportEmailManagersLabel' : 'grouperAttestationEmailManagersLabel']}</option>
                 <option value="false"
                   ${grouperRequestContainer.attestationContainer.editAttestationEmailGroupManagers ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['grouperAttestationDontEmailManagersLabel']}</option>
-            </select> <br /> <span class="description">${textContainer.text['grouperAttestationEmailManagersDescription']}</span>
+            </select> <br /> <span class="description">${textContainer.text[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportEmailManagersDescription' : 'grouperAttestationEmailManagersDescription']}</span>
             </td>
           </tr>
           <c:if
@@ -126,7 +130,7 @@
                     data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                 </span>
               
-                <br /> <span class="description">${textContainer.text['grouperAttestationEmailAddressesDescription']}</span>
+                <br /> <span class="description">${textContainer.text[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportEmailAddressesDescription' : 'grouperAttestationEmailAddressesDescription']}</span>
                 
               </td>
             </tr>
@@ -166,34 +170,36 @@
             </td>
           </tr>
         </c:if>
+        <c:if test="${grouperRequestContainer.attestationContainer.editAttestationShowFolderScope}">
+          <tr>
+            <td style="vertical-align: top; white-space: nowrap;"><strong><label
+                for="grouperAttestationStemScopeId">${textContainer.text['grouperAttestationStemScopeLabel']}</label></strong></td>
+            <td><select
+              name="grouperAttestationStemScopeName"
+              id="grouperAttestationStemScopeId"
+              style="width: 25em"
+              onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
+                <option value="true"
+                  ${grouperRequestContainer.attestationContainer.editAttestationStemScopeSub ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationYesStemScopeLabel']}</option>
+                <option value="false"
+                  ${grouperRequestContainer.attestationContainer.editAttestationStemScopeSub ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['grouperAttestationNoStemScopeLabel']}</option>
+            </select> <br /> <span class="description">${textContainer.text['grouperAttestationStemScopeDescription']}</span>
+            </td>
+          </tr>        
+        </c:if>
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label
-              for="grouperAttestationStemScopeId">${textContainer.text['grouperAttestationStemScopeLabel']}</label></strong></td>
-          <td><select
-            name="grouperAttestationStemScopeName"
-            id="grouperAttestationStemScopeId"
-            style="width: 25em"
-            onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
-              <option value="true"
-                ${grouperRequestContainer.attestationContainer.editAttestationStemScopeSub ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationYesStemScopeLabel']}</option>
-              <option value="false"
-                ${grouperRequestContainer.attestationContainer.editAttestationStemScopeSub ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['grouperAttestationNoStemScopeLabel']}</option>
-          </select> <br /> <span class="description">${textContainer.text['grouperAttestationStemScopeDescription']}</span>
-          </td>
-        </tr>        
-        <tr>
-          <td style="vertical-align: top; white-space: nowrap;"><strong><label
-              for="grouperAttestationMarkAsReviewedId">${textContainer.text['grouperAttestationMarkStemAsReviewedLabel']}</label></strong></td>
+              for="grouperAttestationMarkAsReviewedId">${textContainer.text[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportMarkStemAsReviewedLabel' : 'grouperAttestationMarkStemAsReviewedLabel']}</label></strong></td>
           <td><select
             name="grouperAttestationMarkAsReviewedName"
             id="grouperAttestationMarkAsReviewedId"
             style="width: 25em"
             onchange="ajax('../app/UiV2Attestation.editStemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
               <option value="true"
-                ${grouperRequestContainer.attestationContainer.editAttestationResetCertifiedToToday ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationYesStemMarkAsReviewedLabel']}</option>
+                ${grouperRequestContainer.attestationContainer.editAttestationResetCertifiedToToday ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportYesStemMarkAsReviewedLabel' : 'grouperAttestationYesStemMarkAsReviewedLabel']}</option>
               <option value="false"
-                ${grouperRequestContainer.attestationContainer.editAttestationResetCertifiedToToday ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['grouperAttestationNoStemDontMarkAsReviewedLabel']}</option>
-          </select> <br /> <span class="description">${textContainer.text['grouperAttestationMarkStemAsReviewedDescription']}</span>
+                ${grouperRequestContainer.attestationContainer.editAttestationResetCertifiedToToday ? '' : 'selected="selected"' }>${textContainer.textEscapeXml[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportNoStemDontMarkAsReviewedLabel' : 'grouperAttestationNoStemDontMarkAsReviewedLabel']}</option>
+          </select> <br /> <span class="description">${textContainer.text[grouperRequestContainer.attestationContainer.editAttestationShowReportConfiguration ? 'grouperAttestationReportMarkStemAsReviewedDescription' : 'grouperAttestationMarkStemAsReviewedDescription']}</span>
           </td>
         </tr>        
       </c:if>
