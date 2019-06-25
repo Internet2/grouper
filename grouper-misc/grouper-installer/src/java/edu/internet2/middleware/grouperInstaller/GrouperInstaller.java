@@ -326,6 +326,8 @@ public class GrouperInstaller {
 
     HttpClient httpClient = new HttpClient();
 
+    
+    
     //see if we are working with local files:
     {
       File localFileFromUrl = new File(url);
@@ -11356,7 +11358,7 @@ public class GrouperInstaller {
   /**
    * tomcat version
    */
-  private String tomcatVersion = "8.5.12";
+  private String tomcatVersion = "8.5.42";
   
   /**
    * 
@@ -11368,15 +11370,15 @@ public class GrouperInstaller {
     if (this.tomcatVersion == null) {
       
       String defaultTomcatVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomcat.version", false);
-      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.12");
+      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.42");
       
-      System.out.print("Enter the tomcat version (8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
+      System.out.print("Enter the tomcat version (8.5.42 or 8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
       this.tomcatVersion = readFromStdIn("grouperInstaller.autorun.tomcat.version");
       
       this.tomcatVersion = GrouperInstallerUtils.defaultIfBlank(this.tomcatVersion, defaultTomcatVersion);
       
-      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.12") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
-        System.out.print("Warning: this *should* be 8.5.12 or 6.0.35, hit <Enter> to continue: ");
+      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.42") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
+        System.out.print("Warning: this *should* be 8.5.42 or 8.5.12 or 6.0.35, hit <Enter> to continue: ");
         readFromStdIn("grouperInstaller.autorun.tomcat.version.mismatch");
       }
       
