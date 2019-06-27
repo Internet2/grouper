@@ -326,7 +326,13 @@ public class GrouperInstaller {
 
     HttpClient httpClient = new HttpClient();
 
+    String proxyServer = GrouperInstallerUtils.propertiesValue("download.server.proxyServer", false); 
     
+    if (!GrouperInstallerUtils.isBlank(proxyServer)) {
+      
+      int proxyPort = GrouperInstallerUtils.propertiesValueInt("download.server.proxyPort", -1, true);
+      httpClient.getHostConfiguration().setProxy(proxyServer, proxyPort);
+    }
     
     //see if we are working with local files:
     {

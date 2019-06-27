@@ -3,3 +3,4 @@
 /conf/grouper.installer.properties.*
 /dist
 /target
+/conf/log4j.properties
