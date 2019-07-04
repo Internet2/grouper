@@ -25,12 +25,14 @@
 						      </div>
 						    </div>
                 
-                <div class="workflowConfigErrors">
-                 <c:forEach var="error" items="${grouperRequestContainer.workflowContainer.errors}">
-                  <span>${error}</span>
-                  <br>
-                 </c:forEach>
-                </div>
+                <c:if test="${fn:length(grouperRequestContainer.workflowContainer.errors) > 0}">
+                  <div class="workflowConfigErrors alert alert-error">
+                   <button type="button" class="close" data-dismiss="alert">x</button>
+                   <c:forEach var="error" items="${grouperRequestContainer.workflowContainer.errors}">
+                    <div>${error}</div>
+                   </c:forEach>
+                  </div>
+                </c:if>
                 
                 <form class="form-inline form-small form-filter" id="addWorkflowConfigFormId">
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />

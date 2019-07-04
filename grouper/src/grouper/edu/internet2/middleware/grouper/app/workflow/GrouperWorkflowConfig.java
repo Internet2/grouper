@@ -424,8 +424,7 @@ public class GrouperWorkflowConfig {
     return false;
   }
 
-  public String buildHtmlFromParams(boolean addPlaceholderForValues,
-      String currentState) {
+  public String buildHtmlFromParams(boolean addPlaceholderForValues, String currentState) {
 
     StringBuilder html = new StringBuilder();
 

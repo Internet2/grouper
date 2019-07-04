@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalStates;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
@@ -491,7 +494,13 @@ public class UiV2GrouperWorkflow {
             
             WorkflowContainer workflowContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getWorkflowContainer();
             workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowSubjectIsMemberOf));
-            String htmlForm = workflowSubjectIsMemberOf.buildHtmlFromParams(false, "initiate");
+//            if (StringUtils.isNotBlank(workflowSubjectIsMemberOf.getWorkflowConfigForm())) {
+//              workflowContainer.setHtmlForm(workflowSubjectIsMemberOf.getWorkflowConfigForm());
+//            } else {
+//              String htmlForm = workflowSubjectIsMemberOf.buildHtmlFromParams(false, "initiate");
+//              workflowContainer.setHtmlForm(htmlForm);
+//            }
+            String htmlForm = workflowSubjectIsMemberOf.buildHtmlFromParams(false, INITIATE_STATE);
             workflowContainer.setHtmlForm(htmlForm);
             guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
                 "/WEB-INF/grouperUi2/group/groupJoinInitiateWorkflow.jsp")); //TODO move to workflow folder
