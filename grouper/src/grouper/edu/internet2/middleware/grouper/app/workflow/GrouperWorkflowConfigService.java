@@ -23,9 +23,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
@@ -41,14 +43,33 @@ public class GrouperWorkflowConfigService {
     return buildGrouperWorkflowConfig(attributeAssign);
   }
   
-  public static boolean workflowIdExists(final String workflowId) {
+  
+  /**
+   * retrieve workflow config bean from owner object and attribute assign marker id
+   * @param attributeAssignmentMarkerId
+   * @return
+   */
+  public static GrouperWorkflowConfig getWorkflowConfig(String attributeAssignmentMarkerId) {
     
-    Set<Group> groups = new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignmentMarkerId, true);
+    
+    return buildGrouperWorkflowConfig(attributeAssign);
+    
+  }
+  
+  public static boolean workflowIdExists(final String workflowId) {
+        
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.retrieveCount(true);
+    queryOptions.retrieveResults(false);
+    
+    new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
     .assignNameOfAttributeDefName(GrouperWorkflowSettings.workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_ID)
     .addAttributeValuesOnAssignment(workflowId)
+    .assignQueryOptions(queryOptions)
     .findGroups();
     
-    return groups.size() > 0;
+    return queryOptions.getCount() > 0;
   }
      
   public static List<GrouperWorkflowConfig> getWorkflowConfigs(final Group group) {
@@ -71,7 +92,12 @@ public class GrouperWorkflowConfigService {
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigApprovals());
+    try {
+      String approvals = GrouperWorkflowSettings.objectMapper.writeValueAsString(grouperWorkflowConfig.getWorkflowApprovalStates());
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), approvals);
+    } catch (Exception e) {
+      throw new RuntimeException("could not convert workflow approval states to json string");
+    }
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_DESCRIPTION, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigDescription());
@@ -89,7 +115,12 @@ public class GrouperWorkflowConfigService {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigId());
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_PARAMS, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigParams());
+    try {      
+      String configParams = GrouperWorkflowSettings.objectMapper.writeValueAsString(grouperWorkflowConfig.getConfigParams());
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), configParams);
+    } catch (Exception e) {
+      throw new RuntimeException("could not convert config params to json string");
+    }
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_SEND_EMAIL, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(grouperWorkflowConfig.isWorkflowConfigSendEmail()));
@@ -113,7 +144,10 @@ public class GrouperWorkflowConfigService {
     result.setAttributeAssignmentMarkerId(attributeAssign.getId());
     
     AttributeAssignValue attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS);
-    result.setWorkflowConfigApprovals(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
+    GrouperWorkflowApprovalStates workflowApprovalStates = GrouperWorkflowConfig.buildApprovalStatesFromJsonString(attributeAssignValue.getValueString());
+    result.setWorkflowApprovalStates(workflowApprovalStates);
+    
+    result.setWorkflowConfigApprovalsString(attributeAssignValue.getValueString());
     
     attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_DESCRIPTION);
     result.setWorkflowConfigDescription(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
@@ -131,7 +165,10 @@ public class GrouperWorkflowConfigService {
     result.setWorkflowConfigName(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
     
     attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_PARAMS);
-    result.setWorkflowConfigParams(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
+    GrouperWorkflowConfigParams configParams = GrouperWorkflowConfig.buildParamsFromJsonString(attributeAssignValue.getValueString());
+    result.setConfigParams(configParams);
+    
+    result.setWorkflowConfigParamsString(attributeAssignValue.getValueString());
     
     attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_SEND_EMAIL);
     String workflowConfigSendEmailStr = attributeAssignValue != null ? attributeAssignValue.getValueString(): null;

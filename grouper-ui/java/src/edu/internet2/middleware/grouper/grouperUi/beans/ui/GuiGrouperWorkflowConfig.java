@@ -8,12 +8,20 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalStates;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigParams;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+
 
 public class GuiGrouperWorkflowConfig {
   
   private GrouperWorkflowConfig grouperWorkflowConfig;
+  
+  private String workflowConfigParams;
+  
+  private String workflowApprovalStates;
   
   private GuiGroup guiGroup;
   
@@ -33,6 +41,20 @@ public class GuiGrouperWorkflowConfig {
       Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), viewersGroupId, true);
       guiGrouperWorkflowConfig.guiGroup = new GuiGroup(group); 
     }
+    
+    try {
+      guiGrouperWorkflowConfig.workflowConfigParams = GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grouperWorkflowConfig.getConfigParams());
+    } catch (Exception e) {
+      throw new RuntimeException("could not convert config params to string", e);
+    }
+    
+    GrouperWorkflowApprovalStates approvalStates = grouperWorkflowConfig.getWorkflowApprovalStates();
+    try {
+      guiGrouperWorkflowConfig.workflowApprovalStates = GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grouperWorkflowConfig.getWorkflowApprovalStates());
+    } catch(Exception e) {
+      throw new RuntimeException("could not convert approval states to string", e);
+    }
+    
     return guiGrouperWorkflowConfig;
   }
   
@@ -49,6 +71,14 @@ public class GuiGrouperWorkflowConfig {
 
   public GuiGroup getGuiGroup() {
     return guiGroup;
+  }
+
+  public String getWorkflowConfigParams() {
+    return workflowConfigParams;
+  }
+
+  public String getWorkflowApprovalStates() {
+    return workflowApprovalStates;
   }
   
 }

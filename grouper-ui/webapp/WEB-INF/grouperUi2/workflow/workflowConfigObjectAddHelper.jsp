@@ -47,8 +47,7 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigDescriptionId">${textContainer.text['grouperWorkflowConfigDescriptionLabel']}</label></strong></td>
     <td>
-      <textarea id="grouperWorkflowConfigDescriptionId" name="grouperWorkflowConfigDescription" rows="6" cols="60" class="input-block-level">
-        ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigDescription)}</textarea>
+      <textarea id="grouperWorkflowConfigDescriptionId" name="grouperWorkflowConfigDescription" rows="6" cols="60" class="input-block-level">${textContainer.textEscapeDouble['workflowConfigDefaultDescription']}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -60,8 +59,7 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigApprovalsId">${textContainer.text['grouperWorkflowConfigApprovalsLabel']}</label></strong></td>
     <td>
-      <textarea id="grouperWorkflowConfigApprovalsId" name="grouperWorkflowConfigApprovals" rows="10" cols="60" class="input-block-level">
-        ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigApprovals)}</textarea>
+      <textarea id="grouperWorkflowConfigApprovalsId" name="grouperWorkflowConfigApprovals" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.workflowApprovalStates)}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -73,8 +71,7 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigParamsId">${textContainer.text['grouperWorkflowConfigParamsLabel']}</label></strong></td>
     <td>
-      <textarea id="grouperWorkflowConfigParamsId" name="grouperWorkflowConfigParams" rows="10" cols="60" class="input-block-level">
-        ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigParams)}</textarea>
+      <textarea id="grouperWorkflowConfigParamsId" name="grouperWorkflowConfigParams" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.workflowConfigParams)}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -83,15 +80,16 @@
     </td>
   </tr>
   
-  <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigFormId">${textContainer.text['grouperWorkflowConfigFormLabel']}</label></strong></td>
-    <td>
-      <textarea id="grouperWorkflowConfigFormId" name="grouperWorkflowConfigForm" rows="10" cols="60" class="input-block-level">
-        ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigForm)}</textarea>
-      <br />
-      <span class="description">${textContainer.text['grouperWorkflowConfigFormHint']}</span>
-    </td>
-  </tr>
+  <c:if test="${grouperRequestContainer.workflowContainer.canEditWorkflowFormField}">
+    <tr>
+	    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigFormId">${textContainer.text['grouperWorkflowConfigFormLabel']}</label></strong></td>
+	    <td>
+	      <textarea id="grouperWorkflowConfigFormId" name="grouperWorkflowConfigForm" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigForm)}</textarea>
+	      <br />
+	      <span class="description">${textContainer.text['grouperWorkflowConfigFormHint']}</span>
+	    </td>
+    </tr>
+  </c:if>
   
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigViewersGroupIdId">${textContainer.text['grouperWorkflowConfigViewersGroupIdLabel']}</label></strong></td>

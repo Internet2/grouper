@@ -34,7 +34,7 @@
                         <c:if test="${grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptout }">
                           <li><a href="#" onclick="ajax('../app/UiV2Group.leaveGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" >${textContainer.text['groupViewLeaveGroupButton']}</a></li>
                         </c:if>
-                        <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptin }">
+                        <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canJoin }">
                           <li><a href="#" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</a></li>
                         </c:if>
 

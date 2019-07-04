@@ -11,7 +11,7 @@
                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                              >${textContainer.text['grouperWorkflowMoreActionsViewForms'] }</a></li>
 
-                        <c:if test="${grouperRequestContainer.workflowContainer.canWrite}" >
+                        <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow}" >
                               
                           <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.formAdd&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperWorkflowMoreActionsAddForm'] }</a></li>

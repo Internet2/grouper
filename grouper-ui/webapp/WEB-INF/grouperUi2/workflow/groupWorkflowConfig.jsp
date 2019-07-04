@@ -92,7 +92,7 @@
                                
                              </c:if> --%>
                              
-                             <c:if test="${grouperRequestContainer.workflowContainer.canWrite }">
+                             <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
                                <%-- <c:choose>
                                  <c:when test="${guiWorkflowConfig.reportConfigBean.reportConfigEnabled}">
                                    <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
