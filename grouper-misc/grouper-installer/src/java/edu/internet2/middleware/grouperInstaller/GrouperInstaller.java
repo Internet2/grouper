@@ -1988,12 +1988,16 @@ public class GrouperInstaller {
       this.buildClient(new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouperClient"));
       
     }
-    
-    //lets build grouper (always)
-    this.untarredApiDir = new File(sourceDir + File.separator + "grouper");
-    this.buildGrouperApi(new File(sourceDir + File.separator + "grouper"));
-    this.untarredApiDir = new File(sourceTagDir + File.separator + "grouper");
-    this.buildGrouperApi(new File(sourceTagDir + File.separator + "grouper"));
+
+    // Grouper API has always been built for everything, but its build is actually broken
+    // right now, and, in fact, there is no need to build Grouper API for PSPNG
+    // Therefore: Disabling Grouper API build when building PSPNG so it can at least be patched
+    if (this.appToUpgrade != AppToUpgrade.PSPNG) {
+      this.untarredApiDir = new File(sourceDir + File.separator + "grouper");
+      this.buildGrouperApi(new File(sourceDir + File.separator + "grouper"));
+      this.untarredApiDir = new File(sourceTagDir + File.separator + "grouper");
+      this.buildGrouperApi(new File(sourceTagDir + File.separator + "grouper"));
+    }
     
     if (this.appToUpgrade == AppToUpgrade.API) {
       //other packages, e.g. messaging
