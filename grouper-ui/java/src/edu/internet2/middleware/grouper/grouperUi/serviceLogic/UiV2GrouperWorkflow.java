@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalStates;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
@@ -239,7 +238,6 @@ public class UiV2GrouperWorkflow {
         workflowContainer.setErrors(errors);
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/workflow/groupWorkflowConfigAdd.jsp"));
-        // guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperWorkflow.formAdd&groupId=" + group.getId() + "')"));
         return;
       }
       
@@ -738,9 +736,10 @@ public class UiV2GrouperWorkflow {
         }
         
       });
-     
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/workflow/grouperWorkflowViewInstance.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperWorkflow.formsWaitingForApproval')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("grouperWorkflowApproveSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

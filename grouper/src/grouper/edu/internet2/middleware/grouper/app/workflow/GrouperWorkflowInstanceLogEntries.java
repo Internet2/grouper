@@ -17,4 +17,15 @@ public class GrouperWorkflowInstanceLogEntries {
     this.logEntries = logEntries;
   }
   
+  public GrouperWorkflowInstanceLogEntry getLogEntryByActionName(String actionName) {
+    
+    for (GrouperWorkflowInstanceLogEntry logEntry: logEntries) {
+      if (logEntry.getAction().equals(actionName)) {
+        return logEntry;
+      }
+    }
+    
+    return null;
+  }
+  
 }

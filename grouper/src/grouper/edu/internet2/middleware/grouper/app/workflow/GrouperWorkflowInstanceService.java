@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.COMPLETE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.EXCEPTION_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings.workflowStemName;
@@ -348,7 +351,7 @@ public class GrouperWorkflowInstanceService {
     String randomEncryptionKey = RandomStringUtils.random(16, true, true);
     
     GrouperWorkflowInstance instance = new GrouperWorkflowInstance();
-    instance.setWorkflowInstanceState("initiate"); // TODO replace hardcoded string with a constant 
+    instance.setWorkflowInstanceState(INITIATE_STATE); 
     instance.setWorkflowInstanceConfigMarkerAssignmentId(grouperWorkflowConfig.getAttributeAssignmentMarkerId());
     instance.setWorkflowInstanceLastUpdatedMillisSince1970(now.getTime());
     instance.setWorkflowInstanceInitiatedMillisSince1970(now.getTime());
@@ -356,8 +359,8 @@ public class GrouperWorkflowInstanceService {
     instance.setWorkflowInstanceEncryptionKey(Morph.encrypt(randomEncryptionKey));
     
     GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
-    logEntry.setState("initiate");
-    logEntry.setAction("initiate");
+    logEntry.setState(INITIATE_STATE);
+    logEntry.setAction(INITIATE_STATE);
     logEntry.setSubjectId(subject.getId());
     logEntry.setSubjectSourceId(subject.getSourceId());
     logEntry.setMillisSince1970(now.getTime());
@@ -369,7 +372,7 @@ public class GrouperWorkflowInstanceService {
    
     GrouperWorkflowConfigParams configParams = grouperWorkflowConfig.getConfigParams();
     
-    String htmlForm = grouperWorkflowConfig.buildHtmlFromParams(true, "initiate");
+    String htmlForm = grouperWorkflowConfig.buildHtmlFromParams(true, INITIATE_STATE);
     
     // add auditing at the bottom
     StringBuilder htmlFormWithAudit = new StringBuilder(htmlForm);
@@ -380,7 +383,7 @@ public class GrouperWorkflowInstanceService {
     auditLine = auditLine.replace("$$subjectId$$", subject.getId());
     auditLine = auditLine.replace("$$subjectName$$", subject.getName());
     auditLine = auditLine.replace("$$buttonText$$", "submit");
-    auditLine = auditLine.replace("$$state$$", "initiate");
+    auditLine = auditLine.replace("$$state$$", INITIATE_STATE);
     
     String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now);
     
@@ -402,7 +405,7 @@ public class GrouperWorkflowInstanceService {
         paramValue.setParamName(paramName);
         paramValue.setParamValue(value);
         paramValue.setEditedByMemberId(subject.getId());
-        paramValue.setEditedInState("initiate");
+        paramValue.setEditedInState(INITIATE_STATE);
         paramValue.setLastUpdatedMillis(now.getTime());
        
         Method method = instance.getClass().getMethod("setGrouperWorkflowInstanceParamValue"+String.valueOf(i), GrouperWorkflowInstanceParamValue.class);
@@ -421,7 +424,7 @@ public class GrouperWorkflowInstanceService {
     }
     
     GrouperWorkflowInstanceFileInfo fileInfo = new GrouperWorkflowInstanceFileInfo();
-    fileInfo.setState("initiate");
+    fileInfo.setState(INITIATE_STATE);
     GrouperWorkflowInstanceFilesInfo filesInfo = new GrouperWorkflowInstanceFilesInfo();
     filesInfo.getFileNamesAndPointers().add(fileInfo);
     instance.setGrouperWorkflowInstanceFilesInfo(filesInfo);
@@ -437,10 +440,10 @@ public class GrouperWorkflowInstanceService {
     List<GrouperWorkflowInstance> workflowInstances = getWorkflowInstances(group);
     
     for (GrouperWorkflowInstance instance: workflowInstances) {
-      if (!instance.getWorkflowInstanceState().equals("complete")) {
+      if (!instance.getWorkflowInstanceState().equals(COMPLETE_STATE)) {
         GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
         for (GrouperWorkflowInstanceLogEntry entry: logEntries.getLogEntries()) {
-          if (entry.getAction().equals("initiate") && entry.getSubjectId().equals(subject.getId())) {
+          if (entry.getAction().equals(INITIATE_STATE) && entry.getSubjectId().equals(subject.getId())) {
             return true;
           }
         }
@@ -483,7 +486,7 @@ public class GrouperWorkflowInstanceService {
     
     Set<Group> groupsWithWorkflowInstance = findGroupsWithWorkflowInstance();
     
-    List<String> statesToIgnore = Arrays.asList("initiate", "complete", "exception");
+    List<String> statesToIgnore = Arrays.asList(INITIATE_STATE, COMPLETE_STATE, EXCEPTION_STATE);
     
     for (Group group: groupsWithWorkflowInstance) {
       

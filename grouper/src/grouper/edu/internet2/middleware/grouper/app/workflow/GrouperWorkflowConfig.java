@@ -181,13 +181,55 @@ public class GrouperWorkflowConfig {
     } else {
       boolean isInitiateStateAvailable = false;
       boolean isCompleteStateAvailable = false;
-
-      for (final GrouperWorkflowApprovalState state : workflowApprovalStates.getStates()) {
+       
+      for (int i = 0; i < workflowApprovalStates.getStates().size(); i++) {
+        
+        final GrouperWorkflowApprovalState state = workflowApprovalStates.getStates().get(i);
+        
         final String stateName = state.getStateName();
-        if (StringUtils.isNotBlank(stateName) && stateName.equals(INITIATE_STATE)) {
-          isInitiateStateAvailable = true;
+        
+        if (StringUtils.isBlank(stateName)) {
+          String error = contentKeys.get("workflowApprovalsStateNameMissing");
+          error = error.replace("$$$$index$$", String.valueOf(i));
+          errors.add(error);
+          continue;
         }
-        if (StringUtils.isNotBlank(stateName) && stateName.equals(COMPLETE_STATE)) {
+        
+        // can be only one initiate and one complete state
+        if (isInitiateStateAvailable && stateName.equals(INITIATE_STATE)) {
+          errors.add(contentKeys.get("workflowApprovalsMultipleInitiateStatesFound"));
+          continue;
+        }
+        
+        if (isCompleteStateAvailable && stateName.equals(COMPLETE_STATE)) {
+          errors.add(contentKeys.get("workflowApprovalsMultipleCompleteStatesFound"));
+          continue;
+        }
+        
+        if (stateName.equals(INITIATE_STATE)) {
+          isInitiateStateAvailable = true;
+          final String allowedGroupId = state.getAllowedGroupId();
+          if (StringUtils.isBlank(allowedGroupId)) {
+            //TODO waiting for Chris response if error is needed
+          } else {
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                Group group = GroupFinder.findByUuid(grouperSession, allowedGroupId, false);
+                if (group == null) {
+                  String error = contentKeys.get("workflowApprovalsStateAllowedGroupNotFound");
+                  error = error.replace("$$stateName$$", stateName);
+                  error = error.replace("$$groupId$$", allowedGroupId);
+                  errors.add(error);
+                }
+                return null;
+              }
+            });
+          }
+        }
+        
+        if (stateName.equals(COMPLETE_STATE)) {
           isCompleteStateAvailable = true;
         }
         
@@ -387,7 +429,7 @@ public class GrouperWorkflowConfig {
   public boolean isSubjectInInitiateAllowedGroup(final Subject subject) {
 
     for (GrouperWorkflowApprovalState state : workflowApprovalStates.getStates()) {
-      if ("initiate".equals(state.getStateName())) {
+      if (INITIATE_STATE.equals(state.getStateName())) {
         final String allowedGroupId = state.getAllowedGroupId();
         if (StringUtils.isBlank(allowedGroupId)) {
           return false;
@@ -537,7 +579,7 @@ public class GrouperWorkflowConfig {
 
     List<GrouperWorkflowConfigParam> params = new ArrayList<GrouperWorkflowConfigParam>();
     GrouperWorkflowConfigParam param1 = new GrouperWorkflowConfigParam();
-    param1.setEditableInStates(Arrays.asList("initiate"));
+    param1.setEditableInStates(Arrays.asList(INITIATE_STATE));
     param1.setParamName("notes");
     param1.setType("textarea");
     params.add(param1);

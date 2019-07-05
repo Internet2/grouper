@@ -6,6 +6,7 @@ public class GrouperWorkflowApprovalState {
   
   public static final String INITIATE_STATE = "initiate";
   public static final String COMPLETE_STATE = "complete";
+  public static final String EXCEPTION_STATE = "exception";
   
   private String stateName;
   

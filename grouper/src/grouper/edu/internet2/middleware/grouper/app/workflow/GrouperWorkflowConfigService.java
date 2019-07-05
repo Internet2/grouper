@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
 
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ENABLED;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
@@ -30,6 +32,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowConfigService {
   
@@ -130,6 +133,15 @@ public class GrouperWorkflowConfigService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigViewersGroupId());
+    
+    // give view privilege to allowedGroupId
+    GrouperWorkflowApprovalState initiateState = grouperWorkflowConfig.getWorkflowApprovalStates().getStateByName(INITIATE_STATE);
+    String alloweGroupId = initiateState.getAllowedGroupId();
+    if (StringUtils.isNotBlank(alloweGroupId)) {
+      Subject allowedGroup = SubjectFinder.findById(alloweGroupId, true);
+      group.addOrEditMember(allowedGroup, false, false, false, false, false, true, 
+          false, false, false, false, null, null, false);
+    }
     
     attributeAssign.saveOrUpdate();
     

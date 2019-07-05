@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.workflow;
 
 public class GrouperWorkflowInstanceLogEntry {
   
+  public static final String INITIATE_ACTION = "initiate";
+  
   private String subjectSourceId;
   
   private String subjectId;

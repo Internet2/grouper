@@ -20,22 +20,7 @@
      <div class="span12">
      
        <table class="table table-condensed table-striped">
-      <tbody>
-        
-        <tr>
-          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['workflowInstanceTableColumnHeaderInstanceConfigName']}</label></strong></td>
-          <td>${instance.grouperWorkflowConfig.workflowConfigName}</td>
-        </tr>
-        
-        <tr>
-          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['workflowInstanceTableColumnHeaderInstanceState']}</label></strong></td>
-          <td>${instance.workflowInstanceState}</td>
-        </tr>
-        
-        <tr>
-          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['workflowInstanceTableColumnHeaderInstanceLastUpdated']}</label></strong></td>
-          <td>${instance.workflowInstanceLastUpdatedDate}</td>
-        </tr>
+        <tbody>
         
         <tr>
           <td colspan="2">
@@ -44,7 +29,7 @@
         </tr>
         
         <tr>
-        <td>
+        <td colspan="2">
         
           <input type="submit" class="btn btn-primary"
             aria-controls="workflowConfigSubmitId" id="submitId"
