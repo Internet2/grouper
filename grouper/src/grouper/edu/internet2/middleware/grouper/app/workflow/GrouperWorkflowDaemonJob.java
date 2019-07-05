@@ -20,7 +20,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -32,6 +35,37 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperWorkflowDaemonJob.class);
+  
+  /**
+   * run the daemon
+   * @param args
+   */
+  public static void main(String[] args) {
+    runDaemonStandalone();
+  }
+
+  /**
+   * run standalone
+   */
+  public static void runDaemonStandalone() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    
+    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+    String jobName = "OTHER_JOB_workflowDaemom";
+
+    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+    hib3GrouperLoaderLog.store();
+    
+    OtherJobInput otherJobInput = new OtherJobInput();
+    otherJobInput.setJobName(jobName);
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    otherJobInput.setGrouperSession(grouperSession);
+    new GrouperWorkflowDaemonJob().run(otherJobInput);
+  }
 
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
@@ -39,7 +73,6 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
     GrouperSession session = GrouperSession.startRootSession();
     Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
     Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
-    
     
     updateInstances(instancesNeedingEmail, session);
     
