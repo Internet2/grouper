@@ -602,7 +602,7 @@ public class GrouperWorkflowConfig {
     List<GrouperWorkflowApprovalState> listOfStates = new ArrayList<GrouperWorkflowApprovalState>();
 
     GrouperWorkflowApprovalState initiateState = new GrouperWorkflowApprovalState();
-    initiateState.setStateName("initiate");
+    initiateState.setStateName(INITIATE_STATE);
     listOfStates.add(initiateState);
 
     GrouperWorkflowApprovalState groupManager = new GrouperWorkflowApprovalState();
@@ -611,7 +611,7 @@ public class GrouperWorkflowConfig {
     listOfStates.add(groupManager);
 
     GrouperWorkflowApprovalState complete = new GrouperWorkflowApprovalState();
-    complete.setStateName("complete");
+    complete.setStateName(COMPLETE_STATE);
 
     GrouperWorkflowApprovalAction action = new GrouperWorkflowApprovalAction();
     action.setActionName("assignToGroup");
