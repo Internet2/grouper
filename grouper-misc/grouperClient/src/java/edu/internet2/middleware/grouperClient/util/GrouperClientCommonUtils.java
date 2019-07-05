@@ -2649,8 +2649,8 @@ public class GrouperClientCommonUtils  {
     if (objectOrArrayOrCollection instanceof Collection) {
       Collection collection = (Collection) objectOrArrayOrCollection;
       Object first = collection.iterator().next();
-      return toArray(collection, first == null ? Object.class : first
-          .getClass());
+      return toArray(collection, (Class<?>)(first == null ? Object.class : first
+          .getClass()));
     }
     // make an array of the type of object passed in, size one
     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),
