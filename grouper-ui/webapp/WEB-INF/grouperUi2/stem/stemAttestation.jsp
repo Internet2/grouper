@@ -101,6 +101,49 @@
                                 <span class="description">${textContainer.text['grouperAttestationAuthorizedGroupDescription']}</span>
                               </td>
                             </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationStatusLabel'] }</strong></td>
+                              <td>
+                                <c:choose>
+                                  <c:when test="${!grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">
+                                    ${textContainer.textEscapeXml['attestationReportStatusOk']}
+                                  </c:when>
+                                  <c:otherwise>
+                                    ${textContainer.textEscapeXml['attestationReportStatusNotOk']}
+                                  </c:otherwise>
+                                </c:choose>
+                                <br />
+                                <span class="description">${textContainer.text['attestationReportStatusDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDateCertifiedLabel'] }</strong></td>
+                              <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDateCertified}
+                                <br />
+                                <span class="description">${textContainer.text['attestationReportDateCertifiedDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDateNeedsRecertifyLabel'] }</strong></td>
+                              <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDateNeedsCertify}
+                                <br />
+                                <span class="description">${textContainer.text['attestationReportDateNeedsRecertifyDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDaysLeftUntilRecertifyLabel'] }</strong></td>
+                              <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDaysLeftUntilRecertify}
+                                <br />
+                                <span class="description">${textContainer.text['attestationReportDaysLeftUntilRecertifyDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationLastEmailedDateLabel']}</strong></td>
+                              <td>${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationLastEmailedDate)}
+                                <br />
+                                <span class="description">${textContainer.text['attestationReportLastEmailedDateDescription']}</span>
+                              </td>
+                            </tr>
                           </c:if>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationSendEmailLabel']}</strong></td>

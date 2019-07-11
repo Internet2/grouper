@@ -187,11 +187,24 @@ public class UiV2Attestation {
               GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft, attestationType, attestationReportConfiguration,
               attestationAuthorizedGroup);
         } else if (attributeAssignable instanceof Stem) {
+          Integer daysLeft = null;
+          
+          if ("report".equals(attestationType)) {
+            String daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+                GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+            if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
+              GrouperAttestationJob.updateCalculatedDaysUntilRecertify((Stem)attributeAssignable);      
+            }
+            daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+                GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+            daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation, -1);
+          }
+          
           GrouperAttestationJob.updateObjectAttributesToPatch81((Stem)attributeAssignable, attributeAssign);
           result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), 
               GrouperUtil.booleanObjectValue(attestationHasAttestation), attestationEmailAddresses, attestationDaysUntilRecertify,
               attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
-              GrouperUtil.booleanValue(attestationDirectAssignment, false), null, attestationType, attestationReportConfiguration,
+              GrouperUtil.booleanValue(attestationDirectAssignment, false), daysLeft, attestationType, attestationReportConfiguration,
               attestationAuthorizedGroup);
         }
         return result;
@@ -496,6 +509,7 @@ public class UiV2Attestation {
                   attestationContainer.isEditAttestationHasAttestation(),
                   attestationContainer.getEditAttestationEmailAddresses(), GrouperUtil.stringValue(attestationContainer.getEditAttestationCustomRecertifyDays()), 
                   null, attestationContainer.isEditAttestationResetCertifiedToToday());
+
               guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.groupAttestation&groupId=" + group.getId() + "')"));
                 
               attestationSaveAudit(auditEntry);
@@ -1506,7 +1520,10 @@ public class UiV2Attestation {
     updateAttribute(attributeAssign, GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName(), 
         authorizedGroupId);
     
-    if (updateLastCertifiedDate) {
+    if (updateLastCertifiedDate && "report".equals(type)) {
+      String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+      updateAttribute(attributeAssign, GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), date);
+    } else if (updateLastCertifiedDate) {
       updateAttestationLastCertifiedDate(stem, false);
     }
   }

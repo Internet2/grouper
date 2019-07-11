@@ -710,6 +710,23 @@ public class GrouperAttestationJob extends OtherJobBase {
 //
 //  }
   
+  /**
+   * update the calculated days until recertify (i.e. if the stem has a report based attestation)
+   * @param stem stem to calculate
+   */
+  public static void updateCalculatedDaysUntilRecertify(Stem stem) {
+
+    AttributeAssign stemAttributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, true);
+    String attestationDateCertified = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDateCertified().getName());    
+    String hasAttestationAttributeValue = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameHasAttestation().getName());
+
+    if (StringUtils.isBlank(hasAttestationAttributeValue) || !GrouperUtil.booleanValue(hasAttestationAttributeValue)) {
+      stemAttributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft());
+    } else {
+      String configuredAttestationDaysUntilRecertify = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDaysUntilRecertify().getName());
+      updateCalculatedDaysLeft(stemAttributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, false);
+    }
+  }
   
   /**
    * update the calculated days until recertify
