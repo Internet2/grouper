@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -484,6 +486,41 @@ public class AttestationContainer {
   }
   
   /**
+   * @return report instance id
+   */
+  public String getMostRecentReportInstanceAssignId() {
+    this.attributeAssignableHelper();
+    final AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+        String attestationReportConfigurationId = attributeAssign.getAttributeValueDelegate()
+            .retrieveValueString(
+                GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
+        
+        if (attestationReportConfigurationId == null) {
+          return null;
+        }
+
+        if (attributeAssign.getOwnerStemId() != null) {
+          GrouperReportInstance instance = GrouperReportInstanceService.getMostRecentReportInstance(attributeAssign.getOwnerStem(), attestationReportConfigurationId);
+          if (instance != null) {
+            return instance.getAttributeAssignId();
+          }
+        }
+        
+        return null;
+      }
+    });
+  }
+  
+  /**
    * authorized group
    * @return authorized group
    */
@@ -857,6 +894,13 @@ public class AttestationContainer {
         return true;
       }
     }
+    
+    // check if this is a report that the user can attest
+    boolean isCanAttestReport = this.isCanAttestReport();
+    if (isCanAttestReport) {
+      return true;
+    }
+    
     return false;
   }
   
@@ -895,6 +939,55 @@ public class AttestationContainer {
         return true;
       }
     }
+    return false;
+  }
+  
+  /**
+   * 
+   * @return true if can write
+   */
+  public boolean isCanAttestReport() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+
+    if (guiStem != null) {
+      
+      final Stem stem = guiStem.getStem();
+
+      return (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+              AttributeAssign attributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+              if (attributeAssign != null) {
+                String attestationType = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameType().getName());
+
+                if ("report".equals(attestationType)) {
+                  boolean isRoot = PrivilegeHelper.isWheelOrRoot(loggedInSubject);
+                  if (isRoot) {
+                    return true;
+                  }
+  
+                  String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+                  Group attestationAuthorizedGroup = null;
+                  if (attestationAuthorizedGroupId != null) {
+                    attestationAuthorizedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, false);
+                  }
+                  if (attestationAuthorizedGroup != null) {
+                    return attestationAuthorizedGroup.hasMember(loggedInSubject);
+                  }
+                }
+              }
+              
+              return false;
+            }
+          });
+    }
+    
     return false;
   }
 

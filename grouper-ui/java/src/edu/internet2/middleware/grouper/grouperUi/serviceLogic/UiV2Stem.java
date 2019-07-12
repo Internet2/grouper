@@ -966,6 +966,8 @@ public class UiV2Stem {
       if (stem == null) {
         return;
       }
+      
+      UiV2Attestation.setupAttestation(stem);  
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       

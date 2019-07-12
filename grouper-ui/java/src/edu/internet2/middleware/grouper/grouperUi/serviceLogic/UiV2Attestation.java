@@ -227,6 +227,17 @@ public class UiV2Attestation {
    * @param request
    * @param response
    */
+  public void attestFolderFromOutside(HttpServletRequest request, HttpServletResponse response) {
+    
+    attestFolderHelper(request);
+    
+    new UiV2Stem().viewStem(request, response);
+  }
+  
+  /**
+   * @param request
+   * @param response
+   */
   public void attestGroup(HttpServletRequest request, HttpServletResponse response) {
     
     attestGroupHelper(request, true);
@@ -300,6 +311,67 @@ public class UiV2Attestation {
   }
   
   /**
+   * 
+   * @param request
+   * 
+   */
+  public void attestFolderHelper(HttpServletRequest request) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+        
+      stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+      AttestationContainer attestationContainer = grouperRequestContainer.getAttestationContainer();
+      setupAttestation(stem);
+
+      if (!attestationContainer.isCanAttestReport()) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      final Stem STEM = stem;
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+
+          updateAttestationLastCertifiedDate(STEM);
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE, 
+              "stemId", STEM.getId(), "stemName", STEM.getName());
+          auditEntry.setDescription("Update last certified date attribute of folder: " + STEM.getName());
+          attestationSaveAudit(auditEntry);
+
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("attestationLastCertifiedUpdateSuccess")));
+
+          return null;
+        }
+      });
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
    * @param group
    */
   private void updateAttestationLastCertifiedDate(Group group) {
@@ -319,6 +391,21 @@ public class UiV2Attestation {
     
     //reset number of days
     GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
+
+  }
+  
+  /**
+   * @param group
+   */
+  private void updateAttestationLastCertifiedDate(Stem stem) {
+
+    AttributeAssign attributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    
+    String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+    attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), date);
+    
+    //reset number of days
+    GrouperAttestationJob.updateCalculatedDaysUntilRecertify(stem);
 
   }
   
