@@ -35,6 +35,8 @@ public class WorkflowContainer {
   
   private List<GrouperWorkflowInstance> instancesWaitingForApproval = new ArrayList<GrouperWorkflowInstance>();
   
+  private List<GrouperWorkflowInstance> instancesSubjectInitiated = new ArrayList<GrouperWorkflowInstance>();
+  
   /**
    * instance user is viewing
    */
@@ -61,7 +63,7 @@ public class WorkflowContainer {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        Group group = GroupFinder.findByName(GrouperSession.startRootSession(), GrouperWorkflowSettings.workflowEditorsGroup(), true);
+        Group group = GroupFinder.findByName(grouperSession, GrouperWorkflowSettings.workflowEditorsGroup(), true);
         if (group.hasMember(loggedInSubject)) {
           return true;
         }
@@ -167,6 +169,14 @@ public class WorkflowContainer {
 
   public void setInstancesWaitingForApproval(List<GrouperWorkflowInstance> instancesWaitingForApproval) {
     this.instancesWaitingForApproval = instancesWaitingForApproval;
+  }
+
+  public List<GrouperWorkflowInstance> getInstancesSubjectInitiated() {
+    return instancesSubjectInitiated;
+  }
+
+  public void setInstancesSubjectInitiated(List<GrouperWorkflowInstance> instancesSubjectInitiated) {
+    this.instancesSubjectInitiated = instancesSubjectInitiated;
   }
 
   public GrouperWorkflowInstance getWorkflowInstance() {

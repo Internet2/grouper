@@ -17,5 +17,15 @@ public class GrouperWorkflowConfigParams {
     this.params = params;
   }
   
+  public GrouperWorkflowConfigParam getConfigParamByNameAndType(String name, String type) {
+    
+    for (GrouperWorkflowConfigParam configParam: params) {
+      if (configParam.getParamName().equals(name) && configParam.getType().equals(type)) {
+        return configParam;
+      }
+    }
+    
+    return null;
+  }
   
 }

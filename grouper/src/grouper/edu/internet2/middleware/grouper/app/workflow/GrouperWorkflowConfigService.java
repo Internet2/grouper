@@ -89,9 +89,14 @@ public class GrouperWorkflowConfigService {
   
   public static void saveOrUpdateGrouperWorkflowConfig(GrouperWorkflowConfig grouperWorkflowConfig, Group group) {
     
+    GrouperWorkflowApprovalStates existingApprovalStates = null;
     AttributeAssign attributeAssign = getAttributeAssign(group, grouperWorkflowConfig.getWorkflowConfigId());
-    if (attributeAssign == null) {   
+    if (attributeAssign == null) {
       attributeAssign = group.getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+    } else {
+      AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate()
+          .retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS);
+      existingApprovalStates = GrouperWorkflowConfig.buildApprovalStatesFromJsonString(attributeAssignValue.getValueString());
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
@@ -134,14 +139,38 @@ public class GrouperWorkflowConfigService {
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigViewersGroupId());
     
-    // give view privilege to allowedGroupId
+    // when we are updating a workflow config, based on the allowedGroupId value, 
+    // either remove the allowedGroup VIEW privilege from the group on which we are adding the workflow config
+    // or remove the every entity VIEW privilege from the group on which we are adding the workflow config
+    if (existingApprovalStates != null) {
+      GrouperWorkflowApprovalState previousInitiateState = existingApprovalStates.getStateByName(INITIATE_STATE);
+      if (StringUtils.isNotBlank(previousInitiateState.getAllowedGroupId())) {
+        Subject previousAllowedGroup = SubjectFinder.findById(previousInitiateState.getAllowedGroupId(), false);
+        if (previousAllowedGroup != null) {
+          group.deleteMember(previousAllowedGroup, false);
+        }
+      } else {
+        Subject everyEntitySubject = SubjectFinder.findAllSubject();
+        group.deleteMember(everyEntitySubject, false);
+      }
+    }
+    
+    // give view privilege to allowedGroupId or put every entity with VIEW privilege to the group
+    // on which we are saving the workflow config
+    // this is necessary so that subjects can view the group and can initiate the workflow
+    // without view privilege, group won't show up in the tree on the left
     GrouperWorkflowApprovalState initiateState = grouperWorkflowConfig.getWorkflowApprovalStates().getStateByName(INITIATE_STATE);
     String alloweGroupId = initiateState.getAllowedGroupId();
     if (StringUtils.isNotBlank(alloweGroupId)) {
       Subject allowedGroup = SubjectFinder.findById(alloweGroupId, true);
       group.addOrEditMember(allowedGroup, false, false, false, false, false, true, 
           false, false, false, false, null, null, false);
+    } else {
+      Subject everyEntitySubject = SubjectFinder.findAllSubject();
+      group.addOrEditMember(everyEntitySubject, false, false, false, false, false, true, 
+          false, false, false, false, null, null, false);
     }
+    
     
     attributeAssign.saveOrUpdate();
     

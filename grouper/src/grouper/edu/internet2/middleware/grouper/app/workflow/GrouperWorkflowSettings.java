@@ -13,6 +13,8 @@ public class GrouperWorkflowSettings {
   
   public final static ObjectMapper objectMapper = new ObjectMapper();
   
+  public final static String DEFAULT_WORKFLOW_CONFIG_TYPE = "grouper";
+  
   static {
     objectMapper.setSerializationInclusion(Include.NON_NULL);
   }
@@ -49,7 +51,11 @@ public class GrouperWorkflowSettings {
   public static List<String> configTypes() {
     String configTypes = GrouperConfig.retrieveConfig().propertyValueString("workflow.configTypes");
     String[] configs = configTypes.split(",");
-    return Arrays.asList(configs);
+    List<String> configList = Arrays.asList(configs);
+    if (!configList.contains(DEFAULT_WORKFLOW_CONFIG_TYPE)) {
+      throw new RuntimeException("grouper must be in the list of workflow.configTypes");
+    }
+    return configList;
   }
   
 }

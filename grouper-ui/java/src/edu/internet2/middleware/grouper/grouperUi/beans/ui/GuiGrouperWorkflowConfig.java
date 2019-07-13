@@ -43,14 +43,16 @@ public class GuiGrouperWorkflowConfig {
     }
     
     try {
-      guiGrouperWorkflowConfig.workflowConfigParams = GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grouperWorkflowConfig.getConfigParams());
+      guiGrouperWorkflowConfig.workflowConfigParams = grouperWorkflowConfig.getWorkflowConfigParamsString();
+      // guiGrouperWorkflowConfig.workflowConfigParams = GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grouperWorkflowConfig.getConfigParams());
     } catch (Exception e) {
       throw new RuntimeException("could not convert config params to string", e);
     }
     
     GrouperWorkflowApprovalStates approvalStates = grouperWorkflowConfig.getWorkflowApprovalStates();
     try {
-      guiGrouperWorkflowConfig.workflowApprovalStates = GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grouperWorkflowConfig.getWorkflowApprovalStates());
+      guiGrouperWorkflowConfig.workflowApprovalStates = grouperWorkflowConfig.getWorkflowConfigApprovalsString();
+      // guiGrouperWorkflowConfig.workflowApprovalStates = GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grouperWorkflowConfig.getWorkflowApprovalStates());
     } catch(Exception e) {
       throw new RuntimeException("could not convert approval states to string", e);
     }

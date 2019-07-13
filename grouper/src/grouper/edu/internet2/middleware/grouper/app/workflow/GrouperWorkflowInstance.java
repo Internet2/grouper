@@ -6,12 +6,56 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GrouperWorkflowInstance {
+  
+  public static void main(String[] args) {
+    System.out.println("hi");
+    
+    Document document = Jsoup.parse("Fill out this form to be added to this group.<br /><br />\n" + 
+        "Several approvals will take place which usually take less than 2 business days<br /><br />\n" + 
+        "State the reason you would like this access: <input type=\"text\" name=\"reason\" id=\"reasonId\" /><br /><br >\n" + 
+        "<input type=\"checkbox\" name=\"agreeToTerms\" id=\"agreeToTermsId\" /> I agree this this institutions' <a href=\"https://whatever.whatever/whatever\">terms and conditions</a><br /><br />\n" + 
+        "Notes: <textarea rows=\"4\" cols=\"50\" name=\"notes\" id=\"notesId\"></textarea><br /><br />\n" + 
+        "Notes for approvers: <textarea rows=\"4\" cols=\"50\" name=\"notesForApprovers\" id=\"notesForApproversId\"></textarea><br /><br />");
+    
+//    Elements allElements = document.getAllElements();
+//    for (Element e: allElements) {
+//      System.out.println("element is "+e);
+//    }
+    
+    Elements textAreas = document.getElementsByTag("textarea");
+    for (Element e: textAreas) {
+      System.out.println("one field is "+e.toString());
+      System.out.println("name of field is "+e.attr("name"));
+      System.out.println("type of field is "+e.attr("type"));
+    }
+    
+    Elements elements = document.getElementsByAttributeValue("type", "textarea");
+    for (Element e: elements) {
+      System.out.println("text element is "+e.toString());
+    }
+    
+    Element element1 = document.selectFirst("[name=notes]");
+    element1.val("these are the notes");
+    element1.attr("disabled", "disabled");
+    
+    Element element2 = document.selectFirst("[name=agreeToTerms]");
+    element2.attr("disabled", "disabled");
+    
+    String changedHtml = document.html();
+    System.out.println(changedHtml);
+    
+    
+  }
   
   /**
    * logger 
@@ -514,7 +558,6 @@ public class GrouperWorkflowInstance {
   }
 
 
-
   public static GrouperWorkflowInstanceFilesInfo buildInstanceFileInfoFromJsonString(String jsonString){
     
     try {      
@@ -549,7 +592,16 @@ public class GrouperWorkflowInstance {
   
   
   public String htmlFormWithValues() {
-    String htmlForm = grouperWorkflowConfig.buildHtmlFromParams(true, workflowInstanceState);
+    
+    String htmlForm = null;
+    if (StringUtils.isBlank(grouperWorkflowConfig.getWorkflowConfigForm())) {
+      //String htmlForm = grouperWorkflowConfig.buildHtmlFromParams(true, workflowInstanceState);   
+      htmlForm = grouperWorkflowConfig.buildHtmlFromParams(false, workflowInstanceState);
+    } else {
+      htmlForm = grouperWorkflowConfig.buildHtmlFromConfigForm(workflowInstanceState);
+    }
+    
+    Document document = Jsoup.parse(htmlForm);
     
     GrouperWorkflowConfigParams configParams = grouperWorkflowConfig.getConfigParams();
     
@@ -562,12 +614,15 @@ public class GrouperWorkflowInstance {
         
         String value = paramValueObject.getParamValue();
         
+        Element element = document.selectFirst("[name="+workflowConfigParam.getParamName()+"]");
         if (workflowConfigParam.getType().equals("checkbox")) {
           if (StringUtils.isNotBlank(value) && value.equals("on")) {
-            htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", "checked");
+            element.attr("checked", "checked");
+            // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", "checked");
           }
         } else {
-          htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", value);
+          element.val(value);
+          // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", value);
         }
       } catch (Exception e) {
         throw new RuntimeException("Error occurred setting param values.");

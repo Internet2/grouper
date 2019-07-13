@@ -570,7 +570,7 @@ public class GroupContainer {
             List<GrouperWorkflowConfig> workflowConfigs = GrouperWorkflowConfigService.getWorkflowConfigs(GroupContainer.this.getGuiGroup().getGroup());
             
             for (GrouperWorkflowConfig workflowConfig: workflowConfigs) {
-              if (workflowConfig.isSubjectInInitiateAllowedGroup(loggedInSubject)) {
+              if (workflowConfig.canSubjectInitiateWorkflow(loggedInSubject)) {
                 return true;
               }
             }

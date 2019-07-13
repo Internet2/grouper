@@ -4,7 +4,9 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigHasTypeId">${textContainer.text['grouperWorkflowConfigTypeLabel']}</label></strong></td>
     <td>
-      <select name="grouperWorkflowConfigType" id="grouperWorkflowConfigHasTypeId" style="width: 30em">
+      <select name="grouperWorkflowConfigType" id="grouperWorkflowConfigHasTypeId" style="width: 30em"
+      onchange="ajax('../app/UiV2GrouperWorkflow.formAdd', {formIds: 'addWorkflowConfigFormId'}); return false;"
+      >
        
         <option value=""></option>
         <c:forEach items="${grouperRequestContainer.workflowContainer.allConfigTypes}" var="workflowConfigType">
@@ -20,6 +22,7 @@
     </td>
   </tr>
   
+  <c:if test="${!grouper:isBlank(grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig.grouperWorkflowConfig.workflowConfigType)}">
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigNameId">${textContainer.text['grouperWorkflowConfigNameLabel']}</label></strong></td>
     <td>
@@ -128,3 +131,4 @@
       <br />
     </td>
   </tr>
+  </c:if>

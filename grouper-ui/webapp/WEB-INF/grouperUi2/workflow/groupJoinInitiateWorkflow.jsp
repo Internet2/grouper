@@ -3,11 +3,20 @@
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
-            <%@ include file="groupHeader.jsp" %>
+            <%@ include file="../group/groupHeader.jsp" %>
 
             <div class="row-fluid">
               <div class="span12">
                 <div id="messages"></div>
+                
+                <c:if test="${fn:length(grouperRequestContainer.workflowContainer.errors) > 0}">
+                  <div class="workflowConfigErrors alert alert-error">
+                   <button type="button" class="close" data-dismiss="alert">x</button>
+                   <c:forEach var="error" items="${grouperRequestContainer.workflowContainer.errors}">
+                    <div>${error}</div>
+                   </c:forEach>
+                  </div>
+                </c:if>
                 
                 <form class="form-inline form-small form-filter" id="groupJoinInitiateWorkflowId">
                   <div class="row-fluid">

@@ -10,6 +10,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -18,8 +22,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -170,161 +172,158 @@ public class GrouperWorkflowConfig {
 
     final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
     
+    final List<String> validParamTypes = Arrays.asList("textarea", "text", "checkbox");
+    
     if (StringUtils.isBlank(workflowConfigType)) {
       errors.add(contentKeys.get("workflowTypeRequiredError"));
     }
-
-    //TODO if workflow type is not one of the workflow types we know of, error
-
-    if (workflowApprovalStates == null || workflowApprovalStates.getStates().size() == 0) {
+    
+    if (!GrouperWorkflowSettings.configTypes().contains(workflowConfigType)) {
+      String error = contentKeys.get("workflowTypeUnknownError");
+      error = error.replace("$$workflowType$$", workflowConfigType);
+      errors.add(error);
+    }
+    
+    if (StringUtils.isBlank(workflowConfigApprovalsString)) {
       errors.add(contentKeys.get("workflowApprovalsRequiredError"));
     } else {
-      boolean isInitiateStateAvailable = false;
-      boolean isCompleteStateAvailable = false;
-       
-      for (int i = 0; i < workflowApprovalStates.getStates().size(); i++) {
-        
-        final GrouperWorkflowApprovalState state = workflowApprovalStates.getStates().get(i);
-        
-        final String stateName = state.getStateName();
-        
-        if (StringUtils.isBlank(stateName)) {
-          String error = contentKeys.get("workflowApprovalsStateNameMissing");
-          error = error.replace("$$$$index$$", String.valueOf(i));
-          errors.add(error);
-          continue;
-        }
-        
-        // can be only one initiate and one complete state
-        if (isInitiateStateAvailable && stateName.equals(INITIATE_STATE)) {
-          errors.add(contentKeys.get("workflowApprovalsMultipleInitiateStatesFound"));
-          continue;
-        }
-        
-        if (isCompleteStateAvailable && stateName.equals(COMPLETE_STATE)) {
-          errors.add(contentKeys.get("workflowApprovalsMultipleCompleteStatesFound"));
-          continue;
-        }
-        
-        if (stateName.equals(INITIATE_STATE)) {
-          isInitiateStateAvailable = true;
-          final String allowedGroupId = state.getAllowedGroupId();
-          if (StringUtils.isBlank(allowedGroupId)) {
-            //TODO waiting for Chris response if error is needed
-          } else {
-            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-              
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                Group group = GroupFinder.findByUuid(grouperSession, allowedGroupId, false);
-                if (group == null) {
-                  String error = contentKeys.get("workflowApprovalsStateAllowedGroupNotFound");
-                  error = error.replace("$$stateName$$", stateName);
-                  error = error.replace("$$groupId$$", allowedGroupId);
-                  errors.add(error);
-                }
-                return null;
-              }
-            });
-          }
-        }
-        
-        if (stateName.equals(COMPLETE_STATE)) {
-          isCompleteStateAvailable = true;
-        }
-        
-        int approversTypes = 0;
-        if (!StringUtils.isEmpty(state.getApproverGroupId())) {
-          approversTypes++;
-        }
-        if (!StringUtils.isEmpty(state.getApproverManagersOfGroupId())) {
-          approversTypes++;
-        }
-        if (!StringUtils.isEmpty(state.getApproverSubjectId())) {
-          approversTypes++;
-        }
-        
-        // non initiate and non complete state must have approvers
-        if (!Arrays.asList(INITIATE_STATE, COMPLETE_STATE).contains(stateName)) {
-          if (approversTypes == 0) {
-            String error = contentKeys.get("workflowApprovalsStateApproversMissing");
-            error = error.replace("$$stateName$$", stateName);
-            errors.add(error);
-          } else if (approversTypes > 1) {
-            // cannot have more than one type of approvers
-            String error = contentKeys.get("workflowApprovalsStateMultipleTypesOfApprovers");
-            error = error.replace("$$stateName$$", stateName);
-            errors.add(error); 
-          }
-        }
-        
-        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      try {
+        workflowApprovalStates = GrouperWorkflowConfig.buildApprovalStatesFromJsonString(workflowConfigApprovalsString);
+      } catch (Exception e) {
+        errors.add(contentKeys.get("workflowApprovalsInvalidJsonError"));
+      }
+      
+      if (workflowApprovalStates != null) {
           
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            
-            // if approvers group id is there, make sure it's valid
-            if (StringUtils.isNotEmpty(state.getApproverGroupId())) {
-              Group approverGroup = GroupFinder.findByUuid(grouperSession, state.getApproverGroupId(), false);
-              if (approverGroup == null) {
-                String error = contentKeys.get("workflowApprovalsStateApproverGroupNotFound");
+        boolean isInitiateStateAvailable = false;
+        boolean isCompleteStateAvailable = false;
+         
+        for (int i = 0; i < workflowApprovalStates.getStates().size(); i++) {
+          
+          final GrouperWorkflowApprovalState state = workflowApprovalStates.getStates().get(i);
+          
+          final String stateName = state.getStateName();
+          
+          if (StringUtils.isBlank(stateName)) {
+            String error = contentKeys.get("workflowApprovalsStateNameMissing");
+            error = error.replace("$$$$index$$", String.valueOf(i));
+            errors.add(error);
+            continue;
+          }
+          
+          // can be only one initiate and one complete state
+          if (isInitiateStateAvailable && stateName.equals(INITIATE_STATE)) {
+            errors.add(contentKeys.get("workflowApprovalsMultipleInitiateStatesFound"));
+            continue;
+          }
+          
+          if (isCompleteStateAvailable && stateName.equals(COMPLETE_STATE)) {
+            errors.add(contentKeys.get("workflowApprovalsMultipleCompleteStatesFound"));
+            continue;
+          }
+          
+          if (stateName.equals(INITIATE_STATE)) {
+            isInitiateStateAvailable = true;
+            final String allowedGroupId = state.getAllowedGroupId();
+            if (StringUtils.isNotBlank(allowedGroupId)) {
+              Group allowedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), allowedGroupId, false);
+              if (allowedGroup == null) {
+                String error = contentKeys.get("workflowApprovalsStateAllowedGroupNotFound");
                 error = error.replace("$$stateName$$", stateName);
-                error = error.replace("$$groupId$$", state.getApproverGroupId());
+                error = error.replace("$$groupId$$", allowedGroupId);
                 errors.add(error);
               }
             }
-            
-            if (StringUtils.isNotEmpty(state.getApproverManagersOfGroupId())) {
-              Group approverGroup = GroupFinder.findByUuid(grouperSession, state.getApproverManagersOfGroupId(), false);
-              if (approverGroup == null) {
-                String error = contentKeys.get("workflowApprovalsStateApproverGroupNotFound");
-                error = error.replace("$$stateName$$", stateName);
-                error = error.replace("$$groupId$$", state.getApproverManagersOfGroupId());
-                errors.add(error);
-              }
+          }
+          
+          if (stateName.equals(COMPLETE_STATE)) {
+            isCompleteStateAvailable = true;
+          }
+          
+          int approversTypes = 0;
+          if (!StringUtils.isEmpty(state.getApproverGroupId())) {
+            approversTypes++;
+          }
+          if (!StringUtils.isEmpty(state.getApproverManagersOfGroupId())) {
+            approversTypes++;
+          }
+          if (!StringUtils.isEmpty(state.getApproverSubjectId())) {
+            approversTypes++;
+          }
+          
+          // non initiate and non complete state must have approvers
+          if (!Arrays.asList(INITIATE_STATE, COMPLETE_STATE).contains(stateName)) {
+            if (approversTypes == 0) {
+              String error = contentKeys.get("workflowApprovalsStateApproversMissing");
+              error = error.replace("$$stateName$$", stateName);
+              errors.add(error);
+            } else if (approversTypes > 1) {
+              // cannot have more than one type of approvers
+              String error = contentKeys.get("workflowApprovalsStateMultipleTypesOfApprovers");
+              error = error.replace("$$stateName$$", stateName);
+              errors.add(error); 
             }
+          }
+          
+          // if approvers group id is there, make sure it's valid
+          if (StringUtils.isNotEmpty(state.getApproverGroupId())) {
+            Group approverGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), state.getApproverGroupId(), false);
+            if (approverGroup == null) {
+              String error = contentKeys.get("workflowApprovalsStateApproverGroupNotFound");
+              error = error.replace("$$stateName$$", stateName);
+              error = error.replace("$$groupId$$", state.getApproverGroupId());
+              errors.add(error);
+            }
+          }
+          
+          if (StringUtils.isNotEmpty(state.getApproverManagersOfGroupId())) {
+            Group approverGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), state.getApproverManagersOfGroupId(), false);
+            if (approverGroup == null) {
+              String error = contentKeys.get("workflowApprovalsStateApproverGroupNotFound");
+              error = error.replace("$$stateName$$", stateName);
+              error = error.replace("$$groupId$$", state.getApproverManagersOfGroupId());
+              errors.add(error);
+            }
+          }
+          
+          if (StringUtils.isNotEmpty(state.getApproverSubjectId())) {
             
-            if (StringUtils.isNotEmpty(state.getApproverSubjectId())) {
-              
-              if (StringUtils.isEmpty(state.getApproverSubjectSourceId())) {
+            if (StringUtils.isEmpty(state.getApproverSubjectSourceId())) {
+              String error = contentKeys.get("workflowApprovalsStateApproverSubjectSourceIdMissing"); 
+              error = error.replace("$$stateName$$", stateName);
+              errors.add(error);
+            } else {
+              Subject subject = SubjectFinder.findByIdAndSource(state.getApproverSubjectId(), state.getApproverSubjectSourceId(), false);
+              if (subject == null) {
                 String error = contentKeys.get("workflowApprovalsStateApproverSubjectSourceIdMissing"); 
                 error = error.replace("$$stateName$$", stateName);
-                errors.add(error);
-              } else {
-                Subject subject = SubjectFinder.findByIdAndSource(state.getApproverSubjectId(), state.getApproverSubjectSourceId(), false);
-                if (subject == null) {
-                  String error = contentKeys.get("workflowApprovalsStateApproverSubjectSourceIdMissing"); 
-                  error = error.replace("$$stateName$$", stateName);
-                  error = error.replace("$$subjectId$$", state.getApproverSubjectId());
-                  error = error.replace("$$sourceId$$", state.getApproverSubjectSourceId());
-                  errors.add(error);
-                }
-              }
-              
-            }
-            
-            if (StringUtils.isNotEmpty(state.getApproverNotifyGroupId())) {
-              Group groupToNotify = GroupFinder.findByUuid(grouperSession, state.getApproverNotifyGroupId(), false);
-              if (groupToNotify == null) {
-                String error = contentKeys.get("workflowApprovalsStateGroupToNotifyNotFound");
-                error = error.replace("$$stateName$$", stateName);
-                error = error.replace("$$groupId$$", state.getApproverNotifyGroupId());
+                error = error.replace("$$subjectId$$", state.getApproverSubjectId());
+                error = error.replace("$$sourceId$$", state.getApproverSubjectSourceId());
                 errors.add(error);
               }
             }
             
-            return null;
           }
-        });
-        
-      }
-
-      if (!isInitiateStateAvailable) {
-        errors.add(contentKeys.get("workflowApprovalsInitiateStateRequiredError"));
-      }
-
-      if (!isCompleteStateAvailable) {
-        errors.add(contentKeys.get("workflowApprovalsCompleteStateRequiredError"));
+          
+          if (StringUtils.isNotEmpty(state.getApproverNotifyGroupId())) {
+            Group groupToNotify = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), state.getApproverNotifyGroupId(), false);
+            if (groupToNotify == null) {
+              String error = contentKeys.get("workflowApprovalsStateGroupToNotifyNotFound");
+              error = error.replace("$$stateName$$", stateName);
+              error = error.replace("$$groupId$$", state.getApproverNotifyGroupId());
+              errors.add(error);
+            }
+          }
+          
+        }
+  
+        if (!isInitiateStateAvailable) {
+          errors.add(contentKeys.get("workflowApprovalsInitiateStateRequiredError"));
+        }
+  
+        if (!isCompleteStateAvailable) {
+          errors.add(contentKeys.get("workflowApprovalsCompleteStateRequiredError"));
+        }
       }
     }
 
@@ -364,31 +363,57 @@ public class GrouperWorkflowConfig {
     if (workflowConfigDescription.length() > 4000) {
       errors.add(contentKeys.get("workflowConfigDescriptionLengthExceedsMaxLengthError"));
     }
-
-    if (configParams == null || configParams.getParams().size() == 0) {
+    
+    
+    if (StringUtils.isBlank(workflowConfigParamsString)) {
       errors.add(contentKeys.get("workflowConfigParamsRequiredError"));
     } else {
-      for (int i = 0; i < configParams.getParams().size(); i++) {
-        GrouperWorkflowConfigParam param = configParams.getParams().get(i);
-        String paramName = param.getParamName();
-        String paramType = param.getType();
-        List<String> editableStates = param.getEditableInStates();
-
-        if (StringUtils.isBlank(paramName)) {
-          String error = contentKeys.get("workflowParamsParamNameMissingError");
-          error = error.replace("$$index$$", String.valueOf(i));
-          errors.add(error);
-        }
-        if (StringUtils.isBlank(paramType)) {
-          String error = contentKeys.get("workflowParamsTypeMissingError");
-          error = error.replace("$$index$$", String.valueOf(i));
-          errors.add(error);
-        }
-
-        if (editableStates == null || editableStates.size() == 0) {
-          String error = contentKeys.get("workflowParamsEditableInStatesMissingError");
-          error = error.replace("$$index$$", String.valueOf(i));
-          errors.add(error);
+      try {
+        configParams = GrouperWorkflowConfig.buildParamsFromJsonString(workflowConfigParamsString);
+      } catch (Exception e) {
+        errors.add(contentKeys.get("workflowParamsInvalidJsonError"));
+      }
+      
+      if (configParams != null) {
+        
+        for (int i = 0; i < configParams.getParams().size(); i++) {
+          GrouperWorkflowConfigParam param = configParams.getParams().get(i);
+          String paramName = param.getParamName();
+          String paramType = param.getType();
+          List<String> editableStates = param.getEditableInStates();
+  
+          if (StringUtils.isBlank(paramName)) {
+            String error = contentKeys.get("workflowParamsParamNameMissingError");
+            error = error.replace("$$index$$", String.valueOf(i));
+            errors.add(error);
+          }
+          if (StringUtils.isBlank(paramType)) {
+            String error = contentKeys.get("workflowParamsTypeMissingError");
+            error = error.replace("$$index$$", String.valueOf(i));
+            errors.add(error);
+          }
+  
+          if (editableStates == null || editableStates.size() == 0) {
+            String error = contentKeys.get("workflowParamsEditableInStatesMissingError");
+            error = error.replace("$$index$$", String.valueOf(i));
+            errors.add(error);
+          }
+          
+          for (String editableState: editableStates) {
+            GrouperWorkflowApprovalState workflowApprovalState = workflowApprovalStates.getStateByName(editableState);
+            if (workflowApprovalState == null) {
+              String error = contentKeys.get("workflowParamsEditableStateNotFoundInApprovalStates"); 
+              error = error.replace("$$editableState$$", editableState);
+              errors.add(error);
+            }
+          }
+          
+          if (!validParamTypes.contains(paramType)) {
+            String error = contentKeys.get("workflowParamsInvalidParamType");
+            error = error.replace("$$paramType$$", paramType);
+            errors.add(error);
+          }
+          
         }
       }
 
@@ -396,18 +421,13 @@ public class GrouperWorkflowConfig {
         errors.add(contentKeys.get("workflowParamsExceedsMaxSizeError"));
       }
     }
+    
+    errors.addAll(validateConfigHtmlForm(configParams));
 
     if (StringUtils.isNotBlank(workflowConfigViewersGroupId)) {
       
-      Group workflowViewersGroupId  = (Group) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          return GroupFinder.findByUuid(grouperSession, workflowConfigViewersGroupId, false);
-        }
-      });
-      
-      if (workflowViewersGroupId == null) {
+      Group workflowViewersGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), workflowConfigViewersGroupId, false);
+      if (workflowViewersGroup == null) {
         errors.add(contentKeys.get("workflowViewerGroupIdNotFoundError"));
       }
     }
@@ -425,48 +445,83 @@ public class GrouperWorkflowConfig {
     return errors;
 
   }
-
-  public boolean isSubjectInInitiateAllowedGroup(final Subject subject) {
-
-    for (GrouperWorkflowApprovalState state : workflowApprovalStates.getStates()) {
-      if (INITIATE_STATE.equals(state.getStateName())) {
-        final String allowedGroupId = state.getAllowedGroupId();
-        if (StringUtils.isBlank(allowedGroupId)) {
-          return false;
+  
+  private  List<String> validateConfigHtmlForm(GrouperWorkflowConfigParams configParams) {
+    
+    final List<String> errors = new ArrayList<String>();
+    final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
+    
+    try {
+      Document document = Jsoup.parse(workflowConfigForm);
+      Elements inputElements = document.getElementsByTag("input");
+      
+      for (Element inputElement: inputElements) {
+        String nameOfElement = inputElement.attr("name");
+        GrouperWorkflowConfigParam param = configParams.getConfigParamByNameAndType(nameOfElement, inputElement.attr("type"));
+        if (param == null) {
+          String error = contentKeys.get("workflowConfigFormElementNotFoundInJsonParams");
+          error = error.replace("$$elementName$$", nameOfElement);
+          error = error.replace("$$elementType$$", inputElement.attr("type"));
         }
-
-        Boolean isMember = (Boolean) GrouperSession
-            .internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-
-              @Override
-              public Object callback(GrouperSession grouperSession)
-                  throws GrouperSessionException {
-
-                Group group = GroupFinder.findByUuid(grouperSession, allowedGroupId,
-                    false);
-                if (group == null) {
-                  LOG.error(
-                      "allowed group id " + allowedGroupId + " not found in workflow id "
-                          + workflowConfigId + " Was the group delted??");
-                  return false;
-                }
-
-                Member member = MemberFinder.findBySubject(grouperSession, subject,
-                    false);
-                return member != null && member.isMember(group);
-              }
-
-            });
-
-        return isMember;
-
       }
+      
+      Elements textAreas = document.getElementsByTag("textarea");
+      for (Element textArea: textAreas) {
+        String nameOfElement = textArea.attr("name");
+        GrouperWorkflowConfigParam param = configParams.getConfigParamByNameAndType(nameOfElement, "textarea");
+        if (param == null) {
+          String error = contentKeys.get("workflowConfigFormElementNotFoundInJsonParams");
+          error = error.replace("$$elementName$$", nameOfElement);
+          error = error.replace("$$elementType$$", "textarea");
+        }
+      }
+    } catch(Exception e) {
+      errors.add(contentKeys.get("workflowConfigInvalidConfigForm"));
     }
-
-    return false;
+     
+    return errors;
+  }
+  
+  public boolean canSubjectInitiateWorkflow(final Subject subject) {
+   
+    GrouperWorkflowApprovalState initiateState = workflowApprovalStates.getStateByName(INITIATE_STATE);
+    final String allowedGroupId = initiateState.getAllowedGroupId();
+    if (StringUtils.isBlank(allowedGroupId)) {
+      return true;
+    }
+    
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), allowedGroupId, false);
+    if (group == null) {
+      LOG.error("allowed group id " + allowedGroupId + " not found in workflow id "
+              + workflowConfigId + " Was the group delted??");
+      return false;
+    }
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    return member != null && member.isMember(group);
+        
   }
 
-  public String buildHtmlFromParams(boolean addPlaceholderForValues, String currentState) {
+  public String buildHtmlFromConfigForm(String state) {
+    
+    Document document = Jsoup.parse(workflowConfigForm);
+    
+    for (GrouperWorkflowConfigParam param : configParams.getParams()) {
+
+      String elementName = param.getParamName();
+      Element element = document.selectFirst("[name="+elementName+"]");
+      List<String> editableInStates = param.getEditableInStates();
+      
+      if (state == null || !editableInStates.contains(state)) {
+        element.attr("disabled", "disabled");
+      }
+     
+    }
+    
+    return document.html();
+  }
+
+  public String buildHtmlFromParams(boolean addPlaceholderForValues, String state) {
 
     StringBuilder html = new StringBuilder();
 
@@ -501,7 +556,7 @@ public class GrouperWorkflowConfig {
       html.append(label);
       html.append("</label></strong></td>");
       html.append("<td>");
-      html.append(buildInputField(param, addPlaceholderForValues, currentState));
+      html.append(buildInputField(param, addPlaceholderForValues, state));
       html.append("</td></tr>");
     }
     html.append("</table>");
@@ -513,11 +568,11 @@ public class GrouperWorkflowConfig {
 
     StringBuilder field = new StringBuilder();
 
-    List<String> editabledInStates = param.getEditableInStates();
+    List<String> editableInStates = param.getEditableInStates();
     String disabled = "";
 
     //TODO editable in states should be a string with comma separated items
-    if (currentState == null || !editabledInStates.contains(currentState)) {
+    if (currentState == null || !editableInStates.contains(currentState)) {
       disabled = "disabled";
     }
 
@@ -543,6 +598,7 @@ public class GrouperWorkflowConfig {
     return field.toString();
   }
 
+  // TODO move to GrouperWorkflowConfigParams
   public static GrouperWorkflowConfigParams buildParamsFromJsonString(String params) {
 
     try {
@@ -573,7 +629,7 @@ public class GrouperWorkflowConfig {
 
   }
 
-  public static GrouperWorkflowConfigParams getDefaultConfigParams() {
+  private static GrouperWorkflowConfigParams getDefaultConfigParams() {
 
     GrouperWorkflowConfigParams configParams = new GrouperWorkflowConfigParams();
 
@@ -594,8 +650,17 @@ public class GrouperWorkflowConfig {
 
     return configParams;
   }
+  
+  public static String getDefaultConfigParamsString() {
+    GrouperWorkflowConfigParams defaultConfigParams = getDefaultConfigParams();
+    try {      
+      return GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultConfigParams);
+    } catch(Exception e) {
+      throw new RuntimeException("Could not convert default config params json into string");
+    }
+  }
 
-  public static GrouperWorkflowApprovalStates getDefaultApprovalStates() {
+  private static GrouperWorkflowApprovalStates getDefaultApprovalStates() {
 
     GrouperWorkflowApprovalStates states = new GrouperWorkflowApprovalStates();
 
@@ -627,6 +692,15 @@ public class GrouperWorkflowConfig {
     states.setStates(listOfStates);
 
     return states;
+  }
+  
+  public static String getDefaultApprovalStatesString() {
+    GrouperWorkflowApprovalStates defaultApprovalStates = getDefaultApprovalStates();
+    try {      
+      return GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultApprovalStates);
+    } catch(Exception e) {
+      throw new RuntimeException("Could not convert default approval states json into string");
+    }
   }
 
 }
