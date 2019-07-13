@@ -30,6 +30,8 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -147,11 +149,17 @@ public class GrouperWorkflowConfigService {
       if (StringUtils.isNotBlank(previousInitiateState.getAllowedGroupId())) {
         Subject previousAllowedGroup = SubjectFinder.findById(previousInitiateState.getAllowedGroupId(), false);
         if (previousAllowedGroup != null) {
-          group.deleteMember(previousAllowedGroup, false);
+          group.revokePriv(previousAllowedGroup, AccessPrivilege.VIEW, false);
+//          group.deleteMember(previousAllowedGroup, false);
+//          group.addOrEditMember(previousAllowedGroup, false, false, false, false, false, false, 
+//              false, false, false, false, null, null, false);
         }
       } else {
         Subject everyEntitySubject = SubjectFinder.findAllSubject();
-        group.deleteMember(everyEntitySubject, false);
+        group.revokePriv(everyEntitySubject, AccessPrivilege.VIEW, false);
+        // group.deleteMember(everyEntitySubject, false);
+//        group.addOrEditMember(everyEntitySubject, false, false, false, false, false, false, 
+//            false, false, false, false, null, null, false);
       }
     }
     
