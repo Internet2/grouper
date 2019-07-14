@@ -238,6 +238,25 @@ public class GrouperWorkflowConfig {
           
           if (stateName.equals(COMPLETE_STATE)) {
             isCompleteStateAvailable = true;
+            List<GrouperWorkflowApprovalAction> actions = state.getActions();
+            boolean assignToGroupExists = false;
+            for (GrouperWorkflowApprovalAction action: actions) {
+              if (action.getActionName().equals("assignToGroup")) {
+                assignToGroupExists = true;
+                String assignToGroupId = action.getActionArg0();
+                Group assignToGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), assignToGroupId, false);
+                if (assignToGroup == null) {
+                  String error = contentKeys.get("workflowApprovalsStateCompleteStateAssignToGroupIdNotFound");
+                  error = error.replace("$$assignToGroupId$$", assignToGroupId);
+                  errors.add(error);
+                }
+              }
+            }
+            
+            if (!assignToGroupExists) {
+              errors.add(contentKeys.get("workflowApprovalsStateCompleteStateAssignToGroupActionNotFound"));
+            }
+            
           }
           
           int approversTypes = 0;
