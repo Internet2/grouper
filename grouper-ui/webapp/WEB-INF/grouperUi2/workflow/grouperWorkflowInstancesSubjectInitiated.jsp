@@ -35,7 +35,7 @@
             </tr>
           </thead>
           <tbody>
-            <c:forEach items="${grouperRequestContainer.workflowContainer.instancesSubjectInitiated}" var="instance">
+            <c:forEach items="${grouperRequestContainer.workflowContainer.workflowInstances}" var="instance">
               <tr>
                 
                 <td style="white-space: nowrap;">

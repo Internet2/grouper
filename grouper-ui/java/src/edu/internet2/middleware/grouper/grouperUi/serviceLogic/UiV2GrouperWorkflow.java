@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -118,9 +119,15 @@ public class UiV2GrouperWorkflow {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          List<GrouperWorkflowConfig> configs = GrouperWorkflowConfigService.getWorkflowConfigs(GROUP);
+          List<GrouperWorkflowConfig> configsSubjectCanView = new ArrayList<GrouperWorkflowConfig>();
           
-          workflowContainer.setGuiWorkflowConfigs(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfigs(configs));
+          for (GrouperWorkflowConfig workflowConfig: GrouperWorkflowConfigService.getWorkflowConfigs(GROUP)) {
+            if (GrouperWorkflowConfigService.canSubjectViewWorkflow(GROUP, loggedInSubject)) {
+              configsSubjectCanView.add(workflowConfig);
+            }
+          }
+          
+          workflowContainer.setGuiWorkflowConfigs(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfigs(configsSubjectCanView));
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
               "/WEB-INF/grouperUi2/workflow/groupWorkflowConfig.jsp"));
           
@@ -221,11 +228,12 @@ public class UiV2GrouperWorkflow {
     
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
 
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -243,17 +251,29 @@ public class UiV2GrouperWorkflow {
         return;
       }
       
+      String configForm = request.getParameter("grouperWorkflowConfigForm");
+      if (!workflowContainer.isCanEditWorkflowFormField() && 
+          !StringUtils.equals(configForm, new GrouperWorkflowConfig().getWorkflowConfigForm())) { //TODO store default outside
+        throw new RuntimeException("Operation not permitted");
+      }
+      
       final Group GROUP = group;
       
       final GrouperWorkflowConfig workflowConfig = populateGrouperWorkflowConfig(request, response);
       
-      if (workflowConfig == null) {
-        return;
-      }
-      
-      workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
-      
-      List<String> errors = workflowConfig.validate(GROUP, true);
+      @SuppressWarnings("unchecked")
+      List<String> errors = (List<String>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
+          
+          List<String> errors = workflowConfig.validate(GROUP, true);
+          
+          return errors;
+        }
+      });
       
       if (errors.size() > 0) {
         workflowContainer.setErrors(errors);
@@ -294,11 +314,12 @@ public class UiV2GrouperWorkflow {
     
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
@@ -349,6 +370,8 @@ public class UiV2GrouperWorkflow {
     
     try {
 
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
@@ -363,7 +386,6 @@ public class UiV2GrouperWorkflow {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
@@ -416,6 +438,8 @@ public class UiV2GrouperWorkflow {
     
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
@@ -430,7 +454,6 @@ public class UiV2GrouperWorkflow {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
@@ -442,13 +465,20 @@ public class UiV2GrouperWorkflow {
       
       final GrouperWorkflowConfig workflowConfig = populateGrouperWorkflowConfig(request, response);
       
-      if (workflowConfig == null) {
-        return;
-      }
+      @SuppressWarnings("unchecked")
+      List<String> errors = (List<String>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
+          
+          List<String> errors = workflowConfig.validate(GROUP, false);
+          
+          return errors;
+        }
+      });
       
-      workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
-      
-      List<String> errors = workflowConfig.validate(GROUP, false);
       if (errors.size() > 0) {
         workflowContainer.setErrors(errors);
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -465,6 +495,11 @@ public class UiV2GrouperWorkflow {
           GrouperWorkflowConfig config = GrouperWorkflowConfigService.getWorkflowConfig(GROUP, workflowConfig.getWorkflowConfigId());
           if (config == null) {
             throw new RuntimeException("workflow config is null for config id: "+workflowConfig.getWorkflowConfigId());
+          }
+          
+          if (!workflowContainer.isCanEditWorkflowFormField() &&
+            !StringUtils.equals(config.getWorkflowConfigForm(), request.getParameter("grouperWorkflowConfigForm"))) {
+            throw new RuntimeException("Operation not permitted");
           }
             
           GrouperWorkflowConfigService.saveOrUpdateGrouperWorkflowConfig(workflowConfig, GROUP);
@@ -543,11 +578,12 @@ public class UiV2GrouperWorkflow {
   
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
             
@@ -638,11 +674,12 @@ public class UiV2GrouperWorkflow {
   
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
            
@@ -662,11 +699,12 @@ public class UiV2GrouperWorkflow {
   
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -679,7 +717,7 @@ public class UiV2GrouperWorkflow {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
           List<GrouperWorkflowInstance> instancesWaitingForApproval = GrouperWorkflowInstanceService.getWorkflowInstancesWaitingForApproval(loggedInSubject);
-          workflowContainer.setInstancesWaitingForApproval(instancesWaitingForApproval);
+          workflowContainer.setWorkflowInstances(instancesWaitingForApproval);
           return null;
         }
         
@@ -694,19 +732,19 @@ public class UiV2GrouperWorkflow {
     
   }
   
-  public void viewInstance(final HttpServletRequest request, final HttpServletResponse response) {
+  public void viewInitiatedInstance(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
   
     try {
+      grouperSession = GrouperSession.start(loggedInSubject);
       
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -726,7 +764,126 @@ public class UiV2GrouperWorkflow {
           
           GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(attributeAssignId);
           if (!GrouperWorkflowInstanceService.canInstanceBeViewed(workfowInstance, loggedInSubject)) {
-            throw new RuntimeException("Operation not allowed");
+            throw new RuntimeException("Operation not permitted");
+          }
+          
+          workflowContainer.setWorkflowInstance(workfowInstance);
+          workflowContainer.setHtmlForm(workfowInstance.htmlFormWithValues());
+          return null;
+        }
+        
+      });
+     
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/workflow/grouperWorkflowViewInstance.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public void viewInstances(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      if (!checkWorkflow()) {
+        return;
+      }
+      
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final String workflowConfigId = request.getParameter("workflowConfigId");
+      
+      if (StringUtils.isBlank(workflowConfigId)) {
+        throw new RuntimeException("workflowConfigId cannot be blank");
+      }
+      
+      final WorkflowContainer workflowContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getWorkflowContainer();
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          boolean canSubjectConfigureWorkflow = GrouperWorkflowConfigService.canSubjectConfigureWorkflow(group, loggedInSubject);
+          
+          List<GrouperWorkflowInstance> workflowInstances = GrouperWorkflowInstanceService.getWorkflowInstances(group, workflowConfigId);
+          
+          if (canSubjectConfigureWorkflow) {
+            workflowContainer.setWorkflowInstances(workflowInstances);
+            return null;
+          }
+          
+          GrouperWorkflowConfig workflowConfig = GrouperWorkflowConfigService.getWorkflowConfig(group, workflowConfigId);
+          if (workflowConfig.isSubjectInViewersGroup(loggedInSubject)) {
+            workflowContainer.setWorkflowInstances(workflowInstances);
+            return null;
+          }
+          
+         throw new RuntimeException("Operation not permitted");
+         
+        }
+        
+      });
+     
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/workflow/grouperWorkflowViewInstances.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public void viewInstance(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      if (!checkWorkflow()) {
+        return;
+      }
+      
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final WorkflowContainer workflowContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getWorkflowContainer();
+      
+      final String attributeAssignId = request.getParameter("attributeAssignId");
+      
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("attributeAssignId cannot be blank");
+      }
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(attributeAssignId);
+          if (!GrouperWorkflowInstanceService.canInstanceBeViewed(workfowInstance, loggedInSubject)) {
+            throw new RuntimeException("Operation not permitted");
           }
           
           workflowContainer.setWorkflowInstance(workfowInstance);
@@ -753,11 +910,12 @@ public class UiV2GrouperWorkflow {
   
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -770,7 +928,7 @@ public class UiV2GrouperWorkflow {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
           List<GrouperWorkflowInstance> instancesSubjectInitiated = GrouperWorkflowInstanceService.getWorkflowInstancesSubmitted(loggedInSubject);
-          workflowContainer.setInstancesSubjectInitiated(instancesSubjectInitiated);
+          workflowContainer.setWorkflowInstances(instancesSubjectInitiated);
           return null;
         }
         
@@ -794,11 +952,12 @@ public class UiV2GrouperWorkflow {
   
     try {
       
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!checkWorkflow()) {
         return;
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -816,9 +975,11 @@ public class UiV2GrouperWorkflow {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          //TODO check if the logged in subject can approve
-          
           GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(attributeAssignId);
+          
+          if (GrouperWorkflowInstanceService.canInstanceBeApproved(workfowInstance, loggedInSubject)) {
+            throw new RuntimeException("Operation not permitted");
+          }
           
           GrouperWorkflowConfigParams configParams = workfowInstance.getGrouperWorkflowConfig().getConfigParams();
           
@@ -945,10 +1106,7 @@ public class UiV2GrouperWorkflow {
     List<GrouperWorkflowConfig> workflowConfigs = (List<GrouperWorkflowConfig>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-        
-        List<GrouperWorkflowConfig> workflowConfigs = GrouperWorkflowConfigService.getWorkflowConfigs(group);
-        
-        return workflowConfigs;
+        return GrouperWorkflowConfigService.getWorkflowConfigs(group);
       }
     });
     

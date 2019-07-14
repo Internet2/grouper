@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -31,12 +34,19 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowConfigService {
+  
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(GrouperWorkflowConfigService.class);
+  
   
   public static GrouperWorkflowConfig getWorkflowConfig(final Group group, final String workflowId) {
     
@@ -88,6 +98,51 @@ public class GrouperWorkflowConfigService {
     
     return result;
   }
+  
+  public static boolean canSubjectConfigureWorkflow(Group group, Subject subject) {
+    
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
+    }
+    
+    if (group != null && group.getAdmins().contains(subject)) {
+      return true;
+    }
+    
+    final String workflowEditorsGroup = GrouperWorkflowSettings.workflowEditorsGroup();
+    
+    if (StringUtils.isNotBlank(workflowEditorsGroup)) {
+      
+      Group editorGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), workflowEditorsGroup, false);
+      if (editorGroup == null) {
+        LOG.error("workflow editor group "+workflowEditorsGroup+" not found.");
+        return false;
+      }
+      return editorGroup.hasMember(subject);
+    }
+    
+    return false;
+  }
+  
+  public static boolean canSubjectViewWorkflow(Group group, Subject subject) {
+    
+    if (canSubjectConfigureWorkflow(group, subject)) {
+      return true;
+    }
+    
+    if (group != null) {
+      List<GrouperWorkflowConfig> workflowConfigs = GrouperWorkflowConfigService.getWorkflowConfigs(group);
+      
+      for (GrouperWorkflowConfig workflowConfig: workflowConfigs) {
+        if (workflowConfig.isSubjectInViewersGroup(subject)) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+  
   
   public static void saveOrUpdateGrouperWorkflowConfig(GrouperWorkflowConfig grouperWorkflowConfig, Group group) {
     

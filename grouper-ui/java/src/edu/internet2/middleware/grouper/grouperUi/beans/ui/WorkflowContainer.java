@@ -6,7 +6,9 @@ import java.util.List;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstance;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceService;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
@@ -33,9 +35,7 @@ public class WorkflowContainer {
    */
   private List<String> errors = new ArrayList<String>();
   
-  private List<GrouperWorkflowInstance> instancesWaitingForApproval = new ArrayList<GrouperWorkflowInstance>();
-  
-  private List<GrouperWorkflowInstance> instancesSubjectInitiated = new ArrayList<GrouperWorkflowInstance>();
+  private List<GrouperWorkflowInstance> workflowInstances = new ArrayList<GrouperWorkflowInstance>();
   
   /**
    * instance user is viewing
@@ -55,30 +55,38 @@ public class WorkflowContainer {
   public boolean isCanConfigureWorkflow() {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
     
-    Boolean loggedInSubjectMemberOfWorkflowEditor = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
+    final Group group = UiV2Group.retrieveGroupHelper(GrouperUiFilter.retrieveHttpServletRequest(), AccessPrivilege.ADMIN, false).getGroup();
+   
+    Boolean loggedInSubjectCanConfigureWorkflow = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        Group group = GroupFinder.findByName(grouperSession, GrouperWorkflowSettings.workflowEditorsGroup(), true);
-        if (group.hasMember(loggedInSubject)) {
-          return true;
-        }
-        return false;
+        return GrouperWorkflowConfigService.canSubjectConfigureWorkflow(group, loggedInSubject);
       }
+        
     });
+      
+    return loggedInSubjectCanConfigureWorkflow;
     
-    if (loggedInSubjectMemberOfWorkflowEditor) {
-      return true;
-    }
+  }
+  
+  public boolean isCanViewElectronicForm() {
     
-    Group group = UiV2Group.retrieveGroupHelper(GrouperUiFilter.retrieveHttpServletRequest(), AccessPrivilege.ADMIN, false).getGroup();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    return group != null;
-    
+    final Group group = UiV2Group.retrieveGroupHelper(GrouperUiFilter.retrieveHttpServletRequest(), AccessPrivilege.ADMIN, false).getGroup();
+   
+    Boolean loggedInSubjectCanViewWorkflow = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperWorkflowConfigService.canSubjectViewWorkflow(group, loggedInSubject);
+      }
+        
+    });
+      
+    return loggedInSubjectCanViewWorkflow;
   }
 
   /**
@@ -134,12 +142,6 @@ public class WorkflowContainer {
    * @return html form to show when a group membership is requested or when approver goes to approve
    */
   public String getHtmlForm() {
-//    GrouperWorkflowConfig workflowConfig = guiGrouperWorkflowConfig.getGrouperWorkflowConfig();
-//    if (StringUtils.isBlank(workflowConfig.getWorkflowConfigForm())) {      
-//      return workflowConfig.buildHtmlFromParams(false);
-//    }
-//    return workflowConfig.buildHtmlFromParams(false);
-//    //return workflowConfig.getWorkflowConfigForm();
     return htmlForm;
   }
   
@@ -149,35 +151,27 @@ public class WorkflowContainer {
 
   public boolean isCanEditWorkflowFormField() {
     
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
     
-    Group group = GroupFinder.findByName(GrouperSession.startRootSession(), GrouperWorkflowSettings.workflowEditorsGroup(), true);
-    if (group.hasMember(loggedInSubject)) {
-      return true;
-    }
+    Boolean canEditHtmlFormField = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByName(grouperSession, GrouperWorkflowSettings.workflowEditorsGroup(), false);
+        if (group != null && group.hasMember(loggedInSubject)) {
+          return true;
+        }
+        return false;
+      }
+    });
     
-    return false;
+    return canEditHtmlFormField;
     
   }
 
-  public List<GrouperWorkflowInstance> getInstancesWaitingForApproval() {
-    return instancesWaitingForApproval;
-  }
-
-  public void setInstancesWaitingForApproval(List<GrouperWorkflowInstance> instancesWaitingForApproval) {
-    this.instancesWaitingForApproval = instancesWaitingForApproval;
-  }
-
-  public List<GrouperWorkflowInstance> getInstancesSubjectInitiated() {
-    return instancesSubjectInitiated;
-  }
-
-  public void setInstancesSubjectInitiated(List<GrouperWorkflowInstance> instancesSubjectInitiated) {
-    this.instancesSubjectInitiated = instancesSubjectInitiated;
-  }
 
   public GrouperWorkflowInstance getWorkflowInstance() {
     return workflowInstance;
@@ -185,6 +179,30 @@ public class WorkflowContainer {
 
   public void setWorkflowInstance(GrouperWorkflowInstance workflowInstance) {
     this.workflowInstance = workflowInstance;
+  }
+  
+  
+  
+  public List<GrouperWorkflowInstance> getWorkflowInstances() {
+    return workflowInstances;
+  }
+
+  public void setWorkflowInstances(List<GrouperWorkflowInstance> workflowInstances) {
+    this.workflowInstances = workflowInstances;
+  }
+
+  public boolean isCanApproveDisapprove() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    boolean canApproveDisApprove = (Boolean)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return GrouperWorkflowInstanceService.canInstanceBeApproved(workflowInstance, loggedInSubject);
+          }
+    });
+    return canApproveDisApprove;
   }
   
 }

@@ -31,16 +31,18 @@
         <tr>
         <td colspan="2">
         
-          <input type="submit" class="btn btn-primary"
+          <c:if test="${grouperRequestContainer.workflowContainer.canApproveDisapprove }">
+            <input type="submit" class="btn btn-primary"
             aria-controls="workflowConfigSubmitId" id="submitId"
             value="${textContainer.text['workflowApproveWorkflowButton'] }"
             onclick="ajax('../app/UiV2GrouperWorkflow.workflowApprove?attributeAssignId=${instance.attributeAssignId}', {formIds: 'approveWorkflowId'}); return false;">
                           &nbsp;
                           
-          <input type="submit" class="btn btn-primary"
+           <input type="submit" class="btn btn-primary"
             aria-controls="workflowConfigSubmitId" id="submitId"
             value="${textContainer.text['workflowDisapproveWorkflowButton'] }"
             onclick="ajax('../app/UiV2GrouperWorkflow.workflowDisapprove?attributeAssignId=${instance.attributeAssignId}', {formIds: 'approveWorkflowId'}); return false;">
+          </c:if>
                           &nbsp; 
           <a class="btn btn-cancel" role="button"
                           onclick="return guiV2link('operation=UiV2GrouperWorkflow.formsWaitingForApproval'); return false;"

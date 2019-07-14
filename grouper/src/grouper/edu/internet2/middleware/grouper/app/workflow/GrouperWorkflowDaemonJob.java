@@ -102,7 +102,8 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
         }
         
         // if last email state is same as the state this instance is in, no need to do anything
-        // basically, we are still waiting for somebody to take action
+        // basically, we are still waiting for somebody to take action or the requester subject has already
+        // been added to the group
         String lastEmailedState = instance.getWorkflowInstanceLastEmailedState();
         String currentState = instance.getWorkflowInstanceState();
         if (StringUtils.isBlank(lastEmailedState) || !lastEmailedState.equals(currentState)) {
@@ -157,7 +158,7 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
               //TODO maybe email admin of the group
               break;
             }
-            assignToGroup.addMember(subjectToAdd);
+            assignToGroup.addMember(subjectToAdd, false);
             addedSubjectToGroup = true;
           }
         }

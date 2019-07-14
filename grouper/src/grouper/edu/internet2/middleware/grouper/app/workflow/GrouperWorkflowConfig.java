@@ -436,6 +436,7 @@ public class GrouperWorkflowConfig {
       errors.add(contentKeys.get("workflowConfigEnabledRequiredError"));
     }
 
+    //TODO move to constants
     List<String> validEnabledValues = Arrays.asList("true", "false", "noNewSubmissions");
 
     if (!validEnabledValues.contains(workflowConfigEnabled)) {
@@ -484,6 +485,12 @@ public class GrouperWorkflowConfig {
   
   public boolean canSubjectInitiateWorkflow(final Subject subject) {
    
+    List<String> configTypesToIgnore = Arrays.asList("false", "noNewSubmissions");
+    
+    if (configTypesToIgnore.contains(workflowConfigEnabled)) {
+      return false;
+    }
+     
     GrouperWorkflowApprovalState initiateState = workflowApprovalStates.getStateByName(INITIATE_STATE);
     final String allowedGroupId = initiateState.getAllowedGroupId();
     if (StringUtils.isBlank(allowedGroupId)) {
@@ -501,6 +508,20 @@ public class GrouperWorkflowConfig {
     return member != null && member.isMember(group);
         
   }
+  
+  public boolean isSubjectInViewersGroup(Subject subject) {
+    
+    if (StringUtils.isNotBlank(workflowConfigViewersGroupId)) {
+      Group viewersGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), workflowConfigViewersGroupId, false);
+      if (viewersGroup == null) {
+        LOG.error("viewers group for workflow config "+workflowConfigName +" is not found.");
+        return false;
+      }
+      return viewersGroup.hasMember(subject);
+    }
+    
+    return false;
+  } 
 
   public String buildHtmlFromConfigForm(String state) {
     

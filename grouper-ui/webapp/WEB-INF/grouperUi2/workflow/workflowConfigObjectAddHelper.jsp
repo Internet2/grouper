@@ -83,16 +83,14 @@
     </td>
   </tr>
   
-  <c:if test="${grouperRequestContainer.workflowContainer.canEditWorkflowFormField}">
-    <tr>
-	    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigFormId">${textContainer.text['grouperWorkflowConfigFormLabel']}</label></strong></td>
-	    <td>
-	      <textarea id="grouperWorkflowConfigFormId" name="grouperWorkflowConfigForm" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigForm)}</textarea>
-	      <br />
-	      <span class="description">${textContainer.text['grouperWorkflowConfigFormHint']}</span>
-	    </td>
-    </tr>
-  </c:if>
+   <tr>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigFormId">${textContainer.text['grouperWorkflowConfigFormLabel']}</label></strong></td>
+    <td>
+      <textarea <c:if test="${!grouperRequestContainer.workflowContainer.canEditWorkflowFormField}">disabled</c:if> id="grouperWorkflowConfigFormId" name="grouperWorkflowConfigForm" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigForm)}</textarea>
+      <br />
+      <span class="description">${textContainer.text['grouperWorkflowConfigFormHint']}</span>
+    </td>
+   </tr>
   
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigViewersGroupIdId">${textContainer.text['grouperWorkflowConfigViewersGroupIdLabel']}</label></strong></td>

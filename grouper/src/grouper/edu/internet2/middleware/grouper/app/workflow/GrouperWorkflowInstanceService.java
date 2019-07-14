@@ -34,6 +34,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3EncryptionClientBuilder;
+import com.amazonaws.services.s3.model.EncryptionMaterials;
+import com.amazonaws.services.s3.model.StaticEncryptionMaterialsProvider;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -88,6 +99,25 @@ public class GrouperWorkflowInstanceService {
     return result;
     
   }
+  
+  /**
+   * get workflow instances for a given group and worklfow config id
+   * @param group
+   * @return
+   */
+  public static List<GrouperWorkflowInstance> getWorkflowInstances(Group group, String grouperWorkflowConfigId) {
+    
+    List<GrouperWorkflowInstance> result = new ArrayList<GrouperWorkflowInstance>();
+    
+    for (GrouperWorkflowInstance instance: getWorkflowInstances(group)) {
+      if (instance.getGrouperWorkflowConfig().getWorkflowConfigId().equals(grouperWorkflowConfigId)) {
+        result.add(instance);
+      }
+    }
+    
+    return result;
+    
+  } 
   
   /**
    * @return set of groups that have workflow instances
@@ -363,7 +393,7 @@ public class GrouperWorkflowInstanceService {
     
     String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
     
-    saveWorkflowFile(encryptionKey, htmlForm, instance, fileInfo, workflowConfig);
+    saveWorkflowFile(encryptionKey, document.html(), instance, fileInfo, workflowConfig);
     
     saveWorkflowInstanceAttributes(instance, instance.getOwnerGrouperObject());
     
@@ -486,7 +516,7 @@ public class GrouperWorkflowInstanceService {
     
     String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
     
-    saveWorkflowFile(encryptionKey, htmlForm, instance, fileInfo, workflowConfig);
+    saveWorkflowFile(encryptionKey, document.html(), instance, fileInfo, workflowConfig);
     
     saveWorkflowInstanceAttributes(instance, instance.getOwnerGrouperObject());
     
@@ -620,7 +650,7 @@ public class GrouperWorkflowInstanceService {
     filesInfo.getFileNamesAndPointers().add(fileInfo);
     instance.setGrouperWorkflowInstanceFilesInfo(filesInfo);
     
-    saveWorkflowFile(randomEncryptionKey, htmlForm, instance, fileInfo, grouperWorkflowConfig);
+    saveWorkflowFile(randomEncryptionKey, document.html(), instance, fileInfo, grouperWorkflowConfig);
     
     saveWorkflowInstanceAttributes(instance, group);
     
@@ -658,8 +688,7 @@ public class GrouperWorkflowInstanceService {
     }
       
     if (workflowFileDestinationType.equals("S3")) {
-      //String s3Url = uploadFileToS3(instance, encryptionKey);
-      //instance.setInstanceFilePointer(s3Url);
+      uploadFileToS3(fileContents, instance, fileInfo, randomEncryptionKey);
     } else {
       String workflowFileOutputDirectory = GrouperConfig.retrieveConfig().propertyValueString("workflow.file.system.path");
       if (StringUtils.isBlank(workflowFileOutputDirectory)) {          
@@ -711,34 +740,14 @@ public class GrouperWorkflowInstanceService {
     
     Set<Group> groupsWithWorkflowInstance = findGroupsWithWorkflowInstance();
     
-    List<String> statesToIgnore = Arrays.asList(COMPLETE_STATE, REJECTED_STATE, EXCEPTION_STATE);
-    
     for (Group group: groupsWithWorkflowInstance) {
       
       List<GrouperWorkflowInstance> workflowInstances = getWorkflowInstances(group);
       
       for (GrouperWorkflowInstance instance: workflowInstances) {
-        
-        if (!statesToIgnore.contains(instance.getWorkflowInstanceState())) {
-          GrouperWorkflowConfig grouperWorkflowConfig = instance.getGrouperWorkflowConfig();
-          GrouperWorkflowApprovalStates approvalStates = grouperWorkflowConfig.getWorkflowApprovalStates();
-          
-          GrouperWorkflowApprovalState workflowApprovalState = approvalStates.getStateByName(instance.getWorkflowInstanceState());
-          if (workflowApprovalState == null) {
-            throw new RuntimeException("Could not find state with name: "+instance.getWorkflowInstanceState());
-          }
-          
-          if (PrivilegeHelper.isWheelOrRoot(subject)) {
-            instancesWaitingForApproval.add(instance);
-          } else {
-            List<Subject> approvers = getApprovers(workflowApprovalState);
-            if (approvers.contains(subject)) {
-              instancesWaitingForApproval.add(instance);
-            }
-          }
-          
+        if (canInstanceBeApproved(instance, subject)) {
+          instancesWaitingForApproval.add(instance);
         }
-
       }
     }
     
@@ -754,7 +763,38 @@ public class GrouperWorkflowInstanceService {
     
     List<GrouperWorkflowInstanceLogEntry> logEntries = instance.getGrouperWorkflowInstanceLogEntries().getLogEntries();
     for (GrouperWorkflowInstanceLogEntry entry: logEntries) {
-      if (entry.getSubjectId().equals(subject.getId())) {
+      if (StringUtils.isNotBlank(entry.getSubjectId()) && entry.getSubjectId().equals(subject.getId())) {
+        return true;
+      }
+    }
+    
+    List<GrouperWorkflowInstance> instancesWaitingForApproval = getWorkflowInstancesWaitingForApproval(subject);
+    if (instancesWaitingForApproval.contains(instance)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  public static boolean canInstanceBeApproved(GrouperWorkflowInstance instance, Subject subject) {
+    
+    List<String> statesToIgnore = Arrays.asList(COMPLETE_STATE, REJECTED_STATE, EXCEPTION_STATE);
+    
+    if (!statesToIgnore.contains(instance.getWorkflowInstanceState())) {
+      GrouperWorkflowConfig grouperWorkflowConfig = instance.getGrouperWorkflowConfig();
+      GrouperWorkflowApprovalStates approvalStates = grouperWorkflowConfig.getWorkflowApprovalStates();
+      
+      GrouperWorkflowApprovalState workflowApprovalState = approvalStates.getStateByName(instance.getWorkflowInstanceState());
+      if (workflowApprovalState == null) {
+        throw new RuntimeException("Could not find state with name: "+instance.getWorkflowInstanceState());
+      }
+      
+      if (PrivilegeHelper.isWheelOrRoot(subject)) {
+        return true;
+      } 
+      
+      List<Subject> approvers = getApprovers(workflowApprovalState);
+      if (approvers.contains(subject)) {
         return true;
       }
     }
@@ -762,7 +802,7 @@ public class GrouperWorkflowInstanceService {
     return false;
   }
   
-  //TODO move to GrouperWorkflowApprovalState
+  //TODO move to GrouperWorkflowApprovalState or GrouperWorkflowInstance
   private static List<Subject> getApprovers(GrouperWorkflowApprovalState approvalState) {
     
     List<Subject> approvers = new ArrayList<Subject>();
@@ -797,6 +837,54 @@ public class GrouperWorkflowInstanceService {
     }
     
     return approvers;
+    
+  }
+  
+  /**
+   * upload given file to file system
+   * @param file
+   * @param encryptionKey
+   * @return s3 url of file 
+   */
+  private static void uploadFileToS3(String fileContents, GrouperWorkflowInstance instance,
+      GrouperWorkflowInstanceFileInfo fileInfo, String encryptionKey) {
+    
+    String bucketName = GrouperConfig.retrieveConfig().propertyValueString("workflow.s3.bucket.name");
+    String region = GrouperConfig.retrieveConfig().propertyValueString("workflow.s3.region");
+    
+    String accessKey = GrouperConfig.retrieveConfig().propertyValueString("workflow.s3.access.key");
+    String secretKey = GrouperConfig.retrieveConfig().propertyValueString("workflow.s3.secret.key");
+    
+    GrouperWorkflowConfig workflowConfig = instance.getGrouperWorkflowConfig();
+    
+    String fileName = workflowConfig.getWorkflowConfigId()+
+        "_"+instance.getWorkflowInstanceState()+"_"+new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
+    
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
+    
+    try {
+      
+      AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+      AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+      
+      AmazonS3 s3Client = AmazonS3EncryptionClientBuilder.standard()
+              .withRegion(region)
+              .withCredentials(credentialsProvider)
+              .withEncryptionMaterials(new StaticEncryptionMaterialsProvider(encryptionMaterials))
+              .build();
+      
+      s3Client.putObject(bucketName, fileName, fileContents);
+      
+      fileInfo.setFileName(fileName);
+      fileInfo.setFilePointer(s3Client.getUrl(bucketName, fileName).toString());
+    } catch(AmazonServiceException e) {
+      LOG.error("Error creating workflow file in S3. file name: "+fileName+" instance id: "+instance.getAttributeAssignId());
+      throw new RuntimeException("Error creating workflow file in S3");
+    } catch(SdkClientException e) {
+      LOG.error("Error creating workflow file in S3. file name: "+fileName+" instance id: "+instance.getAttributeAssignId());
+      throw new RuntimeException("Error creating workflow file in S3");
+    }
     
   }
   

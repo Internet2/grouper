@@ -48,7 +48,7 @@
               
                 <tr>
                    <td style="white-space: nowrap;">
-                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkdlow.viewAllConfigInstancesForGroup&attributeAssignmentMarkerId=${guiWorkflowConfig.grouperWorkflowConfig.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
+                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewInstances&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
                     ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}</a>
                    </td>
                    
@@ -80,28 +80,7 @@
                              <span class="caret"></span>
                            </a>
                            <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                             
-                            <%--  <c:if test="${not empty guiReportConfig.mostRecentReportInstance }">
-                               <li><a href="../app/UiV2GrouperReport.downloadReportForGroup?attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsReportInstances'] }</a></li>
-                               
-                               <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}">                               
-                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
-                               </c:if>
-                               
-                             </c:if> --%>
-                             
                              <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
-                               <%-- <c:choose>
-                                 <c:when test="${guiWorkflowConfig.reportConfigBean.reportConfigEnabled}">
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
-                                 </c:when>
-                                 <c:otherwise>
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=enable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</a></li>
-                                 </c:otherwise>
-                               </c:choose> --%>
-                               <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.deleteReportConfigForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</a></li> --%>
                                <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableEditDetailsActionOption'] }</a></li>                             
                              </c:if>
                              <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewWorkflowConfigDetails&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableViewDetailsActionOption'] }</a></li>

@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -629,8 +631,38 @@ public class GrouperWorkflowInstance {
       }
     }
     
-    return htmlForm;
+    return document.html();
     
   }
+
+
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+        .append(attributeAssignId)
+        .append(workflowInstanceUuid)
+        .toHashCode();
+  }
+
+
+
+  @Override
+  public boolean equals(Object other) {
+    
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GrouperWorkflowInstance)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( attributeAssignId, ( (GrouperWorkflowInstance) other ).getAttributeAssignId() )
+      .append( workflowInstanceUuid, ( (GrouperWorkflowInstance) other ).getWorkflowInstanceUuid())
+      .isEquals();
+    
+  }
+  
+  
   
 }

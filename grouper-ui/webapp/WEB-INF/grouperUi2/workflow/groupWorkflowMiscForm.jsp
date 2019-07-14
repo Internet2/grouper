@@ -17,16 +17,13 @@
               <div class="span12">
                 <div class="row-fluid">
                   <div class="span1">
-                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.myForms');" style="white-space: nowrap;"
+                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.formsUserSubmitted');" style="white-space: nowrap;"
                       >${textContainer.text['workflowMiscMyFormsLink'] }</a>
                       
                     <br /><br />
                     <a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.formsWaitingForApproval');" style="white-space: nowrap;"
                       >${textContainer.text['workflowMiscFormsWaitingForApprovalLink'] }</a>
                       
-                    <br /><br />
-                    <a href="#" onclick="return guiV2link('operation=UiV2Main.formsSearch');" style="white-space: nowrap;"
-                      >${textContainer.text['workflowMiscFormsSearchLink'] }</a>
                   </div>
                 </div>
               </div>
