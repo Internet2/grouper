@@ -183,7 +183,7 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
             instance.setWorkflowInstanceLastEmailedDate(currentDate);
             instance.setWorkflowInstanceLastEmailedState(COMPLETE_STATE);
             
-            GrouperWorkflowInstanceLogEntry logEntry = GrouperWorkflowInstanceService.createLogEntry(subjectToAdd, new Date(), 
+            GrouperWorkflowInstanceLogEntry logEntry = GrouperWorkflowInstanceLogEntry.createLogEntry(subjectToAdd, new Date(), 
                 COMPLETE_STATE, ADD_SUBJECT_TO_GROUP_ACTION);
             instance.getGrouperWorkflowInstanceLogEntries().getLogEntries().add(logEntry);
           }
@@ -232,7 +232,7 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
         instance.setWorkflowInstanceLastEmailedDate(currentDate);
         instance.setWorkflowInstanceLastEmailedState(nextState.getStateName());
         
-        GrouperWorkflowInstanceLogEntry logEntry = GrouperWorkflowInstanceService.createLogEntry(null, new Date(), nextState.getStateName(), WORKFLOW_STATE_CHANGE_ACTION);
+        GrouperWorkflowInstanceLogEntry logEntry = GrouperWorkflowInstanceLogEntry.createLogEntry(null, new Date(), nextState.getStateName(), WORKFLOW_STATE_CHANGE_ACTION);
         instance.getGrouperWorkflowInstanceLogEntries().getLogEntries().add(logEntry);
         
         if (!parentWorkflowConfig.isWorkflowConfigSendEmail()) {

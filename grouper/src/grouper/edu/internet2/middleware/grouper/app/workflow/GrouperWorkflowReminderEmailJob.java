@@ -73,7 +73,7 @@ public class GrouperWorkflowReminderEmailJob extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
 
-    GrouperSession session = GrouperSession.startRootSession();
+    GrouperSession.startRootSession();
     Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
     
     Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);

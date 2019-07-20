@@ -45,7 +45,6 @@ public class GrouperWorkflowEmailService {
     for (Subject sub: subjects) {
       body = body.replace("$$subjectName$$", sub.getName());
       String emailAddress = GrouperEmailUtils.getEmail(sub);
-      emailAddress = "erviveksachdeva@gmail.com";
       if (StringUtils.isNotBlank(emailAddress)) {
         new GrouperEmail().setBody(body.toString()).setSubject(subject).setTo(emailAddress).send();
       } else {
@@ -106,7 +105,6 @@ public class GrouperWorkflowEmailService {
       }
       
       String emailAddress = GrouperEmailUtils.getEmail(subject);
-      emailAddress = "erviveksachdeva@gmail.com";
       if (StringUtils.isBlank(emailAddress)) {
         LOG.warn(" Subject with id: "+subject.getId()+" does not have an email address.");
       } else {

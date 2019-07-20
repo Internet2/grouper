@@ -155,6 +155,9 @@ public class GrouperWorkflowInstanceService {
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_STATE, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), workflowInstance.getWorkflowInstanceState());
     
+    attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_UUID, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), workflowInstance.getWorkflowInstanceUuid());
+    
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ENCRYPTION_KEY, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), workflowInstance.getWorkflowInstanceEncryptionKey());
     
@@ -305,7 +308,7 @@ public class GrouperWorkflowInstanceService {
     instance.setWorkflowInstanceLastUpdatedMillisSince1970(now.getTime());
     
     GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
-    logEntries.getLogEntries().add(createLogEntry(subject, now, nextState, APPROVE_ACTION));
+    logEntries.getLogEntries().add(GrouperWorkflowInstanceLogEntry.createLogEntry(subject, now, nextState, APPROVE_ACTION));
     
     instance.setGrouperWorkflowInstanceLogEntries(logEntries);
     
@@ -345,7 +348,7 @@ public class GrouperWorkflowInstanceService {
     instance.setWorkflowInstanceLastUpdatedMillisSince1970(now.getTime());
     
     GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
-    logEntries.getLogEntries().add(createLogEntry(subject, now, REJECTED_STATE, DISAPPROVE_ACTION));
+    logEntries.getLogEntries().add(GrouperWorkflowInstanceLogEntry.createLogEntry(subject, now, REJECTED_STATE, DISAPPROVE_ACTION));
     
     instance.setGrouperWorkflowInstanceLogEntries(logEntries);
     
@@ -354,42 +357,6 @@ public class GrouperWorkflowInstanceService {
     saveWorkflowFile(encryptionKey, populatedHtmlForm, instance, fileInfo, workflowConfig);
     
     saveOrUpdateWorkflowInstance(instance, instance.getOwnerGrouperObject());
-    
-  }
-  
-  /**
-   * validate what user submitted and return errors if any
-   * @param paramNamesValues
-   * @param state
-   * @return
-   */
-  public static List<String> validateFormValues(Map<GrouperWorkflowConfigParam, String> paramNamesValues,
-      String state) {
-    
-    List<String> errors = new ArrayList<String>();
-    
-    final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
-    
-    for (Map.Entry<GrouperWorkflowConfigParam, String> entry: paramNamesValues.entrySet()) {
-      
-      GrouperWorkflowConfigParam param = entry.getKey();
-      String paramValue = entry.getValue();
-      
-      if (StringUtils.isNotBlank(paramValue) && !param.getEditableInStates().contains(state)) {
-        String error = contentKeys.get("workflowSubmitFormFieldNotEditable");
-        error = error.replace("$$fieldName$$", param.getParamName());
-        errors.add(error);
-      }
-      
-      if (StringUtils.isBlank(paramValue) && param.isRequired()) {
-        String error = contentKeys.get("workflowSubmitFormFieldRequired");
-        error = error.replace("$$fieldName$$", param.getParamName());
-        errors.add(error);
-      }
-      
-    }
-    
-    return errors;
     
   }
   
@@ -409,9 +376,10 @@ public class GrouperWorkflowInstanceService {
     instance.setWorkflowInstanceInitiatedMillisSince1970(now.getTime());
     instance.setWorkflowInstanceUuid(GrouperUuid.getUuid());
     instance.setWorkflowInstanceEncryptionKey(Morph.encrypt(randomEncryptionKey));
+    instance.setGrouperWorkflowConfig(grouperWorkflowConfig);
     
     GrouperWorkflowInstanceLogEntries logEntries = new GrouperWorkflowInstanceLogEntries();
-    logEntries.setLogEntries(Arrays.asList(createLogEntry(subject, now, INITIATE_STATE, INITIATE_ACTION)));
+    logEntries.setLogEntries(Arrays.asList(GrouperWorkflowInstanceLogEntry.createLogEntry(subject, now, INITIATE_STATE, INITIATE_ACTION)));
     
     instance.setGrouperWorkflowInstanceLogEntries(logEntries);
    
@@ -448,7 +416,7 @@ public class GrouperWorkflowInstanceService {
       if (!instance.getWorkflowInstanceState().equals(COMPLETE_STATE)) {
         GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
         for (GrouperWorkflowInstanceLogEntry entry: logEntries.getLogEntries()) {
-          if (entry.getAction().equals(INITIATE_STATE) && entry.getSubjectId().equals(subject.getId())) {
+          if (entry.getAction().equals(INITIATE_ACTION) && entry.getSubjectId().equals(subject.getId())) {
             return true;
           }
         }
@@ -618,7 +586,6 @@ public class GrouperWorkflowInstanceService {
     return false;
   }
   
-  //TODO move to GrouperWorkflowApprovalState or GrouperWorkflowInstance
   /**
    * get list of approvers for given approval state
    * @param approvalState
@@ -886,6 +853,9 @@ public class GrouperWorkflowInstanceService {
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ENCRYPTION_KEY);
     result.setWorkflowInstanceEncryptionKey(assignValue != null ? assignValue.getValueString(): null);
     
+    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_UUID);
+    result.setWorkflowInstanceUuid(assignValue != null ? assignValue.getValueString(): null);
+    
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_STATE);
     result.setWorkflowInstanceState(assignValue != null ? assignValue.getValueString(): null);
     
@@ -1059,17 +1029,6 @@ public class GrouperWorkflowInstanceService {
     }
     
     return document.html();
-  }
-  
-  public static GrouperWorkflowInstanceLogEntry createLogEntry(Subject subject, 
-      Date date, String state, String action) {
-    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
-    logEntry.setState(state);
-    logEntry.setAction(action);
-    logEntry.setSubjectId(subject != null ? subject.getId(): null);
-    logEntry.setSubjectSourceId(subject != null ? subject.getSourceId(): null);
-    logEntry.setMillisSince1970(date.getTime());
-    return logEntry;
   }
   
   private static String appendAuditLine(String htmlForm, Subject subject, 

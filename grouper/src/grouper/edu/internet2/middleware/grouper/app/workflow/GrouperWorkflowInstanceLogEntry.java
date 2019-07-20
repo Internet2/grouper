@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
+import java.util.Date;
+
+import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowInstanceLogEntry {
   
@@ -112,6 +115,17 @@ public class GrouperWorkflowInstanceLogEntry {
    */
   public void setMillisSince1970(Long millisSince1970) {
     this.millisSince1970 = millisSince1970;
+  }
+  
+  public static GrouperWorkflowInstanceLogEntry createLogEntry(Subject subject, 
+      Date date, String state, String action) {
+    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
+    logEntry.setState(state);
+    logEntry.setAction(action);
+    logEntry.setSubjectId(subject != null ? subject.getId(): null);
+    logEntry.setSubjectSourceId(subject != null ? subject.getSourceId(): null);
+    logEntry.setMillisSince1970(date.getTime());
+    return logEntry;
   }
   
 }

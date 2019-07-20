@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GrouperWorkflowApprovalState {
