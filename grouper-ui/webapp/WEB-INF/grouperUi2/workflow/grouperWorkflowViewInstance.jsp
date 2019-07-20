@@ -43,10 +43,7 @@
             value="${textContainer.text['workflowDisapproveWorkflowButton'] }"
             onclick="ajax('../app/UiV2GrouperWorkflow.workflowDisapprove?attributeAssignId=${instance.attributeAssignId}', {formIds: 'approveWorkflowId'}); return false;">
           </c:if>
-                          &nbsp; 
-          <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2GrouperWorkflow.formsWaitingForApproval'); return false;"
-                          >${textContainer.text['workflowCancelWorkflowButton'] }</a>
+                          &nbsp;
         
         </td>
         </tr>

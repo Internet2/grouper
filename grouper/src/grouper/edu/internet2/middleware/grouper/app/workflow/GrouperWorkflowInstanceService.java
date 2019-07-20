@@ -6,10 +6,13 @@ import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowAppro
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.REJECTED_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefNameBase;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.APPROVE_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.DISAPPROVE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.INITIATE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings.workflowStemName;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -18,7 +21,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +44,9 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3EncryptionClientBuilder;
+import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.EncryptionMaterials;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.StaticEncryptionMaterialsProvider;
 
 import edu.internet2.middleware.grouper.Group;
@@ -124,15 +128,10 @@ public class GrouperWorkflowInstanceService {
    */
   public static Set<Group> findGroupsWithWorkflowInstance() {
     
-    if (!GrouperWorkflowSettings.workflowEnabled()) {
-      return new HashSet<Group>();
-    }
-    
-    Set<Group> groups = new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
+    return new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
       .assignNameOfAttributeDefName(workflowStemName()+":"+GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME)
       .findGroups();
     
-    return groups;
   }
   
   /**
@@ -140,7 +139,7 @@ public class GrouperWorkflowInstanceService {
    * @param workflowInstance
    * @param grouperObject
    */
-  public static void saveWorkflowInstanceAttributes(GrouperWorkflowInstance workflowInstance, GrouperObject grouperObject) {
+  public static void saveOrUpdateWorkflowInstance(GrouperWorkflowInstance workflowInstance, GrouperObject grouperObject) {
     
     AttributeAssign attributeAssign = null;
     
@@ -290,112 +289,31 @@ public class GrouperWorkflowInstanceService {
     String nextState = workflowConfig.getWorkflowApprovalStates()
         .stateAfter(currentState).getStateName();
     
-    instance.setWorkflowInstanceState(nextState);
-    instance.setWorkflowInstanceLastUpdatedMillisSince1970(now.getTime());
-    
-    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
-    logEntry.setState(nextState);
-    logEntry.setAction("approve");
-    logEntry.setSubjectId(subject.getId());
-    logEntry.setSubjectSourceId(subject.getSourceId());
-    logEntry.setMillisSince1970(now.getTime());
-    
-    GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
-    logEntries.getLogEntries().add(logEntry);
-    
-    instance.setGrouperWorkflowInstanceLogEntries(logEntries);
-    
-    //String htmlForm = workflowConfig.buildHtmlFromParams(true, nextState);
-    String htmlForm = null;
-    if (StringUtils.isNotBlank(workflowConfig.getWorkflowConfigForm())) {
-      htmlForm = workflowConfig.buildHtmlFromConfigForm(nextState);
-    } else {      
-      htmlForm = workflowConfig.buildHtmlFromParams(false, nextState);
-    }
-    
-    // add auditing at the bottom
-    StringBuilder htmlFormWithAudit = new StringBuilder(htmlForm);
-    
-    String auditLine = GrouperTextContainer.retrieveFromRequest().getText().get("workflowFormAuditLine");
-    
-    auditLine = auditLine.replace("$$subjectSource$$", subject.getSource().getName());
-    auditLine = auditLine.replace("$$subjectId$$", subject.getId());
-    auditLine = auditLine.replace("$$subjectName$$", subject.getName());
-    auditLine = auditLine.replace("$$buttonText$$", "approve");
-    auditLine = auditLine.replace("$$state$$", nextState);
-    
-    String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now);
-    
-    auditLine = auditLine.replace("$$timestamp$$", timestamp);
-    
-    htmlFormWithAudit.append("<div>");
-    htmlFormWithAudit.append(auditLine);
-    htmlFormWithAudit.append("</div>");
-    
-    htmlForm = htmlFormWithAudit.toString();
-    
-    Document document = Jsoup.parse(htmlForm);
-    
-    GrouperWorkflowConfigParams configParams = workflowConfig.getConfigParams();
-    
-    for (int i =0; i<configParams.getParams().size(); i++) {
-      GrouperWorkflowConfigParam workflowConfigParam = configParams.getParams().get(i);
-      String paramName = workflowConfigParam.getParamName();
-      String newValue = paramNamesValues.get(workflowConfigParam);
-      try {
+    String htmlForm = getCurrentHtmlContent(instance);
         
-        Method getParamMethod = instance.getClass().getMethod("getGrouperWorkflowInstanceParamValue"+String.valueOf(i));
-        GrouperWorkflowInstanceParamValue paramValueObjectBeforeUpdate = (GrouperWorkflowInstanceParamValue) getParamMethod.invoke(instance);
-        
-        String valueBeforeUpdate = paramValueObjectBeforeUpdate.getParamValue();
-        List<String> editableStates = workflowConfigParam.getEditableInStates();
-        
-        if (!editableStates.contains(currentState) && !StringUtils.equals(valueBeforeUpdate, newValue)) {
-          throw new RuntimeException("Values cannot be changed");
-        }
-        
-        if (StringUtils.isBlank(newValue) && workflowConfigParam.isRequired()) {
-          //TODO send error back
-        }
-        
-        // if value not changed, nothing to update - just store the same object again
-        GrouperWorkflowInstanceParamValue paramValueObjectAfterUpdate = paramValueObjectBeforeUpdate;
-        
-        if (!StringUtils.equals(valueBeforeUpdate, newValue)) {
-          paramValueObjectAfterUpdate.setEditedByMemberId(subject.getId());
-          paramValueObjectAfterUpdate.setEditedInState(currentState);
-          paramValueObjectAfterUpdate.setLastUpdatedMillis(now.getTime());
-          paramValueObjectAfterUpdate.setParamValue(newValue);
-        }
-       
-        Method method = instance.getClass().getMethod("setGrouperWorkflowInstanceParamValue"+String.valueOf(i), GrouperWorkflowInstanceParamValue.class);
-        method.invoke(instance, paramValueObjectAfterUpdate);
-        
-        Element element = document.selectFirst("[name="+paramName+"]");
-        if (workflowConfigParam.getType().equals("checkbox")) {
-          if (StringUtils.isNotBlank(newValue) && newValue.equals("on")) {
-            element.attr("checked", "checked");
-            // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", "checked");
-          }
-        } else {
-          element.val(newValue);
-          // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", newValue);
-        }
-      } catch (Exception e) {
-        throw new RuntimeException("Error occurred setting param values.");
-      }
-    }
+    String htmlFormWithAudit = appendAuditLine(htmlForm, subject, currentState, APPROVE_ACTION, now);
+    
+    String populatedHtmlForm = populateHtmlForm(instance, workflowConfig, subject, 
+        now, htmlFormWithAudit, paramNamesValues);
     
     GrouperWorkflowInstanceFileInfo fileInfo = new GrouperWorkflowInstanceFileInfo();
     fileInfo.setState(currentState);
     
     instance.getGrouperWorkflowInstanceFilesInfo().getFileNamesAndPointers().add(fileInfo);
     
+    instance.setWorkflowInstanceState(nextState);
+    instance.setWorkflowInstanceLastUpdatedMillisSince1970(now.getTime());
+    
+    GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
+    logEntries.getLogEntries().add(createLogEntry(subject, now, nextState, APPROVE_ACTION));
+    
+    instance.setGrouperWorkflowInstanceLogEntries(logEntries);
+    
     String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
     
-    saveWorkflowFile(encryptionKey, document.html(), instance, fileInfo, workflowConfig);
+    saveWorkflowFile(encryptionKey, populatedHtmlForm, instance, fileInfo, workflowConfig);
     
-    saveWorkflowInstanceAttributes(instance, instance.getOwnerGrouperObject());
+    saveOrUpdateWorkflowInstance(instance, instance.getOwnerGrouperObject());
     
   }
   
@@ -405,124 +323,48 @@ public class GrouperWorkflowInstanceService {
    * @param subject
    */
   public static void disapproveWorkflow(GrouperWorkflowInstance instance, Subject subject, 
-      Map<String, String> paramNamesValues) {
+      Map<GrouperWorkflowConfigParam, String> paramNamesValues) {
     
     Date now = new Date();
     String currentState = instance.getWorkflowInstanceState();
     
     GrouperWorkflowConfig workflowConfig = instance.getGrouperWorkflowConfig();
-    String nextState = workflowConfig.getWorkflowApprovalStates()
-        .stateAfter(currentState).getStateName();
+    
+    String htmlForm = getCurrentHtmlContent(instance);
+    
+    String htmlFormWithAudit = appendAuditLine(htmlForm, subject, currentState, DISAPPROVE_ACTION, now);
+    
+    String populatedHtmlForm = populateHtmlForm(instance, workflowConfig,
+        subject, now, htmlFormWithAudit, paramNamesValues);
+    
+    GrouperWorkflowInstanceFileInfo fileInfo = new GrouperWorkflowInstanceFileInfo();
+    fileInfo.setState(currentState);
+    instance.getGrouperWorkflowInstanceFilesInfo().getFileNamesAndPointers().add(fileInfo);
     
     instance.setWorkflowInstanceState(REJECTED_STATE);
     instance.setWorkflowInstanceLastUpdatedMillisSince1970(now.getTime());
     
-    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
-    logEntry.setState(REJECTED_STATE);
-    logEntry.setAction("disapprove");
-    logEntry.setSubjectId(subject.getId());
-    logEntry.setSubjectSourceId(subject.getSourceId());
-    logEntry.setMillisSince1970(now.getTime());
-    
     GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
-    logEntries.getLogEntries().add(logEntry);
+    logEntries.getLogEntries().add(createLogEntry(subject, now, REJECTED_STATE, DISAPPROVE_ACTION));
     
     instance.setGrouperWorkflowInstanceLogEntries(logEntries);
     
-    // String htmlForm = workflowConfig.buildHtmlFromParams(true, nextState);
-    String htmlForm = null;
-    if (StringUtils.isNotBlank(workflowConfig.getWorkflowConfigForm())) {
-      htmlForm = workflowConfig.buildHtmlFromConfigForm(nextState);
-    } else {      
-      htmlForm = workflowConfig.buildHtmlFromParams(false, nextState);
-    }
-    
-    // add auditing at the bottom
-    StringBuilder htmlFormWithAudit = new StringBuilder(htmlForm);
-    
-    String auditLine = GrouperTextContainer.retrieveFromRequest().getText().get("workflowFormAuditLine");
-    
-    auditLine = auditLine.replace("$$subjectSource$$", subject.getSource().getName());
-    auditLine = auditLine.replace("$$subjectId$$", subject.getId());
-    auditLine = auditLine.replace("$$subjectName$$", subject.getName());
-    auditLine = auditLine.replace("$$buttonText$$", "disapprove");
-    auditLine = auditLine.replace("$$state$$", nextState);
-    
-    String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now);
-    
-    auditLine = auditLine.replace("$$timestamp$$", timestamp);
-    
-    htmlFormWithAudit.append("<div>");
-    htmlFormWithAudit.append(auditLine);
-    htmlFormWithAudit.append("</div>");
-    
-    htmlForm = htmlFormWithAudit.toString();
-    
-    Document document = Jsoup.parse(htmlForm);
-    
-    GrouperWorkflowConfigParams configParams = workflowConfig.getConfigParams();
-    
-    for (int i =0; i<configParams.getParams().size(); i++) {
-      GrouperWorkflowConfigParam workflowConfigParam = configParams.getParams().get(i);
-      String paramName = workflowConfigParam.getParamName();
-      String newValue = paramNamesValues.get(paramName);
-      try {
-        
-        Method getParamMethod = instance.getClass().getMethod("getGrouperWorkflowInstanceParamValue"+String.valueOf(i));
-        GrouperWorkflowInstanceParamValue paramValueObjectBeforeUpdate = (GrouperWorkflowInstanceParamValue) getParamMethod.invoke(instance);
-        
-        String valueBeforeUpdate = paramValueObjectBeforeUpdate.getParamValue();
-        List<String> editableStates = workflowConfigParam.getEditableInStates();
-        
-        if (!editableStates.contains(currentState) && !StringUtils.equals(valueBeforeUpdate, newValue)) {
-          throw new RuntimeException("Values cannot be changed");
-        }
-        
-        //TODO make sure required fields are not being changed to blank
-        
-        // if value not changed, nothing to update - just store the same object again
-        GrouperWorkflowInstanceParamValue paramValueObjectAfterUpdate = paramValueObjectBeforeUpdate;
-        
-        if (!StringUtils.equals(valueBeforeUpdate, newValue)) {
-          paramValueObjectAfterUpdate.setEditedByMemberId(subject.getId());
-          paramValueObjectAfterUpdate.setEditedInState(currentState);
-          paramValueObjectAfterUpdate.setLastUpdatedMillis(now.getTime());
-          paramValueObjectAfterUpdate.setParamValue(newValue);
-        }
-       
-        Method method = instance.getClass().getMethod("setGrouperWorkflowInstanceParamValue"+String.valueOf(i), GrouperWorkflowInstanceParamValue.class);
-        method.invoke(instance, paramValueObjectAfterUpdate);
-        
-        Element element = document.selectFirst("[name="+paramName+"]");
-        
-        if (workflowConfigParam.getType().equals("checkbox")) {
-          if (StringUtils.isNotBlank(newValue) && newValue.equals("on")) {
-            element.attr("checked", "checked");
-            // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", "checked");
-          }
-        } else {
-          element.val(newValue);
-          // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", newValue);
-        }
-      } catch (Exception e) {
-        throw new RuntimeException("Error occurred setting param values.");
-      }
-    }
-    
-    GrouperWorkflowInstanceFileInfo fileInfo = new GrouperWorkflowInstanceFileInfo();
-    fileInfo.setState(currentState);
-    
-    instance.getGrouperWorkflowInstanceFilesInfo().getFileNamesAndPointers().add(fileInfo);
-    
     String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
     
-    saveWorkflowFile(encryptionKey, document.html(), instance, fileInfo, workflowConfig);
+    saveWorkflowFile(encryptionKey, populatedHtmlForm, instance, fileInfo, workflowConfig);
     
-    saveWorkflowInstanceAttributes(instance, instance.getOwnerGrouperObject());
+    saveOrUpdateWorkflowInstance(instance, instance.getOwnerGrouperObject());
     
   }
   
-  public static List<String> validateInitiateFormValues(Map<GrouperWorkflowConfigParam, String> paramNamesValues) {
+  /**
+   * validate what user submitted and return errors if any
+   * @param paramNamesValues
+   * @param state
+   * @return
+   */
+  public static List<String> validateFormValues(Map<GrouperWorkflowConfigParam, String> paramNamesValues,
+      String state) {
     
     List<String> errors = new ArrayList<String>();
     
@@ -533,7 +375,7 @@ public class GrouperWorkflowInstanceService {
       GrouperWorkflowConfigParam param = entry.getKey();
       String paramValue = entry.getValue();
       
-      if (StringUtils.isNotBlank(paramValue) && !param.getEditableInStates().contains(INITIATE_STATE)) {
+      if (StringUtils.isNotBlank(paramValue) && !param.getEditableInStates().contains(state)) {
         String error = contentKeys.get("workflowSubmitFormFieldNotEditable");
         error = error.replace("$$fieldName$$", param.getParamName());
         errors.add(error);
@@ -568,81 +410,17 @@ public class GrouperWorkflowInstanceService {
     instance.setWorkflowInstanceUuid(GrouperUuid.getUuid());
     instance.setWorkflowInstanceEncryptionKey(Morph.encrypt(randomEncryptionKey));
     
-    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
-    logEntry.setState(INITIATE_STATE);
-    logEntry.setAction(INITIATE_STATE);
-    logEntry.setSubjectId(subject.getId());
-    logEntry.setSubjectSourceId(subject.getSourceId());
-    logEntry.setMillisSince1970(now.getTime());
-    
     GrouperWorkflowInstanceLogEntries logEntries = new GrouperWorkflowInstanceLogEntries();
-    logEntries.setLogEntries(Arrays.asList(logEntry));
+    logEntries.setLogEntries(Arrays.asList(createLogEntry(subject, now, INITIATE_STATE, INITIATE_ACTION)));
     
     instance.setGrouperWorkflowInstanceLogEntries(logEntries);
    
-    GrouperWorkflowConfigParams configParams = grouperWorkflowConfig.getConfigParams();
+    String htmlForm = grouperWorkflowConfig.buildInitialHtml(INITIATE_STATE);
     
-    String htmlForm = null;
-    if (StringUtils.isNotBlank(grouperWorkflowConfig.getWorkflowConfigForm())) {
-      htmlForm = grouperWorkflowConfig.buildHtmlFromConfigForm(INITIATE_STATE);
-    } else {
-      htmlForm = grouperWorkflowConfig.buildHtmlFromParams(false, INITIATE_STATE);
-    }
+    String htmlFormWithAudit = appendAuditLine(htmlForm, subject, INITIATE_STATE, INITIATE_ACTION, now);
     
-    // String htmlForm = grouperWorkflowConfig.buildHtmlFromParams(true, INITIATE_STATE);
-    
-    // add auditing at the bottom
-    StringBuilder htmlFormWithAudit = new StringBuilder(htmlForm);
-    
-    String auditLine = GrouperTextContainer.retrieveFromRequest().getText().get("workflowFormAuditLine");
-    
-    auditLine = auditLine.replace("$$subjectSource$$", subject.getSource().getName());
-    auditLine = auditLine.replace("$$subjectId$$", subject.getId());
-    auditLine = auditLine.replace("$$subjectName$$", subject.getName());
-    auditLine = auditLine.replace("$$buttonText$$", "submit");
-    auditLine = auditLine.replace("$$state$$", INITIATE_STATE);
-    
-    String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now);
-    
-    auditLine = auditLine.replace("$$timestamp$$", timestamp);
-    
-    htmlFormWithAudit.append("<div>");
-    htmlFormWithAudit.append(auditLine);
-    htmlFormWithAudit.append("</div>");
-    
-    htmlForm = htmlFormWithAudit.toString();
-    
-    Document document = Jsoup.parse(htmlForm);
-    
-    for (int i =0; i<configParams.getParams().size(); i++) {
-      GrouperWorkflowConfigParam workflowConfigParam = configParams.getParams().get(i);
-      String paramName = workflowConfigParam.getParamName();
-      String value = paramNamesValues.get(workflowConfigParam);
-      try {
-        
-        GrouperWorkflowInstanceParamValue paramValue = new GrouperWorkflowInstanceParamValue();
-        paramValue.setParamName(paramName);
-        paramValue.setParamValue(value);
-        paramValue.setEditedByMemberId(subject.getId());
-        paramValue.setEditedInState(INITIATE_STATE);
-        paramValue.setLastUpdatedMillis(now.getTime());
-       
-        Method method = instance.getClass().getMethod("setGrouperWorkflowInstanceParamValue"+String.valueOf(i), GrouperWorkflowInstanceParamValue.class);
-        method.invoke(instance, paramValue);
-        Element element = document.selectFirst("[name="+paramName+"]");
-        if (workflowConfigParam.getType().equals("checkbox")) {
-          if (StringUtils.isNotBlank(value) && value.equals("on")) {
-            element.attr("checked", "checked");
-            // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", "checked");
-          }
-        } else {
-          element.val(value);
-          // htmlForm = htmlForm.replaceAll("~~"+paramName+"~~", value);
-        }
-      } catch (Exception e) {
-        throw new RuntimeException("Error occurred setting param values.");
-      }
-    }
+    String populatedHtmlForm = populateHtmlForm(instance, grouperWorkflowConfig, subject, 
+        now, htmlFormWithAudit, paramNamesValues);
     
     GrouperWorkflowInstanceFileInfo fileInfo = new GrouperWorkflowInstanceFileInfo();
     fileInfo.setState(INITIATE_STATE);
@@ -650,12 +428,18 @@ public class GrouperWorkflowInstanceService {
     filesInfo.getFileNamesAndPointers().add(fileInfo);
     instance.setGrouperWorkflowInstanceFilesInfo(filesInfo);
     
-    saveWorkflowFile(randomEncryptionKey, document.html(), instance, fileInfo, grouperWorkflowConfig);
+    saveWorkflowFile(randomEncryptionKey, populatedHtmlForm, instance, fileInfo, grouperWorkflowConfig);
     
-    saveWorkflowInstanceAttributes(instance, group);
+    saveOrUpdateWorkflowInstance(instance, group);
     
   }
   
+  /**
+   * did this subject already submit workflow
+   * @param subject
+   * @param group
+   * @return
+   */
   public static boolean subjectAlreadySubmittedWorkflow(Subject subject, Group group) {
     
     List<GrouperWorkflowInstance> workflowInstances = getWorkflowInstances(group);
@@ -700,6 +484,11 @@ public class GrouperWorkflowInstanceService {
     
   }
   
+  /**
+   * get list of instances submitted
+   * @param subject
+   * @return
+   */
   public static List<GrouperWorkflowInstance> getWorkflowInstancesSubmitted(Subject subject) {
     
     List<GrouperWorkflowInstance> instancesSubmitted = new ArrayList<GrouperWorkflowInstance>();
@@ -713,20 +502,15 @@ public class GrouperWorkflowInstanceService {
         
         GrouperWorkflowConfig grouperWorkflowConfig = instance.getGrouperWorkflowConfig();
         
-        GrouperWorkflowInstanceLogEntry workflowInstanceLogEntry = instance.getGrouperWorkflowInstanceLogEntries()
-            .getLogEntryByActionName(INITIATE_ACTION);
-          
-          String subjetWhoInitiatedId = workflowInstanceLogEntry.getSubjectId();
-          Subject subjetWhoInitiated = SubjectFinder.findById(subjetWhoInitiatedId, false);
-          if (subjetWhoInitiated == null) {
-            LOG.error("For workflow config id: "+grouperWorkflowConfig.getWorkflowConfigId()+" subject that requested to join the group no longer exists. subject id is "+subjetWhoInitiatedId);
-            continue;
-          }
-          
-          if (subject.getId().equals(subjetWhoInitiated.getId())) {
-            instancesSubmitted.add(instance);
-          }
+        Subject subjetWhoInitiated = subjectWhoInitiatedWorkflow(instance);
+        if (subjetWhoInitiated == null) {
+          LOG.error("For workflow config id: "+grouperWorkflowConfig.getWorkflowConfigId()+" subject that requested to join the group no longer exists.");
+          continue;
+        }
         
+        if (subject.getId().equals(subjetWhoInitiated.getId())) {
+          instancesSubmitted.add(instance);
+        }
       }
     }
     
@@ -734,6 +518,26 @@ public class GrouperWorkflowInstanceService {
     
   }
   
+  /**
+   * find subject who initiated workflow from log entries
+   * @param instance
+   * @return
+   */
+  public static Subject subjectWhoInitiatedWorkflow(GrouperWorkflowInstance instance) {
+    
+    GrouperWorkflowInstanceLogEntry workflowInstanceLogEntry = instance.getGrouperWorkflowInstanceLogEntries()
+        .getLogEntryByActionName(INITIATE_ACTION);
+      
+    String subjetWhoInitiatedId = workflowInstanceLogEntry.getSubjectId();
+    Subject subjetWhoInitiated = SubjectFinder.findById(subjetWhoInitiatedId, false);
+    return subjetWhoInitiated;
+  }
+   
+  /**
+   * get instances waiting for approval for this subject
+   * @param subject
+   * @return
+   */
   public static List<GrouperWorkflowInstance> getWorkflowInstancesWaitingForApproval(Subject subject) {
     
     List<GrouperWorkflowInstance> instancesWaitingForApproval = new ArrayList<GrouperWorkflowInstance>();
@@ -755,6 +559,12 @@ public class GrouperWorkflowInstanceService {
     
   }
   
+  /**
+   * can the given instance be viewed by the given subject 
+   * @param instance
+   * @param subject
+   * @return
+   */
   public static boolean canInstanceBeViewed(GrouperWorkflowInstance instance, Subject subject) {
     
     if (PrivilegeHelper.isWheelOrRoot(subject)) {
@@ -776,6 +586,12 @@ public class GrouperWorkflowInstanceService {
     return false;
   }
   
+  /**
+   * can the given instance be approved by the given subject
+   * @param instance
+   * @param subject
+   * @return
+   */
   public static boolean canInstanceBeApproved(GrouperWorkflowInstance instance, Subject subject) {
     
     List<String> statesToIgnore = Arrays.asList(COMPLETE_STATE, REJECTED_STATE, EXCEPTION_STATE);
@@ -803,7 +619,12 @@ public class GrouperWorkflowInstanceService {
   }
   
   //TODO move to GrouperWorkflowApprovalState or GrouperWorkflowInstance
-  private static List<Subject> getApprovers(GrouperWorkflowApprovalState approvalState) {
+  /**
+   * get list of approvers for given approval state
+   * @param approvalState
+   * @return
+   */
+  public static List<Subject> getApprovers(GrouperWorkflowApprovalState approvalState) {
     
     List<Subject> approvers = new ArrayList<Subject>();
     
@@ -841,7 +662,7 @@ public class GrouperWorkflowInstanceService {
   }
   
   /**
-   * upload given file to file system
+   * upload object to s3
    * @param file
    * @param encryptionKey
    * @return s3 url of file 
@@ -888,6 +709,118 @@ public class GrouperWorkflowInstanceService {
     
   }
   
+  
+  /**
+   * retrieves current html content from workflow instance
+   * @param workflow instance
+   * @return
+   */
+  public static String getCurrentHtmlContent(GrouperWorkflowInstance instance) {
+    String state = instance.getWorkflowInstanceState();
+    int lastIndex = instance.getGrouperWorkflowInstanceFilesInfo()
+        .getFileNamesAndPointers().size() - 1;
+    
+    GrouperWorkflowInstanceFileInfo fileInfo = instance.getGrouperWorkflowInstanceFilesInfo()
+    .getFileNamesAndPointers().get(lastIndex);
+    
+    String html = fileInfo.getFilePointer().startsWith("https://") ? 
+        getCurrentHtmlContentFromS3(instance): getCurrentHtmlFormFromFileSystem(instance);
+    
+    Document document = Jsoup.parse(html);
+    GrouperWorkflowConfigParams configParams = instance.getGrouperWorkflowConfig().getConfigParams();
+    for (GrouperWorkflowConfigParam param : configParams.getParams()) {
+
+      String elementName = param.getParamName();
+      Element element = document.selectFirst("[name="+elementName+"]");
+      List<String> editableInStates = param.getEditableInStates();
+      
+      if (editableInStates.contains(state)) {
+        element.removeAttr("disabled");
+      } else {
+        element.attr("disabled", "disabled");
+      }
+     
+    }
+        
+    return document.html();
+  }
+  
+  
+  /**
+   * @param instance
+   * @return html file content
+   */
+  private static String getCurrentHtmlFormFromFileSystem(GrouperWorkflowInstance instance) {
+    
+    String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    
+    Cipher cipher;
+    try {
+      cipher = Cipher.getInstance("AES");
+      cipher.init(Cipher.DECRYPT_MODE, encryptionKeySecret);
+      
+      int lastIndex = instance.getGrouperWorkflowInstanceFilesInfo()
+          .getFileNamesAndPointers().size() - 1;
+      
+      GrouperWorkflowInstanceFileInfo fileInfo = instance.getGrouperWorkflowInstanceFilesInfo()
+      .getFileNamesAndPointers().get(lastIndex);
+      
+      FileInputStream inputStream = new FileInputStream(fileInfo.getFilePointer());
+      File file = new File(fileInfo.getFilePointer());
+      byte[] inputBytes = new byte[(int) file.length()];
+      inputStream.read(inputBytes);
+       
+      byte[] outputBytes = cipher.doFinal(inputBytes);
+      inputStream.close();
+      return new String(outputBytes);
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error in getting report content from file system", e);
+    }
+    
+  }
+  
+  /**
+   * @param instance
+   * @return html file content
+   */
+  private static String getCurrentHtmlContentFromS3(GrouperWorkflowInstance instance) {
+    
+    String accessKey = GrouperConfig.retrieveConfig().propertyValueString("workflow.s3.access.key");
+    String secretKey = GrouperConfig.retrieveConfig().propertyValueString("workflow.s3.secret.key");
+    
+    String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
+    
+    try {
+      
+      AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+      AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+      
+      int lastIndex = instance.getGrouperWorkflowInstanceFilesInfo()
+          .getFileNamesAndPointers().size() - 1;
+      
+      GrouperWorkflowInstanceFileInfo fileInfo = instance.getGrouperWorkflowInstanceFilesInfo()
+      .getFileNamesAndPointers().get(lastIndex);
+      
+      AmazonS3URI s3Uri = new AmazonS3URI(fileInfo.getFilePointer());
+      AmazonS3 s3Client = AmazonS3EncryptionClientBuilder.standard()
+              .withRegion(s3Uri.getRegion())
+              .withCredentials(credentialsProvider)
+              .withEncryptionMaterials(new StaticEncryptionMaterialsProvider(encryptionMaterials))
+              .build();
+      
+      // Download and decrypt the object.
+      S3Object downloadedObject = s3Client.getObject(s3Uri.getBucket(), s3Uri.getKey());     
+      byte[] decrypted = com.amazonaws.util.IOUtils.toByteArray(downloadedObject.getObjectContent());
+      return new String(decrypted);
+    } catch (Exception e) {
+      throw new RuntimeException("Error getting report content from S3", e);
+    }
+  }
+  
   private static void saveFileToFileSystem(String directory, String encryptionKey, GrouperWorkflowInstance instance, 
       String fileContents, GrouperWorkflowInstanceFileInfo fileInfo, GrouperWorkflowConfig workflowConfig) {
     
@@ -906,8 +839,8 @@ public class GrouperWorkflowInstanceService {
       Cipher cipher = Cipher.getInstance("AES");
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKeySecret);
        
-      //byte[] outputBytes = cipher.doFinal(fileContents.getBytes());
-      byte[] outputBytes = fileContents.getBytes();
+      byte[] outputBytes = cipher.doFinal(fileContents.getBytes());
+      // byte[] outputBytes = fileContents.getBytes();
       
       GrouperUtil.mkdirs(new File(baseDirectory));
        
@@ -981,13 +914,11 @@ public class GrouperWorkflowInstanceService {
     
     result.setWorkflowInstanceLogEntriesString(assignValue != null ? assignValue.getValueString(): null);
     
-    
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_0);
     if (assignValue != null && StringUtils.isNotBlank(assignValue.getValueString())) {
       result.setGrouperWorkflowInstanceParamValue0(GrouperWorkflowInstance.buildParamValueFromJsonString(assignValue.getValueString()));
       result.setWorkflowInstanceParamValue0String(assignValue != null ? assignValue.getValueString(): null);
     }
-    
     
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_1);
     if (assignValue != null && StringUtils.isNotBlank(assignValue.getValueString())) {
@@ -1045,6 +976,124 @@ public class GrouperWorkflowInstanceService {
     
     return result;
     
+  }
+  
+  private static boolean isParamAllowedToBeChagned(GrouperWorkflowInstanceParamValue paramValueObjectBeforeUpdate,
+      String newValue, GrouperWorkflowConfigParam configParam, String currentState) {
+    
+    if (configParam.getEditableInStates().contains(currentState)) {
+      return true;
+    }
+    
+    if (paramValueObjectBeforeUpdate != null) {
+      String oldValue = paramValueObjectBeforeUpdate.getParamValue();
+      
+      if (StringUtils.equals(newValue, oldValue)) {
+        return true;
+      }
+    } else {
+      if (StringUtils.isBlank(newValue)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  private static String populateHtmlForm(GrouperWorkflowInstance instance, 
+      GrouperWorkflowConfig workflowConfig,
+      Subject subject, Date date, String formToPopulate,
+      Map<GrouperWorkflowConfigParam, String> paramNamesValues) {
+    
+    Document document = Jsoup.parse(formToPopulate);
+    
+    GrouperWorkflowConfigParams configParams = workflowConfig.getConfigParams();
+    
+    for (int i =0; i<configParams.getParams().size(); i++) {
+      GrouperWorkflowConfigParam workflowConfigParam = configParams.getParams().get(i);
+      
+      String paramName = workflowConfigParam.getParamName();
+      String newValue = paramNamesValues.get(workflowConfigParam);
+      try {
+        
+        Method getParamMethod = instance.getClass().getMethod("getGrouperWorkflowInstanceParamValue"+String.valueOf(i));
+        GrouperWorkflowInstanceParamValue paramValueObjectBeforeUpdate = (GrouperWorkflowInstanceParamValue) getParamMethod.invoke(instance);
+        
+        if (!isParamAllowedToBeChagned(paramValueObjectBeforeUpdate, newValue, 
+            workflowConfigParam, instance.getWorkflowInstanceState())) {
+          throw new RuntimeException("Operation not permitted");
+        }
+        
+        // nothing to do when user did not update the value and workflow is already in progress
+        if (paramValueObjectBeforeUpdate != null &&
+            StringUtils.equals(paramValueObjectBeforeUpdate.getParamValue(), newValue)) {
+          continue;
+        }
+        
+        // nothing to update when user did not enter any value and this is the first time
+        if (paramValueObjectBeforeUpdate == null && StringUtils.isBlank(newValue)) {
+          continue;
+        }
+        
+        GrouperWorkflowInstanceParamValue paramValueObjectAfterUpdate = new GrouperWorkflowInstanceParamValue();
+        paramValueObjectAfterUpdate.setEditedByMemberId(subject.getId());
+        paramValueObjectAfterUpdate.setEditedInState(instance.getWorkflowInstanceState());
+        paramValueObjectAfterUpdate.setLastUpdatedMillis(date.getTime());
+        paramValueObjectAfterUpdate.setParamValue(newValue);
+        
+        Method method = instance.getClass().getMethod("setGrouperWorkflowInstanceParamValue"+String.valueOf(i), GrouperWorkflowInstanceParamValue.class);
+        method.invoke(instance, paramValueObjectAfterUpdate);
+        
+        Element element = document.selectFirst("[name="+paramName+"]");
+        
+        if (workflowConfigParam.getType().equals("checkbox")) {
+          if (StringUtils.isNotBlank(newValue) && newValue.equals("on")) {
+            element.attr("checked", "checked");
+          }
+        } else {
+          element.val(newValue);
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Error occurred setting param values.");
+      }
+    }
+    
+    return document.html();
+  }
+  
+  public static GrouperWorkflowInstanceLogEntry createLogEntry(Subject subject, 
+      Date date, String state, String action) {
+    GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
+    logEntry.setState(state);
+    logEntry.setAction(action);
+    logEntry.setSubjectId(subject != null ? subject.getId(): null);
+    logEntry.setSubjectSourceId(subject != null ? subject.getSourceId(): null);
+    logEntry.setMillisSince1970(date.getTime());
+    return logEntry;
+  }
+  
+  private static String appendAuditLine(String htmlForm, Subject subject, 
+      String state, String action, Date date) {
+    
+    StringBuilder htmlFormWithAudit = new StringBuilder(htmlForm);
+    
+    String auditLine = GrouperTextContainer.retrieveFromRequest().getText().get("workflowFormAuditLine");
+    
+    auditLine = auditLine.replace("$$subjectSource$$", subject.getSource().getName());
+    auditLine = auditLine.replace("$$subjectId$$", subject.getId());
+    auditLine = auditLine.replace("$$subjectName$$", subject.getName());
+    auditLine = auditLine.replace("$$buttonText$$", action);
+    auditLine = auditLine.replace("$$state$$", state);
+    
+    String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
+    
+    auditLine = auditLine.replace("$$timestamp$$", timestamp);
+    
+    htmlFormWithAudit.append("<div>");
+    htmlFormWithAudit.append(auditLine);
+    htmlFormWithAudit.append("</div>");
+    
+    return htmlFormWithAudit.toString();
   }
 
 }

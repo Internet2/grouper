@@ -59,7 +59,6 @@
                     </a>
                       <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                       
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.approveWorkflow&attributeAssignId=${instance.attributeAssignId}');">${textContainer.text['workflowInstanceTableColumnHeaderInstanceActionsApprove'] }</a></li>
                         <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewInstance&attributeAssignId=${instance.attributeAssignId}');">${textContainer.text['workflowInstanceTableColumnHeaderInstanceActionsViewInstanceForm'] }</a></li>
                              
                       </ul>

@@ -47,7 +47,12 @@ public class GrouperWorkflowConfigService {
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperWorkflowConfigService.class);
   
-  
+  /**
+   * get workflow config for a given group and workflow id
+   * @param group
+   * @param workflowId
+   * @return
+   */
   public static GrouperWorkflowConfig getWorkflowConfig(final Group group, final String workflowId) {
     
     AttributeAssign attributeAssign = getAttributeAssign(group, workflowId);
@@ -72,6 +77,11 @@ public class GrouperWorkflowConfigService {
     
   }
   
+  /**
+   * check if workflow config exists for a given workflow id
+   * @param workflowId
+   * @return
+   */
   public static boolean workflowIdExists(final String workflowId) {
         
     QueryOptions queryOptions = new QueryOptions();
@@ -87,6 +97,11 @@ public class GrouperWorkflowConfigService {
     return queryOptions.getCount() > 0;
   }
      
+  /**
+   * get all workflow configs configured for a given group 
+   * @param group
+   * @return
+   */
   public static List<GrouperWorkflowConfig> getWorkflowConfigs(final Group group) {
     
     List<GrouperWorkflowConfig> result = new ArrayList<GrouperWorkflowConfig>();
@@ -99,6 +114,12 @@ public class GrouperWorkflowConfigService {
     return result;
   }
   
+  /**
+   * can subject configure workflow
+   * @param group
+   * @param subject
+   * @return
+   */
   public static boolean canSubjectConfigureWorkflow(Group group, Subject subject) {
     
     if (PrivilegeHelper.isWheelOrRoot(subject)) {
@@ -124,6 +145,12 @@ public class GrouperWorkflowConfigService {
     return false;
   }
   
+  /**
+   * can subject view workflow
+   * @param group
+   * @param subject
+   * @return
+   */
   public static boolean canSubjectViewWorkflow(Group group, Subject subject) {
     
     if (canSubjectConfigureWorkflow(group, subject)) {
@@ -143,7 +170,11 @@ public class GrouperWorkflowConfigService {
     return false;
   }
   
-  
+  /**
+   * save or update workflow config
+   * @param grouperWorkflowConfig
+   * @param group
+   */
   public static void saveOrUpdateGrouperWorkflowConfig(GrouperWorkflowConfig grouperWorkflowConfig, Group group) {
     
     GrouperWorkflowApprovalStates existingApprovalStates = null;
@@ -153,7 +184,7 @@ public class GrouperWorkflowConfigService {
     } else {
       AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate()
           .retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS);
-      existingApprovalStates = GrouperWorkflowConfig.buildApprovalStatesFromJsonString(attributeAssignValue.getValueString());
+      existingApprovalStates = GrouperWorkflowApprovalStates.buildApprovalStatesFromJsonString(attributeAssignValue.getValueString());
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
@@ -205,16 +236,10 @@ public class GrouperWorkflowConfigService {
         Subject previousAllowedGroup = SubjectFinder.findById(previousInitiateState.getAllowedGroupId(), false);
         if (previousAllowedGroup != null) {
           group.revokePriv(previousAllowedGroup, AccessPrivilege.VIEW, false);
-//          group.deleteMember(previousAllowedGroup, false);
-//          group.addOrEditMember(previousAllowedGroup, false, false, false, false, false, false, 
-//              false, false, false, false, null, null, false);
         }
       } else {
         Subject everyEntitySubject = SubjectFinder.findAllSubject();
         group.revokePriv(everyEntitySubject, AccessPrivilege.VIEW, false);
-        // group.deleteMember(everyEntitySubject, false);
-//        group.addOrEditMember(everyEntitySubject, false, false, false, false, false, false, 
-//            false, false, false, false, null, null, false);
       }
     }
     
@@ -234,7 +259,6 @@ public class GrouperWorkflowConfigService {
           false, false, false, false, null, null, false);
     }
     
-    
     attributeAssign.saveOrUpdate();
     
   }
@@ -245,10 +269,12 @@ public class GrouperWorkflowConfigService {
     
     GrouperWorkflowConfig result = new GrouperWorkflowConfig();
     
+    result.setOwnerGroup(attributeAssign.getOwnerGroup());
+    
     result.setAttributeAssignmentMarkerId(attributeAssign.getId());
     
     AttributeAssignValue attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS);
-    GrouperWorkflowApprovalStates workflowApprovalStates = GrouperWorkflowConfig.buildApprovalStatesFromJsonString(attributeAssignValue.getValueString());
+    GrouperWorkflowApprovalStates workflowApprovalStates = GrouperWorkflowApprovalStates.buildApprovalStatesFromJsonString(attributeAssignValue.getValueString());
     result.setWorkflowApprovalStates(workflowApprovalStates);
     
     result.setWorkflowConfigApprovalsString(attributeAssignValue.getValueString());
@@ -269,7 +295,7 @@ public class GrouperWorkflowConfigService {
     result.setWorkflowConfigName(attributeAssignValue != null ? attributeAssignValue.getValueString(): null);
     
     attributeAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_PARAMS);
-    GrouperWorkflowConfigParams configParams = GrouperWorkflowConfig.buildParamsFromJsonString(attributeAssignValue.getValueString());
+    GrouperWorkflowConfigParams configParams = GrouperWorkflowConfigParams.buildParamsFromJsonString(attributeAssignValue.getValueString());
     result.setConfigParams(configParams);
     
     result.setWorkflowConfigParamsString(attributeAssignValue.getValueString());

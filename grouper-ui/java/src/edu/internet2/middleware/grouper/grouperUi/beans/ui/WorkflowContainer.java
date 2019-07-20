@@ -71,6 +71,10 @@ public class WorkflowContainer {
     
   }
   
+  /**
+   * can logged in use view electronic forms menu item
+   * @return
+   */
   public boolean isCanViewElectronicForm() {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -149,6 +153,10 @@ public class WorkflowContainer {
     this.htmlForm = htmlForm;
   }
 
+  /**
+   * can logged in user edit workflow html form field
+   * @return
+   */
   public boolean isCanEditWorkflowFormField() {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -191,6 +199,10 @@ public class WorkflowContainer {
     this.workflowInstances = workflowInstances;
   }
 
+  /**
+   * can logged in user approve or disapprove the instance
+   * @return
+   */
   public boolean isCanApproveDisapprove() {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
