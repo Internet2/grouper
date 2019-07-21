@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.COMPLETE_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.COMPLETE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_FALSE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_NO_NEW_SUBMISSIONS;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_TRUE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +97,9 @@ public class GrouperWorkflowConfigValidator {
     if (StringUtils.isNotBlank(config.getWorkflowConfigViewersGroupId())) {
       Group workflowViewersGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), config.getWorkflowConfigViewersGroupId(), false);
       if (workflowViewersGroup == null) {
+        workflowViewersGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), config.getWorkflowConfigViewersGroupId(), false);
+      }
+      if (workflowViewersGroup == null) {
         errors.add(contentKeys.get("workflowViewerGroupIdNotFoundError"));
       }
     }
@@ -102,8 +108,8 @@ public class GrouperWorkflowConfigValidator {
       errors.add(contentKeys.get("workflowConfigEnabledRequiredError"));
     }
 
-    //TODO move to constants
-    List<String> validEnabledValues = Arrays.asList("true", "false", "noNewSubmissions");
+    
+    List<String> validEnabledValues = Arrays.asList(WORKFLOW_CONFIG_ENABLED_TRUE, WORKFLOW_CONFIG_ENABLED_FALSE, WORKFLOW_CONFIG_ENABLED_NO_NEW_SUBMISSIONS);
 
     if (!validEnabledValues.contains(config.getWorkflowConfigEnabled())) {
       errors.add(contentKeys.get("workflowConfigEnabledInvalidValueError"));
@@ -239,6 +245,9 @@ public class GrouperWorkflowConfigValidator {
         if (StringUtils.isNotBlank(allowedGroupId)) {
           Group allowedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), allowedGroupId, false);
           if (allowedGroup == null) {
+            allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), allowedGroupId, false);
+          }
+          if (allowedGroup == null) {
             String error = contentKeys.get("workflowApprovalsStateAllowedGroupNotFound");
             error = error.replace("$$stateName$$", stateName);
             error = error.replace("$$groupId$$", allowedGroupId);
@@ -254,6 +263,9 @@ public class GrouperWorkflowConfigValidator {
           if (action.getActionName().equals("assignToGroup")) {
             String assignToGroupId = action.getActionArg0();
             Group assignToGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), assignToGroupId, false);
+            if (assignToGroup == null) {
+              assignToGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), assignToGroupId, false);
+            }
             if (assignToGroup == null) {
               String error = contentKeys.get("workflowApprovalsStateCompleteStateAssignToGroupIdNotFound");
               error = error.replace("$$assignToGroupId$$", assignToGroupId);
@@ -293,6 +305,9 @@ public class GrouperWorkflowConfigValidator {
       if (StringUtils.isNotBlank(state.getApproverGroupId())) {
         Group approverGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), state.getApproverGroupId(), false);
         if (approverGroup == null) {
+          approverGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), state.getApproverGroupId(), false);
+        }
+        if (approverGroup == null) {
           String error = contentKeys.get("workflowApprovalsStateApproverGroupNotFound");
           error = error.replace("$$stateName$$", stateName);
           error = error.replace("$$groupId$$", state.getApproverGroupId());
@@ -302,6 +317,9 @@ public class GrouperWorkflowConfigValidator {
       
       if (StringUtils.isNotBlank(state.getApproverManagersOfGroupId())) {
         Group approverGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), state.getApproverManagersOfGroupId(), false);
+        if (approverGroup == null) {
+          approverGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), state.getApproverManagersOfGroupId(), false);
+        }
         if (approverGroup == null) {
           String error = contentKeys.get("workflowApprovalsStateApproverGroupNotFound");
           error = error.replace("$$stateName$$", stateName);

@@ -4,11 +4,6 @@ import java.util.List;
 
 public class GrouperWorkflowApprovalState {
   
-  public static final String INITIATE_STATE = "initiate";
-  public static final String COMPLETE_STATE = "complete";
-  public static final String EXCEPTION_STATE = "exception";
-  public static final String REJECTED_STATE = "rejected";
-  
   /**
    * name of the state
    */

@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_FALSE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_CONFIG_ENABLED_NO_NEW_SUBMISSIONS;
 
 import java.util.Arrays;
 import java.util.List;
@@ -319,8 +321,7 @@ public class GrouperWorkflowConfig {
    */
   public boolean canSubjectInitiateWorkflow(final Subject subject) {
    
-    //TODO move to constants
-    List<String> configTypesToIgnore = Arrays.asList("false", "noNewSubmissions");
+    List<String> configTypesToIgnore = Arrays.asList(WORKFLOW_CONFIG_ENABLED_FALSE, WORKFLOW_CONFIG_ENABLED_NO_NEW_SUBMISSIONS);
     
     if (configTypesToIgnore.contains(workflowConfigEnabled)) {
       return false;
@@ -334,8 +335,11 @@ public class GrouperWorkflowConfig {
     
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), allowedGroupId, false);
     if (group == null) {
+      group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), allowedGroupId, false);
+    }
+    if (group == null) {
       LOG.error("allowed group id " + allowedGroupId + " not found in workflow id "
-              + workflowConfigId + " Was the group delted??");
+              + workflowConfigId + " Was the group deleted??");
       return false;
     }
     
@@ -353,6 +357,9 @@ public class GrouperWorkflowConfig {
     
     if (StringUtils.isNotBlank(workflowConfigViewersGroupId)) {
       Group viewersGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), workflowConfigViewersGroupId, false);
+      if (viewersGroup == null) {
+        viewersGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), workflowConfigViewersGroupId, false);
+      }
       if (viewersGroup == null) {
         LOG.error("viewers group for workflow config "+workflowConfigName +" is not found.");
         return false;

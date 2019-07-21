@@ -1,14 +1,14 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.COMPLETE_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.EXCEPTION_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.REJECTED_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.COMPLETE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.EXCEPTION_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.REJECTED_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefNameBase;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.APPROVE_ACTION;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.DISAPPROVE_ACTION;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.INITIATE_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.APPROVE_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.DISAPPROVE_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings.workflowStemName;
 
 import java.io.File;
@@ -599,6 +599,9 @@ public class GrouperWorkflowInstanceService {
     if (StringUtils.isNotBlank(approverGroupId)) {
       Group approverGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), approverGroupId, false);
       if (approverGroup == null) {
+        approverGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), approverGroupId, false);
+      }
+      if (approverGroup == null) {
         LOG.error("group not found for id: "+approverGroupId);
       } else {
         for (Member member: approverGroup.getMembers()) {
@@ -610,6 +613,9 @@ public class GrouperWorkflowInstanceService {
     String managersOfGroupId = approvalState.getApproverManagersOfGroupId();
     if (StringUtils.isNotBlank(managersOfGroupId)) {
       Group managersGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), managersOfGroupId, false);
+      if (managersGroup == null) {
+        managersGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), managersOfGroupId, false);
+      }
       if (managersGroup == null) {
         LOG.error("group not found for id: "+managersOfGroupId);
       } else {

@@ -169,6 +169,9 @@ public class WorkflowContainer {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         Group group = GroupFinder.findByName(grouperSession, GrouperWorkflowSettings.workflowEditorsGroup(), false);
+        if (group == null) {
+          group = GroupFinder.findByUuid(grouperSession, GrouperWorkflowSettings.workflowEditorsGroup(), false);
+        }
         if (group != null && group.hasMember(loggedInSubject)) {
           return true;
         }

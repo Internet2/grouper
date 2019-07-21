@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
 
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.INITIATE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_APPROVALS;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_DESCRIPTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ENABLED;
@@ -135,6 +135,9 @@ public class GrouperWorkflowConfigService {
     if (StringUtils.isNotBlank(workflowEditorsGroup)) {
       
       Group editorGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), workflowEditorsGroup, false);
+      if (editorGroup == null) {
+        editorGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), workflowEditorsGroup, false);
+      }
       if (editorGroup == null) {
         LOG.error("workflow editor group "+workflowEditorsGroup+" not found.");
         return false;

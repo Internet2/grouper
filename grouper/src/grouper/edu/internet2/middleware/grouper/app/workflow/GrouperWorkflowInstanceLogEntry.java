@@ -6,12 +6,6 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowInstanceLogEntry {
   
-  public static final String INITIATE_ACTION = "initiate";
-  public static final String APPROVE_ACTION = "approve";
-  public static final String DISAPPROVE_ACTION = "disapprove";
-  public static final String ADD_SUBJECT_TO_GROUP_ACTION = "addedSubjectToGroup";
-  public static final String WORKFLOW_STATE_CHANGE_ACTION = "workflowStateChange";
-  
   /**
    * subject source id which generated this log entry
    */

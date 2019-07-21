@@ -1,11 +1,11 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.COMPLETE_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.EXCEPTION_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalState.REJECTED_STATE;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.ADD_SUBJECT_TO_GROUP_ACTION;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.INITIATE_ACTION;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceLogEntry.WORKFLOW_STATE_CHANGE_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.COMPLETE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.EXCEPTION_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.REJECTED_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.ADD_SUBJECT_TO_GROUP_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_ACTION;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.WORKFLOW_STATE_CHANGE_ACTION;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -130,6 +130,9 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
         assignToGroupActionExists = true;
         Group assignToGroup = GroupFinder.findByUuid(grouperSession, groupId, false);
         if (assignToGroup == null) {
+          assignToGroup = GroupFinder.findByName(grouperSession, groupId, false);
+        }
+        if (assignToGroup == null) {
           LOG.error("For workflow config id: "+parentWorkflowConfig.getWorkflowConfigId()+" assignToGroup group not found. Group id is "+groupId);
           instance.setWorkflowInstanceState(EXCEPTION_STATE);
           instance.setWorkflowInstanceError("assignToGroup group id: "+groupId+" not found. It might have been deleted.");
@@ -212,13 +215,6 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
             instance.setWorkflowInstanceLastEmailedDate(currentDate);
             instance.setWorkflowInstanceLastEmailedState(REJECTED_STATE);
             
-//            GrouperWorkflowInstanceLogEntry logEntry = new GrouperWorkflowInstanceLogEntry();
-//            logEntry.setAction("rejectedSubject");
-//            logEntry.setState(REJECTED_STATE);
-//            logEntry.setSubjectId(subjectRejected.getId());
-//            logEntry.setSubjectSourceId(subjectRejected.getSourceId());
-//            logEntry.setMillisSince1970(new Date().getTime());
-//            instance.getGrouperWorkflowInstanceLogEntries().getLogEntries().add(logEntry);
           }
         
       } else {
