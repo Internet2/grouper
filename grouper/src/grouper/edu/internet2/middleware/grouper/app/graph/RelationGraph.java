@@ -1209,46 +1209,41 @@ public class RelationGraph {
         continue;
       }
 
+      StringBuilder theHqlQuery = new StringBuilder(
+        "select gg.uuid," +
+          /* total members */
+          " (" +
+          "   select count(distinct gms.memberUuid)" +
+          "     from MembershipEntry gms, Member gm, Field gfl" +
+          "    where gms.memberUuid = gm.uuid and gms.fieldId = gfl.uuid" +
+          "      and gms.enabledDb = 'T'" +
+          "      and gfl.name = 'members'" +
+          (includeGroupsInMemberCounts ? "" : "       and gm.subjectSourceIdDb != 'g:gsa'") +
+          "      and gms.ownerGroupId = gg.uuid" +
+          " )," +
+          /* direct members */
+          " (" +
+          "   select count(distinct gms.memberUuid)" +
+          "     from MembershipEntry gms, Member gm, Field gfl" +
+          "    where gms.memberUuid = gm.uuid and gms.fieldId = gfl.uuid" +
+          "      and gms.enabledDb = 'T'" +
+          "      and gfl.name = 'members'" +
+          "      and gms.type = 'immediate'" +
+          (includeGroupsInMemberCounts ? "" : "       and gm.subjectSourceIdDb != 'g:gsa'") +
+          "      and gms.ownerGroupId = gg.uuid" +
+          "  )" +
+          " from Group as gg" +
+          " where gg.uuid in (");
+
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      theHqlQuery.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      theHqlQuery.append(")");
+      byHqlStatic.createQuery(theHqlQuery.toString());
 
-      String sqlQuery =
-        "select gg.id," +
-          "  (" +
-          "    select count(distinct gmlv.member_id)" +
-          "      from grouper_memberships_lw_v gmlv" +
-          "     where gmlv.group_id = gg.id" +
-          "       and gmlv.list_name = 'members'" +
-          (includeGroupsInMemberCounts ? "" :
-          "       and gmlv.subject_source != 'g:gsa'") +
-          "  ) as total_membership_count," +
-          "  (" +
-          "    select count(distinct gms.member_id)" +
-          "      from grouper_memberships_all_v gms, grouper_members gm, grouper_fields gfl" +
-          "     where gms.owner_group_id = gg.id" +
-          "       and gms.field_id = gfl.id" +
-          "       and gms.member_id = gm.id" +
-          "       and gms.immediate_mship_enabled = 'T'" +
-          "       and gfl.name = 'members'" +
-          (includeGroupsInMemberCounts ? "" :
-          "       and gm.subject_source != 'g:gsa'") +
-          "       and gms.mship_type = 'immediate'" +
-          "   ) as direct_membership_count" +
-          " from grouper_groups gg " +
-          "where gg.id in (" +
-          HibUtils.convertToInClauseForSqlStatic(currentBatch) +
-          ")";
+      List<Object[]> results = byHqlStatic.list(Object[].class);
 
-      List<Type> types = new ArrayList<Type>();
-      for (int j=0;j<GrouperUtil.length(currentBatch);j++) {
-        types.add(StringType.INSTANCE);
-      }
-
-      // returns [group_id, total_membership_count, direct_membership_count]
-      List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sqlQuery,
-        GrouperUtil.toListObject(currentBatch.toArray()), types);
-
-      for (String[] values : results) {
-        String groupId = values[0];
+      for (Object[] values : results) {
+        String groupId = (String) values[0];
         if (groupNodesByUuid.containsKey(groupId)) {
           // not sure why this wouldn't be found
           GraphNode node = groupNodesByUuid.get(groupId);
@@ -1301,50 +1296,36 @@ public class RelationGraph {
         continue;
       }
 
-      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-
-      String sqlQuery =
+      StringBuilder theHqlQuery = new StringBuilder(
         "SELECT DISTINCT" +
-          "  COALESCE(aa.owner_group_id, aa.owner_stem_id) AS object_id," +
-          "  value_string" +
-          " FROM grouper_attribute_assign aa" +
-          "  JOIN grouper_attribute_assign aa2" +
-          "    ON aa.enabled = 'T'" +
-          "   AND aa.attribute_assign_type IN ('group', 'stem')" +
-          "       " +
-          "   AND aa2.enabled = 'T'" +
-          "   AND aa2.attribute_assign_type IN ('group_asgn', 'stem_asgn') " +
-          "   AND aa2.owner_attribute_assign_id = aa.id" +
-          "  JOIN grouper_attribute_assign_value aav ON aav.attribute_assign_id = aa2.id" +
-          " WHERE aa.attribute_def_name_id = ?" +
-          " AND   aa2.attribute_def_name_id = ?" +
-          " AND COALESCE(aa.owner_group_id, aa.owner_stem_id) in (" +
-          HibUtils.convertToInClauseForSqlStatic(currentBatch) +
-          ")";
+          "  COALESCE(aa.ownerGroupId, aa.ownerStemId), aav.valueString" +
+          "  FROM AttributeAssign aa, AttributeAssign aa2, AttributeAssignValue aav" +
+          " WHERE aa2.ownerAttributeAssignId = aa.id" +
+          "   AND aav.attributeAssignId = aa2.id" +
+          "   AND aa.enabledDb = 'T'" +
+          "   AND aa.attributeAssignTypeDb IN ('group', 'stem')       " +
+          "   AND aa2.enabledDb = 'T'" +
+          "   AND aa2.attributeAssignTypeDb IN ('group_asgn', 'stem_asgn') " +
+          "   AND aa.attributeDefNameId = :typeMarker" +
+          "   AND aa2.attributeDefNameId = :typeValueString" +
+          "   AND COALESCE(aa.ownerGroupId, aa.ownerStemId) in (");
 
-      List<Type> types = new ArrayList<Type>();
-      types.add(StringType.INSTANCE); /* attributeAssign */
-      types.add(StringType.INSTANCE); /* attributeAssignment */
-      for (int j=0;j<GrouperUtil.length(currentBatch);j++) {
-        types.add(StringType.INSTANCE);
-      }
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      theHqlQuery.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      theHqlQuery.append(")");
+      byHqlStatic.createQuery(theHqlQuery.toString());
+      byHqlStatic.setString("typeMarker", objectTypeAttributeId);
+      byHqlStatic.setString("typeValueString", objectTypeAttributeValueId);
 
-      List<Object> params = new ArrayList<Object>();
-      params.add(objectTypeAttributeId);
-      params.add(objectTypeAttributeValueId);
-      params.addAll(currentBatch);
+      List<Object[]> results = byHqlStatic.list(Object[].class);
 
-      // returns [object_id, value_string]
-      List<String[]> results = HibernateSession.bySqlStatic().listSelect(String[].class, sqlQuery,
-        params, types);
-
-      for (String[] values : results) {
-        String objectId = values[0];
+      for (Object[] values : results) {
+        String objectId = (String) values[0];
         if (nodesByUuid.containsKey(objectId)) {
           // not sure why this wouldn't be found
           GraphNode node = nodesByUuid.get(objectId);
 
-          final String objectTypeName = values[1];
+          final String objectTypeName = (String) values[1];
           node.addObjectTypeName(objectTypeName);
           
           this.objectTypesUsed.add(objectTypeName);
