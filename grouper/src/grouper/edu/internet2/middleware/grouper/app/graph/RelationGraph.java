@@ -768,7 +768,7 @@ public class RelationGraph {
   }
 
   // recursively walk parents of this node -- includes parent stem, group loaders, group members, and composites
-  private void buildParentNodes(GraphNode toNode, long level) {
+  private void buildParentNodes(GraphNode toNode, long level, boolean isRecursive) {
     if (this.parentLevels != -1 && level > this.parentLevels) {
       return;
     }
@@ -883,7 +883,15 @@ public class RelationGraph {
         edges.add(edgeCandidate);
         didAddEdges = true;
         n.setDistanceFromStartNode(-1 * level);
-        visitNode(n, level, true, false);
+
+        // if target is a composite group, it's possible that both factors aren't being included by
+        // the normal path following. Getting a composite's only level of children (not recursive)
+        // as a special case ensures that both factors will be included
+        if (n.isIntersectGroup() || n.isComplementGroup()) {
+          visitNode(n, level, isRecursive, false, false, true);
+        } else {
+          visitNode(n, level, isRecursive, false);
+        }
       } else {
         LOG.debug("Loop detected; object " + n.getGrouperObjectName() + " has been seen a second time as a parent (second link was from " + toNode.getGrouperObjectName() + ")");
       }
@@ -899,7 +907,7 @@ public class RelationGraph {
   }
 
   // recursively walk child nodes -- includes stem's child groups, group/subject direct memberships, provisioners
-  private void buildChildNodes(GraphNode fromNode, long level) {
+  private void buildChildNodes(GraphNode fromNode, long level, boolean isRecursive) {
     if (this.childLevels != -1 && level > this.childLevels) {
       return;
     }
@@ -1055,7 +1063,7 @@ public class RelationGraph {
         edges.add(edgeCandidate);
         didAddEdges = true;
         n.setDistanceFromStartNode(level);
-        visitNode(n, level, false, true);
+        visitNode(n, level, false, isRecursive);
       } else {
         LOG.debug("Loop detected; object " + n.getGrouperObjectName() + " has been seen a second time as a child (second link was from " + fromNode.getGrouperObjectName() + ")");
       }
@@ -1070,7 +1078,11 @@ public class RelationGraph {
     }
   }
 
-  private void visitNode(GraphNode node, long level, boolean includeParents, boolean includeChildren) {
+  // Version of visitNode() that can stop after one level of parent/child, rather than continuing
+  // recursively. If include*Recursive is false but include*OneLevel is true, only follow the next level and
+  // stop. If include*Recursive is true, ignore the value of include*OneLevel
+  private void visitNode(GraphNode node, long level, boolean includeParentsRecursive, boolean includeParentOneLevel,
+                         boolean includeChildrenRecursive, boolean includeChildOneLevel) {
     if (node.isVisited()) {
       return;
     }
@@ -1080,17 +1092,25 @@ public class RelationGraph {
       node.setVisitedChildren(true);
     }
 
-    if (includeParents && !node.isVisitedParents()) {
+    if ((includeParentsRecursive || includeParentOneLevel) && !node.isVisitedParents()) {
       //Get parents recursively
-      buildParentNodes(node, 1 + level);
-      node.setVisitedParents(true);
+      buildParentNodes(node, 1 + level, includeParentsRecursive);
+      // only mark truly visited when the walk was fully realized; this means there is the potential
+      // to be visited twice in different contexts, once as a one-off and once fully analyzed
+      node.setVisitedParents(includeParentsRecursive);
     }
 
-    if (includeChildren && !node.isVisitedChildren()) {
+    if ((includeChildrenRecursive || includeChildOneLevel) && !node.isVisitedChildren()) {
       //Get children recursively
-      buildChildNodes(node, 1 + level);
-      node.setVisitedChildren(true);
+      buildChildNodes(node, 1 + level, includeChildrenRecursive);
+      // only mark truly visited when the walk was fully realized; this means there is the potential
+      // to be visited twice in different contexts, once as a one-off and once fully analyzed
+      node.setVisitedChildren(includeChildrenRecursive);
     }
+  }
+
+  private void visitNode(GraphNode node, long level, boolean includeParentsRecursive, boolean includeChildrenRecursive) {
+    visitNode(node, level, includeParentsRecursive, false, includeChildrenRecursive, false);
   }
 
   /**
