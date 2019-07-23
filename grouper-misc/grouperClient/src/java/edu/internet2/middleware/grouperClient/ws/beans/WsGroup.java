@@ -93,6 +93,11 @@ public class WsGroup {
   private String uuid;
 
   /**
+   * optional alternate name of the group
+   */
+  private String alternateName;
+
+  /**
    * if requested, return the detail properties of the group
    */
   private WsGroupDetail detail;
@@ -139,6 +144,14 @@ public class WsGroup {
   }
 
   /**
+   * optional alternate name for the group
+   * @return
+   */
+  public String getAlternateName() {
+    return this.alternateName;
+  }
+
+  /**
    * friendly description of this group
    * @param description1 the description to set
    */
@@ -169,6 +182,13 @@ public class WsGroup {
    */
   public void setUuid(String uuid1) {
     this.uuid = uuid1;
+  }
+
+  /**
+   * optional alternate name for the group
+   */
+  public void setAlternateName(String alternateName1) {
+    this.alternateName = alternateName1;
   }
 
   /**
