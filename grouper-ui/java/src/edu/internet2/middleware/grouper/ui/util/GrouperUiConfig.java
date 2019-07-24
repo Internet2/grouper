@@ -15,8 +15,10 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ui.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -25,66 +27,174 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
  * @author mchyzer
  *
  */
-public class GrouperUiConfig extends ConfigPropertiesCascadeBase {
+public class GrouperUiConfig {
 
   /**
-   * use the factory
+   * 
    */
   private GrouperUiConfig() {
-    
   }
-
+  
   /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */
   public static GrouperUiConfig retrieveConfig() {
-    return retrieveConfig(GrouperUiConfig.class);
+    GrouperUiConfig grouperUiConfig = new GrouperUiConfig();
+    grouperUiConfig.grouperUiConfigInApi = GrouperUiConfigInApi.retrieveConfig();
+    return grouperUiConfig;
   }
+
+  /**
+   * delegate
+   */
+  private GrouperUiConfigInApi grouperUiConfigInApi = null;
 
   /**
    * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues()
    */
-  @Override
   public void clearCachedCalculatedValues() {
+    this.grouperUiConfigInApi.clearCachedCalculatedValues();
+  }
+
+  /**
+   * if the key is there, whether or not the value is blank
+   * @param key
+   * @return true or false
+   */
+  public boolean containsKey(String key) {
+    
+    return this.grouperUiConfigInApi.containsKey(key);
     
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getHierarchyConfigKey
+   * get the properties object for this config file
+   * @return the properties
    */
-  @Override
-  protected String getHierarchyConfigKey() {
-    return "grouperUi.config.hierarchy";
+  public Properties properties() {
+    return this.grouperUiConfigInApi.properties();
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getMainConfigClasspath
+   * find all keys/values with a certain pattern in a properties file.
+   * return the keys.  if none, will return the empty set, not null set
+   * @param pattern
+   * @return the keys.  if none, will return the empty set, not null set
    */
-  @Override
-  protected String getMainConfigClasspath() {
-    return "grouper-ui.properties";
-  }
-  
-  /**
-   * @see ConfigPropertiesCascadeBase#getMainExampleConfigClasspath
-   */
-  @Override
-  protected String getMainExampleConfigClasspath() {
-    return "grouper-ui.base.properties";
+  public Map<String, String> propertiesMap(Pattern pattern) {
+    return this.grouperUiConfigInApi.propertiesMap(pattern);
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getSecondsToCheckConfigKey
+   * override map for properties for testing
+   * @return the override map
    */
-  @Override
-  protected String getSecondsToCheckConfigKey() {
-    return "grouperUi.config.secondsBetweenUpdateChecks";
+  public Map<String, String> propertiesOverrideMap() {
+    return this.grouperUiConfigInApi.propertiesOverrideMap();
   }
 
-  
-  /** logger */
-  protected static final Log LOG = LogFactory.getLog(GrouperUiConfig.class);
+  /**
+   * override map for properties in thread local to be used in a web server or the like, based on property class
+   * this is static since the properties class can get reloaded, but these shouldnt
+   * @return the override map
+   */
+  public Map<String, String> propertiesThreadLocalOverrideMap() {
+    return this.grouperUiConfigInApi.propertiesThreadLocalOverrideMap();
+  }
+
+  /**
+   * 
+   * @return the set of names
+   */
+  @SuppressWarnings("unchecked")
+  public Set<String> propertyNames() {    
+    return this.grouperUiConfigInApi.propertyNames();
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties or null if not there
+   * @param key
+   * @return the boolean or null
+   */
+  public Boolean propertyValueBoolean(String key) {
+    return this.grouperUiConfigInApi.propertyValueBoolean(key);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @return the string
+   */
+  public boolean propertyValueBoolean(String key, boolean defaultValue) {
+    return this.grouperUiConfigInApi.propertyValueBoolean(key, defaultValue);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the string
+   */
+  public boolean propertyValueBooleanRequired(String key) {
+    return this.grouperUiConfigInApi.propertyValueBooleanRequired(key);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the int or null if there
+   */
+  public Integer propertyValueInt(String key ) {
+    return this.grouperUiConfigInApi.propertyValueInt(key);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @return the string
+   */
+  public int propertyValueInt(String key, int defaultValue ) {
+    return this.grouperUiConfigInApi.propertyValueInt(key, defaultValue);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the string
+   */
+  public int propertyValueIntRequired(String key) {
+    return this.grouperUiConfigInApi.propertyValueIntRequired(key);
+  }
+
+  /**
+   * get the property value as a string or null if not there
+   * @param key
+   * @return the property value
+   */
+  public String propertyValueString(String key) {
+    return this.grouperUiConfigInApi.propertyValueString(key);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @param defaultValue
+   * @return the property value
+   */
+  public String propertyValueString(String key, String defaultValue) {
+    return this.grouperUiConfigInApi.propertyValueString(key, defaultValue);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @return the property value
+   */
+  public String propertyValueStringRequired(String key) {
+    return this.grouperUiConfigInApi.propertyValueStringRequired(key);
+  }
   
 
 }

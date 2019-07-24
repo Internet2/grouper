@@ -1805,6 +1805,12 @@ public class GrouperCheckConfig {
     checkJar("activation-1.1.1.jar", 69409, "com.sun.activation.viewers.ImageViewer", "1.1.1");
     checkJar("ant-1.10.1.jar", 2151472, "org.apache.tools.ant.AntClassLoader", "1.10.1");
     checkJar("antlr-2.7.7.jar", 445288, "antlr.actions.cpp.ActionLexer", "null");
+    // can't find class in jar: aws-java-sdk-1.11.529.jar
+    checkJar("aws-java-sdk-core-1.11.529.jar", 944069, "com.amazonaws.ResponseMetadata", "null");
+    checkJar("aws-java-sdk-kms-1.11.533.jar", 476065, "com.amazonaws.services.kms.AbstractAWSKMSAsync", "null");
+    checkJar("aws-java-sdk-s3-1.11.529.jar", 1009728, "com.amazonaws.services.s3.AbstractAmazonS3", "null");
+    checkJar("aws-java-sdk-sns-1.11.567.jar", 368806, "com.amazonaws.services.sns.util.SignatureChecker", "null");
+    checkJar("aws-java-sdk-sqs-1.11.567.jar", 308744, "com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder", "null");
     checkJar("backport-util-concurrent-3.1.jar", 331716, "edu.emory.mathcs.backport.java.util.AbstractCollection", "null");
     checkJar("bsh-2.0b5.jar", 383846, "bsh.BSHFormalComment", "2.0b5 2005-06-12 04:50:41");
     checkJar("c3p0-0.9.5.2.jar", 497865, "com.mchange.v2.c3p0.ConnectionTester", "0.9.5.2");
@@ -1830,12 +1836,17 @@ public class GrouperCheckConfig {
     checkJar("ehcache-core-2.4.8.jar", 1030367, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph-1.0.6.jar", 86487, "net.sf.ezmorph.MorphException", "null");
     checkJar("groovy-all-2.5.0-beta-2.jar", 7715312, "groovy.beans.Bindable", "2.5.0-beta-2");
-    checkJar("grouperClient.jar", GrouperUtil.toSet(4468322L, 4397537L, 4422891L, 4423489L, 4423587L, 4423679L), "edu.internet2.middleware.grouperClient.ClientOperation", "2.4.0");
+    checkJar("grouperClient.jar", GrouperUtil.toSet(4468322L, 4397537L, 4422891L, 4423489L, 4423587L, 4423679L, 4475423L), "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.4.0");
     checkJar("hibernate-c3p0-5.0.12.Final.jar", 11606, "org.hibernate.c3p0.internal.C3P0MessageLogger", "5.0.12.Final");
     checkJar("hibernate-commons-annotations-5.0.1.Final.jar", 75288, "org.hibernate.annotations.common.Version", "5.0.1.Final");
     checkJar("hibernate-core-5.0.12.Final.jar", 5619332, "org.hibernate.SessionException", "5.0.12.Final");
     checkJar("hibernate-ehcache-5.0.12.Final.jar", 141403, "org.hibernate.cache.ehcache.EhCacheMessageLogger", "5.0.12.Final");
     checkJar("hibernate-jpa-2.1-api-1.0.0.Final.jar", 113371, "javax.persistence.Convert", "1.0.0.Final");
+    checkJar("httpclient-4.5.8.jar", 772386, "org.apache.http.client.utils.URIBuilder", "4.5.8");
+    checkJar("httpcore-4.4.11.jar", 326874, "org.apache.http.Consts", "4.4.11");
+    checkJar("jackson-annotations-2.9.8.jar", 66894, "com.fasterxml.jackson.annotation.JacksonAnnotation", "2.9.8");
+    checkJar("jackson-core-2.9.8.jar", 325619, "com.fasterxml.jackson.core.Base64Variant", "2.9.8");
+    checkJar("jackson-databind-2.9.8.jar", 1347236, "com.fasterxml.jackson.databind.AbstractTypeResolver", "2.9.8");
     checkJar("jandex-2.0.4.Final.jar", 186793, "org.jboss.jandex.AnnotationInstance", "2.0.4.Final");
     checkJar("javassist-3.22.0-GA.jar", 739582, "javassist.ByteArrayClassPath", "null");
     checkJar("jboss-logging-3.3.1.Final.jar", 66023, "org.jboss.logging.Field", "3.3.1.Final");

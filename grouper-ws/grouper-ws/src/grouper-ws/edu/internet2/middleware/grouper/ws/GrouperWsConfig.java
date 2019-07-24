@@ -16,11 +16,15 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.ConfigFile;
 
 /**
  * config constants for WS
@@ -28,7 +32,7 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
  * @author mchyzer
  * 
  */
-public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
+public final class GrouperWsConfig {
 
   /**
    * use the factory
@@ -42,9 +46,16 @@ public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
    * @return the config object
    */
   public static GrouperWsConfig retrieveConfig() {
-    return retrieveConfig(GrouperWsConfig.class);
+    GrouperWsConfig grouperWsConfig = new GrouperWsConfig();
+    grouperWsConfig.grouperWsConfigInApi = GrouperWsConfigInApi.retrieveConfig();
+    return grouperWsConfig;
   }
 
+  /**
+   * delegate
+   */
+  private GrouperWsConfigInApi grouperWsConfigInApi = null;
+  
   /**
    * Get a Grouper configuration parameter.
    * 
@@ -351,43 +362,150 @@ public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
   public static final String WS_CLIENT_USER_GROUP_CACHE_MINUTES = "ws.client.user.group.cache.minutes";
 
   /**
-   * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues
+   * if the key is there, whether or not the value is blank
+   * @param key
+   * @return true or false
    */
-  @Override
-  public void clearCachedCalculatedValues() {
-    //nothing to do at this point
+  public boolean containsKey(String key) {
+    
+    return this.grouperWsConfigInApi.containsKey(key);
+    
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getHierarchyConfigKey
+   * get the underlying properties for the config ui
+   * @return the config files
    */
-  @Override
-  protected String getHierarchyConfigKey() {
-    return "ws.config.hierarchy";
+  public List<ConfigFile> internalRetrieveConfigFiles() {
+    return this.grouperWsConfigInApi.internalRetrieveConfigFiles();
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getMainConfigClasspath
+   * get the properties object for this config file
+   * @return the properties
    */
-  @Override
-  protected String getMainConfigClasspath() {
-    return "grouper-ws.properties";
+  public Properties properties() {
+    return this.grouperWsConfigInApi.properties();
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getMainExampleConfigClasspath
+   * find all keys/values with a certain pattern in a properties file.
+   * return the keys.  if none, will return the empty set, not null set
+   * @param pattern
+   * @return the keys.  if none, will return the empty set, not null set
    */
-  @Override
-  protected String getMainExampleConfigClasspath() {
-    return "grouper-ws.base.properties";
+  public Map<String, String> propertiesMap(Pattern pattern) {
+    return this.grouperWsConfigInApi.propertiesMap(pattern);
   }
 
   /**
-   * @see ConfigPropertiesCascadeBase#getSecondsToCheckConfigKey
+   * override map for properties for testing
+   * @return the override map
    */
-  @Override
-  protected String getSecondsToCheckConfigKey() {
-    return "ws.config.secondsBetweenUpdateChecks";
+  public Map<String, String> propertiesOverrideMap() {
+    return this.grouperWsConfigInApi.propertiesOverrideMap();
   }
 
+  /**
+   * override map for properties in thread local to be used in a web server or the like, based on property class
+   * this is static since the properties class can get reloaded, but these shouldnt
+   * @return the override map
+   */
+  public Map<String, String> propertiesThreadLocalOverrideMap() {
+    return this.grouperWsConfigInApi.propertiesThreadLocalOverrideMap();
+  }
+
+  /**
+   * 
+   * @return the set of names
+   */
+  @SuppressWarnings("unchecked")
+  public Set<String> propertyNames() {    
+    return this.grouperWsConfigInApi.propertyNames();
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties or null if not there
+   * @param key
+   * @return the boolean or null
+   */
+  public Boolean propertyValueBoolean(String key) {
+    return this.grouperWsConfigInApi.propertyValueBoolean(key);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @return the string
+   */
+  public boolean propertyValueBoolean(String key, boolean defaultValue) {
+    return this.grouperWsConfigInApi.propertyValueBoolean(key, defaultValue);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the string
+   */
+  public boolean propertyValueBooleanRequired(String key) {
+    return this.grouperWsConfigInApi.propertyValueBooleanRequired(key);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the int or null if there
+   */
+  public Integer propertyValueInt(String key ) {
+    return this.grouperWsConfigInApi.propertyValueInt(key);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @return the string
+   */
+  public int propertyValueInt(String key, int defaultValue ) {
+    return this.grouperWsConfigInApi.propertyValueInt(key, defaultValue);
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the string
+   */
+  public int propertyValueIntRequired(String key) {
+    return this.grouperWsConfigInApi.propertyValueIntRequired(key);
+  }
+
+  /**
+   * get the property value as a string or null if not there
+   * @param key
+   * @return the property value
+   */
+  public String propertyValueString(String key) {
+    return this.grouperWsConfigInApi.propertyValueString(key);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @param defaultValue
+   * @return the property value
+   */
+  public String propertyValueString(String key, String defaultValue) {
+    return this.grouperWsConfigInApi.propertyValueString(key, defaultValue);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @return the property value
+   */
+  public String propertyValueStringRequired(String key) {
+    return this.grouperWsConfigInApi.propertyValueStringRequired(key);
+  }
+  
 }

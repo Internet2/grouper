@@ -44,7 +44,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -54,6 +53,22 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * wrap request so we can customize
  */
 public class GrouperRequestWrapper extends HttpServletRequestWrapper {
+
+  /**
+   * 
+   */
+  @Override
+  public String getRemoteAddr() {
+    String forwardedFor = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.reverseProxyForwardedForHeader");
+    if (!StringUtils.isBlank(forwardedFor)) {
+      String header = this.getHeader(forwardedFor);
+      if (!StringUtils.isBlank(header)) {
+        return header;
+      }
+    }
+    return super.getRemoteAddr();
+  }
+
 
   /** keep a reference to this */
   HttpServletRequest wrapped = null;

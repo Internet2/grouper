@@ -11418,6 +11418,20 @@ public class GrouperUtil {
     if (mask == 0) {
       return true;
     }
+    
+    if (StringUtils.equals(networkIpString, "127.0.0.1") && StringUtils.equals(ipString, "0:0:0:0:0:0:0:1")) {
+      return true;
+    }
+
+    // might work for ipv6?
+    if (StringUtils.equals(networkIpString, ipString)) {
+      return true;
+    }
+
+    if (ipString.contains(":") || networkIpString.contains(":")) {
+      return false;
+    }
+    
     int ip = ipInt(ipString);
     int networkIp = ipInt(networkIpString);
 

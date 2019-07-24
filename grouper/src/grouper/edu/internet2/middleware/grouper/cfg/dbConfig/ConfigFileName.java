@@ -18,19 +18,22 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperCacheConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 
 
 /**
  *
  */
 public enum ConfigFileName {
-
-  /**
-   * grouper.properties
-   */
-  GROUPER_PROPERTIES("grouper.properties", "grouper.base.properties"), 
 
 //  lets hold off on this one since it will be a circular dependency when running the config overlay
 //  the other properties files need to read this one to get to the database, but if this one has
@@ -41,34 +44,84 @@ public enum ConfigFileName {
 //  GROUPER_HIBERNATE_PROPERTIES("grouper.hibernate.properties"), 
 //  
   /**
-   * grouper-loader.properties
-   */
-  GROUPER_LOADER_PROPERTIES("grouper-loader.properties", "grouper-loader.base.properties"), 
-  
-  /**
    * grouper.cache.properties
    */
-  GROUPER_CACHE_PROPERTIES("grouper.cache.properties", "grouper.cache.base.properties"),
-  
-  /**
-   * subject.properties
-   */
-  SUBJECT_PROPERTIES("subject.properties", "subject.base.properties"),
-  
-  /**
-   * grouper-ui.properties
-   */
-  GROUPER_UI_PROPERTIES("grouper-ui.properties", "grouper-ui.base.properties"),
-  
-  /**
-   * grouper-ws.properties
-   */
-  GROUPER_WS_PROPERTIES("grouper-ws.properties", "grouper-ws.base.properties"),
+  GROUPER_CACHE_PROPERTIES("grouper.cache.properties", "grouper.cache.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperCacheConfig.retrieveConfig();
+    }
+    
+  },
   
   /**
    * grouper.client.properties
    */
-  GROUPER_CLIENT_PROPERTIES("grouper.client.properties", "grouper.client.base.properties");
+  GROUPER_CLIENT_PROPERTIES("grouper.client.properties", "grouper.client.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperClientConfig.retrieveConfig();
+    }
+  },
+  
+  /**
+   * grouper-loader.properties
+   */
+  GROUPER_LOADER_PROPERTIES("grouper-loader.properties", "grouper-loader.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperLoaderConfig.retrieveConfig();
+    }
+  }, 
+  
+  /**
+   * grouper.properties
+   */
+  GROUPER_PROPERTIES("grouper.properties", "grouper.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperConfig.retrieveConfig();
+    }
+  }, 
+
+  /**
+   * grouper-ui.properties
+   */
+  GROUPER_UI_PROPERTIES("grouper-ui.properties", "grouper-ui-ng.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperUiConfigInApi.retrieveConfig();
+    }
+    
+  },
+  
+  /**
+   * grouper-ws.properties
+   */
+  GROUPER_WS_PROPERTIES("grouper-ws.properties", "grouper-ws-ng.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return GrouperWsConfigInApi.retrieveConfig();
+    }
+  },
+  
+  /**
+   * subject.properties
+   */
+  SUBJECT_PROPERTIES("subject.properties", "subject.base.properties") {
+
+    @Override
+    public ConfigPropertiesCascadeBase getConfig() {
+      return SubjectConfig.retrieveConfig();
+    }
+    
+  };
   
   /**
    * 
@@ -159,4 +212,10 @@ public enum ConfigFileName {
 
   }
 
+  /**
+   * get a recent instance of the config
+   * @return a recent instance
+   */
+  public abstract ConfigPropertiesCascadeBase getConfig();
+  
 }

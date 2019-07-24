@@ -43,7 +43,6 @@ public class AdminContainer {
    */
   private GuiPaging daemonJobsGuiPaging = null;
 
-  
   /**
    * if import from group
    * @return if from group

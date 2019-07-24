@@ -233,7 +233,7 @@
             <resource>
                 <directory>conf</directory>
                 <includes>
-                    <include>grouper-ws.base.properties</include>
+                    <!--include>grouper-ws.base.properties</include-->
                     <include>jaas.conf</include>
                     <include>krb5.eample.conf</include>
                 </includes>

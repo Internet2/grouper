@@ -10,7 +10,10 @@ conf/log4j.properties
 conf/morphString.properties
 conf/sources.xml
 conf/spy.properties
+conf/grouper-ui.properties
+conf/grouper-ws.properties
 conf/penn*
+conf/grouperText/grouper.text.en.us.properties
 ddlScripts
 dist
 misc/server/i2midev1

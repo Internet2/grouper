@@ -36,6 +36,14 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperRequestContainer {
 
   /**
+   * 
+   * @return the request
+   */
+  public HttpServletRequest getHttpServletRequest() {
+    return GrouperUiFilter.retrieveHttpServletRequest();
+  }
+  
+  /**
    * sources
    * @return sources
    */
@@ -460,6 +468,22 @@ public class GrouperRequestContainer {
     this.indexContainer = indexContainer1;
   }
   
+  /**
+   * container for configuration
+   */
+  private ConfigurationContainer configurationContainer;
+
+  /**
+   * lazy load config container
+   * @return config container
+   */
+  public ConfigurationContainer getConfigurationContainer() {
+    if (this.configurationContainer == null) {
+      this.configurationContainer = new ConfigurationContainer();
+    }
+    return this.configurationContainer;
+  }
+
   /**
    * container for group screens
    */
