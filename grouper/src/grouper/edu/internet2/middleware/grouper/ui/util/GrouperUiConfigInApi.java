@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.ui.text.TextBundleBean;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
@@ -33,12 +33,12 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
  * @author mchyzer
  *
  */
-public class GrouperUiConfig extends ConfigPropertiesCascadeBase {
+public class GrouperUiConfigInApi extends ConfigPropertiesCascadeBase {
 
   /**
    * use the factory
    */
-  private GrouperUiConfig() {
+  protected GrouperUiConfigInApi() {
     
   }
 
@@ -46,10 +46,10 @@ public class GrouperUiConfig extends ConfigPropertiesCascadeBase {
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static GrouperUiConfig retrieveConfig() {
-    return retrieveConfig(GrouperUiConfig.class);
+  public static GrouperUiConfigInApi retrieveConfig() {
+    return retrieveConfig(GrouperUiConfigInApi.class);
   }
-
+  
   /**
    * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues()
    */
@@ -79,7 +79,7 @@ public class GrouperUiConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "grouper-ui.base.properties";
+    return "grouper-ui-ng.base.properties";
   }
 
   /**
@@ -126,7 +126,7 @@ public class GrouperUiConfig extends ConfigPropertiesCascadeBase {
   private Map<String, TextBundleBean> textBundleFromLanguage  = null;
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(GrouperUiConfig.class);
+  protected static final Log LOG = GrouperUtil.getLog(GrouperUiConfigInApi.class);
   
   /**
    * country to text bundle

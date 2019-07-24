@@ -91,7 +91,7 @@ public enum ConfigFileName {
   /**
    * grouper-ui.properties
    */
-  GROUPER_UI_PROPERTIES("grouper-ui.properties", "grouper-ui.base.properties") {
+  GROUPER_UI_PROPERTIES("grouper-ui.properties", "grouper-ui-ng.base.properties") {
 
     @Override
     public ConfigPropertiesCascadeBase getConfig() {
@@ -103,7 +103,7 @@ public enum ConfigFileName {
   /**
    * grouper-ws.properties
    */
-  GROUPER_WS_PROPERTIES("grouper-ws.properties", "grouper-ws.base.properties") {
+  GROUPER_WS_PROPERTIES("grouper-ws.properties", "grouper-ws-ng.base.properties") {
 
     @Override
     public ConfigPropertiesCascadeBase getConfig() {

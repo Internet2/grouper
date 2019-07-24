@@ -327,7 +327,7 @@
 		</copy>
 
 		<copy file="${ui.folder}/conf/grouper-ui.properties" todir="${webapp.class.folder}" overwrite="true"/>
-		<copy file="${ui.folder}/conf/grouper-ui.base.properties" todir="${webapp.class.folder}" overwrite="true"/>
+		<!-- copy file="${ui.folder}/conf/grouper-ui.base.properties" todir="${webapp.class.folder}" overwrite="true"/ -->
     <copy file="${ui.folder}/conf/Owasp.CsrfGuard.overlay.properties" todir="${webapp.class.folder}" overwrite="true"/>
     <copy file="${ui.folder}/conf/Owasp.CsrfGuard.properties" todir="${webapp.class.folder}" overwrite="true"/>
 

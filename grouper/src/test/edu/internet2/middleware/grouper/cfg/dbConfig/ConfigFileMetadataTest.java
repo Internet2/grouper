@@ -45,8 +45,8 @@ public class ConfigFileMetadataTest extends GrouperTest {
         , new MultiKey("resource: grouper.cache.base.properties", ConfigFileName.GROUPER_CACHE_PROPERTIES)
         , new MultiKey("resource: grouper.client.base.properties", ConfigFileName.GROUPER_CLIENT_PROPERTIES)
         , new MultiKey("resource: subject.base.properties", ConfigFileName.SUBJECT_PROPERTIES)
-        , new MultiKey("file: C:/Users/mchyzer/Documents/GitHub/grouper/grouper-ws/grouper-ws/conf/grouper-ws.base.properties", ConfigFileName.GROUPER_WS_PROPERTIES)
-        , new MultiKey("file: C:/Users/mchyzer/Documents/GitHub/grouper/grouper-ui/conf/grouper-ui.base.properties", ConfigFileName.GROUPER_UI_PROPERTIES)
+        , new MultiKey("file: " + GrouperUtil.fileFromResourceName("grouper-ws-ng.base.properties").getAbsolutePath(), ConfigFileName.GROUPER_WS_PROPERTIES)
+        , new MultiKey("file: " + GrouperUtil.fileFromResourceName("grouper-ui-ng.base.properties").getAbsolutePath(), ConfigFileName.GROUPER_UI_PROPERTIES)
       }) {
 
       String configFilePath = (String)configFilePathMultiKey.getKey(0);
