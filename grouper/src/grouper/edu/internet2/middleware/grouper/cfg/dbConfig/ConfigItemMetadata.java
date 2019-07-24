@@ -22,6 +22,38 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * 
+   * @return key or sample key
+   */
+  public String getKeyOrSampleKey() {
+    if (StringUtils.isBlank(this.key)) {
+      return this.sampleKey;
+    }
+    return this.key;
+  }
+  
+  /**
+   * if commented out property, this is the sample key
+   */
+  private String sampleKey;
+
+  /**
+   * if commented out property, this is the sample key
+   * @return the sample key
+   */
+  public String getSampleKey() {
+    return this.sampleKey;
+  }
+
+  /**
+   * if commented out property, this is the sample key
+   * @param sampleKey
+   */
+  public void setSampleKey(String sampleKey) {
+    this.sampleKey = sampleKey;
+  }
+
+  /**
    * an example value for the property
    */
   private String sampleValue;

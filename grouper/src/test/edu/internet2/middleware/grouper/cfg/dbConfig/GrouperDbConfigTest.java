@@ -10,7 +10,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import junit.textui.TestRunner;
 
 

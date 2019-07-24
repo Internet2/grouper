@@ -36,6 +36,14 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperRequestContainer {
 
   /**
+   * 
+   * @return the request
+   */
+  public HttpServletRequest getHttpServletRequest() {
+    return GrouperUiFilter.retrieveHttpServletRequest();
+  }
+  
+  /**
    * sources
    * @return sources
    */

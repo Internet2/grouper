@@ -167,6 +167,7 @@ public class ConfigFileMetadata {
           if (configLineIsComment) {
             // this is a line like a commented out property or something, ignore it
             configFileState = ConfigFileState.IN_SECTION;
+            
           }
           
         }
@@ -178,7 +179,7 @@ public class ConfigFileMetadata {
             configSectionMetadata.getConfigItemMetadataList().add(configItemMetadata);
           }
           if (GrouperUtil.isBlank(configItemMetadata.getKey())) {
-            
+            configItemMetadata.setSampleKey(configLineDefaultValueMatcher.group(1));
           }
           configItemMetadata.setSampleValue(configLineDefaultValueMatcher.group(2));
           configItemMetadata = null;

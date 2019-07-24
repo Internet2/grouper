@@ -76,7 +76,7 @@ public abstract class ConfigPropertiesCascadeBase {
    * this is used to tell engine where the default and example config is...
    */
   private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configSingletonFromClass = null;
-    
+
   /**
    * retrieve a config from the config file or from cache
    * @param <T> class which is the return type of config class
@@ -101,7 +101,7 @@ public abstract class ConfigPropertiesCascadeBase {
     return (T)configPropertiesCascadeBase.retrieveFromConfigFileOrCache();
   }
 
-  
+
   /**
    * if its ok to put the config file in the same directory as a jar,
    * then return a class in the jar here
@@ -547,6 +547,20 @@ public abstract class ConfigPropertiesCascadeBase {
   public static int databaseConfigRefreshCount = 0;
 
   /**
+   * 
+   */
+  private static ThreadLocal<Boolean> inDatabaseConfig = new ThreadLocal<Boolean>();
+
+  /**
+   * is in database
+   * @return if in database
+   */
+  public static boolean isInDatabase() {
+    Boolean isInDatabase = inDatabaseConfig.get();
+    return isInDatabase != null && isInDatabase;
+  }
+  
+  /**
    * config file type
    */
   protected static enum ConfigFileType {
@@ -559,6 +573,10 @@ public abstract class ConfigPropertiesCascadeBase {
       @Override
       public InputStream inputStream(String configFileTypeConfig,
           ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
+        
+        if (isInDatabase()) {
+          return null;
+        }
         
         boolean isDebugEnabled = false;
         boolean isThisDebugEnabled = false;
@@ -583,9 +601,10 @@ public abstract class ConfigPropertiesCascadeBase {
         
         Map<String, Object> debugMap = isDebugEnabled ? new LinkedHashMap<String, Object>() : null;
 
+        String mainConfigFileName = configPropertiesCascadeBase.getMainConfigFileName();
         if (isDebugEnabled) {
           debugMap.put("operation", "getDatabaseConfigsOrFromCache");
-          debugMap.put("configFileName", configPropertiesCascadeBase.getMainConfigFileName());
+          debugMap.put("configFileName", mainConfigFileName);
         }
 
         try {
@@ -597,8 +616,8 @@ public abstract class ConfigPropertiesCascadeBase {
           }
 
           // circular dependency on getting to database and reading config
-          if (configPropertiesCascadeBase.getMainConfigFileName().toLowerCase().contains("hibernate")) {
-            throw new RuntimeException("You cannot configure a database config to have database properties! '" + configPropertiesCascadeBase.getMainConfigFileName() + "'");
+          if (mainConfigFileName.toLowerCase().contains("hibernate")) {
+            throw new RuntimeException("You cannot configure a database config to have database properties! '" + mainConfigFileName + "'");
           }
           
           //see if there is even a grouper.hibernate.properties on the classpath
@@ -608,6 +627,8 @@ public abstract class ConfigPropertiesCascadeBase {
           Properties properties = new Properties();
   
           if (url != null) {
+            inDatabaseConfig.set(true);
+
             try {
               String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
               if (!GrouperClientUtils.isBlank(dbUrl)) {
@@ -736,7 +757,7 @@ public abstract class ConfigPropertiesCascadeBase {
   
             }
             // get from cache
-            Map<String, String> cachedPropertiesForThisConfigFileName = ConfigPropertiesCascadeBase.databaseConfigCache.get(configPropertiesCascadeBase.getMainConfigFileName());
+            Map<String, String> cachedPropertiesForThisConfigFileName = ConfigPropertiesCascadeBase.databaseConfigCache.get(mainConfigFileName);
             
             if (cachedPropertiesForThisConfigFileName != null) {
               for (String key : cachedPropertiesForThisConfigFileName.keySet()) {
@@ -764,10 +785,10 @@ public abstract class ConfigPropertiesCascadeBase {
           if (LOG != null && isDebugEnabled) {
             debugMap.put("exception", stack);
           }
-          GrouperClientUtils.injectInException(re, "configFileName: " + configPropertiesCascadeBase.getMainConfigFileName());
+          GrouperClientUtils.injectInException(re, "configFileName: " + mainConfigFileName);
           throw re;
         } finally {
-          
+          inDatabaseConfig.remove();
           String debugLogString = isDebugEnabled ? ConfigPropertiesCascadeUtils.mapToString(debugMap) : null;
           if (isThisDebugEnabled) {
             LOG.debug(debugLogString);
@@ -869,8 +890,29 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * 
    */
-  protected static class ConfigFile {
+  public static class ConfigFile {
     
+    /**
+     * properties from the config file
+     */
+    private Properties properties;
+
+    /**
+     * properties from the config file
+     * @return properties
+     */
+    public Properties getProperties() {
+      return this.properties;
+    }
+
+    /**
+     * 
+     * @param properties1
+     */
+    public void setProperties(Properties properties1) {
+      this.properties = properties1;
+    }
+
     /**
      * keep the original config string for logging purposes, e.g. file:/a/b/c.properties
      */
@@ -916,7 +958,11 @@ public abstract class ConfigPropertiesCascadeBase {
       InputStream inputStream = null;
       try {
         inputStream = this.configFileType.inputStream(this.configFileTypeConfig, configPropertiesCascadeBase);
-        return ConfigPropertiesCascadeUtils.toString(inputStream, encoding());
+        if (inputStream != null) {
+          return ConfigPropertiesCascadeUtils.toString(inputStream, encoding());
+        }
+        // dont return contents for DATABASE configs while setting up the database
+        return "";
       } catch (Exception e) {
             throw new RuntimeException("Problem reading config: '" + this.originalConfig + "'", e);
       } finally {
@@ -1121,6 +1167,11 @@ public abstract class ConfigPropertiesCascadeBase {
       
       try {
         result.properties.load(new StringReader(configFileContents));
+
+        // keep a copy in here for config screen
+        configFile.setProperties(new Properties());
+        configFile.getProperties().load(new StringReader(configFileContents));
+
       } catch (Exception e) {
         throw new RuntimeException("Problem loading properties: " + overrideConfigString, e);
       }
@@ -1130,6 +1181,14 @@ public abstract class ConfigPropertiesCascadeBase {
     
   }
     
+  /**
+   * get the underlying properties for the config ui
+   * @return the config files
+   */
+  public List<ConfigFile> internalRetrieveConfigFiles() {
+    return this.configFiles;
+  }
+  
   /**
    * make sure LOG is there, after things are initialized
    * @param logMessage
@@ -1226,15 +1285,15 @@ public abstract class ConfigPropertiesCascadeBase {
         }
       }
     }
-      if (LOG != null && isDebugEnabled) {
-        Properties theProperties = configObject.properties();
-        debugMap.put("configObjectPropertyCount", configObject == null ? null 
-            : (theProperties == null ? "propertiesNull" : theProperties.size()));
-      }
+//      if (LOG != null && isDebugEnabled) {
+//        Properties theProperties = configObject.properties();
+//        debugMap.put("configObjectPropertyCount", configObject == null ? null 
+//            : (theProperties == null ? "propertiesNull" : theProperties.size()));
+//      }
     
     return configObject;
     } finally {
-      if (LOG != null && isDebugEnabled) {
+      if (LOG != null && isDebugEnabled && debugMap.size() > 0) {
         LOG.debug(ConfigPropertiesCascadeUtils.mapToString(debugMap));
       }
     }
@@ -1294,8 +1353,10 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public String getMainConfigFileName() {
     String configFileClasspath = this.getMainConfigClasspath();
-    String configFileName = GrouperClientUtils.substringAfterLast(configFileClasspath, "/");
-    return configFileName;
+    if (configFileClasspath.contains("/")) {
+      configFileClasspath = GrouperClientUtils.substringAfterLast(configFileClasspath, "/");
+    }
+    return configFileClasspath;
   }
   
   /**

@@ -8,42 +8,108 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * config item metadata
  */
 public enum ConfigItemMetadataType {
   
   /** true/false */
-  BOOLEAN, 
+  BOOLEAN {
+
+    @Override
+    public String getStringForUi() {
+      return "boolean (true or false)";
+    }
+  }, 
   
   /** any string */
-  STRING, 
+  STRING {
+
+    @Override
+    public String getStringForUi() {
+      return "text";
+    }
+  }, 
 
   /** group name in system */
-  GROUP, 
+  GROUP {
+
+    @Override
+    public String getStringForUi() {
+      return "group";
+    }
+  }, 
 
   /** folder in system */
-  STEM, 
+  STEM {
+
+    @Override
+    public String getStringForUi() {
+      return "folder";
+    }
+  }, 
   
   /** name of attribute def in system */
-  ATTRIBUTEDEF, 
+  ATTRIBUTEDEF {
+
+    @Override
+    public String getStringForUi() {
+      return "attribute definition";
+    }
+  }, 
 
   /** name of attribute def name in system */
-  ATTRIBUTEDEFNAME, 
+  ATTRIBUTEDEFNAME {
+
+    @Override
+    public String getStringForUi() {
+      return "attribute definition name";
+    }
+  }, 
 
   /** subject id or identifier in system */
-  SUBJECT, 
+  SUBJECT {
+
+    @Override
+    public String getStringForUi() {
+      return "entity (e.g. subject)";
+    }
+  }, 
   
   /** any integer or long datatype */
-  INTEGER, 
+  INTEGER {
+
+    @Override
+    public String getStringForUi() {
+      return "integer";
+    }
+  }, 
   
   /** floating point number in system */
-  FLOATING, 
+  FLOATING {
+
+    @Override
+    public String getStringForUi() {
+      return "decimal";
+    }
+  }, 
   
   /** password, or encrypted, or file name, or script */
-  PASSWORD, 
+  PASSWORD {
+
+    @Override
+    public String getStringForUi() {
+      return "password";
+    }
+  }, 
   
   /** fully qualified class in system */
-  CLASS;
+  CLASS {
+
+    @Override
+    public String getStringForUi() {
+      return "Java class";
+    }
+  };
   
   
   /**
@@ -58,4 +124,10 @@ public enum ConfigItemMetadataType {
         string, exceptionOnNull);
 
   }
+  
+  /**
+   * 
+   */
+  public abstract String getStringForUi();
+  
 }
