@@ -67,7 +67,7 @@ public class GrouperDuoUtils {
     //# put groups in here which go to duo, the name in duo will be the extension here
     //grouperDuo.folder.name.withDuoGroups = duo
     String grouperDuoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouperDuo.folder.name.withDuoGroups");
-    boolean useUiProvisioningConfiguration = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperDuo.use.ui.provisioning.configuration", true);
+    boolean useUiProvisioningConfiguration = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperDuo.use.ui.provisioning.configuration", false);
     
     if (useUiProvisioningConfiguration && !StringUtils.isBlank(grouperDuoFolderName)) {
       throw new RuntimeException("If you are using ui provisioning configuration, you cant configure a folder in the grouper-loader.properties 'grouperDuo.folder.name.withDuoGroups'!!!!");

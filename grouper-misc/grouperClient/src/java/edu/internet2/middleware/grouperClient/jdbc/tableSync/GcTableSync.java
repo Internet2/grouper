@@ -1023,6 +1023,10 @@ public class GcTableSync {
     //  grouperClient.syncTable.personSource.tableTo = PERSON_SOURCE_TEMP
     this.tableMetadata.setTableNameTo(GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + this.key + ".tableTo"));
 
+    if (StringUtils.isBlank(this.tableMetadata.getTableNameTo())) {
+      this.tableMetadata.setTableNameTo(this.tableMetadata.getTableNameFrom());
+    }
+    
     //  grouperClient.syncTable.personSource.schemaTo = 
     this.tableMetadata.setSchemaTo(GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.syncTable." + this.key + ".schemaTo"));
 
@@ -1554,7 +1558,7 @@ public class GcTableSync {
    */
   public static void main(String[] args) {
     GcTableSync gcTableSync = new GcTableSync();
-    gcTableSync.setKey("personSourceTest");
+    gcTableSync.setKey("personSource");
     gcTableSync.fullSync();
 
     
