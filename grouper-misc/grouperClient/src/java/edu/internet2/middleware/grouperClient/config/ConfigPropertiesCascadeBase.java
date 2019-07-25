@@ -599,19 +599,16 @@ public abstract class ConfigPropertiesCascadeBase {
 
         isDebugEnabled = isThisDebugEnabled || isOtherDebugEnabled;
         
-        Map<String, Object> debugMap = isDebugEnabled ? new LinkedHashMap<String, Object>() : null;
+        Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
         String mainConfigFileName = configPropertiesCascadeBase.getMainConfigFileName();
-        if (isDebugEnabled) {
-          debugMap.put("operation", "getDatabaseConfigsOrFromCache");
-          debugMap.put("configFileName", mainConfigFileName);
-        }
+
+        debugMap.put("operation", "getDatabaseConfigsOrFromCache");
+        debugMap.put("configFileName", mainConfigFileName);
 
         try {
           if (!GrouperClientUtils.equalsIgnoreCase(configFileTypeConfig, "grouper")) {
-            if (isDebugEnabled) {
-              debugMap.put("configFileTypeConfig", configFileTypeConfig);
-            }
+            debugMap.put("configFileTypeConfig", configFileTypeConfig);
             throw new RuntimeException("Database configuration must be database:grouper : '" + configFileTypeConfig + "', " + configPropertiesCascadeBase.getMainExampleConfigClasspath());
           }
 
@@ -639,45 +636,48 @@ public abstract class ConfigPropertiesCascadeBase {
             }
           }
   
-          if (isDebugEnabled) {
-            debugMap.put("hasDatabaseConfig", hasDatabaseConfig);
-          }
+          debugMap.put("hasDatabaseConfig", hasDatabaseConfig);
 
           if (hasDatabaseConfig) {
             
             int cacheForSeconds = GrouperHibernateConfigClient.retrieveConfig().propertyValueInt("grouper.cache.database.configs.seconds", 120);
             
-            if (isDebugEnabled) {
-              debugMap.put("cacheForSeconds", cacheForSeconds);
-            }
+            debugMap.put("cacheForSeconds", cacheForSeconds);
             boolean needsReload = (System.currentTimeMillis() - ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved) / 1000 > cacheForSeconds;
             
-            if (isDebugEnabled) {
-              debugMap.put("needsReload", needsReload);
-            }
+            debugMap.put("needsReload", needsReload);
             if (needsReload) {
               
               synchronized (ConfigPropertiesCascadeBase.databaseConfigCache) {
   
                 needsReload = (System.currentTimeMillis() - ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved) / 1000 > cacheForSeconds;
                 
-                if (isDebugEnabled) {
-                  debugMap.put("needsReload2", needsReload);
-                }
+                debugMap.put("needsReload2", needsReload);
+
                 if (needsReload) {
                   
                   long startingNanos = System.nanoTime();
                   
                   // select from the database
                   String dbUrl = GrouperHibernateConfigClient.retrieveConfig().propertyValueStringRequired("hibernate.connection.url");
+
+                  debugMap.put("dbUrl", dbUrl);
+
                   String dbUser = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.username");
+
+                  debugMap.put("dbUser", dbUser);
+
                   String dbPass = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.password");
-                  
+
+                  debugMap.put("dbPass", "******");
+
                   dbPass = Morph.decryptIfFile(dbPass);
           
                   String driver = GrouperHibernateConfigClient.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
                   driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, driver);
-          
+
+                  debugMap.put("driver", driver);
+
                   String databaseConnectionProvider = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.config.databaseConnectionProvider");
                   
                   Class<GcJdbcConnectionProvider> gcJdbcConnectionProviderClass = null;
@@ -727,13 +727,11 @@ public abstract class ConfigPropertiesCascadeBase {
                       
                       configPropertiesForFile.put(configKey, configValue);
                     }
-                    if (isDebugEnabled) {
-                      debugMap.put("configFilesFound", databaseConfigCacheTemp.size());
-                      for (String configFileName : databaseConfigCacheTemp.keySet()) {
-                        debugMap.put("configFile_" + configFileName + "_propertiesFound", databaseConfigCacheTemp.get(configFileName).size());
-                      }
+                    debugMap.put("configFilesFound", databaseConfigCacheTemp.size());
+                    for (String configFileName : databaseConfigCacheTemp.keySet()) {
+                      debugMap.put("configFile_" + configFileName + "_propertiesFound", databaseConfigCacheTemp.get(configFileName).size());
                     }
-
+                    
                     
                   } catch (SQLException e) {
                     gcJdbcConnectionBean.doneWithConnectionError(e);
@@ -786,6 +784,11 @@ public abstract class ConfigPropertiesCascadeBase {
             debugMap.put("exception", stack);
           }
           GrouperClientUtils.injectInException(re, "configFileName: " + mainConfigFileName);
+          
+          final String errorMessage = "Error" + ConfigPropertiesCascadeUtils.mapToString(debugMap);
+          
+          ConfigPropertiesCascadeUtils.injectInException(re, errorMessage);
+
           throw re;
         } finally {
           inDatabaseConfig.remove();

@@ -216,8 +216,19 @@ public class AttributeDefName extends GrouperAPI
   /**
    * cache of multikey (attributeDefId, sourceId, subjectId) to true or false if allowed to admin attributeDefId
    */
-  static GrouperCache<MultiKey, Boolean> canAdminAttributeDef = new GrouperCache<MultiKey, Boolean>(
-      AttributeDefName.class.getName() + ".CanAdminAttributeDef", 5000, false, 5, 5, false);
+  static GrouperCache<MultiKey, Boolean> canAdminAttributeDef = null;
+  
+  /**
+   * 
+   * @return
+   */
+  static GrouperCache<MultiKey, Boolean> canAdminAttributeDef() {
+    if (canAdminAttributeDef == null) {
+      canAdminAttributeDef = new GrouperCache<MultiKey, Boolean>(
+          AttributeDefName.class.getName() + ".CanAdminAttributeDef", 5000, false, 5, 5, false);
+    }
+    return canAdminAttributeDef;
+  }
 
   /**
    * make sure this attribute def can admin from grouper session
@@ -226,7 +237,7 @@ public class AttributeDefName extends GrouperAPI
     
     Subject subject = GrouperSession.staticGrouperSession().getSubject();
     MultiKey cacheKey = new MultiKey(this.attributeDefId, subject.getSourceId(), subject.getId());
-    Boolean result = canAdminAttributeDef.get(cacheKey);
+    Boolean result = canAdminAttributeDef().get(cacheKey);
     AttributeDef attributeDef = null;
     
     //if not in cache, calculate
@@ -235,7 +246,7 @@ public class AttributeDefName extends GrouperAPI
       result = attributeDef.getPrivilegeDelegate().canAttrAdmin(subject);
       
       //add back to cache since wasnt cached
-      canAdminAttributeDef.put(cacheKey, result);
+      canAdminAttributeDef().put(cacheKey, result);
     }
     
     //false means cant admin
