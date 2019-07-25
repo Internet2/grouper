@@ -121,7 +121,6 @@ public class GrouperWorkflowConfigValidator {
   private GrouperWorkflowConfigParams validateConfigParams(GrouperWorkflowConfig config, 
       GrouperWorkflowApprovalStates approvalStates, List<String> errors) {
     
-    
     final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
     
     if (StringUtils.isBlank(config.getWorkflowConfigParamsString())) {

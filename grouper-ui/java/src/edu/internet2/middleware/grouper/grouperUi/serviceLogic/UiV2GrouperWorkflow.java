@@ -603,7 +603,7 @@ public class UiV2GrouperWorkflow {
               paramNamesValues.put(param, request.getParameter(paramName));
             }
             
-            List<String> errors = GrouperWorkflowInstanceValidator.validateFormValues(paramNamesValues, INITIATE_STATE);
+            List<String> errors = new GrouperWorkflowInstanceValidator().validateFormValues(paramNamesValues, INITIATE_STATE);
             if (errors.size() > 0) {
               return errors;
             }
@@ -947,7 +947,7 @@ public class UiV2GrouperWorkflow {
             paramNamesValues.put(param, request.getParameter(paramName));
           }
           
-          List<String> errors = GrouperWorkflowInstanceValidator.validateFormValues(paramNamesValues, workfowInstance.getWorkflowInstanceState());
+          List<String> errors = new GrouperWorkflowInstanceValidator().validateFormValues(paramNamesValues, workfowInstance.getWorkflowInstanceState());
           if (errors.size() > 0) {
             return errors;
           }
@@ -1023,7 +1023,7 @@ public class UiV2GrouperWorkflow {
             paramNamesValues.put(param, request.getParameter(paramName));
           }
           
-          List<String> errors = GrouperWorkflowInstanceValidator.validateFormValues(paramNamesValues, workfowInstance.getWorkflowInstanceState());
+          List<String> errors = new GrouperWorkflowInstanceValidator().validateFormValues(paramNamesValues, workfowInstance.getWorkflowInstanceState());
           if (errors.size() > 0) {
             return errors;
           }

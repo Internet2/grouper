@@ -17,7 +17,7 @@ public class GrouperWorkflowInstanceValidator {
    * @param state
    * @return
    */
-  public static List<String> validateFormValues(Map<GrouperWorkflowConfigParam, String> paramNamesValues,
+  public List<String> validateFormValues(Map<GrouperWorkflowConfigParam, String> paramNamesValues,
       String state) {
     
     List<String> errors = new ArrayList<String>();
@@ -28,12 +28,6 @@ public class GrouperWorkflowInstanceValidator {
       
       GrouperWorkflowConfigParam param = entry.getKey();
       String paramValue = entry.getValue();
-      
-//      if (StringUtils.isNotBlank(paramValue) && !param.getEditableInStates().contains(state)) {
-//        String error = contentKeys.get("workflowSubmitFormFieldNotEditable");
-//        error = error.replace("$$fieldName$$", param.getParamName());
-//        errors.add(error);
-//      }
       
       if (StringUtils.isBlank(paramValue) && param.isRequired()) {
         String error = contentKeys.get("workflowSubmitFormFieldRequired");
