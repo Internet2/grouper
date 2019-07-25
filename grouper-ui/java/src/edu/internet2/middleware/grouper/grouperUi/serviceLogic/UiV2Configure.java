@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,12 +14,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigSection;
@@ -26,14 +34,24 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ConfigurationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAttestation;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * 
+ */
 public class UiV2Configure {
+
+  /**
+   * 
+   */
+  protected static Log LOG = LogFactory.getLog(UiV2Configure.class);
 
   /**
    * if allowed to view configuration
@@ -41,43 +59,92 @@ public class UiV2Configure {
    */
   public boolean allowedToViewConfiguration() {
 
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.configuration.enabled", true)) {
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-          TextContainer.retrieveFromRequest().getText().get("configurationNotEnabled")));
-      return false;
-
-    }
-
-    if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer().isConfigureShow()) {
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-          TextContainer.retrieveFromRequest().getText().get("configurationNotAllowedToView")));
-      return false;
-    }
+    Map<String, Object> debugMap = null;
     
-    String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configuration.allowFromNetworks");
-
-    if (!StringUtils.isBlank(networks)) {
-      String sourceIp = GrouperUiFilter.retrieveHttpServletRequest().getRemoteAddr();
-      Boolean allowed = null;
+    if (LOG.isDebugEnabled()) {
+      debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "allowedToViewConfiguration");
+    }
+    try {
       
-      if (allowed == null) {
-        if (!StringUtils.isBlank(sourceIp) && GrouperUtil.ipOnNetworks(sourceIp, networks)) {
-          allowed = true;
-        } else {
-        
-          allowed = false;
-        }
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      final boolean uiConfigurationEnabled = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.configuration.enabled", true);
+      if (debugMap != null) {
+        debugMap.put("uiConfigurationEnabled", uiConfigurationEnabled);
       }
-      if (allowed != Boolean.TRUE) {
+      if (!uiConfigurationEnabled) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("configurationNotAllowedBySourceIp")));
+            TextContainer.retrieveFromRequest().getText().get("configurationNotEnabled")));
+        return false;
+
+      }
+
+      final boolean configureShow = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer().isConfigureShow();
+
+      if (debugMap != null) {
+        debugMap.put("configureShowEgSysadmin", configureShow);
+      }
+
+      if (!configureShow) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("configurationNotAllowedToView")));
         return false;
       }
+      
+      String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configurationEditor.sourceIpAddresses");
+
+      if (debugMap != null) {
+        debugMap.put("allowFromNetworks", networks);
+      }
+
+      if (!StringUtils.isBlank(networks)) {
+
+        String sourceIp = GrouperUiFilter.retrieveHttpServletRequest().getRemoteAddr();
+        
+        if (debugMap != null) {
+          debugMap.put("sourceIp", sourceIp);
+        }
+
+        Boolean allowed = null;
+        
+        if (allowed == null) {
+          if (!StringUtils.isBlank(sourceIp) && GrouperUtil.ipOnNetworks(sourceIp, networks)) {
+
+            if (debugMap != null) {
+              debugMap.put("ipOnNetworks", true);
+            }
+
+            allowed = true;
+          } else {
+            if (!StringUtils.isBlank(sourceIp)) {
+              if (debugMap != null) {
+                debugMap.put("ipOnNetworks", false);
+              }
+              
+            }
+            allowed = false;
+          }
+        }
+        if (debugMap != null) {
+          debugMap.put("allowed", allowed);
+        }
+        if (allowed != Boolean.TRUE) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("configurationNotAllowedBySourceIp")));
+          return false;
+        }
+      }
+      
+      if (debugMap != null) {
+        debugMap.put("allowed", true);
+      }
+      return true;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
-    
-    return true;
 
   }
   
