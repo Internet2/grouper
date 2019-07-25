@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -317,6 +318,9 @@ public class GrouperStartup {
         GrouperDdlUtils.bootstrap(false, false, false);
       }
 
+      // we are ready to use the database
+      ConfigPropertiesCascadeBase.assignInitted();
+      
       if (!ignoreCheckConfig) {
         //make sure configuration is ok
         GrouperCheckConfig.checkConfig();

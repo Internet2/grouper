@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 
@@ -812,6 +813,7 @@ public class GrouperDdlUtils {
         }
         upToDate = true;
       }
+      ConfigPropertiesCascadeBase.assignInitted();
       if (installDefaultGrouperData && !dropOnly && (upToDate || theWriteAndRunScript)) {
         try {
           //lets reset the hibernate configuration so it can get properly configured

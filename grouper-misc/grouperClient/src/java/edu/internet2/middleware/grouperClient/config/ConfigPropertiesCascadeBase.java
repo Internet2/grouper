@@ -57,6 +57,31 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 public abstract class ConfigPropertiesCascadeBase {
 
   /**
+   * initted
+   */
+  private static boolean initted = false;
+
+  /**
+   * assign that things are initted, so database config is ok to use and errors should be thrown
+   */
+  public static void assignNotInitted() {
+    initted = false;
+  }
+  
+  /**
+   * assign that things are initted, so database config is ok to use and errors should be thrown
+   */
+  public static void assignInitted() {
+    initted = true;
+    databaseConfigCache.clear();
+    configSingletonFromClass = null;
+    configFileCache = null;
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("initted called from", new RuntimeException("initted"));
+    }
+  }
+  
+  /**
    * help subclasses manipulate properties.  note, this is only for subclasses...
    * @return properties
    */
@@ -704,6 +729,8 @@ public abstract class ConfigPropertiesCascadeBase {
   
                   try {
                     
+                    debugMap.put("initted", initted);
+
                     gcJdbcConnectionBean = gcJdbcConnectionProvider.connectionBean();
                     
                     connection = gcJdbcConnectionBean.connection();
@@ -768,7 +795,7 @@ public abstract class ConfigPropertiesCascadeBase {
               debugMap.put("configFilePropertiesFromCache", GrouperClientUtils.nonNull(cachedPropertiesForThisConfigFileName).size());
             }
           }
-  
+
           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
           try {
             properties.store(byteArrayOutputStream, "");
@@ -780,16 +807,32 @@ public abstract class ConfigPropertiesCascadeBase {
           return byteArrayInputStream;
         } catch (RuntimeException re) {
           String stack = GrouperClientUtils.getFullStackTrace(re);
-          if (LOG != null && isDebugEnabled) {
-            debugMap.put("exception", stack);
-          }
+          debugMap.put("exception", stack);
           GrouperClientUtils.injectInException(re, "configFileName: " + mainConfigFileName);
           
           final String errorMessage = "Error" + ConfigPropertiesCascadeUtils.mapToString(debugMap);
           
           ConfigPropertiesCascadeUtils.injectInException(re, errorMessage);
 
-          throw re;
+          if (initted) {
+          
+            throw re;
+            
+          }
+          
+          // we arent initted, just ignore the database for now :)
+          {
+            Properties properties = new Properties();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            try {
+              properties.store(byteArrayOutputStream, "");
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+    
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            return byteArrayInputStream;
+          }
         } finally {
           inDatabaseConfig.remove();
           String debugLogString = isDebugEnabled ? ConfigPropertiesCascadeUtils.mapToString(debugMap) : null;

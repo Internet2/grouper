@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /** 
  * Install the Groups Registry.
@@ -161,6 +162,9 @@ public class RegistryInitializeSchema {
           GrouperStartup.logErrorStatic = false;
           GrouperStartup.startup();
         } catch (Exception e) {
+          
+          // problem initting
+          ConfigPropertiesCascadeBase.assignNotInitted();
           //ignore
           LOG.debug(e);
         } finally {

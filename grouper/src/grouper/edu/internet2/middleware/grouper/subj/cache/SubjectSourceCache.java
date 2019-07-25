@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -228,6 +229,14 @@ public class SubjectSourceCache {
    * 
    */
   public static void subjectSourceCacheThread() {
+    
+    while(true) {
+      if (GrouperStartup.isFinishedStartupSuccessfully()) {
+        break;
+      }
+      GrouperUtil.sleep(100);
+    }
+    
     try {
       try {
         readCacheFromStorageOnStartup();

@@ -123,9 +123,8 @@ public class TestGroup extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
-    //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
-    //TestRunner.run(TestGroup.class);
+    //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
+    TestRunner.run(TestGroup.class);
   }
 
   /**
