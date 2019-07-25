@@ -38,6 +38,9 @@
                 ${textContainer.text['workflowInstanceTableColumnHeaderInstanceConfigName'] }
               </th>
               <th style="white-space: nowrap; text-align: left;">
+                ${textContainer.text['workflowInstanceTableColumnHeaderInstanceInitiatorSubject'] }
+              </th>
+              <th style="white-space: nowrap; text-align: left;">
                 ${textContainer.text['workflowInstanceTableColumnHeaderInstanceState'] }
               </th>
               <th style="white-space: nowrap; text-align: left;">
@@ -49,11 +52,17 @@
             </tr>
           </thead>
           <tbody>
-            <c:forEach items="${grouperRequestContainer.workflowContainer.workflowInstances}" var="instance">
+            <c:forEach items="${grouperRequestContainer.workflowContainer.workflowInstances}" var="guiInstance">
+            
+              <c:set var="instance" value="${guiInstance.grouperWorkflowInstance}" />
               <tr>
                 
                 <td style="white-space: nowrap;">
                   ${instance.grouperWorkflowConfig.workflowConfigName}
+                </td>
+                
+                <td style="white-space: nowrap;">
+                  ${guiInstance.guiInitiatorSubject.shortLink}
                 </td>
                    
                 <td style="white-space: nowrap;">

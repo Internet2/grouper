@@ -497,7 +497,7 @@ public class GrouperWorkflowInstanceService {
         .getLogEntryByActionName(INITIATE_ACTION);
       
     String subjetWhoInitiatedId = workflowInstanceLogEntry.getSubjectId();
-    Subject subjetWhoInitiated = SubjectFinder.findById(subjetWhoInitiatedId, false);
+    Subject subjetWhoInitiated = SubjectFinder.findById(subjetWhoInitiatedId, true);
     return subjetWhoInitiated;
   }
    
@@ -949,6 +949,9 @@ public class GrouperWorkflowInstanceService {
       result.setGrouperWorkflowInstanceParamValue9(GrouperWorkflowInstance.buildParamValueFromJsonString(assignValue.getValueString()));
       result.setWorkflowInstanceParamValue9String(assignValue != null ? assignValue.getValueString(): null);
     }
+    
+    Subject subjetWhoInitiated = subjectWhoInitiatedWorkflow(result);
+    result.setInitiatorSubject(subjetWhoInitiated);
     
     return result;
     

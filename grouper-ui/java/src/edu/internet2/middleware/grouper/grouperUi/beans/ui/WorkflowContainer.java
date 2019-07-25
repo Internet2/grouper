@@ -7,7 +7,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
-import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstance;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceService;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -35,12 +34,12 @@ public class WorkflowContainer {
    */
   private List<String> errors = new ArrayList<String>();
   
-  private List<GrouperWorkflowInstance> workflowInstances = new ArrayList<GrouperWorkflowInstance>();
+  private List<GuiGrouperWorkflowInstance> workflowInstances = new ArrayList<GuiGrouperWorkflowInstance>();
   
   /**
    * instance user is viewing
    */
-  private GrouperWorkflowInstance workflowInstance;
+  private GuiGrouperWorkflowInstance workflowInstance;
   
   
   /**
@@ -184,22 +183,20 @@ public class WorkflowContainer {
   }
 
 
-  public GrouperWorkflowInstance getWorkflowInstance() {
-    return workflowInstance;
-  }
-
-  public void setWorkflowInstance(GrouperWorkflowInstance workflowInstance) {
-    this.workflowInstance = workflowInstance;
-  }
-  
-  
-  
-  public List<GrouperWorkflowInstance> getWorkflowInstances() {
+  public List<GuiGrouperWorkflowInstance> getWorkflowInstances() {
     return workflowInstances;
   }
 
-  public void setWorkflowInstances(List<GrouperWorkflowInstance> workflowInstances) {
+  public void setWorkflowInstances(List<GuiGrouperWorkflowInstance> workflowInstances) {
     this.workflowInstances = workflowInstances;
+  }
+
+  public GuiGrouperWorkflowInstance getWorkflowInstance() {
+    return workflowInstance;
+  }
+
+  public void setWorkflowInstance(GuiGrouperWorkflowInstance workflowInstance) {
+    this.workflowInstance = workflowInstance;
   }
 
   /**
@@ -214,7 +211,7 @@ public class WorkflowContainer {
         GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
           @Override
           public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            return GrouperWorkflowInstanceService.canInstanceBeApproved(workflowInstance, loggedInSubject);
+            return GrouperWorkflowInstanceService.canInstanceBeApproved(workflowInstance.getGrouperWorkflowInstance(), loggedInSubject);
           }
     });
     return canApproveDisApprove;

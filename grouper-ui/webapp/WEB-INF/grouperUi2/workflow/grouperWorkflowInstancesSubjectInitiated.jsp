@@ -35,13 +35,14 @@
             </tr>
           </thead>
           <tbody>
-            <c:forEach items="${grouperRequestContainer.workflowContainer.workflowInstances}" var="instance">
+            <c:forEach items="${grouperRequestContainer.workflowContainer.workflowInstances}" var="guiInstance">
+              <c:set var="instance" value="${guiInstance.grouperWorkflowInstance}" />
               <tr>
                 
                 <td style="white-space: nowrap;">
                   ${instance.grouperWorkflowConfig.workflowConfigName}
                 </td>
-                   
+                
                 <td style="white-space: nowrap;">
                  ${instance.workflowInstanceState}
                 </td>

@@ -14,7 +14,8 @@
               
    </div>
    
-   <c:set  value="${grouperRequestContainer.workflowContainer.workflowInstance}" var="instance"/>
+   <c:set  value="${grouperRequestContainer.workflowContainer.workflowInstance}" var="guiInstance"/>
+   <c:set  value="${guiInstance.grouperWorkflowInstance}" var="instance"/>
    <form class="form-inline form-small form-filter" id="approveWorkflowId">
    <div class="row-fluid">
      <div class="span12">

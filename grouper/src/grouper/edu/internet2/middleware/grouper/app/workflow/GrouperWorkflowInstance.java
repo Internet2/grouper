@@ -7,54 +7,12 @@ import java.util.Date;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowInstance {
-  
-  public static void main(String[] args) {
-    
-    Document document = Jsoup.parse("Fill out this form to be added to this group.<br /><br />\n" + 
-        "Several approvals will take place which usually take less than 2 business days<br /><br />\n" + 
-        "State the reason you would like this access: <input type=\"text\" name=\"reason\" id=\"reasonId\" /><br /><br >\n" + 
-        "<input type=\"checkbox\" name=\"agreeToTerms\" id=\"agreeToTermsId\" /> I agree this this institutions' <a href=\"https://whatever.whatever/whatever\">terms and conditions</a><br /><br />\n" + 
-        "Notes: <textarea rows=\"4\" cols=\"50\" name=\"notes\" id=\"notesId\"></textarea><br /><br />\n" + 
-        "Notes for approvers: <textarea rows=\"4\" cols=\"50\" name=\"notesForApprovers\" id=\"notesForApproversId\"></textarea><br /><br />");
-    
-//    Elements allElements = document.getAllElements();
-//    for (Element e: allElements) {
-//      System.out.println("element is "+e);
-//    }
-    
-    Elements textAreas = document.getElementsByTag("textarea");
-    for (Element e: textAreas) {
-      System.out.println("one field is "+e.toString());
-      System.out.println("name of field is "+e.attr("name"));
-      System.out.println("type of field is "+e.attr("type"));
-    }
-    
-    Elements elements = document.getElementsByAttributeValue("type", "textarea");
-    for (Element e: elements) {
-      System.out.println("text element is "+e.toString());
-    }
-    
-    Element element1 = document.selectFirst("[name=notes]");
-    element1.val("these are the notes");
-    element1.attr("disabled", "disabled");
-    
-    Element element2 = document.selectFirst("[name=agreeToTerms]");
-    element2.attr("disabled", "disabled");
-    
-    String changedHtml = document.html();
-    System.out.println(changedHtml);
-    
-    
-  }
   
   /**
    * logger 
@@ -240,6 +198,11 @@ public class GrouperWorkflowInstance {
    * group on which this instance is hanging off
    */
   private GrouperObject ownerGrouperObject;
+  
+  /**
+   * initiator subject
+   */
+  private Subject initiatorSubject;
 
   /**
    * workflow config this instance is child of
@@ -846,6 +809,21 @@ public class GrouperWorkflowInstance {
     this.ownerGrouperObject = ownerGrouperObject;
   }
 
+  /**
+   * initiator subject
+   * @return
+   */
+  public Subject getInitiatorSubject() {
+    return initiatorSubject;
+  }
+
+  /**
+   * initiator subject
+   * @param initiatorSubject
+   */
+  public void setInitiatorSubject(Subject initiatorSubject) {
+    this.initiatorSubject = initiatorSubject;
+  }
 
   /**
    * build instance file info object from json string
@@ -893,43 +871,6 @@ public class GrouperWorkflowInstance {
       throw new RuntimeException("could not convert json string to GrouperWorkflowInstanceParamValue object", e);
     }
   }
-  
-//  /**
-//   * build html form with values
-//   * @return
-//   */
-//  public String htmlFormWithValues() {
-//    
-//    String htmlForm = grouperWorkflowConfig.buildHtml(workflowInstanceState);
-//    
-//    Document document = Jsoup.parse(htmlForm);
-//    
-//    GrouperWorkflowConfigParams configParams = grouperWorkflowConfig.getConfigParams();
-//    
-//    for (int i =0; i<configParams.getParams().size(); i++) {
-//      GrouperWorkflowConfigParam workflowConfigParam = configParams.getParams().get(i);
-//      try {
-//        Method method = this.getClass().getMethod("getGrouperWorkflowInstanceParamValue"+String.valueOf(i));
-//        GrouperWorkflowInstanceParamValue paramValueObject = (GrouperWorkflowInstanceParamValue) method.invoke(this);
-//        
-//        String value = paramValueObject.getParamValue();
-//        
-//        Element element = document.selectFirst("[name="+workflowConfigParam.getParamName()+"]");
-//        if (workflowConfigParam.getType().equals("checkbox")) {
-//          if (StringUtils.isNotBlank(value) && value.equals("on")) {
-//            element.attr("checked", "checked");
-//          }
-//        } else {
-//          element.val(value);
-//        }
-//      } catch (Exception e) {
-//        throw new RuntimeException("Error occurred setting param values.");
-//      }
-//    }
-//    
-//    return document.html();
-//    
-//  }
 
   @Override
   public int hashCode() {

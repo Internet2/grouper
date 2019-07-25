@@ -92,7 +92,7 @@ public class GrouperWorkflowConfigValidator {
     
     GrouperWorkflowConfigParams configParams = validateConfigParams(config, approvalStates, errors);
     
-    errors.addAll(validateConfigHtmlForm(config, configParams));
+    validateConfigHtmlForm(config, configParams, errors);
 
     if (StringUtils.isNotBlank(config.getWorkflowConfigViewersGroupId())) {
       Group workflowViewersGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), config.getWorkflowConfigViewersGroupId(), false);
@@ -107,7 +107,6 @@ public class GrouperWorkflowConfigValidator {
     if (StringUtils.isBlank(config.getWorkflowConfigEnabled())) {
       errors.add(contentKeys.get("workflowConfigEnabledRequiredError"));
     }
-
     
     List<String> validEnabledValues = Arrays.asList(WORKFLOW_CONFIG_ENABLED_TRUE, WORKFLOW_CONFIG_ENABLED_FALSE, WORKFLOW_CONFIG_ENABLED_NO_NEW_SUBMISSIONS);
 
@@ -361,9 +360,8 @@ public class GrouperWorkflowConfigValidator {
   }
   
   private  List<String> validateConfigHtmlForm(GrouperWorkflowConfig config,
-      GrouperWorkflowConfigParams configParams) {
+      GrouperWorkflowConfigParams configParams, List<String> errors) {
     
-    final List<String> errors = new ArrayList<String>();
     final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
     
     try {
@@ -377,6 +375,7 @@ public class GrouperWorkflowConfigValidator {
           String error = contentKeys.get("workflowConfigFormElementNotFoundInJsonParams");
           error = error.replace("$$elementName$$", nameOfElement);
           error = error.replace("$$elementType$$", inputElement.attr("type"));
+          errors.add(error);
         }
       }
       
@@ -388,6 +387,7 @@ public class GrouperWorkflowConfigValidator {
           String error = contentKeys.get("workflowConfigFormElementNotFoundInJsonParams");
           error = error.replace("$$elementName$$", nameOfElement);
           error = error.replace("$$elementType$$", "textarea");
+          errors.add(error);
         }
       }
     } catch(Exception e) {
