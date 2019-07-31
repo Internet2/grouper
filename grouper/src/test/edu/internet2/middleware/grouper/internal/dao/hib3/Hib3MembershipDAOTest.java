@@ -22,12 +22,22 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -110,5 +120,65 @@ public class Hib3MembershipDAOTest extends GrouperTest {
       Hib3MembershipDAO.batchSize = originalBatchSize;
     }
   }
+
+  /**
+   * (see GRP-2106) effective memberships from multiple sources should not be double counted.
+   * For related tests, see also {@link edu.internet2.middleware.grouper.MembershipFinderTest#testMembershipSizeWithMultipleEffective()}
+   * @throws Exception
+   */
+  public void testRetrieveMembersDistinct() throws Exception {
+    //lets add some members
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
+    Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
+    Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
+    Group group4 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup4").save();
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.addMember(SubjectTestHelper.SUBJ1);
+    group1.addMember(SubjectTestHelper.SUBJ2);
+    group2.addMember(SubjectTestHelper.SUBJ1);
+    group2.addMember(SubjectTestHelper.SUBJ2);
+    group2.addMember(SubjectTestHelper.SUBJ3);
+    group3.addMember(group1.toSubject());
+    group3.addMember(group2.toSubject());
+    group4.addMember(SubjectTestHelper.SUBJ1);
+
+    Field grouperMemberField = FieldFinder.find("members", true);
+    Set<Source> nonGroupSourcesCache = SubjectHelper.nonGroupSources();
+
+    /* SUBJ1 amd SUBJ2 have 2 effective memberships in group3, should not double count the unique members */
+    QueryOptions queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(true);
+    Set<Member> members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndFieldAndType(group3.getId(), grouperMemberField, null, queryOptions, true);
+    assertEquals(6, members.size());
+    assertEquals(6, queryOptions.getCount().intValue());
+
+    /* same as above, but just indirect members */
+    queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(true);
+    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndFieldAndType(group3.getId(), grouperMemberField, "effective", queryOptions, true);
+    assertEquals(4, members.size());
+    assertEquals(4, queryOptions.getCount().intValue());
+
+
+    /* similar as above, but a different method that can specify the sources */
+    queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(true);
+    members = new Hib3MembershipDAO().findAllMembersByGroupOwnerAndField(group3.getId(), grouperMemberField, nonGroupSourcesCache, queryOptions, true);
+    assertEquals(4, members.size());
+    assertEquals(4, queryOptions.getCount().intValue());
+
+    /* effective group3 memberships not in group4 includes SUBJ2 twice; don't double count it */
+    queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(true);
+    members = new Hib3MembershipDAO().findAllMembersInOneGroupNotOtherAndType(group3.getId(), group4.getId(), "effective", null, queryOptions, true, false);
+    assertEquals(3, members.size());
+    assertEquals(3, queryOptions.getCount().intValue());
+
+    /* For an attribute privilege, do not double count effective permissions from multiple paths (SUBJ1 and SUBJ2) */
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef").assignCreateParentStemsIfNotExist(true).save();
+    attributeDef.getPrivilegeDelegate().grantPriv(group3.toSubject(), AttributeDefPrivilege.ATTR_READ, false);
+    queryOptions = new QueryOptions().retrieveResults(true).retrieveCount(true);
+    members = new Hib3MembershipDAO().findAllMembersByAttrDefOwnerAndFieldAndType(attributeDef.getId(), FieldFinder.find("attrReaders", true), "effective", queryOptions, true);
+    assertEquals(6, members.size());
+    assertEquals(6, queryOptions.getCount().intValue());
+  }
+
   
 }

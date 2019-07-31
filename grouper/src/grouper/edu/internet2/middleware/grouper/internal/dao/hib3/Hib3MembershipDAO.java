@@ -463,7 +463,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException {
-    StringBuilder sql = new StringBuilder("select m"
+    StringBuilder sql = new StringBuilder("select distinct m"
         + " from Member m, MembershipEntry ms where"
         + " ms.ownerGroupId      = :owner "
         + "and  ms.fieldId = :fieldId "
@@ -2431,7 +2431,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
     
-    StringBuilder sql = new StringBuilder("select m "
+    StringBuilder sql = new StringBuilder("select distinct m "
         + "from Member m, MembershipEntry ms where "
         + "ms.ownerAttrDefId = :owner "
         + "and ms.fieldId = :fieldId "
@@ -2907,7 +2907,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     MembershipType typeInEnum = MembershipType.valueOfIgnoreCase(typeIn, false);
     MembershipType typeNotInEnum = MembershipType.valueOfIgnoreCase(typeNotIn, false);
-    StringBuilder sql = new StringBuilder("select m from MembershipEntry as inMembershipEntry, Member as m where  "
+    StringBuilder sql = new StringBuilder("select distinct m from MembershipEntry as inMembershipEntry, Member as m where  "
         + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            ");
     
     if (disabledOwnerNull) {
@@ -2950,6 +2950,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS)
+      .options(queryOptions)
       .setString( "ownerInGroupId" , ownerInGroupId                 )
       .setString( "ownerNotInGroupId" , ownerNotInGroupId                 )
       .listSet(Member.class);
