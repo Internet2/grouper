@@ -29,9 +29,19 @@ public class EmailObject {
   
   private String groupId;
   private String groupName;
+  private String stemId;
+  private String stemName;
   private Set<String> ccEmails;
   
   public EmailObject(String groupId, String groupName, Set<String> ccEmails) {
+    this.groupId = groupId;
+    this.groupName = groupName;
+    this.ccEmails = ccEmails;
+  }
+  
+  public EmailObject(String groupId, String groupName, String stemId, String stemName, Set<String> ccEmails) {
+    this.stemId = stemId;
+    this.stemName = stemName;
     this.groupId = groupId;
     this.groupName = groupName;
     this.ccEmails = ccEmails;
@@ -56,6 +66,8 @@ public class EmailObject {
    .append(groupId)
    .append(groupName)
    .append(ccEmails)
+   .append(stemId)
+   .append(stemName)
    .toHashCode();
   }
 
@@ -73,6 +85,8 @@ public class EmailObject {
         .append(this.groupId, other.groupId)
         .append(this.groupName, other.groupName)
         .append(this.ccEmails, other.ccEmails)
+        .append(this.stemId, other.stemId)
+        .append(this.stemName, other.stemName)
         .isEquals();
   }
 
@@ -80,6 +94,22 @@ public class EmailObject {
   public String toString() {
     return "EmailObject [groupId=" + groupId + ", groupName=" + groupName
         + ", ccEmails=" + ccEmails + "]";
+  }
+
+  
+  /**
+   * @return the stemId
+   */
+  public String getStemId() {
+    return stemId;
+  }
+
+  
+  /**
+   * @return the stemName
+   */
+  public String getStemName() {
+    return stemName;
   }
   
 }
