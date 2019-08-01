@@ -26,7 +26,9 @@ import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -137,7 +139,14 @@ public class RegistryReset {
    * 
    */
   public static void internal_resetRegistryAndAddTestSubjects() { 
-    internal_resetRegistryAndAddTestSubjects(true);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        internal_resetRegistryAndAddTestSubjects(true);
+        return null;
+      }
+    });
+    
   }
   
   /**

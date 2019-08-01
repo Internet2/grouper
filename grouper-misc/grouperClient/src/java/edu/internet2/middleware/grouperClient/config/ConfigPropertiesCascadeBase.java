@@ -73,12 +73,13 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public static void assignInitted() {
     initted = true;
+    databaseConfigCacheLastRetrieved = -1;
     databaseConfigCache.clear();
     configSingletonFromClass = null;
     configFileCache = null;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("initted called from", new RuntimeException("initted"));
-    }
+//    if (LOG.isDebugEnabled()) {
+//      LOG.debug("initted called from", new RuntimeException("initted"));
+//    }
   }
   
   /**
@@ -663,6 +664,9 @@ public abstract class ConfigPropertiesCascadeBase {
   
           debugMap.put("hasDatabaseConfig", hasDatabaseConfig);
 
+          // get from cache
+          Map<String, String> cachedPropertiesForThisConfigFileName = ConfigPropertiesCascadeBase.databaseConfigCache.get(mainConfigFileName);
+          
           if (hasDatabaseConfig) {
             
             int cacheForSeconds = GrouperHibernateConfigClient.retrieveConfig().propertyValueInt("grouper.cache.database.configs.seconds", 120);
@@ -769,6 +773,10 @@ public abstract class ConfigPropertiesCascadeBase {
                     gcJdbcConnectionBean.doneWithConnectionFinally();
                   }
   
+//                  LOG.debug("From db: " + GrouperClientUtils.mapToString(databaseConfigCacheTemp));
+                  
+                  cachedPropertiesForThisConfigFileName = databaseConfigCacheTemp.get(mainConfigFileName);
+                  
                   ConfigPropertiesCascadeBase.databaseConfigCache = databaseConfigCacheTemp;
                   ConfigPropertiesCascadeBase.databaseConfigCacheLastRetrieved = System.currentTimeMillis();
                   databaseConfigRefreshCount++;
@@ -781,9 +789,9 @@ public abstract class ConfigPropertiesCascadeBase {
               }
   
             }
-            // get from cache
-            Map<String, String> cachedPropertiesForThisConfigFileName = ConfigPropertiesCascadeBase.databaseConfigCache.get(mainConfigFileName);
             
+//            LOG.debug("From cache: " + GrouperClientUtils.mapToString(ConfigPropertiesCascadeBase.databaseConfigCache));
+
             if (cachedPropertiesForThisConfigFileName != null) {
               for (String key : cachedPropertiesForThisConfigFileName.keySet()) {
                 properties.put(key, cachedPropertiesForThisConfigFileName.get(key));
