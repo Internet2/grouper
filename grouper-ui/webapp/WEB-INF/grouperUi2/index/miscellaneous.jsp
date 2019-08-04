@@ -16,7 +16,7 @@
                 <div class="row-fluid">
                   <div class="span1">
                     <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.configure');" style="white-space: nowrap;"
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.index');" style="white-space: nowrap;"
                       >${textContainer.text['adminConfigureLink'] }</a>
                     </c:if>
                     <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
