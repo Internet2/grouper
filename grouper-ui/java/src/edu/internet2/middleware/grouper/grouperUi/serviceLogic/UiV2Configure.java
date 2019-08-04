@@ -153,6 +153,35 @@ public class UiV2Configure {
    * @param request
    * @param response
    */
+  public void index(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/configure/configureIndex.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * configure
+   * @param request
+   * @param response
+   */
   public void configure(HttpServletRequest request, HttpServletResponse response) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
