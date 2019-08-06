@@ -227,6 +227,25 @@ public abstract class ConfigPropertiesCascadeBase {
   }
   
   /**
+   * 
+   * @param properties
+   * @param propertyName
+   * @param propertyValue
+   */
+  private static void assignProperty(Properties properties, String propertyName, String propertyValue) {
+    //make sure to remove .elConfig if this is not an elconfig
+    if (propertyName == null) {
+      return;
+    }
+    if (propertyName.endsWith(".elConfig")) {
+      properties.remove(GrouperClientUtils.stripEnd(propertyName, ".elConfig"));
+    } else {
+      properties.remove(propertyName + ".elConfig");
+    }
+    properties.put(propertyName, propertyValue);
+  }
+  
+  /**
    * get the properties object for this config file
    * @param setValues if we should set the values for the properties.  
    * if not, the values might not be correct, but this will be more performant
@@ -242,13 +261,13 @@ public abstract class ConfigPropertiesCascadeBase {
     Map<String, String> localPropertiesOverrideMap = propertiesOverrideMap();
     
     for (String key: localPropertiesOverrideMap.keySet()) {
-      tempResult.put(key, ConfigPropertiesCascadeUtils.defaultString(localPropertiesOverrideMap.get(key)));
+      assignProperty(tempResult, key, ConfigPropertiesCascadeUtils.defaultString(localPropertiesOverrideMap.get(key)));
     }
     
     localPropertiesOverrideMap = propertiesThreadLocalOverrideMap();
     
     for (String key: localPropertiesOverrideMap.keySet()) {
-      tempResult.put(key, ConfigPropertiesCascadeUtils.defaultString(localPropertiesOverrideMap.get(key)));
+      assignProperty(tempResult, key, ConfigPropertiesCascadeUtils.defaultString(localPropertiesOverrideMap.get(key)));
     }
 
     Properties result = new Properties();
@@ -1220,11 +1239,16 @@ public abstract class ConfigPropertiesCascadeBase {
       configFile.setContents(configFileContents);
       
       try {
-        result.properties.load(new StringReader(configFileContents));
-
         // keep a copy in here for config screen
         configFile.setProperties(new Properties());
         configFile.getProperties().load(new StringReader(configFileContents));
+
+        // cycle through so we get the right .elConfigs
+        for (Object key : configFile.getProperties().keySet()) {
+          String keyString = (String)key;
+          assignProperty(result.properties, keyString, configFile.getProperties().getProperty(keyString));
+          //result.properties.load(new StringReader(configFileContents));
+        }
 
       } catch (Exception e) {
         throw new RuntimeException("Problem loading properties: " + overrideConfigString, e);

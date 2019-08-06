@@ -87,7 +87,7 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    */
   GROUP_COMPOSITE_ADD(new AuditType("groupComposite", "addGroupComposite", null, "id", "ownerId", 
       "ownerName", "leftFactorId", "leftFactorName", "rightFactorId", "rightFactorName", "type")),
-  
+
   /**
    * update group composite
    */
@@ -652,8 +652,26 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * download report for group
    */
-  GROUP_REPORT_DOWNLONAD(new AuditType("groupReportConfig", "downloadGroupReport", null, "groupId", "groupName", "reportInstanceId"));
+  GROUP_REPORT_DOWNLONAD(new AuditType("groupReportConfig", "downloadGroupReport", null, "groupId", "groupName", "reportInstanceId")),
   
+  /**
+   * add configuration
+   */
+  CONFIGURATION_ADD(new AuditType("configurationFile", "addConfigEntry", null, "id", "configFile", 
+      "key", "value", "configHierarchy")),
+
+  /**
+   * update configuration
+   */
+  CONFIGURATION_UPDATE(new AuditType("configurationFile", "updateConfigEntry", null, "id", "configFile", 
+      "key", "value", "configHierarchy", "previousValue")),
+
+  /**
+   * delete configuration
+   */
+  CONFIGURATION_DELETE(new AuditType("configurationFile", "deleteConfigEntry", null, "id", "configFile", 
+      "key", "value", "configHierarchy"));
+
   /**
    * defaults for audit type, though doesnt hold the id
    */

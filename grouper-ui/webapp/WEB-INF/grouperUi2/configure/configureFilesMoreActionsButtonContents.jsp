@@ -11,8 +11,11 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="configure-files-more-options">
                         <%-- main link --%>
                             <li><a href="#" 
-                            onclick="ajax('../app/UiV2Configure.configure'); return false;" 
+                            onclick="return guiV2link('operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
                             >${textContainer.text['configurationFilesMenuIndex'] }</a></li>
+                            <li><a href="#" 
+                            onclick="return guiV2link('operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+                            >${textContainer.text['configurationFilesMenuAddConfig'] }</a></li>
                       </ul>
                     </div>
 

@@ -4,17 +4,16 @@
               <ul class="breadcrumb">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                  <li class="active">${textContainer.text['miscellaneousConfigureBreadcrumb'] }</li>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2Configure.index');">${textContainer.text['miscellaneousConfigureBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li class="active">${textContainer.text['miscellaneousConfigurationFilesBreadcrumb'] }</li>
               </ul>
                             
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
-                  <div class="lead span9"><h1>${textContainer.text['miscellaneousConfigurationMainDescription'] }</h1></div>
-                  <%-- c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
-                      <div class="span3" id="deprovisioningMainMoreActionsButtonContentsDivId">
-                        <%@ include file="deprovisioningMainMoreActionsButtonContents.jsp" %>
-                      </div>
-                  </c:if --%>
+                  <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousConfigurationMainDescription'] }</h1></div>
+                  <div class="span2 pull-right">
+                    <%@ include file="configureFilesMoreActionsButtonContents.jsp"%>
+                  </div>
                 </div>
                 <div class="row-fluid">
                   <div class="span12">
@@ -29,7 +28,7 @@
                      <div class="controls">
                        <%-- --%>
                        <select id="configFileSelect" class="span4" name="configFile" 
-                            onchange="ajax('../app/UiV2Configure.configureSelectFile', {formIds: 'configurationSelectForm'}); return false;"
+                            onchange="guiV2link('operation=UiV2Configure.configureSelectFile', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             <%--   onchange="return guiV2link('operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'});" --%>
                               >
                           <option value=""></option>
@@ -97,9 +96,8 @@
                         <c:set value="${guiConfigProperty.configItemMetadata}" var="configItemMetadata" />
                         <tr>
                           <td style="vertical-align: top">
-                            <b>${grouper:escapeHtml(configItemMetadata.keyOrSampleKey)}</b>
+                            <b>${grouper:escapeHtml(configItemMetadata.keyOrSampleKey)}</b><br />
                             <c:if test="${guiConfigProperty.hasType}">
-                              <br />
                               <span style="font-size: 90%">${textContainer.text['configurationTypeLabel']} ${grouper:escapeHtml(guiConfigProperty.type) }</span>
                             </c:if>
                             <c:if test="${configItemMetadata.multiple}">
@@ -114,32 +112,18 @@
                             
                           </td>
                           <td style="vertical-align: top">
-                            <b>${grouper:escapeHtml(guiConfigProperty.propertyValue)}</b>
-                            <c:if test="${guiConfigProperty.scriptlet}">
-                              <br />
+                            <%-- keep whitespace out of the equation to make copy/paste on screen easier --%>
+                            <b>${grouper:escapeHtml(guiConfigProperty.propertyValue)}</b><c:if test="${guiConfigProperty.scriptlet}"><br />
                               <span style="font-size: 90%">${textContainer.text['configurationElScriptletLabel']} ${grouper:escapeHtml(guiConfigProperty.scriptletForUi) }</span>
-                            </c:if>
-                            
-                            <c:if test="${! grouper:isBlank(guiConfigProperty.unprocessedValueIfDifferent)}">
-                              <br />
+                            </c:if><c:if test="${! grouper:isBlank(guiConfigProperty.unprocessedValueIfDifferent)}"><br />
                               <span style="font-size: 90%">${textContainer.text['configurationUnprocessedValueIfDifferentLabel']} ${grouper:escapeHtml(guiConfigProperty.unprocessedValueIfDifferent) }</span>
-                            </c:if>
-
-                            
-                            <c:if test="${! grouper:isBlank(guiConfigProperty.cronDescription)}">
-                              <br />
+                            </c:if><c:if test="${! grouper:isBlank(guiConfigProperty.cronDescription)}"><br />
                               <span style="font-size: 90%">${textContainer.text['configurationCronLabel']} ${grouper:escapeHtml(guiConfigProperty.cronDescription) }</span>
-                            </c:if>
-
-                            <c:if test="${! grouper:isBlank(configItemMetadata.sampleValue)}">
-                              <br />
+                            </c:if><c:if test="${! grouper:isBlank(configItemMetadata.sampleValue)}"><br />
                               <span style="font-size: 90%">${textContainer.text['configurationSampleValueLabel']} ${grouper:escapeHtml(configItemMetadata.sampleValue) }</span>
-                            </c:if>
-                            <c:if test="${! grouper:isBlank(configItemMetadata.comment)}">
-                              <br />
+                            </c:if><c:if test="${! grouper:isBlank(configItemMetadata.comment)}"><br />
                               <span style="font-size: 90%">${grouper:escapeHtml(configItemMetadata.comment) }</span>
-                            </c:if>
-                          </td>
+                            </c:if></td>
                           <td style="vertical-align: top; white-space: nowrap">
                             ${guiConfigProperty.valueFromWhere}
                             <c:if test="${! grouper:isBlank(guiConfigProperty.baseValueIfDifferent)}">

@@ -17,7 +17,7 @@
                 <div class="row-fluid">
                   <div class="span1">
                     <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Configure.configure');" style="white-space: nowrap;"
-                    >${textContainer.text['adminConfigureLink'] }</a>
+                    >${textContainer.text['configurationIndexConfigFiles'] }</a>
                   </div>
                 </div>
               </div>
