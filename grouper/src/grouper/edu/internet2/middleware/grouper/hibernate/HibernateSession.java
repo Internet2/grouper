@@ -176,21 +176,23 @@ public class HibernateSession {
         }
       }
       
-      //if readonly, then dont allow read/write transactions
-      boolean readonlyMode = isReadonlyMode();
-
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("readonlyMode", readonlyMode);
-      }
-        
-      if (readonlyMode) {
-        if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
-          grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
+      if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
+        //if readonly, then dont allow read/write transactions
+        boolean readonlyMode = isReadonlyMode();
+  
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("readonlyMode", readonlyMode);
+        }
           
-          if (LOG.isDebugEnabled() && grouperTransactionType != originalGrouperTransactionType) {
-            debugMap.put("readonlyGrouperTransactionTypeChangedTo", grouperTransactionType);
+        if (readonlyMode) {
+          if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
+            grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
+            
+            if (LOG.isDebugEnabled() && grouperTransactionType != originalGrouperTransactionType) {
+              debugMap.put("readonlyGrouperTransactionTypeChangedTo", grouperTransactionType);
+            }
+            originalGrouperTransactionType = grouperTransactionType;
           }
-          originalGrouperTransactionType = grouperTransactionType;
         }
       }
       
