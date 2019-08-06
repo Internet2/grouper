@@ -981,7 +981,9 @@ public class SubjectSourceCache {
           cacheKey = new MultiKey(sourceId, isId ? "id" : "identifier", idOrIdentifier);
         }
         
-        subjectSourceCacheItem = subjectCache.get(cacheKey);
+        if (cacheKey != null) {
+          subjectSourceCacheItem = subjectCache.get(cacheKey);
+        }
         
         if (LOG.isDebugEnabled()) {
           debugMap.put("subjectSourceCacheItemNull", true);
