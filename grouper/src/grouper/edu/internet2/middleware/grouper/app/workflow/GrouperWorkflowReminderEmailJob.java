@@ -88,7 +88,7 @@ public class GrouperWorkflowReminderEmailJob extends OtherJobBase {
   private Set<GrouperWorkflowInstance> instancesNeedingEmail(Set<Group> groups) {
     
     Set<GrouperWorkflowInstance> instancesNeedingEmail = new HashSet<GrouperWorkflowInstance>();
-    List<String> statesToIgnore = Arrays.asList(EXCEPTION_STATE, COMPLETE_STATE, INITIATE_STATE, REJECTED_STATE );
+    List<String> statesToIgnore = Arrays.asList(EXCEPTION_STATE, COMPLETE_STATE, INITIATE_STATE, REJECTED_STATE);
     
     for (Group group: groups) {
       List<GrouperWorkflowInstance> instances = GrouperWorkflowInstanceService.getWorkflowInstances(group);

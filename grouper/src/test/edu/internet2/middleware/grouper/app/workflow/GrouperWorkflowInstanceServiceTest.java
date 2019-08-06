@@ -47,7 +47,7 @@ private GrouperSession grouperSession;
     AttributeAssign instanceAttributeAssign = saveWorkflowInstanceAttributeMetadata(group, configAttributeAssign.getId());
     
     // when
-    GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(instanceAttributeAssign.getId());
+    GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkflowInstance(instanceAttributeAssign.getId());
     
     // then
     assertEquals(configAttributeAssign.getId(), workfowInstance.getWorkflowInstanceConfigMarkerAssignmentId());

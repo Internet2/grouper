@@ -78,10 +78,12 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
     GrouperSession session = GrouperSession.startRootSession();
-    Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
-    Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
+//    Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
+//    Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
+//    
+//    updateInstances(instancesNeedingEmail, session);
     
-    updateInstances(instancesNeedingEmail, session);
+    GrouperWorkflowInstanceService.updateCache();
     
     return null;
   }
@@ -240,7 +242,7 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
           LOG.error("No approvers found for workflow config id: "+parentWorkflowConfig.getWorkflowConfigId());
         }
         for (Subject approverSubject: approvers) {
-          if (addressObjects.containsKey(approverSubject)) {            
+          if (addressObjects.containsKey(approverSubject)) {           
             addressObjects.get(approverSubject).add(instance);
           } else {
             Set<GrouperWorkflowInstance> instances = new HashSet<>();

@@ -825,7 +825,7 @@ public class UiV2GrouperWorkflow {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(attributeAssignId);
+          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkflowInstance(attributeAssignId);
           if (!GrouperWorkflowInstanceService.canInstanceBeViewed(workfowInstance, loggedInSubject)) {
             throw new RuntimeException("Operation not permitted");
           }
@@ -932,7 +932,7 @@ public class UiV2GrouperWorkflow {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(attributeAssignId);
+          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkflowInstance(attributeAssignId);
           
           if (!GrouperWorkflowInstanceService.canInstanceBeApproved(workfowInstance, loggedInSubject)) {
             throw new RuntimeException("Operation not permitted");
@@ -1008,7 +1008,7 @@ public class UiV2GrouperWorkflow {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkfowInstance(attributeAssignId);
+          GrouperWorkflowInstance workfowInstance = GrouperWorkflowInstanceService.getWorkflowInstance(attributeAssignId);
           
           if (!GrouperWorkflowInstanceService.canInstanceBeApproved(workfowInstance, loggedInSubject)) {
             throw new RuntimeException("Operation not permitted");

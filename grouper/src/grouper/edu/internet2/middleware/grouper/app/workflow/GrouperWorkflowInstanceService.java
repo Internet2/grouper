@@ -1,14 +1,14 @@
 package edu.internet2.middleware.grouper.app.workflow;
 
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.APPROVE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.COMPLETE_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.DISAPPROVE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.EXCEPTION_STATE;
+import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.REJECTED_STATE;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefNameBase;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.APPROVE_ACTION;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.DISAPPROVE_ACTION;
-import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConstants.INITIATE_ACTION;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings.workflowStemName;
 
 import java.io.File;
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +67,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 
@@ -76,12 +78,95 @@ public class GrouperWorkflowInstanceService {
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperWorkflowInstanceService.class);
   
+  private static ExpirableCache<Subject, Set<GrouperWorkflowInstance>> subjectInitiatedInstances = new ExpirableCache<Subject, Set<GrouperWorkflowInstance>>(5);
+  
+  private static ExpirableCache<Subject, Set<GrouperWorkflowInstance>> subjectWaitingForApprovalInstances = new ExpirableCache<Subject, Set<GrouperWorkflowInstance>>(5);
+  private static ExpirableCache<GrouperWorkflowInstance, Set<Subject>> instancesWaitingForApproval = new ExpirableCache<GrouperWorkflowInstance, Set<Subject>>(5);
+
+  private static final List<String> statesToIgnoreForInitiateCache = Arrays.asList(EXCEPTION_STATE, COMPLETE_STATE, REJECTED_STATE);
+  
+  /**
+   * update cache
+   */
+  public static void updateCache() {
+    
+    synchronized (GrouperWorkflowInstanceService.class) {
+
+      Set<Group> groupsWithWorkflowInstance = findGroupsWithWorkflowInstance();
+      
+      for (Group group: groupsWithWorkflowInstance) {
+        
+        for (final GrouperWorkflowInstance instance: getWorkflowInstances(group)) {
+          updateCache(instance);
+        }
+      }
+    }
+  }
+  
+  private static void updateCache(final GrouperWorkflowInstance instance) {
+    
+    synchronized (GrouperWorkflowInstanceService.class) {
+      
+      Subject subjetWhoInitiated = subjectWhoInitiatedWorkflow(instance);
+      
+      if (!statesToIgnoreForInitiateCache.contains(instance.getWorkflowInstanceState())) {
+        if (subjetWhoInitiated == null) {
+          LOG.error("For workflow config id: "+instance.getGrouperWorkflowConfig().getWorkflowConfigId()+" subject that requested to join the group no longer exists.");
+        } else {
+          if (subjectInitiatedInstances.get(subjetWhoInitiated) != null) {
+            subjectInitiatedInstances.get(subjetWhoInitiated).add(instance);
+          } else {
+            Set<GrouperWorkflowInstance> instancesInitiated = new HashSet<GrouperWorkflowInstance>();
+            instancesInitiated.add(instance);
+            subjectInitiatedInstances.put(subjetWhoInitiated, instancesInitiated);
+          }
+        }
+      } else {
+        if (subjectInitiatedInstances.get(subjetWhoInitiated) != null) {
+          subjectInitiatedInstances.get(subjetWhoInitiated).remove(instance);
+        }
+      }
+        
+      GrouperWorkflowConfig grouperWorkflowConfig = instance.getGrouperWorkflowConfig();
+      GrouperWorkflowApprovalStates approvalStates = grouperWorkflowConfig.getWorkflowApprovalStates();
+      
+      for (GrouperWorkflowApprovalState state : approvalStates.getStates()) {
+        
+        List<Subject> approvers = getApprovers(state);
+        Set<Subject> subjects = new HashSet(approvers);
+        
+        if (state.getStateName().equals(instance.getWorkflowInstanceState())) {
+          instancesWaitingForApproval.put(instance, subjects);
+          
+          for (Subject subject: approvers) {
+            if (subjectWaitingForApprovalInstances.get(subject) != null) {
+              subjectWaitingForApprovalInstances.get(subject).add(instance);
+            } else {
+              Set<GrouperWorkflowInstance> instancesWaitingForApproval = new HashSet<GrouperWorkflowInstance>();
+              instancesWaitingForApproval.add(instance);
+              subjectWaitingForApprovalInstances.put(subject, instancesWaitingForApproval);
+            }
+          }
+          break;
+        }
+        
+        Set<Subject> subjectsPreviousState = instancesWaitingForApproval.get(instance);
+        for (Subject subject: subjectsPreviousState) {
+          subjectWaitingForApprovalInstances.get(subject).remove(instance);
+        }
+        
+      }
+      
+    }
+    
+  }
+  
   /**
    * get workflow instance by attribute assign id
    * @param attributeAssignId
    * @return
    */
-  public static GrouperWorkflowInstance getWorkfowInstance(String attributeAssignId) {
+  public static GrouperWorkflowInstance getWorkflowInstance(String attributeAssignId) {
     AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
     return buildWorkflowInstance(attributeAssign);
   }
@@ -121,7 +206,7 @@ public class GrouperWorkflowInstanceService {
     
     return result;
     
-  } 
+  }
   
   /**
    * @return set of groups that have workflow instances
@@ -275,6 +360,7 @@ public class GrouperWorkflowInstanceService {
     attributeAssign.saveOrUpdate();
     workflowInstance.setAttributeAssignId(attributeAssign.getId());
     
+    updateCache(workflowInstance);
   }
   
   /**
@@ -282,7 +368,7 @@ public class GrouperWorkflowInstanceService {
    * @param instance
    * @param subject
    */
-  public static void approveWorkflow(GrouperWorkflowInstance instance, Subject subject, 
+  public static void approveWorkflow(GrouperWorkflowInstance instance, Subject subject,
       Map<GrouperWorkflowConfigParam, String> paramNamesValues) {
     
     Date now = new Date();
@@ -459,31 +545,19 @@ public class GrouperWorkflowInstanceService {
    */
   public static List<GrouperWorkflowInstance> getWorkflowInstancesSubmitted(Subject subject) {
     
+    Set<GrouperWorkflowInstance> instancesSubjectInitiated = subjectInitiatedInstances.get(subject);
     List<GrouperWorkflowInstance> instancesSubmitted = new ArrayList<GrouperWorkflowInstance>();
-    Set<Group> groupsWithWorkflowInstance = findGroupsWithWorkflowInstance();
     
-    for (Group group: groupsWithWorkflowInstance) {
-      
-      List<GrouperWorkflowInstance> workflowInstances = getWorkflowInstances(group);
-      
-      for (GrouperWorkflowInstance instance: workflowInstances) {
-        
-        GrouperWorkflowConfig grouperWorkflowConfig = instance.getGrouperWorkflowConfig();
-        
-        Subject subjetWhoInitiated = subjectWhoInitiatedWorkflow(instance);
-        if (subjetWhoInitiated == null) {
-          LOG.error("For workflow config id: "+grouperWorkflowConfig.getWorkflowConfigId()+" subject that requested to join the group no longer exists.");
-          continue;
-        }
-        
-        if (subject.getId().equals(subjetWhoInitiated.getId())) {
-          instancesSubmitted.add(instance);
-        }
-      }
+    if (instancesSubjectInitiated == null) {
+      return instancesSubmitted;
+    }
+    
+    for (GrouperWorkflowInstance instance: instancesSubjectInitiated) {
+      GrouperWorkflowInstance workfowInstance = getWorkflowInstance(instance.getAttributeAssignId());
+      instancesSubmitted.add(workfowInstance);
     }
     
     return instancesSubmitted;
-    
   }
   
   /**
@@ -508,19 +582,16 @@ public class GrouperWorkflowInstanceService {
    */
   public static List<GrouperWorkflowInstance> getWorkflowInstancesWaitingForApproval(Subject subject) {
     
+    Set<GrouperWorkflowInstance> instancesForSubjectCache = subjectWaitingForApprovalInstances.get(subject);
     List<GrouperWorkflowInstance> instancesWaitingForApproval = new ArrayList<GrouperWorkflowInstance>();
     
-    Set<Group> groupsWithWorkflowInstance = findGroupsWithWorkflowInstance();
+    if (instancesForSubjectCache == null) {
+      return instancesWaitingForApproval;
+    }
     
-    for (Group group: groupsWithWorkflowInstance) {
-      
-      List<GrouperWorkflowInstance> workflowInstances = getWorkflowInstances(group);
-      
-      for (GrouperWorkflowInstance instance: workflowInstances) {
-        if (canInstanceBeApproved(instance, subject)) {
-          instancesWaitingForApproval.add(instance);
-        }
-      }
+    for (GrouperWorkflowInstance instance: instancesForSubjectCache) {
+      GrouperWorkflowInstance workflowInstance = getWorkflowInstance(instance.getAttributeAssignId());
+      instancesWaitingForApproval.add(workflowInstance);
     }
     
     return instancesWaitingForApproval;
