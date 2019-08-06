@@ -18,6 +18,48 @@ import edu.internet2.middleware.subject.Subject;
 public class ConfigurationContainer {
   
   /**
+   * config file name
+   */
+  private String currentConfigFileName;
+
+  /**
+   * 
+   * @return current config file name
+   */
+  public String getCurrentConfigFileName() {
+    return this.currentConfigFileName;
+  }
+
+  /**
+   * current config file name
+   * @param currentConfigFileName1
+   */
+  public void setCurrentConfigFileName(String currentConfigFileName1) {
+    this.currentConfigFileName = currentConfigFileName1;
+  }
+
+  /**
+   * current config property name
+   * @return 
+   */
+  public String getCurrentConfigPropertyName() {
+    return this.currentConfigPropertyName;
+  }
+
+  /**
+   * 
+   * @param currentConfigPropertyName1
+   */
+  public void setCurrentConfigPropertyName(String currentConfigPropertyName1) {
+    this.currentConfigPropertyName = currentConfigPropertyName1;
+  }
+
+  /**
+   * config property name
+   */
+  private String currentConfigPropertyName;
+  
+  /**
    * if show configure link
    * @return the configure link
    */
