@@ -78,12 +78,10 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
     GrouperSession session = GrouperSession.startRootSession();
-//    Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
-//    Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
-//    
-//    updateInstances(instancesNeedingEmail, session);
+    Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
+    Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
     
-    GrouperWorkflowInstanceService.updateCache();
+    updateInstances(instancesNeedingEmail, session);
     
     return null;
   }
